@@ -258,7 +258,7 @@ protected:
 
 		//TreeView_SetItemState(m_Hwnd, hItem, data, mask);
 		TVITEM _ms_TVi{};
-		_ms_TVi.mask = TVIF_STATE;
+		_ms_TVi.mask = TVIF_STATE | TVIF_HANDLE;
 		_ms_TVi.hItem = hItem;
 		_ms_TVi.state = data;
 		_ms_TVi.stateMask = mask;
@@ -283,13 +283,27 @@ protected:
 		TVITEMEX tvitem{};
 		TCHAR buf[MIRC_BUFFER_SIZE_CCH]{};
 		tvitem.hItem = hItem;
-		tvitem.mask = TVIF_TEXT;
+		tvitem.mask = TVIF_TEXT | TVIF_HANDLE;
 		tvitem.pszText = &buf[0];
 		tvitem.cchTextMax = std::size(buf);
 		if (TreeView_GetItem(m_Hwnd, &tvitem))
 			tsRes = tvitem.pszText;
 
 		return tsRes;
+	}
+
+	void TV_SetItemText(HTREEITEM hItem, const TString& txt) noexcept
+	{
+		if (!m_Hwnd)
+			return;
+
+		TVITEMEX tvi{};
+
+		tvi.mask = TVIF_TEXT | TVIF_HANDLE;
+		tvi.hItem = hItem;
+		tvi.pszText = const_cast<TCHAR *>(txt.to_chr());
+
+		TreeView_SetItem(m_Hwnd, &tvi);
 	}
 
 	[[nodiscard]] HIMAGELIST TV_GetNormalImageList() noexcept
@@ -363,6 +377,21 @@ protected:
 		Auto(dcxSetWindowStyle(m_Hwnd, styles));
 
 		return (TreeView_DeleteAllItems(m_Hwnd) != FALSE);
+	}
+
+	TVHITTESTINFO TV_GetCursorItem() const noexcept
+	{
+		TVHITTESTINFO tvh{};
+		if (!m_Hwnd)
+			return tvh;
+
+		if (!GetCursorPos(&tvh.pt))
+			return tvh;
+
+		MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
+		TreeView_HitTest(m_Hwnd, &tvh);
+
+		return tvh;
 	}
 };
 

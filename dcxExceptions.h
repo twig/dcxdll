@@ -113,6 +113,9 @@ namespace DcxExceptions
 		dcxInvalidPath() noexcept
 			: exception("Invalid Path")
 		{}
+		dcxInvalidPath(const char *szPath) noexcept
+			: exception(szPath)
+		{}
 	};
 	class dcxInvalidCommand final
 		: public std::exception

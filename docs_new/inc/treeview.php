@@ -72,8 +72,8 @@ function get_xdid_treeview(&$XDID) {
 	$XDID = array(
 		'a' => array(
 			'__desc' => 'This command lets you add an item to the treeview.',
-			'__cmd' => '[PATH] [TAB] [+FLAGS] [ICON] [SICON] [OVERLAY] [STATE] [INTEGRAL] [COLOR] [BGCOLOR] (TEXT) [TAB] (Tooltip Text)',
-			'__eg' => '$+(-1 2 4,$chr(9),+bc 1 1 0 0 0 $rgb(0,0,255) $rgb(255,0,255) Item Text,$chr(9),Tooltip)',
+			'__cmd' => '[PATH] [TAB] [+FLAGS] [ICON] [SICON] [EICON] [OVERLAY] [STATE] [INTEGRAL] [COLOR] [BGCOLOR] (TEXT) [TAB] (Tooltip Text)',
+			'__eg' => '$+(-1 2 4,$chr(9),+bcE 1 1 2 0 0 0 $rgb(0,0,255) $rgb(255,0,255) Item Text,$chr(9),Tooltip)',
 			'__params' => array(
 				'+FLAGS' => array(
 					'__desc' => 'Item flags.',
@@ -88,10 +88,12 @@ function get_xdid_treeview(&$XDID) {
 						's' => 'Item appears selected.',
 						'u' => 'Item text is underlined.',
 						'x' => 'Adds items from DCXML file, where [p]TEXT[/p] is [p][XML_DATASET][/p] [p][FILENAME][/p]. Refer to note for additional information on the DCXML format.',
+						'E' => '[EICON] is valid.',
 					),
 				),
 				'ICON' => "Icon index number from the normal icon list.",
 				'SICON' => "Selected Icon index number from the normal icon list.",
+				'EICON' => "Expanded Icon index number from the normal icon list.",
 				'OVERLAY' => 'Icon index number from the normal icon list that was marked as an overlay icon.',
 				'STATE' => array(
 					'__desc' => 'Icon index number from the state icon list.',
@@ -249,14 +251,14 @@ tooltip="some text"
 		),
 		'j' => array(
 			'__desc' => 'This command lets you change the icon, selected icon and overlay icon for a treeview item.',
-		        '__cmd' => '[PATH] [TAB] [ICON] [SICON] (OVERLAY)',
+		        '__cmd' => '[PATH] [TAB] [ICON] [SICON] [EICON] (OVERLAY)',
 			'__eg' => array(
-				'1 2 $chr(9) 3 3',
-				'2 $chr(9) -1 -1 2',
+				'1 2 $chr(9) 3 3 3',
+				'2 $chr(9) -1 -1 -1 2',
 			),
 			'__notes' => array(
-				'Use [v]0[/v] for [p]ICON[/p], [p]SICON[/p] and [p]OVERLAY[/p] to display no icon.',
-				'If you do not wish to modify [p]ICON[/p] or [p]SICON[/p], use a value of [v]-1[/v].',
+				'Use [v]0[/v] for [p]ICON[/p], [p]SICON[/p], [p]EICON[/p] and [p]OVERLAY[/p] to display no icon.',
+				'If you do not wish to modify [p]ICON[/p], [p]SICON[/p], or [p]EICON[/p] use a value of [v]-1[/v].',
 			),
 		),
 		'k' => array(

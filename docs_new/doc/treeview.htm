@@ -195,11 +195,11 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">This command lets you add an item to the treeview.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -a [DNAME] [ID] [PATH] [TAB] [+FLAGS] [ICON] [SICON] [OVERLAY] [STATE] [INTEGRAL] [COLOR] [BGCOLOR] (TEXT) [TAB] (Tooltip Text)</div></td>
+		<td><div class="syntax">/xdid -a [DNAME] [ID] [PATH] [TAB] [+FLAGS] [ICON] [SICON] [EICON] [OVERLAY] [STATE] [INTEGRAL] [COLOR] [BGCOLOR] (TEXT) [TAB] (Tooltip Text)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -a dcx 4 $+(-1 2 4,$chr(9),+bc 1 1 0 0 0 $rgb(0,0,255) $rgb(255,0,255) Item Text,$chr(9),Tooltip)</div></td>
+		<td><div class="example">/xdid -a dcx 4 $+(-1 2 4,$chr(9),+bcE 1 1 2 0 0 0 $rgb(0,0,255) $rgb(255,0,255) Item Text,$chr(9),Tooltip)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -247,12 +247,20 @@ This would add the item at the end of the last branch in the first column of bra
 		<td>Adds items from DCXML file, where <a class="param">TEXT</a> is <a class="param">[XML_DATASET]</a> <a class="param">[FILENAME]</a>. Refer to note for additional information on the DCXML format.</td>
 	</tr>
 	<tr>
+		<td class="value">E</td>
+		<td>[EICON] is valid.</td>
+	</tr>
+	<tr>
 		<td class="param">ICON</td>
 		<td>Icon index number from the normal icon list.</td>
 	</tr>
 	<tr>
 		<td class="param">SICON</td>
 		<td>Selected Icon index number from the normal icon list.</td>
+	</tr>
+	<tr>
+		<td class="param">EICON</td>
+		<td>Expanded Icon index number from the normal icon list.</td>
 	</tr>
 	<tr>
 		<td class="param">OVERLAY</td>
@@ -383,13 +391,13 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">This command lets you change the icon, selected icon and overlay icon for a treeview item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -j [DNAME] [ID] [PATH] [TAB] [ICON] [SICON] (OVERLAY)</div></td>
+		<td><div class="syntax">/xdid -j [DNAME] [ID] [PATH] [TAB] [ICON] [SICON] [EICON] (OVERLAY)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -j dcx 4 1 2 $chr(9) 3 3<br />/xdid -j dcx 4 2 $chr(9) -1 -1 2<br /></div></td>
+		<td><div class="example">/xdid -j dcx 4 1 2 $chr(9) 3 3 3<br />/xdid -j dcx 4 2 $chr(9) -1 -1 -1 2<br /></div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">ICON</a>, <a class="param">SICON</a> and <a class="param">OVERLAY</a> to display no icon.</li><li>If you do not wish to modify <a class="param">ICON</a> or <a class="param">SICON</a>, use a value of <a class="value">-1</a>.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">ICON</a>, <a class="param">SICON</a>, <a class="param">EICON</a> and <a class="param">OVERLAY</a> to display no icon.</li><li>If you do not wish to modify <a class="param">ICON</a>, <a class="param">SICON</a>, or <a class="param">EICON</a> use a value of <a class="value">-1</a>.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -1354,8 +1362,8 @@ This would add the item at the end of the last branch in the first column of bra
 <table class="bar">
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
-		<td style="text-align: center;">© 2005-2022</td>
-		<td style="text-align: right;">Last Updated: 3rd October, 22</td>
+		<td style="text-align: center;">© 2005-2023</td>
+		<td style="text-align: right;">Last Updated: 24th March, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

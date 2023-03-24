@@ -213,7 +213,8 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		auto item = this->parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+			//throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		this->getItemText(item, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 	}
@@ -228,7 +229,8 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		auto item = this->parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+			//throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		const auto ImageID = getItemImageID(item);
 		_ts_snprintf(szReturnValue, TEXT("%d"), (ImageID > 10000 ? -2 : ImageID) + 1);
@@ -244,7 +246,8 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		auto item = this->parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+			//throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		if (auto lpdcxtvi = getItemParam(item); lpdcxtvi)
 			szReturnValue = lpdcxtvi->tsTipText.to_chr();
@@ -288,7 +291,8 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 			startingPoint = this->parsePath(path);
 
 			if (!startingPoint)
-				throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+				//throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+				throw DcxExceptions::dcxInvalidPath(path.c_str());
 		}
 
 		auto matchCount = 0;
@@ -310,7 +314,8 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		const auto* const item = this->parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+			//throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		if (this->isStyle(WindowStyle::TVS_CheckBoxes))
 		{
@@ -345,7 +350,8 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 			item = parsePath(path);
 
 			if (!item)
-				throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+				//throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+				throw DcxExceptions::dcxInvalidPath(path.c_str());
 		}
 		_ts_snprintf(szReturnValue, TEXT("%d"), this->getChildCount(item));
 	}
@@ -360,7 +366,8 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		const auto* const item = this->parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+			//throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		dcx_ConChar(TreeView_GetItemState(m_Hwnd, item, TVIS_EXPANDED) & TVIS_EXPANDED, szReturnValue);
 	}
@@ -368,14 +375,16 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	// [NAME] [ID] [PROP]
 	case L"mouseitem"_hash:
 	{
-		TVHITTESTINFO tvh{};
+		//TVHITTESTINFO tvh{};
+		//
+		//if (!GetCursorPos(&tvh.pt))
+		//	throw Dcx::dcxException("Unable to get cursor position");
+		//
+		//MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
+		//
+		//TreeView_HitTest(m_Hwnd, &tvh);
 
-		if (!GetCursorPos(&tvh.pt))
-			throw Dcx::dcxException("Unable to get cursor position");
-
-		MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
-
-		TreeView_HitTest(m_Hwnd, &tvh);
+		const TVHITTESTINFO tvh{ TV_GetCursorItem() };
 
 		if (dcx_testflag(tvh.flags, TVHT_ONITEM))
 			szReturnValue = getPathFromItem(tvh.hItem).to_chr();
@@ -393,7 +402,8 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		auto item = this->parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+			//throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		if (const auto lpdcxtvitem = getItemParam(item); lpdcxtvitem)
 			szReturnValue = lpdcxtvitem->tsMark.to_chr();
@@ -424,6 +434,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [#ICON] [#SICON] [#OVERLAY] [#STATE] [#INTEGRAL] [COLOR] [BKGCOLOR] Text[TAB]Tooltip Text
+	// xdid -a [NAME] [ID] [SWITCH] N N N ... N[TAB][+E + FLAGS] [#ICON] [#SICON] [#EICON] [#OVERLAY] [#STATE] [#INTEGRAL] [COLOR] [BKGCOLOR] Text[TAB]Tooltip Text
 	if (flags[TEXT('a')])
 	{
 		const auto nTabs = input.numtok(TSTABCHAR);
@@ -461,7 +472,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto item = parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		const XSwitchFlags xflag(data.getfirsttok(1));	// tok 1
 		const auto info(data.getlasttoks());		// tok 2, -1
@@ -484,7 +496,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto* const item = this->parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		TreeView_EnsureVisible(m_Hwnd, item); // make sure selected item is visible.
 		TreeView_EditLabel(m_Hwnd, item);
@@ -499,7 +512,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto* const item = this->parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		TreeView_EnsureVisible(m_Hwnd, item); // make sure selected item is visible.
 		TreeView_SelectItem(m_Hwnd, item);
@@ -514,7 +528,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto item = this->parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		TV_DeleteItem(item);
 	}
@@ -550,7 +565,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 
 		this->redrawWindow();
 	}
-	// xdid -j [NAME] [ID] [SWITCH] [+FLAGS] [N N N] [TAB] [ICON] [SICON] (OVERLAY)
+	// xdid -j [NAME] [ID] [SWITCH] [+FLAGS] [N N N] [TAB] [ICON] [SICON] [EICON] (OVERLAY)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 6)
@@ -564,30 +579,32 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto icons(input.getnexttok(TSTABCHAR).trim());	// tok 2
 
 		// Invalid parameters, missing icon args.
-		if (icons.numtok() < 2)
+		if (icons.numtok() < 3)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto item = this->parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		auto nIcon = icons.getfirsttok(1).to_int() - 1;
 		auto sIcon = icons.getnexttok().to_int() - 1;	// tok 2
+		auto eIcon = icons.getnexttok().to_int() - 1;	// tok 3
 		TVITEMEX tvi{};
 
 		tvi.mask = TVIF_HANDLE;
 		tvi.hItem = item;
 
 		/*
-		nIcon/sIcon values (actual values)
+		nIcon/sIcon/eIcon values (actual values)
 		-2 = ignore icon
 		-1 = no icon
 		0+ = valid icon
 		*/
 
 		// overlay
-		if (icons.numtok() > 2)
+		if (icons.numtok() > 3)
 		{
 			// overlay is 1-based index
 			if (const auto oIcon = icons.getnexttok().to_int(); oIcon > -1)
@@ -595,8 +612,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 				TV_SetItemState(tvi.hItem, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(oIcon)), TVIS_OVERLAYMASK);
 		}
 
-		// if ignoring both nIcon and sIcon (if its -2 or less)
-		if ((nIcon < -1) && (sIcon < -1))
+		// if ignoring nIcon, sIcon, and eIcon (if its < -1)
+		if ((nIcon < -1) && (sIcon < -1) && (eIcon < -1))
 			return;
 
 		// normal icon
@@ -625,6 +642,19 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 			tvi.iSelectedImage = sIcon;
 		}
 
+		// expanded icon
+		if (eIcon > -2)
+		{
+			tvi.mask |= TVIF_EXPANDEDIMAGE;
+
+			// quickfix so it doesnt display an image
+			// http://dcx.scriptsdb.org/bug/?do=details&id=350
+			if (eIcon == -1)
+				eIcon = I_IMAGENONE; //10000;
+
+			tvi.iExpandedImage = eIcon;
+		}
+
 		TreeView_SetItem(m_Hwnd, &tvi);
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [STATE] N N N
@@ -638,7 +668,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto item = this->parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		//TreeView_SetItemState(m_Hwnd, item, INDEXTOSTATEIMAGEMASK(state), TVIS_STATEIMAGEMASK);
 		TV_SetItemState(item, INDEXTOSTATEIMAGEMASK(state), TVIS_STATEIMAGEMASK);
@@ -690,7 +721,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto item = this->parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		if (const auto lpdcxtvitem = getItemParam(item); lpdcxtvitem)
 			lpdcxtvitem->tsTipText = tiptext;
@@ -707,7 +739,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto item = this->parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		if (const auto lpdcxtvitem = getItemParam(item); lpdcxtvitem)
 		{
@@ -756,7 +789,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto* const item = this->parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		if (dcx_testflag(iFlags, TVIE_EXP))
 			TreeView_Expand(m_Hwnd, item, TVE_EXPAND);
@@ -789,17 +823,21 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto item = this->parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
-		TVITEMEX tvi{};
+		//TVITEMEX tvi{};
+		//
+		//tvi.mask = TVIF_TEXT | TVIF_HANDLE;
+		//tvi.hItem = item;
+		//tvi.pszText = itemtext.to_chr();
+		//
+		//TreeView_SetItem(m_Hwnd, &tvi);
 
-		tvi.mask = TVIF_TEXT | TVIF_HANDLE;
-		tvi.hItem = item;
-		tvi.pszText = itemtext.to_chr();
-
-		TreeView_SetItem(m_Hwnd, &tvi);
+		TV_SetItemText(item, itemtext);
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
+	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [N,N2-N3,N4....] [FILENAME]
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 6)
@@ -892,7 +930,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 			const auto item = this->parsePath(path);
 
 			if (!item)
-				throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+				//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+				throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 			tvs.hParent = item;
 		}
@@ -937,19 +976,22 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (input.numtok(TSTABCHAR) != 2)
-			throw Dcx::dcxException("Invalid Command Syntax.");
+			//throw Dcx::dcxException("Invalid Command Syntax.");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());	// tok 1, TSTAB
 		const auto fileData(input.getnexttok(TSTABCHAR));						// tok 2, TSTAB
 
 		if (fileData.numtok() < 3)
-			throw Dcx::dcxException("Invalid Command Syntax.");
+			//throw Dcx::dcxException("Invalid Command Syntax.");
+			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto name(fileData.getfirsttok(2).trim());		// tok 2
+		const auto name(fileData.getfirsttok(2).trim());	// tok 2
 		auto filename(fileData.getlasttoks().trim());		// tok 3, -1
 
 		if (name.empty())
-			throw Dcx::dcxException("Invalid dataset");
+			//throw Dcx::dcxException("Invalid dataset");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (path.empty())
 			throw DcxExceptions::dcxInvalidPath();
@@ -957,7 +999,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto item = this->parsePath(path);
 
 		if (!item)
-			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
+			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		this->xmlSaveTree(item, name, filename);
 	}
@@ -1792,12 +1835,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		case NM_CLICK:
 		{
 			////http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/treeview/reflist.asp
-			//	TVHITTESTINFO tvh;
-			//	if (!GetCursorPos(&tvh.pt))
-			//		break;
-			//
-			//	MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
-			//	TreeView_HitTest(m_Hwnd, &tvh);
+			//	TVHITTESTINFO tvh{ TV_GetCursorItem() };
 			//
 			//	if (dcx_testflag(tvh.flags,TVHT_ONITEMBUTTON))
 			//	{
@@ -1835,12 +1873,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			if (!dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 				break;
 
-			TVHITTESTINFO tvh{};
-			if (!GetCursorPos(&tvh.pt))
-				break;
-
-			MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
-			TreeView_HitTest(m_Hwnd, &tvh);
+			TVHITTESTINFO tvh{ TV_GetCursorItem() };
 
 			if (dcx_testflag(tvh.flags, TVHT_ONITEMBUTTON))
 				execAliasEx(TEXT("buttonclick,%u,%s"), getUserID(), getPathFromItem(tvh.hItem).to_chr());
@@ -1866,13 +1899,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			if (!dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 				break;
 
-			TVHITTESTINFO tvh{};
-
-			if (!GetCursorPos(&tvh.pt))
-				break;
-
-			MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
-			TreeView_HitTest(m_Hwnd, &tvh);
+			TVHITTESTINFO tvh{ TV_GetCursorItem() };
 
 			//|| ( (dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT)) && this->isStyle( TVS_FULLROWSELECT ) ) )
 			if ((tvh.flags & TVHT_ONITEM) != 0) // dont use dcx_testflag() here as TVHT_ONITEM is a combination of several hit types.
@@ -1887,13 +1914,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			if (!dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 				break;
 
-			TVHITTESTINFO tvh{};
-
-			if (!GetCursorPos(&tvh.pt))
-				break;
-
-			MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
-			TreeView_HitTest(m_Hwnd, &tvh);
+			TVHITTESTINFO tvh{ TV_GetCursorItem() };
 
 			//|| ( (dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT)) && this->isStyle( TVS_FULLROWSELECT ) ) )
 			if ((tvh.flags & TVHT_ONITEM) != 0) // dont use dcx_testflag() here as TVHT_ONITEM is a combination of several hit types.
