@@ -277,14 +277,18 @@ bool SaveDataToFile(const TString& tsFile, const TString& tsData)
 #endif
 }
 
-PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp)
+// Taken from msft examples.
+PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp) noexcept
 {
+	if (!hBmp)
+		return nullptr;
+
 	BITMAP bmp{};
 	PBITMAPINFO pbmi{};
 	WORD    cClrBits{};
 
 	// Retrieve the bitmap color format, width, and height.  
-	if (!GetObject(hBmp, sizeof(BITMAP), (LPSTR)&bmp))
+	if (!GetObject(hBmp, sizeof(BITMAP), &bmp))
 		return nullptr;
 
 	// Convert the color format to a count of bits.  
@@ -306,7 +310,7 @@ PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp)
 	// data structures.)  
 
 	if (cClrBits < 24)
-		pbmi = (PBITMAPINFO)LocalAlloc(LPTR, sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * (1 << cClrBits));
+		pbmi = (PBITMAPINFO)LocalAlloc(LPTR, sizeof(BITMAPINFOHEADER) + (sizeof(RGBQUAD) * (1 << cClrBits)));
 
 	// There is no RGBQUAD array for these formats: 24-bit-per-pixel or 32-bit-per-pixel 
 
@@ -337,8 +341,12 @@ PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp)
 	return pbmi;
 }
 
-void CreateBMPFile(HWND hwnd, LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC)
+// Taken from msft examples.
+void CreateBMPFile(HWND hwnd, LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC) noexcept
 {
+	if ((!pszFile) || (!pbi) || (!hBMP) || (!hDC))
+		return;
+
 	HANDLE hf{};                  // file handle  
 	BITMAPFILEHEADER hdr{};       // bitmap file-header  
 	PBITMAPINFOHEADER pbih{};     // bitmap info-header  
@@ -356,7 +364,7 @@ void CreateBMPFile(HWND hwnd, LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HD
 
 	// Retrieve the color table (RGBQUAD array) and the bits  
 	// (array of palette indices) from the DIB.  
-	if (!GetDIBits(hDC, hBMP, 0, (WORD)pbih->biHeight, lpBits, pbi, DIB_RGB_COLORS))
+	if (!GetDIBits(hDC, hBMP, 0, pbih->biHeight, lpBits, pbi, DIB_RGB_COLORS))
 	{
 		return;
 	}
@@ -373,31 +381,27 @@ void CreateBMPFile(HWND hwnd, LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HD
 		return;
 	hdr.bfType = 0x4d42;        // 0x42 = "B" 0x4d = "M"  
 	// Compute the size of the entire file.  
-	hdr.bfSize = (DWORD)(sizeof(BITMAPFILEHEADER) +
-		pbih->biSize + pbih->biClrUsed
-		* sizeof(RGBQUAD) + pbih->biSizeImage);
+	hdr.bfSize = (sizeof(BITMAPFILEHEADER) + pbih->biSize + (pbih->biClrUsed * sizeof(RGBQUAD)) + pbih->biSizeImage);
 	hdr.bfReserved1 = 0;
 	hdr.bfReserved2 = 0;
 
 	// Compute the offset to the array of color indices.  
-	hdr.bfOffBits = (DWORD)sizeof(BITMAPFILEHEADER) +
-		pbih->biSize + pbih->biClrUsed
-		* sizeof(RGBQUAD);
+	hdr.bfOffBits = sizeof(BITMAPFILEHEADER) + pbih->biSize + (pbih->biClrUsed * sizeof(RGBQUAD));
 
 	// Copy the BITMAPFILEHEADER into the .BMP file.  
-	if (!WriteFile(hf, (LPVOID)&hdr, sizeof(BITMAPFILEHEADER), (LPDWORD)&dwTmp, nullptr))
+	if (!WriteFile(hf, &hdr, sizeof(BITMAPFILEHEADER), &dwTmp, nullptr))
 	{
 		return;
 	}
 
 	// Copy the BITMAPINFOHEADER and RGBQUAD array into the file.  
-	if (!WriteFile(hf, (LPVOID)pbih, sizeof(BITMAPINFOHEADER) + pbih->biClrUsed * sizeof(RGBQUAD), (LPDWORD)&dwTmp, nullptr))
+	if (!WriteFile(hf, pbih, sizeof(BITMAPINFOHEADER) + (pbih->biClrUsed * sizeof(RGBQUAD)), &dwTmp, nullptr))
 		return;
 
 	// Copy the array of color indices into the .BMP file.  
 	dwTotal = cb = pbih->biSizeImage;
 	hp = lpBits;
-	if (!WriteFile(hf, (LPSTR)hp, (int)cb, (LPDWORD)&dwTmp, nullptr))
+	if (!WriteFile(hf, hp, cb, &dwTmp, nullptr))
 		return;
 
 	// Close the .BMP file.  
@@ -409,12 +413,15 @@ void CreateBMPFile(HWND hwnd, LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HD
 }
 
 /*!
-* \brief Save a HBITMAP object to file as text
+* \brief Save a HBITMAP object to file
 *
 * TODO: ...
 */
-bool SaveDataToFile(const TString& tsFile, const HBITMAP hBm)
+bool SaveDataToFile(const TString& tsFile, const HBITMAP hBm) noexcept
 {
+	if ((!hBm) || (tsFile.empty()))
+		return false;
+
 	auto pbis = CreateBitmapInfoStruct(nullptr, hBm);
 	if (!pbis)
 		return false;
@@ -491,7 +498,7 @@ bool SaveClipboardAsText(const TString& tsFile)
 	return false;
 }
 
-bool SaveClipboardAsBitmap(const TString& tsFile)
+bool SaveClipboardAsBitmap(const TString& tsFile) noexcept
 {
 	if (auto hBm = static_cast<HBITMAP>(GetClipboardData(CF_BITMAP)); hBm)
 	{
@@ -509,6 +516,9 @@ bool SaveClipboardToFile(const XSwitchFlags& xFlags, const TString& tsFile)
 		return false;
 	}
 	Auto(CloseClipboard());
+
+	if (!xFlags[TEXT('+')])
+		throw DcxExceptions::dcxInvalidFlag();
 
 	// text save only
 	if (xFlags[TEXT('t')])
