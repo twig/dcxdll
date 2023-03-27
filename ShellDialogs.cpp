@@ -1085,10 +1085,10 @@ mIRC(SaveClipboard)
 		if (IsFile(filename))
 			throw DcxExceptions::dcxInvalidFilename();
 
-		if (SaveClipboardToFile(xFlags, filename))
-			_ts_strcpyn(data, TEXT("+OK"), mIRCLinker::m_dwCharacters);
+		if (auto [code, v] = SaveClipboardToFile(xFlags, filename); code)
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("D_OK %d"), v);
 		else
-			_ts_strcpyn(data, TEXT("-FAIL Data in wrong format?"), mIRCLinker::m_dwCharacters);
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("D_ERROR %d"), v);
 
 		return 3;
 	}

@@ -423,7 +423,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
                                 
 			),
 			'__notes' => array(
-                                'If [p]+FLAGS[/p] is not specified, the setting specified in [p]BOOL[/p] is set on all signal types.',
+                'If [p]+FLAGS[/p] is not specified, the setting specified in [p]BOOL[/p] is set on all signal types.',
 				'This must be enabled in order to receive sizing events upon non-DCX windows resizing (used with [link page="xdock"]/xdock[/link], where you cannot [link section="general" flag="Mark"]/dcx Mark[/link] @windows or #channels).',
 				'Dialogs marked by [link section="general" flag="Mark"]/dcx Mark[/link] will still receive events normally in the callback aliases.',
 				'A signal will only be sent for a window being resized if it is the main mIRC window, docked, or contains a docked window.',
@@ -446,7 +446,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 						't' => 'Set the title text.',
 						'i' => 'Set the window icon.',
 						'g' => 'Set the window icon in grayscale.',
-                                                'r' => 'Simulates a right click on the specified window',
+                        'r' => 'Simulates a right click on the specified window',
 						'T' => 'Remove any themes on the specified window.',
 					),
 				),
@@ -514,6 +514,31 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 					'FILENAME' => 'File to count icons in.',
 				),
 			'__return' => "[v]D_OK COUNT FILENAME[/v].",
+		),
+		'SaveClipboard' => array(
+			'__desc' => "Saves the clipboard contents to file.",
+			'__cmd' => '[+FLAGS] [FILENAME]',
+			'__eg' => array(
+				'+t $tempfn $+ .txt',
+				'+b $tempfn $+ .bmp',
+				'+ $tempfn',
+			),
+			'__isid' => true,
+			'__params' => array(
+				'+FLAGS' => array(
+					'__desc' => 'Flags for how to save the data.',
+					'__values' => array(
+						't' => 'Save as text only (fails when text save wont work).',
+						'b' => 'Save as bmp only (fails when bitmap save wont work).',
+					),
+				),
+				'FILENAME' => 'File to count icons in.',
+				),
+			'__return' => "[v]D_OK code[/v] On Success.<br />[v]D_ERROR code[/v] On Error.<br/>code can be either 16 for bitmap save or 2 for text save.",
+			'__notes' => array(
+				"When saving a bmp file, mIRC's \$pic() wont read the file correctly unless it has the .bmp extension.",
+				'When no flags are supplied (only a + given) then we try both methods to see what works.',
+			),
 		),
 	);
 }

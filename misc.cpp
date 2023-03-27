@@ -508,13 +508,11 @@ bool SaveClipboardAsBitmap(const TString& tsFile) noexcept
 	return false;
 }
 
-bool SaveClipboardToFile(const XSwitchFlags& xFlags, const TString& tsFile)
+std::pair<bool, int> SaveClipboardToFile(const XSwitchFlags& xFlags, const TString& tsFile)
 {
 	if (!OpenClipboard(nullptr))
-	{
-		Dcx::error(TEXT("SaveClipboardToFile"), TEXT("Couldn't open clipboard"));
-		return false;
-	}
+		throw Dcx::dcxException(TEXT("SaveClipboardToFile: %"), TEXT("Couldn't open clipboard"));
+
 	Auto(CloseClipboard());
 
 	if (!xFlags[TEXT('+')])
@@ -522,17 +520,17 @@ bool SaveClipboardToFile(const XSwitchFlags& xFlags, const TString& tsFile)
 
 	// text save only
 	if (xFlags[TEXT('t')])
-		return SaveClipboardAsText(tsFile);
+		return { SaveClipboardAsText(tsFile), CF_UNICODETEXT };
 
 	// bitmap save only
 	if (xFlags[TEXT('b')])
-		return SaveClipboardAsBitmap(tsFile);
+		return { SaveClipboardAsBitmap(tsFile), CF_BITMAP };
 
 	// otherwise try both...
 	if (SaveClipboardAsText(tsFile))
-		return true;
+		return { true, CF_UNICODETEXT };
 
-	return SaveClipboardAsBitmap(tsFile);
+	return { SaveClipboardAsBitmap(tsFile), CF_BITMAP };
 }
 
 // Turns a command (+flags CHARSET SIZE FONTNAME) into a LOGFONT struct

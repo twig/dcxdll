@@ -911,6 +911,37 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.SaveClipboard"></a>$dcx(SaveClipboard)	</td></tr>
+	<tr><td colspan="2">Saves the clipboard contents to file.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(SaveClipboard, [+FLAGS] [FILENAME])</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(SaveClipboard, +t $tempfn $+ .txt)<br />$dcx(SaveClipboard, +b $tempfn $+ .bmp)<br />$dcx(SaveClipboard, + $tempfn)<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags for how to save the data.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Save as text only (fails when text save wont work).</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Save as bmp only (fails when bitmap save wont work).</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>File to count icons in.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="value">D_OK code</a> On Success.<br /><a class="value">D_ERROR code</a> On Error.<br/>code can be either 16 for bitmap save or 2 for text save.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>When saving a bmp file, mIRC's $pic() wont read the file correctly unless it has the .bmp extension.</li><li>When no flags are supplied (only a + given) then we try both methods to see what works.</li></ul></td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
 			<a name="general.SetDCXSettings"></a>/dcx SetDCXSettings	</td></tr>
 	<tr><td colspan="2">This command enables or disables various DCX settings.</td></tr>
 	<tr>
@@ -1102,6 +1133,7 @@ Warning: Undefined array key "__desc" in F:\CSource\DCX_Git\dcxdll\docs_new\dcx_
 		<a class='flag' href="#general.MsgBox"><div>MsgBox</div></a>
 		<a class='flag' href="#general.OpenDialog/SaveDialog"><div>OpenDialog/SaveDialog</div></a>
 		<a class='flag' href="#general.PickIcon"><div>PickIcon</div></a>
+		<a class='flag' href="#general.SaveClipboard"><div>SaveClipboard</div></a>
 		<a class='flag' href="#general.SetDCXSettings"><div>SetDCXSettings</div></a>
 		<a class='flag' href="#general.Version"><div>Version</div></a>
 		<a class='flag' href="#general.WindowProps"><div>WindowProps</div></a>
@@ -1115,7 +1147,7 @@ Warning: Undefined array key "__desc" in F:\CSource\DCX_Git\dcxdll\docs_new\dcx_
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 24th March, 23</td>
+		<td style="text-align: right;">Last Updated: 27th March, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

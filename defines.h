@@ -654,7 +654,7 @@ auto readFile(const TString& filename) -> std::unique_ptr<BYTE[]>;
 TString readTextFile(const TString& tFile);
 bool SaveDataToFile(const TString& tsFile, const TString& tsData);
 TString FileDialog(const TString& data, const TString& method, const HWND pWnd);
-bool SaveClipboardToFile(const XSwitchFlags& xFlags, const TString& tsFile);
+std::pair<bool, int> SaveClipboardToFile(const XSwitchFlags& xFlags, const TString& tsFile);
 
 int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData) noexcept;
 [[nodiscard("Memory Leak")]] gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl) noexcept;
