@@ -342,7 +342,8 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #endif
 #include <GSL\gsl>
 
-namespace gsl {
+namespace gsl
+{
 	template <class Cont>
 	GSL_SUPPRESS(type.1)
 		GSL_SUPPRESS(bounds.4)
@@ -358,7 +359,8 @@ namespace gsl {
 }
 
 // std::is_pod is removed in C++20
-namespace Dcx {
+namespace Dcx
+{
 	template<class _Ty>
 	struct is_pod
 		: std::integral_constant<bool, std::is_standard_layout_v<_Ty>&& std::is_trivial_v<_Ty> >
@@ -588,7 +590,8 @@ using LPSIGNALSWITCH = SIGNALSWITCH*;
 
 using VectorOfInts = std::vector<int>; //<! Vector of int
 
-struct clrCheckBox {
+struct clrCheckBox
+{
 	COLORREF m_clrBackground{ RGB(255, 128, 0) };
 	COLORREF m_clrFrame{};
 	COLORREF m_clrTick{};
@@ -647,10 +650,11 @@ TString ParseLogfontToCommand(const LPLOGFONT lf);
 dcxFontFlags parseFontFlags(const TString& flags) noexcept;
 UINT parseFontCharSet(const TString& charset);
 
-auto readFile(const TString& filename)->std::unique_ptr<BYTE[]>;
+auto readFile(const TString& filename) -> std::unique_ptr<BYTE[]>;
 TString readTextFile(const TString& tFile);
 bool SaveDataToFile(const TString& tsFile, const TString& tsData);
 TString FileDialog(const TString& data, const TString& method, const HWND pWnd);
+bool SaveClipboardToFile(const XSwitchFlags& xFlags, const TString& tsFile);
 
 int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData) noexcept;
 [[nodiscard("Memory Leak")]] gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl) noexcept;

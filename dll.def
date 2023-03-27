@@ -28,6 +28,7 @@ SetSystemCursors
 SetmIRCCursors
 SetDCXSettings
 GetDCXSettings
+SaveClipboard
 
 xdid
 _xdid

@@ -6,7 +6,8 @@
 /*
  * Structure to store settings for use in BrowseFolderCallback.
  */
-struct XBROWSEDIALOGSETTINGS {
+struct XBROWSEDIALOGSETTINGS
+{
 	PTCHAR initialFolder{};
 	UINT flags{};
 };
@@ -1059,6 +1060,45 @@ mIRC(CountIcons)
 	catch (...) {
 		// stop any left over exceptions...
 		Dcx::error(TEXT("$!dcx(CountIcons)"), TEXT("\"%\" error: Unknown Exception"), filename);
+	}
+	return 0;
+}
+
+/*
+	$dcx(SaveClipboard,+ filename)
+*/
+mIRC(SaveClipboard)
+{
+	const TString d(data);
+
+	data[0] = 0;
+
+	XSwitchFlags xFlags(d.getfirsttok(1));
+	TString filename(d.getlasttoks());
+
+	try {
+		filename.trim();
+
+		if (filename.empty())
+			throw DcxExceptions::dcxInvalidArguments();
+
+		if (IsFile(filename))
+			throw DcxExceptions::dcxInvalidFilename();
+
+		if (SaveClipboardToFile(xFlags, filename))
+			_ts_strcpyn(data, TEXT("+OK"), mIRCLinker::m_dwCharacters);
+		else
+			_ts_strcpyn(data, TEXT("-FAIL Data in wrong format?"), mIRCLinker::m_dwCharacters);
+
+		return 3;
+	}
+	catch (const std::exception& e)
+	{
+		Dcx::error(TEXT("$!dcx(SaveClipboard)"), TEXT("\"%\" error: %"), filename, e.what());
+	}
+	catch (...) {
+		// stop any left over exceptions...
+		Dcx::error(TEXT("$!dcx(SaveClipboard)"), TEXT("\"%\" error: Unknown Exception"), filename);
 	}
 	return 0;
 }
