@@ -130,8 +130,6 @@ static void TraverseTreebarItems(void)
 			{
 				TString tsType(DcxDock::getTreebarItemType(item.lParam));
 	
-				//mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_%d %s"), item.lParam, item.pszText );
-				//mIRCLinker::tsEvalex(res, TEXT("$xtreebar_callback(geticons,%s,%%dcx_%d)"), tsType.to_chr(), item.lParam);
 				mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), item.lParam, item.pszText);
 				mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, item.lParam);
 			}
@@ -307,128 +305,6 @@ mIRC(xtreebar)
 			if (Dcx::VistaModule.isUseable())
 				tvexstylef = TreeView_GetExtendedStyle(mIRCLinker::getTreeview());
 			DWORD tvexstylemask = 0;
-
-			//static const TString treebar_styles(TEXT("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll showsel noshowsel transparent notransparent fadebuttons nofadebuttons indent noident buffer nobuffer autohscroll noautohscroll richtooltip norichtooltip balloon noballoon"));
-			//enum TreebarStyles: UINT {
-			//	TS_TRACK = 1, TS_NOTRACK, TS_TOOLTIPS, TS_NOTOOLTIPS, TS_INFOTIP, TS_NOINFOTIP, TS_HASBUTTONS, TS_NOHASBUTTONS, TS_ROOTLINES, TS_NOROOTLINES, TS_SINGLEEXPAND, TS_NOSINGLEEXPAND, TS_SCROLL, TS_NOSCROLL, TS_SHOWSEL, TS_NOSHOWSEL, TS_TRANSPARENT, TS_NOTRANSPARENT,
-			//	TS_FADEBUTTONS, TS_NOFADEBUTTONS, TS_INDENT, TS_NOINDENT, TS_BUFFER, TS_NOBUFFER, TS_AUTOHSCROLL, TS_NOAUTOHSCROLL, TS_RICHTOOLTIP, TS_NORICHTOOLTIP,
-			//	TS_BALLOON, TS_NOBALLOON
-			//};
-			//
-			//for (auto i = decltype(numtok){2}; i <= numtok; ++i)
-			//{
-			//	switch (treebar_styles.findtok(input.getnexttok(), 1))		// tok 2+
-			//	{
-			//	case TS_TRACK: // trackselect (off by default)
-			//		stylef |= TVS_TRACKSELECT;
-			//		break;
-			//	case TS_NOTRACK: // notrackselect
-			//		stylef &= ~TVS_TRACKSELECT;
-			//		break;
-			//	case TS_TOOLTIPS: // tooltips (on by default)
-			//		stylef &= ~TVS_NOTOOLTIPS;
-			//		break;
-			//	case TS_NOTOOLTIPS: // notooltips
-			//		stylef |= TVS_NOTOOLTIPS;
-			//		break;
-			//	case TS_INFOTIP: // infotip (on by default)
-			//		stylef |= TVS_INFOTIP;
-			//		break;
-			//	case TS_NOINFOTIP: // noinfotip
-			//		stylef &= ~TVS_INFOTIP;
-			//		break;
-			//	case TS_HASBUTTONS: // hasbuttons (on by default)
-			//		stylef |= TVS_HASBUTTONS;
-			//		break;
-			//	case TS_NOHASBUTTONS: // nohasbuttons
-			//		stylef &= ~TVS_HASBUTTONS;
-			//		break;
-			//	case TS_ROOTLINES: // rootlines (on by default)
-			//		stylef |= TVS_LINESATROOT;
-			//		break;
-			//	case TS_NOROOTLINES: // norootlines
-			//		stylef &= ~TVS_LINESATROOT;
-			//		break;
-			//	case TS_SINGLEEXPAND: // singleexpand (off by default)
-			//		stylef |= TVS_SINGLEEXPAND;
-			//		break;
-			//	case TS_NOSINGLEEXPAND: // nosingleexpand
-			//		stylef &= ~TVS_SINGLEEXPAND;
-			//		break;
-			//	case TS_SCROLL: // scroll (off by default)
-			//		stylef &= ~TVS_NOSCROLL;
-			//		break;
-			//	case TS_NOSCROLL: // noscroll (NB: this can lead to gfx glitches with scroll bars already shown)
-			//		stylef |= TVS_NOSCROLL;
-			//		break;
-			//	case TS_SHOWSEL: // showsel (on by default)
-			//		stylef |= TVS_SHOWSELALWAYS;
-			//		break;
-			//	case TS_NOSHOWSEL: // noshowsel
-			//		stylef &= ~TVS_SHOWSELALWAYS;
-			//		break;
-			//	case TS_TRANSPARENT: // transparent
-			//		exstylef |= WS_EX_TRANSPARENT;
-			//		break;
-			//	case TS_NOTRANSPARENT: // notransparent
-			//		exstylef &= ~WS_EX_TRANSPARENT;
-			//		break;
-			//	case TS_FADEBUTTONS: // fadebuttons
-			//		tvexstylef |= TVS_EX_FADEINOUTEXPANDOS;
-			//		tvexstylemask |= TVS_EX_FADEINOUTEXPANDOS;
-			//		break;
-			//	case TS_NOFADEBUTTONS: // nofadebuttons
-			//		tvexstylef &= ~TVS_EX_FADEINOUTEXPANDOS;
-			//		tvexstylemask |= TVS_EX_FADEINOUTEXPANDOS;
-			//		break;
-			//	case TS_INDENT: // indent
-			//		tvexstylef &= ~TVS_EX_NOINDENTSTATE;
-			//		tvexstylemask |= TVS_EX_NOINDENTSTATE;
-			//		break;
-			//	case TS_NOINDENT: // noident
-			//		tvexstylef |= TVS_EX_NOINDENTSTATE;
-			//		tvexstylemask |= TVS_EX_NOINDENTSTATE;
-			//		break;
-			//	case TS_BUFFER: // buffer
-			//		tvexstylef |= TVS_EX_DOUBLEBUFFER;
-			//		tvexstylemask |= TVS_EX_DOUBLEBUFFER;
-			//		break;
-			//	case TS_NOBUFFER: // nobuffer
-			//		tvexstylef &= ~TVS_EX_DOUBLEBUFFER;
-			//		tvexstylemask |= TVS_EX_DOUBLEBUFFER;
-			//		break;
-			//	case TS_AUTOHSCROLL: // autohscroll
-			//		tvexstylef |= TVS_EX_AUTOHSCROLL;
-			//		tvexstylemask |= TVS_EX_AUTOHSCROLL;
-			//		break;
-			//	case TS_NOAUTOHSCROLL: // noautohscroll
-			//		tvexstylef &= ~TVS_EX_AUTOHSCROLL;
-			//		tvexstylemask |= TVS_EX_AUTOHSCROLL;
-			//		break;
-			//	case TS_RICHTOOLTIP: // richtooltip
-			//		tvexstylef |= TVS_EX_RICHTOOLTIP;
-			//		tvexstylemask |= TVS_EX_RICHTOOLTIP;
-			//		break;
-			//	case TS_NORICHTOOLTIP: // norichtooltip
-			//		tvexstylef &= ~TVS_EX_RICHTOOLTIP;
-			//		tvexstylemask |= TVS_EX_RICHTOOLTIP;
-			//		break;
-			//	case TS_BALLOON: // balloon (off by default)
-			//	{
-			//		if (auto tips = TreeView_GetToolTips(mIRCLinker::getTreeview()); tips != nullptr)
-			//			AddStyles(tips, GWL_STYLE, TTS_BALLOON);
-			//	}
-			//	break;
-			//	case TS_NOBALLOON: // noballoon
-			//	{
-			//		if (auto tips = TreeView_GetToolTips(mIRCLinker::getTreeview()); tips != nullptr)
-			//			RemStyles(tips, GWL_STYLE, TTS_BALLOON);
-			//	}
-			//	break;
-			//	default: // unknown style ignore.
-			//		throw Dcx::dcxException(TEXT("Unknown Style: %"), input.gettok(gsl::narrow_cast<int>(i)));
-			//	}
-			//}
 
 			const TString tsStyles(input.getlasttoks());
 
