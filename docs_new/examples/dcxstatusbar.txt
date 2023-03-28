@@ -1,0 +1,39 @@
+alias dcxstatusbar {
+  ; make sure the xstatusbar signal is enabled.
+  dcx xSignal 1 +s
+  ; set statusbar styles
+  xstatusbar -A 1 utf8 nothem
+  ; set statusbar font.
+  xstatusbar -f + default 8 Arial
+  ; load some icons/images for later use
+  var %f = Canada.ico
+  if ($isfile(%f)) xstatusbar -w + 0 %f
+  var %f = $scriptdirimages\away.gif
+  if ($isfile(%f)) xstatusbar -w +P 0 %f
+  var %f = $mircdirimages\dcx_ppac.png
+  if ($isfile(%f)) xstatusbar -w +P 0 %f
+  var %f = $mircdirimages\371.gif
+  if ($isfile(%f)) xstatusbar -w +P 0 %f
+  ; setup some cells
+  xstatusbar -l 200 200 200 24% 24 24 24 24 24 24 24 24 24 24 24 24
+  ; set the cells text
+  xstatusbar -t 1 +f 1 -1 -1 4some text $+(.,$chr(226),$chr(152),$chr(186)) 200 wide
+  xstatusbar -t 2 +f 2 255 -1 text2 $+($chr(194),$chr(161)) 200 wide
+  xstatusbar -t 3 +f 3 255 $rgb(128,128,128) text3 $+($chr(201),$chr(159)) 200 wide
+  xstatusbar -t 4 +f 4 -1 $rgb(128,128,128) text4 $+($chr(201),$chr(159)) 24% width
+  var %cell = 5
+  while (%cell < 17) {
+    xstatusbar -t %cell + 4 -1 -1 24
+    inc %cell
+  }
+}
+on *:signal:DCX: {
+  ; show any signals we get.
+  echo -s dcx signal: $1-
+  if ($1 == DCXStatusbar) {
+    if ($2 == sclick) {
+	  ; when you click on a cell, set it to a random colour.
+      xstatusbar -v $4 $rgb($r(0,255),$r(0,255),$r(0,255)) -1 $xstatusbar($4).text
+    }
+  }
+}

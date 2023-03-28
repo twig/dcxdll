@@ -441,6 +441,323 @@ alias proxy_eg_cb {
 }
 </pre></td></tr></table></td></tr>
 </table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>xTreebar</td></tr>
+	<tr><td><table><tr><td><strong>Command:</strong></td><td>/dcxtreebar</td></tr><tr><td><strong>Teaches:</strong></td><td>- Use of xTreebar<br /></td></tr><tr><td colspan='2'><strong>Script by Ook</strong></td></tr><tr><td colspan='2'><pre class="code">alias xtreebar_callback {
+  echo -s treebar: $1 :: $2 :: $3-
+  !if ($1 == geticons) {
+    ; geticons <type> <text>
+    !if ($2 == status) return 1 2 3
+    !if ($2 == channel) return 4 5 6
+    !if ($2 == custom) return 7 8 9
+    !if ($2 == send) return 10 11 12
+    !if ($2 == get) return 13 14 15
+    !if ($2 == notify) return 16 17 18
+    !if ($2 == query) return 19 20 21
+    !if (*folder iswm $2) return 22 23 24
+    !return 0 0 0
+  }
+  !if ($1 == gettooltip) {
+    ; gettooltip <type> <text>
+    !if ($2 == channel) {
+      !if ($3 == #genscripts) return GenScripts Development!
+      !if (#mircscript* iswm $3) return mIRC Scripting Channel
+    }
+    !if ($2 == status) return $3
+    !if ($2 == WindowFolder) return Custom Windows Folder
+  }
+  !elseif ($1 == setitem) {
+    ; <type> <htreeitem> <flags>
+    !var %i = $3, %f = $4, %d = $5
+    echo -s setitem: $2 :: $3 :: $4
+  }
+}
+alias dcxtreebar {
+  ; clear any old images from internal list.
+  xtreebar -w clear
+  ; status
+  ; status selected
+  xtreebar -w 0 + 0 $mircdiricons\SysWin.icl
+  ; channel
+  ; channel selected
+  xtreebar -w 0 + 1 $mircdiricons\SysWin.icl
+  ; custom
+  ; custom selected
+  xtreebar -w 0 + 5 $mircdiricons\SysWin.icl
+  ; dcc send
+  ; dcc send selected
+  xtreebar -w 0 + 6 $mircdiricons\SysWin.icl
+  ; dcc get
+  ; dcc get selected
+  xtreebar -w 0 + 7 $mircdiricons\SysWin.icl
+  ; notify
+  ; notify selected
+  xtreebar -w 0 + 8 $mircdiricons\SysWin.icl
+  ; query
+  ; query selected
+  xtreebar -w 0 + 3 $mircdiricons\SysWin.icl
+  ; folder
+  ; folder selected
+  xtreebar -w 0 + 15 $mircdiricons\SysWin.icl
+  ; load all icons in this file
+  ;xtreebar -w 0 + -1 $mircexe
+  xtreebar -w 0 + -1 $mircdiricons\maj32.icl
+  ; set text colour
+  xtreebar -c +t $rgb(255,128,0)
+  ; set  line colour
+  xtreebar -c +l $rgb(255,0,0)
+  ; set message colour
+  xtreebar -c +m $rgb(255,0,0)
+  ; set event colour
+  xtreebar -c +e $rgb(0,0,255)
+  ; set xtreebar styles
+  xtreebar -s tooltips infotip transparent
+  xtreebar -s balloon trackselect nosingleexpand
+  ; turn on xtreebar display
+  xtreebar -T 1
+
+  ; open custom window just to show treebar doing something.
+  window @xtreebar
+
+  ; count how many items are in the treebar
+  echo -s cnt: $xtreebar(0).item
+  ; show item one
+  echo -s item1: $xtreebar(1).item
+  ; show item two
+  echo -s item2: $xtreebar(2).item
+  ; show item three
+  echo -s item3: $xtreebar(3).item
+
+}
+</pre></td></tr></table></td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>Menus</td></tr>
+	<tr><td><table><tr><td><strong>Command:</strong></td><td>/dcxmenus</td></tr><tr><td><strong>Teaches:</strong></td><td>- Use of DCX Menus<br /></td></tr><tr><td colspan='2'><strong>Script by Ook</strong></td></tr><tr><td colspan='2'><pre class="code">alias dcxmenus {
+  mpopup mirc 1
+  mpopup mircbar 1
+
+  ; normal style menu
+  ;xpopup -t mirc normal
+  ;xpopup -l mirc 1 $rgb(240,240,240)
+  ;xpopup -l mirc 7 $color(83)
+  ;xpopup -l mirc 8 $color(59)
+  xpopup -t mircbar normal
+  xpopup -l mircbar 1 $rgb(240,240,240)
+  xpopup -l mircbar 7 $color(83)
+  xpopup -l mircbar 8 $color(59)
+
+  ; button style menu with blue select colour
+  xpopup -t mirc buttonrev
+  xpopup -l mirc 7 15905805
+
+  ; custombig style  
+  ;xpopup -t mirc custombig
+  ;var %f = $mircdirtop_bg.jpg
+  ;if ($isfile(%f)) xpopup -b mirc %f
+
+  ; set background colour
+  ;xpopup -l mirc 1 $color(15)
+
+  ; load icons & images used in menus
+  var %f = $mircdirimages\dcx_ppac.png
+  if ($isfile(%f)) xpopup -i mirc +a 0 %f
+  var %f = $mircdiricons\users.ico
+  if ($isfile(%f)) xpopup -i mirc + 0 %f
+  var %f = $mircdirimages\one.png
+  if ($isfile(%f)) xpopup -i mirc +P 0 %f
+  var %f = $mircdirCanada.ico
+  if ($isfile(%f)) xpopup -i mircbar + 0 %f
+  var %f = $mircdiricons\users.ico
+  if ($isfile(%f)) xpopup -i mircbar + 0 %f
+
+  ; set selection box as rounded.
+  ;xpopup -R mirc +r 1
+  ;xpopup -R mircbar +r 1
+
+  ; set menu as alpha blended.
+  xpopup -R mirc +a 192
+  ;xpopup -R mircbar +a 192
+
+  ; enable tooltips
+  xpopup -R mirc +t 1
+  ;xpopup -R mircbar +t 1
+
+  ; enable rounded menu
+  ;xpopup -R mirc +R 1
+  ;xpopup -R mircbar +R 1
+  ;
+  ;
+}
+menu status,menubar {
+DCX
+.Unload DCX:udcx
+.Settings
+..Menu Styles
+...Normal $chr(9) Normal looking menu: {
+  ;xpopup -l mirc 1 default
+  ;xpopup -l mirc 7 default
+  ;xpopup -l mirc 8 default
+  xpopup -t mirc normal
+  xpopup -l mirc 1 $rgb(240,240,240)
+  xpopup -l mirc 7 $color(83)
+  xpopup -l mirc 8 $color(59)
+}
+...Vertical $chr(9) Vertical Gradient: {
+  xpopup -l mirc 1 default
+  xpopup -l mirc 7 default
+  xpopup -l mirc 8 default
+  xpopup -t mirc vertical
+}
+...VerticalRev $chr(9) Reverse Vertical Gradient: {
+  xpopup -l mirc 1 default
+  xpopup -l mirc 7 default
+  xpopup -l mirc 8 default
+  xpopup -t mirc verticalrev
+}
+...Button $chr(9) Items are buttons: {
+  xpopup -l mirc 1 default
+  xpopup -l mirc 8 default
+  xpopup -t mirc button
+  xpopup -l mirc 7 $rgb(13,180,242)
+}
+...ButtonRev $chr(9) Items are sunken buttons: {
+  xpopup -l mirc 1 default
+  xpopup -l mirc 8 default
+  xpopup -t mirc buttonrev
+  xpopup -l mirc 7 $rgb(13,180,242)
+}
+...Gradient $chr(9) Gradient: {
+  xpopup -l mirc 7 default
+  xpopup -l mirc 8 default
+  xpopup -t mirc grade
+  xpopup -l mirc 1 $rgb(255,192,34)
+}
+...GradientRev $chr(9) Reverse Gradient: {
+  xpopup -l mirc 1 default
+  xpopup -l mirc 7 default
+  xpopup -l mirc 8 default
+  xpopup -t mirc graderev
+}
+...Custom $chr(9) Each item is a custom bitmap: {
+  xpopup -l mirc 1 default
+  xpopup -l mirc 7 default
+  xpopup -l mirc 8 default
+  xpopup -t mirc custom
+  var %f = $mircdirtop_bg.jpg
+  if ($isfile(%f)) xpopup -b mirc %f
+}
+...CustomBig $chr(9) Custom bitmap covers whole menu: {
+  xpopup -l mirc 1 default
+  xpopup -l mirc 7 default
+  xpopup -l mirc 8 default
+  xpopup -t mirc custombig
+  var %f = $mircdirtop_bg.jpg
+  if ($isfile(%f)) xpopup -b mirc %f
+}
+...OfficeXP $chr(9) OfficeXP style: {
+  xpopup -l mirc 1 default
+  xpopup -l mirc 7 default
+  xpopup -l mirc 8 default
+  xpopup -t mirc officexp
+}
+...Office2003 $chr(9) Office2003 style: {
+  xpopup -l mirc 1 default
+  xpopup -l mirc 7 default
+  xpopup -l mirc 8 default
+  xpopup -t mirc office2003
+}
+...Office2003rev $chr(9) Reverse Office2003 style: {
+  xpopup -l mirc 1 default
+  xpopup -l mirc 7 default
+  xpopup -l mirc 8 default
+  xpopup -t mirc office2003rev
+}
+...Icy $chr(9) Ice effect: {
+  xpopup -l mirc 1 default
+  xpopup -l mirc 7 default
+  xpopup -l mirc 8 default
+  xpopup -t mirc icy
+}
+...IcyRev $chr(9) Reverse Ice effect: {
+  xpopup -l mirc 1 default
+  xpopup -l mirc 7 default
+  xpopup -t mirc icyrev
+}
+...Rounded $chr(9) Make menus rounded rects: {
+  xpopup -R mirc +r 1
+  xpopup -R mircbar +r 1
+}
+...Square $chr(9) Make menus rects: {
+  xpopup -R mirc +r 0
+  xpopup -R mircbar +r 0
+}
+...Tooltips $chr(9) Enable tooltips like this one!: {
+  xpopup -R mirc +t 1
+  ;xpopup -R mircbar +t 1
+}
+...No Tooltips $chr(9) Disable tooltips like this one!: {
+  xpopup -R mirc +t 0
+  ;xpopup -R mircbar +t 0
+}
+...Alpha Blend $chr(9) Set the menus to be translucent: {
+  xpopup -R mirc +a 192
+  ;xpopup -R mircbar +a 192
+}
+...No Alpha Blend $chr(9) disable alpha blending: {
+  xpopup -R mirc +a 255
+  ;xpopup -R mircbar +a 255
+}
+..UpdateColours: dcx SetDCXSettings UpdateColours
+..Static Colours
+...Enable $chr(9) Fix the colours used by DCX (faster): dcx SetDCXSettings StaticColours 1
+...Disable: dcx SetDCXSettings StaticColours 0
+}
+</pre></td></tr></table></td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>xStatusbar</td></tr>
+	<tr><td><table><tr><td><strong>Command:</strong></td><td>/dcxstatusbar</td></tr><tr><td><strong>Teaches:</strong></td><td>- Use of xStatusbar<br /></td></tr><tr><td colspan='2'><strong>Script by Ook</strong></td></tr><tr><td colspan='2'><pre class="code">alias dcxstatusbar {
+  ; make sure the xstatusbar signal is enabled.
+  dcx xSignal 1 +s
+  ; set statusbar styles
+  xstatusbar -A 1 utf8 nothem
+  ; set statusbar font.
+  xstatusbar -f + default 8 Arial
+  ; load some icons/images for later use
+  var %f = Canada.ico
+  if ($isfile(%f)) xstatusbar -w + 0 %f
+  var %f = $scriptdirimages\away.gif
+  if ($isfile(%f)) xstatusbar -w +P 0 %f
+  var %f = $mircdirimages\dcx_ppac.png
+  if ($isfile(%f)) xstatusbar -w +P 0 %f
+  var %f = $mircdirimages\371.gif
+  if ($isfile(%f)) xstatusbar -w +P 0 %f
+  ; setup some cells
+  xstatusbar -l 200 200 200 24% 24 24 24 24 24 24 24 24 24 24 24 24
+  ; set the cells text
+  xstatusbar -t 1 +f 1 -1 -1 4some text $+(.,$chr(226),$chr(152),$chr(186)) 200 wide
+  xstatusbar -t 2 +f 2 255 -1 text2 $+($chr(194),$chr(161)) 200 wide
+  xstatusbar -t 3 +f 3 255 $rgb(128,128,128) text3 $+($chr(201),$chr(159)) 200 wide
+  xstatusbar -t 4 +f 4 -1 $rgb(128,128,128) text4 $+($chr(201),$chr(159)) 24% width
+  var %cell = 5
+  while (%cell < 17) {
+    xstatusbar -t %cell + 4 -1 -1 24
+    inc %cell
+  }
+}
+on *:signal:DCX: {
+  ; show any signals we get.
+  echo -s dcx signal: $1-
+  if ($1 == DCXStatusbar) {
+    if ($2 == sclick) {
+	  ; when you click on a cell, set it to a random colour.
+      xstatusbar -v $4 $rgb($r(0,255),$r(0,255),$r(0,255)) -1 $xstatusbar($4).text
+    }
+  }
+}
+</pre></td></tr></table></td></tr>
+</table>
 </td>  </tr>
 </table>
 

@@ -114,6 +114,27 @@ function get_examples(&$EXAMPLES) {
 				'Use of global functions to enable/disable controls'
 			),
 		),
+		'xTreebar' => array(
+			'__author' => 'Ook',
+			'__cmd' => 'dcxtreebar',
+			'__teaches' => array(
+				'Use of xTreebar',
+			),
+		),
+		'Menus' => array(
+			'__author' => 'Ook',
+			'__cmd' => 'dcxmenus',
+			'__teaches' => array(
+				'Use of DCX Menus',
+			),
+		),
+		'xStatusbar' => array(
+			'__author' => 'Ook',
+			'__cmd' => 'dcxstatusbar',
+			'__teaches' => array(
+				'Use of xStatusbar',
+			),
+		),
 	);
 }
 ?>
