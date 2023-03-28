@@ -95,6 +95,7 @@ mIRC(ColorDialog)
 		// stop any left over exceptions...
 		Dcx::error(TEXT("$!dcx(ColorDialog)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
+	mIRCLinker::echo(TEXT("$!dcx(ColorDialog,(DEFAULT) (STYLES))"));
 	return 0;
 }
 
@@ -131,6 +132,7 @@ mIRC(OpenDialog)
 		// stop any left over exceptions...
 		Dcx::error(TEXT("$!dcx(OpenDialog)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
+	mIRCLinker::echo(TEXT("$!dcx(OpenDialog,(STYLES) $!chr(9) (FILENAME) $!chr(9) (FILTER))"));
 	return 0;
 }
 
@@ -158,6 +160,7 @@ mIRC(SaveDialog)
 		// stop any left over exceptions...
 		Dcx::error(TEXT("$!dcx(SaveDialog)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
+	mIRCLinker::echo(TEXT("$!dcx(SaveDialog,(STYLES) $!chr(9) (FILENAME) $!chr(9) (FILTER))"));
 	return 0;
 }
 
@@ -299,8 +302,6 @@ TString FileDialog(const TString& data, const TString& method, const HWND pWnd)
 
 	return tsResult;
 }
-
-
 
 /*!
 * \brief Shows CommonDialog for Selecting Folders/Directories
@@ -456,6 +457,7 @@ mIRC(BrowseDialog)
 		// stop any left over exceptions...
 		Dcx::error(TEXT("$!dcx(BrowseDialog)"), TEXT("\"%\" error: Unknown Exception"), input);
 	}
+	mIRCLinker::echo(TEXT("$!dcx(BrowseDialog,[STYLES] $!chr(9) (INITIAL_FOLDER) $!chr(9) (TITLE_TEXT))"));
 	return 0;
 }
 
@@ -690,6 +692,7 @@ mIRC(FontDialog)
 		// stop any left over exceptions...
 		Dcx::error(TEXT("$!dcx(FontDialog)"), TEXT("\"%\" error: Unknown Exception"), input);
 	}
+	mIRCLinker::echo(TEXT("$!dcx(FontDialog,(PARAM VALUE) $!chr(9) ... $!chr(9) (PARAM VALUE))"));
 	return 0;
 }
 
@@ -830,6 +833,7 @@ mIRC(MsgBox)
 		// stop any left over exceptions...
 		Dcx::error(TEXT("$!dcx(MsgBox)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
+	mIRCLinker::echo(TEXT("$!dcx(MsgBox,[STYLES] [TAB] [TITLE] [TAB] [MSG])"));
 	return 0;
 }
 
@@ -874,6 +878,7 @@ mIRC(PickIcon)
 		// stop any left over exceptions...
 		Dcx::error(TEXT("$!dcx(PickIcon)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
+	mIRCLinker::echo(TEXT("$!dcx(PickIcon,[INDEX] [FILENAME])"));
 	return 0;
 }
 
@@ -918,6 +923,7 @@ mIRC(CountIcons)
 		// stop any left over exceptions...
 		Dcx::error(TEXT("$!dcx(CountIcons)"), TEXT("\"%\" error: Unknown Exception"), filename);
 	}
+	mIRCLinker::echo(TEXT("$!dcx(CountIcons,[FILENAME])"));
 	return 0;
 }
 
@@ -957,6 +963,8 @@ mIRC(SaveClipboard)
 		// stop any left over exceptions...
 		Dcx::error(TEXT("$!dcx(SaveClipboard)"), TEXT("\"%\" error: Unknown Exception"), filename);
 	}
+	mIRCLinker::echo(TEXT("$!dcx(SaveClipboard,[+FLAGS] [FILENAME])"));
+	mIRCLinker::echo(TEXT("[+FLAGS] = t or b"));
 	return 0;
 }
 
