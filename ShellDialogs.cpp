@@ -501,18 +501,6 @@ int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lp
 		if (dcx_testflag(extra->flags, BIF_BROWSEFORCOMPUTER) || dcx_testflag(extra->flags, BIF_BROWSEFORPRINTER))
 			break;
 
-		//TString path((UINT) MAX_PATH);
-		//
-		//if (SHGetPathFromIDList(reinterpret_cast<LPITEMIDLIST>(lParam), path.to_chr()))
-		//{
-		//	SendMessage(hwnd, BFFM_ENABLEOK, TRUE, TRUE);
-		//	SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, (LPARAM) path.to_chr());
-		//}
-		//else {
-		//	SendMessage(hwnd, BFFM_ENABLEOK, TRUE, FALSE);
-		//	SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, 0);
-		//}
-
 		const stString<MAX_PATH> sPath;
 
 		if (SHGetPathFromIDList(reinterpret_cast<LPITEMIDLIST>(lParam), sPath))
@@ -598,7 +586,6 @@ mIRC(FontDialog)
 				case TEXT("flags"_hash):
 				{
 					if (numtok < 2)
-						//throw Dcx::dcxException("Invalid Args");
 						throw DcxExceptions::dcxInvalidArguments();
 
 					const XSwitchFlags xflags(option.getnexttok());	// tok 2
@@ -642,7 +629,6 @@ mIRC(FontDialog)
 				case TEXT("default"_hash):
 				{
 					if (numtok < 5)
-						//throw Dcx::dcxException("Invalid Args");
 						throw DcxExceptions::dcxInvalidArguments();
 
 					ParseCommandToLogfont(option.getlasttoks(), &lf);	// tok 2, -1
@@ -651,7 +637,6 @@ mIRC(FontDialog)
 				case TEXT("color"_hash):
 				{
 					if (numtok < 2)
-						//throw Dcx::dcxException("Invalid Args");
 						throw DcxExceptions::dcxInvalidArguments();
 
 					cf.rgbColors = option.getnexttok().to_<COLORREF>();	// tok 2
@@ -660,7 +645,6 @@ mIRC(FontDialog)
 				case TEXT("minmaxsize"_hash):
 				{
 					if (numtok < 3)
-						//throw Dcx::dcxException("Invalid Args");
 						throw DcxExceptions::dcxInvalidArguments();
 
 					cf.nSizeMin = option.getnexttok().to_int();	// tok 2
@@ -670,7 +654,6 @@ mIRC(FontDialog)
 				case TEXT("owner"_hash):
 				{
 					if (numtok < 2)
-						//throw Dcx::dcxException("Invalid Args");
 						throw DcxExceptions::dcxInvalidArguments();
 
 					cf.hwndOwner = FindOwner(option, gsl::not_null(mWnd));
@@ -679,61 +662,6 @@ mIRC(FontDialog)
 				default:
 					break;
 				}
-
-				//if (hashType == TEXT("flags"_hash) && numtok > 1)
-				//{
-				//	const XSwitchFlags xflags(option.getnexttok());	// tok 2
-				//
-				//	if (xflags[TEXT('a')])
-				//		style |= CF_NOFACESEL;
-				//	if (xflags[TEXT('b')])
-				//		style |= CF_SCRIPTSONLY;
-				//	if (xflags[TEXT('c')])
-				//		style |= CF_SCALABLEONLY;// (Scalable fonts include vector fonts, scalable printer fonts, TrueType fonts, and fonts scaled by other technologies.)
-				//	if (xflags[TEXT('e')])
-				//		style |= CF_EFFECTS;
-				//	if (xflags[TEXT('f')])
-				//		style |= CF_FORCEFONTEXIST;
-				//	if (xflags[TEXT('h')])
-				//		style |= CF_NOSCRIPTSEL;
-				//	if (xflags[TEXT('i')])
-				//		style |= CF_NOSIMULATIONS;
-				//	if (xflags[TEXT('m')])
-				//		style |= CF_SELECTSCRIPT;
-				//	if (xflags[TEXT('n')])
-				//		style |= CF_PRINTERFONTS;
-				//	if (xflags[TEXT('p')])
-				//		style |= CF_FIXEDPITCHONLY;
-				//	if (xflags[TEXT('r')])
-				//		style |= CF_NOVERTFONTS;
-				//	if (xflags[TEXT('s')])
-				//		style |= CF_SCREENFONTS;
-				//	if (xflags[TEXT('t')])
-				//		style |= CF_TTONLY;
-				//	if (xflags[TEXT('v')])
-				//		style |= CF_NOVECTORFONTS;
-				//	if (xflags[TEXT('w')])
-				//		style |= CF_WYSIWYG;
-				//	if (xflags[TEXT('y')])
-				//		style |= CF_NOSTYLESEL;
-				//	if (xflags[TEXT('z')])
-				//		style |= CF_NOSIZESEL;
-				//}
-				//// defaults +flags(ibsua) charset size fontname
-				//else if (hashType == TEXT("default"_hash) && numtok > 4)
-				//	ParseCommandToLogfont(option.getlasttoks(), &lf);	// tok 2, -1
-				//// color rgb
-				//else if (hashType == TEXT("color"_hash) && numtok > 1)
-				//	cf.rgbColors = option.getnexttok().to_<COLORREF>();	// tok 2
-				//// minmaxsize min max
-				//else if (hashType == TEXT("minmaxsize"_hash) && numtok > 2)
-				//{
-				//	cf.nSizeMin = option.getnexttok().to_int();	// tok 2
-				//	cf.nSizeMax = option.getnexttok().to_int();	// tok 3
-				//}
-				//// owner
-				//else if (hashType == TEXT("owner"_hash) && numtok > 1)
-				//	cf.hwndOwner = FindOwner(option, mWnd);
 			}
 		}
 
@@ -782,9 +710,9 @@ mIRC(MsgBox)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		DWORD			style = MB_DEFBUTTON1;
-		const auto	strStyles(d.getfirsttok(1, TSTABCHAR).trim());		// tok 1
-		const auto	strTitle(d.getnexttok(TSTABCHAR).trim());			// tok 2
-		const auto	strMsg(d.getlasttoks().trim());					// tok 3, -1
+		const auto		strStyles(d.getfirsttok(1, TSTABCHAR).trim());		// tok 1
+		const auto		strTitle(d.getnexttok(TSTABCHAR).trim());			// tok 2
+		const auto		strMsg(d.getlasttoks().trim());						// tok 3, -1
 		auto			owner = aWnd;
 
 		for (const auto& tsStyle : strStyles)
@@ -877,51 +805,6 @@ mIRC(MsgBox)
 		if (dcx_testflag(style, MB_TASKMODAL))
 			owner = nullptr;
 
-		//const TCHAR *const IDMSGS[] = {
-		//	TEXT("abort"),
-		//	TEXT("cancel"),
-		//	TEXT("continue"),
-		//	TEXT("ignore"),
-		//	TEXT("no"),
-		//	TEXT("ok"),
-		//	TEXT("retry"),
-		//	TEXT("tryagain"),
-		//	TEXT("yes")
-		//};
-		//
-		//switch (MessageBox(owner, strMsg.to_chr(), strTitle.to_chr(), style))
-		//{
-		//case IDABORT:
-		//	ret(IDMSGS[0]);
-		//	break;
-		//case IDCANCEL:
-		//	ret(IDMSGS[1]);
-		//	break;
-		//case IDCONTINUE:
-		//	ret(IDMSGS[2]);
-		//	break;
-		//case IDIGNORE:
-		//	ret(IDMSGS[3]);
-		//	break;
-		//case IDNO:
-		//	ret(IDMSGS[4]);
-		//	break;
-		//case IDOK:
-		//	ret(IDMSGS[5]);
-		//	break;
-		//case IDRETRY:
-		//	ret(IDMSGS[6]);
-		//	break;
-		//case IDTRYAGAIN:
-		//	ret(IDMSGS[7]);
-		//	break;
-		//case IDYES:
-		//	ret(IDMSGS[8]);
-		//	break;
-		//default:
-		//	break;
-		//}
-
 		const TCHAR* const IDMSGS[] = {
 			nullptr,
 			TEXT("ok"),
@@ -936,23 +819,6 @@ mIRC(MsgBox)
 			TEXT("tryagain"),
 			TEXT("continue")
 		};
-
-		//switch (const auto res = MessageBox(owner, strMsg.to_chr(), strTitle.to_chr(), style); res)
-		//{
-		//case IDABORT:
-		//case IDCANCEL:
-		//case IDCONTINUE:
-		//case IDIGNORE:
-		//case IDNO:
-		//case IDOK:
-		//case IDRETRY:
-		//case IDTRYAGAIN:
-		//case IDYES:
-		//	ret(gsl::at(IDMSGS,res));
-		//	break;
-		//default:
-		//	break;
-		//}
 
 		ret(gsl::at(IDMSGS, MessageBox(owner, strMsg.to_chr(), strTitle.to_chr(), style)));
 	}
@@ -990,18 +856,6 @@ mIRC(PickIcon)
 		if (!IsFile(tsFilename))
 			throw DcxExceptions::dcxInvalidFilename();
 
-		////TCHAR iconPath[MAX_PATH + 1];
-		//
-		//auto iconPath = std::make_unique<TCHAR[]>(MAX_PATH + 1U);
-		//
-		//GetFullPathName(filename.to_chr(), MAX_PATH, iconPath, nullptr);
-		//
-		//if (dcxPickIconDlg(aWnd, iconPath.get(), MAX_PATH, &index))
-		//	wnsprintf(data, mIRCLinker::m_dwCharacters, TEXT("D_OK %d %s"), index, iconPath.get());
-		//else
-		//	wnsprintf(data, mIRCLinker::m_dwCharacters, TEXT("D_ERROR %d %s"), index, iconPath.get());
-		//return 3;
-
 		const stString<MAX_PATH + 1U> sIconPath;
 
 		GetFullPathName(tsFilename.to_chr(), sIconPath.size(), sIconPath, nullptr);
@@ -1028,6 +882,9 @@ mIRC(PickIcon)
 */
 int dcxPickIconDlg(const HWND hwnd, LPWSTR pszIconPath, const UINT& cchIconPath, int* piIconIndex) noexcept
 {
+	if (!pszIconPath)
+		return 0;
+
 	return PickIconDlg(hwnd, pszIconPath, cchIconPath, piIconIndex);
 }
 
@@ -1073,7 +930,7 @@ mIRC(SaveClipboard)
 
 	data[0] = 0;
 
-	XSwitchFlags xFlags(d.getfirsttok(1));
+	const XSwitchFlags xFlags(d.getfirsttok(1));
 	TString filename(d.getlasttoks());
 
 	try {
@@ -1085,7 +942,7 @@ mIRC(SaveClipboard)
 		if (IsFile(filename))
 			throw DcxExceptions::dcxInvalidFilename();
 
-		if (auto [code, v] = SaveClipboardToFile(xFlags, filename); code)
+		if (const auto [code, v] = SaveClipboardToFile(xFlags, filename); code)
 			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("D_OK %d"), v);
 		else
 			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("D_ERROR %d"), v);
