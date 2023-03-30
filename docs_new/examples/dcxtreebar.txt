@@ -1,3 +1,7 @@
+;
+; see https://vsthemes.org/en/icon/ for icons
+;
+
 alias xtreebar_callback {
   echo -s treebar: $1 :: $2 :: $3-
   !if ($1 == geticons) {

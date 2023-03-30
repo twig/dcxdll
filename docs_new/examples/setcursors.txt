@@ -1,0 +1,42 @@
+;
+; See https://vsthemes.org/en/cursors/ for cursors.
+;
+alias setcursors {
+  var %path = C:\mIRC\cursors
+  if (!$isdir(%path)) return
+  ; change the arrow cursor.
+  var %f = %path $+ \Crystal Clear v2.1\Normal Select v2.1.ani
+  if ($isfile(%f)) dcx SetmIRCCursors arrow %f
+  ; change all the size cursors.
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_move.ani
+  if ($isfile(%f)) dcx SetmIRCCursors sizeall %f
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_ns.ani
+  if ($isfile(%f)) dcx SetmIRCCursors sizens %f
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_ew.ani
+  if ($isfile(%f)) dcx SetmIRCCursors sizewe %f
+  ; change the help cursor.
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_help.ani
+  if ($isfile(%f)) dcx SetmIRCCursors help %f
+  ; change the hand cursor.
+  var %f = %path $+ \Crystal Clear v2.1\Link Select v2.1.ani
+  if ($isfile(%f)) dcx SetmIRCCursors hand %f
+  ; change the cross cursor.
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_precision.ani
+  if ($isfile(%f)) dcx SetmIRCCursors cross %f
+  ; change the up arrow cursor.
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_up.ani
+  if ($isfile(%f)) dcx SetmIRCCursors uparrow %f
+  ; change the cursors for specific window areas.
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_pen.ani
+  if ($isfile(%f)) dcx SetmIRCCursors min,max,close %f
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_ns.ani
+  if ($isfile(%f)) dcx SetmIRCCursors bottom,top %f
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_ew.ani
+  if ($isfile(%f)) dcx SetmIRCCursors left,right %f
+  var %f = %path $+ \Crystal Clear v2.1\(Bonus)\Busy (Glow).ani
+  if ($isfile(%f)) dcx SetmIRCCursors sysmenu %f
+  var %f = %path $+ \Crystal Clear v2.1\Diagonal Resize 1 v2.1.ani
+  if ($isfile(%f)) dcx SetmIRCCursors bottomright,topleft %f
+  var %f = %path $+ \Crystal Clear v2.1\Diagonal Resize 2 v2.1.ani
+  if ($isfile(%f)) dcx SetmIRCCursors bottomleft,topright %f
+}

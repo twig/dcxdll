@@ -1,8 +1,13 @@
+;
+; see https://vsthemes.org/en/icon/ for icons
+;
 alias dcxstatusbar {
   ; make sure the xstatusbar signal is enabled.
   dcx xSignal 1 +s
   ; set statusbar styles
-  xstatusbar -A 1 utf8 nothem
+  xstatusbar -A 1 grip tooltips
+  ; clear any old images
+  xstatusbar -y
   ; set statusbar font.
   xstatusbar -f + default 8 Arial
   ; load some icons/images for later use
@@ -18,9 +23,9 @@ alias dcxstatusbar {
   xstatusbar -l 200 200 200 24% 24 24 24 24 24 24 24 24 24 24 24 24
   ; set the cells text
   xstatusbar -t 1 +f 1 -1 -1 4some text $+(.,$chr(226),$chr(152),$chr(186)) 200 wide
-  xstatusbar -t 2 +f 2 255 -1 text2 $+($chr(194),$chr(161)) 200 wide
-  xstatusbar -t 3 +f 3 255 $rgb(128,128,128) text3 $+($chr(201),$chr(159)) 200 wide
-  xstatusbar -t 4 +f 4 -1 $rgb(128,128,128) text4 $+($chr(201),$chr(159)) 24% width
+  xstatusbar -t 2 +f 2 255 -1 text2 $+($chr(194),$chr(161)) 200 wide $chr(9) a pointless tooltip!
+  xstatusbar -t 3 +f 3 255 $rgb(128,128,128) text3 $+($chr(201),$chr(159)) 200 wide $chr(9) another one!
+  xstatusbar -t 4 +f 4 -1 $rgb(128,128,128) text4 $+($chr(201),$chr(159)) 24% width $chr(9) and a third!
   var %cell = 5
   while (%cell < 17) {
     xstatusbar -t %cell + 4 -1 -1 24

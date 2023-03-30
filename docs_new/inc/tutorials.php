@@ -142,6 +142,13 @@ function get_examples(&$EXAMPLES) {
 				'Use of xStatusbar',
 			),
 		),
+		'setcursors' => array(
+			'__author' => 'Ook',
+			'__cmd' => 'setcursors',
+			'__teaches' => array(
+				'Use of /dcx SetmIRCCursors',
+			),
+		),
 	);
 }
 ?>

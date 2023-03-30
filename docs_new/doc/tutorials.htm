@@ -443,7 +443,11 @@ alias proxy_eg_cb {
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>xTreebar</td></tr>
-	<tr><td><table><tr><td><strong>Command:</strong></td><td>/dcxtreebar</td></tr><tr><td><strong>Teaches:</strong></td><td>- Use of xTreebar<br /></td></tr><tr><td colspan='2'><strong>Script by Ook</strong></td></tr><tr><td colspan='2'><pre class="code">alias xtreebar_callback {
+	<tr><td><table><tr><td><strong>Command:</strong></td><td>/dcxtreebar</td></tr><tr><td><strong>Teaches:</strong></td><td>- Use of xTreebar<br /></td></tr><tr><td colspan='2'><strong>Script by Ook</strong></td></tr><tr><td colspan='2'><pre class="code">;
+; see https://vsthemes.org/en/icon/ for icons
+;
+
+alias xtreebar_callback {
   echo -s treebar: $1 :: $2 :: $3-
   !if ($1 == geticons) {
     ; geticons &lt;type&gt; &lt;text&gt;
@@ -535,7 +539,10 @@ alias dcxtreebar {
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>Menus</td></tr>
-	<tr><td><table><tr><td><strong>Command:</strong></td><td>/dcxmenus</td></tr><tr><td><strong>Teaches:</strong></td><td>- Use of DCX Menus<br /></td></tr><tr><td colspan='2'><strong>Script by Ook</strong></td></tr><tr><td colspan='2'><pre class="code">alias dcxmenus {
+	<tr><td><table><tr><td><strong>Command:</strong></td><td>/dcxmenus</td></tr><tr><td><strong>Teaches:</strong></td><td>- Use of DCX Menus<br /></td></tr><tr><td colspan='2'><strong>Script by Ook</strong></td></tr><tr><td colspan='2'><pre class="code">;
+; see https://vsthemes.org/en/icon/ for icons
+;
+alias dcxmenus {
   mpopup mirc 1
   mpopup mircbar 1
 
@@ -719,11 +726,16 @@ DCX
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>xStatusbar</td></tr>
-	<tr><td><table><tr><td><strong>Command:</strong></td><td>/dcxstatusbar</td></tr><tr><td><strong>Teaches:</strong></td><td>- Use of xStatusbar<br /></td></tr><tr><td colspan='2'><strong>Script by Ook</strong></td></tr><tr><td colspan='2'><pre class="code">alias dcxstatusbar {
+	<tr><td><table><tr><td><strong>Command:</strong></td><td>/dcxstatusbar</td></tr><tr><td><strong>Teaches:</strong></td><td>- Use of xStatusbar<br /></td></tr><tr><td colspan='2'><strong>Script by Ook</strong></td></tr><tr><td colspan='2'><pre class="code">;
+; see https://vsthemes.org/en/icon/ for icons
+;
+alias dcxstatusbar {
   ; make sure the xstatusbar signal is enabled.
   dcx xSignal 1 +s
   ; set statusbar styles
-  xstatusbar -A 1 utf8 nothem
+  xstatusbar -A 1 grip tooltips
+  ; clear any old images
+  xstatusbar -y
   ; set statusbar font.
   xstatusbar -f + default 8 Arial
   ; load some icons/images for later use
@@ -739,9 +751,9 @@ DCX
   xstatusbar -l 200 200 200 24% 24 24 24 24 24 24 24 24 24 24 24 24
   ; set the cells text
   xstatusbar -t 1 +f 1 -1 -1 4some text $+(.,$chr(226),$chr(152),$chr(186)) 200 wide
-  xstatusbar -t 2 +f 2 255 -1 text2 $+($chr(194),$chr(161)) 200 wide
-  xstatusbar -t 3 +f 3 255 $rgb(128,128,128) text3 $+($chr(201),$chr(159)) 200 wide
-  xstatusbar -t 4 +f 4 -1 $rgb(128,128,128) text4 $+($chr(201),$chr(159)) 24% width
+  xstatusbar -t 2 +f 2 255 -1 text2 $+($chr(194),$chr(161)) 200 wide $chr(9) a pointless tooltip!
+  xstatusbar -t 3 +f 3 255 $rgb(128,128,128) text3 $+($chr(201),$chr(159)) 200 wide $chr(9) another one!
+  xstatusbar -t 4 +f 4 -1 $rgb(128,128,128) text4 $+($chr(201),$chr(159)) 24% width $chr(9) and a third!
   var %cell = 5
   while (%cell &lt; 17) {
     xstatusbar -t %cell + 4 -1 -1 24
@@ -757,6 +769,52 @@ on *:signal:DCX: {
       xstatusbar -v $4 $rgb($r(0,255),$r(0,255),$r(0,255)) -1 $xstatusbar($4).text
     }
   }
+}
+</pre></td></tr></table></td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>setcursors</td></tr>
+	<tr><td><table><tr><td><strong>Command:</strong></td><td>/setcursors</td></tr><tr><td><strong>Teaches:</strong></td><td>- Use of /dcx SetmIRCCursors<br /></td></tr><tr><td colspan='2'><strong>Script by Ook</strong></td></tr><tr><td colspan='2'><pre class="code">;
+; See https://vsthemes.org/en/cursors/ for cursors.
+;
+alias setcursors {
+  var %path = C:\mIRC\cursors
+  if (!$isdir(%path)) return
+  ; change the arrow cursor.
+  var %f = %path $+ \Crystal Clear v2.1\Normal Select v2.1.ani
+  if ($isfile(%f)) dcx SetmIRCCursors arrow %f
+  ; change all the size cursors.
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_move.ani
+  if ($isfile(%f)) dcx SetmIRCCursors sizeall %f
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_ns.ani
+  if ($isfile(%f)) dcx SetmIRCCursors sizens %f
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_ew.ani
+  if ($isfile(%f)) dcx SetmIRCCursors sizewe %f
+  ; change the help cursor.
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_help.ani
+  if ($isfile(%f)) dcx SetmIRCCursors help %f
+  ; change the hand cursor.
+  var %f = %path $+ \Crystal Clear v2.1\Link Select v2.1.ani
+  if ($isfile(%f)) dcx SetmIRCCursors hand %f
+  ; change the cross cursor.
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_precision.ani
+  if ($isfile(%f)) dcx SetmIRCCursors cross %f
+  ; change the up arrow cursor.
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_up.ani
+  if ($isfile(%f)) dcx SetmIRCCursors uparrow %f
+  ; change the cursors for specific window areas.
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_pen.ani
+  if ($isfile(%f)) dcx SetmIRCCursors min,max,close %f
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_ns.ani
+  if ($isfile(%f)) dcx SetmIRCCursors bottom,top %f
+  var %f = %path $+ \Metro X3 by exsess\Bold\Crimson\X3_ew.ani
+  if ($isfile(%f)) dcx SetmIRCCursors left,right %f
+  var %f = %path $+ \Crystal Clear v2.1\(Bonus)\Busy (Glow).ani
+  if ($isfile(%f)) dcx SetmIRCCursors sysmenu %f
+  var %f = %path $+ \Crystal Clear v2.1\Diagonal Resize 1 v2.1.ani
+  if ($isfile(%f)) dcx SetmIRCCursors bottomright,topleft %f
+  var %f = %path $+ \Crystal Clear v2.1\Diagonal Resize 2 v2.1.ani
+  if ($isfile(%f)) dcx SetmIRCCursors bottomleft,topright %f
 }
 </pre></td></tr></table></td></tr>
 </table>
