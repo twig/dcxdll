@@ -2,6 +2,7 @@ alias xtreebar_callback {
   echo -s treebar: $1 :: $2 :: $3-
   !if ($1 == geticons) {
     ; geticons <type> <text>
+    ; returns: normal selected expanded
     !if ($2 == status) return 1 2 3
     !if ($2 == channel) return 4 5 6
     !if ($2 == custom) return 7 8 9
@@ -14,6 +15,7 @@ alias xtreebar_callback {
   }
   !if ($1 == gettooltip) {
     ; gettooltip <type> <text>
+    ; returns: tootlip text
     !if ($2 == channel) {
       !if ($3 == #genscripts) return GenScripts Development!
       !if (#mircscript* iswm $3) return mIRC Scripting Channel
@@ -22,8 +24,8 @@ alias xtreebar_callback {
     !if ($2 == WindowFolder) return Custom Windows Folder
   }
   !elseif ($1 == setitem) {
-    ; <type> <htreeitem> <flags>
-    !var %i = $3, %f = $4, %d = $5
+    ; setitem <type> <htreeitem> <flags>
+    ; no return value.
     echo -s setitem: $2 :: $3 :: $4
   }
 }

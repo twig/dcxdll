@@ -53,8 +53,15 @@ function display_example($title, $data) {
 		error_log("Could not open example file for reading. Terminating batch.");
 		exit();
 	}
-	
-	echo fread($hfile, filesize($filename));
+	// NB: This replace is needed to stop tags etc.. within the scripts being rendered as html.
+	$needles = array(
+		"&","<", ">"
+	);
+	$reps = array(
+		"&amp;","&lt;","&gt;"
+	);
+	echo str_replace($needles,$reps,fread($hfile, filesize($filename)));
+	//echo fread($hfile, filesize($filename));
 	fclose($hfile);
 	echo "[/code]</td></tr>";
 	
