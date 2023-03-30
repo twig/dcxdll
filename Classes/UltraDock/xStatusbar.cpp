@@ -44,11 +44,10 @@ mIRC(xstatusbar)
 				throw DcxExceptions::dcxInvalidArguments();
 
 			// Enable/Disable the Statusbar.
-			// -A [0|1] [options] = notheme grip tooltips nodivider utf8
+			// -A [0|1] [options] = notheme grip tooltips nodivider disabled transparent
 			if (input.getnexttok().to_int() > 0)					// tok 2
 			{
 				if (!DcxDock::InitStatusbar(input.getlasttoks()))	// tok 3, -1
-					//throw Dcx::dcxException("Unable to Create Statusbar");
 					throw DcxExceptions::dcxUnableToCreateWindow();
 			}
 			else
