@@ -178,7 +178,7 @@ protected:
 	bool m_bDestroying{ false }; //!< this flag is set when the listview is about to get destroyed to avoid senseless events
 	bool m_bCustomDraw{ false };
 
-	COLORREF m_colSelection{ CLR_INVALID };
+	DCXTVCOLOURS m_SelectionColours;
 
 	/* *** */
 
@@ -208,7 +208,6 @@ protected:
 
 	HFONT m_hItemFont{ nullptr }; // Font used for specific item changes.
 	HFONT m_hOldItemFont{ nullptr }; // Font used for specific item changes.
-	//int m_OldMode{};
 
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 	void PreloadData() noexcept;

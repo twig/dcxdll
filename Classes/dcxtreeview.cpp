@@ -424,6 +424,9 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 
 void DcxTreeView::parseCommandRequest(const TString& input)
 {
+	if (!m_Hwnd)
+		return;
+
 	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
 
@@ -561,7 +564,10 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 			TreeView_SetTextColor(m_Hwnd, clr);
 
 		if (dcx_testflag(iFlags, TVCOLOR_S))
-			this->m_colSelection = clr;
+			this->m_SelectionColours.m_clrSelected = clr;
+
+		if (dcx_testflag(iFlags, TVCOLOR_SB))
+			this->m_SelectionColours.m_clrSelectionBorder = clr;
 
 		this->redrawWindow();
 	}
@@ -706,6 +712,90 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 
 		this->copyAllItems(pathFrom, pathTo);
 	}
+	// xdid -N [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
+	// xdid -N [NAME] [ID] [SWITCH] [+m] [LEFT] [TOP]
+	// xdid -N [NAME] [ID] [SWITCH] [+Lc] [COLOUR BKG]
+	// xdid -N [NAME] [ID] [SWITCH] [+Lb] [COLOUR BORDER]
+	// xdid -N [NAME] [ID] [SWITCH] [+Li] [COLOUR TEXT]
+	// xdid -N [NAME] [ID] [SWITCH] [+Lt] [TEXT]
+	// xdid -N [NAME] [ID] [SWITCH] [+LC] [control]
+	// xdid -N [NAME] [ID] [SWITCH] [+Tc] [COLOUR BKG]
+	// xdid -N [NAME] [ID] [SWITCH] [+Tb] [COLOUR BORDER]
+	// xdid -N [NAME] [ID] [SWITCH] [+Ti] [COLOUR TEXT]
+	// xdid -N [NAME] [ID] [SWITCH] [+Tt] [TEXT]
+	// xdid -N [NAME] [ID] [SWITCH] [+TC] [control]
+	else if (flags[TEXT('N')])
+	{
+		if (numtok < 5)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const XSwitchFlags xFlags(input.getnexttok());
+		const auto tsArgs = input.getlasttoks();
+
+		if (xFlags[TEXT('m')])
+		{
+			// set margin sizes (solo flag, cant be combined with others)
+			// [ARGS] = [LEFT] [TOP]
+			int leftborder{};
+			int topborder{};
+			if (const auto ileft = tsArgs.getfirsttok(1).to_<long>(); ileft >= 0)
+				leftborder = ileft;
+			if (const auto itop = tsArgs.getnexttokas<long>(); itop >= 0)
+				topborder = itop;
+
+			TreeView_SetBorder(m_Hwnd, TVSBF_XBORDER | TVSBF_YBORDER, leftborder, topborder);
+		}
+		else {
+			//auto parseMargin = [](_In_ const XSwitchFlags xFlag, _In_ const TString tsArg, dcxTreeViewBorderSideData& mData) {
+			//	if (xFlag[TEXT('c')])
+			//	{
+			//		// colour bkg
+			//		mData.m_clrBkg = tsArg.to_<COLORREF>();
+			//	}
+			//	else if (xFlag[TEXT('t')])
+			//	{
+			//		// text
+			//		mData.m_Text = tsArg;
+			//	}
+			//	else if (xFlag[TEXT('C')])
+			//	{
+			//		// control
+			//	}
+			//	else if (xFlag[TEXT('b')])
+			//	{
+			//		// colour border
+			//		mData.m_clrBorder = tsArg.to_<COLORREF>();
+			//	}
+			//	else if (xFlag[TEXT('i')])
+			//	{
+			//		// colour text
+			//		mData.m_clrTxt = tsArg.to_<COLORREF>();
+			//	}
+			//};
+			//if (xFlags[TEXT('L')])
+			//{
+			//	// left margin options
+			//	parseMargin(xFlags, tsArgs, m_MarginData.m_Left);
+			//}
+			//else if (xFlags[TEXT('R')])
+			//{
+			//	// right margin options
+			//	parseMargin(xFlags, tsArgs, m_MarginData.m_Right);
+			//}
+			//else if (xFlags[TEXT('T')])
+			//{
+			//	// top margin options
+			//	parseMargin(xFlags, tsArgs, m_MarginData.m_Top);
+			//}
+			//else if (xFlags[TEXT('B')])
+			//{
+			//	// bottom margin options
+			//	parseMargin(xFlags, tsArgs, m_MarginData.m_Bottom);
+			//}
+			//else
+			//	throw DcxExceptions::dcxInvalidFlag();
+		}
+	}
 	// xdid -o [NAME] [ID] [SWITCH] N N N [TAB] (Tooltip Text)
 	else if (flags[TEXT('o')])
 	{
@@ -733,8 +823,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto iFlags = this->parseItemFlags(input.getnexttok());		// tok 4
-		const auto clrText = input.getnexttok().to_<COLORREF>();	// tok 5
+		const auto iFlags = this->parseItemFlags(input.getnexttok());	// tok 4
+		const auto clrText = input.getnexttok().to_<COLORREF>();		// tok 5
 		const auto path(input.getlasttoks());							// tok 6, -1
 		const auto item = this->parsePath(path);
 
@@ -2080,8 +2170,8 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 				if ((lpdcxtvi->clrBkg != CLR_INVALID) && !bSelected)
 					lpntvcd->clrTextBk = lpdcxtvi->clrBkg;
-				else if ((m_colSelection != CLR_INVALID) && bSelected)
-					lpntvcd->clrTextBk = m_colSelection;
+				else if ((this->m_SelectionColours.m_clrSelected != CLR_INVALID) && bSelected)
+					lpntvcd->clrTextBk = this->m_SelectionColours.m_clrSelected;
 
 				if (lpdcxtvi->bUline || lpdcxtvi->bBold || lpdcxtvi->bItalic)
 				{
@@ -2411,6 +2501,7 @@ void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 		DrawGDIPlusImage(hdc);
 
+		//CallDefaultClassProc(WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT | PRF_CHILDREN | PRF_ERASEBKGND);
 		CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 		return;
 	}
@@ -2418,7 +2509,7 @@ void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 	CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 
-	//CallDefaultClassProc(WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT | PRF_CHILDREN);
+	//CallDefaultClassProc(WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT | PRF_CHILDREN | PRF_ERASEBKGND);
 }
 
 // clears existing image and icon data and sets pointers to null
