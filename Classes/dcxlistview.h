@@ -491,7 +491,7 @@ namespace Dcx
 	inline LRESULT dcxListView_EditSubItem(_In_ HWND hwnd, _In_ int iItem, _In_ int iSubItem) noexcept
 	{
 		return SendMessage(hwnd, LVM_EDITSUBITEM, iItem, iSubItem);
-}
+	}
 	/// <summary>
 	/// Undocumented message.
 	/// Ensure a specified subitem is visible.
@@ -645,6 +645,10 @@ private:
 	bool xSaveListview(const int nStartPos, const int nEndPos, const TString& tsData, const TCHAR* sTestCommand, const TCHAR* sStoreCommand);
 
 	void DrawEmpty(HDC hdc, const TString &tsBuf);
+	void DrawMargin(HDC hdc) noexcept;
+	void DrawMargin() noexcept;
+	void DrawClientArea(HDC hdc);
+	void DrawClientArea();
 
 	/// <summary>
 	/// Only called inside NM_CUSTOMDRAW.
@@ -709,15 +713,32 @@ private:
 	/// <returns></returns>
 	RECT getListRect() const noexcept;
 
-	[[nodiscard]] static UINT parseMassItemFlags(const TString& flags);
-	static void parseText2Item(const TString& tsTxt, TString& tsItem, const TString& tsData);
-	static int CALLBACK sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
-	static LRESULT CALLBACK EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
-
-	//static HIMAGELIST createImageList(const bool bIcons);
-	//static void parseListviewExStyles(const TString & styles, LONG * ExStyles) noexcept;
-
-	[[nodiscard]] static const WindowExStyle parseListviewExStyles(const TString& styles) noexcept;
+	void Command_a(const TString& input);
+	void Command_b(const TString& input);
+	void Command_c(const TString& input);
+	void Command_d(const TString& input);
+	void Command_e(const TString& input);
+	void Command_f(const TString& input);
+	void Command_g(const TString& input);
+	void Command_h(const TString& input);
+	void Command_i(const TString& input);
+	void Command_j(const TString& input);
+	void Command_k(const TString& input);
+	void Command_l(const TString& input);
+	void Command_m(const TString& input);
+	void Command_n(const TString& input);
+	void Command_o(const TString& input);
+	void Command_p(const TString& input);
+	void Command_q(const TString& input);
+	void Command_u(const TString& input);
+	void Command_r(const TString& input);
+	void Command_s(const TString& input);
+	void Command_t(const TString& input);
+	void Command_v(const TString& input);
+	void Command_w(const TString& input);
+	void Command_x(const TString& input);
+	void Command_y(const TString& input);
+	void Command_z(const TString& input);
 
 	/// <summary>
 	/// Convert a string to an item number.
@@ -731,9 +752,20 @@ private:
 		// check if item supplied was 0 (now -1), last item in list
 		if (nItem == -1)
 			nItem = Dcx::dcxListView_GetItemCount(m_Hwnd) - 1;
+		// check if item supplied was -1 (now -2), 1 beyond last...
+		else if (nItem == -2)
+			nItem = Dcx::dcxListView_GetItemCount(m_Hwnd);
 
 		return nItem;
 	}
+
+	// static functions.
+	[[nodiscard]] static UINT parseMassItemFlags(const TString& flags);
+	static void parseText2Item(const TString& tsTxt, TString& tsItem, const TString& tsData);
+	static int CALLBACK sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
+	static LRESULT CALLBACK EditLabelProc(gsl::not_null<HWND> mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
+
+	[[nodiscard]] static const WindowExStyle parseListviewExStyles(const TString& styles) noexcept;
 
 	/// <summary>
 	/// Get a characters rank for IRC sort.
@@ -754,14 +786,14 @@ private:
 	{
 		COLORREF clr{ RGB(0, 51, 153) };
 		if (hTheme)
-		Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_HEADING1TEXTCOLOR, &clr);
+			Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_HEADING1TEXTCOLOR, &clr);
 		return clr;
 	}
 	static COLORREF getThemeGroupBkgFillColour(HTHEME hTheme, int iStateId) noexcept
 	{
 		COLORREF clr{ RGB(185, 229, 242) };
 		if (hTheme)
-		Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_ACCENTCOLORHINT, &clr);
+			Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_ACCENTCOLORHINT, &clr);
 		return clr;
 	}
 	static COLORREF getThemeGroupBkgBorderColour(HTHEME hTheme, int iStateId) noexcept
@@ -773,11 +805,11 @@ private:
 	[[nodiscard("Memory Leak")]] static HFONT getThemeGroupFont(HTHEME hTheme, int iStateId, HDC hdc) noexcept
 	{
 		if (hTheme)
-	{
-		LOGFONT logFont{};
+		{
+			LOGFONT logFont{};
 
-		if (Dcx::UXModule.dcxGetThemeFont(hTheme, hdc, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_HEADING1FONT, &logFont) == S_OK)
-			return CreateFontIndirectW(&logFont);
+			if (Dcx::UXModule.dcxGetThemeFont(hTheme, hdc, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_HEADING1FONT, &logFont) == S_OK)
+				return CreateFontIndirectW(&logFont);
 		}
 		return nullptr;
 	}

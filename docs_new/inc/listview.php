@@ -371,6 +371,29 @@ function get_xdid_listview(&$XDID) {
 			),
 			'__notes' => 'This command can be used to set/move the first column, which is editable. There can only be one editable column at any time.',
 		),
+		'O' => array(
+			'__desc' => 'This command lets you move items within the control',
+			'__cmd' => '[+FLAGS] [N,N2,N3-N4...] [M]',
+			'__eg' => array(
+				'+ 3 12',
+				'+ 1-3 14',
+				'+ 1-3 -1',
+			),
+	        '__params' => array(
+                '+FLAGS' => array(
+                    '__desc' => "Move flags.",
+                    '__values' => array(
+						's' => 'Keep state (not used atm).',
+					),
+				),
+                'N' => 'Item(s) to move.',
+                'M' => 'Position to move to.'
+			),
+			'__notes' => array(
+				'To move an item to the end of the list set [v][M][/v] to minus one.',
+				"Also don't try to move an item range to within its self eg: + 1-4 2",
+			),
+		),
 		'q' => array(
 	        '__desc' => 'This command lets you add a group to the listview. [o]XP+[/o]',
 	        '__cmd' => '[N] [+FLAGS] [GROUPID] [GROUPTEXT]',

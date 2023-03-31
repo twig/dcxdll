@@ -1092,6 +1092,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	//xdid -a -> [NAME] [ID] -a [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 	if (flags[TEXT('a')])
 	{
+		static_assert(CheckFreeCommand(TEXT('a')), "Command in use!");
+
 		if (numtok < 13)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -1141,6 +1143,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	// xdid -A [NAME] [ID] [SWITCH] [ROW] [COL] [+FLAGS] [INFO]
 	else if (flags[TEXT('A')])
 	{
+		static_assert(CheckFreeCommand(TEXT('A')), "Command in use!");
+
 		if (numtok < 7)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -1185,6 +1189,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	// xdid -B -> [NAME] [ID] -B [N]
 	else if (flags[TEXT('B')])
 	{
+		static_assert(CheckFreeCommand(TEXT('B')), "Command in use!");
+
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -1356,6 +1362,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	// [NAME] [ID] -j [ROW] [COL] [FLAGS] ([COLOUR] (BGCOLOUR))
 	else if (flags[TEXT('j')])
 	{
+		static_assert(CheckFreeCommand(TEXT('j')), "Command in use!");
+
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -1690,8 +1698,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 		// get total items
 		const auto nItemCnt = Dcx::dcxListView_GetItemCount(m_Hwnd);
 
-		// invalid info
-		if ((nDestItem < 0) || (nDestItem >= nItemCnt))
+		// invalid info (allow moving to one item beyond last)
+		if ((nDestItem < 0) || (nDestItem > nItemCnt))
 			throw DcxExceptions::dcxInvalidItem();
 
 		// iterate through all item ranges supplied
@@ -1781,6 +1789,40 @@ void DcxListView::parseCommandRequest(const TString& input)
 			}
 			break;
 		}
+		// xdid -Q [NAME] [ID] [SWITCH] Setup [GID,GID2,GID3-GIDn] [+FLAGS]
+		case TEXT("Setup"_hash):
+		case TEXT("setup"_hash):
+		{
+			if (numtok < 6)
+				throw DcxExceptions::dcxInvalidArguments();
+
+			const auto tsGID = input.getnexttok();
+			const XSwitchFlags xFlags(input.getnexttok());
+			const auto tsArgs = input.getnexttok(); // flags dependant args, if any
+
+			if (!xFlags[TEXT('+')])
+				throw DcxExceptions::dcxInvalidFlag();
+
+			const auto gid_count = Dcx::dcxListView_GetGroupCount(m_Hwnd);
+			const auto itEnd = tsGID.end();
+			for (auto itStart = tsGID.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			{
+				const auto tsLine(*itStart);
+				const auto r = Dcx::make_range(tsLine, gid_count);
+
+				if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+					throw DcxExceptions::dcxInvalidArguments();
+
+				for (auto nGID : r)
+				{
+					// setup each specified group.
+					if (!Dcx::dcxListView_HasGroup(m_Hwnd, nGID))
+						throw Dcx::dcxException(TEXT("Group doesn't exist: %"), nGID);
+
+				}
+			}
+		}
+		break;
 		default:
 			throw DcxExceptions::dcxInvalidCommand();
 			break;
@@ -2449,10 +2491,10 @@ void DcxListView::setHeaderStyle(HWND h, const int nCol, const TString& info)
 /*
 Initializes an image list.
 */
-HIMAGELIST DcxListView::initImageList(const int iImageList)
+gsl::strict_not_null<HIMAGELIST> DcxListView::initImageList(const int iImageList)
 {
 	if (auto himl = getImageList(iImageList); himl)
-		return himl;
+		return gsl::make_strict_not_null(himl);
 
 	auto himl = createImageList((iImageList == LVSIL_NORMAL));
 
@@ -2461,7 +2503,7 @@ HIMAGELIST DcxListView::initImageList(const int iImageList)
 
 	setImageList(himl, iImageList);
 
-	return himl;
+	return gsl::make_strict_not_null(himl);
 }
 
 /*!
@@ -3960,9 +4002,9 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 * blah
 */
 
-LRESULT CALLBACK DcxListView::EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+LRESULT CALLBACK DcxListView::EditLabelProc(gsl::not_null<HWND> mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	const auto* const pthis = Dcx::dcxGetProp<DcxListView*>(mHwnd, TEXT("dcx_pthis"));
+	const auto* const pthis = Dcx::dcxGetProp<DcxListView*>(mHwnd.get(), TEXT("dcx_pthis"));
 
 	if (!pthis)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
@@ -5520,7 +5562,7 @@ void DcxListView::CopyItem(int iSrc, int iDest)
 void DcxListView::MoveItem(int iSrc, int iDest) noexcept
 {
 	// check for same item.
-	if (iSrc == iDest)
+	if ((!m_Hwnd) || (iSrc == iDest))
 		return;
 
 	TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
@@ -5538,11 +5580,15 @@ void DcxListView::MoveItem(int iSrc, int iDest) noexcept
 		// change to dest pos
 		lvi.iItem = iDest;
 		
+		// dont want selected state
 		lvi.state &= ~gsl::narrow_cast<UINT>(LVIS_SELECTED);
 		lvi.stateMask &= ~gsl::narrow_cast<UINT>(LVIS_SELECTED);
 
 		// Insert the main item
 		const int iRet = Dcx::dcxListView_InsertItem(m_Hwnd, &lvi);
+		if (iRet == -1)
+			return;
+
 		if (iRet <= iSrc)
 			iSrc++;
 
@@ -5558,10 +5604,11 @@ void DcxListView::MoveItem(int iSrc, int iDest) noexcept
 			lvi.pszText = &szBuf[0];
 			lvi.cchTextMax = std::size(szBuf);
 
-			Dcx::dcxListView_GetItem(m_Hwnd, &lvi);
-
+			if (Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
+			{
 			lvi.iItem = iRet;
 			Dcx::dcxListView_SetItem(m_Hwnd, &lvi);
+		}
 		}
 
 		// need to remove PARAM before doing delete (as we are still using this data in the new moved item)

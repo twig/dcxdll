@@ -38,31 +38,35 @@ alias dcxtreebar {
   xtreebar -w clear
   ; status
   ; status selected
-  xtreebar -w 0 + 0 $mircdiricons\SysWin.icl
-  ; channel
-  ; channel selected
-  xtreebar -w 0 + 1 $mircdiricons\SysWin.icl
-  ; custom
-  ; custom selected
-  xtreebar -w 0 + 5 $mircdiricons\SysWin.icl
-  ; dcc send
-  ; dcc send selected
-  xtreebar -w 0 + 6 $mircdiricons\SysWin.icl
-  ; dcc get
-  ; dcc get selected
-  xtreebar -w 0 + 7 $mircdiricons\SysWin.icl
-  ; notify
-  ; notify selected
-  xtreebar -w 0 + 8 $mircdiricons\SysWin.icl
-  ; query
-  ; query selected
-  xtreebar -w 0 + 3 $mircdiricons\SysWin.icl
-  ; folder
-  ; folder selected
-  xtreebar -w 0 + 15 $mircdiricons\SysWin.icl
+  var %f = $mircdiricons\SysWin.icl
+  if ($isfile(%f)) {
+    xtreebar -w 0 + 0 %f
+    ; channel
+    ; channel selected
+    xtreebar -w 0 + 1 %f
+    ; custom
+    ; custom selected
+    xtreebar -w 0 + 5 %f
+    ; dcc send
+    ; dcc send selected
+    xtreebar -w 0 + 6 %f
+    ; dcc get
+    ; dcc get selected
+    xtreebar -w 0 + 7 %f
+    ; notify
+    ; notify selected
+    xtreebar -w 0 + 8 %f
+    ; query
+    ; query selected
+    xtreebar -w 0 + 3 %f
+    ; folder
+    ; folder selected
+    xtreebar -w 0 + 15 %f
+  }
   ; load all icons in this file
   ;xtreebar -w 0 + -1 $mircexe
-  xtreebar -w 0 + -1 $mircdiricons\maj32.icl
+  var %f = $mircdiricons\maj32.icl
+  if ($isfile(%f)) xtreebar -w 0 + -1 %f
   ; set text colour
   xtreebar -c +t $rgb(255,128,0)
   ; set  line colour
