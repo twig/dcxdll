@@ -54,6 +54,8 @@ function get_styles_listview(&$STYLES) {
 
 		'drag' => 'Enables item dragging.',
 		
+		'groups' => 'Enabled custom drawn groups.',
+
 		'__notes' => array(
 		     '[s]grid[/s] does not work with groups. See <a>/xdid -q</a>.',
 		     '[s]sortasc[/s] and [s]sortdesc[/s] only work with [s]report[/s] or [s]list[/s] views.'
@@ -360,6 +362,45 @@ function get_xdid_listview(&$XDID) {
 				'If the flag [f]+h[/f] is used for the last column, the column will be resized to the width of the control.',
 				'[f]+m[/f] flag cannot be used with the [f]+a[/f], [f]+h[/f] or [f]+S[/f] flags.',
 				'If no flags are used then [COL] can be a single column or a group of columns eg: 1,2,8-12',
+			),
+		),
+		'N' => array(
+			'__desc' => 'This command lets you setup a margin for the control ([s]report[/s] view only).',
+			'__cmd' => '[+FLAGS] [ARGS]',
+			'__eg' => array(
+				'+m [LEFT] [RIGHT] [TOP] [BOTTOM]',
+				'+m 100 -1 -1 -1',
+				'+Lc [COLOUR BKG]',
+				'+Lc $rgb(128,28,128)',
+				'+Lb [COLOUR BORDER]',
+				'+Lb $rgb(150,100,200)',
+				'+Li [COLOUR TEXT]',
+				'+Li $rgb(150,100,200)',
+				'+Lt [TEXT]',
+				'+Lt Margin text woohoo!',
+				'+LC [control]',
+				'+LC not supported atm',
+			),
+			'__params' => array(
+				'+FLAGS' => array(
+					'__desc' => 'Flags to control the margin setup.',
+					'__values' => array(
+						'm' => 'Set the margin size.',
+						'L' => 'Setup the Left margin (can be combined with [f]bcitC[/f] flags)',
+						'R' => 'Setup the Right margin (can be combined with [f]bcitC[/f] flags)',
+						'T' => 'Setup the Top margin (can be combined with [f]bcitC[/f] flags)',
+						'B' => 'Setup the Bottom margin (can be combined with [f]bcitC[/f] flags)',
+						'b' => 'Set the margins border colour.',
+						'c' => 'Set the margins background colour.',
+						'i' => 'Set the text colour.',
+						't' => 'Set the text to display in the margin.',
+						'C' => 'Not supported.',
+					),
+				),
+				'ARGS' => 'These arguments are dependent on the flags used.',
+			),
+			'__notes' => array(
+				'If the flag [f]+m[/f] is a solo flag and can not be combined with others.',
 			),
 		),
 		'o' => array(

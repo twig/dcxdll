@@ -164,6 +164,10 @@
 		<td>Displays grid lines between item cells. (<a class="style">report</a> view)</td>
 	</tr>
 	<tr>
+		<td class="style"><a name="style.groups" class="style">groups</a></td>
+		<td>Enabled custom drawn groups.</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.headeralways" class="style">headeralways</a></td>
 		<td>Show column headers in all view modes.</td>
 	</tr>
@@ -1209,6 +1213,69 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.N"></a>/xdid -N	</td></tr>
+	<tr><td colspan="2">This command lets you setup a margin for the control (<a class="style">report</a> view only).</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -N [DNAME] [ID] [+FLAGS] [ARGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -N dcx 4 +m [LEFT] [RIGHT] [TOP] [BOTTOM]<br />/xdid -N dcx 4 +m 100 -1 -1 -1<br />/xdid -N dcx 4 +Lc [COLOUR BKG]<br />/xdid -N dcx 4 +Lc $rgb(128,28,128)<br />/xdid -N dcx 4 +Lb [COLOUR BORDER]<br />/xdid -N dcx 4 +Lb $rgb(150,100,200)<br />/xdid -N dcx 4 +Li [COLOUR TEXT]<br />/xdid -N dcx 4 +Li $rgb(150,100,200)<br />/xdid -N dcx 4 +Lt [TEXT]<br />/xdid -N dcx 4 +Lt Margin text woohoo!<br />/xdid -N dcx 4 +LC [control]<br />/xdid -N dcx 4 +LC not supported atm<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags to control the margin setup.</td>
+	</tr>
+	<tr>
+		<td class="value">m</td>
+		<td>Set the margin size.</td>
+	</tr>
+	<tr>
+		<td class="value">L</td>
+		<td>Setup the Left margin (can be combined with <a class="value">bcitC</a> flags)</td>
+	</tr>
+	<tr>
+		<td class="value">R</td>
+		<td>Setup the Right margin (can be combined with <a class="value">bcitC</a> flags)</td>
+	</tr>
+	<tr>
+		<td class="value">T</td>
+		<td>Setup the Top margin (can be combined with <a class="value">bcitC</a> flags)</td>
+	</tr>
+	<tr>
+		<td class="value">B</td>
+		<td>Setup the Bottom margin (can be combined with <a class="value">bcitC</a> flags)</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Set the margins border colour.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Set the margins background colour.</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Set the text colour.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Set the text to display in the margin.</td>
+	</tr>
+	<tr>
+		<td class="value">C</td>
+		<td>Not supported.</td>
+	</tr>
+	<tr>
+		<td class="param">ARGS</td>
+		<td>These arguments are dependent on the flags used.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the flag <a class="value">+m</a> is a solo flag and can not be combined with others.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.big.O"></a>/xdid -O	</td></tr>
 	<tr><td colspan="2">This command lets you move items within the control</td></tr>
 	<tr>
@@ -2099,6 +2166,7 @@
 		<a class='flag' href="#style.flatsb"><div>flatsb</div></a>
 		<a class='flag' href="#style.fullrow"><div>fullrow</div></a>
 		<a class='flag' href="#style.grid"><div>grid</div></a>
+		<a class='flag' href="#style.groups"><div>groups</div></a>
 		<a class='flag' href="#style.headeralways"><div>headeralways</div></a>
 		<a class='flag' href="#style.headerdrag"><div>headerdrag</div></a>
 		<a class='flag' href="#style.hidelabels"><div>hidelabels</div></a>
@@ -2150,6 +2218,7 @@
 		<a class='flag' href="#xdid.big.B"><div>-B</div></a>
 		<a class='flag' href="#xdid.big.G"><div>-G</div></a>
 		<a class='flag' href="#xdid.big.H"><div>-H</div></a>
+		<a class='flag' href="#xdid.big.N"><div>-N</div></a>
 		<a class='flag' href="#xdid.big.O"><div>-O</div></a>
 		<a class='flag' href="#xdid.big.Q"><div>-Q</div></a>
 		<a class='flag' href="#xdid.big.S"><div>-S</div></a>
@@ -2209,7 +2278,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 31st March, 23</td>
+		<td style="text-align: right;">Last Updated: 1st April, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">
