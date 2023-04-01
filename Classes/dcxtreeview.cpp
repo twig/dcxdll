@@ -475,7 +475,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto item = parsePath(path);
 
 		if (!item)
-			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
 			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		const XSwitchFlags xflag(data.getfirsttok(1));	// tok 1
@@ -939,7 +938,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		HICON icon{ nullptr };
 
 		const auto index = input.getnexttok().to_int();	// tok 5
-		auto filename(input.getlasttoks());			// tok 6, -1
+		auto filename(input.getlasttoks());				// tok 6, -1
 		const auto bLarge = (m_iIconSize != DcxIconSizes::SmallIcon);
 
 		if (index >= 0)

@@ -551,6 +551,55 @@ namespace Dcx
 	{
 		return gsl::narrow_cast<BOOL>(SendMessage(hwnd, LVM_GETVIEWRECT, 0, reinterpret_cast<LPARAM>(pRC)));
 	}
+	inline DWORD dcxListView_GetView(_In_ HWND hwnd) noexcept
+	{
+		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, LVM_GETVIEW, 0, 0));
+	}
+	/// <summary>
+	/// Get the item at x,y screen position.
+	/// </summary>
+	/// <param name="hwnd"> = the listview control</param>
+	/// <param name="x"> = the x screen position</param>
+	/// <param name="y"> = the y screen position</param>
+	/// <returns>the item at x,y or -1 for no item there.</returns>
+	inline int dcxListView_GetItemAtPos(_In_ HWND hwnd, _In_ int x, _In_ int y) noexcept
+	{
+		if (!hwnd)
+			return -1;
+
+		LVHITTESTINFO lvhti{};
+		lvhti.pt.x = x;
+		lvhti.pt.y = y;
+
+		// X & Y are relative to screen area.
+		MapWindowPoints(nullptr, hwnd, &lvhti.pt, 1);
+		Dcx::dcxListView_HitTest(hwnd, &lvhti);
+
+		// Out of the ListView?
+		if (lvhti.iItem == -1)
+			return -1;
+		// Not in an item?
+		if (!dcx_testflag(lvhti.flags, LVHT_ONITEMICON) && !dcx_testflag(lvhti.flags, LVHT_ONITEMLABEL) && !dcx_testflag(lvhti.flags, LVHT_ONITEMSTATEICON))
+			return -1;
+
+		return lvhti.iItem;
+	}
+	/// <summary>
+	/// Get the item at the cursor position.
+	/// </summary>
+	/// <param name="hwnd"> = the listview control.</param>
+	/// <returns>the item at the cursor or -1 for no item there.</returns>
+	inline int dcxListView_GetItemAtCursor(_In_ HWND hwnd) noexcept
+	{
+		if (!hwnd)
+			return -1;
+
+		POINT pt{};
+		if (!GetCursorPos(&pt))
+			return -1;
+
+		return dcxListView_GetItemAtPos(hwnd, pt.x, pt.y);
+	}
 }
 
 /*!
@@ -586,6 +635,11 @@ public:
 
 	[[nodiscard]] bool isListViewStyle(const WindowStyle dwView) const noexcept;
 
+	/// <summary>
+	/// Count the columns in the control.
+	/// This only works in report style, otherwise it returns zero.
+	/// </summary>
+	/// <returns></returns>
 	[[nodiscard]] const int& getColumnCount() const noexcept;
 
 	inline const TString getType() const final { return TEXT("listview"); };
@@ -658,6 +712,8 @@ private:
 	/// <returns></returns>
 	LRESULT DrawItem(LPNMLVCUSTOMDRAW lplvcd);
 
+	void DrawGroupHeaderText(HDC hdc, HTHEME hTheme, int iStateId, LPCRECT rc, const TString &tsText, UINT uTextFlags, UINT uAlign, bool bCustomText, int iCol);
+
 	/// <summary>
 	/// Only called inside NM_CUSTOMDRAW.
 	/// Draw current group.
@@ -679,6 +735,10 @@ private:
 	/// <returns>The header text</returns>
 	TString getGroupHeader(int gid);
 
+	/// <summary>
+	/// Adds a group to the control.
+	/// </summary>
+	/// <param name="tsInput"></param>
 	void addGroup(const TString &tsInput);
 
 	/// <summary>
@@ -782,6 +842,12 @@ private:
 		return gsl::at(m_ranks, std::size(m_ranks) - 1).rank;
 	}
 
+	/// <summary>
+	/// Get the colour for group header text.
+	/// </summary>
+	/// <param name="hTheme"></param>
+	/// <param name="iStateId"></param>
+	/// <returns></returns>
 	static COLORREF getThemeGroupTextColour(HTHEME hTheme, int iStateId) noexcept
 	{
 		COLORREF clr{ RGB(0, 51, 153) };
@@ -789,6 +855,12 @@ private:
 			Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_HEADING1TEXTCOLOR, &clr);
 		return clr;
 	}
+	/// <summary>
+	/// Get the group header fill colour.
+	/// </summary>
+	/// <param name="hTheme"></param>
+	/// <param name="iStateId"></param>
+	/// <returns></returns>
 	static COLORREF getThemeGroupBkgFillColour(HTHEME hTheme, int iStateId) noexcept
 	{
 		COLORREF clr{ RGB(185, 229, 242) };
@@ -796,12 +868,26 @@ private:
 			Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_ACCENTCOLORHINT, &clr);
 		return clr;
 	}
+	/// <summary>
+	/// Get the group header border colour.
+	/// </summary>
+	/// <param name="hTheme"></param>
+	/// <param name="iStateId"></param>
+	/// <returns></returns>
 	static COLORREF getThemeGroupBkgBorderColour(HTHEME hTheme, int iStateId) noexcept
 	{
 		COLORREF clr{ RGB(94, 131, 191) };
-		Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_FILLCOLORHINT, &clr);
+		if (hTheme)
+			Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_FILLCOLORHINT, &clr);
 		return clr;
 	}
+	/// <summary>
+	/// Get the group headers font.
+	/// </summary>
+	/// <param name="hTheme"></param>
+	/// <param name="iStateId"></param>
+	/// <param name="hdc"></param>
+	/// <returns></returns>
 	[[nodiscard("Memory Leak")]] static HFONT getThemeGroupFont(HTHEME hTheme, int iStateId, HDC hdc) noexcept
 	{
 		if (hTheme)
@@ -821,16 +907,20 @@ private:
 	int m_iSelectedSubItem{};			// SubItems currently selected.
 	mutable int m_iColumnCount{ -1 };	// the number of columns in the listview, a -1 value mean "dont know"
 	VectorOfColumnInfo	m_vWidths;		// column widths for dynamic sizing of columns.
+
+	// Ranks for sorting nicknames
 	//(qaohvV)~&@%+-
 	static constexpr CharRank m_ranks[7] = {
 	{ TEXT('~'), 0},	//
-	{ TEXT('&'), 1},	//
+	{ TEXT('&'), 1},	// channel owner
 	{ TEXT('@'), 2},	// channel ops
 	{ TEXT('%'), 3},	// channel half-ops
 	{ TEXT('+'), 4},	// channel voices
 	{ TEXT('-'), 5},	// not allowed voice in channel?
 	{ 0,6 }				// all other characters
 	};
+
+	// data for drawing custom margins
 	struct dcxListViewMarginSideData
 	{
 		COLORREF m_clrBkg{ RGB(155, 55, 55) };
@@ -848,8 +938,8 @@ private:
 	};
 	dcxListViewMarginData m_MarginData;
 
-	bool m_bHasPBars{ false };					// true if listview has pbars at all, if it does, a slower update is used that checks & moves pbars. (better system needed)
-	bool m_bCustomGroups{ false };
+	bool m_bHasPBars{ false };			// true if listview has pbars at all, if it does, a slower update is used that checks & moves pbars. (better system needed)
+	bool m_bCustomGroups{ false };		// true if custom drawn group headers is enabled.
 	bool m_bReserved[2]{ false };
 };
 

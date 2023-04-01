@@ -1108,6 +1108,10 @@ enum class WindowStyle
 	// ListView
 	LVS_SingleSelect = LVS_SINGLESEL,
 	LVS_ShowSelAlways = LVS_SHOWSELALWAYS,
+	LVS_Report = LVS_REPORT,
+	LVS_SmallIcon = LVS_SMALLICON,
+	LVS_Icon = LVS_ICON,
+	LVS_List = LVS_LIST,
 
 	// ComboBox
 	CBS_DropDown = CBS_DROPDOWN,
@@ -1142,37 +1146,37 @@ enum class WindowAnimStyle
 };
 
 template <EnumConcepts::IsNumeric T>
-constexpr WindowStyle to_WindowStyle(T other) noexcept
+constexpr WindowStyle to_WindowStyle(_In_ T other) noexcept
 {
 	return gsl::narrow_cast<WindowStyle>(other);
 }
 template <EnumConcepts::IsNumeric T>
-constexpr WindowExStyle to_WindowExStyle(T other) noexcept
+constexpr WindowExStyle to_WindowExStyle(_In_ T other) noexcept
 {
 	return gsl::narrow_cast<WindowExStyle>(other);
 }
 
-inline WindowStyle dcxGetWindowStyle(HWND Hwnd) noexcept
+inline WindowStyle dcxGetWindowStyle(_In_ HWND Hwnd) noexcept
 {
 	return to_WindowStyle(GetWindowLong(Hwnd, GWL_STYLE));
 }
 
-inline WindowExStyle dcxGetWindowExStyle(HWND Hwnd) noexcept
+inline WindowExStyle dcxGetWindowExStyle(_In_ HWND Hwnd) noexcept
 {
 	return to_WindowExStyle(GetWindowLong(Hwnd, GWL_EXSTYLE));
 }
 
-inline WindowStyle dcxSetWindowStyle(HWND Hwnd, WindowStyle style) noexcept
+inline WindowStyle dcxSetWindowStyle(_In_ HWND Hwnd, _In_ WindowStyle style) noexcept
 {
 	return to_WindowStyle(SetWindowLongPtr(Hwnd, GWL_STYLE, gsl::narrow_cast<LONG>(style)));
 }
 
-inline WindowExStyle dcxSetWindowExStyle(HWND Hwnd, WindowExStyle style) noexcept
+inline WindowExStyle dcxSetWindowExStyle(_In_ HWND Hwnd, _In_ WindowExStyle style) noexcept
 {
 	return to_WindowExStyle(SetWindowLongPtr(Hwnd, GWL_EXSTYLE, gsl::narrow_cast<LONG>(style)));
 }
 
-inline HWND dcxCreateWindow(const WindowExStyle ExStyles, const TCHAR* const szClass, const WindowStyle Styles, const RECT* const rc, HWND hParent, const UINT uID, const void* const pthis = nullptr) noexcept
+inline HWND dcxCreateWindow(_In_ const WindowExStyle ExStyles, _In_opt_z_ const TCHAR* const szClass, _In_ const WindowStyle Styles, _In_ const RECT* const rc, _In_opt_ HWND hParent, _In_opt_ const UINT uID, _In_opt_ const void* const pthis = nullptr) noexcept
 {
 	if (!rc)
 		return nullptr;
@@ -1189,7 +1193,7 @@ inline HWND dcxCreateWindow(const WindowExStyle ExStyles, const TCHAR* const szC
 		(LPVOID)pthis);
 }
 
-inline UINT dcxSetWindowID(HWND Hwnd, const UINT uID) noexcept
+inline UINT dcxSetWindowID(_In_ HWND Hwnd, _In_ const UINT uID) noexcept
 {
 	return gsl::narrow_cast<UINT>(SetWindowLongPtr(Hwnd, GWLP_ID, gsl::narrow_cast<LONG>(uID)));
 }
