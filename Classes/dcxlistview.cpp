@@ -968,7 +968,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		_ts_snprintf(szReturnValue, TEXT("%u"), iCount);
 	}
 	break;
-	// [NAME] [ID] [PROP] [flags]
+	// [NAME] [ID] [PROP]
 	case L"margin"_hash:
 	{
 		RECT rc{};
@@ -977,6 +977,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		else
 			szReturnValue = TEXT("-1 -1 -1 -1");
 	}
+	break;
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 	}
@@ -2470,34 +2471,47 @@ void DcxListView::parseCommandRequest(const TString& input)
 				if (const auto ibottom = tsArgs.getnexttokas<long>(); ibottom >= 0)
 					rc.bottom = ibottom;
 
+				// header height is included in the top margin listview returns
+				// but musnt be included in teh top value we set.
+				// we need to adjust top value to remove it before setting.
+				if (auto hHdr = Dcx::dcxListView_GetHeader(m_Hwnd); hHdr)
+				{
+					if (IsWindowVisible(hHdr))
+					{
+						const Dcx::dcxWindowRect rcHdr(hHdr);
+
+						rc.top -= rcHdr.Height();
+						rc.top = std::max(0L, rc.top);
+					}
+				}
 				Dcx::dcxListView_SetViewMargin(m_Hwnd, &rc);
 			}
 		}
 		else {
-			auto parseMargin = [](_In_ const XSwitchFlags xFlag, _In_ const TString tsArg, dcxListViewMarginSideData& mData) {
+			auto parseMargin = [](_In_ const XSwitchFlags &xFlag, _In_ const TString &tsArg, _Inout_ dcxListViewMarginSideData& mData) {
 				if (xFlag[TEXT('c')])
 				{
 					// colour bkg
 					mData.m_clrBkg = tsArg.to_<COLORREF>();
 				}
-				else if (xFlag[TEXT('t')])
-				{
-					// text
-					mData.m_Text = tsArg;
-				}
-				else if (xFlag[TEXT('C')])
-				{
-					// control
-				}
-				else if (xFlag[TEXT('b')])
+				if (xFlag[TEXT('b')])
 				{
 					// colour border
 					mData.m_clrBorder = tsArg.to_<COLORREF>();
 				}
-				else if (xFlag[TEXT('i')])
+				if (xFlag[TEXT('i')])
 				{
 					// colour text
 					mData.m_clrTxt = tsArg.to_<COLORREF>();
+				}
+				if (xFlag[TEXT('t')])
+				{
+					// text
+					mData.m_Text = tsArg;
+				}
+				if (xFlag[TEXT('C')])
+				{
+					// control
 				}
 			};
 			if (xFlags[TEXT('L')])
