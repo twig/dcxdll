@@ -29,8 +29,10 @@ PFNBUFFEREDPAINTINIT DcxUXModule::BufferedPaintInitUx = nullptr;
 PFNBUFFEREDPAINTUNINIT DcxUXModule::BufferedPaintUnInitUx = nullptr;
 PFNBEGINBUFFEREDPAINT DcxUXModule::BeginBufferedPaintUx = nullptr;
 PFNENDBUFFEREDPAINT DcxUXModule::EndBufferedPaintUx = nullptr;
-PFBUFFEREDPAINTSETALPHA DcxUXModule::BufferedPaintSetAlphaUx = nullptr;
-PFBUFFEREDPAINTCLEAR DcxUXModule::BufferedPaintClearUx = nullptr;
+PFNBUFFEREDPAINTSETALPHA DcxUXModule::BufferedPaintSetAlphaUx = nullptr;
+PFNBUFFEREDPAINTCLEAR DcxUXModule::BufferedPaintClearUx = nullptr;
+PFNHITTESTTHEMEBACKGROUND DcxUXModule::HitTestThemeBackgroundUx = nullptr;
+PFNGETTHEMERECT DcxUXModule::GetThemeRectUx = nullptr;
 
 bool DcxUXModule::m_bBufferedPaintEnabled = false;
 
@@ -71,6 +73,7 @@ bool DcxUXModule::load()
 		GetThemeColorUx = (PFNGETTHEMECOLOR) GetProcAddress(m_hModule, "GetThemeColor");
 		GetThemeFontUx = (PFNGETTHEMEFONT)GetProcAddress(m_hModule, "GetThemeFont");
 		GetThemeTextExtentUx = (PFNGETTHEMETEXTEXTENT)GetProcAddress(m_hModule, "GetThemeTextExtent");
+		GetThemeRectUx = (PFNGETTHEMERECT)GetProcAddress(m_hModule, "GetThemeRect");
 
 		// Get Vista function pointers.
 		DrawThemeParentBackgroundExUx = (PFNDRAWTHEMEPARENTBACKGROUNDEX) GetProcAddress(m_hModule, "DrawThemeParentBackgroundEx"); // Vista ONLY!
@@ -79,8 +82,9 @@ bool DcxUXModule::load()
 		BufferedPaintUnInitUx = (PFNBUFFEREDPAINTUNINIT) GetProcAddress(m_hModule, "BufferedPaintUnInit");
 		BeginBufferedPaintUx = (PFNBEGINBUFFEREDPAINT) GetProcAddress(m_hModule, "BeginBufferedPaint");
 		EndBufferedPaintUx = (PFNENDBUFFEREDPAINT) GetProcAddress(m_hModule, "EndBufferedPaint");
-		BufferedPaintSetAlphaUx = (PFBUFFEREDPAINTSETALPHA)GetProcAddress(m_hModule, "BufferedPaintSetAlpha");
-		BufferedPaintClearUx = (PFBUFFEREDPAINTCLEAR)GetProcAddress(m_hModule, "BufferedPaintClear");
+		BufferedPaintSetAlphaUx = (PFNBUFFEREDPAINTSETALPHA)GetProcAddress(m_hModule, "BufferedPaintSetAlpha");
+		BufferedPaintClearUx = (PFNBUFFEREDPAINTCLEAR)GetProcAddress(m_hModule, "BufferedPaintClear");
+		HitTestThemeBackgroundUx = (PFNHITTESTTHEMEBACKGROUND)GetProcAddress(m_hModule, "HitTestThemeBackground");
 
 #pragma warning(pop)
 
@@ -88,11 +92,11 @@ bool DcxUXModule::load()
 		if (SetWindowThemeUx && IsThemeActiveUx && OpenThemeDataUx && CloseThemeDataUx &&
 			DrawThemeBackgroundUx && GetThemeBackgroundContentRectUx && IsThemeBackgroundPartiallyTransparentUx &&
 			DrawThemeParentBackgroundUx && DrawThemeTextUx && DrawThemeTextExUx && GetThemeBackgroundRegionUx &&
-			GetWindowThemeUx && DrawThemeEdgeUx && GetThemeColorUx && GetThemeFontUx && GetThemeTextExtentUx)
+			GetWindowThemeUx && DrawThemeEdgeUx && GetThemeColorUx && GetThemeFontUx && GetThemeTextExtentUx && GetThemeRectUx)
 		{
 			DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Found XP+ Theme Functions"));
 			if (DrawThemeParentBackgroundExUx && BufferedPaintInitUx && BufferedPaintUnInitUx
-				&& BeginBufferedPaintUx && EndBufferedPaintUx && BufferedPaintSetAlphaUx && BufferedPaintClearUx)
+				&& BeginBufferedPaintUx && EndBufferedPaintUx && BufferedPaintSetAlphaUx && BufferedPaintClearUx && HitTestThemeBackgroundUx)
 			{
 				DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Found Vista Theme Functions"));
 				if (!m_bBufferedPaintEnabled)
@@ -101,33 +105,6 @@ bool DcxUXModule::load()
 		}
 		else {
 			unload();
-
-			//FreeLibrary(m_hModule);
-			//m_hModule = nullptr;
-			//// make sure all functions are nullptr
-			//SetWindowThemeUx = nullptr;
-			//IsThemeActiveUx = nullptr;
-			//OpenThemeDataUx = nullptr;
-			//CloseThemeDataUx = nullptr;
-			//DrawThemeBackgroundUx = nullptr;
-			//GetThemeBackgroundContentRectUx = nullptr;
-			//IsThemeBackgroundPartiallyTransparentUx = nullptr;
-			//DrawThemeParentBackgroundUx = nullptr;
-			//DrawThemeTextUx = nullptr;
-			//DrawThemeTextExUx = nullptr;
-			//GetThemeBackgroundRegionUx = nullptr;
-			//GetWindowThemeUx = nullptr;
-			//DrawThemeEdgeUx = nullptr;
-			//GetThemeColorUx = nullptr;
-			//GetThemeFontUx = nullptr;
-			//GetThemeTextExtentUx = nullptr;
-			//DrawThemeParentBackgroundExUx = nullptr;
-			//BufferedPaintInitUx = nullptr;
-			//BufferedPaintUnInitUx = nullptr;
-			//BeginBufferedPaintUx = nullptr;
-			//EndBufferedPaintUx = nullptr;
-			//BufferedPaintSetAlphaUx = nullptr;
-			//BufferedPaintClearUx = nullptr;
 
 			throw Dcx::dcxException("There was a problem loading Theme Library");
 		}
@@ -169,6 +146,7 @@ bool DcxUXModule::unload() noexcept
 		EndBufferedPaintUx = nullptr;
 		BufferedPaintSetAlphaUx = nullptr;
 		BufferedPaintClearUx = nullptr;
+		HitTestThemeBackgroundUx = nullptr;
 	}
 	return isUseable();
 }
@@ -354,5 +332,19 @@ HRESULT DcxUXModule::dcxBufferedPaintClear(_In_ HPAINTBUFFER hBufferedPaint, _In
 {
 	if (BufferedPaintClearUx)
 		return BufferedPaintClearUx(hBufferedPaint, prc);
+	return E_NOTIMPL;
+}
+
+HRESULT DcxUXModule::dcxHitTestThemeBackground(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ DWORD dwOptions, _In_ LPCRECT pRect, _In_ HRGN hrgn, _In_ POINT ptTest, _Out_ WORD* pwHitTestCode) noexcept
+{
+	if (HitTestThemeBackgroundUx)
+		return HitTestThemeBackgroundUx(hTheme, hdc, iPartId, iStateId, dwOptions, pRect, hrgn, ptTest, pwHitTestCode);
+	return E_NOTIMPL;
+}
+
+HRESULT DcxUXModule::dcxGetThemeRect(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ LPRECT pRect) noexcept
+{
+	if (GetThemeRectUx)
+		return GetThemeRectUx(hTheme, iPartId, iStateId, iPropId, pRect);
 	return E_NOTIMPL;
 }

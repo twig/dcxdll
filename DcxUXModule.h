@@ -27,8 +27,10 @@ typedef HRESULT(WINAPI* PFNBUFFEREDPAINTINIT)(VOID);
 typedef HRESULT(WINAPI* PFNBUFFEREDPAINTUNINIT)(VOID);
 typedef HPAINTBUFFER(WINAPI* PFNBEGINBUFFEREDPAINT)(_In_ HDC hdcTarget, _In_ LPCRECT prcTarget, _In_ BP_BUFFERFORMAT dwFormat, _In_opt_ BP_PAINTPARAMS* pPaintParams, _Out_ HDC* phdc);
 typedef HRESULT(WINAPI* PFNENDBUFFEREDPAINT)(_In_ HPAINTBUFFER hBufferedPaint, _In_ BOOL fUpdateTarget);
-typedef HRESULT(WINAPI* PFBUFFEREDPAINTSETALPHA)(_In_ HPAINTBUFFER hBufferedPaint, _In_opt_ LPCRECT prc, _In_ BYTE alpha);
-typedef HRESULT(WINAPI* PFBUFFEREDPAINTCLEAR)(_In_ HPAINTBUFFER hBufferedPaint, _In_opt_ LPCRECT prc);
+typedef HRESULT(WINAPI* PFNBUFFEREDPAINTSETALPHA)(_In_ HPAINTBUFFER hBufferedPaint, _In_opt_ LPCRECT prc, _In_ BYTE alpha);
+typedef HRESULT(WINAPI* PFNBUFFEREDPAINTCLEAR)(_In_ HPAINTBUFFER hBufferedPaint, _In_opt_ LPCRECT prc);
+typedef HRESULT(WINAPI* PFNHITTESTTHEMEBACKGROUND)(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ DWORD dwOptions, _In_ LPCRECT pRect, _In_ HRGN hrgn, _In_ POINT ptTest, _Out_ WORD* pwHitTestCode);
+typedef HRESULT(WINAPI* PFNGETTHEMERECT)(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ LPRECT pRect);
 
 class DcxUXModule final
 	: public DcxModule
@@ -50,14 +52,16 @@ class DcxUXModule final
 	static PFNGETTHEMEFONT GetThemeFontUx;
 	static PFNGETTHEMETEXTEXTENT GetThemeTextExtentUx;
 	static PFNDRAWTHEMEPARENTBACKGROUNDEX DrawThemeParentBackgroundExUx;
+	static PFNGETTHEMERECT GetThemeRectUx;
 	//static PFNGETTHEMEBITMAP GetThemeBitmapUx;
 	// Vista Function pointers.
 	static PFNBUFFEREDPAINTINIT BufferedPaintInitUx;
 	static PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx;
 	static PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx;
 	static PFNENDBUFFEREDPAINT EndBufferedPaintUx;
-	static PFBUFFEREDPAINTSETALPHA BufferedPaintSetAlphaUx;
-	static PFBUFFEREDPAINTCLEAR BufferedPaintClearUx;
+	static PFNBUFFEREDPAINTSETALPHA BufferedPaintSetAlphaUx;
+	static PFNBUFFEREDPAINTCLEAR BufferedPaintClearUx;
+	static PFNHITTESTTHEMEBACKGROUND HitTestThemeBackgroundUx;
 
 	static bool m_bBufferedPaintEnabled;
 
@@ -98,6 +102,9 @@ public:
 	[[gsl::suppress(lifetime, Enum.3)]] [[nodiscard("Memory Leak")]] _Success_(return != NULL) static gsl::owner<HPAINTBUFFER> dcxBeginBufferedPaint(_In_ HDC hdcTarget, _In_ LPCRECT prcTarget, _In_ BP_BUFFERFORMAT dwFormat, _In_opt_ BP_PAINTPARAMS* pPaintParams, _Out_ HDC* phdc) noexcept;
 	static HRESULT dcxEndBufferedPaint(_In_ gsl::owner<HPAINTBUFFER> hBufferedPaint, _In_ BOOL fUpdateTarget) noexcept;
 	static HRESULT dcxBufferedPaintSetAlpha(_In_ HPAINTBUFFER hBufferedPaint, _In_opt_ LPCRECT prc, _In_ BYTE alpha) noexcept;
-	HRESULT dcxBufferedPaintClear(_In_ HPAINTBUFFER hBufferedPaint, _In_opt_ LPCRECT prc) noexcept;
+	static HRESULT dcxBufferedPaintClear(_In_ HPAINTBUFFER hBufferedPaint, _In_opt_ LPCRECT prc) noexcept;
+	static HRESULT dcxHitTestThemeBackground(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ DWORD dwOptions, _In_ LPCRECT pRect, _In_ HRGN hrgn, _In_ POINT ptTest, _Out_ WORD* pwHitTestCode) noexcept;
+	static HRESULT dcxGetThemeRect(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ LPRECT pRect) noexcept;
+
 };
 #endif // _DCXUXMODULES_H_
