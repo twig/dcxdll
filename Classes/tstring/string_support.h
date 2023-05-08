@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.21
+// v1.22
 
 #include <tchar.h>
 #include <cstdlib>
@@ -42,10 +42,6 @@ namespace std
 {
 	inline string to_string(_In_ const wstring& wstr)
 	{
-		//string str;
-		//str.assign(wstr.begin(), wstr.end());
-		//return str;
-
 		using convert_type = std::codecvt_utf8<wchar_t>;
 		std::wstring_convert<convert_type, wchar_t> converter;
 
@@ -56,8 +52,30 @@ namespace std
 	inline wstring to_wstring(_In_ const string& str)
 	{
 		wstring wstr;
-		wstr.assign(str.begin(), str.end());
+		if (!str.empty())
+			wstr.assign(str.begin(), str.end());
 		return wstr;
+	}
+
+	inline u32string to_u32string(_In_ const string& str)
+	{
+		// Convert to utf-32.
+		using convert_type = std::codecvt_utf8<char32_t>;
+		std::wstring_convert<convert_type, char32_t> converter;
+
+		return converter.from_bytes(str);
+	}
+
+	inline u32string to_u32string(_In_ const wstring& wstr)
+	{
+		// Convert to utf-8.
+		const std::u16string s((char16_t*)wstr.c_str());
+		std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> conv8;
+		const std::string utf8_str(conv8.to_bytes(s));
+
+		// Convert to utf-32.
+		std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv32;
+		return conv32.from_bytes(utf8_str);
 	}
 
 	inline string to_string(_In_ const std::byte& num)
