@@ -691,36 +691,66 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 */
 void ChangeHwndIcon(const HWND hwnd, const TString& flags, const int index, TString& filename)
 {
+	if (!hwnd)
+		throw Dcx::dcxException("ChangeHwndIcon() - Invalid Window");
+
 	const XSwitchFlags xflags(flags);
 
 	filename.trim();
 	if (!xflags[TEXT('+')])
 		throw Dcx::dcxException("ChangeHwndIcon() - Invalid Flags");
 
-	if (!IsFile(filename))
-		throw Dcx::dcxException(TEXT("ChangeHwndIcon() - Unable to Access File: %"), filename);
-
 	HICON iconSmall{ nullptr };
 	HICON iconLarge{ nullptr };
-	// check for +s small icon flag
-	if (xflags[TEXT('s')])
-		iconSmall = dcxLoadIcon(index, filename, false, flags);
-	// check for +b big icon flag
-	if (xflags[TEXT('b')])
-		iconLarge = dcxLoadIcon(index, filename, true, flags);
-
-	if ((!iconLarge) && (!iconSmall))
+	
+	if (filename == TEXT("none"))
 	{
-		// No big or small flags, so do both icons.
-		iconSmall = dcxLoadIcon(index, filename, false, flags);
-		iconLarge = dcxLoadIcon(index, filename, true, flags);
-	}
+		dcxSetWindowExStyle(hwnd, WindowExStyle::DialogModalFrame);
 
-	// set the new icons, get back the current icon
-	if (iconSmall)
+		//SetClassLongW(hwnd, GCL_HICON, 0);
+		//SetClassLongW(hwnd, GCL_HICONSM, 0);
+
 		iconSmall = (HICON)SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)iconSmall);
-	if (iconLarge)
 		iconLarge = (HICON)SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)iconLarge);
+	}
+	else if (filename == TEXT("default"))
+	{
+		if ((!xflags[TEXT('s')]) && (!xflags[TEXT('b')]))
+		{
+			iconSmall = (HICON)SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)iconSmall);
+			iconLarge = (HICON)SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)iconLarge);
+		}
+		else {
+			if (xflags[TEXT('s')])
+				iconSmall = (HICON)SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)iconSmall);
+			if (xflags[TEXT('b')])
+				iconLarge = (HICON)SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)iconLarge);
+		}
+	}
+	else {
+		if (!IsFile(filename))
+			throw Dcx::dcxException(TEXT("ChangeHwndIcon() - Unable to Access File: %"), filename);
+
+		// check for +s small icon flag
+		if (xflags[TEXT('s')])
+			iconSmall = dcxLoadIcon(index, filename, false, flags);
+		// check for +b big icon flag
+		if (xflags[TEXT('b')])
+			iconLarge = dcxLoadIcon(index, filename, true, flags);
+
+		if ((!iconLarge) && (!iconSmall))
+		{
+			// No big or small flags, so do both icons.
+			iconSmall = dcxLoadIcon(index, filename, false, flags);
+			iconLarge = dcxLoadIcon(index, filename, true, flags);
+		}
+
+		// set the new icons, get back the current icon
+		if (iconSmall)
+			iconSmall = (HICON)SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)iconSmall);
+		if (iconLarge)
+			iconLarge = (HICON)SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)iconLarge);
+	}
 
 	// delete the old icons
 	if (iconSmall)
