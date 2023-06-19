@@ -324,6 +324,10 @@ namespace Dcx
 	{
 		return ListView_GetGroupState(hwnd, gid, mask);
 	}
+	inline BOOL dcxListView_GetGroupRect(_In_ HWND hwnd, _In_ const int gid, _In_ const long type, _Out_ LPRECT prc) noexcept
+	{
+		return ListView_GetGroupRect(hwnd, gid, type, prc);
+	}
 	inline BOOL dcxListView_GetEmptyText(_In_ HWND hwnd, _Inout_z_ PTCHAR str, _In_ const int sz) noexcept
 	{
 		return ListView_GetEmptyText(hwnd, str, sz);
@@ -331,6 +335,11 @@ namespace Dcx
 	inline int dcxListView_SubItemHitTest(_In_ HWND hwnd, _Inout_ LPLVHITTESTINFO lvht) noexcept
 	{
 		return ListView_SubItemHitTest(hwnd, lvht);
+	}
+	inline int dcxListView_SubItemGroupHitTest(_In_ HWND hwnd, _Inout_ LPLVHITTESTINFO lvht) noexcept
+	{
+		// setting wparam to -1 causes it to return the iGroup info.
+		return gsl::narrow_cast<int>(SendMessageW(hwnd, LVM_SUBITEMHITTEST, UINT_MAX, reinterpret_cast<LPARAM>(lvht)));
 	}
 	inline BOOL dcxListView_SetColumnWidth(_In_ HWND hwnd, _In_ const int iCol, _In_ const int cx) noexcept
 	{
@@ -600,6 +609,18 @@ namespace Dcx
 
 		return dcxListView_GetItemAtPos(hwnd, pt.x, pt.y);
 	}
+
+	inline LVHITTESTINFO dcxListView_CursorHitTest(_In_ HWND hwnd) noexcept
+	{
+		LVHITTESTINFO lvht{};
+		if (!GetCursorPos(&lvht.pt))
+			return lvht;
+		// X & Y are relative to screen area.
+		MapWindowPoints(nullptr, hwnd, &lvht.pt, 1);
+		Dcx::dcxListView_SubItemHitTest(hwnd, &lvht);
+
+		return lvht;
+	}
 }
 
 /*!
@@ -734,6 +755,41 @@ private:
 	/// <param name="gid"></param>
 	/// <returns>The header text</returns>
 	TString getGroupHeader(int gid);
+
+	bool IsGroupCollapsible(int gid) const noexcept
+	{
+		if (!m_Hwnd)
+			return false;
+
+		return (Dcx::dcxListView_GetGroupState(m_Hwnd, gid, LVGS_COLLAPSIBLE) != 0);
+	}
+
+	bool IsGroupCollapsed(int gid) const noexcept
+	{
+		if (!m_Hwnd)
+			return false;
+		constexpr auto iState = LVGS_COLLAPSED | LVGS_COLLAPSIBLE;
+		return (Dcx::dcxListView_GetGroupState(m_Hwnd, gid, iState) == iState );
+	}
+
+	RECT GetHeaderButtonRect(_In_ LPCRECT rcHeader) const noexcept
+	{
+		RECT rcButton{ *rcHeader };
+		rcButton.left = rcButton.right - (rcHeader->bottom - rcHeader->top);
+		InflateRect(&rcButton, 0, -2);
+		//OffsetRect(&rcButton, -10, 0);
+		OffsetRect(&rcButton, -2, 0);
+		return rcButton;
+	}
+
+	RECT GetHeaderButtonRect(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iStateId, _In_ LPCRECT rcHeader) const noexcept
+	{
+		RECT rcButton{};
+		RECT rcBounds{ *rcHeader };
+		Dcx::UXModule.dcxGetThemeBackgroundContentRect(hTheme, hdc, LVP_COLLAPSEBUTTON, iStateId, &rcBounds, &rcButton);
+
+		return rcButton;
+	}
 
 	/// <summary>
 	/// Adds a group to the control.
