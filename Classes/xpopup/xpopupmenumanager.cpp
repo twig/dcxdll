@@ -182,7 +182,12 @@ void XPopupMenuManager::unload(void) noexcept
 
 #if DCX_CUSTOM_MENUS
 	if (dcxHoverTimer.is_running())
-		dcxHoverTimer.stop();
+	{
+		try {
+			dcxHoverTimer.stop();
+		}
+		catch (...) {};
+	}
 
 	if (g_toolTipWin && IsWindow(g_toolTipWin))
 		DestroyWindow(g_toolTipWin);
@@ -202,6 +207,9 @@ void XPopupMenuManager::unload(void) noexcept
 #if DCX_CUSTOM_MENUS
 HWND XPopupMenuManager::CreateTrackingToolTip(int toolID, HWND hDlg, WCHAR* pText) noexcept
 {
+	if (!hDlg || !pText)
+		return nullptr;
+
 	// Create a tooltip.
 	HWND hwndTT = CreateWindowExW(WS_EX_TOPMOST, TOOLTIPS_CLASS, nullptr,
 		WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
@@ -980,11 +988,14 @@ const bool XPopupMenuManager::isCustomMenu(const HMENU hMenu) const noexcept
 
 const bool XPopupMenuManager::isMenuBarMenu(const HMENU hMenu, const HMENU hMatch)
 {
+	if (!hMenu || !hMatch)
+		return false;
+
 	const auto n = GetMenuItemCount(hMenu);
 
 	for (auto i = decltype(n){0}; i < n; ++i)
 	{
-		if (const auto hTemp = GetSubMenu(hMenu, i); hTemp != nullptr)
+		if (const auto hTemp = GetSubMenu(hMenu, i); hTemp)
 		{
 			if (hTemp == hMatch)
 				return true;
@@ -1007,7 +1018,7 @@ const bool XPopupMenuManager::isItemValid(const XPopupMenuItem* const pItem) con
 		return true;
 	if (m_mIRCScriptMenu && m_mIRCScriptMenu->isItemValid(pItem))
 		return true;
-	for (const auto& a : m_vpXPMenu)
+	for (const auto a : m_vpXPMenu)
 	{
 		if (a && a->isItemValid(pItem))
 			return true;

@@ -102,6 +102,8 @@ public:
 	XPopupMenu(const TString & tsMenuName, MenuStyle mStyle);
 	~XPopupMenu();
 
+	bool operator==(const XPopupMenu& other) const = default;
+
 	void parseXPopCommand(const TString & input);
 	void parseXPopIdentifier(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
 	static XPopupMenu::MenuStyle parseStyle(const TString &style) noexcept;

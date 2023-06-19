@@ -304,6 +304,9 @@ const int XMenuBar::findMenuOffset(HMENU menubar, const XPopupMenu* const p_Menu
  */
 void XMenuBar::setMenuBar(HMENU oldMenuBar, HMENU newMenuBar)
 {
+	if (!oldMenuBar || !newMenuBar)
+		return;
+
 	if (newMenuBar != g_OriginalMenuBar)
 	{
 		MENUINFO mi{ sizeof(MENUINFO),(MIM_BACKGROUND | MIM_HELPID | MIM_MAXHEIGHT | MIM_MENUDATA | MIM_STYLE),0,0,nullptr,0,0 };

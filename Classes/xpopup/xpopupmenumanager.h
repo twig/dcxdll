@@ -105,6 +105,13 @@ public:
 	XPopupMenuManager() noexcept = default;
 	~XPopupMenuManager() noexcept = default;
 
+	//XPopupMenuManager(std::unique_ptr<XPopupMenu>& m_mIRCPopupMenu, std::unique_ptr<XPopupMenu>& m_mIRCMenuBar, std::unique_ptr<XPopupMenu>& m_mIRCScriptMenu, bool m_bIsMenuBar, bool m_bIsSysMenu, bool m_bIsActiveMircPopup, bool m_bIsActiveMircMenubarPopup, const HMENU& m_hMenuCustom, const HWND& m_hMenuOwner, const VectorOfXPopupMenu& m_vpXPMenu)
+	//	: m_mIRCPopupMenu(m_mIRCPopupMenu), m_mIRCMenuBar(m_mIRCMenuBar), m_mIRCScriptMenu(m_mIRCScriptMenu), m_bIsMenuBar(m_bIsMenuBar), m_bIsSysMenu(m_bIsSysMenu), m_bIsActiveMircPopup(m_bIsActiveMircPopup), m_bIsActiveMircMenubarPopup(m_bIsActiveMircMenubarPopup), m_hMenuCustom(m_hMenuCustom), m_hMenuOwner(m_hMenuOwner), m_vpXPMenu(m_vpXPMenu)
+	//{
+	//}
+
+	bool operator==(const XPopupMenuManager& other) const = default;
+
 	void load(void);
 	void unload(void) noexcept;
 

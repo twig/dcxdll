@@ -28,7 +28,15 @@ class XMenuBar final
 public:
 	XMenuBar() noexcept = default;
 	XMenuBar(const XMenuBar &other) = delete;	// no copy constructor
+
+	XMenuBar(const VectorOfXPopupMenu& m_vpXMenuBar, const TString& m_callback)
+		: m_vpXMenuBar(m_vpXMenuBar), m_callback(m_callback)
+	{
+	}
+
 	XMenuBar &operator = (const XMenuBar &) = delete;
+
+	bool operator==(const XMenuBar& other) const = default;
 
 	void parseXMenuBarCommand(const TString &input);
 	void parseXMenuBarInfo(const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
