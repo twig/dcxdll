@@ -131,6 +131,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
+      <BuildStlModules>false</BuildStlModules>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -151,6 +152,7 @@
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BuildStlModules>false</BuildStlModules>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -176,6 +178,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
+      <BuildStlModules>false</BuildStlModules>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -203,6 +206,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
+      <BuildStlModules>false</BuildStlModules>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -230,6 +234,7 @@
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BuildStlModules>false</BuildStlModules>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -257,6 +262,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <BuildStlModules>false</BuildStlModules>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
