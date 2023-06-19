@@ -1588,6 +1588,61 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 			szReturnValue = TEXT("-FAIL Unable to get Glass colour.");
 	}
 	break;
+		// [NAME] [PROP]
+	case L"dbutopixels"_hash:
+	{
+		RECT rc{};
+		rc.left = input.getnexttokas<long>();
+		rc.right = input.getnexttokas<long>();
+		rc.top = input.getnexttokas<long>();
+		rc.bottom = input.getnexttokas<long>();
+
+		if (MapDialogRect(this->getHwnd(), &rc))
+			_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.right, rc.top, rc.bottom);
+		else
+			szReturnValue = TEXT("-FAIL Unable to get Glass colour.");
+	}
+	break;
+
+	case L"styles"_hash:
+	{
+		const auto ws = dcxGetWindowStyle(this->getHwnd());
+		const auto wsex = dcxGetWindowExStyle(this->getHwnd());
+
+		szReturnValue = TEXT('+');
+		if (dcx_testflag(ws, WS_BORDER))
+			szReturnValue += TEXT('b');
+		if (dcx_testflag(wsex, WS_EX_CLIENTEDGE))
+			szReturnValue += TEXT('c');
+		if (dcx_testflag(ws, WS_DLGFRAME))
+			szReturnValue += TEXT('d');
+		if (dcx_testflag(wsex, WS_EX_DLGMODALFRAME))
+			szReturnValue += TEXT('f');
+		if (dcx_testflag(wsex, WS_EX_CONTEXTHELP))
+			szReturnValue += TEXT('h');
+		if (dcx_testflag(ws, WS_MAXIMIZEBOX))
+			szReturnValue += TEXT('m');
+		if (dcx_testflag(ws, WS_MINIMIZEBOX))
+			szReturnValue += TEXT('n');
+		if (dcx_testflag(wsex, WS_EX_TOOLWINDOW))
+			szReturnValue += TEXT('o');
+		if (dcx_testflag(wsex, WS_EX_STATICEDGE))
+			szReturnValue += TEXT('s');
+		if (dcx_testflag(ws, WS_CAPTION))
+			szReturnValue += TEXT('t');
+		if (dcx_testflag(wsex, WS_EX_WINDOWEDGE))
+			szReturnValue += TEXT('w');
+		if (dcx_testflag(ws, WS_SYSMENU))
+			szReturnValue += TEXT('y');
+		if (dcx_testflag(ws, WS_SIZEBOX))
+			szReturnValue += TEXT('z');
+		if (dcx_testflag(wsex, WS_EX_COMPOSITED))
+			szReturnValue += TEXT('x');
+		if (dcx_testflag(wsex, WS_EX_LAYERED))
+			szReturnValue += TEXT('v');
+	}
+	break;
+
 	// invalid info request
 	default:
 		throw Dcx::dcxException("Invalid property or parameters");
