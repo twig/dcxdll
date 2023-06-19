@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.22
+// v1.23
 
 #include <tchar.h>
 #include <cstdlib>
@@ -1258,17 +1258,9 @@ T& _ts_trim(_Inout_ T& str)
 template <class T>
 T _ts_trim_and_copy(_In_ const T& str)
 {
-	if (str.empty())
-		return str;
-
 	T res(str);
-	while (res.front() == _T(' '))
-		res.erase(0, 1);
 
-	while (res.back() == _T(' '))
-		res.pop_back();
-
-	return res;
+	return _ts_trim(res);
 }
 
 /// <summary>
@@ -1280,13 +1272,34 @@ T _ts_trim_and_copy(_In_ const T& str)
 template <class T>
 T& _ts_strip(_Inout_ T& str)
 {
-	//_ts_remove(str, _T('\0x02'));	//02
-	//_ts_remove(str, _T('\0x0F'));	//15
-	//_ts_remove(str, _T('\0x16'));	//22
-	//_ts_remove(str, _T('\0x1D'));	//29
-	_ts_replace(str, _T("  "), _T(' '));
+	_ts_remove(str, _T('\x02'));	//02
+	_ts_remove(str, _T('\x0F'));	//15
+	_ts_remove(str, _T('\x16'));	//22
+	_ts_remove(str, _T('\x1D'));	//29
+
 	// NB: TODO: add ctrl-k removal for colour codes.
+	//for (auto itEnd = str.end(), itStart = str.begin(), itGet = std::find(itStart, itEnd, _T('\x03')); itGet != itEnd; itGet = std::find(itStart, itEnd, _T('\x03')))
+	//{
+	//	str.erase(itGet);
+	//}
+
+	_ts_replace(str, _T("  "), _T(' '));
+
 	return _ts_trim(str);
+}
+
+/// <summary>
+/// Trim the string and remove double spaces.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="str">- string to modify.</param>
+/// <returns>A copy of the string it was passed with the changes made.</returns>
+template <class T>
+T _ts_strip_and_copy(_In_ const T& str)
+{
+	T tmp(str);
+
+	return _ts_strip(tmp);
 }
 
 /// <summary>
