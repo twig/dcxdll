@@ -47,6 +47,9 @@ namespace mIRCLinker {
 	GSL_SUPPRESS(type.4)
 		void load(LOADINFO* const lInfo)
 	{
+		if (!lInfo)
+			return;
+
 		m_mIRCHWND = lInfo->mHwnd;
 		m_dwVersion = lInfo->mVersion;
 		if (m_dwVersion >= 3211271)
@@ -112,9 +115,11 @@ namespace mIRCLinker {
 		resetWindowProc();
 
 		if (m_pData)
-			UnmapViewOfFile(m_pData);
+			UnmapViewOfFile(m_pData.data());
 		if (m_hFileMap)
 			CloseHandle(m_hFileMap);
+		m_pData = nullptr;
+		m_hFileMap = nullptr;
 
 		// reset the treebars font if it's been changed.
 		if ((m_hTreeview) && mIRCLinker::getTreeFont())
@@ -125,6 +130,13 @@ namespace mIRCLinker {
 				DeleteObject(hfont);
 			}
 		}
+		m_hTreeFont = nullptr;
+		m_hTreebar = nullptr;
+		m_hTreeview = nullptr;
+		m_hTreeImages = nullptr;
+		m_hSwitchbar = nullptr;
+		m_hMDI = nullptr;
+		m_hToolbar = nullptr;
 	}
 
 	GSL_SUPPRESS(type.4)
@@ -244,6 +256,9 @@ namespace mIRCLinker {
 	GSL_SUPPRESS(type.4)
 		bool setTreeFont(const HFONT newFont) noexcept
 	{
+		if (!m_hTreeview)
+			return false;
+
 		const auto f = GetWindowFont(m_hTreeview);
 		if (!m_hTreeFont)
 			m_hTreeFont = f;
