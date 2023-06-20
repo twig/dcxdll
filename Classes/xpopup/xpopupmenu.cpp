@@ -57,7 +57,11 @@ XPopupMenu::~XPopupMenu()
 	if (this->m_hBitmap)
 		DeleteBitmap(this->m_hBitmap);
 
-	if (m_hMenu && m_menuNameHash != TEXT("mircbar"_hash) && m_menuNameHash != TEXT("dialog"_hash))
+	//if (m_hMenu && m_menuNameHash != TEXT("mircbar"_hash) && m_menuNameHash != TEXT("dialog"_hash))
+	//	DestroyMenu(this->m_hMenu);
+
+	// Ook: possible fix for `Commands` menu failing after dcx is unloaded. (needs looked at more)
+	if (m_hMenu && m_menuNameHash != TEXT("mircbar"_hash) && m_menuNameHash != TEXT("dialog"_hash) && m_menuNameHash != TEXT("scriptpopup"_hash))
 		DestroyMenu(this->m_hMenu);
 
 	destroyImageList();

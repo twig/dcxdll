@@ -307,7 +307,9 @@ LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM l
 {
 	auto menu = reinterpret_cast<HMENU>(wParam);
 
+#if DCX_CUSTOM_MENUS
 	g_menulist.pop_back();
+#endif
 
 	// Unset the custom menu handle so we dont have to keep track of submenus anymore.
 	if (menu == m_hMenuCustom)
