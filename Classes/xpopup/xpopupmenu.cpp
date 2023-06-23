@@ -89,6 +89,10 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 			throw DcxExceptions::dcxInvalidPath();
 	}
 
+	// this should never be null here.
+	if (!hMenu)
+		throw Dcx::dcxException(TEXT("Menu is NULL."));
+
 	const auto numtok = input.numtok();
 	const auto tabtoks = input.numtok(TSTABCHAR);
 	const auto tsTabTwo(input.getlasttoks().trim());	// tok 2, -1
@@ -102,9 +106,8 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 		const auto mID = tsTabTwo.getnexttok().to_<UINT>();		// tok 2 [ID]
 		const auto nIcon = tsTabTwo.getnexttok().to_int() - 1;	// tok 3 [ICON]
 
-		TString tsItemText;
+		TString tsItemText, tsTooltip;
 		//TString itemcom;
-		TString tsTooltip;
 
 		{
 			const auto itemtext(tsTabTwo.getlasttoks());			// tok 4, -1 ItemText....
@@ -153,6 +156,9 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 					DestroyMenu(mii.hSubMenu);
 
 				mii.hSubMenu = CreatePopupMenu();
+
+				if (!mii.hSubMenu)
+					throw Dcx::dcxException(TEXT("Failed to create submenu."));
 			}
 			if (xflags[TEXT('c')])
 				mii.fState |= MFS_CHECKED;
