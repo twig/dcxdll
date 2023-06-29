@@ -225,6 +225,9 @@ public:
 	constexpr void SetAlpha(const std::byte alpha) noexcept { this->m_uiAlpha = alpha; };
 	constexpr void SetRoundedWindow(const bool rounded) noexcept { this->m_bRoundedWindow = rounded; };
 
+	const inline bool& IsHMENUDestrucible(void) const noexcept { return this->m_bDestroyHMENU; };
+	//constexpr void SetHMENUDestructible(const bool boom) noexcept { this->m_bDestroyHMENU = boom; };
+
 	// Methods to attach and detach from mIRC menu.
 	bool attachToMenuBar(HMENU menubar, const TString &label);
 	void detachFromMenuBar(HMENU menubar) noexcept;
@@ -267,6 +270,7 @@ protected:
 	bool m_bAttachedToMenuBar{ false }; //!< Is the menu attached to the mIRC window menubar?
 	bool m_bEnableTooltips{ false };	//!< are tooltips enabled for this menu?
 	bool m_bRoundedWindow{ false };		//!< Menu has rounded window.
+	const bool m_bDestroyHMENU{ true };		//!< Should the descructor call DestroyMenu()
 };
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.

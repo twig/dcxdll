@@ -18,73 +18,93 @@
 #if DCX_CUSTOM_MENUS
 #include <thread>
 
-class CallBackTimer
+//std::vector<HWND> XPopupMenuManager::g_winlist;
+//std::vector<HMENU> XPopupMenuManager::g_menulist;
+namespace
 {
-public:
-	CallBackTimer() noexcept
-		:_execute(false)
-	{}
+	WNDPROC g_OldmIRCMenusWindowProc = nullptr;
+	HWND g_toolTipWin = nullptr;
+	TOOLINFO g_toolItem{};
 
-	~CallBackTimer()
+	class CallBackTimer
 	{
-		if (_execute.load(std::memory_order_acquire))
+	public:
+		CallBackTimer() noexcept
+			:_execute(false)
+		{}
+
+		~CallBackTimer()
 		{
-			stop();
-		};
-	}
-	CallBackTimer(const CallBackTimer&) = delete;
-	CallBackTimer(CallBackTimer&&) = delete;
-	CallBackTimer& operator =(const CallBackTimer&) = delete;
-	CallBackTimer& operator =(CallBackTimer&&) = delete;
-
-	void setstop() noexcept
-	{
-		_execute.store(false, std::memory_order_release);
-	}
-
-	void stop()
-	{
-		setstop();
-		if (_thd.joinable())
-			_thd.join();
-	}
-
-	void start(int interval, std::function<void(void)> func)
-	{
-		if (_execute.load(std::memory_order_acquire))
-		{
-			stop();
-		};
-		_execute.store(true, std::memory_order_release);
-		_thd = std::thread([this, interval, func]()
+			if (_execute.load(std::memory_order_acquire))
 			{
-				while (_execute.load(std::memory_order_acquire))
+				stop();
+			};
+		}
+		CallBackTimer(const CallBackTimer&) = delete;
+		CallBackTimer(CallBackTimer&&) = delete;
+		CallBackTimer& operator =(const CallBackTimer&) = delete;
+		CallBackTimer& operator =(CallBackTimer&&) = delete;
+		bool operator==(const CallBackTimer& other) const = default;
+
+		void setstop() noexcept
+		{
+			_execute.store(false, std::memory_order_release);
+		}
+
+		void stop()
+		{
+			setstop();
+			if (_thd.joinable())
+				_thd.join();
+		}
+
+		void start(int interval, std::function<void(void)> func)
+		{
+			if (_execute.load(std::memory_order_acquire))
+			{
+				stop();
+			};
+			_execute.store(true, std::memory_order_release);
+			_thd = std::thread([this, interval, func]()
 				{
-					func();
-					std::this_thread::sleep_for(
-						std::chrono::milliseconds(interval));
-				}
-			});
-	}
+					while (_execute.load(std::memory_order_acquire))
+					{
+						func();
+						std::this_thread::sleep_for(
+							std::chrono::milliseconds(interval));
+					}
+				});
+		}
 
-	bool is_running() const noexcept
+		bool is_running() const noexcept
+		{
+			return (_execute.load(std::memory_order_acquire) &&
+				_thd.joinable());
+		}
+
+	private:
+		std::atomic<bool> _execute;
+		std::thread _thd;
+	};
+
+	CallBackTimer dcxHoverTimer;
+
+	// Get list of open menu windows.
+	auto& getGlobalMenuWindowList() noexcept
 	{
-		return (_execute.load(std::memory_order_acquire) &&
-			_thd.joinable());
+		static std::vector<HWND> winlist;
+
+		return winlist;
 	}
 
-private:
-	std::atomic<bool> _execute;
-	std::thread _thd;
-};
+	// Get list of open menus.
+	auto& getGlobalMenuList() noexcept
+	{
+		static std::vector<HMENU> menulist;
 
-std::vector<HWND> XPopupMenuManager::g_winlist;
-std::vector<HMENU> XPopupMenuManager::g_menulist;
-WNDPROC XPopupMenuManager::g_OldmIRCMenusWindowProc = nullptr;
-HWND XPopupMenuManager::g_toolTipWin = nullptr;
-TOOLINFO XPopupMenuManager::g_toolItem{};
-CallBackTimer dcxHoverTimer;
-
+		return menulist;
+	}
+}
 #endif
 
 /*!
@@ -192,13 +212,13 @@ void XPopupMenuManager::unload(void) noexcept
 	if (g_toolTipWin && IsWindow(g_toolTipWin))
 		DestroyWindow(g_toolTipWin);
 
-	if (XPopupMenuManager::g_OldmIRCMenusWindowProc != nullptr)
+	if (g_OldmIRCMenusWindowProc != nullptr)
 	{
 		if (HWND tmp_hwnd = CreateWindowEx(0, TEXT("#32768"), nullptr, WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, GetModuleHandle(nullptr), nullptr); tmp_hwnd)
 		{
-			SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, (LONG_PTR)XPopupMenuManager::g_OldmIRCMenusWindowProc);
+			SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, (LONG_PTR)g_OldmIRCMenusWindowProc);
 			DestroyWindow(tmp_hwnd);
-			XPopupMenuManager::g_OldmIRCMenusWindowProc = nullptr;
+			g_OldmIRCMenusWindowProc = nullptr;
 		}
 	}
 #endif
@@ -287,7 +307,7 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 
 		m_bIsSysMenu = false;
 #if DCX_CUSTOM_MENUS
-		g_menulist.push_back(menu);
+		getGlobalMenuList().push_back(menu);
 
 		if (!g_toolTipWin)
 		{
@@ -308,7 +328,7 @@ LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM l
 	auto menu = reinterpret_cast<HMENU>(wParam);
 
 #if DCX_CUSTOM_MENUS
-	g_menulist.pop_back();
+	getGlobalMenuList().pop_back();
 #endif
 
 	// Unset the custom menu handle so we dont have to keep track of submenus anymore.
@@ -329,7 +349,7 @@ LRESULT XPopupMenuManager::OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lPar
 		DestroyWindow(g_toolTipWin);
 		g_toolTipWin = nullptr;
 	}
-	g_menulist.clear();
+	getGlobalMenuList().clear();
 #endif
 
 	if (!m_bIsMenuBar && m_bIsActiveMircPopup)
@@ -474,6 +494,9 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto himl = p_Menu->getImageList();
+		if (!himl)
+			throw Dcx::dcxException(TEXT("Invalid ImageList."));
+
 		const auto tsFlags(input.getnexttok());			// tok 3
 		const auto index = input.getnexttok().to_int();	// tok 4
 		auto filename(input.getlasttoks());				// tok 5, -1
@@ -1307,12 +1330,12 @@ void XPopupMenuManager::dcxCheckMenuHover() noexcept
 {
 	static POINT savedpt{};
 
-	if (g_winlist.empty())
+	if (getGlobalMenuWindowList().empty())
 		return;
 
 	if (Dcx::dcxCursorPos pt; pt)
 	{
-		if (HWND win = g_winlist.back(); win)
+		if (HWND win = getGlobalMenuWindowList().back(); win)
 		{
 			if (Dcx::dcxWindowRect rc(win); rc)
 			{
@@ -1335,7 +1358,7 @@ void XPopupMenuManager::dcxCheckMenuHover() noexcept
 LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	// Incase execution somehow ends up here without this pointer being set.
-	if (!XPopupMenuManager::g_OldmIRCMenusWindowProc)
+	if (!g_OldmIRCMenusWindowProc)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
 	const WindowMessages mm = gsl::narrow_cast<WindowMessages>(uMsg);
@@ -1361,10 +1384,10 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			cs->dwExStyle |= WS_EX_LAYERED | WS_EX_COMPOSITED;
 
 			// check for previous menu...
-			if (!g_winlist.empty())
+			if (!getGlobalMenuWindowList().empty())
 			{
 				// change previous window.
-				auto parent = g_winlist.back();
+				auto parent = getGlobalMenuWindowList().back();
 
 				// make sure previous menu is layered.
 				if (const auto dwStyle = dcxGetWindowExStyle(parent); !dcx_testflag(dwStyle, WS_EX_LAYERED))
@@ -1376,24 +1399,24 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		}
 
 		// add this window to list.
-		g_winlist.push_back(mHwnd);
+		getGlobalMenuWindowList().push_back(mHwnd);
 	}
 	break;
 
 	case WindowMessages::eWM_DESTROY:
 	{
-		if (g_winlist.empty())
+		if (getGlobalMenuWindowList().empty())
 			break;
 
 		// remove ourselfs.
-		g_winlist.pop_back();
+		getGlobalMenuWindowList().pop_back();
 
-		if (!g_winlist.empty())
+		if (!getGlobalMenuWindowList().empty())
 		{
 			if (Dcx::m_CurrentMenuAlpha != std::byte{ 255 })
 			{
 				// get previous menu window.
-				auto parent = g_winlist.back();
+				auto parent = getGlobalMenuWindowList().back();
 
 				if (const auto dwStyle = dcxGetWindowExStyle(parent); !dcx_testflag(dwStyle, WS_EX_LAYERED))
 					break;
@@ -1414,8 +1437,8 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			break;
 		if (Dcx::dcxWindowRect rc(mHwnd); rc)
 		{
-			const UINT width = rc.Width();
-			const UINT height = rc.Height();
+			const auto width = rc.Width();
+			const auto height = rc.Height();
 			constexpr int radius = 10;
 			if (auto m_Region = CreateRoundRectRgn(0, 0, width, height, radius, radius); m_Region)
 			{
@@ -1437,7 +1460,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 				SendMessage(g_toolTipWin, TTM_TRACKACTIVATE, (WPARAM)FALSE, (LPARAM)&g_toolItem);
 
 			// start thread to check for hover...
-			if (!g_menulist.empty() && !g_winlist.empty() && PtInRect(&rc, pt))
+			if (!getGlobalMenuList().empty() && !getGlobalMenuWindowList().empty() && PtInRect(&rc, pt))
 				dcxHoverTimer.start(600, XPopupMenuManager::dcxCheckMenuHover);
 		}
 
@@ -1448,7 +1471,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 				break;
 
 			// iterate through all saved hwnds & make all solid.
-			for (const auto& win : g_winlist)
+			for (const auto& win : getGlobalMenuWindowList())
 			{
 				if (const auto dwStyle = dcxGetWindowExStyle(win); dcx_testflag(dwStyle, WS_EX_LAYERED))
 				{
@@ -1470,12 +1493,12 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		if (Dcx::m_CurrentMenuAlpha == std::byte{ 255 })
 			break;
 
-		const auto lRes = CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+		const auto lRes = CallWindowProc(g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
 		auto menu_hwnd = reinterpret_cast<HWND>(lRes);
 
 		bool bAfter = false;
 
-		for (const auto& win : g_winlist)
+		for (const auto& win : getGlobalMenuWindowList())
 		{
 			if ((win == menu_hwnd) || (!menu_hwnd))
 				bAfter = true;
@@ -1502,12 +1525,12 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		if (dcxHoverTimer.is_running())
 			dcxHoverTimer.stop();
 
-		if (!g_menulist.empty() && g_toolTipWin && IsWindow(g_toolTipWin))
+		if (!getGlobalMenuList().empty() && g_toolTipWin && IsWindow(g_toolTipWin))
 		{
 			const POINT pt{ GET_X_LPARAM(lParam) , GET_Y_LPARAM(lParam) };
-			if (const auto id = MenuItemFromPoint(nullptr, g_menulist.back(), pt); id >= 0)
+			if (const auto id = MenuItemFromPoint(nullptr, getGlobalMenuList().back(), pt); id >= 0)
 			{
-				if (auto p_Item = Dcx::XPopups.getMenuItemByID(g_menulist.back(), id); p_Item)
+				if (auto p_Item = Dcx::XPopups.getMenuItemByID(getGlobalMenuList().back(), id); p_Item)
 				{
 					if (p_Item->IsTooltipsEnabled())
 					{
@@ -1531,6 +1554,6 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		break;
 	}
 
-	return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+	return CallWindowProc(g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
 }
 #endif

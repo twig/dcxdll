@@ -158,11 +158,11 @@ protected:
 	VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 
 #if DCX_CUSTOM_MENUS
-	static std::vector<HWND> g_winlist;
-	static std::vector<HMENU> g_menulist;
-	static WNDPROC g_OldmIRCMenusWindowProc;
-	static HWND g_toolTipWin;
-	static TOOLINFO g_toolItem;
+	//static std::vector<HWND> g_winlist;
+	//static std::vector<HMENU> g_menulist;
+	//static WNDPROC g_OldmIRCMenusWindowProc;
+	//static HWND g_toolTipWin;
+	//static TOOLINFO g_toolItem;
 
 	static HWND CreateTrackingToolTip(int toolID, HWND hDlg, WCHAR* pText) noexcept;
 	static void dcxCheckMenuHover() noexcept;

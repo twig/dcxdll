@@ -37,7 +37,7 @@ XPopupMenu::XPopupMenu(const TString& tsMenuName, MenuStyle mStyle)
  */
 
 XPopupMenu::XPopupMenu(const TString& tsName, HMENU hMenu)
-	: m_hMenu(hMenu), m_tsMenuName(tsName), m_menuNameHash(std::hash<TString>{}(tsName))
+	: m_hMenu(hMenu), m_tsMenuName(tsName), m_menuNameHash(std::hash<TString>{}(tsName)), m_bDestroyHMENU(m_menuNameHash != TEXT("mircbar"_hash) && m_menuNameHash != TEXT("dialog"_hash) && m_menuNameHash != TEXT("scriptpopup"_hash))
 {
 }
 
@@ -61,7 +61,10 @@ XPopupMenu::~XPopupMenu()
 	//	DestroyMenu(this->m_hMenu);
 
 	// Ook: possible fix for `Commands` menu failing after dcx is unloaded. (needs looked at more)
-	if (m_hMenu && m_menuNameHash != TEXT("mircbar"_hash) && m_menuNameHash != TEXT("dialog"_hash) && m_menuNameHash != TEXT("scriptpopup"_hash))
+	//if (m_hMenu && m_menuNameHash != TEXT("mircbar"_hash) && m_menuNameHash != TEXT("dialog"_hash) && m_menuNameHash != TEXT("scriptpopup"_hash))
+	//	DestroyMenu(this->m_hMenu);
+
+	if (m_hMenu && IsHMENUDestrucible())
 		DestroyMenu(this->m_hMenu);
 
 	destroyImageList();
@@ -240,7 +243,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 		if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
 			throw Dcx::dcxException("Unable to get menu item info");
 
-		if (mii.hSubMenu != nullptr)
+		if (mii.hSubMenu)
 		{
 			this->deleteAllItemData(mii.hSubMenu);
 			DestroyMenu(mii.hSubMenu);
@@ -312,7 +315,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 		DeleteMenu(hMenu, gsl::narrow_cast<UINT>(nPos), MF_BYPOSITION);
 		InsertMenuItem(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
 	}
-	// xpop -T - [MENU] [SWITCH] [PATH] [TAB] text
+	// xpop -T - [MENU] [SWITCH] [PATH] [TAB] (text)
 	else if (flags[TEXT('T')])
 	{
 		if (tabtoks < 2)
@@ -804,6 +807,7 @@ void XPopupMenu::deleteAllItemData(HMENU hMenu)
 
 LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	// for use when debugging.
 	//const WindowMessages mm = static_cast<WindowMessages>(uMsg);
 
 	switch (uMsg)
