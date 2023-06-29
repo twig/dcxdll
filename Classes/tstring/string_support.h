@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.23
+// v1.24
 
 #include <tchar.h>
 #include <cstdlib>
@@ -235,14 +235,14 @@ namespace details {
 	}
 
 	template <typename Result, typename Format>
-	Result& _ts_printf_do(_Out_ Result& res, _In_ const Format& fmt)
+	Result& _ts_printf_do(_Inout_ Result& res, _In_ const Format& fmt)
 	{
 		res += fmt;
 		return res;
 	}
 
 	template <typename Result, typename Format, typename Value, typename... Arguments>
-	Result& _ts_printf_do(_Out_ Result& res, _In_ const Format& fmt, _In_ const Value& val, _In_ Arguments&&... args)
+	Result& _ts_printf_do(_Inout_ Result& res, _In_ const Format& fmt, _In_ const Value& val, _In_ Arguments&&... args)
 	{
 		auto i = 0U;
 		auto bSkip = false;
@@ -903,7 +903,7 @@ constexpr bool isInBounds(_In_ const T* const sDest, _In_ const T* const sSrc, _
 }
 
 template <typename Result, typename Format, typename Value, typename... Arguments>
-Result& _ts_sprintf(_Out_ Result& res, _In_ const Format& fmt, _In_ const Value& val, _In_ Arguments&&... args)
+Result& _ts_sprintf(_Inout_ Result& res, _In_ const Format& fmt, _In_ const Value& val, _In_ Arguments&&... args)
 {
 	static_assert(details::IsPODText<Format>, "Format string must be char or wchar_t");
 	res.clear();

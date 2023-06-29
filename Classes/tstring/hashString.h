@@ -1,6 +1,6 @@
 //
 // By Ook
-// v2.5
+// v2.6
 //
 
 #pragma once
@@ -766,7 +766,7 @@ namespace XXH3
 // _xxh32 suffix for string which provides compile time string to XXH32 conversion
 _CONSTEVAL uint32_t operator "" _xxh32(const char* p, size_t N)
 {
-	const uint32_t seed = 0;
+	constexpr uint32_t seed = 0;
 	return XXH3::xxh32(p, N - 1, seed);
 }
 
@@ -774,7 +774,7 @@ _CONSTEVAL uint32_t operator "" _xxh32(const char* p, size_t N)
 // _xxh64 suffix for string which provides compile time string to XXH64 conversion
 _CONSTEVAL uint64_t operator "" _xxh64(const char* p, size_t N)
 {
-	const uint64_t seed = 0;
+	constexpr uint64_t seed = 0;
 	return XXH3::xxh64(p, N - 1, seed);
 }
 
