@@ -238,9 +238,9 @@ public:
 	GSL_SUPPRESS(lifetime) const bool isNamedId(const TString& NamedID) const
 	{
 		const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
-		const auto itEnd = m_NamedIds.end();
+		const auto itEnd = m_NamedIds.cend();
 
-		const auto itGot = std::find_if(m_NamedIds.begin(), itEnd, [local_id, NamedID](const auto& arg) noexcept { return ((arg.second == local_id) || (arg.first == NamedID)); });
+		const auto itGot = std::find_if(m_NamedIds.cbegin(), itEnd, [local_id, NamedID](const auto& arg) noexcept { return ((arg.second == local_id) || (arg.first == NamedID)); });
 
 		return (itGot != itEnd);
 	}
