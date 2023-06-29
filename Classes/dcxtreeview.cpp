@@ -467,7 +467,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		if (path.numtok() < 4)
 			throw Dcx::dcxException("Insufficient parameters (path)");
 
-		if (data.numtok() < 2)
+		if (data.empty())
 			throw Dcx::dcxException("Insufficient parameters (args)");
 
 		path = path.gettok(4, -1);
@@ -478,13 +478,24 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		const XSwitchFlags xflag(data.getfirsttok(1));	// tok 1
-		const auto info(data.getlasttoks());		// tok 2, -1
 
-		if (!xflag[TEXT('M')])
+		if (!xflag[TEXT('M')] && !xflag[TEXT('T')])
 			throw DcxExceptions::dcxInvalidFlag();
 
 		if (const auto lpdcxtvitem = getItemParam(item); lpdcxtvitem)
+		{
+			if (xflag[TEXT('M')])
+			{
+				const auto info(data.getlasttoks());		// tok 2, -1
 			lpdcxtvitem->tsMark = info;
+			}
+			if (xflag[TEXT('T')])
+			{
+				lpdcxtvitem->bBold = xflag[TEXT('b')];
+				lpdcxtvitem->bItalic = xflag[TEXT('i')];
+				lpdcxtvitem->bUline = xflag[TEXT('u')];
+			}
+		}
 		else
 			throw Dcx::dcxException(TEXT("Unable to retrieve item: %"), path);
 	}
@@ -2004,6 +2015,9 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				break;
 
 			TVHITTESTINFO tvh{ TV_GetCursorItem() };
+
+			// closes tooltip on rclick
+			this->CloseToolTip();
 
 			//|| ( (dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT)) && this->isStyle( TVS_FULLROWSELECT ) ) )
 			if ((tvh.flags & TVHT_ONITEM) != 0) // dont use dcx_testflag() here as TVHT_ONITEM is a combination of several hit types.
