@@ -460,9 +460,30 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		SetFocus(nullptr);
 	}
 	// xdid -T [NAME] [ID] [SWITCH] (ToolTipText)
+	// xdid -T [NAME] [ID] [SWITCH] [+FLAGS] (ToolTipText)
 	else if (flags[TEXT('T')])
 	{
-		this->m_tsToolTip = (numtok > 3 ? input.gettok(4, -1).trim() : TEXT(""));
+		TString tsText(input.gettok(4, -1));
+		if (const XSwitchFlags xflags(tsText.getfirsttok(1)); xflags[TEXT('+')])
+		{
+			// close the tooltip window. NB: window may be reopened right away by control...
+			if (xflags[TEXT('C')])
+				this->CloseToolTip();
+
+			// clear current tooltip text for control.
+			if (xflags[TEXT('c')])
+				this->m_tsToolTip.clear();
+
+			if (xflags[TEXT('t')])
+				this->m_tsToolTip = tsText.getlasttoks().trim();
+
+			if (xflags[TEXT('O')])
+				this->OpenToolTip();
+		}
+		else
+			this->m_tsToolTip = tsText.trim();
+
+		//this->m_tsToolTip = (numtok > 3 ? input.gettok(4, -1).trim() : TEXT(""));
 	}
 	// xdid -R [NAME] [ID] [SWITCH] [+FLAG] [ARGS]
 	else if (flags[TEXT('R')])

@@ -356,6 +356,34 @@ public:
 		return m_hCursor.cursor;
 	}
 
+	/// <summary>
+	/// Closes tooltip window, if open.
+	/// </summary>
+	void CloseToolTip() const noexcept
+	{
+		if (!this->m_ToolTipHWND)
+			return;
+
+		//TOOLINFO ti{};
+		//ti.cbSize = sizeof(TOOLINFO);
+		//ti.hwnd = this->m_ToolTipHWND;
+		//ti.uId = reinterpret_cast<UINT_PTR>(m_Hwnd);
+		//SendMessage(this->m_ToolTipHWND, TTM_TRACKACTIVATE, FALSE, reinterpret_cast<LPARAM>(&ti));
+
+		SendMessage(this->m_ToolTipHWND, TTM_POP, 0, 0);
+	}
+
+	/// <summary>
+	/// Opens tooltip window, if it exists.
+	/// </summary>
+	void OpenToolTip() const noexcept
+	{
+		if (!this->m_ToolTipHWND)
+			return;
+
+		SendMessage(this->m_ToolTipHWND, TTM_POPUP, 0, 0);
+	}
+
 	[[nodiscard]] const inline bool& IsAlphaBlend() const noexcept
 	{
 		return m_bAlphaBlend;
