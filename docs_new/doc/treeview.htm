@@ -388,7 +388,7 @@ This would add the item at the end of the last branch in the first column of bra
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.j"></a>/xdid -j	</td></tr>
-	<tr><td colspan="2">This command lets you change the icon, selected icon and overlay icon for a treeview item.</td></tr>
+	<tr><td colspan="2">This command lets you change the icon, selected icon, expanded icon, and overlay icon for a treeview item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xdid -j [DNAME] [ID] [PATH] [TAB] [ICON] [SICON] [EICON] (OVERLAY)</div></td>
@@ -738,7 +738,23 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="value">M</td>
-		<td>Marked text property. Much like <a class='value' href='xdid.htm#xdid.big.M'>/xdid -M</a>, this can be used to define custom data but on a per item basis.</td>
+		<td>Marked text property. Much like <a class='value' href='xdid.htm#xdid.big.M'>/xdid -M</a>, this can be used to define custom data but on a per item basis. (provide an empty text argument to remove the mark data)</td>
+	</tr>
+	<tr>
+		<td class="value">T</td>
+		<td>Change text properties. This enables changing how the text is drawn in this item. Works in conjunction with the <a class="value">b</a>, <a class="value">i</a>, and <a class="value">u</a> flags</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Bold text. If provided then bold text is enabled, otherwise bold text is disabled. (can only be used with <a class="value">T</a> flag)</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Italic text. If provided then italic text is enabled, otherwise italic is disabled. (can only be used with <a class="value">T</a> flag)</td>
+	</tr>
+	<tr>
+		<td class="value">u</td>
+		<td>Underline text. If provided then underlined text is enabled, otherwise underlined text is disabled. (can only be used with <a class="value">T</a> flag)</td>
 	</tr>
 	<tr>
 		<td class="param">INFO</td>
@@ -1363,7 +1379,7 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 1st April, 23</td>
+		<td style="text-align: right;">Last Updated: 30th June, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

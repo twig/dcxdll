@@ -185,7 +185,11 @@ tooltip="some text"
 				'+FLAGS' => array(
 					'__desc' => 'Property flags.',
 					'__values' => array(
-						'M' => 'Marked text property. Much like [link page="xdid" section="xdid" flag="M"]/xdid -M[/link], this can be used to define custom data but on a per item basis.',
+						'M' => 'Marked text property. Much like [link page="xdid" section="xdid" flag="M"]/xdid -M[/link], this can be used to define custom data but on a per item basis. (provide an empty text argument to remove the mark data)',
+						'T' => 'Change text properties. This enables changing how the text is drawn in this item. Works in conjunction with the [f]b[/f], [f]i[/f], and [f]u[/f] flags',
+						'b' => 'Bold text. If provided then bold text is enabled, otherwise bold text is disabled. (can only be used with [f]T[/f] flag)',
+						'i' => 'Italic text. If provided then italic text is enabled, otherwise italic is disabled. (can only be used with [f]T[/f] flag)',
+						'u' => 'Underline text. If provided then underlined text is enabled, otherwise underlined text is disabled. (can only be used with [f]T[/f] flag)',
 					),
 				),
 				'INFO' => 'The information to set. The usage of this parameter depends on the flags specified in [p]FLAGS[/p].',
@@ -214,7 +218,7 @@ tooltip="some text"
 		),
 		'G' => array(
 			'__desc' => 'This command lets you set the treeview background image.',
-		        '__cmd' => '[+FLAGS] [X] [Y] [FILENAME]',
+		    '__cmd' => '[+FLAGS] [X] [Y] [FILENAME]',
 			'__eg' => '+r 0 0 treeview_bg.bmp',
 			'__params' => array(
 				'+FLAGS' => array(
@@ -250,7 +254,7 @@ tooltip="some text"
 	        '__notes' => "Use [v]-1[/v] to revert to default color.",
 		),
 		'j' => array(
-			'__desc' => 'This command lets you change the icon, selected icon and overlay icon for a treeview item.',
+			'__desc' => 'This command lets you change the icon, selected icon, expanded icon, and overlay icon for a treeview item.',
 		        '__cmd' => '[PATH] [TAB] [ICON] [SICON] [EICON] (OVERLAY)',
 			'__eg' => array(
 				'1 2 $chr(9) 3 3 3',

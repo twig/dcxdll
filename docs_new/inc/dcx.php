@@ -533,7 +533,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 				),
 				'FILENAME' => 'File to count icons in.',
 				),
-			'__return' => "[v]D_OK code[/v] On Success.<br />[v]D_ERROR code[/v] On Error.<br/>code can be either 16 for bitmap save or 13 for text save.",
+			'__return' => "[v]D_OK code[/v] On Success.<br />[v]D_ERROR code[/v] On Error.<br/>code can be either 2 for bitmap save or 13 for text save.",
 			'__notes' => array(
 				"When saving a bmp file, mIRC's \$pic() wont read the file correctly unless it has the .bmp extension.",
 				'When no flags are supplied (only a + given) then we try both methods to see what works.',
