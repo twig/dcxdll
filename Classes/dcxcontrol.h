@@ -223,6 +223,50 @@ inline RECT TSToRect(const TString& tsInput)
 	return rc;
 }
 
+namespace Dcx
+{
+	inline bool dcxToolTip_GetCurrentTool(HWND hwnd, LPTOOLINFO pti) noexcept
+	{
+		return (SendMessage(hwnd, TTM_GETCURRENTTOOL, 0, reinterpret_cast<LPARAM>(pti)) != 0);
+	}
+	inline void dcxToolTip_TrackActivate(HWND hwnd, BOOL bActivate, LPTOOLINFO pti) noexcept
+	{
+		SendMessage(hwnd, TTM_TRACKACTIVATE, bActivate, reinterpret_cast<LPARAM>(pti));
+	}
+	inline void dcxToolTip_Pop(HWND hwnd) noexcept
+	{
+		SendMessage(hwnd, TTM_POP, 0, 0);
+	}
+	inline void dcxToolTip_PopUp(HWND hwnd) noexcept
+	{
+		SendMessage(hwnd, TTM_POPUP, 0, 0);
+	}
+	inline void dcxToolTip_SetToolInfo(HWND hwnd, LPTOOLINFO pti) noexcept
+	{
+		SendMessage(hwnd, TTM_SETTOOLINFO, 0, reinterpret_cast<LPARAM>(pti));
+	}
+	inline void dcxToolTip_TrackPosition(HWND hwnd, int x, int y) noexcept
+	{
+		SendMessage(hwnd, TTM_TRACKPOSITION, 0, MAKELPARAM(x + 10, y - 20));
+	}
+	inline void dcxToolTip_UpdateTipText(HWND hwnd, TOOLINFO *pti) noexcept
+	{
+		SendMessage(hwnd, TTM_UPDATETIPTEXT, 0, reinterpret_cast<LPARAM>(pti));
+	}
+	inline void dcxToolTip_UpdateTipText(HWND hwnd, UINT_PTR id, LPWSTR str) noexcept
+	{
+		TOOLINFO ti{};
+
+		ti.cbSize = sizeof(TOOLINFO);
+		ti.hinst = GetModuleHandle(nullptr);
+		ti.hwnd = hwnd;
+		ti.uId = id;
+		ti.lpszText = str;
+
+		dcxToolTip_UpdateTipText(hwnd, &ti);
+	}
+}
+
 /*!
  * \brief blah
  *
