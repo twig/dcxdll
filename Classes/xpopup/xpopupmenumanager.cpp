@@ -1441,9 +1441,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			const auto height = rc.Height();
 			constexpr int radius = 10;
 			if (auto m_Region = CreateRoundRectRgn(0, 0, width, height, radius, radius); m_Region)
-			{
 				SetWindowRgn(mHwnd, m_Region, TRUE);
-			}
 		}
 	}
 	break;
@@ -1456,8 +1454,12 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			const Dcx::dcxWindowRect rc(mHwnd);
 
 			// hide any current tooltip
+			//if (g_toolTipWin && IsWindow(g_toolTipWin))
+			//	SendMessage(g_toolTipWin, TTM_TRACKACTIVATE, (WPARAM)FALSE, (LPARAM)&g_toolItem);
+
+			// hide any current tooltip
 			if (g_toolTipWin && IsWindow(g_toolTipWin))
-				SendMessage(g_toolTipWin, TTM_TRACKACTIVATE, (WPARAM)FALSE, (LPARAM)&g_toolItem);
+				Dcx::dcxToolTip_TrackActivate(g_toolTipWin, FALSE, &g_toolItem);
 
 			// start thread to check for hover...
 			if (!getGlobalMenuList().empty() && !getGlobalMenuWindowList().empty() && PtInRect(&rc, pt))
@@ -1534,13 +1536,20 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 				{
 					if (p_Item->IsTooltipsEnabled())
 					{
-						//auto p_Menu = p_Item->getParentMenu();
+						//g_toolItem.lpszText = const_cast<TCHAR*>(p_Item->getItemTooltipText().to_chr());
+						//SendMessage(g_toolTipWin, TTM_SETTOOLINFO, 0, (LPARAM)&g_toolItem);
+						//if (!p_Item->getItemTooltipText().empty())
+						//{
+						//	SendMessage(g_toolTipWin, TTM_TRACKACTIVATE, (WPARAM)TRUE, (LPARAM)&g_toolItem);
+						//	SendMessage(g_toolTipWin, TTM_TRACKPOSITION, 0, Dcx::dcxMAKELPARAM(GET_X_LPARAM(lParam) + 10, GET_Y_LPARAM(lParam) - 20));
+						//}
+
 						g_toolItem.lpszText = const_cast<TCHAR*>(p_Item->getItemTooltipText().to_chr());
-						SendMessage(g_toolTipWin, TTM_SETTOOLINFO, 0, (LPARAM)&g_toolItem);
+						Dcx::dcxToolTip_SetToolInfo(g_toolTipWin, &g_toolItem);
 						if (!p_Item->getItemTooltipText().empty())
 						{
-							SendMessage(g_toolTipWin, TTM_TRACKACTIVATE, (WPARAM)TRUE, (LPARAM)&g_toolItem);
-							SendMessage(g_toolTipWin, TTM_TRACKPOSITION, 0, Dcx::dcxMAKELPARAM(GET_X_LPARAM(lParam) + 10, GET_Y_LPARAM(lParam) - 20));
+							Dcx::dcxToolTip_TrackActivate(g_toolTipWin, TRUE, &g_toolItem);
+							Dcx::dcxToolTip_TrackPosition(g_toolTipWin, GET_X_LPARAM(lParam) + 10, GET_Y_LPARAM(lParam) - 20);
 						}
 					}
 				}
