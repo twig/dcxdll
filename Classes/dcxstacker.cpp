@@ -41,8 +41,7 @@ DcxStacker::DcxStacker(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_D
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -54,12 +53,12 @@ DcxStacker::DcxStacker(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_D
 
 	//this->m_hBackBrush = GetSysColorBrush(COLOR_3DFACE);
 
-	if (p_Dialog->getToolTip())
+	if (p_Dialog->getToolTipHWND())
 	{
 		if (styles.istok(TEXT("tooltips")))
 		{
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
+			setToolTipHWND(p_Dialog->getToolTipHWND());
+			AddToolTipToolInfo(this->getToolTipHWND(), m_Hwnd);
 		}
 	}
 
@@ -907,7 +906,7 @@ LRESULT DcxStacker::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 		if (!hdr)
 			break;
 
-		if (hdr->hwndFrom == m_ToolTipHWND)
+		if (hdr->hwndFrom == getToolTipHWND())
 		{
 			switch (hdr->code)
 			{

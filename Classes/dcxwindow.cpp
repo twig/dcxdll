@@ -179,6 +179,18 @@ const UINT& DcxWindow::getID() const noexcept
 	return m_ID;
 }
 
+/// <summary>
+/// Opens tooltip window, if it exists.
+/// </summary>
+
+void DcxWindow::OpenToolTip() const noexcept
+{
+	if (!m_HwndTooltip)
+		return;
+
+	Dcx::dcxToolTip_PopUp(m_HwndTooltip);
+}
+
 /*!
  * \brief blah
  *
@@ -195,6 +207,24 @@ const HWND& DcxWindow::getHwnd() const noexcept
  *
  * blah
  */
+
+
+ /// <summary>
+ /// Closes tooltip window, if open.
+ /// </summary>
+
+void DcxWindow::CloseToolTip() const noexcept
+{
+	if (!m_HwndTooltip)
+		return;
+
+	//TOOLINFO ti{};
+	//ti.cbSize = sizeof(TOOLINFO);
+	//if (Dcx::dcxToolTip_GetCurrentTool(m_HwndTooltip, &ti))
+	//	Dcx::dcxToolTip_TrackActivate(m_HwndTooltip, FALSE, &ti);
+
+	Dcx::dcxToolTip_Pop(m_HwndTooltip);
+}
 
 void DcxWindow::redrawWindow() const noexcept
 {

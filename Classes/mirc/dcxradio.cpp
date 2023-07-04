@@ -39,7 +39,7 @@ DcxRadio::DcxRadio(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialo
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -47,11 +47,11 @@ DcxRadio::DcxRadio(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialo
 
 	setNoThemed(ws.m_NoTheme);
 
-	if (p_Dialog->getToolTip())
+	if (p_Dialog->getToolTipHWND())
 	{
 		if (styles.istok(TEXT("tooltips")))
 		{
-			setToolTipHWND(p_Dialog->getToolTip());
+			setToolTipHWND(p_Dialog->getToolTipHWND());
 			if (!IsWindow(getToolTipHWND()))
 				throw Dcx::dcxException("Unable to get ToolTips window");
 

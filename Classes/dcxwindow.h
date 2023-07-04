@@ -29,7 +29,8 @@ enum class DcxResourceFlags
 
 using NoTheme = bool;
 
-struct dcxWindowStyles {
+struct dcxWindowStyles
+{
 	WindowStyle		m_Styles{ WindowStyle::None };
 	WindowExStyle	m_ExStyles{ WindowExStyle::None };
 	NoTheme			m_NoTheme{ false };
@@ -115,19 +116,19 @@ struct CursorPair
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
 #endif
 
-//class DcxBase
-//{
-//	DcxBase() = delete;
-//	DcxBase(const DcxBase& other) = delete;
-//	DcxBase& operator =(const DcxBase&) = delete;
-//	DcxBase(DcxBase&& other) = delete;
-//	DcxBase& operator =(DcxBase&&) = delete;
-//
-//	virtual void toXml(TiXmlElement* const xml) const = 0;
-//	virtual void parseCommandRequest(const TString& input) = 0;
-//	virtual TString parseInfoRequest(const TString& input) const = 0;
-//
-//};
+ //class DcxBase
+ //{
+ //	DcxBase() = delete;
+ //	DcxBase(const DcxBase& other) = delete;
+ //	DcxBase& operator =(const DcxBase&) = delete;
+ //	DcxBase(DcxBase&& other) = delete;
+ //	DcxBase& operator =(DcxBase&&) = delete;
+ //
+ //	virtual void toXml(TiXmlElement* const xml) const = 0;
+ //	virtual void parseCommandRequest(const TString& input) = 0;
+ //	virtual TString parseInfoRequest(const TString& input) const = 0;
+ //
+ //};
 
 class DcxWindow
 {
@@ -153,7 +154,20 @@ public:
 
 	[[nodiscard]] const HWND& getHwnd() const noexcept;
 	[[nodiscard]] const UINT& getID() const noexcept;
+	[[nodiscard]] inline const HWND& getToolTipHWND(void) const noexcept { return m_HwndTooltip; };
 	[[nodiscard]] const bool IsValidWindow() const noexcept { return (m_Hwnd && IsWindow(m_Hwnd)); }
+
+	inline void setToolTipHWND(HWND hwnd) noexcept { m_HwndTooltip = hwnd; }
+
+	/// <summary>
+	/// Opens tooltip window, if it exists.
+	/// </summary>
+	void OpenToolTip() const noexcept;
+
+	/// <summary>
+	/// Closes tooltip window, if open.
+	/// </summary>
+	void CloseToolTip() const noexcept;
 
 	void redrawWindow() const noexcept;
 	void redrawBufferedWindow();
@@ -179,7 +193,8 @@ protected:
 	HWND m_Hwnd{ nullptr };
 	UINT m_ID{};
 
-	HRGN	m_hZeroRgn{ nullptr };
+	HRGN m_hZeroRgn{ nullptr };
+	HWND m_HwndTooltip{ nullptr };
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

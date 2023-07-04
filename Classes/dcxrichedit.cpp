@@ -63,10 +63,10 @@ DcxRichEdit::DcxRichEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 
 	if (styles.istok(TEXT("tooltips")))
 	{
-		if (!IsWindow(p_Dialog->getToolTip()))
+		if (!IsWindow(p_Dialog->getToolTipHWND()))
 			throw Dcx::dcxException("Unable to Initialize Tooltips");
 
-		setToolTipHWND(p_Dialog->getToolTip());
+		setToolTipHWND(p_Dialog->getToolTipHWND());
 		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
 }

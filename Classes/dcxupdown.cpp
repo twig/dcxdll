@@ -39,7 +39,7 @@ DcxUpDown::DcxUpDown(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dia
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -49,11 +49,11 @@ DcxUpDown::DcxUpDown(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dia
 
 	if (styles.istok(TEXT("tooltips")))
 	{
-		if (!IsWindow(p_Dialog->getToolTip()))
+		if (!IsWindow(p_Dialog->getToolTipHWND()))
 			throw Dcx::dcxException("Unable to Initialize Tooltips");
 
-		this->m_ToolTipHWND = p_Dialog->getToolTip();
-		AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
+		setToolTipHWND(p_Dialog->getToolTipHWND());
+		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }

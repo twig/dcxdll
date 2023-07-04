@@ -47,7 +47,7 @@ DcxListView::DcxListView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -3534,6 +3534,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						ImageList_Destroy(hOneImageList);
 					}
 				}
+				if (Dcx::m_hDragImage)
 				ImageList_GetImageInfo(Dcx::m_hDragImage, 0, &imf);
 				iHeight = imf.rcImage.bottom;
 			}

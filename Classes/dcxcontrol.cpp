@@ -1135,8 +1135,8 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 	{
 		COLORREF cref = CLR_INVALID;
 
-		if (m_ToolTipHWND)
-			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPBKCOLOR, 0, 0));
+		if (getToolTipHWND())
+			cref = gsl::narrow_cast<COLORREF>(SendMessage(getToolTipHWND(), TTM_GETTIPBKCOLOR, 0, 0));
 
 		tsResult += cref;
 	}
@@ -1147,8 +1147,8 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 	{
 		COLORREF cref = CLR_INVALID;
 
-		if (m_ToolTipHWND)
-			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, 0, 0));
+		if (getToolTipHWND())
+			cref = gsl::narrow_cast<COLORREF>(SendMessage(getToolTipHWND(), TTM_GETTIPTEXTCOLOR, 0, 0));
 
 		tsResult += cref;
 	}

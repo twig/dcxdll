@@ -86,8 +86,8 @@ DcxDialog::~DcxDialog() noexcept
 	if (m_hBackBrush)
 		DeleteObject(m_hBackBrush);
 
-	if (m_ToolTipHWND)
-		DestroyWindow(m_ToolTipHWND);
+	if (getToolTipHWND())
+		DestroyWindow(getToolTipHWND());
 
 	if (m_Hwnd)
 		GSL_SUPPRESS(lifetime.1) RemoveProp(m_Hwnd, TEXT("dcx_this"));
@@ -642,22 +642,22 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -T [NAME] [SWITCH] [FLAGS] [STYLES]
 	else if (flags[TEXT('T')] && numtok > 2)
 	{
-		if (IsWindow(this->m_ToolTipHWND))
+		if (IsWindow(getToolTipHWND()))
 			throw Dcx::dcxException("Tooltip already exists. Cannot recreate");
 
 		const auto styles = parseTooltipFlags(input.getnexttok());	// tok 3
 
 		// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/tooltip/styles.asp
-		this->m_ToolTipHWND = CreateWindowEx(WS_EX_TOPMOST,
+		setToolTipHWND(CreateWindowEx(WS_EX_TOPMOST,
 			TOOLTIPS_CLASS, nullptr,
 			styles,
 			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 			m_Hwnd,
-			nullptr, GetModuleHandle(nullptr), nullptr);
+			nullptr, GetModuleHandle(nullptr), nullptr));
 
-		if (this->m_ToolTipHWND && IsWindow(this->m_ToolTipHWND))
+		if (this->getToolTipHWND() && IsWindow(this->getToolTipHWND()))
 		{ // MUST set a limit before $crlf will give multiline tips.
-			SendMessage(this->m_ToolTipHWND, TTM_SETMAXTIPWIDTH, 0, 400); // 400 seems a good limit for now, we could also add an option to set this.
+			SendMessage(this->getToolTipHWND(), TTM_SETMAXTIPWIDTH, 0, 400); // 400 seems a good limit for now, we could also add an option to set this.
 			//if (input.gettok( 3 ).find(TEXT('T'),0)) {
 			//	AddStyles(this->m_ToolTipHWND,GWL_EXSTYLE,WS_EX_LAYERED);
 			//	SetLayeredWindowAttributesUx(this->m_ToolTipHWND, 0, 192, LWA_ALPHA);

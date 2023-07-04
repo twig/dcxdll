@@ -40,7 +40,7 @@ DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ gsl::strict_not_null<Dcx
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -50,10 +50,10 @@ DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ gsl::strict_not_null<Dcx
 
 	if (styles.istok(TEXT("tooltips")))
 	{
-		if (!IsWindow(p_Dialog->getToolTip()))
+		if (!IsWindow(p_Dialog->getToolTipHWND()))
 			throw Dcx::dcxException("Unable to Initialize Tooltips");
 
-		setToolTipHWND(p_Dialog->getToolTip());
+		setToolTipHWND(p_Dialog->getToolTipHWND());
 		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);

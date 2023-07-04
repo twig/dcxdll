@@ -46,7 +46,7 @@ DcxToolBar::DcxToolBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_D
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -472,12 +472,12 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		const auto clrColor = input.getnexttok().to_<COLORREF>();					// tok 6
 		const auto removeButtonStyles = parseButtonStyleFlags(input.getnexttok());	// tok 7
 
-		if (iButton == -1 && this->m_ToolTipHWND)
+		if (iButton == -1 && this->getToolTipHWND())
 		{
 			if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_TBKGCOLOR))
-				SendMessage(this->m_ToolTipHWND, TTM_SETTIPBKCOLOR, gsl::narrow_cast<WPARAM>(clrColor), 0);
+				SendMessage(this->getToolTipHWND(), TTM_SETTIPBKCOLOR, gsl::narrow_cast<WPARAM>(clrColor), 0);
 			else if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_TTXTCOLOR))
-				SendMessage(this->m_ToolTipHWND, TTM_SETTIPTEXTCOLOR, gsl::narrow_cast<WPARAM>(clrColor), 0);
+				SendMessage(this->getToolTipHWND(), TTM_SETTIPTEXTCOLOR, gsl::narrow_cast<WPARAM>(clrColor), 0);
 		}
 		else {
 

@@ -10,6 +10,9 @@ General
 	6: look into TileWindows() for arranging non cla controls...
 	7: fix any mem leaks.
 
+Dialog
+	1: <Wims> Ook: can't remove the main dialog icon with /xdialog -w, mdx can (done)
+
 WebCtrl
 	1: WebCtrl has an odd crash, when the object is destroyed & the browser is set as IE11, but not when its set as IE7 (the default). Doesnt crash every time tho, sometimes only on the third try.
 	2: webctrl fails with msft edge installed. (fixed?)
@@ -51,3 +54,14 @@ Listview
 	5: add code to highlite item we are above when dragging. (done when in non group mode)
 	6: fix item position when drag&drop & groups are enabled.
 	7: add drag & drop between diff listviews.
+	8: Look for mem leak...
+
+TreeView
+	1: Look for mem leak... (fixed?)
+	2: [01:05] <Wims> xdid -v on treeview item needs to be improved so that we can pass a [+FLAG] parameter, if a treeview item is added with bold and you want to remove the bold, you can't, you have to delete and add back, creating a flicker. (done)
+	3: [01:05] <Wims> the xdid -a (treeview) example doesn't work correctly.
+	4: [01:06] <Wims> using ONLY the two treeview styles hasbuttons + haslines doesn't work (button are not there) (not seen)
+		[01:07] <Wims> code to demonstrate can be provided.
+
+Rebar
+	1: change commands to support N-Nx (A,d,i,j,k,l,n,t,u,v,w)

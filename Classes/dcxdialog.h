@@ -197,7 +197,8 @@ public:
 		GSL_SUPPRESS(bounds) if (wHitCode < std::size(m_hCursorList)) return gsl::at(m_hCursorList, wHitCode).cursor;
 		return m_hCursor.cursor;
 	};
-	inline const HWND& getToolTip(void) const noexcept { return m_ToolTipHWND; };
+	//inline const HWND& getToolTip(void) const noexcept { return m_ToolTipHWND; };
+
 	inline void incRef() const noexcept { ++m_iRefCount; };
 	inline void decRef() const noexcept { --m_iRefCount; };
 	inline const UINT& getRefCount() const noexcept { return m_iRefCount; };
@@ -432,7 +433,7 @@ private:
 	COLORREF m_colTransparentBg{ RGB(255,0,255) };
 	COLORREF m_cKeyColour{ CLR_NONE };
 
-	HWND m_ToolTipHWND{ nullptr }; //!< Dialogs general tooltip control for use with all controls that don't have their own tooltips.
+	//HWND m_ToolTipHWND{ nullptr }; //!< Dialogs general tooltip control for use with all controls that don't have their own tooltips.
 	HWND m_hFakeHwnd{ nullptr };
 
 	DWORD m_dEventMask{ DCX_EVENT_ALL };

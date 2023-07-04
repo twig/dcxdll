@@ -170,6 +170,15 @@ struct ALPHAINFO
 		if (!GetWindowRect(hwnd, &ai_rcWin))
 			throw Dcx::dcxException("Unable to get Window Rect");
 	}
+
+	ALPHAINFO() = default;
+
+	bool operator==(const ALPHAINFO& other) const = default;
+
+	ALPHAINFO(const HDC& ai_hdc, HDC* ai_hdcBuffer, const HDC& ai_Oldhdc, const HBITMAP& ai_bitmap, const HBITMAP& ai_bkg, const HBITMAP& ai_oldBM, const RECT& ai_rcClient, const RECT& ai_rcWin, const BLENDFUNCTION& ai_bf, const HPAINTBUFFER& ai_Buffer)
+		: ai_hdc(ai_hdc), ai_hdcBuffer(ai_hdcBuffer), ai_Oldhdc(ai_Oldhdc), ai_bitmap(ai_bitmap), ai_bkg(ai_bkg), ai_oldBM(ai_oldBM), ai_rcClient(ai_rcClient), ai_rcWin(ai_rcWin), ai_bf(ai_bf), ai_Buffer(ai_Buffer)
+	{
+	}
 };
 using LPALPHAINFO = ALPHAINFO*;
 
@@ -342,7 +351,7 @@ public:
 	void setStartGradientColor(const COLORREF c) noexcept { m_clrStartGradient = c; }
 	void setEndGradientColor(const COLORREF c) noexcept { m_clrEndGradient = c; }
 
-	void setToolTipHWND(const HWND hwnd) noexcept { m_ToolTipHWND = hwnd; }
+	//void setToolTipHWND(const HWND hwnd) noexcept { m_ToolTipHWND = hwnd; }
 	void setNoThemed(const bool b) noexcept { m_bNoThemed = b; }
 	void setAlphaBlended(const bool b) noexcept { m_bAlphaBlend = b; }
 	void setControlCursor(const HCURSOR c) noexcept { m_hCursor.cursor = c; }
@@ -391,41 +400,13 @@ public:
 	{
 		return m_pParentHWND;
 	}
-	[[nodiscard]] const HWND& getToolTipHWND() const noexcept
-	{
-		return m_ToolTipHWND;
-	}
+	//[[nodiscard]] const HWND& getToolTipHWND() const noexcept
+	//{
+	//	return m_ToolTipHWND;
+	//}
 	[[nodiscard]] const HCURSOR& getControlCursor() const noexcept
 	{
 		return m_hCursor.cursor;
-	}
-
-	/// <summary>
-	/// Closes tooltip window, if open.
-	/// </summary>
-	void CloseToolTip() const noexcept
-	{
-		if (!this->m_ToolTipHWND)
-			return;
-
-		//TOOLINFO ti{};
-		//ti.cbSize = sizeof(TOOLINFO);
-		//ti.hwnd = this->m_ToolTipHWND;
-		//ti.uId = reinterpret_cast<UINT_PTR>(m_Hwnd);
-		//SendMessage(this->m_ToolTipHWND, TTM_TRACKACTIVATE, FALSE, reinterpret_cast<LPARAM>(&ti));
-
-		SendMessage(this->m_ToolTipHWND, TTM_POP, 0, 0);
-	}
-
-	/// <summary>
-	/// Opens tooltip window, if it exists.
-	/// </summary>
-	void OpenToolTip() const noexcept
-	{
-		if (!this->m_ToolTipHWND)
-			return;
-
-		SendMessage(this->m_ToolTipHWND, TTM_POPUP, 0, 0);
 	}
 
 	[[nodiscard]] const inline bool& IsAlphaBlend() const noexcept
@@ -520,7 +501,7 @@ protected:
 
 	CursorPair m_hCursor;
 
-	HWND m_ToolTipHWND{ nullptr };			//!< Tooltip window (if any) (this is a copy of the dialogs tooltip window, dont free)
+	//HWND m_ToolTipHWND{ nullptr };			//!< Tooltip window (if any) (this is a copy of the dialogs tooltip window, dont free)
 	HWND m_pParentHWND{ nullptr };			// temp storage, dont free
 
 	UINT m_iRefCount{};						//!< Controls reference counter

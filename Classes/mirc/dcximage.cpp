@@ -42,7 +42,7 @@ DcxImage::DcxImage(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialo
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -54,11 +54,11 @@ DcxImage::DcxImage(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialo
 	{
 		if (styles.istok(TEXT("tooltips")))
 		{
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			if (!IsWindow(this->m_ToolTipHWND))
+			setToolTipHWND(p_Dialog->getToolTipHWND());
+			if (!IsWindow(this->getToolTipHWND()))
 				throw Dcx::dcxException("Unable to get ToolTips window");
 
-			AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
+			AddToolTipToolInfo(this->getToolTipHWND(), m_Hwnd);
 		}
 	}
 

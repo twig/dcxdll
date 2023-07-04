@@ -39,7 +39,7 @@ DcxLink::DcxLink(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog,
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -52,11 +52,11 @@ DcxLink::DcxLink(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog,
 	//this->m_aColors[2] = RGB(0, 0, 255);
 	//this->m_aColors[3] = RGB(128, 128, 128);
 
-	if (p_Dialog->getToolTip())
+	if (p_Dialog->getToolTipHWND())
 	{
 		if (styles.istok(TEXT("tooltips")))
 		{
-			setToolTipHWND(p_Dialog->getToolTip());
+			setToolTipHWND(p_Dialog->getToolTipHWND());
 			if (!IsWindow(getToolTipHWND()))
 				throw Dcx::dcxException("Unable to get ToolTips window");
 
