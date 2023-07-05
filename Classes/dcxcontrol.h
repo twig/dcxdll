@@ -234,45 +234,65 @@ inline RECT TSToRect(const TString& tsInput)
 
 namespace Dcx
 {
-	inline bool dcxToolTip_GetCurrentTool(HWND hwnd, LPTOOLINFO pti) noexcept
+	inline bool dcxToolTip_GetCurrentTool(_In_ HWND hwnd, LPTOOLINFO pti) noexcept
 	{
 		return (SendMessage(hwnd, TTM_GETCURRENTTOOL, 0, reinterpret_cast<LPARAM>(pti)) != 0);
 	}
-	inline void dcxToolTip_TrackActivate(HWND hwnd, BOOL bActivate, LPTOOLINFO pti) noexcept
+	inline void dcxToolTip_TrackActivate(_In_ HWND hwnd, BOOL bActivate, LPTOOLINFO pti) noexcept
 	{
 		SendMessage(hwnd, TTM_TRACKACTIVATE, bActivate, reinterpret_cast<LPARAM>(pti));
 	}
-	inline void dcxToolTip_Pop(HWND hwnd) noexcept
+	inline void dcxToolTip_Pop(_In_ HWND hwnd) noexcept
 	{
 		SendMessage(hwnd, TTM_POP, 0, 0);
 	}
-	inline void dcxToolTip_PopUp(HWND hwnd) noexcept
+	inline void dcxToolTip_PopUp(_In_ HWND hwnd) noexcept
 	{
 		SendMessage(hwnd, TTM_POPUP, 0, 0);
 	}
-	inline void dcxToolTip_SetToolInfo(HWND hwnd, LPTOOLINFO pti) noexcept
+	inline void dcxToolTip_SetToolInfo(_In_ HWND hwnd, LPTOOLINFO pti) noexcept
 	{
 		SendMessage(hwnd, TTM_SETTOOLINFO, 0, reinterpret_cast<LPARAM>(pti));
 	}
-	inline void dcxToolTip_TrackPosition(HWND hwnd, int x, int y) noexcept
+	inline void dcxToolTip_TrackPosition(_In_ HWND hwnd, int x, int y) noexcept
 	{
 		SendMessage(hwnd, TTM_TRACKPOSITION, 0, MAKELPARAM(x + 10, y - 20));
 	}
-	inline void dcxToolTip_UpdateTipText(HWND hwnd, TOOLINFO *pti) noexcept
+	inline void dcxToolTip_UpdateTipText(_In_ HWND hwnd, TOOLINFO *pti) noexcept
 	{
 		SendMessage(hwnd, TTM_UPDATETIPTEXT, 0, reinterpret_cast<LPARAM>(pti));
 	}
-	inline void dcxToolTip_UpdateTipText(HWND hwnd, UINT_PTR id, LPWSTR str) noexcept
+	inline void dcxToolTip_UpdateTipText(_In_ HWND hwnd, _In_ HWND ctrl, _In_ UINT_PTR id, _In_z_ LPWSTR str) noexcept
 	{
 		TOOLINFO ti{};
 
 		ti.cbSize = sizeof(TOOLINFO);
 		ti.hinst = GetModuleHandle(nullptr);
-		ti.hwnd = hwnd;
+		ti.hwnd = ctrl;
 		ti.uId = id;
 		ti.lpszText = str;
 
 		dcxToolTip_UpdateTipText(hwnd, &ti);
+	}
+	inline void dcxToolTip_Activate(_In_ HWND hwnd, BOOL bState) noexcept
+	{
+		SendMessage(hwnd, TTM_ACTIVATE, bState, 0);
+	}
+	inline bool dcxToolTip_AddTool(_In_ HWND hwnd, TOOLINFO* pti) noexcept
+	{
+		return (SendMessage(hwnd, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(pti)) == TRUE);
+	}
+	inline bool dcxToolTip_AdjustRect(_In_ HWND hwnd, BOOL bState, LPRECT prc) noexcept
+	{
+		return (SendMessage(hwnd, TTM_ADJUSTRECT, bState, reinterpret_cast<LPARAM>(prc)) != 0);
+	}
+	inline COLORREF dcxToolTip_GetTipBkColor(_In_ HWND hwnd) noexcept
+	{
+		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, TTM_GETTIPBKCOLOR, 0, 0));
+	}
+	inline COLORREF dcxToolTip_GetTipTextColor(_In_ HWND hwnd) noexcept
+	{
+		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, TTM_GETTIPTEXTCOLOR, 0, 0));
 	}
 }
 
