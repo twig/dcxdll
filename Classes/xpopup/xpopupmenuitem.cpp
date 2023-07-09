@@ -236,7 +236,7 @@ void XPopupMenuItem::DrawItem(const LPDRAWITEMSTRUCT lpdis)
 
 void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol)
 {
-	if (!lpdis || !lpcol || !lpdis->hDC)
+	if (!lpdis || !lpcol || !lpdis->hDC || !this->m_pXParentMenu)
 		return;
 
 	switch (this->m_pXParentMenu->getStyle())
@@ -289,7 +289,7 @@ void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const XPME
 
 void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol)
 {
-	if (!lpdis || !lpcol || !lpdis->hDC)
+	if (!lpdis || !lpcol || !lpdis->hDC || !this->m_pXParentMenu)
 		return;
 
 	switch (this->m_pXParentMenu->getStyle())
@@ -470,7 +470,10 @@ void XPopupMenuItem::DrawItemText(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLO
 
 void XPopupMenuItem::DrawItemIcon(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const UINT iExStyles, const bool bSel, const bool bDis) noexcept
 {
-	if (const auto himl = this->m_pXParentMenu->getImageList(); (himl != nullptr && this->m_nIcon > -1 && this->m_nIcon < ImageList_GetImageCount(himl)))
+	if (!this->m_pXParentMenu || !lpdis || !lpdis->hDC)
+		return;
+
+	if (const auto himl = this->m_pXParentMenu->getImageList(); (himl && this->m_nIcon > -1 && this->m_nIcon < ImageList_GetImageCount(himl)))
 	{
 		constexpr auto x = (XPMI_BOXLPAD + XPMI_BOXLPAD + XPMI_BOXWIDTH - XPMI_ICONSIZE) / 2;
 		const auto y = (lpdis->rcItem.top + lpdis->rcItem.bottom - XPMI_ICONSIZE) / 2;
@@ -514,6 +517,8 @@ void XPopupMenuItem::DrawItemIcon(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLO
 
 void XPopupMenuItem::DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const bool bDis) noexcept
 {
+	if (!lpdis || !lpdis->hDC || !lpcol)
+		return;
 
 	//#ifdef DCX_USE_GDIPLUS
 	//	const int x = lpdis->rcItem.right - 9;
@@ -617,7 +622,7 @@ void XPopupMenuItem::DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const XPMENU
 
 void XPopupMenuItem::DrawItemSeparator(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol) noexcept
 {
-	if (!lpdis || !lpcol || !lpdis->hDC)
+	if (!this->m_pXParentMenu || !lpdis || !lpcol || !lpdis->hDC)
 		return;
 
 	switch (this->m_pXParentMenu->getStyle())
@@ -879,25 +884,23 @@ bool XPopupMenuItem::DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBi
 	}
 	else {
 		BITMAP bm{};
-		if (GetObject(GetCurrentObject(lpdis->hDC, OBJ_BITMAP), sizeof(BITMAP), &bm) == 0)
-			return false;
-
-		//RECT rcIntersect;
-		//RECT rcBar;
-
-		//// get the size of the whole menu.
-		//if (SetRect(&rcBar, 0, 0, bm.bmWidth, bm.bmHeight) == FALSE)
+		//if (GetObject(GetCurrentObject(lpdis->hDC, OBJ_BITMAP), sizeof(BITMAP), &bm) == 0)
 		//	return false;
 
-		//// get the rect of the box which will draw JUST the box (prevents redraw over items already done)
-		//if (SetRect(&rcIntersect, rcBar.left, lpdis->rcItem.top, rcBar.right, lpdis->rcItem.bottom) == FALSE)
-		//	return false;
+		{
+			auto hObj = GetCurrentObject(lpdis->hDC, OBJ_BITMAP);
+			if (!hObj)
+				return false;
+
+			if (GetObject(hObj, sizeof(BITMAP), &bm) == 0)
+				return false;
+		}
 
 		// get the size of the whole menu.
-		RECT rcBar{ 0, 0, bm.bmWidth, bm.bmHeight };
+		const RECT rcBar{ 0, 0, bm.bmWidth, bm.bmHeight };
 
 		// get the rect of the box which will draw JUST the box (prevents redraw over items already done)
-		RECT rcIntersect{ 0, lpdis->rcItem.top, rcBar.right, lpdis->rcItem.bottom };
+		const RECT rcIntersect{ 0, lpdis->rcItem.top, rcBar.right, lpdis->rcItem.bottom };
 
 		// set up a buffer to draw the whole whole menus background.
 		const Dcx::dcxHDCBuffer hdcBuffer(lpdis->hDC, rcBar);
@@ -914,12 +917,15 @@ bool XPopupMenuItem::DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBi
 			// test code to alpha blend the image (works)
 			//if (auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpdis->itemData); p_Item)
 			//{
-			//	Dcx::FillRectColour(hdcBuffer, &rcBar, p_Item->m_pXParentMenu->getColor(XPopupMenu::MenuColours::XPMC_BACKGROUND));
+			//	if (p_Item->m_pXParentMenu)
+			//		Dcx::FillRectColour(hdcBuffer, &rcBar, p_Item->m_pXParentMenu->getColor(XPopupMenu::MenuColours::XPMC_BACKGROUND));
 			//	BLENDFUNCTION blend{ AC_SRC_OVER, 0, 0x7f, 0 };
 			//	AlphaBlend(hdcBuffer, rcBar.left, rcBar.top, rcBar.right - rcBar.left, rcBar.bottom - rcBar.top, hdcbmp, 0, 0, bm.bmWidth, bm.bmHeight, blend);
 			//}
+			//else
+			//	StretchBlt(hdcBuffer, rcBar.left, rcBar.top, rcBar.right - rcBar.left, rcBar.bottom - rcBar.top, hdcbmp, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
 		}
-		// copy the box we want from the whole gradient bar
+		// copy the box we want from the whole image
 		BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
 	}
 	return true;
@@ -960,10 +966,10 @@ bool XPopupMenuItem::DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBi
 		//	return false;
 
 		// get the size of the whole menu.
-		RECT rcBar{ 0, 0, bm.bmWidth, bm.bmHeight };
+		const RECT rcBar{ 0, 0, bm.bmWidth, bm.bmHeight };
 
 		// get the rect of the box which will draw JUST the box (prevents redraw over items already done)
-		RECT rcIntersect{ 0, lpdis->rcItem.top, rcBar.right, lpdis->rcItem.bottom };
+		const RECT rcIntersect{ 0, lpdis->rcItem.top, rcBar.right, lpdis->rcItem.bottom };
 
 		// set up a buffer to draw the whole whole menus background.
 		const auto hdcBuffer = CreateHDCBuffer(lpdis->hDC, &rcBar);

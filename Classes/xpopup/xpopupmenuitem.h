@@ -39,18 +39,18 @@ class XPopupMenu;
 
 struct XPMENUCOLORS final
 {
-	COLORREF m_clrBack{ RGB(255, 255, 255) };					//!< Menu Item BackGround Color
-	COLORREF m_clrBox{ RGB(184, 199, 146) };					//!< Menu Item Box Color
+	COLORREF m_clrBack{ RGB(255, 255, 255) };				//!< Menu Item BackGround Color
+	COLORREF m_clrBox{ RGB(184, 199, 146) };				//!< Menu Item Box Color
 	COLORREF m_clrLightBox{ RGB(240,243,231) };				//!< Menu Item Box Color (lighter by 200)
 	COLORREF m_clrSelection{ RGB(255, 229, 179) };			//!< Menu Item Selection Box Color
 	COLORREF m_clrDisabledSelection{ RGB(255, 255, 255) };	//!< Menu Item Disabled Selection Box Color
-	COLORREF m_clrText{ RGB(0, 0, 0) };					//!< Menu Item Text Color
-	COLORREF m_clrDisabledText{ RGB(128, 128, 128) };			//!< Menu Item Disabled Text Color
+	COLORREF m_clrText{ RGB(0, 0, 0) };						//!< Menu Item Text Color
+	COLORREF m_clrDisabledText{ RGB(128, 128, 128) };		//!< Menu Item Disabled Text Color
 	COLORREF m_clrCheckBox{ RGB(255, 128, 0) };				//!< Menu Item CheckBox Color
-	COLORREF m_clrDisabledCheckBox{ RGB(200, 200, 200) };		//!< Menu Item Disabled CheckBox Color
+	COLORREF m_clrDisabledCheckBox{ RGB(200, 200, 200) };	//!< Menu Item Disabled CheckBox Color
 	COLORREF m_clrSeparatorLine{ RGB(128, 128, 128) };		//!< Menu Item Separator Line Color
-	COLORREF m_clrSelectionBorder{ RGB(0, 0, 0) };		//!< Menu Item Selection Box Border Color
-	COLORREF m_clrSelectedText{ RGB(0, 0, 0) };			//!< Menu Item Selected Text Colour
+	COLORREF m_clrSelectionBorder{ RGB(0, 0, 0) };			//!< Menu Item Selection Box Border Color
+	COLORREF m_clrSelectedText{ RGB(0, 0, 0) };				//!< Menu Item Selected Text Colour
 };
 using LPXPMENUCOLORS = XPMENUCOLORS*;
 
@@ -59,10 +59,6 @@ using LPXPMENUCOLORS = XPMENUCOLORS*;
  *
  * blah
  */
-#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
-#pragma warning( push )
-#pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
-#endif
 
 class XPopupMenuItem final
 {
@@ -77,6 +73,8 @@ public:
 	XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup = 0);
 	XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, const TString& tsTooltip, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup = 0);
 	~XPopupMenuItem() noexcept = default;
+
+	bool operator==(const XPopupMenuItem& other) const = default;
 
 	void DrawItem(const LPDRAWITEMSTRUCT lpdis);
 	void DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol);
@@ -143,9 +141,5 @@ protected:
 };
 
 using VectorOfXPopupMenuItem = std::vector<XPopupMenuItem*>; //!< Vector of XPopupMenuItem Objects
-
-#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
-#pragma warning( pop )
-#endif
 
 #endif // _XPOPUPMENUITEM_H_
