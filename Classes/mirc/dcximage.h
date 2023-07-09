@@ -87,14 +87,13 @@ private:
 		const auto count = m_pImage->GetFrameDimensionsCount();
 		auto m_DimensionIDs = std::make_unique<GUID[]>(count);
 		m_pImage->GetFrameDimensionsList(m_DimensionIDs.get(), count);
-		//m_FrameCount = m_pImage->GetFrameCount(&m_DimensionIDs[0]);
 		m_FrameCount = m_pImage->GetFrameCount(m_DimensionIDs.get());
 
 		if (const auto sz = m_pImage->GetPropertyItemSize(PropertyTagFrameDelay); sz)
 		{
 			m_PropertyItem = std::make_unique<BYTE[]>(sz);
 
-			m_pImage->GetPropertyItem(PropertyTagFrameDelay, sz, (Gdiplus::PropertyItem*)m_PropertyItem.get());
+			m_pImage->GetPropertyItem(PropertyTagFrameDelay, sz, reinterpret_cast<Gdiplus::PropertyItem*>(m_PropertyItem.get()));
 		}
 
 		m_bIsAnimated = (m_FrameCount > 1);

@@ -130,6 +130,7 @@ void DcxImage::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 	case L"fname"_hash:
 		szReturnValue = m_tsFilename.to_chr();
 		break;
+#ifdef DCX_USE_GDIPLUS
 	case L"frames"_hash:
 		_ts_snprintf(szReturnValue, TEXT("%u"), m_FrameCount);
 		break;
@@ -141,9 +142,23 @@ void DcxImage::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 	{
 		const UINT nFrame = input.getnexttok().to_<UINT>();
 		const long nDelay = getFrameDelay((nFrame == 0 ? m_FrameImage : nFrame));
-		_ts_snprintf(szReturnValue, TEXT("%u"), nDelay);
+		_ts_snprintf(szReturnValue, TEXT("%d"), nDelay);
 	}
 	break;
+#else
+	case L"frames"_hash:
+		szReturnValue = TEXT("0");
+		break;
+	case L"isanimated"_hash:
+		szReturnValue = TEXT("$false");
+		break;
+		// $xdid(dname,id,frame).delay
+	case L"delay"_hash:
+	{
+		szReturnValue = TEXT("0");
+	}
+	break;
+#endif
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 		break;
