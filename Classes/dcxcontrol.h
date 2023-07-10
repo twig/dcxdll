@@ -254,6 +254,41 @@ namespace Dcx
 	{
 		SendMessage(hwnd, TTM_SETTOOLINFO, 0, reinterpret_cast<LPARAM>(pti));
 	}
+	enum class dcxToolTipTitleIcons
+		: int
+	{
+		eTTI_NONE,
+		eTTI_INFO,
+		eTTI_WARNING,
+		eTTI_ERROR,
+		eTTI_INFO_LARGE,
+		eTTI_WARNING_LARGE,
+		eTTI_ERROR_LARGE
+	};
+	/// <summary>
+	/// Set the tooltips title text and icon.
+	/// </summary>
+	/// <param name="hwnd">- The tooltip hwnd.</param>
+	/// <param name="hIcon">- The icon to use.</param>
+	/// <param name="str">- The string to use as a title. (Must not exceed 100 chars including the NULL)</param>
+	/// <returns>true on success</returns>
+	inline bool dcxToolTip_SetTitle(_In_ HWND hwnd, HICON hIcon, LPWSTR str) noexcept
+	{
+		//When calling TTM_SETTITLE, the string pointed to by lParam must not exceed 100 TCHARs in length, including the terminating NULL.
+		return (SendMessage(hwnd, TTM_SETTITLE, reinterpret_cast<WPARAM>(hIcon), reinterpret_cast<LPARAM>(str)) == TRUE);
+	}
+	/// <summary>
+	/// Set the tooltips title text and icon.
+	/// </summary>
+	/// <param name="hwnd">- The tooltip hwnd.</param>
+	/// <param name="eIcon">- The default icon to use.</param>
+	/// <param name="str">- The string to use as a title. (Must not exceed 100 chars including the NULL)</param>
+	/// <returns>true on success</returns>
+	inline bool dcxToolTip_SetTitle(_In_ HWND hwnd, dcxToolTipTitleIcons eIcon, LPWSTR str) noexcept
+	{
+		//When calling TTM_SETTITLE, the string pointed to by lParam must not exceed 100 TCHARs in length, including the terminating NULL.
+		return (SendMessage(hwnd, TTM_SETTITLE, gsl::narrow_cast<WPARAM>(eIcon), reinterpret_cast<LPARAM>(str)) == TRUE);
+	}
 	inline void dcxToolTip_TrackPosition(_In_ HWND hwnd, int x, int y) noexcept
 	{
 		SendMessage(hwnd, TTM_TRACKPOSITION, 0, MAKELPARAM(x + 10, y - 20));
