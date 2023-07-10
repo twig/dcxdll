@@ -905,7 +905,34 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 				if (dcx_testflag(mii.fType, MFT_SEPARATOR))
 					p_Item = std::make_unique<XPopupMenuItem>(this, true, mii.dwItemData);
 				else {
-					TString tsItem(string);
+					TString tsItem(string), tsTooltipText;
+					int nIcon{ -1 };
+
+					{
+						// handle icons
+						constexpr TCHAR sepChar = TEXT('\v');	// 11
+						if (tsItem.numtok(sepChar) > 1)	// 11
+						{
+							nIcon = tsItem.getfirsttok(1, sepChar).to_int() - 1;	// tok 1, TEXT("\v")	get embeded icon number if any
+							tsItem = tsItem.getlasttoks().trim();				// tok 2, TEXT("\v")	get real item text
+						}
+					}
+					{
+						// handles tooltips
+						constexpr TCHAR sepChar = TEXT('\t');	// 9
+						if (tsItem.numtok(sepChar) > 1)
+						{
+							const TString tsTmp(tsItem);
+							tsItem = tsTmp.getfirsttok(1, sepChar).trim();	// tok 1, get real item text
+							tsTooltipText = tsTmp.getlasttoks().trim();		// tok 2-, get tooltip text
+						}
+					}
+					//check if the first char is $chr(12), if so then the text is utf8 (this is kept for compatability with old script only)
+					if (tsItem[0] == 12)
+					{
+						// remove $chr(12) from text and trim whitespaces
+						tsItem = tsItem.right(-1).trim();
+					}
 
 					// fixes identifiers in the dialog menu not being resolved. 
 					// TODO Needs testing to see if it causes any other issues, like double eval's)
@@ -913,7 +940,17 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 					if (bForce && this->getNameHash() == TEXT("dialog"_hash))
 						mIRCLinker::eval(tsItem, tsItem); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
 
-					p_Item = std::make_unique<XPopupMenuItem>(this, tsItem, -1, (mii.hSubMenu != nullptr), mii.dwItemData);
+					p_Item = std::make_unique<XPopupMenuItem>(this, tsItem, tsTooltipText, nIcon, (mii.hSubMenu != nullptr), mii.dwItemData);
+
+					//TString tsItem(string);
+					//
+					//// fixes identifiers in the dialog menu not being resolved. 
+					//// TODO Needs testing to see if it causes any other issues, like double eval's)
+					//
+					//if (bForce && this->getNameHash() == TEXT("dialog"_hash))
+					//	mIRCLinker::eval(tsItem, tsItem); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
+					//
+					//p_Item = std::make_unique<XPopupMenuItem>(this, tsItem, -1, (mii.hSubMenu != nullptr), mii.dwItemData);
 				}
 
 				mii.dwItemData = reinterpret_cast<ULONG_PTR>(p_Item.get());

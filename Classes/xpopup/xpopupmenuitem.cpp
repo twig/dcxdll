@@ -23,7 +23,7 @@
   */
 
 XPopupMenuItem::XPopupMenuItem(XPopupMenu* Parent, const bool bSep, ULONG_PTR dwDataBackup) noexcept
-	: m_pXParentMenu(Parent), m_bSep(bSep), m_nIcon(-1), m_bSubMenu(false), m_dwItemDataBackup(dwDataBackup)
+	: m_pXParentMenu(Parent), m_bSep(bSep), m_nIcon(-1), m_dwItemDataBackup(dwDataBackup)
 {
 }
 
@@ -34,13 +34,13 @@ XPopupMenuItem::XPopupMenuItem(XPopupMenu* Parent, const bool bSep, ULONG_PTR dw
  */
 
 XPopupMenuItem::XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup)
-	: m_pXParentMenu(Parent), m_tsItemText(tsItemText), m_nIcon(nIcon), m_bSubMenu(bSubMenu), m_bSep(false), m_dwItemDataBackup(dwDataBackup)
+	: m_pXParentMenu(Parent), m_tsItemText(tsItemText), m_nIcon(nIcon), m_bSubMenu(bSubMenu), m_dwItemDataBackup(dwDataBackup)
 {
 	m_tsItemText.trim();
 }
 
 XPopupMenuItem::XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, const TString& tsTooltip, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup)
-	: m_pXParentMenu(Parent), m_tsItemText(tsItemText), m_nIcon(nIcon), m_bSubMenu(bSubMenu), m_bSep(false), m_dwItemDataBackup(dwDataBackup)
+	: m_pXParentMenu(Parent), m_tsItemText(tsItemText), m_tsTooltipText(tsTooltip), m_nIcon(nIcon), m_bSubMenu(bSubMenu), m_dwItemDataBackup(dwDataBackup)
 {
 	m_tsItemText.trim();
 	m_tsTooltipText.trim();
@@ -123,18 +123,24 @@ SIZE XPopupMenuItem::getItemSize(const HWND mHwnd)
 
 	if (const auto typeHash = m_pXParentMenu->getNameHash(); ((typeHash == TEXT("mirc"_hash)) || (typeHash == TEXT("mircbar"_hash)) || (typeHash == TEXT("dialog"_hash))))
 	{
-		if (m_tsItemText.numtok(TEXT('\v')) > 1)	// 11
 		{
-			m_nIcon = m_tsItemText.getfirsttok(1, TEXT('\v')).to_int() - 1;	// tok 1, TEXT("\v")	get embeded icon number if any
-			m_tsItemText = m_tsItemText.getlasttoks().trim();			// tok 2, TEXT("\v")	get real item text
+			// handle icons
+			constexpr TCHAR sepChar = TEXT('\v');	// 11
+			if (m_tsItemText.numtok(sepChar) > 1)
+			{
+				m_nIcon = m_tsItemText.getfirsttok(1, sepChar).to_int() - 1;	// tok 1, TEXT("\v")	get embeded icon number if any
+				m_tsItemText = m_tsItemText.getlasttoks().trim();				// tok 2, TEXT("\v")	get real item text
+			}
 		}
-		//constexpr TCHAR sepChar = TEXT('');	// 12
-		constexpr TCHAR sepChar = TEXT('\t');	// 9
-		if (m_tsItemText.numtok(sepChar) > 1)
 		{
-			TString tsTmp(m_tsItemText);
-			m_tsItemText = tsTmp.getfirsttok(1, sepChar).trim();	// tok 1, TEXT('')	get embeded icon number if any
-			m_tsTooltipText = tsTmp.getlasttoks().trim();			// tok 2, TEXT('')	get real item text
+			// handles tooltips
+			constexpr TCHAR sepChar = TEXT('\t');	// 9
+			if (m_tsItemText.numtok(sepChar) > 1)
+			{
+				TString tsTmp(m_tsItemText);							// copy item text
+				m_tsItemText = tsTmp.getfirsttok(1, sepChar).trim();	// tok 1, get real item text
+				m_tsTooltipText = tsTmp.getlasttoks().trim();			// tok 2-, get tooltip text
+			}
 		}
 	}
 	else
@@ -148,6 +154,9 @@ SIZE XPopupMenuItem::getItemSize(const HWND mHwnd)
 	}
 
 	SIZE size{ XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD, XPMI_HEIGHT };
+
+	if (!mHwnd)
+		return size;
 
 	if (const auto hdc = GetDC(mHwnd); hdc)
 	{

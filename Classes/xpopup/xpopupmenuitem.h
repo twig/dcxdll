@@ -129,7 +129,7 @@ public:
 protected:
 
 	TString m_tsItemText;					//!< Menu Item Text
-	TString m_tsItemCommand;				//!< Menu Item Command
+	//TString m_tsItemCommand;				//!< Menu Item Command
 	TString m_tsTooltipText;				//!< Menu Items tooltip text (if any)
 	int m_nIcon{ -1 };						//!< Menu Item Icon Index
 	XPopupMenu* m_pXParentMenu{ nullptr };	//!< Parent XPopupMenu
