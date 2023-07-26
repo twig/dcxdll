@@ -87,7 +87,20 @@ DcxDialog::~DcxDialog() noexcept
 		DeleteObject(m_hBackBrush);
 
 	if (getToolTipHWND())
-		DestroyWindow(getToolTipHWND());
+		GSL_SUPPRESS(lifetime.1) DestroyWindow(getToolTipHWND());
+
+#if DCX_CUSTOM_MENUS
+	if (m_CustomMenuBar.m_Default.m_hBkg)
+		DeleteBitmap(m_CustomMenuBar.m_Default.m_hBkg);
+
+	for (const auto& a : m_CustomMenuBar.m_ItemSettings)
+	{
+		if (a.second.m_hBkg)
+			DeleteBitmap(a.second.m_hBkg);
+	}
+	if (m_CustomMenuBar.g_menuTheme)
+		Dcx::UXModule.dcxCloseThemeData(m_CustomMenuBar.g_menuTheme);
+#endif
 
 	if (m_Hwnd)
 		GSL_SUPPRESS(lifetime.1) RemoveProp(m_Hwnd, TEXT("dcx_this"));
@@ -521,6 +534,154 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	else if (flags[TEXT('n')])
 	{
 		ShowWindow(m_Hwnd, SW_MINIMIZE);
+	}
+	// xdialog -p [NAME] [+FLAGS] [ARGS]
+	else if (flags[TEXT('p')])
+	{
+		// control the custom menu bar settings
+		const XSwitchFlags xflags(input.getnexttok());
+		auto tsArgs(input.getlasttoks());
+
+		if (!xflags[TEXT('+')])
+			throw DcxExceptions::dcxInvalidFlag();
+
+		// Enable flag is used by its self, cant be combined with other flags.
+		// e = enable, [ARGS] = 1 or 0
+		// r = enable/disable rounded borders, [ARGS] = 1 or 0
+		// O = enable/disable drawing borders, [ARGS] = 1 or 0
+		// f = load background image (bmp format only atm), [ARGS] = path/filename.bmp or [ARGS] = [ITEM INDEX] path/filename.bmp
+		// 
+		// i = item specific. combines with other flags +it = set item text colour.
+		// R = redraw menubar. (can be combined with any flags, or used by its self)
+		// 
+		// [ARGS] = [ITEM INDEX] [TEXT] [SELECTED TEXT] [BACKGROUND] [SELECTED BACKGROUND] [HOT] [BORDER] [SELECTED BORDER] [HOT TEXT]
+		// or when not item specific
+		// [ARGS] = [TEXT] [SELECTED TEXT] [HOT TEXT] [BACKGROUND] [SELECTED BACKGROUND] [HOT BACKGROUND] [BORDER] [SELECTED BORDER] [HOT BORDER]
+		//
+		// t = text colour.
+		// T = selected text colour.
+		// H = hot text colour.
+		// b = background colour
+		// B = selected background colour.
+		// h = hot background colour.
+		// w = border colour.
+		// W = selected border colour.
+		// o = hot border colour.
+
+		if (xflags[TEXT('e')])
+		{
+			// enable/disable
+			m_CustomMenuBar.m_bEnable = (tsArgs == TEXT("1"));
+		}
+		else if (xflags[TEXT('r')])
+		{
+			// enable/disable
+			m_CustomMenuBar.m_bDrawRoundedBorder = (tsArgs == TEXT("1"));
+		}
+		else if (xflags[TEXT('O')])
+		{
+			// enable/disable
+			m_CustomMenuBar.m_bDrawBorder = (tsArgs == TEXT("1"));
+		}
+		else if (xflags[TEXT('f')])
+		{
+			// load bkg image.
+			if (tsArgs.empty())
+			{
+				if (m_CustomMenuBar.m_Default.m_hBkg)
+					DeleteBitmap(m_CustomMenuBar.m_Default.m_hBkg);
+				m_CustomMenuBar.m_Default.m_hBkg = nullptr;
+			}
+			else
+				m_CustomMenuBar.m_Default.m_hBkg = dcxLoadBitmap(m_CustomMenuBar.m_Default.m_hBkg, tsArgs);
+		}
+		else {
+
+			auto _SetColours = [](const XSwitchFlags& xflags, const TString& tsArgs, const XPMENUBARCOLORS& colDefaults) {
+				XPMENUBARCOLORS cols{ colDefaults };
+
+				if (xflags[TEXT('t')])
+				{
+					cols.m_clrText = tsArgs.gettok(1).to_<COLORREF>();
+				}
+				if (xflags[TEXT('T')])
+				{
+					cols.m_clrSelectedText = tsArgs.gettok(2).to_<COLORREF>();
+				}
+				if (xflags[TEXT('H')])
+				{
+					cols.m_clrHotText = tsArgs.gettok(3).to_<COLORREF>();
+				}
+				if (xflags[TEXT('b')])
+				{
+					cols.m_clrBack = tsArgs.gettok(4).to_<COLORREF>();
+					cols.m_clrBox = cols.m_clrBack;
+				}
+				if (xflags[TEXT('B')])
+				{
+					cols.m_clrSelection = tsArgs.gettok(5).to_<COLORREF>();
+				}
+				if (xflags[TEXT('h')])
+				{
+					cols.m_clrHot = tsArgs.gettok(6).to_<COLORREF>();
+				}
+				if (xflags[TEXT('w')])
+				{
+					cols.m_clrBorder = tsArgs.gettok(7).to_<COLORREF>();
+				}
+				if (xflags[TEXT('W')])
+				{
+					cols.m_clrSelectionBorder = tsArgs.gettok(8).to_<COLORREF>();
+				}
+				if (xflags[TEXT('o')])
+				{
+					cols.m_clrHotBorder = tsArgs.gettok(9).to_<COLORREF>();
+				}
+				return cols;
+			};
+
+			if (xflags[TEXT('i')])
+			{
+				// item flags
+				const auto mItem = tsArgs.getfirsttok(1).to_int() - 1;
+				if (mItem < 0)
+					throw DcxExceptions::dcxInvalidItem();
+
+				XPMENUBARITEM xpItem;
+				xpItem.m_Colours = m_CustomMenuBar.m_Default.m_Colours;	// copy existing defaults first.
+				if (m_CustomMenuBar.m_ItemSettings.contains(mItem))	// see if custom item alrdy exists.
+					xpItem = m_CustomMenuBar.m_ItemSettings[mItem];	// if so copy it into new item.
+
+				if (xflags[TEXT('f')])
+				{
+					// load bkg image.
+					if (tsArgs.empty())
+					{
+						if (xpItem.m_hBkg)
+							DeleteBitmap(xpItem.m_hBkg);
+						xpItem.m_hBkg = nullptr;
+					}
+					else
+						xpItem.m_hBkg = dcxLoadBitmap(xpItem.m_hBkg, tsArgs);
+				}
+				else {
+					if (numtok < 11)
+						throw DcxExceptions::dcxInvalidArguments();
+
+					xpItem.m_Colours = _SetColours(xflags, tsArgs.getlasttoks(), xpItem.m_Colours);
+				}
+				m_CustomMenuBar.m_ItemSettings[mItem] = xpItem;
+			}
+			else {
+				// general flags
+				if (numtok < 11)
+					throw DcxExceptions::dcxInvalidArguments();
+
+				m_CustomMenuBar.m_Default.m_Colours = _SetColours(xflags, tsArgs, m_CustomMenuBar.m_Default.m_Colours);
+			}
+		}
+		if (xflags[TEXT('R')])
+			DrawMenuBar(m_Hwnd);
 	}
 	// xdialog -r [NAME]
 	else if (flags[TEXT('r')])
@@ -1588,7 +1749,7 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 			szReturnValue = TEXT("-FAIL Unable to get Glass colour.");
 	}
 	break;
-		// [NAME] [PROP]
+	// [NAME] [PROP]
 	case L"dbutopixels"_hash:
 	{
 		RECT rc{};
@@ -1647,8 +1808,8 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 	default:
 		throw Dcx::dcxException("Invalid property or parameters");
 		break;
-}
 	}
+}
 
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
@@ -1741,6 +1902,45 @@ void DcxDialog::setFocusControl(const UINT mUID)
 	}
 }
 
+#if DCX_CUSTOM_MENUS
+/// <summary>
+/// Fixes single pixel white line thats left under menu bar.
+/// Taken from https://github.com/adzm/win32-custom-menubar-aero-theme
+/// and modified for our needs.
+/// </summary>
+/// <param name="hWnd"></param>
+void DcxDialog::UAHDrawMenuNCBottomLine(HWND hWnd) noexcept
+{
+	if (!hWnd)
+		return;
+
+	MENUBARINFO mbi = { sizeof(mbi) };
+	if (!GetMenuBarInfo(hWnd, OBJID_MENU, 0, &mbi))
+		return;
+
+	RECT rcClient{};
+	GetClientRect(hWnd, &rcClient);
+	MapWindowPoints(hWnd, nullptr, (POINT*)&rcClient, 2);
+
+	RECT rcWindow{};
+	GetWindowRect(hWnd, &rcWindow);
+
+	OffsetRect(&rcClient, -rcWindow.left, -rcWindow.top);
+
+	// the rcBar is offset by the window rect
+	RECT rcAnnoyingLine = rcClient;
+	rcAnnoyingLine.bottom = rcAnnoyingLine.top;
+	rcAnnoyingLine.top--;
+
+
+	if (HDC hdc = GetWindowDC(hWnd); hdc)
+	{
+		Dcx::FillRectColour(hdc, &rcAnnoyingLine, m_CustomMenuBar.m_Default.m_Colours.m_clrBack);
+		ReleaseDC(hWnd, hdc);
+	}
+}
+#endif
+
 /// <summary>
 /// 
 /// </summary>
@@ -1780,6 +1980,14 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 	case WM_THEMECHANGED:
 	{
+#if DCX_CUSTOM_MENUS
+		if (p_this->m_CustomMenuBar.g_menuTheme)
+		{
+			Dcx::UXModule.dcxCloseThemeData(p_this->m_CustomMenuBar.g_menuTheme);
+			p_this->m_CustomMenuBar.g_menuTheme = nullptr;
+		}
+#endif
+
 		if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_THEME))
 			p_this->execAlias(TEXT("themechanged,0"));
 		break;
@@ -1821,6 +2029,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		}
 		break;
 	}
+
 	case WM_COMMAND:
 	{
 		if ((Dcx::dcxHIWORD(wParam) == 0) && (Dcx::dcxLOWORD(wParam) == 2) && (lParam == 0))
@@ -1841,6 +2050,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 		}
 	}
+
 	// fall through
 	[[fallthrough]];
 	case WM_HSCROLL:
@@ -2579,6 +2789,182 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		break;
 	}
 
+#if DCX_CUSTOM_MENUS
+	// Taken from https://github.com/adzm/win32-custom-menubar-aero-theme
+	// and modified for our needs.
+	case WM_UAHDRAWMENU:
+	{
+		if (!p_this->m_CustomMenuBar.m_bEnable)
+			break;
+
+		auto pUDM = reinterpret_cast<UAHMENU*>(lParam);
+		if (!pUDM)
+			break;
+		if (!pUDM->hdc)
+			break;
+
+		if (!p_this->m_CustomMenuBar.g_menuTheme)
+			p_this->m_CustomMenuBar.g_menuTheme = Dcx::UXModule.dcxOpenThemeData(mHwnd, L"Menu");
+
+		RECT rc{};
+
+		// get the menubar rect
+		{
+			MENUBARINFO mbi = { sizeof(mbi) };
+			GetMenuBarInfo(mHwnd, OBJID_MENU, 0, &mbi);
+
+			RECT rcWindow;
+			GetWindowRect(mHwnd, &rcWindow);
+
+			// the rcBar is offset by the window rect
+			rc = mbi.rcBar;
+			OffsetRect(&rc, -rcWindow.left, -rcWindow.top);
+		}
+
+		if (p_this->m_CustomMenuBar.m_Default.m_Colours.m_clrBack != CLR_INVALID)	// if menu colour set, use it
+			Dcx::FillRectColour(pUDM->hdc, &rc, p_this->m_CustomMenuBar.m_Default.m_Colours.m_clrBack);
+		else if (p_this->m_CustomMenuBar.g_menuTheme)	// otherwise try themed drawing
+			Dcx::UXModule.dcxDrawThemeBackground(p_this->m_CustomMenuBar.g_menuTheme, pUDM->hdc, MENU_BARBACKGROUND, (pUDM->dwFlags == 0xa00 ? MB_ACTIVE : MB_INACTIVE), &rc, nullptr);
+		else
+			Dcx::FillRectColour(pUDM->hdc, &rc, GetSysColor(COLOR_MENUBAR));	// if all else fails draw as standard menu colour.
+
+		if (p_this->m_CustomMenuBar.m_Default.m_hBkg)
+			dcxDrawBitMap(pUDM->hdc, &rc, p_this->m_CustomMenuBar.m_Default.m_hBkg, true);
+
+		//else if (p_this->m_bGradientFill)
+		//{
+		//	const auto clrStart = (p_this->getStartGradientColor() != CLR_INVALID) ? p_this->getStartGradientColor() : GetSysColor(COLOR_3DFACE);
+		//	const auto clrEnd = (p_this->getEndGradientColor() != CLR_INVALID) ? p_this->getEndGradientColor() : GetSysColor(COLOR_GRADIENTACTIVECAPTION);
+		//	XPopupMenuItem::DrawGradient(hdc, &rc, clrStart, clrEnd, p_this->m_bGradientVertical);
+		//}
+
+		bParsed = TRUE;
+	}
+	break;
+
+	case WM_UAHDRAWMENUITEM:
+	{
+		if (!p_this->m_CustomMenuBar.m_bEnable)
+			break;
+
+		auto pUDMI = reinterpret_cast<UAHDRAWMENUITEM*>(lParam);
+		if (!pUDMI)
+			break;
+		if (!pUDMI->um.hdc)
+			break;
+
+		auto mCols = p_this->m_CustomMenuBar.m_Default;
+		mCols.m_hBkg = nullptr;
+
+		if (p_this->m_CustomMenuBar.m_ItemSettings.contains(pUDMI->umi.iPosition))
+			mCols = p_this->m_CustomMenuBar.m_ItemSettings[pUDMI->umi.iPosition];
+
+		COLORREF clrFill = mCols.m_Colours.m_clrBox;
+		COLORREF clrText = mCols.m_Colours.m_clrText;
+		COLORREF clrBorder = mCols.m_Colours.m_clrBorder;
+
+		// get the menu item string
+		wchar_t menuString[256]{};
+		MENUITEMINFO mii = { sizeof(mii), MIIM_STRING };
+		{
+			mii.dwTypeData = &menuString[0];
+			mii.cch = std::size(menuString) - 1;
+
+			GetMenuItemInfo(pUDMI->um.hmenu, pUDMI->umi.iPosition, TRUE, &mii);
+		}
+
+		// get the item state for drawing
+
+		DWORD dwFlags = DT_CENTER | DT_SINGLELINE | DT_VCENTER;
+
+		//int iTextStateID = 0;
+		//int iBackgroundStateID = 0;
+		{
+			//if ((pUDMI->dis.itemState & ODS_INACTIVE) | (pUDMI->dis.itemState & ODS_DEFAULT))
+			//{
+			//	// normal display
+			//	//iTextStateID = MPI_NORMAL;
+			//	//iBackgroundStateID = MPI_NORMAL;
+			//}
+			if (pUDMI->dis.itemState & ODS_HOTLIGHT)
+			{
+				// hot tracking
+				//iTextStateID = MPI_HOT;
+				//iBackgroundStateID = MPI_HOT;
+
+				//pbrBackground = &g_brItemBackgroundHot;
+				clrFill = mCols.m_Colours.m_clrHot;
+				clrText = mCols.m_Colours.m_clrHotText;
+				clrBorder = mCols.m_Colours.m_clrHotBorder;
+			}
+			if (pUDMI->dis.itemState & ODS_SELECTED)
+			{
+				// clicked -- MENU_POPUPITEM has no state for this, though MENU_BARITEM does
+				//iTextStateID = MPI_HOT;
+				//iBackgroundStateID = MPI_HOT;
+
+				//pbrBackground = &g_brItemBackgroundSelected;
+				clrFill = mCols.m_Colours.m_clrSelection;
+				clrText = mCols.m_Colours.m_clrSelectedText;
+				clrBorder = mCols.m_Colours.m_clrSelectionBorder;
+			}
+			if ((pUDMI->dis.itemState & ODS_GRAYED) || (pUDMI->dis.itemState & ODS_DISABLED))
+			{
+				// disabled / grey text
+				//iTextStateID = MPI_DISABLED;
+				//iBackgroundStateID = MPI_DISABLED;
+
+				clrFill = mCols.m_Colours.m_clrDisabled;
+				clrText = mCols.m_Colours.m_clrDisabledText;
+				clrBorder = mCols.m_Colours.m_clrBorder;
+			}
+			if (pUDMI->dis.itemState & ODS_NOACCEL)
+				dwFlags |= DT_HIDEPREFIX;
+		}
+
+		if (!p_this->m_CustomMenuBar.g_menuTheme)
+			p_this->m_CustomMenuBar.g_menuTheme = Dcx::UXModule.dcxOpenThemeData(mHwnd, L"Menu");
+
+		if (p_this->m_CustomMenuBar.m_bDrawBorder)
+		{
+			//Dcx::FillRectColour(pUDMI->um.hdc, &pUDMI->dis.rcItem, p_this->m_CustomMenuBar.m_Default.m_Colours.m_clrBack);
+			dcxDrawRect(pUDMI->um.hdc, &pUDMI->dis.rcItem, clrFill, clrBorder, p_this->m_CustomMenuBar.m_bDrawRoundedBorder);
+		}
+		else
+			Dcx::FillRectColour(pUDMI->um.hdc, &pUDMI->dis.rcItem, clrFill);
+
+		if (mCols.m_hBkg)
+			dcxDrawBitMap(pUDMI->um.hdc, &pUDMI->dis.rcItem, mCols.m_hBkg, true);
+
+		if (p_this->m_CustomMenuBar.g_menuTheme)
+		{
+			const DTTOPTS opts = { sizeof(opts), DTT_TEXTCOLOR, clrText };
+
+			Dcx::UXModule.dcxDrawThemeTextEx(p_this->m_CustomMenuBar.g_menuTheme, pUDMI->um.hdc, MENU_BARITEM, MBI_NORMAL, &menuString[0], mii.cch, dwFlags, &pUDMI->dis.rcItem, &opts);
+		}
+		else {
+			if (false)
+				dcxDrawShadowText(pUDMI->um.hdc, &menuString[0], mii.cch, &pUDMI->dis.rcItem, dwFlags, clrText, RGB(0, 0, 0), 5, 5);
+			else {
+				const auto clrOld = SetTextColor(pUDMI->um.hdc, clrText);
+				DrawTextW(pUDMI->um.hdc, &menuString[0], mii.cch, &pUDMI->dis.rcItem, dwFlags);
+				SetTextColor(pUDMI->um.hdc, clrOld);
+			}
+		}
+		bParsed = TRUE;
+	}
+	break;
+case WM_NCPAINT:
+case WM_NCACTIVATE:
+	if (p_this->m_CustomMenuBar.m_bEnable)
+	{
+		bParsed = TRUE;
+		lRes = p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
+		p_this->UAHDrawMenuNCBottomLine(mHwnd);
+	}
+	break;
+#endif
+
 	case WM_SETCURSOR:
 	{
 		//if ((Dcx::dcxLOWORD(lParam) == HTCLIENT) && ((HWND) wParam == p_this->getHwnd()) && (p_this->getCursor() != nullptr))
@@ -3071,7 +3457,7 @@ void DcxDialog::CreateVistaStyle(void) noexcept
 			else
 				DestroyWindow(this->m_hFakeHwnd);
 		}
-	}
+}
 #endif
 }
 

@@ -20,6 +20,7 @@
 #include "xpopup/xpopupmenu.h"
 #include "layout/layoutmanager.h"
 #include <map>
+#include "xpopup/UAHMenuBar.h"
 
 #define DBS_BKGCOLOR	0x00000001 //!< Control Background Color
 #define DBS_BKGBITMAP	0x00000002 //!< Control Background Bitmap
@@ -151,6 +152,10 @@ public:
 
 	void setMouseControl(const UINT mUID);
 	void setFocusControl(const UINT mUID);
+
+#if DCX_CUSTOM_MENUS
+	void UAHDrawMenuNCBottomLine(HWND hWnd) noexcept;
+#endif
 
 	/// <summary>
 	/// Get the dialogs name.
@@ -454,7 +459,6 @@ private:
 	mutable bool m_bDialogActive{ true };		// set to true when dialog is active
 	static inline bool m_bIsMenuBar{ false };
 	static inline bool m_bIsSysMenu{ false };
-	bool m_bReserved{ false };				//!< Reserved for future use.
 
 	PVOID m_pVistaBits{ nullptr };	// gfx buffer, doesnt need freed.
 
@@ -463,6 +467,10 @@ private:
 	SIZE m_sVistaOffsets{};
 
 	RECT m_GlassOffsets{};
+
+	// settings for drawing the dialogs menu bar.
+	//static inline HTHEME g_menuTheme{};
+	XPMENUBAR m_CustomMenuBar;
 
 	void i_showError(const TCHAR* const cType, const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const err) const;
 	void PreloadData(void) noexcept;

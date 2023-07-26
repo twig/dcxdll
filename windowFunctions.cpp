@@ -1061,3 +1061,28 @@ bool dcxDrawTranslucentRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorde
 
 	return dcxDrawRect(hdc, rc, clr, clrBorder, bRounded);
 }
+
+bool dcxDrawBitMap(HDC hdc, LPCRECT prc, HBITMAP hbm, bool bStretch) noexcept
+{
+	if (!hdc || !prc || !hbm)
+		return false;
+
+	auto hdcMemory = ::CreateCompatibleDC(hdc);
+
+	if (!hdcMemory)
+		return false;
+
+	const auto hbmpOld = Dcx::dcxSelectObject<HBITMAP>(hdcMemory, hbm);
+
+	Auto(Dcx::dcxSelectObject<HBITMAP>(hdcMemory, hbmpOld));
+
+	if (bStretch)
+	{
+		if (auto [code,bm] = Dcx::dcxGetObject<BITMAP>(hbm); code != 0)
+			StretchBlt(hdc, prc->left, prc->top, (prc->right - prc->left), (prc->bottom - prc->top), hdcMemory, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
+	}
+	else
+		BitBlt(hdc, prc->left, prc->top, (prc->right - prc->left), (prc->bottom - prc->top), hdcMemory, 0, 0, SRCCOPY);
+
+	return true;
+}

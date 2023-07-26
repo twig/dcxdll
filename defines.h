@@ -751,6 +751,8 @@ bool dcxDrawRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorder, bool bRo
 /// <returns></returns>
 bool dcxDrawTranslucentRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorder, bool bRounded) noexcept;
 
+bool dcxDrawBitMap(HDC hdc, LPCRECT prc, HBITMAP hbm, bool bStretch) noexcept;
+
 /// <summary>
 /// Get a colour that contrasts nicely with the supplied colour.
 /// </summary>

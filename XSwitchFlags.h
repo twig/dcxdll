@@ -39,6 +39,8 @@
 #ifndef _XSWITCHFLAGS_H_
 #define _XSWITCHFLAGS_H_
 
+#include <intrin.h>
+
 #include "Classes/TString/tstring.h"
 
 enum class XSwitchValues
@@ -109,6 +111,7 @@ enum class XSwitchValues
 	// 62 empty					   0x4000000000000000
 	// 63 empty					   0x8000000000000000
 };
+
 struct XSwitchFlags final
 {
 	//XSwitchFlags() = delete;
@@ -125,15 +128,30 @@ struct XSwitchFlags final
 
 	explicit XSwitchFlags(const TString& switches) noexcept;
 	XSwitchFlags(const TCHAR* const switches, size_t len) noexcept;
-	//~XSwitchFlags() = default;
+	XSwitchFlags(const ULONGLONG& m_dFlagMask) noexcept
+		: m_dFlagMask(m_dFlagMask)
+	{
+	}
 
 	// Function checks if flag is set
 	const bool isSet(const TCHAR c) const noexcept;
+
 	// returns the whole mask
 	const ULONGLONG& getMask() const noexcept { return m_dFlagMask; }
 
+	/// <summary>
+	/// Counts the number of flags set.
+	/// </summary>
+	/// <returns></returns>
+	const UINT count() const noexcept
+	{
+		// NB: NO 64bit popcnt in 32bit mode.
+		return __popcnt(gsl::narrow_cast<UINT>(m_dFlagMask & 0x00000000FFFFFFFF)) + __popcnt(gsl::narrow_cast<UINT>((m_dFlagMask >> 32) & 0x00000000FFFFFFFF));
+	}
 	const bool operator[](const TCHAR c) const noexcept { return isSet(c); }
 	explicit operator ULONGLONG() const noexcept { return m_dFlagMask; }
+
+	bool operator==(const XSwitchFlags& other) const = default;
 
 private:
 	ULONGLONG	m_dFlagMask{};		//!< a bitmask of all selected letters...

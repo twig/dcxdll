@@ -30,131 +30,468 @@ int dcx_round(const float x) noexcept
 	return t;
 }
 
-// taken from: http://www.codeproject.com/Tips/317642/Handling-simple-text-files-in-C-Cplusplus
-//PTSTR Normalise(PBYTE pBuffer)
-//{
-//	PTSTR			ptText;		// pointer to the text char* or wchar_t* depending on UNICODE setting
-//	PWSTR			pwStr;		// pointer to a wchar_t buffer
-//	int				nLength;	// a useful integer variable
-//
-//	//IsTextUnicode(pBuffer, iSize, iRes);
-//
-//	// obtain a wide character pointer to check BOMs
-//	pwStr = reinterpret_cast<PWSTR>(pBuffer);
-//
-//	// check if the first word is a Unicode Byte Order Mark
-//	if (*pwStr == 0xFFFE || *pwStr == 0xFEFF)
-//	{
-//		// Yes, this is Unicode data
-//		if (*pwStr++ == 0xFFFE)
-//		{
-//			// BOM says this is Big Endian so we need
-//			// to swap bytes in each word of the text
-//			while (*pwStr)
-//			{
-//				// swap bytes in each word of the buffer
-//				WCHAR	wcTemp = *pwStr >> 8;
-//				wcTemp |= *pwStr << 8;
-//				*pwStr = wcTemp;
-//				++pwStr;
-//			}
-//			// point back to the start of the text
-//			pwStr = reinterpret_cast<PWSTR>(pBuffer + 2);
-//		}
-//#if !defined(UNICODE)
-//		// This is a non-Unicode project so we need
-//		// to convert wide characters to multi-byte
-//
-//		// get calculated buffer size
-//		nLength = WideCharToMultiByte(CP_UTF8, 0, pwStr, -1, nullptr, 0, nullptr, nullptr);
-//		// obtain a new buffer for the converted characters
-//		ptText = new TCHAR[nLength];
-//		// convert to multi-byte characters
-//		nLength = WideCharToMultiByte(CP_UTF8, 0, pwStr, -1, ptText, nLength, nullptr, nullptr);
-//#else
-//		nLength = wcslen(pwStr) + 1;    // if Unicode, then copy the input text
-//		ptText = new WCHAR[nLength];    // to a new output buffer
-//		nLength *= sizeof(WCHAR);       // adjust to size in bytes
-//		memcpy_s(ptText, nLength, pwStr, nLength);
-//#endif
-//	}
-//	else
-//	{
-//		// The text data is UTF-8 or Ansi
-//#if defined(UNICODE)
-//		// This is a Unicode project so we need to convert
-//		// multi-byte or Ansi characters to Unicode.
-//
-//		// get calculated buffer size
-//		nLength = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<PCSTR>(pBuffer), -1, nullptr, 0);
-//		// obtain a new buffer for the converted characters
-//		ptText = new TCHAR[nLength];
-//		// convert to Unicode characters
-//		nLength = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<PCSTR>(pBuffer), -1, ptText, nLength);
-//#else
-//		// This is a non-Unicode project so we just need
-//		// to skip the UTF-8 BOM, if present
-//		if (memcmp(pBuffer, "\xEF\xBB\xBF", 3) == 0)
-//		{
-//			// UTF-8
-//			pBuffer += 3;
-//		}
-//		nLength = strlen(reinterpret_cast<PSTR>(pBuffer)) + 1;  // if UTF-8/ANSI, then copy the input text
-//		ptText = new char[nLength];                             // to a new output buffer
-//		memcpy_s(ptText, nLength, pBuffer, nLength);
-//#endif
-//	}
-//
-//	// return pointer to the (possibly converted) text buffer.
-//	return ptText;
-//}
-
-TString Normalise(PBYTE pBuffer)
+namespace
 {
-	// pointer to a wchar_t buffer
-	// obtain a wide character pointer to check BOMs
-	PWSTR pwStr = reinterpret_cast<PWSTR>(pBuffer);
 
-	if (!pwStr)
-		return TString();
+	// taken from: http://www.codeproject.com/Tips/317642/Handling-simple-text-files-in-C-Cplusplus
+	//PTSTR Normalise(PBYTE pBuffer)
+	//{
+	//	PTSTR			ptText;		// pointer to the text char* or wchar_t* depending on UNICODE setting
+	//	PWSTR			pwStr;		// pointer to a wchar_t buffer
+	//	int				nLength;	// a useful integer variable
+	//
+	//	//IsTextUnicode(pBuffer, iSize, iRes);
+	//
+	//	// obtain a wide character pointer to check BOMs
+	//	pwStr = reinterpret_cast<PWSTR>(pBuffer);
+	//
+	//	// check if the first word is a Unicode Byte Order Mark
+	//	if (*pwStr == 0xFFFE || *pwStr == 0xFEFF)
+	//	{
+	//		// Yes, this is Unicode data
+	//		if (*pwStr++ == 0xFFFE)
+	//		{
+	//			// BOM says this is Big Endian so we need
+	//			// to swap bytes in each word of the text
+	//			while (*pwStr)
+	//			{
+	//				// swap bytes in each word of the buffer
+	//				WCHAR	wcTemp = *pwStr >> 8;
+	//				wcTemp |= *pwStr << 8;
+	//				*pwStr = wcTemp;
+	//				++pwStr;
+	//			}
+	//			// point back to the start of the text
+	//			pwStr = reinterpret_cast<PWSTR>(pBuffer + 2);
+	//		}
+	//#if !defined(UNICODE)
+	//		// This is a non-Unicode project so we need
+	//		// to convert wide characters to multi-byte
+	//
+	//		// get calculated buffer size
+	//		nLength = WideCharToMultiByte(CP_UTF8, 0, pwStr, -1, nullptr, 0, nullptr, nullptr);
+	//		// obtain a new buffer for the converted characters
+	//		ptText = new TCHAR[nLength];
+	//		// convert to multi-byte characters
+	//		nLength = WideCharToMultiByte(CP_UTF8, 0, pwStr, -1, ptText, nLength, nullptr, nullptr);
+	//#else
+	//		nLength = wcslen(pwStr) + 1;    // if Unicode, then copy the input text
+	//		ptText = new WCHAR[nLength];    // to a new output buffer
+	//		nLength *= sizeof(WCHAR);       // adjust to size in bytes
+	//		memcpy_s(ptText, nLength, pwStr, nLength);
+	//#endif
+	//	}
+	//	else
+	//	{
+	//		// The text data is UTF-8 or Ansi
+	//#if defined(UNICODE)
+	//		// This is a Unicode project so we need to convert
+	//		// multi-byte or Ansi characters to Unicode.
+	//
+	//		// get calculated buffer size
+	//		nLength = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<PCSTR>(pBuffer), -1, nullptr, 0);
+	//		// obtain a new buffer for the converted characters
+	//		ptText = new TCHAR[nLength];
+	//		// convert to Unicode characters
+	//		nLength = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<PCSTR>(pBuffer), -1, ptText, nLength);
+	//#else
+	//		// This is a non-Unicode project so we just need
+	//		// to skip the UTF-8 BOM, if present
+	//		if (memcmp(pBuffer, "\xEF\xBB\xBF", 3) == 0)
+	//		{
+	//			// UTF-8
+	//			pBuffer += 3;
+	//		}
+	//		nLength = strlen(reinterpret_cast<PSTR>(pBuffer)) + 1;  // if UTF-8/ANSI, then copy the input text
+	//		ptText = new char[nLength];                             // to a new output buffer
+	//		memcpy_s(ptText, nLength, pBuffer, nLength);
+	//#endif
+	//	}
+	//
+	//	// return pointer to the (possibly converted) text buffer.
+	//	return ptText;
+	//}
 
-	// check if the first word is a Unicode Byte Order Mark
-	if (*pwStr == 0xFFFE || *pwStr == 0xFEFF)
+	TString Normalise(PBYTE pBuffer)
 	{
-		// Yes, this is Unicode data
-		if (*pwStr++ == 0xFFFE)
+		// pointer to a wchar_t buffer
+		// obtain a wide character pointer to check BOMs
+		PWSTR pwStr = reinterpret_cast<PWSTR>(pBuffer);
+
+		if (!pwStr)
+			return TString();
+
+		// check if the first word is a Unicode Byte Order Mark
+		if (*pwStr == 0xFFFE || *pwStr == 0xFEFF)
 		{
-			// BOM says this is Big Endian so we need
-			// to swap bytes in each word of the text
-			while (*pwStr)
+			// Yes, this is Unicode data
+			if (*pwStr++ == 0xFFFE)
 			{
-				// swap bytes in each word of the buffer
-				WCHAR	wcTemp = static_cast<WCHAR>((*pwStr >> 8));
-				wcTemp |= (*pwStr << 8);
-				*pwStr = wcTemp;
-				++pwStr;
+				// BOM says this is Big Endian so we need
+				// to swap bytes in each word of the text
+				while (*pwStr)
+				{
+					// swap bytes in each word of the buffer
+					WCHAR	wcTemp = static_cast<WCHAR>((*pwStr >> 8));
+					wcTemp |= (*pwStr << 8);
+					*pwStr = wcTemp;
+					++pwStr;
+				}
+				// point back to the start of the text
+				pwStr = reinterpret_cast<PWSTR>(pBuffer + 2);
 			}
-			// point back to the start of the text
-			pwStr = reinterpret_cast<PWSTR>(pBuffer + 2);
+			// creation of TString object handles any conversions & memory allocations etc..
+			//return pwStr;
+			return TString(pwStr);
 		}
-		// creation of TString object handles any conversions & memory allocations etc..
-		//return pwStr;
-		return TString(pwStr);
-	}
-	else
-	{
-		// The text data is UTF-8 or Ansi
-		// skip the UTF-8 BOM, if present
-		if (memcmp(pBuffer, "\xEF\xBB\xBF", 3) == 0)
+		else
 		{
-			// UTF-8
-			pBuffer += 3;
+			// The text data is UTF-8 or Ansi
+			// skip the UTF-8 BOM, if present
+			if (memcmp(pBuffer, "\xEF\xBB\xBF", 3) == 0)
+			{
+				// UTF-8
+				pBuffer += 3;
+			}
+		}
+
+		// return pointer to the (possibly converted) text buffer.
+		// creation of TString object handles any conversions & memory allocations etc..
+		return TString(reinterpret_cast<PCSTR>(pBuffer));
+	}
+	// Taken from msft examples.
+	PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp) noexcept
+	{
+		if (!hBmp)
+			return nullptr;
+
+		BITMAP bmp{};
+		PBITMAPINFO pbmi{};
+		WORD    cClrBits{};
+
+		// Retrieve the bitmap color format, width, and height.  
+		if (!GetObject(hBmp, sizeof(BITMAP), &bmp))
+			return nullptr;
+
+		// Convert the color format to a count of bits.  
+		cClrBits = (WORD)(bmp.bmPlanes * bmp.bmBitsPixel);
+		if (cClrBits == 1)
+			cClrBits = 1;
+		else if (cClrBits <= 4)
+			cClrBits = 4;
+		else if (cClrBits <= 8)
+			cClrBits = 8;
+		else if (cClrBits <= 16)
+			cClrBits = 16;
+		else if (cClrBits <= 24)
+			cClrBits = 24;
+		else cClrBits = 32;
+
+		// Allocate memory for the BITMAPINFO structure. (This structure  
+		// contains a BITMAPINFOHEADER structure and an array of RGBQUAD  
+		// data structures.)  
+
+		if (cClrBits < 24)
+			pbmi = (PBITMAPINFO)LocalAlloc(LPTR, sizeof(BITMAPINFOHEADER) + (sizeof(RGBQUAD) * (1 << cClrBits)));
+
+		// There is no RGBQUAD array for these formats: 24-bit-per-pixel or 32-bit-per-pixel 
+
+		else
+			pbmi = (PBITMAPINFO)LocalAlloc(LPTR, sizeof(BITMAPINFOHEADER));
+
+		// Initialize the fields in the BITMAPINFO structure.  
+
+		pbmi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+		pbmi->bmiHeader.biWidth = bmp.bmWidth;
+		pbmi->bmiHeader.biHeight = bmp.bmHeight;
+		pbmi->bmiHeader.biPlanes = bmp.bmPlanes;
+		pbmi->bmiHeader.biBitCount = bmp.bmBitsPixel;
+		if (cClrBits < 24)
+			pbmi->bmiHeader.biClrUsed = (1 << cClrBits);
+
+		// If the bitmap is not compressed, set the BI_RGB flag.  
+		pbmi->bmiHeader.biCompression = BI_RGB;
+
+		// Compute the number of bytes in the array of color  
+		// indices and store the result in biSizeImage.  
+		// The width must be DWORD aligned unless the bitmap is RLE 
+		// compressed. 
+		pbmi->bmiHeader.biSizeImage = ((pbmi->bmiHeader.biWidth * cClrBits + 31) & ~31) / 8 * pbmi->bmiHeader.biHeight;
+		// Set biClrImportant to 0, indicating that all of the  
+		// device colors are important.  
+		pbmi->bmiHeader.biClrImportant = 0;
+		return pbmi;
+	}
+
+	// Taken from msft examples.
+	void CreateBMPFile(HWND hwnd, LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC) noexcept
+	{
+		if ((!pszFile) || (!pbi) || (!hBMP) || (!hDC))
+			return;
+
+		HANDLE hf{};                  // file handle  
+		BITMAPFILEHEADER hdr{};       // bitmap file-header  
+		PBITMAPINFOHEADER pbih{};     // bitmap info-header  
+		LPBYTE lpBits{};              // memory pointer  
+		DWORD dwTotal{};              // total count of bytes  
+		DWORD cb{};                   // incremental count of bytes  
+		BYTE* hp{};                   // byte pointer  
+		DWORD dwTmp{};
+
+		pbih = (PBITMAPINFOHEADER)pbi;
+		lpBits = (LPBYTE)GlobalAlloc(GMEM_FIXED, pbih->biSizeImage);
+
+		if (!lpBits)
+			return;
+
+		// Retrieve the color table (RGBQUAD array) and the bits  
+		// (array of palette indices) from the DIB.  
+		if (!GetDIBits(hDC, hBMP, 0, pbih->biHeight, lpBits, pbi, DIB_RGB_COLORS))
+		{
+			return;
+		}
+
+		// Create the .BMP file.  
+		hf = CreateFile(pszFile,
+			GENERIC_READ | GENERIC_WRITE,
+			0,
+			nullptr,
+			CREATE_ALWAYS,
+			FILE_ATTRIBUTE_NORMAL,
+			nullptr);
+		if (hf == INVALID_HANDLE_VALUE)
+			return;
+		hdr.bfType = 0x4d42;        // 0x42 = "B" 0x4d = "M"  
+		// Compute the size of the entire file.  
+		hdr.bfSize = (sizeof(BITMAPFILEHEADER) + pbih->biSize + (pbih->biClrUsed * sizeof(RGBQUAD)) + pbih->biSizeImage);
+		hdr.bfReserved1 = 0;
+		hdr.bfReserved2 = 0;
+
+		// Compute the offset to the array of color indices.  
+		hdr.bfOffBits = sizeof(BITMAPFILEHEADER) + pbih->biSize + (pbih->biClrUsed * sizeof(RGBQUAD));
+
+		// Copy the BITMAPFILEHEADER into the .BMP file.  
+		if (!WriteFile(hf, &hdr, sizeof(BITMAPFILEHEADER), &dwTmp, nullptr))
+		{
+			return;
+		}
+
+		// Copy the BITMAPINFOHEADER and RGBQUAD array into the file.  
+		if (!WriteFile(hf, pbih, sizeof(BITMAPINFOHEADER) + (pbih->biClrUsed * sizeof(RGBQUAD)), &dwTmp, nullptr))
+			return;
+
+		// Copy the array of color indices into the .BMP file.  
+		dwTotal = cb = pbih->biSizeImage;
+		hp = lpBits;
+		if (!WriteFile(hf, hp, cb, &dwTmp, nullptr))
+			return;
+
+		// Close the .BMP file.  
+		if (!CloseHandle(hf))
+			return;
+
+		// Free memory.  
+		GlobalFree((HGLOBAL)lpBits);
+	}
+
+	/*!
+	* \brief Save a HBITMAP object to file
+	*
+	* TODO: ...
+	*/
+	bool SaveDataToFile(const TString& tsFile, const HBITMAP hBm) noexcept
+	{
+		if ((!hBm) || (tsFile.empty()))
+			return false;
+
+		auto pbis = CreateBitmapInfoStruct(nullptr, hBm);
+		if (!pbis)
+			return false;
+		Auto(LocalFree(pbis));
+
+		auto hDC = CreateCompatibleDC(nullptr);
+		if (!hDC)
+			return false;
+		Auto(DeleteDC(hDC));
+
+		auto oldBm = SelectObject(hDC, hBm);
+		Auto(SelectObject(hDC, oldBm));
+
+		CreateBMPFile(nullptr, tsFile.to_chr(), pbis, hBm, hDC);
+		return true;
+	}
+
+	bool SaveClipboardAsText(const TString& tsFile)
+	{
+		if (auto hData = GetClipboardData(CF_UNICODETEXT); hData)
+		{
+			// clipboard has a string
+			auto szClip = static_cast<LPCWSTR>(GlobalLock(hData));
+			Auto(GlobalUnlock(hData));
+
+			return SaveDataToFile(tsFile, szClip);
+		}
+		return false;
+	}
+
+	bool SaveClipboardAsBitmap(const TString& tsFile) noexcept
+	{
+		if (auto hBm = static_cast<HBITMAP>(GetClipboardData(CF_BITMAP)); hBm)
+		{
+			// clipboard has a bitmap
+			return SaveDataToFile(tsFile, hBm);
+		}
+		return false;
+	}
+
+	HICON CreateGrayscaleIcon(HICON hIcon, const COLORREF* const pPalette) noexcept
+	{
+		if ((!hIcon) || (!pPalette))
+			return nullptr;
+
+		auto hdc = ::GetDC(nullptr);
+		Auto(::ReleaseDC(nullptr, hdc));
+
+		HICON      hGrayIcon{ nullptr };
+		ICONINFO   icInfo{};
+		ICONINFO   icGrayInfo{};
+
+		//LPDWORD    lpBits         = nullptr;
+		//LPBYTE     lpBitsPtr      = nullptr;
+		//SIZE sz;
+		//DWORD c1 = 0;
+
+		BITMAPINFO bmpInfo = { 0 };
+		bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+
+		if (::GetIconInfo(hIcon, &icInfo))
+		{
+			if (icInfo.hbmColor)
+			{
+				Auto(::DeleteObject(icInfo.hbmColor));
+
+				if (::GetDIBits(hdc, icInfo.hbmColor, 0, 0, nullptr, &bmpInfo, DIB_RGB_COLORS) != 0)
+				{
+					//SIZE sz = { 0 };
+					//sz.cx = bmpInfo.bmiHeader.biWidth;
+					//sz.cy = bmpInfo.bmiHeader.biHeight;
+
+					const SIZE sz{ bmpInfo.bmiHeader.biWidth, bmpInfo.bmiHeader.biHeight };
+
+					bmpInfo.bmiHeader.biCompression = BI_RGB;
+
+					const auto c1 = gsl::narrow_cast<DWORD>(sz.cx * sz.cy);
+
+					const auto lpBits = static_cast<LPDWORD>(::GlobalAlloc(GMEM_FIXED, (c1) * 4));
+
+					if (lpBits && ::GetDIBits(hdc, icInfo.hbmColor, 0, gsl::narrow_cast<UINT>(sz.cy), lpBits, &bmpInfo, DIB_RGB_COLORS) != 0)
+					{
+						auto lpBitsPtr = reinterpret_cast<LPBYTE>(lpBits);
+
+						for (auto i = decltype(c1){0}; i < c1; ++i)
+						{
+							auto off = gsl::narrow_cast<UINT>((255 - ((lpBitsPtr[0] + lpBitsPtr[1] + lpBitsPtr[2]) / 3)));
+
+							if (lpBitsPtr[3] != 0 || off != 255)
+							{
+								if (off == 0)
+								{
+									off = 1;
+								}
+								lpBits[i] = pPalette[off] | (lpBitsPtr[3] << 24);
+							}
+
+							lpBitsPtr += 4;
+						}
+
+						icGrayInfo.hbmColor = ::CreateCompatibleBitmap(hdc, sz.cx, sz.cy);
+
+						if (icGrayInfo.hbmColor)
+						{
+							Auto(::DeleteObject(icGrayInfo.hbmColor));
+
+							::SetDIBits(hdc, icGrayInfo.hbmColor, 0, gsl::narrow_cast<UINT>(sz.cy), lpBits, &bmpInfo, DIB_RGB_COLORS);
+
+							icGrayInfo.hbmMask = icInfo.hbmMask;
+							icGrayInfo.fIcon = TRUE;
+
+							hGrayIcon = ::CreateIconIndirect(&icGrayInfo);
+						}
+
+						::GlobalFree(lpBits);
+					}
+				}
+
+				if (icInfo.hbmMask)
+					::DeleteObject(icInfo.hbmMask);
+			}
+		}
+		return hGrayIcon;
+	}
+
+	constexpr int unfoldColor(int nColor) noexcept
+	{
+		while (nColor > 99)
+			nColor -= 100;
+
+		return nColor;
+	}
+
+	void mIRC_OutText(HDC hdc, TString& txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow) noexcept
+	{
+		if (txt.empty())
+			return;
+
+		const auto len = txt.len();
+		const auto hOldFont = SelectObject(hdc, CreateFontIndirect(lf));
+		auto rcTmp = *rcOut;
+
+		if (!dcx_testflag(iStyle, DT_CALCRECT))
+		{	// if DT_CALCRECT flag NOT given then do calcrect here.
+			//DrawText(hdc, txt.to_chr(), len, &rcTmp, iStyle | DT_CALCRECT);
+			if (shadow)
+				dcxDrawShadowText(hdc, txt.to_chr(), len, std::addressof(rcTmp), iStyle | DT_CALCRECT, clrFG, 0, 5, 5);
+			else
+				DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle | DT_CALCRECT);
+		}
+		if (shadow)
+			dcxDrawShadowText(hdc, txt.to_chr(), len, std::addressof(rcTmp), iStyle, clrFG, 0, 5, 5);
+		else
+			DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle);
+
+		if (TEXTMETRICW tm{}; GetTextMetrics(hdc, std::addressof(tm)))
+			rcOut->left += (rcTmp.right - rcTmp.left) - tm.tmOverhang;
+		else
+			rcOut->left += (rcTmp.right - rcTmp.left);
+
+		DeleteObject(SelectObject(hdc, hOldFont));
+		txt.clear();	// txt = TEXT("");
+	}
+
+	double sRGBtoLin(double colorChannel) noexcept
+	{
+		// Send this function a decimal sRGB gamma encoded color value
+		// between 0.0 and 1.0, and it returns a linearized value.
+
+		if (colorChannel <= 0.04045)
+			return colorChannel / 12.92;
+
+		return pow(((colorChannel + 0.055) / 1.055), 2.4);
+	}
+
+	double YtoLstar(double Y) noexcept
+	{
+		// Send this function a luminance value between 0.0 and 1.0,
+		// and it returns L* which is "perceptual lightness"
+
+		if (Y <= (216.0 / 24389.0)) {       // The CIE standard states 0.008856 but 216/24389 is the intent for 0.008856451679036
+			return Y * (24389.0 / 27.0);  // The CIE standard states 903.3, but 24389/27 is the intent, making 903.296296296296296
+		}
+		else {
+			return pow(Y, (1.0 / 3.0)) * 116.0 - 16.0;
 		}
 	}
 
-	// return pointer to the (possibly converted) text buffer.
-	// creation of TString object handles any conversions & memory allocations etc..
-	return TString(reinterpret_cast<PCSTR>(pBuffer));
 }
 
 /*!
@@ -277,168 +614,6 @@ bool SaveDataToFile(const TString& tsFile, const TString& tsData)
 #endif
 }
 
-// Taken from msft examples.
-PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp) noexcept
-{
-	if (!hBmp)
-		return nullptr;
-
-	BITMAP bmp{};
-	PBITMAPINFO pbmi{};
-	WORD    cClrBits{};
-
-	// Retrieve the bitmap color format, width, and height.  
-	if (!GetObject(hBmp, sizeof(BITMAP), &bmp))
-		return nullptr;
-
-	// Convert the color format to a count of bits.  
-	cClrBits = (WORD)(bmp.bmPlanes * bmp.bmBitsPixel);
-	if (cClrBits == 1)
-		cClrBits = 1;
-	else if (cClrBits <= 4)
-		cClrBits = 4;
-	else if (cClrBits <= 8)
-		cClrBits = 8;
-	else if (cClrBits <= 16)
-		cClrBits = 16;
-	else if (cClrBits <= 24)
-		cClrBits = 24;
-	else cClrBits = 32;
-
-	// Allocate memory for the BITMAPINFO structure. (This structure  
-	// contains a BITMAPINFOHEADER structure and an array of RGBQUAD  
-	// data structures.)  
-
-	if (cClrBits < 24)
-		pbmi = (PBITMAPINFO)LocalAlloc(LPTR, sizeof(BITMAPINFOHEADER) + (sizeof(RGBQUAD) * (1 << cClrBits)));
-
-	// There is no RGBQUAD array for these formats: 24-bit-per-pixel or 32-bit-per-pixel 
-
-	else
-		pbmi = (PBITMAPINFO)LocalAlloc(LPTR, sizeof(BITMAPINFOHEADER));
-
-	// Initialize the fields in the BITMAPINFO structure.  
-
-	pbmi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	pbmi->bmiHeader.biWidth = bmp.bmWidth;
-	pbmi->bmiHeader.biHeight = bmp.bmHeight;
-	pbmi->bmiHeader.biPlanes = bmp.bmPlanes;
-	pbmi->bmiHeader.biBitCount = bmp.bmBitsPixel;
-	if (cClrBits < 24)
-		pbmi->bmiHeader.biClrUsed = (1 << cClrBits);
-
-	// If the bitmap is not compressed, set the BI_RGB flag.  
-	pbmi->bmiHeader.biCompression = BI_RGB;
-
-	// Compute the number of bytes in the array of color  
-	// indices and store the result in biSizeImage.  
-	// The width must be DWORD aligned unless the bitmap is RLE 
-	// compressed. 
-	pbmi->bmiHeader.biSizeImage = ((pbmi->bmiHeader.biWidth * cClrBits + 31) & ~31) / 8 * pbmi->bmiHeader.biHeight;
-	// Set biClrImportant to 0, indicating that all of the  
-	// device colors are important.  
-	pbmi->bmiHeader.biClrImportant = 0;
-	return pbmi;
-}
-
-// Taken from msft examples.
-void CreateBMPFile(HWND hwnd, LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC) noexcept
-{
-	if ((!pszFile) || (!pbi) || (!hBMP) || (!hDC))
-		return;
-
-	HANDLE hf{};                  // file handle  
-	BITMAPFILEHEADER hdr{};       // bitmap file-header  
-	PBITMAPINFOHEADER pbih{};     // bitmap info-header  
-	LPBYTE lpBits{};              // memory pointer  
-	DWORD dwTotal{};              // total count of bytes  
-	DWORD cb{};                   // incremental count of bytes  
-	BYTE* hp{};                   // byte pointer  
-	DWORD dwTmp{};
-
-	pbih = (PBITMAPINFOHEADER)pbi;
-	lpBits = (LPBYTE)GlobalAlloc(GMEM_FIXED, pbih->biSizeImage);
-
-	if (!lpBits)
-		return;
-
-	// Retrieve the color table (RGBQUAD array) and the bits  
-	// (array of palette indices) from the DIB.  
-	if (!GetDIBits(hDC, hBMP, 0, pbih->biHeight, lpBits, pbi, DIB_RGB_COLORS))
-	{
-		return;
-	}
-
-	// Create the .BMP file.  
-	hf = CreateFile(pszFile,
-		GENERIC_READ | GENERIC_WRITE,
-		0,
-		nullptr,
-		CREATE_ALWAYS,
-		FILE_ATTRIBUTE_NORMAL,
-		nullptr);
-	if (hf == INVALID_HANDLE_VALUE)
-		return;
-	hdr.bfType = 0x4d42;        // 0x42 = "B" 0x4d = "M"  
-	// Compute the size of the entire file.  
-	hdr.bfSize = (sizeof(BITMAPFILEHEADER) + pbih->biSize + (pbih->biClrUsed * sizeof(RGBQUAD)) + pbih->biSizeImage);
-	hdr.bfReserved1 = 0;
-	hdr.bfReserved2 = 0;
-
-	// Compute the offset to the array of color indices.  
-	hdr.bfOffBits = sizeof(BITMAPFILEHEADER) + pbih->biSize + (pbih->biClrUsed * sizeof(RGBQUAD));
-
-	// Copy the BITMAPFILEHEADER into the .BMP file.  
-	if (!WriteFile(hf, &hdr, sizeof(BITMAPFILEHEADER), &dwTmp, nullptr))
-	{
-		return;
-	}
-
-	// Copy the BITMAPINFOHEADER and RGBQUAD array into the file.  
-	if (!WriteFile(hf, pbih, sizeof(BITMAPINFOHEADER) + (pbih->biClrUsed * sizeof(RGBQUAD)), &dwTmp, nullptr))
-		return;
-
-	// Copy the array of color indices into the .BMP file.  
-	dwTotal = cb = pbih->biSizeImage;
-	hp = lpBits;
-	if (!WriteFile(hf, hp, cb, &dwTmp, nullptr))
-		return;
-
-	// Close the .BMP file.  
-	if (!CloseHandle(hf))
-		return;
-
-	// Free memory.  
-	GlobalFree((HGLOBAL)lpBits);
-}
-
-/*!
-* \brief Save a HBITMAP object to file
-*
-* TODO: ...
-*/
-bool SaveDataToFile(const TString& tsFile, const HBITMAP hBm) noexcept
-{
-	if ((!hBm) || (tsFile.empty()))
-		return false;
-
-	auto pbis = CreateBitmapInfoStruct(nullptr, hBm);
-	if (!pbis)
-		return false;
-	Auto(LocalFree(pbis));
-
-	auto hDC = CreateCompatibleDC(nullptr);
-	if (!hDC)
-		return false;
-	Auto(DeleteDC(hDC));
-
-	auto oldBm = SelectObject(hDC, hBm);
-	Auto(SelectObject(hDC, oldBm));
-
-	CreateBMPFile(nullptr, tsFile.to_chr(), pbis, hBm, hDC);
-	return true;
-}
-
 /*!
 * \brief Copies string to the clipboard
 *
@@ -485,29 +660,6 @@ bool CopyToClipboard(const HWND owner, const TString& str) noexcept
 	return true;
 }
 
-bool SaveClipboardAsText(const TString& tsFile)
-{
-	if (auto hData = GetClipboardData(CF_UNICODETEXT); hData)
-	{
-		// clipboard has a string
-		auto szClip = static_cast<LPCWSTR>(GlobalLock(hData));
-		Auto(GlobalUnlock(hData));
-
-		return SaveDataToFile(tsFile, szClip);
-	}
-	return false;
-}
-
-bool SaveClipboardAsBitmap(const TString& tsFile) noexcept
-{
-	if (auto hBm = static_cast<HBITMAP>(GetClipboardData(CF_BITMAP)); hBm)
-	{
-		// clipboard has a bitmap
-		return SaveDataToFile(tsFile, hBm);
-	}
-	return false;
-}
-
 std::pair<bool, int> SaveClipboardToFile(const XSwitchFlags& xFlags, const TString& tsFile)
 {
 	if (!OpenClipboard(nullptr))
@@ -536,7 +688,7 @@ std::pair<bool, int> SaveClipboardToFile(const XSwitchFlags& xFlags, const TStri
 // Turns a command (+flags CHARSET SIZE FONTNAME) into a LOGFONT struct
 GSL_SUPPRESS(bounds.3) bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf)
 {
-	if (cmd.numtok() < 4)
+	if (!lf || cmd.numtok() < 4)
 		return false;
 
 	ZeroMemory(lf, sizeof(LOGFONT));
@@ -585,7 +737,6 @@ GSL_SUPPRESS(bounds.3) bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT 
 
 	return true;
 }
-
 
 /*!
  * \brief blah
@@ -654,6 +805,9 @@ UINT parseFontCharSet(const TString& charset)
 TString ParseLogfontToCommand(const LPLOGFONT lf)
 {
 	TString flags(TEXT('+')), charset(TEXT("default"_ts)), tmp;
+
+	if (!lf)
+		return tmp;
 
 	// get charset
 	switch (lf->lfCharSet)
@@ -1118,91 +1272,6 @@ update for 32bpp icons & rewrite
 //	return 0;
 //}
 
-HICON CreateGrayscaleIcon(HICON hIcon, const COLORREF* const pPalette) noexcept
-{
-	if ((!hIcon) || (!pPalette))
-		return nullptr;
-
-	auto hdc = ::GetDC(nullptr);
-	Auto(::ReleaseDC(nullptr, hdc));
-
-	HICON      hGrayIcon{ nullptr };
-	ICONINFO   icInfo{};
-	ICONINFO   icGrayInfo{};
-
-	//LPDWORD    lpBits         = nullptr;
-	//LPBYTE     lpBitsPtr      = nullptr;
-	//SIZE sz;
-	//DWORD c1 = 0;
-
-	BITMAPINFO bmpInfo = { 0 };
-	bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-
-	if (::GetIconInfo(hIcon, &icInfo))
-	{
-		if (icInfo.hbmColor)
-		{
-			Auto(::DeleteObject(icInfo.hbmColor));
-
-			if (::GetDIBits(hdc, icInfo.hbmColor, 0, 0, nullptr, &bmpInfo, DIB_RGB_COLORS) != 0)
-			{
-				//SIZE sz = { 0 };
-				//sz.cx = bmpInfo.bmiHeader.biWidth;
-				//sz.cy = bmpInfo.bmiHeader.biHeight;
-
-				const SIZE sz{ bmpInfo.bmiHeader.biWidth, bmpInfo.bmiHeader.biHeight };
-
-				bmpInfo.bmiHeader.biCompression = BI_RGB;
-
-				const auto c1 = gsl::narrow_cast<DWORD>(sz.cx * sz.cy);
-
-				const auto lpBits = static_cast<LPDWORD>(::GlobalAlloc(GMEM_FIXED, (c1) * 4));
-
-				if (lpBits && ::GetDIBits(hdc, icInfo.hbmColor, 0, gsl::narrow_cast<UINT>(sz.cy), lpBits, &bmpInfo, DIB_RGB_COLORS) != 0)
-				{
-					auto lpBitsPtr = reinterpret_cast<LPBYTE>(lpBits);
-
-					for (auto i = decltype(c1){0}; i < c1; ++i)
-					{
-						auto off = gsl::narrow_cast<UINT>((255 - ((lpBitsPtr[0] + lpBitsPtr[1] + lpBitsPtr[2]) / 3)));
-
-						if (lpBitsPtr[3] != 0 || off != 255)
-						{
-							if (off == 0)
-							{
-								off = 1;
-							}
-							lpBits[i] = pPalette[off] | (lpBitsPtr[3] << 24);
-						}
-
-						lpBitsPtr += 4;
-					}
-
-					icGrayInfo.hbmColor = ::CreateCompatibleBitmap(hdc, sz.cx, sz.cy);
-
-					if (icGrayInfo.hbmColor)
-					{
-						Auto(::DeleteObject(icGrayInfo.hbmColor));
-
-						::SetDIBits(hdc, icGrayInfo.hbmColor, 0, gsl::narrow_cast<UINT>(sz.cy), lpBits, &bmpInfo, DIB_RGB_COLORS);
-
-						icGrayInfo.hbmMask = icInfo.hbmMask;
-						icGrayInfo.fIcon = TRUE;
-
-						hGrayIcon = ::CreateIconIndirect(&icGrayInfo);
-					}
-
-					::GlobalFree(lpBits);
-				}
-			}
-
-			if (icInfo.hbmMask)
-				::DeleteObject(icInfo.hbmMask);
-		}
-	}
-	return hGrayIcon;
-}
-
 HICON CreateGrayscaleIcon(HICON hIcon) noexcept
 {
 	if (!hIcon)
@@ -1609,14 +1678,6 @@ void getmIRCPaletteMask(COLORREF* const Palette, const UINT PaletteItems, uint16
 	}
 }
 
-constexpr int unfoldColor(int nColor) noexcept
-{
-	while (nColor > 99)
-		nColor -= 100;
-
-	return nColor;
-}
-
 int unfoldColor(const WCHAR* color) noexcept
 {
 	return unfoldColor(_ts_atoi(color));
@@ -1673,37 +1734,6 @@ int unfoldColor(const WCHAR* color) noexcept
 //		DrawText(hdc, stripped_txt.to_chr(), (int)stripped_txt.len(), rc, style | DT_CALCRECT);
 //	}
 //}
-
-void mIRC_OutText(HDC hdc, TString& txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow) noexcept
-{
-	if (txt.empty())
-		return;
-
-	const auto len = txt.len();
-	const auto hOldFont = SelectObject(hdc, CreateFontIndirect(lf));
-	auto rcTmp = *rcOut;
-
-	if (!dcx_testflag(iStyle, DT_CALCRECT))
-	{	// if DT_CALCRECT flag NOT given then do calcrect here.
-		//DrawText(hdc, txt.to_chr(), len, &rcTmp, iStyle | DT_CALCRECT);
-		if (shadow)
-			dcxDrawShadowText(hdc, txt.to_chr(), len, std::addressof(rcTmp), iStyle | DT_CALCRECT, clrFG, 0, 5, 5);
-		else
-			DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle | DT_CALCRECT);
-	}
-	if (shadow)
-		dcxDrawShadowText(hdc, txt.to_chr(), len, std::addressof(rcTmp), iStyle, clrFG, 0, 5, 5);
-	else
-		DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle);
-
-	if (TEXTMETRICW tm{}; GetTextMetrics(hdc, std::addressof(tm)))
-		rcOut->left += (rcTmp.right - rcTmp.left) - tm.tmOverhang;
-	else
-		rcOut->left += (rcTmp.right - rcTmp.left);
-
-	DeleteObject(SelectObject(hdc, hOldFont));
-	txt.clear();	// txt = TEXT("");
-}
 
 /// <summary>
 /// Draw text using mIRC's control codes (including colours)
@@ -2534,30 +2564,6 @@ TString MakeTextmIRCSafe(const TCHAR* const tString, const std::size_t len)
 		}
 	}
 	return tsRes;
-}
-
-double sRGBtoLin(double colorChannel) noexcept
-{
-	// Send this function a decimal sRGB gamma encoded color value
-	// between 0.0 and 1.0, and it returns a linearized value.
-
-	if (colorChannel <= 0.04045)
-		return colorChannel / 12.92;
-
-	return pow(((colorChannel + 0.055) / 1.055), 2.4);
-}
-
-double YtoLstar(double Y) noexcept
-{
-	// Send this function a luminance value between 0.0 and 1.0,
-	// and it returns L* which is "perceptual lightness"
-
-	if (Y <= (216.0 / 24389.0)) {       // The CIE standard states 0.008856 but 216/24389 is the intent for 0.008856451679036
-		return Y * (24389.0 / 27.0);  // The CIE standard states 903.3, but 24389/27 is the intent, making 903.296296296296296
-	}
-	else {
-		return pow(Y, (1.0 / 3.0)) * 116.0 - 16.0;
-	}
 }
 
 COLORREF GetContrastColour(COLORREF sRGB) noexcept
