@@ -287,8 +287,54 @@ function get_xdialog_xdialog(&$XDIALOG) {
 		"n" => array(
 			'__desc' => "This command lets you minimize the dialog.",
 		),
-                "P" => array(
-                        '__desc' => 'This command lets you use XPopup commands on dialog menus.',
+        "p" => array(
+            '__desc' => 'This command lets you change the menubar look.',
+			'__cmd' => '[+FLAGS] [ARGS]',
+			'__eg' => '+t $rgb(255,0,0) 0 0 0 0 0 0 0 0',
+			'__params' => array(
+				'+FLAGS' => array(
+					'__desc' => "Menubar flags.",
+					'__values' => array(
+						'e' => "Enable/Disable custom menubar, [p]ARGS[/p] = 0 or 1",
+						'r' => "Enable/Disable rounded border for menubar items, [p]ARGS[/p] = 0 or 1",
+						'O' => "Enable/Disable drawing menubar items borders, [p]ARGS[/p] = 0 or 1",
+						'i' => "Set item specific values, [p]ARGS[/p] = [p]INDEX[/p] [p]ARGS[/p]",
+						'R' => "Redraw the menubar, [p]ARGS[/p] = no args required.",
+						'f' => "Load a BMP image file as the menubar background. [p]ARGS[/p] = [p]FILENAME[/p]",
+						't' => "Set the text colour",
+						'T' => "Set the selected text colour",
+						'H' => "Set the hot text colour",
+						'b' => "Set the background colour",
+						'B' => "Set the selected background colour",
+						'h' => "Set the hot background colour",
+						'w' => "Set the border colour",
+						'W' => "Set the selected border colour",
+						'o' => "Set the hot background colour",
+					),
+				),
+				'ARGS' => 'Parameters for this command will depend on the [p]FLAGS[/p] specified.',
+			),
+			'__notes' => array(
+				'Custom menubar does not need xpopup enabled.',
+				'The flags [f]+e[/f], [f]+r[/f] & [f]+O[/f] are stand alone flags & cant be combined with others.',
+				'The [f]+R[/f] flag can be combined with any other flag or used by its self.',
+				'The [f]+tThHbBwWo[/f] flags can all be combined into a single command.',
+				'For the [f]+tThHbBwWo[/f] flags [ARGS] = [TEXT] [SELECTED TEXT] [HOT TEXT] [BACKGROUND] [SELECTED BACKGROUND] [HOT BACKGROUND] [BORDER] [SELECTED BORDER] [HOT BORDER]',
+				'The [f]+i[/f] flag can be combined with [f]+ftThHbBwWo[/f] flags',
+			),
+			//[TEXT] [SELECTED TEXT] [HOT TEXT] [BACKGROUND] [SELECTED BACKGROUND] [HOT BACKGROUND] [BORDER] [SELECTED BORDER] [HOT BORDER]
+		// t = text colour.
+		// T = selected text colour.
+		// H = hot text colour.
+		// b = background colour
+		// B = selected background colour.
+		// h = hot background colour.
+		// w = border colour.
+		// W = selected border colour.
+		// o = hot border colour.
+		),
+        "P" => array(
+            '__desc' => 'This command lets you use XPopup commands on dialog menus.',
 			'__cmd' => '[-XPOPUP_FLAG] [ARGS]',
 			'__eg' => '-t officexp',
 			'__params' => array(

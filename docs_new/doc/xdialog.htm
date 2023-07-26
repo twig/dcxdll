@@ -686,6 +686,89 @@
 <br />
 <table class="xdialog">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xdialog.p"></a>/xdialog -p	</td></tr>
+	<tr><td colspan="2">This command lets you change the menubar look.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdialog -p [DNAME] [+FLAGS] [ARGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdialog -p dcx +t $rgb(255,0,0) 0 0 0 0 0 0 0 0</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Menubar flags.</td>
+	</tr>
+	<tr>
+		<td class="value">e</td>
+		<td>Enable/Disable custom menubar, <a class="param">ARGS</a> = 0 or 1</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Enable/Disable rounded border for menubar items, <a class="param">ARGS</a> = 0 or 1</td>
+	</tr>
+	<tr>
+		<td class="value">O</td>
+		<td>Enable/Disable drawing menubar items borders, <a class="param">ARGS</a> = 0 or 1</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Set item specific values, <a class="param">ARGS</a> = <a class="param">INDEX</a> <a class="param">ARGS</a></td>
+	</tr>
+	<tr>
+		<td class="value">R</td>
+		<td>Redraw the menubar, <a class="param">ARGS</a> = no args required.</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Load a BMP image file as the menubar background. <a class="param">ARGS</a> = <a class="param">FILENAME</a></td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Set the text colour</td>
+	</tr>
+	<tr>
+		<td class="value">T</td>
+		<td>Set the selected text colour</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>Set the hot text colour</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Set the background colour</td>
+	</tr>
+	<tr>
+		<td class="value">B</td>
+		<td>Set the selected background colour</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Set the hot background colour</td>
+	</tr>
+	<tr>
+		<td class="value">w</td>
+		<td>Set the border colour</td>
+	</tr>
+	<tr>
+		<td class="value">W</td>
+		<td>Set the selected border colour</td>
+	</tr>
+	<tr>
+		<td class="value">o</td>
+		<td>Set the hot background colour</td>
+	</tr>
+	<tr>
+		<td class="param">ARGS</td>
+		<td>Parameters for this command will depend on the <a class="param">FLAGS</a> specified.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Custom menubar does not need xpopup enabled.</li><li>The flags <a class="value">+e</a>, <a class="value">+r</a> & <a class="value">+O</a> are stand alone flags & cant be combined with others.</li><li>The <a class="value">+R</a> flag can be combined with any other flag or used by its self.</li><li>The <a class="value">+tThHbBwWo</a> flags can all be combined into a single command.</li><li>For the <a class="value">+tThHbBwWo</a> flags [ARGS] = [TEXT] [SELECTED TEXT] [HOT TEXT] [BACKGROUND] [SELECTED BACKGROUND] [HOT BACKGROUND] [BORDER] [SELECTED BORDER] [HOT BORDER]</li><li>The <a class="value">+i</a> flag can be combined with <a class="value">+ftThHbBwWo</a> flags</li></ul></td></tr></table>
+<br />
+<table class="xdialog">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
 			<a name="xdialog.q"></a>/xdialog -q	</td></tr>
 	<tr><td colspan="2">This command lets you change the dialog cursor.</td></tr>
 	<tr>
@@ -2246,6 +2329,7 @@
 		<a class='flag' href="#xdialog.l"><div>-l</div></a>
 		<a class='flag' href="#xdialog.m"><div>-m</div></a>
 		<a class='flag' href="#xdialog.n"><div>-n</div></a>
+		<a class='flag' href="#xdialog.p"><div>-p</div></a>
 		<a class='flag' href="#xdialog.q"><div>-q</div></a>
 		<a class='flag' href="#xdialog.r"><div>-r</div></a>
 		<a class='flag' href="#xdialog.s"><div>-s</div></a>
@@ -2330,7 +2414,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 30th June, 23</td>
+		<td style="text-align: right;">Last Updated: 26th July, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">
