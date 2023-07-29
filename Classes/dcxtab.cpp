@@ -324,7 +324,6 @@ void DcxTab::parseCommandRequest(const TString& input)
 
 		tci.iImage = data.getnexttok().to_int() - 1;	// tok 5
 
-		//auto lpdtci = new DCXTCITEM;
 		auto lpdtci = std::make_unique<DCXTCITEM>();
 
 		lpdtci->tsTipText = tooltip;
@@ -367,6 +366,11 @@ void DcxTab::parseCommandRequest(const TString& input)
 		tci.lParam = reinterpret_cast<LPARAM>(lpdtci.release());
 
 		TabCtrl_InsertItem(m_Hwnd, nIndex, &tci);
+
+		//this->activateSelectedTab();
+
+		// Ook: this fixes the incorrectly positioned controls on additional tabs.
+		this->activateTab(nIndex);
 		this->activateSelectedTab();
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
@@ -655,8 +659,14 @@ void DcxTab::deleteLParamInfo(const int nItem) noexcept
 
 void DcxTab::activateSelectedTab()
 {
-	auto nTab = getTabCount();
 	const auto nSel = TabCtrl_GetCurSel(m_Hwnd);
+	activateTab(nSel);
+}
+
+void DcxTab::activateTab(int nSel)
+{
+	auto nTab = getTabCount();
+	//const auto nSel = TabCtrl_GetCurSel(m_Hwnd);
 
 	if (nTab <= 0)
 		return;

@@ -76,6 +76,7 @@ public:
 
 	void deleteLParamInfo( const int nItem ) noexcept;
 	void activateSelectedTab( );
+	void activateTab(int nSel);
 	bool getTab(const int index, const LPTCITEM tcItem) const noexcept;
 	int getTabCount() const noexcept;
 
