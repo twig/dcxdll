@@ -23,8 +23,11 @@
   */
 
 DcxWindow::DcxWindow(const HWND mHwnd, const UINT mID) noexcept
-	: m_Hwnd(mHwnd), m_ID(mID), m_hZeroRgn(CreateRectRgn(0, 0, 0, 0))
+	//: m_Hwnd(mHwnd), m_ID(mID), m_hZeroRgn(CreateRectRgn(0, 0, 0, 0))
+	: m_Hwnd(mHwnd), m_ID(mID)
 {
+	if (!m_hZeroRgn)
+		m_hZeroRgn = CreateRectRgn(0, 0, 0, 0);
 }
 
 /*!
@@ -46,8 +49,8 @@ DcxWindow::DcxWindow(const UINT mID) noexcept
 
 DcxWindow::~DcxWindow() noexcept
 {
-	if (m_hZeroRgn)
-		DeleteRgn(m_hZeroRgn);
+	//if (m_hZeroRgn)
+	//	DeleteRgn(m_hZeroRgn);
 }
 
 /*!

@@ -193,7 +193,7 @@ protected:
 	HWND m_Hwnd{ nullptr };
 	UINT m_ID{};
 
-	HRGN m_hZeroRgn{ nullptr };
+	static inline HRGN m_hZeroRgn{ nullptr };
 	HWND m_HwndTooltip{ nullptr };
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.

@@ -2678,6 +2678,9 @@ void DcxControl::HandleChildControlSize()
 // Invalidate controls area in parent.
 void DcxControl::InvalidateParentRect(HWND hwnd) noexcept
 {
+	if (!hwnd)
+		return;
+
 #if DCX_USE_WRAPPERS
 	const auto parent = GetParent(hwnd);
 	const Dcx::dcxWindowRect rc(hwnd, parent);
@@ -2696,6 +2699,9 @@ void DcxControl::InvalidateParentRect(HWND hwnd) noexcept
 
 void DcxControl::calcTextRect(HDC hdc, const TString& txt, LPRECT rc, const UINT style)
 {
+	if (!hdc || !rc)
+		return;
+
 	auto t(txt);
 	if (this->IsControlCodeTextEnabled())
 		t.strip();
@@ -2707,6 +2713,9 @@ void DcxControl::calcTextRect(HDC hdc, const TString& txt, LPRECT rc, const UINT
 
 void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, const UINT style)
 {
+	if (!hdc || !rc || txt.empty())
+		return;
+
 	//Ook: This version causes issues when control is disabled, text isnt drawn disabled.
 	//const auto oldClr = SetTextColor(hdc, m_clrText);
 	//Auto(SetTextColor(hdc, oldClr));
@@ -3222,4 +3231,7 @@ void DcxControl::UnInitializeDcxControls() noexcept
 	UnregisterClass(DCX_STACKERCLASS, GetModuleHandle(nullptr));
 	//UnregisterClass(DCX_GRIDCLASS, GetModuleHandle(nullptr));
 	//UnregisterClass(DCX_MULTIBUTTONCLASS, GetModuleHandle(nullptr));
+
+	if (DcxWindow::m_hZeroRgn)
+		DeleteRgn(DcxWindow::m_hZeroRgn);
 }
