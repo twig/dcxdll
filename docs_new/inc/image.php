@@ -32,7 +32,7 @@ function get_xdid_image(&$XDID) {
                         'k' => "Keep images aspect ratio.",
                     ),
                 ),
-                'FILENAME' => 'Image filename.',
+                'FILENAME' => "Image filename. Can be `none` to clear the image.",
             ),
 	        '__notes' => array(
                 "The control stretches the image to fit its width/height.",
