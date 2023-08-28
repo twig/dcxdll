@@ -300,6 +300,13 @@ void DcxImage::parseCommandRequest(const TString& input)
 		if (flag[0] != TEXT('+'))
 			throw DcxExceptions::dcxInvalidFlag();
 
+		// if name is `none` then just clear image & display nothing.
+		if (filename == TEXT("none"))
+		{
+			InvalidateRect(m_Hwnd, nullptr, TRUE);
+			return;
+		}
+
 #ifdef DCX_USE_GDIPLUS
 		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (only gif animation supported atm)
 		//if (Dcx::GDIModule.isUseable() && flag.find(TEXT('g'),0)) // makes GDI+ the default method, bitmap is only used when GDI+ isn't supported.
