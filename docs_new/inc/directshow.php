@@ -21,14 +21,14 @@ function get_xdid_directshow(&$XDID) {
             '__eg' => '+ fileCopy.mpeg',
             '__params' => array(
                 '+FLAGS' => array(
-                    '__desc' => "Previous flags.",
+                    '__desc' => "Flags.",
                     '__values' => array(
                         'p' => "Play right away.",
                         'l' => "Loop playback.",
 						'a' => "Specifies audio only, no VMR is loaded, no video rendered.",
                     ),
                 ),
-                'FILENAME' => 'Previous filename.',
+                'FILENAME' => 'Filename to load.',
             ),
         ),
 		'c' => array(
