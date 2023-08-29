@@ -39,8 +39,7 @@ DcxScroll::DcxScroll(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dia
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)

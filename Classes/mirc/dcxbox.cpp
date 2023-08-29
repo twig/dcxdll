@@ -44,7 +44,7 @@ DcxBox::DcxBox(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, c
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	// remove all borders
@@ -299,7 +299,7 @@ void DcxBox::parseCommandRequest(const TString& input)
 
 BOOL CALLBACK DcxBox::EnumBoxChildren(HWND hwnd, const DCXENUM* const de) noexcept
 {
-	if ((de->mChildHwnd != hwnd) && (GetParent(hwnd) == de->mBox))
+	if (de && hwnd && (de->mChildHwnd != hwnd) && (GetParent(hwnd) == de->mBox))
 		EnableWindow(hwnd, de->mState);
 
 	return TRUE;
@@ -307,13 +307,19 @@ BOOL CALLBACK DcxBox::EnumBoxChildren(HWND hwnd, const DCXENUM* const de) noexce
 
 void DcxBox::toXml(TiXmlElement* const xml) const
 {
+	if (!xml)
+		return;
+
 	const TString wtext(TGetWindowText(m_Hwnd));
 	__super::toXml(xml);
 	xml->SetAttribute("caption", wtext.c_str());
 	xml->SetAttribute("styles", getStyles().c_str());
 
 	if (m_pLayoutManager)
-		m_pLayoutManager->getRoot()->toXml(xml);
+	{
+		if (const auto rt = m_pLayoutManager->getRoot(); rt)
+			rt->toXml(xml);
+	}
 }
 
 GSL_SUPPRESS(lifetime.4)
