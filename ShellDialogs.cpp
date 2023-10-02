@@ -563,7 +563,7 @@ mIRC(FontDialog)
 
 			for (auto itStart = input.begin(TSTABCHAR); itStart != itEnd; ++itStart)
 			{
-				const auto option(*itStart);
+				const auto option((*itStart).trim());
 				const auto numtok = option.numtok();
 				//const auto hashType = std::hash<TString>()(option.getfirsttok(1));	// tok 1
 
@@ -636,6 +636,7 @@ mIRC(FontDialog)
 					ParseCommandToLogfont(option.getlasttoks(), &lf);	// tok 2, -1
 				}
 				break;
+				case TEXT("colour"_hash):
 				case TEXT("color"_hash):
 				{
 					if (numtok < 2)
