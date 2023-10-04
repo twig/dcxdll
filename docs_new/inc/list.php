@@ -74,45 +74,52 @@ function get_xdid_list(&$XDID) {
                         '__eg' => '1 New Text',
                         '__notes' => 'You can use [v]0[/v] for [p]N[/p] to overwrite the last item.',
 		),
-                'A' => array(
-                        '__desc' => 'This command lets you add new items to the listbox.',
-                        '__cmd' => '[N] [+FLAG] [ARGS]',
-                        '__eg' => '0 +t settings',
-                        '__params' => array(
-                                'N' => 'The position to insert the new item(s)',
-                                '+FLAGS' => array(
-                                        '__desc' => "New item flags.",
-                                        '__values' => array(
-                                                'f' => 'Loads the entire contents of a file into the list.',
-                                                'H' => 'Allows you to load an item from a hash table by name.',
-                                                'n' => 'Allows you to load an item from a hash table by index.',
-                                                't' => 'Loads entire hashtable into list.',
-                                        ),
-                                ),
-                                '__args' => array(
-                                        'f' => array(
-                                                '__cmd' => '[START] [END] [FILENAME]',
-                                                '__params' => array(
-                                                    'START' => 'The starting index for items to add. Use [v]0[/v] to ignore. Negative values are treated as an offset from the end of the file.',
-                                                    'END' => 'The ending index for items to add. Use [v]0[/v] to ignore. Negative values are treated as an offset from the end of the file.',
-                                                ),
-                                        ),
-                                        'H' => '[HASHTABLE] [ITEM]',
-                                        'n' => '[HASHTABLE] [INDEX]',
-                                        't' => array(
-                                                '__cmd' => '[HASHTABLE] [START] [END]',
-                                                '__params' => array(
-                                                    'START' => 'The starting index for items to add. Use [v]0[/v] to ignore. Negative values are treated as an offset from the end of the table.',
-                                                    'END' => 'The ending index for items to add. Use [v]0[/v] to ignore. Negative values are treated as an offset from the end of the table.',
-                                                ),
-                                        ),
-                                        'No flags' => '[TEXT]',
+        'A' => array(
+                '__desc' => 'This command lets you add new items to the listbox.',
+                '__cmd' => '[N] [+FLAG] [ARGS]',
+                '__eg' => '0 +t settings',
+                '__params' => array(
+                        'N' => 'The position to insert the new item(s)',
+                        '+FLAGS' => array(
+                                '__desc' => "New item flags.",
+                                '__values' => array(
+                                        'f' => 'Loads the entire contents of a file into the list.',
+                                        'H' => 'Allows you to load an item from a hash table by name.',
+                                        'n' => 'Allows you to load an item from a hash table by index.',
+                                        't' => 'Loads entire hashtable into list.',
                                 ),
                         ),
-                        '__notes' => array(
-                                'You can use [v]0[/v] for [p]N[/p] to insert at the end of the listbox.',
-                                'If no [p]FLAG[/p] is specified, this behaves exactly like [f]/xdid -a[/f].',
+                        '__args' => array(
+                                'f' => array(
+                                        '__cmd' => '[START] [END] [FILENAME]',
+                                        '__params' => array(
+                                            'START' => 'The starting index for items to add. Use [v]0[/v] to ignore. Negative values are treated as an offset from the end of the file.',
+                                            'END' => 'The ending index for items to add. Use [v]0[/v] to ignore. Negative values are treated as an offset from the end of the file.',
+                                        ),
+                                ),
+                                'H' => '[HASHTABLE] [ITEM]',
+                                'n' => '[HASHTABLE] [INDEX]',
+                                't' => array(
+                                        '__cmd' => '[HASHTABLE] [START] [END]',
+                                        '__params' => array(
+                                            'START' => 'The starting index for items to add. Use [v]0[/v] to ignore. Negative values are treated as an offset from the end of the table.',
+                                            'END' => 'The ending index for items to add. Use [v]0[/v] to ignore. Negative values are treated as an offset from the end of the table.',
+                                        ),
+                                ),
+                                'T' => array(
+                                        '__cmd' => '[C] [TEXT]([C][TEXT]......)',
+                                        '__params' => array(
+											'C' => 'The token character.',
+                                            'TEXT' => 'The text to add as an item.',
+                                        ),
+                                ),
+                                'No flags' => '[TEXT]',
                         ),
+                ),
+                '__notes' => array(
+                        'You can use [v]0[/v] for [p]N[/p] to insert at the end of the listbox.',
+                        'If no [p]FLAG[/p] is specified, this behaves exactly like [f]/xdid -a[/f].',
+                ),
 		),
 	);
 }

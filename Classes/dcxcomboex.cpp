@@ -333,17 +333,26 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 
 		if (nPos < -1)	// pos was given as -1, which means edit control in dropedit style.
 		{
-			if (!dcx_testflag(dcxGetWindowStyle(m_Hwnd), CBS_DROPDOWN))
-				throw DcxExceptions::dcxInvalidArguments();
-
-			//if (IsWindow(this->m_EditHwnd))
-			//	SetWindowText(this->m_EditHwnd, itemtext.to_chr());
+			//if (!dcx_testflag(dcxGetWindowStyle(m_Hwnd), CBS_DROPDOWN))
+			//	throw DcxExceptions::dcxInvalidArguments();
 
 			//COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE), -1,const_cast<TCHAR*>(itemtext.to_chr()), gsl::narrow_cast<int>(itemtext.len()),icon,state,overlay,indent, 0 };
-			COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE), -1,const_cast<TCHAR*>(itemtext.to_chr()), gsl::narrow_cast<int>(itemtext.len()),icon,state,overlay,indent, 0 };
+			//COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE), -1,const_cast<TCHAR*>(itemtext.to_chr()), gsl::narrow_cast<int>(itemtext.len()),icon,state,overlay,indent, 0 };
 
-			if (!setItem(&cbi))
-				throw Dcx::dcxException("Unable to set edit control.");
+			//if (!setItem(&cbi))
+			//	throw Dcx::dcxException("Unable to set edit control.");
+
+			if (dcx_testflag(dcxGetWindowStyle(m_Hwnd), CBS_DROPDOWN))
+			{
+				COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE), -1,const_cast<TCHAR*>(itemtext.to_chr()), gsl::narrow_cast<int>(itemtext.len()),icon,state,overlay,indent, 0 };
+
+				if (!setItem(&cbi))
+					throw Dcx::dcxException("Unable to set edit control.");
+			}
+			else if (auto hCombo = getComboControl(); hCombo)
+				SetWindowText(hCombo, itemtext.to_chr());
+			else
+				throw DcxExceptions::dcxInvalidArguments();
 		}
 		else {
 			if (COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE | CBEIF_LPARAM),nPos,const_cast<TCHAR*>(itemtext.to_chr()),0,icon,state,overlay,indent, reinterpret_cast<LPARAM>(new DCXCBITEM) }; this->insertItem(&cbi) < 0)
