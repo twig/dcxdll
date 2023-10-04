@@ -3038,7 +3038,7 @@ void DcxControl::InitializeDcxControls()
 	//
 		//return;
 
-		// Custom ProgressBar
+	// Custom ProgressBar
 	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering ProgressBar..."));
 	dcxRegisterClass<DcxProgressBar>(PROGRESS_CLASS, DCX_PROGRESSBARCLASS);
 
@@ -3233,5 +3233,8 @@ void DcxControl::UnInitializeDcxControls() noexcept
 	//UnregisterClass(DCX_MULTIBUTTONCLASS, GetModuleHandle(nullptr));
 
 	if (DcxWindow::m_hZeroRgn)
+	{
 		DeleteRgn(DcxWindow::m_hZeroRgn);
+		DcxWindow::m_hZeroRgn = nullptr;
+	}
 }

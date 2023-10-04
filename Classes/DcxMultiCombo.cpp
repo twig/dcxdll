@@ -15,7 +15,7 @@ DcxMultiCombo::DcxMultiCombo(const UINT ID, gsl::strict_not_null<DcxDialog* cons
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)

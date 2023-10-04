@@ -42,7 +42,7 @@ DcxColorCombo::DcxColorCombo(const UINT ID, gsl::strict_not_null<DcxDialog* cons
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -151,6 +151,7 @@ void DcxColorCombo::parseInfoRequest(const TString& input, const refString<TCHAR
 		_ts_snprintf(szReturnValue, TEXT("%d"), getCount());
 		break;
 		// [NAME] [ID] [PROP] [N]
+	case L"colour"_hash:
 	case L"color"_hash:
 	{
 		if (input.numtok() < 4)

@@ -42,7 +42,7 @@ DcxPanel::DcxPanel(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialo
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -67,7 +67,11 @@ void DcxPanel::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
 
-	m_pLayoutManager->getRoot()->toXml(xml);
+	if (m_pLayoutManager)
+	{
+		if (const auto rt = m_pLayoutManager->getRoot(); rt)
+			rt->toXml(xml);
+	}
 }
 
 TiXmlElement* DcxPanel::toXml(void) const
@@ -296,7 +300,8 @@ LRESULT DcxPanel::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 	{
 		HandleChildControlSize();
 
-		//if (this->m_pLayoutManager != nullptr) {
+		//if (this->m_pLayoutManager)
+		//{
 		//	RECT rc;
 		//	SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
 		//	if (this->m_pLayoutManager->updateLayout( rc ))
@@ -306,18 +311,18 @@ LRESULT DcxPanel::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 	break;
 	case WM_WINDOWPOSCHANGING:
 	{
-		if (lParam != 0)
+		dcxlParam(LPWINDOWPOS, wp);
+
+		if (!wp)
+			break;
+
+		if (m_pLayoutManager && !dcx_testflag(wp->flags, SWP_HIDEWINDOW))
 		{
-			dcxlParam(LPWINDOWPOS, wp);
+			RECT rc{ 0, 0, wp->cx, wp->cy };
 
-			if (this->m_pLayoutManager)
-			{
-				RECT rc{ 0, 0, wp->cx, wp->cy };
-
-				//if (this->m_pLayoutManager->updateLayout( rc ))
-				//	this->redrawWindow( );
-				this->m_pLayoutManager->updateLayout(rc);
-			}
+			//if (this->m_pLayoutManager->updateLayout( rc ))
+			//	this->redrawWindow( );
+			m_pLayoutManager->updateLayout(rc);
 		}
 	}
 	break;
@@ -335,6 +340,14 @@ LRESULT DcxPanel::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 			this->DrawParentsBackground(reinterpret_cast<HDC>(wParam));
 		else // normal bkg
 			DcxControl::DrawCtrlBackground(reinterpret_cast<HDC>(wParam), this);
+
+		// Update CLA if any.
+		{
+			if (m_pLayoutManager)
+				if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
+					m_pLayoutManager->updateLayout(rc);
+		}
+
 		bParsed = TRUE;
 		return TRUE;
 	}

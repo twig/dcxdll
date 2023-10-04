@@ -29,7 +29,7 @@ DcxPager::DcxPager(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialo
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -122,6 +122,7 @@ void DcxPager::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
+	case L"colour"_hash:
 	case L"color"_hash:
 		_ts_snprintf(szReturnValue, TEXT("%u"), Pager_GetBkColor(m_Hwnd));
 		break;

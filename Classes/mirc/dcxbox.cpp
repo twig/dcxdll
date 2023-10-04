@@ -459,16 +459,13 @@ LRESULT DcxBox::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 
 	case WM_WINDOWPOSCHANGING:
 	{
-		if (lParam == 0L)
+		dcxlParam(LPWINDOWPOS, wp);
+
+		if (!wp)
 			break;
 
-		if (m_pLayoutManager)
+		if (m_pLayoutManager && !dcx_testflag(wp->flags, SWP_HIDEWINDOW))
 		{
-			dcxlParam(LPWINDOWPOS, wp);
-
-			if (!wp)
-				break;
-
 			RECT rc{ 0, 0, wp->cx, wp->cy };
 			m_pLayoutManager->updateLayout(rc);
 		}

@@ -33,7 +33,7 @@ DcxMWindow::DcxMWindow(const HWND cHwnd, const HWND pHwnd, const UINT ID, gsl::s
 
 	m_Hwnd = cHwnd;
 
-	if (!IsWindow(m_Hwnd) || !rc)
+	if (!IsValidWindow() || !rc)
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	this->m_OrigParentHwnd = GetParent(m_Hwnd);

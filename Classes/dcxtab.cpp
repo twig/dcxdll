@@ -39,7 +39,7 @@ DcxTab::DcxTab(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, c
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -916,6 +916,9 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 		dcxlParam(LPDRAWITEMSTRUCT, idata);
 
 		if ((!idata) || (!IsWindow(idata->hwndItem)))
+			break;
+
+		if (!idata->hDC)
 			break;
 
 		RECT rect{};

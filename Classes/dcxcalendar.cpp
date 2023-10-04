@@ -48,7 +48,7 @@ DcxCalendar::DcxCalendar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
