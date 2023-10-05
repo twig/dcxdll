@@ -393,7 +393,7 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 			{
 				// NB: all tokens are added with the same icon,state,overlay, & indent
 				const auto itEnd = tsTokList.end();
-				int iCnt{};
+				int iCnt{ 1 };
 				for (auto itStart = tsTokList.begin(tok); itStart != itEnd; ++itStart)
 				{
 					if (iCnt >= iStart)
