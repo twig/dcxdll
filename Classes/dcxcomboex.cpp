@@ -191,6 +191,8 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 
 			if (IsWindow(m_EditHwnd))
 				GetWindowText(m_EditHwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+			else if (IsWindow(m_hComboHwnd))
+				GetWindowText(m_hComboHwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 		}
 	}
 	break;
@@ -312,6 +314,7 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	// xdid -a [NAME] [ID] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
 	// xdid -a [NAME] [ID] [N] [+FLAGS] ([INDENT] [ICON] [STATE] [OVERLAY] Item Text)
 	// xdid -a [NAME] [ID] [N] +T [INDENT] [ICON] [STATE] [OVERLAY] [C] Item Text[C]Item Text[C]...
+	// xdid -a [NAME] [ID] [N] +F [INDENT] [ICON] [STATE] [OVERLAY] [START] [END] [FILENAME]
 	// [NAME] [ID] -a [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
 	if (flags[TEXT('a')])
 	{
