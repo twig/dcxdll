@@ -133,6 +133,7 @@ public:
 	LRESULT resetContent( ) noexcept;
 	[[nodiscard]] LRESULT getCount( ) const noexcept;
 	LRESULT limitText( const int iLimit ) noexcept;
+	TString getSelText() const;
 
 	static LRESULT CALLBACK ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) noexcept;
 

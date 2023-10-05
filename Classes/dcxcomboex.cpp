@@ -184,29 +184,36 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 			getItem(&cbi);
 		}
 		else {
-			if (nItem != -1 || (!this->isStyle(WindowStyle::CBS_DropDown) && !this->isStyle(WindowStyle::CBS_Simple)))
+			if (nItem != -1)
 				throw DcxExceptions::dcxInvalidItem();
-
-			//szReturnValue = m_tsSelected;
-
-			if (IsWindow(m_EditHwnd))
-				GetWindowText(m_EditHwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
-			else if (IsWindow(m_hComboHwnd))
-				GetWindowText(m_hComboHwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+			
+			if (this->isStyle(WindowStyle::CBS_DropDownList))
+			{
+				// just get seltext
+				szReturnValue = getSelText().to_chr();
+			}
+			else {
+				if (IsWindow(m_EditHwnd))
+					GetWindowText(m_EditHwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+				else if (IsWindow(m_hComboHwnd))
+					GetWindowText(m_hComboHwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+			}
 		}
 	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"seltext"_hash:
 	{
-		const auto nItem = getCurSel();
+		//const auto nItem = getCurSel();
 
-		if (nItem < 0)
-			throw DcxExceptions::dcxInvalidItem();
+		//if (nItem < 0)
+		//	throw DcxExceptions::dcxInvalidItem();
 
-		COMBOBOXEXITEM cbi{ CBEIF_TEXT,nItem,szReturnValue,MIRC_BUFFER_SIZE_CCH,0,0,0,0,0 };
+		//COMBOBOXEXITEM cbi{ CBEIF_TEXT,nItem,szReturnValue,MIRC_BUFFER_SIZE_CCH,0,0,0,0,0 };
 
-		getItem(&cbi);
+		//getItem(&cbi);
+
+		szReturnValue = getSelText().to_chr();
 	}
 	break;
 	// [NAME] [ID] [PROP]
@@ -834,6 +841,20 @@ LRESULT DcxComboEx::limitText(const int iLimit) noexcept
 		return TRUE;
 
 	return SendMessage(m_Hwnd, CB_LIMITTEXT, gsl::narrow_cast<WPARAM>(iLimit), 0);
+}
+
+TString DcxComboEx::getSelText() const
+{
+	// just get seltext
+	TCHAR str[MIRC_BUFFER_SIZE_CCH]{};
+
+	if (const auto nSel = getCurSel(); nSel >= 0)
+	{
+		COMBOBOXEXITEM cbi{ CBEIF_TEXT,nSel,&str[0],MIRC_BUFFER_SIZE_CCH,0,0,0,0,0 };
+
+		getItem(&cbi);
+	}
+	return &str[0];
 }
 
 const TString DcxComboEx::getStyles(void) const

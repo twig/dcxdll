@@ -1115,6 +1115,7 @@ enum class WindowStyle
 
 	// ComboBox
 	CBS_DropDown = CBS_DROPDOWN,
+	CBS_DropDownList = CBS_DROPDOWNLIST,
 	CBS_Simple = CBS_SIMPLE,
 
 	// DateTime
