@@ -309,7 +309,9 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	if (flags[TEXT('r')])
 		this->resetContent();
 
-	// xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
+	// xdid -a [NAME] [ID] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
+	// xdid -a [NAME] [ID] [N] [+FLAGS] ([INDENT] [ICON] [STATE] [OVERLAY] Item Text)
+	// xdid -a [NAME] [ID] [N] +T [INDENT] [ICON] [STATE] [OVERLAY] [C] Item Text[C]Item Text[C]...
 	// [NAME] [ID] -a [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
 	if (flags[TEXT('a')])
 	{
@@ -318,30 +320,24 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 
 #if TSTRING_TESTCODE
 		const auto nPos = input.getnexttokas<int>() - 1;	// tok 4
-		const auto indent = input.getnexttokas<int>();		// tok 5
-		const auto icon = input.getnexttokas<int>() - 1;	// tok 6
-		const auto state = input.getnexttokas<int>() - 1;	// tok 7
-		const auto overlay = input.getnexttokas<int>();		// tok 8		(never used, here for spacing only atm)
+		const auto tsIndent = input.getnexttok();			// tok 5
+		const auto indent = (tsIndent[0] != TEXT('+') ? tsIndent.to_<int>() : input.getnexttokas<int>()); // tok 6
+		const auto icon = input.getnexttokas<int>() - 1;	// tok 6 or 7
+		const auto state = input.getnexttokas<int>() - 1;	// tok 7 or 8
+		const auto overlay = input.getnexttokas<int>();		// tok 8 or 9		(never used, here for spacing only atm)
 #else
 		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
-		const auto indent = input.getnexttok().to_int();	// tok 5
-		const auto icon = input.getnexttok().to_int() - 1;	// tok 6
-		const auto state = input.getnexttok().to_int() - 1;	// tok 7
-		const auto overlay = input.getnexttok().to_int();	// tok 8		(never used, here for spacing only atm)
+		const auto tsIndent = input.getnexttok();			// tok 5
+		const auto indent = (tsIndent[0] != TEXT('+') ? tsIndent.to_<int>() : input.getnexttok().to_int()); // tok 6
+		const auto icon = input.getnexttok().to_int() - 1;	// tok 6 or 7
+		const auto state = input.getnexttok().to_int() - 1;	// tok 7 or 8
+		const auto overlay = input.getnexttok().to_int();	// tok 8 or 9		(never used, here for spacing only atm)
 #endif
-		const auto itemtext(input.getlasttoks());			// tok 9, -1
+		const XSwitchFlags xFlags(tsIndent);
+		const auto itemtext(input.getlasttoks());			// tok 9, -1 or 10, -1
 
-		if (nPos < -1)	// pos was given as -1, which means edit control in dropedit style.
+		if (nPos < -1)	// pos was given as -1.
 		{
-			//if (!dcx_testflag(dcxGetWindowStyle(m_Hwnd), CBS_DROPDOWN))
-			//	throw DcxExceptions::dcxInvalidArguments();
-
-			//COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE), -1,const_cast<TCHAR*>(itemtext.to_chr()), gsl::narrow_cast<int>(itemtext.len()),icon,state,overlay,indent, 0 };
-			//COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE), -1,const_cast<TCHAR*>(itemtext.to_chr()), gsl::narrow_cast<int>(itemtext.len()),icon,state,overlay,indent, 0 };
-
-			//if (!setItem(&cbi))
-			//	throw Dcx::dcxException("Unable to set edit control.");
-
 			if (dcx_testflag(dcxGetWindowStyle(m_Hwnd), CBS_DROPDOWN))
 			{
 				COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE), -1,const_cast<TCHAR*>(itemtext.to_chr()), gsl::narrow_cast<int>(itemtext.len()),icon,state,overlay,indent, 0 };
@@ -355,58 +351,106 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 				throw DcxExceptions::dcxInvalidArguments();
 		}
 		else {
-			if (COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE | CBEIF_LPARAM),nPos,const_cast<TCHAR*>(itemtext.to_chr()),0,icon,state,overlay,indent, reinterpret_cast<LPARAM>(new DCXCBITEM) }; this->insertItem(&cbi) < 0)
+			const auto UpdateHorizScroll = [this](const TString& itemtext) noexcept
 			{
-				delete reinterpret_cast<DCXCBITEM*>(cbi.lParam);
-				throw Dcx::dcxException("Unable to add item.");
-			}
-			// Now update the horizontal scroller
-			if (const auto combo = getComboControl(); IsWindow(combo))
-			{
-				// Get Font sizes (best way i can find atm, if you know something better then please let me know)
-
-				//int nMaxStrlen = itemtext.len();
-				//const int nHorizExtent = (int)SendMessage( combo, CB_GETHORIZONTALEXTENT, 0, 0 );
-				//
-				//HDC hdc = GetDC( m_Hwnd );
-				//TEXTMETRIC tm;
-				//HFONT hFont = this->getFont();
-				//
-				//HFONT hOldFont = SelectFont(hdc, hFont);
-				//
-				//GetTextMetrics(hdc, &tm);
-				//
-				//SelectFont(hdc, hOldFont);
-				//
-				//ReleaseDC( m_Hwnd, hdc);
-				//
-				//// Multiply max str len by font average width + 1
-				//nMaxStrlen *= (tm.tmAveCharWidth + tm.tmOverhang);
-				//// Add 2 * chars as spacer.
-				//nMaxStrlen += (tm.tmAveCharWidth * 2);
-				//
-				//if (nMaxStrlen > nHorizExtent)
-				//	SendMessage(combo, CB_SETHORIZONTALEXTENT, nMaxStrlen, 0);
-
-				if (const auto hdc = GetDC(m_Hwnd); hdc)
+				// Now update the horizontal scroller
+				if (const auto combo = getComboControl(); IsWindow(combo))
 				{
-					Auto(ReleaseDC(m_Hwnd, hdc));
+					// Get Font sizes (best way i can find atm, if you know something better then please let me know)
 
-					const HFONT hFont = this->getFont();
-					HFONT hOldFont = nullptr;
-
-					if (hFont)
-						hOldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
-
-					if (SIZE sz{}; GetTextExtentPoint32(hdc, itemtext.to_chr(), gsl::narrow_cast<int>(itemtext.len()), &sz))
+					if (const auto hdc = GetDC(m_Hwnd); hdc)
 					{
-						if (sz.cx > gsl::narrow_cast<long>(Dcx::dcxCombo_GetHorizExtent(combo)))
-							Dcx::dcxCombo_SetHorizExtent(combo, gsl::narrow_cast<WPARAM>(sz.cx));
-					}
+						Auto(ReleaseDC(m_Hwnd, hdc));
 
-					if (hFont)
-						Dcx::dcxSelectObject<HFONT>(hdc, hOldFont);
+						const HFONT hFont = this->getFont();
+						HFONT hOldFont = nullptr;
+
+						if (hFont)
+							hOldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
+
+						if (SIZE sz{}; GetTextExtentPoint32(hdc, itemtext.to_chr(), gsl::narrow_cast<int>(itemtext.len()), &sz))
+						{
+							if (sz.cx > gsl::narrow_cast<long>(Dcx::dcxCombo_GetHorizExtent(combo)))
+								Dcx::dcxCombo_SetHorizExtent(combo, gsl::narrow_cast<WPARAM>(sz.cx));
+						}
+
+						if (hFont)
+							Dcx::dcxSelectObject<HFONT>(hdc, hOldFont);
+					}
 				}
+			};
+			auto AddTokList = [this, UpdateHorizScroll, nPos, icon, state, overlay, indent](int iStart, int iEnd, const TCHAR* tok, const TString &tsTokList)
+			{
+				// NB: all tokens are added with the same icon,state,overlay, & indent
+				const auto itEnd = tsTokList.end();
+				int iCnt{};
+				for (auto itStart = tsTokList.begin(tok); itStart != itEnd; ++itStart)
+				{
+					if (iCnt >= iStart)
+					{
+						const TString tsItem((*itStart));
+						// avoid empty items...
+						if (!tsItem.empty())
+						{
+							if (COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE | CBEIF_LPARAM),nPos,const_cast<TCHAR*>(tsItem.to_chr()),0,icon,state,overlay,indent, reinterpret_cast<LPARAM>(new DCXCBITEM) }; this->insertItem(&cbi) < 0)
+							{
+								delete reinterpret_cast<DCXCBITEM*>(cbi.lParam);
+								throw Dcx::dcxException("Unable to add item.");
+							}
+							// Now update the horizontal scroller
+							UpdateHorizScroll(tsItem);
+						}
+					}
+					if ((iCnt >= iEnd) && (iEnd != -1))
+						return;	// end of range so return
+
+					++iCnt;
+				}
+			};
+			if (xFlags[TEXT('T')])
+			{
+				// token list [C] Text[C]Text....
+				const TCHAR tok[2]{ gsl::narrow_cast<TCHAR>(itemtext.getfirsttok(1).to_<int>()), 0 };
+				const TString tsTokList(itemtext.getlasttoks());
+
+				AddTokList(1, -1, &tok[0], tsTokList);
+			}
+			else if (xFlags[TEXT('F')])
+			{
+				// load file [Start] [End] [filename]
+				// [Start] == 1+
+				// [End] == -1 (end of file) or 1+
+				// a zero is an error
+
+				const auto iStart = itemtext.getfirsttok(1).to_<int>();
+				const auto iEnd = itemtext.getnexttokas<int>();
+				const TString tsFilename(itemtext.getlasttoks());
+
+				if ((iEnd == 0) || (iStart < 1) || (iEnd < -1))
+					throw DcxExceptions::dcxInvalidArguments();
+				if ((iEnd > -1) && (iEnd < iStart))
+					throw DcxExceptions::dcxInvalidArguments();
+				
+				auto tsTokList(readTextFile(tsFilename));
+				
+				const TCHAR tok[] = TEXT("\r\n");
+
+				// check if start count is within scope of files data.
+				// Ook: should we just silently exit here?
+				if (iStart > gsl::narrow_cast<int>(tsTokList.numtok(&tok[0])))
+					throw DcxExceptions::dcxOutOfRange();
+
+				AddTokList(iStart, iEnd, &tok[0], tsTokList);
+			}
+			else {
+				// standard item text [TEXT]
+				if (COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE | CBEIF_LPARAM),nPos,const_cast<TCHAR*>(itemtext.to_chr()),0,icon,state,overlay,indent, reinterpret_cast<LPARAM>(new DCXCBITEM) }; this->insertItem(&cbi) < 0)
+				{
+					delete reinterpret_cast<DCXCBITEM*>(cbi.lParam);
+					throw Dcx::dcxException("Unable to add item.");
+				}
+				// Now update the horizontal scroller
+				UpdateHorizScroll(itemtext);
 			}
 		}
 	}

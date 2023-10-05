@@ -26,20 +26,34 @@ function get_xdid_comboex(&$XDID) {
 	$XDID = array(
 	    'a' => array(
 	        '__desc' => 'This command lets you add an item to the comboex.',
-	        '__cmd' => '[N] [INDENT] [#ICON] [#SELECTED] [#OVERLAY] [Item Text]',
-	        '__eg' => '3 0 1 2 0 Visit scriptsdb.org',
+	        '__cmd' => '[N] [INDENT] [#ICON] [#SELECTED] [#OVERLAY] [Item Text] or [N] [+FLAGS] [INDENT] [#ICON] [#SELECTED] [#OVERLAY] [DATA]',
+	        '__eg' => array(
+				'3 0 1 2 0 Visit scriptsdb.org',
+				'3 +T 0 1 2 0 44 these,are,some,tokens',
+				'3 +F 0 1 2 0 44 1 -1 file.txt',
+			),
             '__params' => array(
                 'N' => "Position where the comboex item will be added.",
                 'INDENT' => "Number of indent widths from the left border.",
                 '#ICON' => "Icon displayed when item is not selected.",
                 '#SELECTED' => "Icon displayed when item is selected.",
                 '#OVERLAY' => 'Overlay icon of the item ([n]Not functional yet[/n])',
+                '+FLAGS' => array(
+                    '__desc' => "item flags.",
+                    '__values' => array(
+						'T' => '[p]DATA[/p] is [C] [Item text][C][Item Text]...',
+						'F' => '[p]DATA[/p] is [START] [END] [FILENAME]',
+					),
+				),
+				'DATA' => 'The contents of this depend on the flags used.',
 			),
 			'__notes' => array(
 				"You can use [v]0[/v] for the [p]N[/p] value to insert the item at the end of the comboex.",
 				"Every unit of [p]INDENT[/p] is a 10 pixel indent.",
 				"Use [v]0[/v] for [p]#ICON[/p] or [p]#SELECTED[/p] if you wish to use no icon.",
 				"Use [v]-1[/v] for [p]N[/p] to set the text for the editable part of the comboex (can't be used with [s]dropdown[/s] style).",
+				"[p]C[/p] is a chr number as used with mIRC's token commands.",
+				"[p]START[/p] Must be 1+ & [p]END[/p] Must be >= [p]START[/p] or -1 for end of file.",
 			),
 		),
 		'c' => array(

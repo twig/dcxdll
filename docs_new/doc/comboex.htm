@@ -123,11 +123,11 @@
 	<tr><td colspan="2">This command lets you add an item to the comboex.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -a [DNAME] [ID] [N] [INDENT] [#ICON] [#SELECTED] [#OVERLAY] [Item Text]</div></td>
+		<td><div class="syntax">/xdid -a [DNAME] [ID] [N] [INDENT] [#ICON] [#SELECTED] [#OVERLAY] [Item Text] or [N] [+FLAGS] [INDENT] [#ICON] [#SELECTED] [#OVERLAY] [DATA]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -a dcx 4 3 0 1 2 0 Visit scriptsdb.org</div></td>
+		<td><div class="example">/xdid -a dcx 4 3 0 1 2 0 Visit scriptsdb.org<br />/xdid -a dcx 4 3 +T 0 1 2 0 44 these,are,some,tokens<br />/xdid -a dcx 4 3 +F 0 1 2 0 44 1 -1 file.txt<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -150,7 +150,23 @@
 		<td class="param">#OVERLAY</td>
 		<td>Overlay icon of the item (<a class="note">Note:</a> Not functional yet)</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use <a class="value">0</a> for the <a class="param">N</a> value to insert the item at the end of the comboex.</li><li>Every unit of <a class="param">INDENT</a> is a 10 pixel indent.</li><li>Use <a class="value">0</a> for <a class="param">#ICON</a> or <a class="param">#SELECTED</a> if you wish to use no icon.</li><li>Use <a class="value">-1</a> for <a class="param">N</a> to set the text for the editable part of the comboex (can't be used with <a class="style">dropdown</a> style).</li></ul></td></tr></table>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>item flags.</td>
+	</tr>
+	<tr>
+		<td class="value">T</td>
+		<td><a class="param">DATA</a> is [C] [Item text][C][Item Text]...</td>
+	</tr>
+	<tr>
+		<td class="value">F</td>
+		<td><a class="param">DATA</a> is [START] [END] [FILENAME]</td>
+	</tr>
+	<tr>
+		<td class="param">DATA</td>
+		<td>The contents of this depend on the flags used.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use <a class="value">0</a> for the <a class="param">N</a> value to insert the item at the end of the comboex.</li><li>Every unit of <a class="param">INDENT</a> is a 10 pixel indent.</li><li>Use <a class="value">0</a> for <a class="param">#ICON</a> or <a class="param">#SELECTED</a> if you wish to use no icon.</li><li>Use <a class="value">-1</a> for <a class="param">N</a> to set the text for the editable part of the comboex (can't be used with <a class="style">dropdown</a> style).</li><li><a class="param">C</a> is a chr number as used with mIRC's token commands.</li><li><a class="param">START</a> Must be 1+ & <a class="param">END</a> Must be >= <a class="param">START</a> or -1 for end of file.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -584,7 +600,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 4th October, 23</td>
+		<td style="text-align: right;">Last Updated: 5th October, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">
