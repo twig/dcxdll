@@ -205,12 +205,12 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"seltext"_hash:
 	{
 		//const auto nItem = getCurSel();
-
+		//
 		//if (nItem < 0)
 		//	throw DcxExceptions::dcxInvalidItem();
-
+		//
 		//COMBOBOXEXITEM cbi{ CBEIF_TEXT,nItem,szReturnValue,MIRC_BUFFER_SIZE_CCH,0,0,0,0,0 };
-
+		//
 		//getItem(&cbi);
 
 		szReturnValue = getSelText().to_chr();
@@ -219,10 +219,12 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	// [NAME] [ID] [PROP]
 	case L"sel"_hash:
 	{
-		const auto nItem = getCurSel();
+		auto nItem = getCurSel();
 
+		//if (nItem < 0)
+		//	throw DcxExceptions::dcxInvalidItem();
 		if (nItem < 0)
-			throw DcxExceptions::dcxInvalidItem();
+			nItem = -1;	// this is changed to zero below.
 
 		_ts_snprintf(szReturnValue, TEXT("%d"), nItem + 1);
 	}

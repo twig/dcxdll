@@ -53,7 +53,8 @@ function get_xdid_comboex(&$XDID) {
 				"Use [v]0[/v] for [p]#ICON[/p] or [p]#SELECTED[/p] if you wish to use no icon.",
 				"Use [v]-1[/v] for [p]N[/p] to set the text for the editable part of the comboex (can't be used with [s]dropdown[/s] style).",
 				"[p]C[/p] is a chr number as used with mIRC's token commands.",
-				"[p]START[/p] Must be 1+ & [p]END[/p] Must be >= [p]START[/p] or -1 for end of file.",
+				"[p]START[/p] and [p]END[/p] are line numbers.",
+				"[p]START[/p] Must be 1+ and [p]END[/p] Must be >= [p]START[/p] or -1 for end of file.",
 			),
 		),
 		'c' => array(
@@ -115,9 +116,15 @@ function get_xdidprops_comboex(&$XDIDPROPS) {
 		),
 		"sel" => array(
 		    '__desc' => 'This property lets you retreive the comboex selected item number.',
+	        '__notes' => array(
+	            'Returns a value of [v]0[/v] when no item selected.',
+			),
 		),
 		"seltext" => array(
 		    '__desc' => 'This property lets you retreive selected comboex item text.',
+	        '__notes' => array(
+	            'Returns a value of [v]$null[/v] when no item selected.',
+			),
 		),
 		"num" => array(
 		    '__desc' => "This property lets you retreive the total number of comboex items.",
