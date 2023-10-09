@@ -175,7 +175,7 @@ function dcx_vs_mdx() {
 
 	<tr>
 		<td class="section_title section_bg">DateTime Picker</td>
-        <td class="section_bg"><img src="images/ok.gif" alt="Has feature" /> Incomplete</td>
+        <td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
 
@@ -207,6 +207,22 @@ function dcx_vs_mdx() {
 	<tr>
 		<td class="section_title section_bg">Button</td>
         <td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
+        <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
+	</tr>
+
+    <tr><td colspan="3"></td></tr>
+
+	<tr>
+		<td class="section_title section_bg">MultiCombo</td>
+        <td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
+        <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
+	</tr>
+
+    <tr><td colspan="3"></td></tr>
+
+	<tr>
+		<td class="section_title section_bg">Stacker</td>
+        <td class="section_bg"><img src="images/ok.gif" alt="Has feature" /> Incomplete</td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
 

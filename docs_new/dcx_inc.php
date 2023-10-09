@@ -70,6 +70,7 @@ $PAGES = array(
     'dcxvsmdx' => 'DCX vs MDX',
     'archive' => 'Download Archive',
     'tutorials' => 'Tutorials',
+	'howtocompile' => 'How To Compile',
 
 	'dcx' => 'DCX Commands',
 	'xdialog' => 'Marked Dialog',
@@ -357,7 +358,7 @@ function dcxdoc_menu_left() {
 	asort($pages);
 
 	foreach ($pages as $page => $pagelabel) {
-		if (in_array($page, array('index', 'changes','dcxml', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock', 'tutorials', 'dcx', 'xdialog', 'xdid', 'xtray', 'xstatusbar', 'xtreebar', 'xmenubar')))
+		if (in_array($page, array('index', 'changes','dcxml', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock', 'tutorials', 'dcx', 'xdialog', 'xdid', 'xtray', 'xstatusbar', 'xtreebar', 'xmenubar', 'howtocompile')))
 			continue;
 
 	    echo "<a href=\"$page.htm\"><div>$pagelabel</div></a>";
@@ -381,6 +382,7 @@ function dcxdoc_menu_left() {
 			<ul>
 				<a href="dcxvsmdx.htm"><div>DCX vs MDX</div></a>
 				<a href="tutorials.htm"><div>Tutorials</div></a>
+				<a href="howtocompile.htm"><div>How To Compile</div></a>
 				<a href="changes.htm"><div>Version History</div></a>
 			</ul>
 		</li>

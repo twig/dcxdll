@@ -106,6 +106,7 @@ a.returnevent {
 a.property {
 	color: #f00;
 }
+.tab { margin-left: 40px; }
 
 .menuleft ul, .menuright ul {
 	margin-top: 0px;
