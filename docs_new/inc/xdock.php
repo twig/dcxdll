@@ -87,7 +87,7 @@ function get_xdock(&$XDOCK) {
 					),
 				),
 			),
-                        '__notes' => 'Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.',
+            '__notes' => 'Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.',
 		),
 		'c' => array(
 			'__desc' => 'This command docks a window to a custom window (channel, query, custom, or status windows).',
@@ -102,13 +102,15 @@ function get_xdock(&$XDOCK) {
 						'h' => 'Docked window will be resized to fit its parent width automatically.',
 						'v' => 'Docked window will be resized to fit its parent height automatically.',
 						'n' => 'Docked window will <strong>not</strong> be resized automatically.',
+						'b' => 'Disable scroll bars.',
+						'B' => "Don't overlap scrollbars.",
 					),
 				),
 				'DESTINATION' => 'The HWND of the window that you wish to dock your window into.',
 			),
-                        '__notes' => 'Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.',
+            '__notes' => 'Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.',
 		),
-                'm' => array(
+        'm' => array(
 			'__desc' => 'This command docks a window to your mIRC window.',
 			'__cmd' => '[HWND_DOCK] [+FLAGS]',
 			'__eg' => '$dialog(dcx).hwnd +r',
@@ -124,7 +126,7 @@ function get_xdock(&$XDOCK) {
 					),
 				),
 			),
-                        '__notes' => 'Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.',
+            '__notes' => 'Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.',
 		),
 		'M' => array(
 			'__desc' => 'This command shows/hides the Menubar.',
@@ -150,7 +152,7 @@ function get_xdock(&$XDOCK) {
 				),
 				'DESTINATION' => 'The HWND of the channel window that you wish to dock your window into.',
 			),
-                        '__notes' => 'Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.',
+            '__notes' => 'Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.',
 		),
 		'p' => 'This command forces mIRC to update its docked windows.',
 		'r' => array(
@@ -192,7 +194,7 @@ function get_xdock(&$XDOCK) {
 					),
 				),
 			),
-                        '__notes' => 'Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.',
+            '__notes' => 'Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.',
 		),
 		'S' => array(
 			'__desc' => 'This command shows/hides the Switchbar.',
@@ -215,7 +217,7 @@ function get_xdock(&$XDOCK) {
 					),
 				),
 			),
-                        '__notes' => 'Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.',
+            '__notes' => 'Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.',
 		),
 		'T' => array(
 			'__desc' => 'This command shows/hides the Toolbar.',

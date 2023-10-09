@@ -65,10 +65,91 @@ alias dcxml {
 
 ;xdidtok dialog ID N C Item Text[[C]Item Text[C]Item Text]...
 ;xdidtok $dname 1 0 44 SomeText1,SomeText2
-; xdidtok is only meant for list control!
+;$xdidtok($dname,1,0,44)
 alias xdidtok {
-  if ($0 < 5) { echo 4 -smlbfti2 [ERROR] /xdidtok Invalid args | halt }
-  xdid -A $1 $2 $3 +T $4 $5-
+  if (!$isid) {
+    if ($0 < 5) { echo 4 -smlbfti2 [ERROR] /xdidtok Invalid args | halt }
+  }
+  elseif ($0 < 4) { echo 4 -smlbfti2 [ERROR] /xdidtok Invalid args | halt }
+  if (!$dialog($1)) { echo 4 -smlbfti2 [ERROR] /xdidtok Invalid args | halt }
+  if ($2 !isnum 1-) { echo 4 -smlbfti2 [ERROR] /xdidtok Invalid args | halt }
+  if ($3 !isnum 0-) { echo 4 -smlbfti2 [ERROR] /xdidtok Invalid args | halt }
+  if ($4 !isnum 1-) { echo 4 -smlbfti2 [ERROR] /xdidtok Invalid args | halt }
+  var %type = $xdid($1,$2).type
+  if (%type == list) {
+    if (!$isid) xdid -A $1 $2 $3 +T $4 $5-
+    else {
+      ; warning buffer overflow possible!
+      var %res, %c = $max(1,$3), %t = $xdid($1,$2).num
+      while (%c <= %t) {
+        ; cant use addtok as the items could be duplicates
+        if (%res != $null) var %res = $+(%res,$chr($4),$xdid($1,$2,%c).text)
+        else var %res = $xdid($1,$2,%c).text
+        inc %c
+      }
+      return %res
+    }
+  }
+  elseif (%type == listview) {
+    if (!$isid) {
+      ; no custom cmd atm
+      ;xdid -a [NAME] [ID] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
+      var %item = $3, %c = 1
+      if (%item == 0) var %item = -1
+      while ($gettok($5-,%c,$4) != $null) {
+        xdid -a $1 $2 %item 0 + 0 0 0 0 -1 -1 $v1
+        inc %c
+        if (%item isnum 1-) inc %item
+      }
+    }
+    else {
+      ; returns first column only, no subitems
+      ; warning buffer overflow possible!
+      var %res, %c = $max(1,$3), %t = $xdid($1,$2).num
+      while (%c <= %t) {
+        ; cant use addtok as the items could be duplicates
+        if (%res != $null) var %res = $+(%res,$chr($4),$xdid($1,$2,%c).text)
+        else var %res = $xdid($1,$2,%c).text
+        inc %c
+      }
+      return %res
+    }
+  }
+  elseif (%type == comboex) {
+    if (!$isid) {
+      ; no custom cmd atm
+      ; xdid -a [DNAME] [ID] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
+      ; xdid -a [DNAME] [ID] [N] [+FLAGS] ([INDENT] [ICON] [STATE] [OVERLAY] Item Text)
+      ;var %item = $3, %c = 1
+      ;while ($gettok($5-,%c,$4) != $null) {
+      ;  xdid -a $1 $2 %item 0 0 0 0 $v1
+      ;  inc %c
+      ;  if (%item isnum 1-) inc %item
+      ;}
+      xdid -a $1 $2 $3 +T 0 0 0 0 $4 $5-
+    }
+    else {
+      ; warning buffer overflow possible!
+      var %res, %c = $max(1,$3), %t = $xdid($1,$2).num
+      while (%c <= %t) {
+        ; cant use addtok as the items could be duplicates
+        if (%res != $null) var %res = $+(%res,$chr($4),$xdid($1,$2,%c).text)
+        else var %res = $xdid($1,$2,%c).text
+        inc %c
+      }
+      return %res
+    }
+  }
+  elseif (%type == multicombo) {
+  }
+  elseif (%type == stacker) {
+  }
+  elseif (%type == treeview) {
+  }
+  else { echo 4 -smlbfti2 [ERROR] xdidtok: Invalid Control Type. | halt }
+  !return
+  :error
+  !echo 4 -smlbfti2 [ERROR] xdidtok: $error
 }
 alias tab {
   var %i = 1, %tab
