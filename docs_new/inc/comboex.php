@@ -49,6 +49,8 @@ function get_xdid_comboex(&$XDID) {
 			),
 			'__notes' => array(
 				"You can use [v]0[/v] for the [p]N[/p] value to insert the item at the end of the comboex.",
+				"You can use [v]-1[/v] for the [p]N[/p] value to change the contents of the editbox.",
+				"When attempting to set the editbox contents in a [s]dropdown[/s] style control which has NO editbox, the supplied text MUST match one of the items in the list & works the same as doing /xdid -c for the matching item, and clearing the editbox contents is the same as doing /xdid -u.",
 				"Every unit of [p]INDENT[/p] is a 10 pixel indent.",
 				"Use [v]0[/v] for [p]#ICON[/p] or [p]#SELECTED[/p] if you wish to use no icon.",
 				"Use [v]-1[/v] for [p]N[/p] to set the text for the editable part of the comboex (can't be used with [s]dropdown[/s] style).",
@@ -87,7 +89,15 @@ function get_xdid_comboex(&$XDID) {
 	        '__notes' => "Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
 		),
 		'y' => 'This command lets you clear the comboex image list.',
-		'r' => 'This command lets you clear all the comboex items.',
+		'r' => array(
+	        '__desc' => 'This command lets you clear all the comboex items.',
+	        '__cmd' => "(0)",
+	        '__eg' => array(
+				'',
+				'0',
+			),
+	        '__notes' => "Supplying the zero arg allows you to clear the editbox only.",
+		),
 		'A' => array(
 	        '__desc' => 'This command lets you add custom info to items.',
 	        '__cmd' => "[ROW] [+FLAGS] [INFO]",

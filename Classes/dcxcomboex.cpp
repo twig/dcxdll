@@ -316,9 +316,20 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 
 	const auto numtok = input.numtok();
 
+	// xdid -r [NAME] [ID]
+	// xdid -r [NAME] [ID] 0
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')])
-		this->resetContent();
+	{
+		if (numtok == 4)
+		{
+			// clear editbox only
+			setEditboxContents(TEXT(""), 0, 0, 0, 0);
+			return;
+		}
+		else
+			this->resetContent();
+	}
 
 	// xdid -a [NAME] [ID] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
 	// xdid -a [NAME] [ID] [N] [+FLAGS] ([INDENT] [ICON] [STATE] [OVERLAY] Item Text)
@@ -350,17 +361,7 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 
 		if (nPos < -1)	// pos was given as -1.
 		{
-			if (dcx_testflag(dcxGetWindowStyle(m_Hwnd), CBS_DROPDOWN))
-			{
-				COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE), -1,const_cast<TCHAR*>(itemtext.to_chr()), gsl::narrow_cast<int>(itemtext.len()),icon,state,overlay,indent, 0 };
-
-				if (!setItem(&cbi))
-					throw Dcx::dcxException("Unable to set edit control.");
-			}
-			else if (auto hCombo = getComboControl(); hCombo)
-				SetWindowText(hCombo, itemtext.to_chr());
-			else
-				throw DcxExceptions::dcxInvalidArguments();
+			setEditboxContents(itemtext, icon, state, overlay, indent);
 		}
 		else {
 			const auto UpdateHorizScroll = [this](const TString& itemtext) noexcept
@@ -857,6 +858,49 @@ TString DcxComboEx::getSelText() const
 		getItem(&cbi);
 	}
 	return &str[0];
+}
+
+void DcxComboEx::setEditboxContents(const TString& tsStr, int icon, int state, int overlay, int indent)
+{
+	const auto style = dcxGetWindowStyle(m_Hwnd);
+
+	if (dcx_testflag(style, CBS_DROPDOWNLIST))
+	{
+		if (tsStr.empty())
+		{
+			setCurSel(-1);
+			return;
+		}
+		auto cnt = getCount();
+		TCHAR str[MIRC_BUFFER_SIZE_CCH]{};
+
+		for (decltype(cnt) i{}; i < cnt; ++i)
+		{
+			COMBOBOXEXITEM cbi{ CBEIF_TEXT, i, &str[0], MIRC_BUFFER_SIZE_CCH };
+
+			getItem(&cbi);
+
+			if (tsStr == str)
+			{
+				setCurSel(i);
+				return;
+			}
+		}
+	}
+	else if (dcx_testflag(style, CBS_DROPDOWN))
+	{
+		COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE), -1,const_cast<TCHAR*>(tsStr.to_chr()), gsl::narrow_cast<int>(tsStr.len()),icon,state,overlay,indent, 0 };
+
+		if (!setItem(&cbi))
+			throw Dcx::dcxException("Unable to set edit control.");
+	}
+	else if (auto hEdit = getEditControl(); hEdit)
+		SetWindowText(hEdit, tsStr.to_chr());
+	else if (auto hCombo = getComboControl(); hCombo)
+		SetWindowText(hCombo, tsStr.to_chr());
+	else
+		throw DcxExceptions::dcxInvalidArguments();
+
 }
 
 const TString DcxComboEx::getStyles(void) const

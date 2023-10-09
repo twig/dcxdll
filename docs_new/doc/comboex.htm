@@ -166,7 +166,7 @@
 		<td class="param">DATA</td>
 		<td>The contents of this depend on the flags used.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use <a class="value">0</a> for the <a class="param">N</a> value to insert the item at the end of the comboex.</li><li>Every unit of <a class="param">INDENT</a> is a 10 pixel indent.</li><li>Use <a class="value">0</a> for <a class="param">#ICON</a> or <a class="param">#SELECTED</a> if you wish to use no icon.</li><li>Use <a class="value">-1</a> for <a class="param">N</a> to set the text for the editable part of the comboex (can't be used with <a class="style">dropdown</a> style).</li><li><a class="param">C</a> is a chr number as used with mIRC's token commands.</li><li><a class="param">START</a> and <a class="param">END</a> are line numbers.</li><li><a class="param">START</a> Must be 1+ and <a class="param">END</a> Must be >= <a class="param">START</a> or -1 for end of file.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use <a class="value">0</a> for the <a class="param">N</a> value to insert the item at the end of the comboex.</li><li>You can use <a class="value">-1</a> for the <a class="param">N</a> value to change the contents of the editbox.</li><li>When attempting to set the editbox contents in a <a class="style">dropdown</a> style control which has NO editbox, the supplied text MUST match one of the items in the list & works the same as doing /xdid -c for the matching item, and clearing the editbox contents is the same as doing /xdid -u.</li><li>Every unit of <a class="param">INDENT</a> is a 10 pixel indent.</li><li>Use <a class="value">0</a> for <a class="param">#ICON</a> or <a class="param">#SELECTED</a> if you wish to use no icon.</li><li>Use <a class="value">-1</a> for <a class="param">N</a> to set the text for the editable part of the comboex (can't be used with <a class="style">dropdown</a> style).</li><li><a class="param">C</a> is a chr number as used with mIRC's token commands.</li><li><a class="param">START</a> and <a class="param">END</a> are line numbers.</li><li><a class="param">START</a> Must be 1+ and <a class="param">END</a> Must be >= <a class="param">START</a> or -1 for end of file.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -216,13 +216,13 @@
 	<tr><td colspan="2">This command lets you clear all the comboex items.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -r [DNAME] [ID] </div></td>
+		<td><div class="syntax">/xdid -r [DNAME] [ID] (0)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -r dcx 4</div></td>
+		<td><div class="example">/xdid -r dcx 4<br />/xdid -r dcx 4 0<br /></div></td>
 	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Supplying the zero arg allows you to clear the editbox only.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -600,7 +600,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 6th October, 23</td>
+		<td style="text-align: right;">Last Updated: 9th October, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">
