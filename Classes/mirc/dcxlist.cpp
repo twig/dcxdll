@@ -99,7 +99,8 @@ DcxList::DcxList(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog,
 
 DcxList::~DcxList()
 {
-	this->getParentDialog()->UnregisterDragList(this);
+	if (const auto pd = this->getParentDialog(); pd)
+		pd->UnregisterDragList(this);
 }
 
 const TString DcxList::getStyles(void) const
