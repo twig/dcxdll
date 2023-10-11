@@ -76,6 +76,7 @@ function get_xdid_calendar(&$XDID) {
 function get_xdidprops_calendar(&$XDIDPROPS) {
 	$XDIDPROPS = array(
 		"value" => "This property lets you retreive the selected date range.",
+		"text" => "This property lets you retreive the selected date range as plain text.",
 		"range" => array(
 		    '__desc' => "This property lets you retreive the calendar date range.",
 			'__notes' => '[v]nolimit[/v] is returned when the calendar range is not bounded.',

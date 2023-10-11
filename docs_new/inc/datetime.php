@@ -140,6 +140,7 @@ function get_xdidprops_datetime(&$XDIDPROPS) {
 			'__notes' => '[v]nolimit[/v] is returned when the calendar range is not bounded.',
 		),
 		"value" => "This property lets you retreive the selected date/time.",
+		"text" => "This property lets you retreive the selected date/time as plain text.",
 	);
 }
 
@@ -152,9 +153,9 @@ function get_events_datetime(&$EVENTS) {
 			'__desc' => 'When the date/time selection has changed.',
 			'__cmd' => 'SELECTION',
 			'__eg' => array(
-                                '1152622371',
-                                'none'
-                        ),
+               '1152622371',
+               'none'
+            ),
 			'__params' => array(
 				'SELECTION' => 'The date selected. If this value is [v]none[/v], then the date has been cleared.',
 			),
