@@ -187,6 +187,11 @@ void DcxCalendar::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"value"_hash:
 		szReturnValue = getValue().to_chr();
 		break;
+	case TEXT("text"_hash):
+	{
+		GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+	}
+	break;
 	case L"range"_hash:
 	{
 		SYSTEMTIME st[2]{};

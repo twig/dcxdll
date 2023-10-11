@@ -188,6 +188,12 @@ void DcxDateTime::parseInfoRequest( const TString &input, const refString<TCHAR,
 	}
 	break;
 
+	case TEXT("text"_hash):
+	{
+		GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+	}
+	break;
+
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 		break;
