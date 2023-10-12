@@ -129,7 +129,7 @@ void DcxIpAddress::parseInfoRequest(const TString& input, const refString<TCHAR,
 	if (input.gettok(3) == TEXT("ip"))
 	{
 		//this->AddressToString(szReturnValue.data(), szReturnValue.size());
-		szReturnValue = AddressToString<TString>();
+		szReturnValue = AddressToString<TString>().to_chr();
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);

@@ -194,6 +194,89 @@ void DcxDateTime::parseInfoRequest( const TString &input, const refString<TCHAR,
 	}
 	break;
 
+	case TEXT("ideal"_hash):
+	{
+		SIZE sz{};
+
+		DateTime_GetIdealSize(m_Hwnd, &sz);
+
+		_ts_snprintf(szReturnValue, TEXT("%ld %ld"), sz.cx, sz.cy);
+	}
+	break;
+
+	case TEXT("calcolour"_hash):
+	case TEXT("calcolor"_hash):
+	{
+		const auto hashType = std::hash<TString>()(input.getnexttok());
+		int iType{ MCSC_BACKGROUND };
+
+		switch (hashType)
+		{
+		default:
+		case TEXT("background"_hash):
+			iType = MCSC_BACKGROUND;
+			break;
+		case TEXT("monthbk"_hash):
+			iType = MCSC_MONTHBK;
+			break;
+		case TEXT("text"_hash):
+			iType = MCSC_TEXT;
+			break;
+		case TEXT("titlebk"_hash):
+			iType = MCSC_TITLEBK;
+			break;
+		case TEXT("titletext"_hash):
+			iType = MCSC_TITLETEXT;
+			break;
+		case TEXT("trailingtext"_hash):
+			iType = MCSC_TRAILINGTEXT;
+			break;
+		}
+
+		const auto clr = gsl::narrow_cast<COLORREF>(DateTime_GetMonthCalColor(m_Hwnd, iType));
+
+		_ts_snprintf(szReturnValue, TEXT("%ld"), clr);
+	}
+	break;
+
+	case TEXT("calfont"_hash):
+	{
+		auto hFont = reinterpret_cast<HFONT>(DateTime_GetMonthCalFont(m_Hwnd));
+		TString tsResult;
+
+		if (auto [code, lfCurrent] = Dcx::dcxGetObject<LOGFONT>(hFont); code != 0)
+			tsResult = ParseLogfontToCommand(&lfCurrent);
+
+		szReturnValue = tsResult.to_chr();
+	}
+	break;
+
+	case TEXT("calstyle"_hash):
+	{
+		TString tsResult;
+		auto iStyle = DateTime_GetMonthCalStyle(m_Hwnd);
+
+		if (dcx_testflag(iStyle, MCS_DAYSTATE))
+			tsResult.addtok(TEXT("daystate"));
+		if (dcx_testflag(iStyle, MCS_MULTISELECT))
+			tsResult.addtok(TEXT("multiselect"));
+		if (dcx_testflag(iStyle, MCS_WEEKNUMBERS))
+			tsResult.addtok(TEXT("weeknumbers"));
+		if (dcx_testflag(iStyle, MCS_NOTODAYCIRCLE))
+			tsResult.addtok(TEXT("notodaycircle"));
+		if (dcx_testflag(iStyle, MCS_NOTODAY))
+			tsResult.addtok(TEXT("notoday"));
+		if (dcx_testflag(iStyle, MCS_NOTRAILINGDATES))
+			tsResult.addtok(TEXT("notrailingdates"));
+		if (dcx_testflag(iStyle, MCS_SHORTDAYSOFWEEK))
+			tsResult.addtok(TEXT("shortdaysofweek"));
+		if (dcx_testflag(iStyle, MCS_NOSELCHANGEONNAV))
+			tsResult.addtok(TEXT("noselchangeonnav"));
+
+		szReturnValue = tsResult.to_chr();
+	}
+	break;
+
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 		break;
@@ -281,6 +364,102 @@ void DcxDateTime::parseCommandRequest( const TString &input)
 
 			DateTime_SetSystemtime(m_Hwnd, GDT_VALID, &sysTime);
 		}
+	}
+	//xdid -c [NAME] [ID] [SWITCH] ([TYPE] [COLOUR]|all [BKG COLOUR] [MONTHBK COLOUR] [TEXT COLOUR] [TITLEBK COLOUR] [TITLETEXT COLOUR] [TRAILINGTEXT COLOUR])
+	//xdid -c [NAME] [ID] ([TYPE] [COLOUR]|all [BKG COLOUR] [MONTHBK COLOUR] [TEXT COLOUR] [TITLEBK COLOUR] [TITLETEXT COLOUR] [TRAILINGTEXT COLOUR])
+	//xdid -c [NAME] [ID] all [BKG COLOUR] [MONTHBK COLOUR] [TEXT COLOUR] [TITLEBK COLOUR] [TITLETEXT COLOUR] [TRAILINGTEXT COLOUR]
+	//xdid -c [NAME] [ID] [background|monthbk|text|titlebk|titletext|trailingtext] [COLOUR]
+	else if (flags[TEXT('c')])
+	{
+		if (numtok < 5)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto hashType = std::hash<TString>()(input.getnexttok());
+		const auto clr = input.getnexttokas<COLORREF>();
+
+		int iType{ MCSC_BACKGROUND };
+
+		switch (hashType)
+		{
+		default:
+		case TEXT("background"_hash):
+			iType = MCSC_BACKGROUND;
+			break;
+		case TEXT("monthbk"_hash):
+			iType = MCSC_MONTHBK;
+			break;
+		case TEXT("text"_hash):
+			iType = MCSC_TEXT;
+			break;
+		case TEXT("titlebk"_hash):
+			iType = MCSC_TITLEBK;
+			break;
+		case TEXT("titletext"_hash):
+			iType = MCSC_TITLETEXT;
+			break;
+		case TEXT("trailingtext"_hash):
+			iType = MCSC_TRAILINGTEXT;
+			break;
+		case TEXT("all"_hash):
+		{
+			if (numtok != 10)
+				throw DcxExceptions::dcxInvalidArguments();
+
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_BACKGROUND, clr);
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_MONTHBK, input.getnexttokas<COLORREF>());
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TEXT, input.getnexttokas<COLORREF>());
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TITLEBK, input.getnexttokas<COLORREF>());
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TITLETEXT, input.getnexttokas<COLORREF>());
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TRAILINGTEXT, input.getnexttokas<COLORREF>());
+			return;
+		}
+		break;
+		}
+
+		DateTime_SetMonthCalColor(m_Hwnd, iType, clr);
+	}
+	//xdid -S [NAME] [ID] [SWITCH] [STYLES]
+	else if (flags[TEXT('S')])
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto tsStyles(input.getlasttoks());
+		DWORD dwStyle{};
+
+		for (auto tsStyle : tsStyles)
+		{
+			switch (std::hash<TString>()(tsStyle))
+			{
+			case L"daystate"_hash:
+				dwStyle |= MCS_DAYSTATE;
+				break;
+			case L"multiselect"_hash:
+				dwStyle |= MCS_MULTISELECT;
+				break;
+			case L"weeknumbers"_hash:
+				dwStyle |= MCS_WEEKNUMBERS;
+				break;
+			case L"notodaycircle"_hash:
+				dwStyle |= MCS_NOTODAYCIRCLE;
+				break;
+			case L"notoday"_hash:
+				dwStyle |= MCS_NOTODAY;
+				break;
+			case L"notrailingdates"_hash:
+				dwStyle |= MCS_NOTRAILINGDATES;
+				break;
+			case L"shortdaysofweek"_hash:
+				dwStyle |= MCS_SHORTDAYSOFWEEK;
+				break;
+			case L"noselchangeoinnav"_hash:
+				dwStyle |= MCS_NOSELCHANGEONNAV;
+				break;
+			default:
+				break;
+			}
+		}
+		DateTime_SetMonthCalStyle(m_Hwnd, dwStyle);
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);

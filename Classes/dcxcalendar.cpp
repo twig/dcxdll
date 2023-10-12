@@ -114,29 +114,49 @@ const TString DcxCalendar::getValue(void) const
 	{
 		SYSTEMTIME st[2]{};
 
-		MonthCal_GetSelRange(m_Hwnd, st);
+		MonthCal_GetSelRange(m_Hwnd, &st[0]);
 
 		start = SystemTimeToMircTime(&(st[0]));
 		end = SystemTimeToMircTime(&(st[1]));
 	}
 	else {
-		SYSTEMTIME st{};
+		//SYSTEMTIME st{};
+		//
+		//MonthCal_GetCurSel(m_Hwnd, &st);
+		//
+		//st.wHour = 0;
+		//st.wMinute = 0;
+		//st.wSecond = 0;
+		//st.wMilliseconds = 0;
+		//
+		//start = SystemTimeToMircTime(&st);
+		//end = start;
 
-		MonthCal_GetCurSel(m_Hwnd, &st);
-
-		st.wHour = 0;
-		st.wMinute = 0;
-		st.wSecond = 0;
-		st.wMilliseconds = 0;
-
-		start = SystemTimeToMircTime(&st);
-		end = start;
+		start = end = getCurrentCTime();
 	}
 
 	stString<128> buf;
 
 	_ts_snprintf(buf, TEXT("%ld %ld"), start, end);
 	return TString(buf.data());
+}
+
+long DcxCalendar::getCurrentCTime() const
+{
+	if (!m_Hwnd)
+		return 0;
+
+	SYSTEMTIME st{};
+
+	if (MonthCal_GetCurSel(m_Hwnd, &st) == 0)	// always fails if control has multiselect style.
+		return 0;
+
+	st.wHour = 0;
+	st.wMinute = 0;
+	st.wSecond = 0;
+	st.wMilliseconds = 0;
+
+	return SystemTimeToMircTime(&st);
 }
 
 dcxWindowStyles DcxCalendar::parseControlStyles(const TString& tsStyles)
@@ -187,7 +207,7 @@ void DcxCalendar::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"value"_hash:
 		szReturnValue = getValue().to_chr();
 		break;
-	case TEXT("text"_hash):
+	case L"text"_hash:
 	{
 		GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 	}
@@ -220,6 +240,98 @@ void DcxCalendar::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"selcount"_hash:
 		_ts_snprintf(szReturnValue, TEXT("%u"), MonthCal_GetMaxSelCount(m_Hwnd));
 		break;
+
+	case L"border"_hash:
+		_ts_snprintf(szReturnValue, TEXT("%u"), MonthCal_GetCalendarBorder(m_Hwnd));
+		break;
+
+	case L"count"_hash:
+		_ts_snprintf(szReturnValue, TEXT("%u"), MonthCal_GetCalendarCount(m_Hwnd));
+		break;
+
+	case L"view"_hash:
+
+		//	MCMV_MONTH Monthly view.	zero
+		//	MCMV_YEAR Annual view.		one
+		//	MCMV_DECADE Decade view.	two
+		//	MCMV_CENTURY Century view.	three
+
+		_ts_snprintf(szReturnValue, TEXT("%u"), MonthCal_GetCurrentView(m_Hwnd));
+		break;
+
+	case L"sel"_hash:
+		_ts_snprintf(szReturnValue, TEXT("%u"), getCurrentCTime());
+		break;
+
+	case L"firstdayofweek"_hash:
+	{
+		auto iFirst = MonthCal_GetFirstDayOfWeek(m_Hwnd);
+		TString tsDay(TEXT("Monday"));
+		switch (Dcx::dcxLOWORD(iFirst))
+		{
+		case 0:
+			tsDay = TEXT("Monday");
+			break;
+		case 1:
+			tsDay = TEXT("Tuesday");
+			break;
+		case 2:
+			tsDay = TEXT("Wednesday");
+			break;
+		case 3:
+			tsDay = TEXT("Thursday");
+			break;
+		case 4:
+			tsDay = TEXT("Friday");
+			break;
+		case 5:
+			tsDay = TEXT("Saturday");
+			break;
+		case 6:
+			tsDay = TEXT("Sunday");
+			break;
+		default:
+			break;
+		}
+		_ts_snprintf(szReturnValue, TEXT("%u %s"), Dcx::dcxHIWORD(iFirst), tsDay.to_chr());
+	}
+	break;
+
+	case TEXT("calcolour"_hash):
+	case TEXT("calcolor"_hash):
+	{
+		const auto hashType = std::hash<TString>()(input.getnexttok());
+		int iType{ MCSC_BACKGROUND };
+
+		switch (hashType)
+		{
+		default:
+		case TEXT("background"_hash):
+			iType = MCSC_BACKGROUND;
+			break;
+		case TEXT("monthbk"_hash):
+			iType = MCSC_MONTHBK;
+			break;
+		case TEXT("text"_hash):
+			iType = MCSC_TEXT;
+			break;
+		case TEXT("titlebk"_hash):
+			iType = MCSC_TITLEBK;
+			break;
+		case TEXT("titletext"_hash):
+			iType = MCSC_TITLETEXT;
+			break;
+		case TEXT("trailingtext"_hash):
+			iType = MCSC_TRAILINGTEXT;
+			break;
+		}
+
+		const auto clr = gsl::narrow_cast<COLORREF>(MonthCal_GetColor(m_Hwnd, iType));
+
+		_ts_snprintf(szReturnValue, TEXT("%ld"), clr);
+	}
+	break;
+
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 		break;
@@ -243,7 +355,6 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 	if (flags[TEXT('k')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok());	// tok 4
@@ -277,7 +388,6 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto max = input.getnexttok().to_int();	// tok 4
@@ -288,7 +398,6 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('r')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		DWORD dflags{};
@@ -312,13 +421,11 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('s')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto min = input.getnexttok().to_<long>();	// tok 4
 		SYSTEMTIME range[2]{};
 
-		//ZeroMemory(&range[0], sizeof(SYSTEMTIME) * 2);
 		range[0] = MircTimeToSystemTime(min);
 
 		if (isStyle(WindowStyle::MCS_MultiSelect))
@@ -340,7 +447,6 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto mircTime = input.getnexttok().to_<long>();	// tok 4

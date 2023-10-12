@@ -56,6 +56,7 @@ public:
 	TiXmlElement * toXml(void) const final;
 	const TString getStyles(void) const final;
 	const TString getValue(void) const;
+	long getCurrentCTime() const;
 
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
