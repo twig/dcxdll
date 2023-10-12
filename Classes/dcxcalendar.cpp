@@ -300,35 +300,46 @@ void DcxCalendar::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case TEXT("calcolour"_hash):
 	case TEXT("calcolor"_hash):
 	{
-		const auto hashType = std::hash<TString>()(input.getnexttok());
-		int iType{ MCSC_BACKGROUND };
-
-		switch (hashType)
+		if (const auto hashType = std::hash<TString>()(input.getnexttok()); hashType == L"all"_hash)
 		{
-		default:
-		case TEXT("background"_hash):
-			iType = MCSC_BACKGROUND;
-			break;
-		case TEXT("monthbk"_hash):
-			iType = MCSC_MONTHBK;
-			break;
-		case TEXT("text"_hash):
-			iType = MCSC_TEXT;
-			break;
-		case TEXT("titlebk"_hash):
-			iType = MCSC_TITLEBK;
-			break;
-		case TEXT("titletext"_hash):
-			iType = MCSC_TITLETEXT;
-			break;
-		case TEXT("trailingtext"_hash):
-			iType = MCSC_TRAILINGTEXT;
-			break;
+			_ts_snprintf(szReturnValue, TEXT("%ld %ld %ld %ld %ld %ld"),
+				MonthCal_GetColor(m_Hwnd, MCSC_BACKGROUND),
+				MonthCal_GetColor(m_Hwnd, MCSC_MONTHBK),
+				MonthCal_GetColor(m_Hwnd, MCSC_TEXT),
+				MonthCal_GetColor(m_Hwnd, MCSC_TITLEBK),
+				MonthCal_GetColor(m_Hwnd, MCSC_TITLETEXT),
+				MonthCal_GetColor(m_Hwnd, MCSC_TRAILINGTEXT));
 		}
+		else {
+			int iType{ MCSC_BACKGROUND };
 
-		const auto clr = gsl::narrow_cast<COLORREF>(MonthCal_GetColor(m_Hwnd, iType));
+			switch (hashType)
+			{
+			default:
+			case TEXT("background"_hash):
+				iType = MCSC_BACKGROUND;
+				break;
+			case TEXT("monthbk"_hash):
+				iType = MCSC_MONTHBK;
+				break;
+			case TEXT("text"_hash):
+				iType = MCSC_TEXT;
+				break;
+			case TEXT("titlebk"_hash):
+				iType = MCSC_TITLEBK;
+				break;
+			case TEXT("titletext"_hash):
+				iType = MCSC_TITLETEXT;
+				break;
+			case TEXT("trailingtext"_hash):
+				iType = MCSC_TRAILINGTEXT;
+				break;
+			}
 
-		_ts_snprintf(szReturnValue, TEXT("%ld"), clr);
+			const auto clr = gsl::narrow_cast<COLORREF>(MonthCal_GetColor(m_Hwnd, iType));
+
+			_ts_snprintf(szReturnValue, TEXT("%ld"), clr);
+		}
 	}
 	break;
 
