@@ -815,6 +815,8 @@ LRESULT DcxComboEx::resetContent() noexcept
 	if (!m_Hwnd)
 		return CB_OKAY;
 
+	setEditboxContents(TEXT(""), 0, 0, 0, 0);
+
 	return SendMessage(m_Hwnd, CB_RESETCONTENT, 0U, 0);
 }
 
