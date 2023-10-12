@@ -8,7 +8,7 @@ function get_styles_line(&$STYLES) {
 		"vertical" => "The line is vertical.",
 		"nowrap" => "Lengthy text will not be wrapped.",
 		'center' => 'Text is center aligned',
-		'noprefix' => 'The &amps; character is not parsed as an underline.',
+		'noprefix' => 'The &amp; character is not parsed as an underline.',
 		'endellipsis' => 'Appends ... if the text becomes too lengthy',
 		'pathellipsis' => 'Replaces characters in the middle of the text with ellipses so that the result fits in the specified area. [os]NT+[/os]',
 		'alpha' => 'Control is alpha blended.',

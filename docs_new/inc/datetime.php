@@ -21,6 +21,29 @@ function get_styles_datetime(&$STYLES) {
 
 function get_xdid_datetime(&$XDID) {
 	$XDID = array(
+		'k' => array(
+			'__desc' => 'This command lets you change the calendar colour.',
+			'__cmd' => '[+FLAGS] [COLOR] or +A [COLOR] [COLOR] [COLOR] [COLOR] [COLOR] [COLOR]',
+			'__eg' => array(
+				'+bi $rgb(255,0,255)',
+				'+A $rgb(255,0,255) $rgb(0,255,255) $rgb(0,0,255) $rgb(0,128,0) $rgb(255,128,255) $rgb(128,128,128)',
+			),
+			'__params' => array(
+				'+FLAGS' => array(
+					'__desc' => "Calendar flags.",
+					'__values' => array(
+						'b' => 'Calendar background.',
+						'g' => 'Month background.',
+						't' => 'Day text.',
+						'i' => 'Title background and selected day background color.',
+						'a' => 'Title text and selected day text color.',
+						'r' => 'Trailing text (days not included in this month).',
+						'A' => 'Set all the colours at once. This flag cannot be used in combination with any other.',
+					),
+				),
+				'COLOR' => 'The color to set.',
+			),
+		),
 		'o' => array(
 			'__desc' => 'This command lets you set format of the DateTime Picker text.',
 			'__cmd' => '[FORMAT]',
@@ -141,6 +164,35 @@ function get_xdidprops_datetime(&$XDIDPROPS) {
 		),
 		"value" => "This property lets you retreive the selected date/time.",
 		"text" => "This property lets you retreive the selected date/time as plain text.",
+		"ideal" => "This property lets you retreive the ideal width and height of the control.",
+		"calcolor" => array(
+			'__desc' => "This property lets you retreive the colours of the control.",
+	        '__cmd' => '[COLOR]',
+	        '__eg' => array(
+				'background',
+				'monthbk',
+				'text',
+				'titlebk',
+				'titletext',
+				'trailingtext',
+				'all',
+			),
+			'__params' => array(
+				'background' => 'The background colour.',
+				'monthbk' => 'The months background colour.',
+				'text' => 'The text colour.',
+				'titlebk' => 'The titles background.',
+				'titletext' => 'The title text colour.',
+				'trailingtext' => 'The trailing text colour.',
+				'all' => 'All the above at once.',
+			),
+			'__notes' => "The [v]all[/v] arg returns all the colours at once.",
+		),
+		"calfont" => array(
+			'__desc' => "This property lets you retreive the current fonts details.",
+			'__notes' => 'The return value is in the format [v]+flags[/v] [v]charset[/v] [v]size[/v] [v]fontname[/v], where [v]+flags[/v] is specfied in /xdid -f',
+		),
+		"calstyle" => "This property lets you retreive the calendar controls current styles.",
 	);
 }
 

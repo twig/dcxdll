@@ -105,14 +105,14 @@
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.k"></a>/xdid -k	</td></tr>
-	<tr><td colspan="2">This command lets you change the calendar style.</td></tr>
+	<tr><td colspan="2">This command lets you change the calendar colour.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -k [DNAME] [ID] [+FLAGS] [COLOR]</div></td>
+		<td><div class="syntax">/xdid -k [DNAME] [ID] [+FLAGS] [COLOR] or +A [COLOR] [COLOR] [COLOR] [COLOR] [COLOR] [COLOR]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -k dcx 4 +bi $rgb(255,0,255)</div></td>
+		<td><div class="example">/xdid -k dcx 4 +bi $rgb(255,0,255)<br />/xdid -k dcx 4 +A $rgb(255,0,255) $rgb(0,255,255) $rgb(0,0,255) $rgb(0,128,0) $rgb(255,128,255) $rgb(128,128,128)<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -142,6 +142,10 @@
 	<tr>
 		<td class="value">r</td>
 		<td>Trailing text (days not included in this month).</td>
+	</tr>
+	<tr>
+		<td class="value">A</td>
+		<td>Set all the colours at once. This flag cannot be used in combination with any other.</td>
 	</tr>
 	<tr>
 		<td class="param">COLOR</td>
@@ -211,6 +215,91 @@
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.border"></a>$xdid().border	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the size of the controls border in pixels.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).border</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).border</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.calcolor"></a>$xdid().calcolor	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the colours of the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [COLOR]).calcolor</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, background).calcolor<br />$xdid(dcx, 4, monthbk).calcolor<br />$xdid(dcx, 4, text).calcolor<br />$xdid(dcx, 4, titlebk).calcolor<br />$xdid(dcx, 4, titletext).calcolor<br />$xdid(dcx, 4, trailingtext).calcolor<br />$xdid(dcx, 4, all).calcolor<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">background</td>
+		<td>The background colour.</td>
+	</tr>
+	<tr>
+		<td class="param">monthbk</td>
+		<td>The months background colour.</td>
+	</tr>
+	<tr>
+		<td class="param">text</td>
+		<td>The text colour.</td>
+	</tr>
+	<tr>
+		<td class="param">titlebk</td>
+		<td>The titles background.</td>
+	</tr>
+	<tr>
+		<td class="param">titletext</td>
+		<td>The title text colour.</td>
+	</tr>
+	<tr>
+		<td class="param">trailingtext</td>
+		<td>The trailing text colour.</td>
+	</tr>
+	<tr>
+		<td class="param">all</td>
+		<td>All the above at once.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The <a class="value">all</a> arg returns all the colours at once.</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.count"></a>$xdid().count	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the number of calendars.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).count</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).count</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.firstdayofweek"></a>$xdid().firstdayofweek	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the currently set first day of the week and if that is the OS setting.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).firstdayofweek</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).firstdayofweek</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Returns: [1|0] [DAY]</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.range"></a>$xdid().range	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the calendar date range.</td></tr>
 	<tr>
@@ -222,6 +311,20 @@
 		<td><div class="example">$xdid(dcx, 4).range</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="value">nolimit</a> is returned when the calendar range is not bounded.</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.sel"></a>$xdid().sel	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the currently selected ctime. (does not work on multiselect controls)</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).sel</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).sel</div></td>
+	</tr>
+</table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -276,6 +379,20 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).value</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.view"></a>$xdid().view	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the current view of the calander.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).view</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).view</div></td>
 	</tr>
 </table>
 <br />
@@ -386,11 +503,17 @@
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a class='flag' href="#xdidprop.border"><div>border</div></a>
+		<a class='flag' href="#xdidprop.calcolor"><div>calcolor</div></a>
+		<a class='flag' href="#xdidprop.count"><div>count</div></a>
+		<a class='flag' href="#xdidprop.firstdayofweek"><div>firstdayofweek</div></a>
 		<a class='flag' href="#xdidprop.range"><div>range</div></a>
+		<a class='flag' href="#xdidprop.sel"><div>sel</div></a>
 		<a class='flag' href="#xdidprop.selcount"><div>selcount</div></a>
 		<a class='flag' href="#xdidprop.text"><div>text</div></a>
 		<a class='flag' href="#xdidprop.today"><div>today</div></a>
 		<a class='flag' href="#xdidprop.value"><div>value</div></a>
+		<a class='flag' href="#xdidprop.view"><div>view</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
 	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
@@ -408,7 +531,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 11th October, 23</td>
+		<td style="text-align: right;">Last Updated: 12th October, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

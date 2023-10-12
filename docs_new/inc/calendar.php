@@ -22,9 +22,12 @@ function get_styles_calendar(&$STYLES) {
 function get_xdid_calendar(&$XDID) {
 	$XDID = array(
 		'k' => array(
-			'__desc' => 'This command lets you change the calendar style.',
-			'__cmd' => '[+FLAGS] [COLOR]',
-			'__eg' => '+bi $rgb(255,0,255)',
+			'__desc' => 'This command lets you change the calendar colour.',
+			'__cmd' => '[+FLAGS] [COLOR] or +A [COLOR] [COLOR] [COLOR] [COLOR] [COLOR] [COLOR]',
+			'__eg' => array(
+				'+bi $rgb(255,0,255)',
+				'+A $rgb(255,0,255) $rgb(0,255,255) $rgb(0,0,255) $rgb(0,128,0) $rgb(255,128,255) $rgb(128,128,128)',
+			),
 			'__params' => array(
 				'+FLAGS' => array(
 					'__desc' => "Calendar flags.",
@@ -35,6 +38,7 @@ function get_xdid_calendar(&$XDID) {
 						'i' => 'Title background and selected day background color.',
 						'a' => 'Title text and selected day text color.',
 						'r' => 'Trailing text (days not included in this month).',
+						'A' => 'Set all the colours at once. This flag cannot be used in combination with any other.',
 					),
 				),
 				'COLOR' => 'The color to set.',
@@ -83,6 +87,37 @@ function get_xdidprops_calendar(&$XDIDPROPS) {
 		),
 		"today" => "This property lets you retreive the calendar current day date.",
 		"selcount" => "This property lets you retreive the maximum number of selectable days.",
+		"border" => "This property lets you retreive the size of the controls border in pixels.",
+		"count" => "This property lets you retreive the number of calendars.",
+		"view" => "This property lets you retreive the current view of the calander.",
+		"sel" => "This property lets you retreive the currently selected ctime. (does not work on multiselect controls)",
+		"firstdayofweek" => array(
+			'__desc' => "This property lets you retreive the currently set first day of the week and if that is the OS setting.",
+			'__notes' => "Returns: [1|0] [DAY]",
+		),
+		"calcolor" => array(
+			'__desc' => "This property lets you retreive the colours of the control.",
+	        '__cmd' => '[COLOR]',
+	        '__eg' => array(
+				'background',
+				'monthbk',
+				'text',
+				'titlebk',
+				'titletext',
+				'trailingtext',
+				'all',
+			),
+			'__params' => array(
+				'background' => 'The background colour.',
+				'monthbk' => 'The months background colour.',
+				'text' => 'The text colour.',
+				'titlebk' => 'The titles background.',
+				'titletext' => 'The title text colour.',
+				'trailingtext' => 'The trailing text colour.',
+				'all' => 'All the above at once.',
+			),
+			'__notes' => "The [v]all[/v] arg returns all the colours at once.",
+		),
 	);
 }
 

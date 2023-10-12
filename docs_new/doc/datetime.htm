@@ -112,6 +112,57 @@
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.k"></a>/xdid -k	</td></tr>
+	<tr><td colspan="2">This command lets you change the calendar colour.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -k [DNAME] [ID] [+FLAGS] [COLOR] or +A [COLOR] [COLOR] [COLOR] [COLOR] [COLOR] [COLOR]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -k dcx 4 +bi $rgb(255,0,255)<br />/xdid -k dcx 4 +A $rgb(255,0,255) $rgb(0,255,255) $rgb(0,0,255) $rgb(0,128,0) $rgb(255,128,255) $rgb(128,128,128)<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Calendar flags.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Calendar background.</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Month background.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Day text.</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Title background and selected day background color.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Title text and selected day text color.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Trailing text (days not included in this month).</td>
+	</tr>
+	<tr>
+		<td class="value">A</td>
+		<td>Set all the colours at once. This flag cannot be used in combination with any other.</td>
+	</tr>
+	<tr>
+		<td class="param">COLOR</td>
+		<td>The color to set.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.o"></a>/xdid -o	</td></tr>
 	<tr><td colspan="2">This command lets you set format of the DateTime Picker text.</td></tr>
 	<tr>
@@ -290,6 +341,91 @@
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.calcolor"></a>$xdid().calcolor	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the colours of the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [COLOR]).calcolor</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, background).calcolor<br />$xdid(dcx, 4, monthbk).calcolor<br />$xdid(dcx, 4, text).calcolor<br />$xdid(dcx, 4, titlebk).calcolor<br />$xdid(dcx, 4, titletext).calcolor<br />$xdid(dcx, 4, trailingtext).calcolor<br />$xdid(dcx, 4, all).calcolor<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">background</td>
+		<td>The background colour.</td>
+	</tr>
+	<tr>
+		<td class="param">monthbk</td>
+		<td>The months background colour.</td>
+	</tr>
+	<tr>
+		<td class="param">text</td>
+		<td>The text colour.</td>
+	</tr>
+	<tr>
+		<td class="param">titlebk</td>
+		<td>The titles background.</td>
+	</tr>
+	<tr>
+		<td class="param">titletext</td>
+		<td>The title text colour.</td>
+	</tr>
+	<tr>
+		<td class="param">trailingtext</td>
+		<td>The trailing text colour.</td>
+	</tr>
+	<tr>
+		<td class="param">all</td>
+		<td>All the above at once.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The <a class="value">all</a> arg returns all the colours at once.</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.calfont"></a>$xdid().calfont	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the current fonts details.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).calfont</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).calfont</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The return value is in the format <a class="value">+flags</a> <a class="value">charset</a> <a class="value">size</a> <a class="value">fontname</a>, where <a class="value">+flags</a> is specfied in /xdid -f</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.calstyle"></a>$xdid().calstyle	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the calendar controls current styles.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).calstyle</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).calstyle</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.ideal"></a>$xdid().ideal	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the ideal width and height of the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).ideal</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).ideal</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.range"></a>$xdid().range	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the date/time range.</td></tr>
 	<tr>
@@ -394,6 +530,7 @@
 	</div>
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
 	<a class='header' href="#xdid"><div style='background:#6A7CB0;'>/xdid Flags</div></a>
+		<a class='flag' href="#xdid.k"><div>-k</div></a>
 		<a class='flag' href="#xdid.o"><div>-o</div></a>
 		<a class='flag' href="#xdid.r"><div>-r</div></a>
 		<a class='flag' href="#xdid.t"><div>-t</div></a>
@@ -401,6 +538,10 @@
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a class='flag' href="#xdidprop.calcolor"><div>calcolor</div></a>
+		<a class='flag' href="#xdidprop.calfont"><div>calfont</div></a>
+		<a class='flag' href="#xdidprop.calstyle"><div>calstyle</div></a>
+		<a class='flag' href="#xdidprop.ideal"><div>ideal</div></a>
 		<a class='flag' href="#xdidprop.range"><div>range</div></a>
 		<a class='flag' href="#xdidprop.text"><div>text</div></a>
 		<a class='flag' href="#xdidprop.value"><div>value</div></a>
@@ -419,7 +560,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 11th October, 23</td>
+		<td style="text-align: right;">Last Updated: 12th October, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">
