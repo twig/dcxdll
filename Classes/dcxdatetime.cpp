@@ -365,58 +365,52 @@ void DcxDateTime::parseCommandRequest( const TString &input)
 			DateTime_SetSystemtime(m_Hwnd, GDT_VALID, &sysTime);
 		}
 	}
-	//xdid -c [NAME] [ID] [SWITCH] ([TYPE] [COLOUR]|all [BKG COLOUR] [MONTHBK COLOUR] [TEXT COLOUR] [TITLEBK COLOUR] [TITLETEXT COLOUR] [TRAILINGTEXT COLOUR])
-	//xdid -c [NAME] [ID] ([TYPE] [COLOUR]|all [BKG COLOUR] [MONTHBK COLOUR] [TEXT COLOUR] [TITLEBK COLOUR] [TITLETEXT COLOUR] [TRAILINGTEXT COLOUR])
-	//xdid -c [NAME] [ID] all [BKG COLOUR] [MONTHBK COLOUR] [TEXT COLOUR] [TITLEBK COLOUR] [TITLETEXT COLOUR] [TRAILINGTEXT COLOUR]
-	//xdid -c [NAME] [ID] [background|monthbk|text|titlebk|titletext|trailingtext] [COLOUR]
-	else if (flags[TEXT('c')])
+	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [$RGB]
+	// xdid -k [NAME] [ID] [SWITCH] [+A] [$RGB] [$RGB] [$RGB] [$RGB] [$RGB] [$RGB]
+	else if (flags[TEXT('k')])
 	{
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto hashType = std::hash<TString>()(input.getnexttok());
-		const auto clr = input.getnexttokas<COLORREF>();
+		const XSwitchFlags xflags(input.getnexttok());	// tok 4
+		const auto col = input.getnexttok().to_<COLORREF>();	// tok 5
 
-		int iType{ MCSC_BACKGROUND };
-
-		switch (hashType)
+		// Set ALL colours at once
+		if (xflags[TEXT('A')])
 		{
-		default:
-		case TEXT("background"_hash):
-			iType = MCSC_BACKGROUND;
-			break;
-		case TEXT("monthbk"_hash):
-			iType = MCSC_MONTHBK;
-			break;
-		case TEXT("text"_hash):
-			iType = MCSC_TEXT;
-			break;
-		case TEXT("titlebk"_hash):
-			iType = MCSC_TITLEBK;
-			break;
-		case TEXT("titletext"_hash):
-			iType = MCSC_TITLETEXT;
-			break;
-		case TEXT("trailingtext"_hash):
-			iType = MCSC_TRAILINGTEXT;
-			break;
-		case TEXT("all"_hash):
-		{
-			if (numtok != 10)
-				throw DcxExceptions::dcxInvalidArguments();
-
-			DateTime_SetMonthCalColor(m_Hwnd, MCSC_BACKGROUND, clr);
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_BACKGROUND, col);
 			DateTime_SetMonthCalColor(m_Hwnd, MCSC_MONTHBK, input.getnexttokas<COLORREF>());
 			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TEXT, input.getnexttokas<COLORREF>());
 			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TITLEBK, input.getnexttokas<COLORREF>());
 			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TITLETEXT, input.getnexttokas<COLORREF>());
 			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TRAILINGTEXT, input.getnexttokas<COLORREF>());
+
 			return;
 		}
-		break;
-		}
 
-		DateTime_SetMonthCalColor(m_Hwnd, iType, clr);
+		// Set the background color displayed between months.
+		if (xflags[TEXT('b')])
+			MonthCal_SetColor(m_Hwnd, MCSC_BACKGROUND, gsl::narrow_cast<LPARAM>(col));
+
+		// Set the background color displayed within the month.
+		if (xflags[TEXT('g')])
+			MonthCal_SetColor(m_Hwnd, MCSC_MONTHBK, gsl::narrow_cast<LPARAM>(col));
+
+		// Set the color used to display text within a month.
+		if (xflags[TEXT('t')])
+			MonthCal_SetColor(m_Hwnd, MCSC_TEXT, gsl::narrow_cast<LPARAM>(col));
+
+		// Set the background color displayed in the calendar's title and selection color.
+		if (xflags[TEXT('i')])
+			MonthCal_SetColor(m_Hwnd, MCSC_TITLEBK, gsl::narrow_cast<LPARAM>(col));
+
+		// Set the color used to display text within the calendar's title.
+		if (xflags[TEXT('a')])
+			MonthCal_SetColor(m_Hwnd, MCSC_TITLETEXT, gsl::narrow_cast<LPARAM>(col));
+
+		// Set the color used to display header day and trailing day text. Header and trailing days are the days from the previous and following months that appear on the current month calendar.
+		if (xflags[TEXT('r')])
+			MonthCal_SetColor(m_Hwnd, MCSC_TRAILINGTEXT, gsl::narrow_cast<LPARAM>(col));
 	}
 	//xdid -S [NAME] [ID] [SWITCH] [STYLES]
 	else if (flags[TEXT('S')])

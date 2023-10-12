@@ -352,6 +352,7 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 	const auto numtok = input.numtok();
 
 	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [$RGB]
+	// xdid -k [NAME] [ID] [SWITCH] [+A] [$RGB] [$RGB] [$RGB] [$RGB] [$RGB] [$RGB]
 	if (flags[TEXT('k')])
 	{
 		if (numtok < 5)
@@ -359,6 +360,19 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 
 		const XSwitchFlags xflags(input.getnexttok());	// tok 4
 		const auto col = input.getnexttok().to_<COLORREF>();	// tok 5
+
+		// Set ALL colours at once
+		if (xflags[TEXT('A')])
+		{
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_BACKGROUND, col);
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_MONTHBK, input.getnexttokas<COLORREF>());
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TEXT, input.getnexttokas<COLORREF>());
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TITLEBK, input.getnexttokas<COLORREF>());
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TITLETEXT, input.getnexttokas<COLORREF>());
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TRAILINGTEXT, input.getnexttokas<COLORREF>());
+
+			return;
+		}
 
 		// Set the background color displayed between months.
 		if (xflags[TEXT('b')])
