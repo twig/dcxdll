@@ -390,27 +390,27 @@ void DcxDateTime::parseCommandRequest( const TString &input)
 
 		// Set the background color displayed between months.
 		if (xflags[TEXT('b')])
-			MonthCal_SetColor(m_Hwnd, MCSC_BACKGROUND, gsl::narrow_cast<LPARAM>(col));
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_BACKGROUND, gsl::narrow_cast<LPARAM>(col));
 
 		// Set the background color displayed within the month.
 		if (xflags[TEXT('g')])
-			MonthCal_SetColor(m_Hwnd, MCSC_MONTHBK, gsl::narrow_cast<LPARAM>(col));
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_MONTHBK, gsl::narrow_cast<LPARAM>(col));
 
 		// Set the color used to display text within a month.
 		if (xflags[TEXT('t')])
-			MonthCal_SetColor(m_Hwnd, MCSC_TEXT, gsl::narrow_cast<LPARAM>(col));
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TEXT, gsl::narrow_cast<LPARAM>(col));
 
 		// Set the background color displayed in the calendar's title and selection color.
 		if (xflags[TEXT('i')])
-			MonthCal_SetColor(m_Hwnd, MCSC_TITLEBK, gsl::narrow_cast<LPARAM>(col));
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TITLEBK, gsl::narrow_cast<LPARAM>(col));
 
 		// Set the color used to display text within the calendar's title.
 		if (xflags[TEXT('a')])
-			MonthCal_SetColor(m_Hwnd, MCSC_TITLETEXT, gsl::narrow_cast<LPARAM>(col));
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TITLETEXT, gsl::narrow_cast<LPARAM>(col));
 
 		// Set the color used to display header day and trailing day text. Header and trailing days are the days from the previous and following months that appear on the current month calendar.
 		if (xflags[TEXT('r')])
-			MonthCal_SetColor(m_Hwnd, MCSC_TRAILINGTEXT, gsl::narrow_cast<LPARAM>(col));
+			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TRAILINGTEXT, gsl::narrow_cast<LPARAM>(col));
 	}
 	//xdid -S [NAME] [ID] [SWITCH] [STYLES]
 	else if (flags[TEXT('S')])
