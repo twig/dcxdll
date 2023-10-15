@@ -1305,7 +1305,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		m_GlassOffsets.top = input.getnexttok().to_<LONG>();	// tok 5
 		m_GlassOffsets.bottom = input.getnexttok().to_<LONG>();	// tok 6
 
-		if (Dcx::VistaModule.isUseable())
+		if (Dcx::DwmModule.isUseable())
 		{
 			//DWMNCRENDERINGPOLICY ncrp = DWMNCRP_ENABLED;
 
@@ -1313,7 +1313,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			//if (SUCCEEDED(Dcx::VistaModule.dcxDwmSetWindowAttribute(m_Hwnd, DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(ncrp))))
 			//{
 			const MARGINS margins{ m_GlassOffsets.left, m_GlassOffsets.right, m_GlassOffsets.top, m_GlassOffsets.bottom };
-			Dcx::VistaModule.dcxDwmExtendFrameIntoClientArea(m_Hwnd, &margins);
+			Dcx::DwmModule.dcxDwmExtendFrameIntoClientArea(m_Hwnd, &margins);
 			//}
 		}
 		redrawWindow();
@@ -1743,7 +1743,7 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 	{
 		RGBQUAD clr{};
 		auto bOpaque = FALSE;
-		if (SUCCEEDED(Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD*)&clr, &bOpaque)))
+		if (SUCCEEDED(Dcx::DwmModule.dcxDwmGetColorizationColor((DWORD*)&clr, &bOpaque)))
 			_ts_snprintf(szReturnValue, TEXT("%u"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
 		else
 			szReturnValue = TEXT("-FAIL Unable to get Glass colour.");
@@ -3395,7 +3395,7 @@ void DcxDialog::showControlErrorEx(__in_z const TCHAR* const prop, __in_z const 
 
 void DcxDialog::CreateVistaStyle(void) noexcept
 {
-	if (Dcx::VistaModule.refreshComposite())
+	if (Dcx::DwmModule.refreshComposite())
 	{
 		// Vista+ only code. dont do anything at this point if vista+
 
@@ -3422,7 +3422,7 @@ void DcxDialog::CreateVistaStyle(void) noexcept
 	}
 #ifdef DCX_USE_GDIPLUS
 	// don't use this style with aero, needs specific code to allow aero to do these effects for us.
-	if (Dcx::GDIModule.isUseable() && !Dcx::VistaModule.isAero())
+	if (Dcx::GDIModule.isUseable() && !Dcx::DwmModule.isAero())
 	{
 		// this code is for windows 2000 & windows XP
 #if DCX_USE_WRAPPERS

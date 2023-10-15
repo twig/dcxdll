@@ -311,12 +311,16 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		{
 			if (input.numtok() > 3)
 			{
-				if (const auto nLine = input.getnexttok().to_int(); (nLine > 0 && nLine <= gsl::narrow_cast<int>(m_tsText.numtok(TEXT("\r\n")))))
-					szReturnValue = m_tsText.gettok(nLine, TEXT("\r\n")).to_chr();
+				const auto sepChars = Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd);
+				if (const auto nLine = input.getnexttok().to_int(); (nLine > 0 && nLine <= gsl::narrow_cast<int>(m_tsText.numtok(sepChars.to_chr()))))
+					szReturnValue = m_tsText.gettok(nLine, sepChars.to_chr()).to_chr();
 			}
 		}
 		else
 			szReturnValue = m_tsText.to_chr();
+
+		// Ook: should use this instead?
+		//szReturnValue = getLine(input.getnexttok().to_int()).to_chr();
 	}
 	break;
 
@@ -325,7 +329,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	{
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
-			const auto i = this->m_tsText.numtok(TEXT("\r\n"));
+			const auto i = this->m_tsText.numtok(Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd).to_chr());
 			_ts_snprintf(szReturnValue, TEXT("%u"), i);
 		}
 		else {
@@ -339,6 +343,11 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	// [NAME] [ID] [PROP]
 	case L"ispass"_hash:
 		szReturnValue = dcx_truefalse(isStyle(WindowStyle::ES_Password));
+		break;
+
+		// [NAME] [ID] [PROP]
+	case L"ismodified"_hash:
+		_ts_snprintf(szReturnValue, TEXT("%d"), Edit_GetModify(m_Hwnd));
 		break;
 
 		// [NAME] [ID] [PROP]
@@ -446,6 +455,53 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		_ts_snprintf(szReturnValue, TEXT("%u %u %u %u %u"), m_clrGutter_selbkg, m_clrGutter_bkg, m_clrGutter_seltxt, m_clrGutter_txt, m_clrGutter_border);
 	}
 	break;
+
+	case L"endofline"_hash:
+	{
+		//	EC_ENDOFLINE_CRLF	one		The end - of - line character used for new linebreaks is carriage return followed by linefeed(CRLF).
+		//	EC_ENDOFLINE_CR		two		The end - of - line character used for new linebreaks is carriage return (CR).
+		//	EC_ENDOFLINE_LF		three	The end - of - line character used for new linebreaks is linefeed(LF).
+		// When the end-of-line character used is set to EC_ENDOFLINE_DETECTFROMCONTENT using Edit_SetEndOfLine, this message will return the detected end-of-line character.
+		_ts_snprintf(szReturnValue, TEXT("%d"), Dcx::dcxEdit_GetEndOfLine(m_Hwnd));
+	}
+	break;
+
+	case L"zoom"_hash:
+	{
+		//Supported in Windows 10 1809 and later. The edit control needs to have the ES_EX_ZOOMABLE extended style set, for this message to have an effect
+		//(the zoom ratio is always between 1/64 and 64) NOT inclusive, 1.0 = no zoom
+		int nNumerator{}, nDenominator{};
+		if (Dcx::dcxEdit_GetZoom(m_Hwnd, &nNumerator, &nDenominator))
+			_ts_snprintf(szReturnValue, TEXT("%d %d"), nNumerator, nDenominator);
+		else
+			szReturnValue = TEXT("0");
+	}
+	break;
+
+	case L"passchar"_hash:
+	{
+		_ts_snprintf(szReturnValue, TEXT("%u"), Edit_GetPasswordChar(m_Hwnd));
+	}
+	break;
+
+	case L"len"_hash:
+	{
+		_ts_snprintf(szReturnValue, TEXT("%u"), m_tsText.len());
+	}
+	break;
+
+	case L"linelen"_hash:
+	{
+		const auto nLine = input.getnexttokas<int>() -1;
+		if (nLine < 0)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto nLen = Edit_LineLength(m_Hwnd, nLine);
+
+		_ts_snprintf(szReturnValue, TEXT("%u"), nLen);
+	}
+	break;
+
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 		break;
@@ -479,6 +535,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 
 		this->m_tsText += input.getlasttoks();	// tok 4, -1
 		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
+		Edit_SetModify(m_Hwnd, FALSE);
 
 		this->setCaretPos(pos);
 	}
@@ -527,6 +584,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 			tsLines.sorttok(TEXT("nr"), TSCOMMA);
 
 			const auto pos = this->GetCaretPos();
+			const auto sepChars = Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd);
 
 			const auto itEnd = tsLines.end();
 			for (auto itStart = tsLines.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
@@ -546,11 +604,11 @@ void DcxEdit::parseCommandRequest(const TString& input)
 				//for (auto nLine = nEndLine; nLine >= nStartLine; --nLine)
 				//	this->m_tsText.deltok(nLine, TEXT("\r\n"));
 
-				const auto r = Dcx::make_range(tsLineRange, this->m_tsText.numtok(TEXT("\r\n")));
+				const auto r = Dcx::make_range(tsLineRange, this->m_tsText.numtok(sepChars.to_chr()));
 
 				// delete lines from the back of the text so it doesnt change the position of other lines.
 				for (auto nLine = r.e; nLine >= r.b; --nLine)
-					this->m_tsText.deltok(nLine, TEXT("\r\n"));
+					this->m_tsText.deltok(nLine, sepChars.to_chr());
 			}
 			SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 
@@ -572,7 +630,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 			if (nLine == 0)
 				throw DcxExceptions::dcxInvalidArguments();
 
-			this->m_tsText.instok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
+			this->m_tsText.instok(input.getlasttoks(), nLine, Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd).to_chr());	// tok 5, -1
 		}
 		else
 			this->m_tsText = input.getlasttoks();	// tok 5, -1
@@ -626,9 +684,9 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		// The problem is getting the char set to a unicode (2-byte) one, so far it always sets to CF (207)
 		if (cPassChar == 0)
 		{
-			if (Dcx::VistaModule.isVista())
+			if (Dcx::DwmModule.isVista())
 			{
-				if (Dcx::VistaModule.isWin7())
+				if (Dcx::DwmModule.isWin7())
 				{
 					cPassChar = TEXT('\u25CF');	// Win7 char
 				}
@@ -676,7 +734,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 			if (nLine == 0)
 				throw DcxExceptions::dcxInvalidArguments();
 
-			this->m_tsText.puttok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
+			this->m_tsText.puttok(input.getlasttoks(), nLine, Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd).to_chr());	// tok 5, -1
 		}
 		else
 			this->m_tsText = input.getlasttoks();	// tok 4, -1
@@ -1371,14 +1429,13 @@ TString DcxEdit::getLine(int nLine) const
 Dcx::range_t<DWORD> DcxEdit::GetVisibleRange() const noexcept
 {
 	// find the index of the top visible line
-
-	const auto start_line = gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_GETFIRSTVISIBLELINE, 0, 0));
+	const auto start_line = Dcx::dcxEdit_GetFirstVisibleLine(m_Hwnd);
 
 	const RECT rc = getFmtRect();
 
 	// find the index of the last visible line
-	const auto char_index = SNDMSG(m_Hwnd, EM_CHARFROMPOS, 0, MAKELPARAM(0, rc.bottom));
-	const auto stop_line = gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<LPARAM>(char_index), 0));
+	const auto char_index = Dcx::dcxEdit_CharFromPos(m_Hwnd, rc.bottom);
+	const auto stop_line = Dcx::dcxEdit_LineFromChar(m_Hwnd, char_index);
 
 	// +1 to make range inclusive
 	return { start_line, stop_line + 1 };
@@ -1388,26 +1445,18 @@ GSL_SUPPRESS(con.4)
 GSL_SUPPRESS(lifetime.1)
 DWORD DcxEdit::GetCaretPos() const noexcept
 {
-	DWORD hiPos{}, loPos{};
-	SNDMSG(m_Hwnd, EM_GETSEL, reinterpret_cast<LPARAM>(&loPos), reinterpret_cast<LPARAM>(&hiPos));
-	if (loPos != hiPos)
-		--hiPos;
-	return hiPos;
-
-	//// windows 10 only :/
-	//return Edit_GetCaretIndex(m_Hwnd);
+	return Dcx::dcxEdit_GetCaretIndex(m_Hwnd);
 }
 
 DWORD DcxEdit::GetCaretLine() const noexcept
 {
 	const auto pos = GetCaretPos();
-	return gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<LPARAM>(pos), 0));
+	return Dcx::dcxEdit_LineFromChar(m_Hwnd, pos);
 }
 
 void DcxEdit::setCaretPos(DWORD pos) noexcept
 {
-	if (IsValidWindow())
-		SendMessage(m_Hwnd, EM_SETSEL, pos, pos);
+	Dcx::dcxEdit_SetCaretIndex(m_Hwnd, pos);
 }
 
 //const DcxSearchTypes DcxEdit::CharToSearchType(const TCHAR& cType) const noexcept

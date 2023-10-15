@@ -330,7 +330,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		REBARBANDINFO rbBand{};
-		if (Dcx::VistaModule.isUseable()) // NB: when rbBand.cbSize is set to the Vista size on XP the insertband will FAIL!! fucking MS!
+		if (Dcx::DwmModule.isUseable()) // NB: when rbBand.cbSize is set to the Vista size on XP the insertband will FAIL!! fucking MS!
 			rbBand.cbSize = sizeof(REBARBANDINFO);
 		else
 			GSL_SUPPRESS(es.47) rbBand.cbSize = REBARBANDINFO_V6_SIZE;

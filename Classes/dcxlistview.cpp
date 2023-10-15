@@ -847,7 +847,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	// [NAME] [ID] [PROP] [N]
 	case L"gnum"_hash:
 	{
-		if (Dcx::VistaModule.isVista())
+		if (Dcx::DwmModule.isVista())
 			_ts_snprintf(szReturnValue, TEXT("%d"), Dcx::dcxListView_GetGroupCount(m_Hwnd));
 		else {
 			auto gcount = 0U;
@@ -920,7 +920,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 
 		TString tsFlags('+');
 
-		if (Dcx::VistaModule.isVista())
+		if (Dcx::DwmModule.isVista())
 		{
 			const auto gid = input.getnexttok().to_int();	// tok 4
 			constexpr UINT iMask = LVGS_COLLAPSIBLE | LVGS_HIDDEN | LVGS_NOHEADER | LVGS_COLLAPSED | LVGS_SELECTED;
@@ -2415,7 +2415,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (numtok != 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		if (!Dcx::VistaModule.isVista())
+		if (!Dcx::DwmModule.isVista())
 			throw Dcx::dcxException("This Command is Vista+ Only!");
 
 		const auto tsGID = input.getnexttok();							// tok 4
@@ -2454,7 +2454,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xFlags(input.getnexttok());
-		const auto tsArgs = input.getlasttoks();
+		const auto tsArgs(input.getlasttoks());
 
 		if (xFlags[TEXT('m')])
 		{
@@ -2488,7 +2488,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			}
 		}
 		else {
-			auto parseMargin = [](_In_ const XSwitchFlags &xFlag, _In_ const TString &tsArg, _Inout_ dcxListViewMarginSideData& mData) {
+			auto parseMargin = [](_In_ const XSwitchFlags& xFlag, _In_ const TString& tsArg, _Inout_ dcxListViewMarginSideData& mData) {
 				if (xFlag[TEXT('c')])
 				{
 					// colour bkg
@@ -5260,7 +5260,7 @@ void DcxListView::DrawMargin(HDC hdc) noexcept
 	if (vrc.left < 1)
 		return;
 
-	RECT rc = getListRect();
+	RECT rc{ getListRect() };
 
 	const auto olClr = SetTextColor(hdc, m_MarginData.m_Left.m_clrTxt);
 	Auto(SetTextColor(hdc, olClr));
@@ -5268,7 +5268,7 @@ void DcxListView::DrawMargin(HDC hdc) noexcept
 	const auto hPrevFont = SelectObject(hdc, m_hFont);
 	Auto(SelectObject(hdc, hPrevFont));
 
-	//if (!dcxDrawTranslucentRect(hdc, &rc, RGB(155, 55, 55), RGB(100, 100, 0), false))
+	//if (!dcxDrawTranslucentRect(hdc, &rc, m_MarginData.m_Left.m_clrBkg, m_MarginData.m_Left.m_clrBorder, false))
 	dcxDrawRect(hdc, &rc, m_MarginData.m_Left.m_clrBkg, m_MarginData.m_Left.m_clrBorder, false);
 
 	rc.bottom -= 5;
@@ -5520,7 +5520,7 @@ LRESULT DcxListView::DrawItem(LPNMLVCUSTOMDRAW lplvcd)
 	return CDRF_DODEFAULT;
 }
 
-void DcxListView::DrawGroupHeaderText(HDC hdc, HTHEME hTheme, int iStateId, LPCRECT rc, const TString &tsText, UINT uTextFlags, UINT uAlign, bool bCustomText, int iCol)
+void DcxListView::DrawGroupHeaderText(HDC hdc, HTHEME hTheme, int iStateId, LPCRECT rc, const TString& tsText, UINT uTextFlags, UINT uAlign, bool bCustomText, int iCol)
 {
 	RECT rcText{ *rc };
 	RECT rcRgn{ rcText };
@@ -5734,7 +5734,10 @@ void DcxListView::addGroup(const TString& tsInput)
 
 	LVGROUP lvg{};
 	lvg.cbSize = sizeof(LVGROUP);
-	lvg.mask = LVGF_ALIGN | LVGF_HEADER | LVGF_GROUPID | LVGF_STATE;
+	lvg.mask = LVGF_ALIGN | LVGF_HEADER | LVGF_GROUPID | LVGF_STATE /* | LVGF_TITLEIMAGE | */ /*LVGF_EXTENDEDIMAGE*/;
+
+	//lvg.iTitleImage = 0;
+	//lvg.iExtendedImage = 0;
 
 	lvg.pszHeader = text.to_chr();
 	lvg.iGroupId = gid;

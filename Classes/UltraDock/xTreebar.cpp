@@ -302,7 +302,7 @@ mIRC(xtreebar)
 			auto exstylef = dcxGetWindowExStyle(mIRCLinker::getTreeview());
 
 			DWORD tvexstylef = 0;
-			if (Dcx::VistaModule.isUseable())
+			if (Dcx::DwmModule.isUseable())
 				tvexstylef = TreeView_GetExtendedStyle(mIRCLinker::getTreeview());
 			DWORD tvexstylemask = 0;
 
@@ -428,7 +428,7 @@ mIRC(xtreebar)
 			dcxSetWindowStyle(mIRCLinker::getTreeview(), stylef);
 			dcxSetWindowExStyle(mIRCLinker::getTreeview(), exstylef);
 
-			if (Dcx::VistaModule.isUseable())
+			if (Dcx::DwmModule.isUseable())
 				TreeView_SetExtendedStyle(mIRCLinker::getTreeview(), gsl::narrow_cast<LPARAM>(tvexstylef), gsl::narrow_cast<WPARAM>(tvexstylemask));
 
 			SetWindowPos(mIRCLinker::getTreeview(), nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);

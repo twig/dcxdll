@@ -24,7 +24,10 @@
   * -p = [PNAME] [DATASET] [FILENAME]
   */
 
-DcxmlParser Parser;
+namespace
+{
+	DcxmlParser Parser;
+}
 
 mIRC(dcxml)
 {
@@ -36,13 +39,12 @@ mIRC(dcxml)
 		const auto numtok = input.numtok();
 
 		if (numtok < 3)
-			//throw Dcx::dcxException("Insuffient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const XSwitchFlags flags(input.getfirsttok(1));
+		const XSwitchFlags xFlags(input.getfirsttok(1));
 
 		// Parse XDialog XML.
-		if (flags[TEXT('d')])
+		if (xFlags[TEXT('d')])
 		{
 			const auto tsMark(input.getnexttok());			// tok 2
 			const auto tsName(input.getnexttok());			// tok 3
@@ -51,12 +53,12 @@ mIRC(dcxml)
 			if (!IsFile(tsFilename))
 				throw Dcx::dcxException(TEXT("Unable To Access File: %"), tsFilename);
 
-			Parser.ParseXML(tsFilename, tsMark, tsName, (flags[TEXT('v')]), (flags[TEXT('x')]));
+			Parser.ParseXML(tsFilename, tsMark, tsName, (xFlags[TEXT('v')]), (xFlags[TEXT('x')]));
 			return 1;
 		}
 		// Parse XPopup DCXML.
 
-		else if (flags[TEXT('p')])
+		else if (xFlags[TEXT('p')])
 		{
 			const auto popupName(input.getnexttok());		// tok 2
 			const auto popupDataset(input.getnexttok());		// tok 3
@@ -101,6 +103,7 @@ mIRC(dcxml)
 	}
 	return 0;
 }
+
 mIRC(_dcxml)
 {
 	TString d(data);
