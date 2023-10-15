@@ -364,7 +364,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
 			// current line
-			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<WPARAM>(-1), 0) + 1;
+			const auto iLinePos = Dcx::dcxEdit_LineFromChar(m_Hwnd, -1) + 1;
 			// line offset
 			const auto CharPos = (dwAbsoluteStartSelPos - gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(-1), 0)));
 
@@ -492,13 +492,26 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 
 	case L"linelen"_hash:
 	{
-		const auto nLine = input.getnexttokas<int>() -1;
-		if (nLine < 0)
-			throw DcxExceptions::dcxInvalidArguments();
+		//const auto nLine = input.getnexttokas<int>() - 1;
+		//if (nLine < 0)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//const auto nLen = Edit_LineLength(m_Hwnd, nLine);
+		//_ts_snprintf(szReturnValue, TEXT("%u"), nLen);
 
-		const auto nLen = Edit_LineLength(m_Hwnd, nLine);
+		if (this->isStyle(WindowStyle::ES_MultiLine))
+		{
+			const auto nLine = input.getnexttokas<UINT>();
+			const auto sepChars = Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd);
 
-		_ts_snprintf(szReturnValue, TEXT("%u"), nLen);
+			if (nLine > m_tsText.numtok(sepChars.to_chr()))
+				throw DcxExceptions::dcxInvalidArguments();
+
+			const auto nLen = m_tsText.gettok(nLine, sepChars.to_chr()).len();
+
+			_ts_snprintf(szReturnValue, TEXT("%u"), nLen);
+		}
+		else
+			_ts_snprintf(szReturnValue, TEXT("%u"), m_tsText.len());
 	}
 	break;
 
