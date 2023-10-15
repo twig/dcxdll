@@ -76,8 +76,8 @@ public:
 	DcxDialog() = delete;
 	DcxDialog(const DcxDialog& other) = delete;
 	DcxDialog(DcxDialog&& other) = delete;
-	DcxDialog& operator =(const DcxDialog&) = delete;	// No assignments!
-	DcxDialog& operator =(DcxDialog&&) = delete;	// No move assignments!
+	//DcxDialog& operator =(const DcxDialog&) = delete;	// No assignments!
+	//DcxDialog& operator =(DcxDialog&&) = delete;	// No move assignments!
 
 	DcxDialog(const HWND mHwnd, const TString& tsName, const TString& tsAliasName);
 	~DcxDialog() noexcept;

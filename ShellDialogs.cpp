@@ -602,16 +602,23 @@ mIRC(FontDialog)
 						style |= CF_EFFECTS;
 					if (xflags[TEXT('f')])
 						style |= CF_FORCEFONTEXIST;
+					//g
 					if (xflags[TEXT('h')])
 						style |= CF_NOSCRIPTSEL;
 					if (xflags[TEXT('i')])
 						style |= CF_NOSIMULATIONS;
+					//j
+					//k
+					//l
 					if (xflags[TEXT('m')])
 						style |= CF_SELECTSCRIPT;
 					if (xflags[TEXT('n')])
 						style |= CF_PRINTERFONTS;
+					//o
 					if (xflags[TEXT('p')])
 						style |= CF_FIXEDPITCHONLY;
+					//q
+					//u
 					if (xflags[TEXT('r')])
 						style |= CF_NOVERTFONTS;
 					if (xflags[TEXT('s')])
@@ -622,6 +629,7 @@ mIRC(FontDialog)
 						style |= CF_NOVECTORFONTS;
 					if (xflags[TEXT('w')])
 						style |= CF_WYSIWYG;
+					//x
 					if (xflags[TEXT('y')])
 						style |= CF_NOSTYLESEL;
 					if (xflags[TEXT('z')])
@@ -633,7 +641,8 @@ mIRC(FontDialog)
 					if (numtok < 5)
 						throw DcxExceptions::dcxInvalidArguments();
 
-					ParseCommandToLogfont(option.getlasttoks(), &lf);	// tok 2, -1
+					if (!ParseCommandToLogfont(option.getlasttoks(), &lf))
+						throw DcxExceptions::dcxInvalidArguments();
 				}
 				break;
 				case TEXT("colour"_hash):
@@ -652,6 +661,9 @@ mIRC(FontDialog)
 
 					cf.nSizeMin = option.getnexttok().to_int();	// tok 2
 					cf.nSizeMax = option.getnexttok().to_int();	// tok 3
+
+					if (cf.nSizeMin > cf.nSizeMax)
+						throw DcxExceptions::dcxInvalidArguments();
 				}
 				break;
 				case TEXT("owner"_hash):
@@ -660,6 +672,9 @@ mIRC(FontDialog)
 						throw DcxExceptions::dcxInvalidArguments();
 
 					cf.hwndOwner = FindOwner(option, gsl::not_null(mWnd));
+
+					if (!cf.hwndOwner)
+						throw DcxExceptions::dcxInvalidArguments();
 				}
 				break;
 				default:

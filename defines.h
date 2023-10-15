@@ -74,6 +74,8 @@
 #pragma warning( disable : 26489 ) //  Warning C26489 : Don't dereference a pointer that may be invalid: '....'. '....' may have been invalidated at line ... (lifetime.1).
 #pragma warning( disable : 26490 ) //  warning C26490 : Don't use reinterpret_cast (type.1: http://go.microsoft.com/fwlink/p/?LinkID=620417).
 #pragma warning( disable : 26499 ) //  warning C26499 : Could not find any lifetime tracking information for '........'
+#pragma warning( disable : 26458 ) //  Warning	C26458	Prefer to use gsl::at() instead of unchecked subscript operator (bounds.4).
+#pragma warning( disable : 26446 ) //  Warning	C26446	Prefer to use gsl::at() instead of unchecked subscript operator (bounds.4).
 
 #pragma warning( disable : 5105) // warning C5105: macro expansion producing 'defined' has undefined behavior
 
@@ -202,7 +204,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  "64"
+#define DLL_DEV_BUILD  "65"
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
@@ -751,7 +753,7 @@ bool dcxDrawRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorder, bool bRo
 /// <returns></returns>
 bool dcxDrawTranslucentRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorder, bool bRounded) noexcept;
 
-bool dcxDrawBitMap(HDC hdc, LPCRECT prc, HBITMAP hbm, bool bStretch) noexcept;
+bool dcxDrawBitMap(HDC hdc, LPCRECT prc, HBITMAP hbm, bool bStretch, bool bAlpha) noexcept;
 
 /// <summary>
 /// Get a colour that contrasts nicely with the supplied colour.

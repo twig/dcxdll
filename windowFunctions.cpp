@@ -1025,7 +1025,7 @@ bool dcxDrawRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorder, bool bRo
 	Auto(SelectObject(hDC, hOldBrush));
 
 	if (bRounded)
-		RoundRect(hDC, rc->left, rc->top, rc->right, rc->bottom, 10, 10);
+		RoundRect(hDC, rc->left, rc->top, rc->right, rc->bottom, 5, 5);
 	else
 		Rectangle(hDC, rc->left, rc->top, rc->right, rc->bottom);
 
@@ -1062,7 +1062,7 @@ bool dcxDrawTranslucentRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorde
 	return dcxDrawRect(hdc, rc, clr, clrBorder, bRounded);
 }
 
-bool dcxDrawBitMap(HDC hdc, LPCRECT prc, HBITMAP hbm, bool bStretch) noexcept
+bool dcxDrawBitMap(HDC hdc, LPCRECT prc, HBITMAP hbm, bool bStretch, bool bAlpha) noexcept
 {
 	if (!hdc || !prc || !hbm)
 		return false;
@@ -1076,13 +1076,23 @@ bool dcxDrawBitMap(HDC hdc, LPCRECT prc, HBITMAP hbm, bool bStretch) noexcept
 
 	Auto(Dcx::dcxSelectObject<HBITMAP>(hdcMemory, hbmpOld));
 
-	if (bStretch)
+	if (bStretch || bAlpha)
 	{
-		if (auto [code,bm] = Dcx::dcxGetObject<BITMAP>(hbm); code != 0)
-			StretchBlt(hdc, prc->left, prc->top, (prc->right - prc->left), (prc->bottom - prc->top), hdcMemory, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
+		if (auto [code, bm] = Dcx::dcxGetObject<BITMAP>(hbm); code != 0)
+		{
+			if (bStretch && !bAlpha)
+				StretchBlt(hdc, prc->left, prc->top, (prc->right - prc->left), (prc->bottom - prc->top), hdcMemory, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
+			else {
+				BLENDFUNCTION bf{};
+				bf.AlphaFormat = AC_SRC_OVER;
+				bf.SourceConstantAlpha = 0xC0;
+				AlphaBlend(hdc, prc->left, prc->top, (prc->right - prc->left), (prc->bottom - prc->top), hdcMemory, 0, 0, bm.bmWidth, bm.bmHeight, bf);
+			}
+		}
 	}
 	else
 		BitBlt(hdc, prc->left, prc->top, (prc->right - prc->left), (prc->bottom - prc->top), hdcMemory, 0, 0, SRCCOPY);
+
 
 	return true;
 }

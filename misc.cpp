@@ -159,6 +159,7 @@ namespace
 		// creation of TString object handles any conversions & memory allocations etc..
 		return TString(reinterpret_cast<PCSTR>(pBuffer));
 	}
+
 	// Taken from msft examples.
 	PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp) noexcept
 	{
@@ -174,7 +175,7 @@ namespace
 			return nullptr;
 
 		// Convert the color format to a count of bits.  
-		cClrBits = (WORD)(bmp.bmPlanes * bmp.bmBitsPixel);
+		cClrBits = gsl::narrow_cast<WORD>(bmp.bmPlanes * bmp.bmBitsPixel);
 		if (cClrBits == 1)
 			cClrBits = 1;
 		else if (cClrBits <= 4)
@@ -192,12 +193,15 @@ namespace
 		// data structures.)  
 
 		if (cClrBits < 24)
-			pbmi = (PBITMAPINFO)LocalAlloc(LPTR, sizeof(BITMAPINFOHEADER) + (sizeof(RGBQUAD) * (1 << cClrBits)));
+			pbmi = static_cast<PBITMAPINFO>(LocalAlloc(LPTR, sizeof(BITMAPINFOHEADER) + (sizeof(RGBQUAD) * (1 << cClrBits))));
 
 		// There is no RGBQUAD array for these formats: 24-bit-per-pixel or 32-bit-per-pixel 
 
 		else
-			pbmi = (PBITMAPINFO)LocalAlloc(LPTR, sizeof(BITMAPINFOHEADER));
+			pbmi = static_cast<PBITMAPINFO>(LocalAlloc(LPTR, sizeof(BITMAPINFOHEADER)));
+
+		if (!pbmi)
+			return nullptr;
 
 		// Initialize the fields in the BITMAPINFO structure.  
 
@@ -229,17 +233,8 @@ namespace
 		if ((!pszFile) || (!pbi) || (!hBMP) || (!hDC))
 			return;
 
-		HANDLE hf{};                  // file handle  
-		BITMAPFILEHEADER hdr{};       // bitmap file-header  
-		PBITMAPINFOHEADER pbih{};     // bitmap info-header  
-		LPBYTE lpBits{};              // memory pointer  
-		DWORD dwTotal{};              // total count of bytes  
-		DWORD cb{};                   // incremental count of bytes  
-		BYTE* hp{};                   // byte pointer  
-		DWORD dwTmp{};
-
-		pbih = (PBITMAPINFOHEADER)pbi;
-		lpBits = (LPBYTE)GlobalAlloc(GMEM_FIXED, pbih->biSizeImage);
+		PBITMAPINFOHEADER pbih = reinterpret_cast<PBITMAPINFOHEADER>(pbi);     // bitmap info-header  
+		LPBYTE lpBits = static_cast<LPBYTE>(GlobalAlloc(GMEM_FIXED, pbih->biSizeImage));              // memory pointer
 
 		if (!lpBits)
 			return;
@@ -247,12 +242,10 @@ namespace
 		// Retrieve the color table (RGBQUAD array) and the bits  
 		// (array of palette indices) from the DIB.  
 		if (!GetDIBits(hDC, hBMP, 0, pbih->biHeight, lpBits, pbi, DIB_RGB_COLORS))
-		{
 			return;
-		}
 
 		// Create the .BMP file.  
-		hf = CreateFile(pszFile,
+		auto hf = CreateFile(pszFile,
 			GENERIC_READ | GENERIC_WRITE,
 			0,
 			nullptr,
@@ -261,6 +254,8 @@ namespace
 			nullptr);
 		if (hf == INVALID_HANDLE_VALUE)
 			return;
+
+		BITMAPFILEHEADER hdr{};       // bitmap file-header  
 		hdr.bfType = 0x4d42;        // 0x42 = "B" 0x4d = "M"  
 		// Compute the size of the entire file.  
 		hdr.bfSize = (sizeof(BITMAPFILEHEADER) + pbih->biSize + (pbih->biClrUsed * sizeof(RGBQUAD)) + pbih->biSizeImage);
@@ -270,20 +265,18 @@ namespace
 		// Compute the offset to the array of color indices.  
 		hdr.bfOffBits = sizeof(BITMAPFILEHEADER) + pbih->biSize + (pbih->biClrUsed * sizeof(RGBQUAD));
 
+		DWORD dwTmp{};
+
 		// Copy the BITMAPFILEHEADER into the .BMP file.  
 		if (!WriteFile(hf, &hdr, sizeof(BITMAPFILEHEADER), &dwTmp, nullptr))
-		{
 			return;
-		}
 
 		// Copy the BITMAPINFOHEADER and RGBQUAD array into the file.  
 		if (!WriteFile(hf, pbih, sizeof(BITMAPINFOHEADER) + (pbih->biClrUsed * sizeof(RGBQUAD)), &dwTmp, nullptr))
 			return;
 
-		// Copy the array of color indices into the .BMP file.  
-		dwTotal = cb = pbih->biSizeImage;
-		hp = lpBits;
-		if (!WriteFile(hf, hp, cb, &dwTmp, nullptr))
+		// Copy the array of color indices into the .BMP file.
+		if (!WriteFile(hf, lpBits, pbih->biSizeImage, &dwTmp, nullptr))
 			return;
 
 		// Close the .BMP file.  
@@ -291,7 +284,7 @@ namespace
 			return;
 
 		// Free memory.  
-		GlobalFree((HGLOBAL)lpBits);
+		GlobalFree(lpBits);
 	}
 
 	/*!
@@ -484,12 +477,10 @@ namespace
 		// Send this function a luminance value between 0.0 and 1.0,
 		// and it returns L* which is "perceptual lightness"
 
-		if (Y <= (216.0 / 24389.0)) {       // The CIE standard states 0.008856 but 216/24389 is the intent for 0.008856451679036
+		if (Y <= (216.0 / 24389.0))       // The CIE standard states 0.008856 but 216/24389 is the intent for 0.008856451679036
 			return Y * (24389.0 / 27.0);  // The CIE standard states 903.3, but 24389/27 is the intent, making 903.296296296296296
-		}
-		else {
-			return pow(Y, (1.0 / 3.0)) * 116.0 - 16.0;
-		}
+
+		return pow(Y, (1.0 / 3.0)) * 116.0 - 16.0;
 	}
 
 }
@@ -1517,8 +1508,6 @@ bool IsFile(TString& filename)
 #if DCX_USE_WRAPPERS
 		Dcx::dcxStringResource buf(res + 1U);
 #else
-		//auto buf = std::make_unique<TCHAR[]>(res + 1U);
-
 		stString<res + 1U> buf;
 #endif
 		res = SearchPath(nullptr, filename.to_chr(), nullptr, res, buf.get(), nullptr);
@@ -2064,15 +2053,24 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 //	tmp.Render(hdc, rc, ri);
 //}
 
-struct HDCBuffer
+namespace
 {
-	HDC m_hHDC{};
-	HBITMAP m_hOldBitmap{};
-	HBITMAP m_hBitmap{};
-	HFONT m_hOldFont{};
-	// needs work...
-};
-using LPHDCBuffer = HDCBuffer*;
+	HMODULE UXModule{ nullptr };         //!< UxTheme.dll Module Handle
+#ifdef DCX_USE_GDIPLUS
+	HMODULE GDIPlusModule{ nullptr };	//!< gdiplus.dll Module Handle
+	ULONG_PTR gdi_token{};
+#endif
+	HMODULE DWMModule{ nullptr };		//!< dwmapi.dll Module Handle
+	struct HDCBuffer
+	{
+		HDC m_hHDC{};
+		HBITMAP m_hOldBitmap{};
+		HBITMAP m_hBitmap{};
+		HFONT m_hOldFont{};
+		// needs work...
+	};
+	using LPHDCBuffer = HDCBuffer*;
+}
 
 gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc)
 {
@@ -2193,13 +2191,6 @@ TString TGetWindowText(HWND hwnd)
 	}
 	return txt;
 }
-
-HMODULE UXModule{ nullptr };         //!< UxTheme.dll Module Handle
-#ifdef DCX_USE_GDIPLUS
-HMODULE GDIPlusModule{ nullptr };	//!< gdiplus.dll Module Handle
-ULONG_PTR gdi_token{};
-#endif
-HMODULE DWMModule{ nullptr };		//!< dwmapi.dll Module Handle
 
 void FreeOSCompatibility() noexcept
 {
@@ -2333,8 +2324,8 @@ BOOL dcxGetWindowRect(const HWND hWnd, const LPRECT lpRect) noexcept
 	// as described in a comment at http://msdn.microsoft.com/en-us/library/ms633519(VS.85).aspx
 	// GetWindowRect does not return the real size of a window if you are using vista with areo glass
 	// using DwmGetWindowAttribute now to fix that (fixes bug 685)
-	if (Dcx::VistaModule.isUseable())
-		return (Dcx::VistaModule.dcxDwmGetWindowAttribute(hWnd, DWMWA_EXTENDED_FRAME_BOUNDS, lpRect, sizeof(RECT)) == S_OK);
+	if (Dcx::DwmModule.isUseable())
+		return (Dcx::DwmModule.dcxDwmGetWindowAttribute(hWnd, DWMWA_EXTENDED_FRAME_BOUNDS, lpRect, sizeof(RECT)) == S_OK);
 
 	return GetWindowRect(hWnd, lpRect);
 }

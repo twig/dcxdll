@@ -33,9 +33,9 @@ class DcxPanel final
 public:
 	DcxPanel() = delete;
 	DcxPanel(const DcxPanel &) = delete;
-	DcxPanel &operator =(const DcxPanel &) = delete;	// No assignments!
+	//DcxPanel &operator =(const DcxPanel &) = delete;	// No assignments!
+	//DcxPanel& operator =(DcxPanel&&) = delete;
 	DcxPanel(DcxPanel &&) = delete;
-	DcxPanel &operator =(DcxPanel &&) = delete;
 
 	DcxPanel(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxPanel( ) noexcept;

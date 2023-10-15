@@ -68,6 +68,12 @@ DcxDialog::DcxDialog(const HWND mHwnd, const TString& tsName, const TString& tsA
 /// <returns></returns>
 DcxDialog::~DcxDialog() noexcept
 {
+	//if (m_hZeroRgn)
+	//{
+	//	DeleteRgn(m_hZeroRgn);
+	//	m_hZeroRgn = nullptr;
+	//}
+
 	m_popup.reset();
 
 	PreloadData();
@@ -98,8 +104,8 @@ DcxDialog::~DcxDialog() noexcept
 		if (a.second.m_hBkg)
 			DeleteBitmap(a.second.m_hBkg);
 	}
-	if (m_CustomMenuBar.g_menuTheme)
-		Dcx::UXModule.dcxCloseThemeData(m_CustomMenuBar.g_menuTheme);
+	if (m_CustomMenuBar.m_menuTheme)
+		Dcx::UXModule.dcxCloseThemeData(m_CustomMenuBar.m_menuTheme);
 #endif
 
 	if (m_Hwnd)
@@ -550,11 +556,12 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		// r = enable/disable rounded borders, [ARGS] = 1 or 0
 		// O = enable/disable drawing borders, [ARGS] = 1 or 0
 		// f = load background image (bmp format only atm), [ARGS] = path/filename.bmp or [ARGS] = [ITEM INDEX] path/filename.bmp
+		// s = enable/disable shadow text, [ARGS] = 1 or 0
 		// 
 		// i = item specific. combines with other flags +it = set item text colour.
 		// R = redraw menubar. (can be combined with any flags, or used by its self)
 		// 
-		// [ARGS] = [ITEM INDEX] [TEXT] [SELECTED TEXT] [BACKGROUND] [SELECTED BACKGROUND] [HOT] [BORDER] [SELECTED BORDER] [HOT TEXT]
+		// [ARGS] = [ITEM INDEX] [TEXT] [SELECTED TEXT] [HOT TEXT] [BACKGROUND] [SELECTED BACKGROUND] [HOT BACKGROUND] [BORDER] [SELECTED BORDER] [HOT BORDER]
 		// or when not item specific
 		// [ARGS] = [TEXT] [SELECTED TEXT] [HOT TEXT] [BACKGROUND] [SELECTED BACKGROUND] [HOT BACKGROUND] [BORDER] [SELECTED BORDER] [HOT BORDER]
 		//
@@ -594,6 +601,11 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			}
 			else
 				m_CustomMenuBar.m_Default.m_hBkg = dcxLoadBitmap(m_CustomMenuBar.m_Default.m_hBkg, tsArgs);
+		}
+		else if (xflags[TEXT('s')])
+		{
+			// enable/disable
+			m_CustomMenuBar.m_bDrawShadowText = (tsArgs == TEXT("1"));
 		}
 		else {
 
@@ -1981,10 +1993,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	case WM_THEMECHANGED:
 	{
 #if DCX_CUSTOM_MENUS
-		if (p_this->m_CustomMenuBar.g_menuTheme)
+		if (p_this->m_CustomMenuBar.m_menuTheme)
 		{
-			Dcx::UXModule.dcxCloseThemeData(p_this->m_CustomMenuBar.g_menuTheme);
-			p_this->m_CustomMenuBar.g_menuTheme = nullptr;
+			Dcx::UXModule.dcxCloseThemeData(p_this->m_CustomMenuBar.m_menuTheme);
+			p_this->m_CustomMenuBar.m_menuTheme = nullptr;
 		}
 #endif
 
@@ -2803,8 +2815,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		if (!pUDM->hdc)
 			break;
 
-		if (!p_this->m_CustomMenuBar.g_menuTheme)
-			p_this->m_CustomMenuBar.g_menuTheme = Dcx::UXModule.dcxOpenThemeData(mHwnd, L"Menu");
+		if (!p_this->m_CustomMenuBar.m_menuTheme)
+			p_this->m_CustomMenuBar.m_menuTheme = Dcx::UXModule.dcxOpenThemeData(mHwnd, L"Menu");
 
 		RECT rc{};
 
@@ -2823,13 +2835,13 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		if (p_this->m_CustomMenuBar.m_Default.m_Colours.m_clrBack != CLR_INVALID)	// if menu colour set, use it
 			Dcx::FillRectColour(pUDM->hdc, &rc, p_this->m_CustomMenuBar.m_Default.m_Colours.m_clrBack);
-		else if (p_this->m_CustomMenuBar.g_menuTheme)	// otherwise try themed drawing
-			Dcx::UXModule.dcxDrawThemeBackground(p_this->m_CustomMenuBar.g_menuTheme, pUDM->hdc, MENU_BARBACKGROUND, (pUDM->dwFlags == 0xa00 ? MB_ACTIVE : MB_INACTIVE), &rc, nullptr);
+		else if (p_this->m_CustomMenuBar.m_menuTheme)	// otherwise try themed drawing
+			Dcx::UXModule.dcxDrawThemeBackground(p_this->m_CustomMenuBar.m_menuTheme, pUDM->hdc, MENU_BARBACKGROUND, (pUDM->dwFlags == 0xa00 ? MB_ACTIVE : MB_INACTIVE), &rc, nullptr);
 		else
 			Dcx::FillRectColour(pUDM->hdc, &rc, GetSysColor(COLOR_MENUBAR));	// if all else fails draw as standard menu colour.
 
 		if (p_this->m_CustomMenuBar.m_Default.m_hBkg)
-			dcxDrawBitMap(pUDM->hdc, &rc, p_this->m_CustomMenuBar.m_Default.m_hBkg, true);
+			dcxDrawBitMap(pUDM->hdc, &rc, p_this->m_CustomMenuBar.m_Default.m_hBkg, true, false);
 
 		//else if (p_this->m_bGradientFill)
 		//{
@@ -2861,7 +2873,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		COLORREF clrFill = mCols.m_Colours.m_clrBox;
 		COLORREF clrText = mCols.m_Colours.m_clrText;
-		COLORREF clrBorder = mCols.m_Colours.m_clrBorder;
+		COLORREF clrBorder = mCols.m_Colours.m_clrBox;
+
+		if (p_this->m_CustomMenuBar.m_bDrawBorder)
+			clrBorder = mCols.m_Colours.m_clrBorder;
 
 		// get the menu item string
 		wchar_t menuString[256]{};
@@ -2895,7 +2910,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				//pbrBackground = &g_brItemBackgroundHot;
 				clrFill = mCols.m_Colours.m_clrHot;
 				clrText = mCols.m_Colours.m_clrHotText;
-				clrBorder = mCols.m_Colours.m_clrHotBorder;
+				if (p_this->m_CustomMenuBar.m_bDrawBorder)
+					clrBorder = mCols.m_Colours.m_clrHotBorder;
 			}
 			if (pUDMI->dis.itemState & ODS_SELECTED)
 			{
@@ -2906,7 +2922,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				//pbrBackground = &g_brItemBackgroundSelected;
 				clrFill = mCols.m_Colours.m_clrSelection;
 				clrText = mCols.m_Colours.m_clrSelectedText;
-				clrBorder = mCols.m_Colours.m_clrSelectionBorder;
+				if (p_this->m_CustomMenuBar.m_bDrawBorder)
+					clrBorder = mCols.m_Colours.m_clrSelectionBorder;
 			}
 			if ((pUDMI->dis.itemState & ODS_GRAYED) || (pUDMI->dis.itemState & ODS_DISABLED))
 			{
@@ -2916,34 +2933,37 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 				clrFill = mCols.m_Colours.m_clrDisabled;
 				clrText = mCols.m_Colours.m_clrDisabledText;
-				clrBorder = mCols.m_Colours.m_clrBorder;
+				if (p_this->m_CustomMenuBar.m_bDrawBorder)
+					clrBorder = mCols.m_Colours.m_clrBorder;
 			}
 			if (pUDMI->dis.itemState & ODS_NOACCEL)
 				dwFlags |= DT_HIDEPREFIX;
 		}
 
-		if (!p_this->m_CustomMenuBar.g_menuTheme)
-			p_this->m_CustomMenuBar.g_menuTheme = Dcx::UXModule.dcxOpenThemeData(mHwnd, L"Menu");
+		if (!p_this->m_CustomMenuBar.m_menuTheme)
+			p_this->m_CustomMenuBar.m_menuTheme = Dcx::UXModule.dcxOpenThemeData(mHwnd, L"Menu");
 
-		if (p_this->m_CustomMenuBar.m_bDrawBorder)
-		{
-			//Dcx::FillRectColour(pUDMI->um.hdc, &pUDMI->dis.rcItem, p_this->m_CustomMenuBar.m_Default.m_Colours.m_clrBack);
-			dcxDrawRect(pUDMI->um.hdc, &pUDMI->dis.rcItem, clrFill, clrBorder, p_this->m_CustomMenuBar.m_bDrawRoundedBorder);
-		}
-		else
-			Dcx::FillRectColour(pUDMI->um.hdc, &pUDMI->dis.rcItem, clrFill);
+		//if (p_this->m_CustomMenuBar.m_bDrawBorder)
+		//{
+		//	//Dcx::FillRectColour(pUDMI->um.hdc, &pUDMI->dis.rcItem, p_this->m_CustomMenuBar.m_Default.m_Colours.m_clrBack);
+		//	dcxDrawRect(pUDMI->um.hdc, &pUDMI->dis.rcItem, clrFill, clrBorder, p_this->m_CustomMenuBar.m_bDrawRoundedBorder);
+		//}
+		//else
+		//	Dcx::FillRectColour(pUDMI->um.hdc, &pUDMI->dis.rcItem, clrFill);
 
 		if (mCols.m_hBkg)
-			dcxDrawBitMap(pUDMI->um.hdc, &pUDMI->dis.rcItem, mCols.m_hBkg, true);
+			dcxDrawBitMap(pUDMI->um.hdc, &pUDMI->dis.rcItem, mCols.m_hBkg, true, false);
+		else
+			dcxDrawRect(pUDMI->um.hdc, &pUDMI->dis.rcItem, clrFill, clrBorder, p_this->m_CustomMenuBar.m_bDrawRoundedBorder);
 
-		if (p_this->m_CustomMenuBar.g_menuTheme)
+		if (p_this->m_CustomMenuBar.m_menuTheme)
 		{
-			const DTTOPTS opts = { sizeof(opts), DTT_TEXTCOLOR, clrText };
+			const DTTOPTS opts = { sizeof(opts), (p_this->m_CustomMenuBar.m_bDrawShadowText ? DTT_TEXTCOLOR|DTT_SHADOWCOLOR : DTT_TEXTCOLOR), clrText,0,RGB(0,0,0) };
 
-			Dcx::UXModule.dcxDrawThemeTextEx(p_this->m_CustomMenuBar.g_menuTheme, pUDMI->um.hdc, MENU_BARITEM, MBI_NORMAL, &menuString[0], mii.cch, dwFlags, &pUDMI->dis.rcItem, &opts);
+			Dcx::UXModule.dcxDrawThemeTextEx(p_this->m_CustomMenuBar.m_menuTheme, pUDMI->um.hdc, MENU_BARITEM, MBI_NORMAL, &menuString[0], mii.cch, dwFlags, &pUDMI->dis.rcItem, &opts);
 		}
 		else {
-			if (false)
+			if (p_this->m_CustomMenuBar.m_bDrawShadowText)
 				dcxDrawShadowText(pUDMI->um.hdc, &menuString[0], mii.cch, &pUDMI->dis.rcItem, dwFlags, clrText, RGB(0, 0, 0), 5, 5);
 			else {
 				const auto clrOld = SetTextColor(pUDMI->um.hdc, clrText);

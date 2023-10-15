@@ -3467,7 +3467,8 @@ void WINAPI DXGetErrorDescriptionW(_In_ HRESULT hr, _Out_cap_(count) WCHAR* desc
 	*desc = 0;
 
 	// First try to see if FormatMessage knows this hr
-	const UINT icount = static_cast<UINT>(std::min<size_t>(count, 32767U));
+	//const UINT icount = static_cast<UINT>(std::min<size_t>(count, 32767U));
+	const DWORD icount = std::min<DWORD>(static_cast<DWORD>(count), 32767U);
 
 	const DWORD result = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, hr,
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), desc, icount, nullptr);

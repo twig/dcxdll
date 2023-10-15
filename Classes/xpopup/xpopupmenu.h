@@ -70,11 +70,12 @@ struct XPMENUBARITEM
 };
 struct XPMENUBAR
 {
-	static inline HTHEME g_menuTheme{};
+	HTHEME m_menuTheme{};
 
 	bool m_bEnable{ false };						// Custom draw the dialogs menu bar.
 	bool m_bDrawBorder{ false };					// draw border sound item?
 	bool m_bDrawRoundedBorder{ false };				// draw rounded border?
+	bool m_bDrawShadowText{ false };				// draw text with shadows?
 	XPMENUBARITEM m_Default;						// colours for whole menubar (overridden by m_ItemSettings)
 	std::map<int, XPMENUBARITEM> m_ItemSettings;	// item specific colour settings.
 
@@ -82,8 +83,8 @@ struct XPMENUBAR
 
 	bool operator==(const XPMENUBAR& other) const = default;
 
-	XPMENUBAR(bool m_bEnable, bool m_bDrawBorder, bool m_bDrawRoundedBorder, const XPMENUBARITEM& m_Default, const std::map<int, XPMENUBARITEM>& m_ItemSettings)
-		: m_bEnable(m_bEnable), m_bDrawBorder(m_bDrawBorder), m_bDrawRoundedBorder(m_bDrawRoundedBorder), m_Default(m_Default), m_ItemSettings(m_ItemSettings)
+	XPMENUBAR(bool m_bEnable, bool m_bDrawBorder, bool m_bDrawRoundedBorder, bool m_bDrawShadowText, const XPMENUBARITEM& m_Default, const std::map<int, XPMENUBARITEM>& m_ItemSettings)
+		: m_bEnable(m_bEnable), m_bDrawBorder(m_bDrawBorder), m_bDrawRoundedBorder(m_bDrawRoundedBorder), m_bDrawShadowText(m_bDrawShadowText), m_Default(m_Default), m_ItemSettings(m_ItemSettings)
 	{
 	}
 };

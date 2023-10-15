@@ -9,7 +9,7 @@ namespace Dcx {
 	IClassFactory* m_pClassFactory{};
 	DcxGDIModule GDIModule;
 	DcxUXModule UXModule;
-	DcxDWMModule VistaModule;
+	DcxDWMModule DwmModule;
 	DcxDPIModule DpiModule;
 	DcxDialogCollection Dialogs;
 	XPopupMenuManager XPopups;
@@ -62,7 +62,7 @@ namespace Dcx {
 
 		UXModule.load();
 
-		VistaModule.load();
+		DwmModule.load();
 
 		DpiModule.load();
 
@@ -189,7 +189,7 @@ namespace Dcx {
 	void freeOSCompatibility(void) noexcept
 	{
 		DpiModule.unload();
-		VistaModule.unload();
+		DwmModule.unload();
 		UXModule.unload();
 		GDIModule.unload();
 	}
@@ -418,7 +418,7 @@ namespace Dcx {
 
 		case WM_DWMCOMPOSITIONCHANGED:
 		{
-			Dcx::VistaModule.refreshComposite();
+			Dcx::DwmModule.refreshComposite();
 			break;
 		}
 
@@ -518,7 +518,8 @@ namespace Dcx {
 			}
 			break;
 		}
-
+#if DCX_CUSTOM_MENUS
+#endif
 		default:
 			break;
 		}
