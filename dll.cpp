@@ -1073,7 +1073,7 @@ mIRC(GetSystemColor)
 		if (col == -1)
 		{
 			RGBQUAD clr{};
-			if (BOOL bOpaque = FALSE; FAILED(Dcx::VistaModule.dcxDwmGetColorizationColor(reinterpret_cast<DWORD*>(&clr), &bOpaque)))
+			if (BOOL bOpaque = FALSE; FAILED(Dcx::DwmModule.dcxDwmGetColorizationColor(reinterpret_cast<DWORD*>(&clr), &bOpaque)))
 				throw Dcx::dcxException("Unable to get glass colour.");
 
 			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%u"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
@@ -1789,7 +1789,7 @@ mIRC(WindowProps)
 			//}
 			//SetLayeredWindowAttributes(hwnd, RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue), 0, LWA_COLORKEY);
 
-			Dcx::VistaModule.dcxDwmExtendFrameIntoClientArea(hwnd, &margin);
+			Dcx::DwmModule.dcxDwmExtendFrameIntoClientArea(hwnd, &margin);
 			RedrawWindow(hwnd, nullptr, nullptr, RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_ERASE | RDW_FRAME | RDW_UPDATENOW);
 		}
 		return 1;
