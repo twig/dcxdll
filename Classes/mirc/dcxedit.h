@@ -34,6 +34,22 @@ class DcxDialog;
 * blah
 */
 
+namespace Dcx
+{
+	int dcxEdit_GetEndOfLine(HWND hwnd) noexcept;
+	bool dcxEdit_GetZoom(HWND hwnd, int* nNumerator, int* nDenominator) noexcept;
+	TString dcxEdit_GetEndOfLineCharacters(HWND hwnd);
+	DWORD dcxEdit_GetCaretIndex(HWND hwnd) noexcept;
+	void dcxEdit_SetCaretIndex(HWND hwnd, DWORD nPos) noexcept;
+	inline DWORD dcxEdit_GetFirstVisibleLine(HWND hwnd) noexcept
+	{
+		return gsl::narrow_cast<DWORD>(Edit_GetFirstVisibleLine(hwnd));
+	}
+	DWORD dcxEdit_CharFromPos(HWND hwnd, const LONG& iPos) noexcept;
+	DWORD dcxEdit_LineFromChar(HWND hwnd, const LONG& ich) noexcept;
+
+}
+
 class DcxEdit final
 	: public DcxControl
 	, virtual public DcxSearchHelper

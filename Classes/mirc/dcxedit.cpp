@@ -15,6 +15,91 @@
 #include "Classes/mirc/dcxedit.h"
 #include "Classes/dcxdialog.h"
 
+namespace Dcx
+{
+	int dcxEdit_GetEndOfLine(HWND hwnd) noexcept
+	{
+		//	EC_ENDOFLINE_CRLF	one		The end - of - line character used for new linebreaks is carriage return followed by linefeed(CRLF).
+		//	EC_ENDOFLINE_CR		two		The end - of - line character used for new linebreaks is carriage return (CR).
+		//	EC_ENDOFLINE_LF		three	The end - of - line character used for new linebreaks is linefeed(LF).
+		// When the end-of-line character used is set to EC_ENDOFLINE_DETECTFROMCONTENT using Edit_SetEndOfLine, this message will return the detected end-of-line character.
+		if (hwnd && Dcx::DwmModule.isWin10())
+			return Edit_GetEndOfLine(hwnd);
+
+		// use CRLF if not win10+
+		return EC_ENDOFLINE_CRLF;
+	}
+	bool dcxEdit_GetZoom(HWND hwnd, int* nNumerator, int* nDenominator) noexcept
+	{
+		//Supported in Windows 10 1809 and later. The edit control needs to have the ES_EX_ZOOMABLE extended style set, for this message to have an effect
+		//(the zoom ratio is always between 1/64 and 64) NOT inclusive, 1.0 = no zoom
+		if (!hwnd || !nNumerator || !nDenominator)
+			return false;
+
+		if (Dcx::DwmModule.isWin10())
+			return Edit_GetZoom(hwnd, nNumerator, nDenominator);
+
+		*nNumerator = 1;
+		*nDenominator = 0;
+		return true;
+	}
+	TString dcxEdit_GetEndOfLineCharacters(HWND hwnd)
+	{
+		switch (Dcx::dcxEdit_GetEndOfLine(hwnd))
+		{
+		case EC_ENDOFLINE_LF:
+			return TEXT("\n");
+		case EC_ENDOFLINE_CR:
+			return TEXT("\r");
+		case EC_ENDOFLINE_CRLF:
+		default:
+			break;
+		}
+		return TEXT("\r\n");
+	}
+	DWORD dcxEdit_GetCaretIndex(HWND hwnd) noexcept
+	{
+		if (!hwnd)
+			return 0;
+
+		// windows 10 only
+		if (Dcx::DwmModule.isWin10())
+			return Edit_GetCaretIndex(hwnd);
+
+		DWORD hiPos{}, loPos{};
+		//Edit_GetSel(hwnd); // not usefull here.
+		SNDMSG(hwnd, EM_GETSEL, reinterpret_cast<LPARAM>(&loPos), reinterpret_cast<LPARAM>(&hiPos));
+		if (loPos != hiPos)
+			--hiPos;
+		return hiPos;
+	}
+	void dcxEdit_SetCaretIndex(HWND hwnd, DWORD nPos) noexcept
+	{
+		if (!hwnd)
+			return;
+
+		// windows 10 only
+		if (Dcx::DwmModule.isWin10())
+			Edit_SetCaretIndex(hwnd, nPos);
+		else
+			Edit_SetSel(hwnd, nPos, nPos);
+	}
+	DWORD dcxEdit_CharFromPos(HWND hwnd, const LONG &iPos) noexcept
+	{
+		if (!hwnd)
+			return 0;
+
+		constexpr LONG iZero{};
+		return gsl::narrow_cast<DWORD>(SNDMSG(hwnd, EM_CHARFROMPOS, 0, Dcx::dcxMAKELPARAM(iZero, iPos)));
+	}
+	DWORD dcxEdit_LineFromChar(HWND hwnd, const LONG& ich) noexcept
+	{
+		if (!hwnd)
+			return 0;
+		return gsl::narrow_cast<DWORD>(Edit_LineFromChar(hwnd, ich));
+	}
+}
+
 /*!
 * \brief Constructor
 *
