@@ -21,6 +21,13 @@
 
 class DcxDialog;
 
+// version of Edit_SetCaretIndex in the sdk is broken as it uses newCaretIndex instead of the defined newCaretPosition
+#ifdef Edit_SetCaretIndex
+#undef Edit_SetCaretIndex
+#endif
+#define Edit_SetCaretIndex(hwndCtl, newCaretPosition) \
+        (BOOL)SNDMSG((hwndCtl), EM_SETCARETINDEX, (WPARAM)(newCaretPosition), 0)
+
 /*!
 * \brief blah
 *
@@ -58,6 +65,8 @@ public:
 
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
+
+	TString getLine(int nLine) const;
 
 private:
 	TString m_tsText; // Edit Text

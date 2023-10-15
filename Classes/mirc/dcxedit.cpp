@@ -1076,7 +1076,7 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			//{
 			//	// must call DrawGutter() directly to avoid flicker.
 			//	DrawGutter(reinterpret_cast<HDC>(wParam));
-
+			//
 			//	bParsed = TRUE;
 			//	return TRUE;
 			//}
@@ -1250,6 +1250,9 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		break;
 	}
 
+	case WM_MOUSEHWHEEL:
+	case WM_MOUSEWHEEL:
+		[[fallthrough]];
 	case WM_VSCROLL:
 	{
 		if (m_bShowLineNumbers)
@@ -1270,6 +1273,14 @@ LRESULT DcxEdit::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lPa
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
+}
+
+TString DcxEdit::getLine(int nLine) const
+{
+	TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
+	Edit_GetLine(m_Hwnd, nLine, &szBuf[0], (MIRC_BUFFER_SIZE_CCH - 1));
+
+	return szBuf;
 }
 
 Dcx::range_t<DWORD> DcxEdit::GetVisibleRange() const noexcept
