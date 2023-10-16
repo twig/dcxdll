@@ -149,11 +149,15 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 		    '__desc' => "This property lets you retreive the Nth line in the edit or the whole edit text.",
 		    '__cmd' => '[N]',
 		    '__eg' => '2',
-		    '__notes' => 'If the [s]multi[/s] is not used, you can ignore [p]N[/p] when retrieving the edit text.'
+            '__params' => array(
+                    'N' => 'The line index to get.',
+            ),
+		    '__notes' => 'If the [s]multi[/s] style is not used, you can ignore [p]N[/p] when retrieving the edit text.'
 		),
 		"num" => 'This property lets you retreive the number of lines in the edit.',
 		"isreadonly" => 'Is the edit control using the [s]readonly[/s] style?',
 		"ispass" => 'This property lets you retreive if the password style is set on the edit control.',
+		"ismodified" => 'This property lets you retreive if the contents have been modified.',
 		"sel" => 'This returns the index of the first and last selected character position in the control.',
 		"selstart" => 'This returns the index of the first selected character position in the control.',
 		"selend" => 'This returns the index of the last selected character position in the control.',
@@ -189,6 +193,35 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 			'__notes' => array(
 				'If [p]N[/p] is [v]0[/v], returns the total number of matching items.',
 				'The [TAB] characters surrounding the matchtext are mandatory or else it wont work.',
+			),
+		),
+		"passchar" => array(
+			'__desc' => 'This property returns the character used to cover passwords.',
+		    '__notes' => 'If the [s]password[/s] style is not used then this will return zero.',
+		),
+		"len" => array(
+		    '__desc' => 'This property returns the length of the controls contents or a specific line.',
+		    '__cmd' => '(N)',
+		    '__eg' => array(
+				'',
+				'2',
+			),
+            '__params' => array(
+                    'N' => 'The line index to get the length of.',
+            ),
+		    '__notes' => 'If the [s]multi[/s] style is not used, then [p]N[/p] is ignored and the length of all the text is returned.',
+		),
+		"endofline" => array(
+		    '__desc' => 'This property returns the character used to mark the end of lines. (Win10+)',
+		    '__notes' => array(
+				"Returns one of the following values:",
+				"0 - No end of line character",
+				"1 - EC_ENDOFLINE_CRLF - end of line is a CRLF pair.",
+				"2 - EC_ENDOFLINE_CR - end of line is a CR",
+				"3 - EC_ENDOFLINE_LF - end of line is a LF",
+		//	EC_ENDOFLINE_CRLF	one		The end - of - line character used for new linebreaks is carriage return followed by linefeed(CRLF).
+		//	EC_ENDOFLINE_CR		two		The end - of - line character used for new linebreaks is carriage return (CR).
+		//	EC_ENDOFLINE_LF		three	The end - of - line character used for new linebreaks is linefeed(LF).
 			),
 		),
 	);

@@ -311,7 +311,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		{
 			if (input.numtok() > 3)
 			{
-				const auto sepChars = Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd);
+				const auto sepChars(Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd));
 				if (const auto nLine = input.getnexttok().to_int(); (nLine > 0 && nLine <= gsl::narrow_cast<int>(m_tsText.numtok(sepChars.to_chr()))))
 					szReturnValue = m_tsText.gettok(nLine, sepChars.to_chr()).to_chr();
 			}
@@ -486,22 +486,10 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 
 	case L"len"_hash:
 	{
-		_ts_snprintf(szReturnValue, TEXT("%u"), m_tsText.len());
-	}
-	break;
-
-	case L"linelen"_hash:
-	{
-		//const auto nLine = input.getnexttokas<int>() - 1;
-		//if (nLine < 0)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//const auto nLen = Edit_LineLength(m_Hwnd, nLine);
-		//_ts_snprintf(szReturnValue, TEXT("%u"), nLen);
-
-		if (this->isStyle(WindowStyle::ES_MultiLine))
+		if (this->isStyle(WindowStyle::ES_MultiLine) && (input.numtok() == 4))
 		{
 			const auto nLine = input.getnexttokas<UINT>();
-			const auto sepChars = Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd);
+			const auto sepChars(Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd));
 
 			if (nLine > m_tsText.numtok(sepChars.to_chr()))
 				throw DcxExceptions::dcxInvalidArguments();
@@ -509,9 +497,9 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 			const auto nLen = m_tsText.gettok(nLine, sepChars.to_chr()).len();
 
 			_ts_snprintf(szReturnValue, TEXT("%u"), nLen);
+			return;
 		}
-		else
-			_ts_snprintf(szReturnValue, TEXT("%u"), m_tsText.len());
+		_ts_snprintf(szReturnValue, TEXT("%u"), m_tsText.len());
 	}
 	break;
 

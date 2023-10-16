@@ -426,6 +426,20 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.endofline"></a>$xdid().endofline	</td></tr>
+	<tr><td colspan="2">This property returns the character used to mark the end of lines. (Win10+)</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).endofline</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).endofline</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns one of the following values:</li><li>0 - No end of line character</li><li>1 - EC_ENDOFLINE_CRLF - end of line is a CRLF pair.</li><li>2 - EC_ENDOFLINE_CR - end of line is a CR</li><li>3 - EC_ENDOFLINE_LF - end of line is a LF</li></ul></td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.find"></a>$xdid().find	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the character offset of the Nth found match to the input search patern.</td></tr>
 	<tr>
@@ -487,6 +501,20 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.ismodified"></a>$xdid().ismodified	</td></tr>
+	<tr><td colspan="2">This property lets you retreive if the contents have been modified.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).ismodified</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).ismodified</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.ispass"></a>$xdid().ispass	</td></tr>
 	<tr><td colspan="2">This property lets you retreive if the password style is set on the edit control.</td></tr>
 	<tr>
@@ -515,6 +543,25 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.len"></a>$xdid().len	</td></tr>
+	<tr><td colspan="2">This property returns the length of the controls contents or a specific line.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, (N)).len</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).len<br />$xdid(dcx, 4, 2).len<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>The line index to get the length of.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class="style">multi</a> style is not used, then <a class="param">N</a> is ignored and the length of all the text is returned.</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.linenumbers"></a>$xdid().linenumbers	</td></tr>
 	<tr><td colspan="2">This returns if line numbers are enabled.</td></tr>
 	<tr>
@@ -540,6 +587,20 @@
 		<td><div class="example">$xdid(dcx, 4).num</div></td>
 	</tr>
 </table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.passchar"></a>$xdid().passchar	</td></tr>
+	<tr><td colspan="2">This property returns the character used to cover passwords.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).passchar</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).passchar</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class="style">password</a> style is not used then this will return zero.</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -609,7 +670,12 @@
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4, 2).text</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class="style">multi</a> is not used, you can ignore <a class="param">N</a> when retrieving the edit text.</td></tr></table>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>The line index to get.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class="style">multi</a> style is not used, you can ignore <a class="param">N</a> when retrieving the edit text.</td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>Edit Events</td></tr>
@@ -820,12 +886,16 @@
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
 		<a class='flag' href="#xdidprop.caretpos"><div>caretpos</div></a>
 		<a class='flag' href="#xdidprop.cue"><div>cue</div></a>
+		<a class='flag' href="#xdidprop.endofline"><div>endofline</div></a>
 		<a class='flag' href="#xdidprop.find"><div>find</div></a>
 		<a class='flag' href="#xdidprop.guttercolours"><div>guttercolours</div></a>
+		<a class='flag' href="#xdidprop.ismodified"><div>ismodified</div></a>
 		<a class='flag' href="#xdidprop.ispass"><div>ispass</div></a>
 		<a class='flag' href="#xdidprop.isreadonly"><div>isreadonly</div></a>
+		<a class='flag' href="#xdidprop.len"><div>len</div></a>
 		<a class='flag' href="#xdidprop.linenumbers"><div>linenumbers</div></a>
 		<a class='flag' href="#xdidprop.num"><div>num</div></a>
+		<a class='flag' href="#xdidprop.passchar"><div>passchar</div></a>
 		<a class='flag' href="#xdidprop.sel"><div>sel</div></a>
 		<a class='flag' href="#xdidprop.selend"><div>selend</div></a>
 		<a class='flag' href="#xdidprop.selstart"><div>selstart</div></a>
@@ -854,7 +924,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 12th October, 23</td>
+		<td style="text-align: right;">Last Updated: 16th October, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">
