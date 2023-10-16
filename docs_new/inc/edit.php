@@ -155,9 +155,27 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 		    '__notes' => 'If the [s]multi[/s] style is not used, you can ignore [p]N[/p] when retrieving the edit text.'
 		),
 		"num" => 'This property lets you retreive the number of lines in the edit.',
-		"isreadonly" => 'Is the edit control using the [s]readonly[/s] style?',
-		"ispass" => 'This property lets you retreive if the password style is set on the edit control.',
-		"ismodified" => 'This property lets you retreive if the contents have been modified.',
+		"isreadonly" => array(
+			'__desc' => 'Is the edit control using the [s]readonly[/s] style?',
+			'__return' => array(
+				'0' => '- Control is NOT readonly.',
+				'1' => '- Control IS readonly.',
+			),
+		),
+		"ispass" => array(
+			'__desc' => 'Is the edit control using the [s]password[/s] style?',
+			'__return' => array(
+				'0' => '- Password mode disabled.',
+				'1' => '- Password mode enabled.',
+			),
+		),
+		"ismodified" => array(
+			'__desc' => 'Have the contents have been modified?',
+			'__return' => array(
+				'0' => '- Contents have not been modified.',
+				'1' => '- Contents have been modified.',
+			),
+		),
 		"sel" => 'This returns the index of the first and last selected character position in the control.',
 		"selstart" => 'This returns the index of the first selected character position in the control.',
 		"selend" => 'This returns the index of the last selected character position in the control.',
@@ -165,12 +183,18 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 		"cue" => 'This returns the cue banner text in the control.',
 		"caretpos" => array(
 		    '__desc' => "This property lets you retreive the position of the cursor.",
-		    '__notes' => 'The return value is [p]LINE[/p] [p]COLUMN[/p] [p]CHAR[/p]',
+			'__return' => '[r]LINE[/r] [r]COLUMN[/r] [r]CHAR[/r]',
 		),
-		"linenumbers" => 'This returns if line numbers are enabled.',
+		"linenumbers" => array(
+			'__desc' => 'This returns if line numbers are enabled.',
+			'__return' => array(
+				'0' => '- disabled.',
+				'1' => '- enabled.',
+			),
+		),
 		"guttercolours" => array(
 		    '__desc' => 'This returns the colours used to draw line numbers.',
-		    '__notes' => 'The return value is [p]Selected line Background Colour[/p] [p]Background Colour[/p] [p]Selected Line Text Colour[/p] [p]Text Colour[/p] [p]Border Colour[/p]',
+			'__return' => '[[r]Selected line Background Colour[/r]] [[r]Background Colour[/r]] [[r]Selected Line Text Colour[/r]] [[r]Text Colour[/r]] [[r]Border Colour[/r]]',
 		),
 		"find" => array(
             '__desc' => "This property lets you retreive the character offset of the Nth found match to the input search patern.",
@@ -179,7 +203,7 @@ function get_xdidprops_edit(&$XDIDPROPS) {
             '__params' => array(
                     'MATCHTEXT' => 'String composed of wildcards or regex paterns used for the search.',
                     'T' => array(
-                            '__desc' => 'Value indicating if the search is using a regex patern or wildcard string.',
+                            '__desc' => 'Value indicating if the search is using a regex patern, a wildcard string, or an exact match.',
                             '__values' => array(
                                     'W' => 'Matchtext is a wildcard string.',
                                     'R' => 'Matchtext is a regex patern.',
@@ -213,12 +237,11 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 		),
 		"endofline" => array(
 		    '__desc' => 'This property returns the character used to mark the end of lines. (Win10+)',
-		    '__notes' => array(
-				"Returns one of the following values:",
-				"0 - No end of line character",
-				"1 - EC_ENDOFLINE_CRLF - end of line is a CRLF pair.",
-				"2 - EC_ENDOFLINE_CR - end of line is a CR",
-				"3 - EC_ENDOFLINE_LF - end of line is a LF",
+			'__return' => array(
+				'0' => "- No end of line character",
+				'1' => "- EC_ENDOFLINE_CRLF - end of line is a CRLF pair.",
+				'2' => "- EC_ENDOFLINE_CR - end of line is a CR",
+				'3' => "- EC_ENDOFLINE_LF - end of line is a LF",
 		//	EC_ENDOFLINE_CRLF	one		The end - of - line character used for new linebreaks is carriage return followed by linefeed(CRLF).
 		//	EC_ENDOFLINE_CR		two		The end - of - line character used for new linebreaks is carriage return (CR).
 		//	EC_ENDOFLINE_LF		three	The end - of - line character used for new linebreaks is linefeed(LF).
@@ -243,15 +266,15 @@ function get_events_edit(&$EVENTS) {
 		),
 		"copy" => array(
 			'__desc' => "When the user copies text from the edit control.",
-			'__return' => '[r]nocopy[/r] this value to block the copy operation.'
+			'__return' => '[r]nocopy[/r] - To block the copy operation.'
 		),
 		"cut" => array(
 			'__desc' => "When the user cuts text from the edit control.",
-			'__return' => '[r]nocut[/r] Return this value to block the cut operation.'
+			'__return' => '[r]nocut[/r] - To block the cut operation.'
 		),
 		"paste" => array(
 			'__desc' => "When the user pastes text into the edit control.",
-			'__return' => '[r]nopaste[/r] Return this value to block the paste operation.'
+			'__return' => '[r]nopaste[/r] - To block the paste operation.'
 		),
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
 		'dragbegin' => array(
@@ -261,7 +284,7 @@ function get_events_edit(&$EVENTS) {
 			'__params' => array(
 				'COUNT' => "Total number of files dragged into the control.",
 			),
-			'__return' => '[r]cancel[/r] to stop the drag drop events from occuring.',
+			'__return' => '[r]cancel[/r] - To stop the drag drop events from occuring.',
 		),
 		'dragfile' => array(
 			'__desc' => "The filename of the file which was dropped onto the edit control.",

@@ -15,10 +15,10 @@ function get_styles_xdid(&$STYLES) {
 	$STYLES = array(
 		"tabstop" => "Specifies a control that can receive the keyboard focus when the user presses the TAB key. Pressing the TAB key changes the keyboard focus to the next control with the [s]tabstop[/s] style.",
 		"group" => "Specifies the first control of a group of controls. The group consists of this first control and all controls defined after it, up to the next control with the [s]group[/s] style. The first control in each group usually has the tabstop style so that the user can move from group to group. The user can subsequently change the keyboard focus from one control in the group to the next control in the group by using the direction keys.",
-                'hidden' => 'The control is not visible.',
+		'hidden' => 'The control is not visible.',
 		"disabled" => "The control is created disabled.",
 		"notheme" => "Removes XP Themes on controls.",
-                "transparent" => "Does not draw the control background so the parent background will show through. (Applies to all controls but only some controls will actually process this style)",
+		"transparent" => "Does not draw the control background so the parent background will show through. (Applies to all controls but only some controls will actually process this style)",
 	);
 }
 
@@ -281,9 +281,9 @@ function get_xdid_xdid(&$XDID) {
 
 
 function get_xdidprops_xdid(&$XDIDPROPS) {
-        $XDIDPROPS = array(
-                "alpha" => 'This property returns [v]$true[/v] if the control is using the [s]alpha[/s] style.',
-                "enabled" => "This property retrieves if a control is enabled or disabled.",
+    $XDIDPROPS = array(
+        "alpha" => 'This property returns [v]$true[/v] if the control is using the [s]alpha[/s] style.',
+        "enabled" => "This property retrieves if a control is enabled or disabled.",
 		"visible" => "This property retrieves if a control is visible or hidden.",
 		"pos" => "This property retrieves the position and size of a control in the format [X] [Y] [W] [H] relative to the parent (which can be the dialog).",
 		"dpos" => "This property retrieves the position and size of a control in the format [X] [Y] [W] [H] relative to the dialog.",
@@ -298,9 +298,9 @@ function get_xdidprops_xdid(&$XDIDPROPS) {
 		),
 		"tooltipbgcolor" => "This property retrieves the tooltip background color.",
 		"tooltiptextcolor" => "This property retrieves the tooltip text color.",
-                'textcolor' => 'This property retrieves the text color.',
-                'textbgcolor' => 'This property retrieves the text bcakground color.',
-                'bgcolor' => 'This property retrieves the background color.',
+        'textcolor' => 'This property retrieves the text color.',
+        'textbgcolor' => 'This property retrieves the text bcakground color.',
+        'bgcolor' => 'This property retrieves the background color.',
 	);
 }
 

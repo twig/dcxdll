@@ -408,7 +408,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).caretpos</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The return value is <a class="param">LINE</a> <a class="param">COLUMN</a> <a class="param">CHAR</a></td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">LINE</a> <a class="returnevent">COLUMN</a> <a class="returnevent">CHAR</a></td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -436,7 +436,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).endofline</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns one of the following values:</li><li>0 - No end of line character</li><li>1 - EC_ENDOFLINE_CRLF - end of line is a CRLF pair.</li><li>2 - EC_ENDOFLINE_CR - end of line is a CR</li><li>3 - EC_ENDOFLINE_LF - end of line is a LF</li></ul></td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">0</a> - No end of line character<br /><a class="returnevent">1</a> - EC_ENDOFLINE_CRLF - end of line is a CRLF pair.<br /><a class="returnevent">2</a> - EC_ENDOFLINE_CR - end of line is a CR<br /><a class="returnevent">3</a> - EC_ENDOFLINE_LF - end of line is a LF</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -457,7 +457,7 @@
 	</tr>
 	<tr>
 		<td class="param">T</td>
-		<td>Value indicating if the search is using a regex patern or wildcard string.</td>
+		<td>Value indicating if the search is using a regex patern, a wildcard string, or an exact match.</td>
 	</tr>
 	<tr>
 		<td class="value">W</td>
@@ -497,12 +497,12 @@
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).guttercolours</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The return value is <a class="param">Selected line Background Colour</a> <a class="param">Background Colour</a> <a class="param">Selected Line Text Colour</a> <a class="param">Text Colour</a> <a class="param">Border Colour</a></td></tr></table>
+<tr><td class="syntax">Return</td><td>[<a class="returnevent">Selected line Background Colour</a>] [<a class="returnevent">Background Colour</a>] [<a class="returnevent">Selected Line Text Colour</a>] [<a class="returnevent">Text Colour</a>] [<a class="returnevent">Border Colour</a>]</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.ismodified"></a>$xdid().ismodified	</td></tr>
-	<tr><td colspan="2">This property lets you retreive if the contents have been modified.</td></tr>
+	<tr><td colspan="2">Have the contents have been modified?</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdid(dialog, ID).ismodified</div></td>
@@ -511,12 +511,12 @@
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).ismodified</div></td>
 	</tr>
-</table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">0</a> - Contents have not been modified.<br /><a class="returnevent">1</a> - Contents have been modified.</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.ispass"></a>$xdid().ispass	</td></tr>
-	<tr><td colspan="2">This property lets you retreive if the password style is set on the edit control.</td></tr>
+	<tr><td colspan="2">Is the edit control using the <a class="style">password</a> style?</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdid(dialog, ID).ispass</div></td>
@@ -525,7 +525,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).ispass</div></td>
 	</tr>
-</table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">0</a> - Password mode disabled.<br /><a class="returnevent">1</a> - Password mode enabled.</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -539,7 +539,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).isreadonly</div></td>
 	</tr>
-</table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">0</a> - Control is NOT readonly.<br /><a class="returnevent">1</a> - Control IS readonly.</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -572,7 +572,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).linenumbers</div></td>
 	</tr>
-</table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">0</a> - disabled.<br /><a class="returnevent">1</a> - enabled.</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -693,7 +693,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx copy 4</div></td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">nocopy</a> this value to block the copy operation.</td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">nocopy</a> - To block the copy operation.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -707,7 +707,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx cut 4</div></td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">nocut</a> Return this value to block the cut operation.</td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">nocut</a> - To block the cut operation.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -726,7 +726,7 @@
 		<td class="param">COUNT</td>
 		<td>Total number of files dragged into the control.</td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> to stop the drag drop events from occuring.</td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> - To stop the drag drop events from occuring.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -824,7 +824,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx paste 4</div></td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">nopaste</a> Return this value to block the paste operation.</td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">nopaste</a> - To block the paste operation.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
