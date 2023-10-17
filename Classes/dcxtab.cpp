@@ -817,7 +817,7 @@ void DcxTab::toXml(TiXmlElement* const xml) const
 	{
 		tci.cchTextMax = MIRC_BUFFER_SIZE_CCH - 1;
 		tci.pszText = buf.get();
-		tci.mask |= TCIF_TEXT;
+		tci.mask = TCIF_TEXT | TCIF_IMAGE | TCIF_PARAM;
 		if (getTab(i, &tci))
 		{
 			if (const auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci)
@@ -836,6 +836,8 @@ void DcxTab::toXml(TiXmlElement* const xml) const
 					}
 					if (dcx_testflag(tci.mask, TCIF_TEXT))
 						ctrlxml->SetAttribute("caption", TString(tci.pszText).c_str());
+					if (dcx_testflag(tci.mask, TCIF_IMAGE) && (tci.iImage != -1))	// -1 means no image
+						ctrlxml->SetAttribute("image", tci.iImage);
 					xml->LinkEndChild(ctrlxml);
 				}
 			}
