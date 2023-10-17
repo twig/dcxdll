@@ -231,6 +231,16 @@ void DcxUpDown::parseCommandRequest(const TString& input)
  * blah
  */
 
+DcxControl* DcxUpDown::getBuddy() const noexcept
+{
+	if (auto hwnd = reinterpret_cast<HWND>(SendMessage(m_Hwnd, UDM_GETBUDDY, 0, 0)); hwnd)
+	{
+		if (auto pd = getParentDialog(); pd)
+			return pd->getControlByHWND(hwnd);
+	}
+	return nullptr;
+}
+
 LRESULT DcxUpDown::setBuddy(const HWND mHwnd) noexcept
 {
 	return SendMessage(m_Hwnd, UDM_SETBUDDY, reinterpret_cast<WPARAM>(mHwnd), 0);
@@ -322,6 +332,25 @@ const TString DcxUpDown::getStyles(void) const
 	if (dcx_testflag(Styles, UDS_WRAP))
 		styles.addtok(TEXT("wrap"));
 	return styles;
+}
+
+void DcxUpDown::toXml(TiXmlElement* const xml) const
+{
+	__super::toXml(xml);
+
+	auto pd = getParentDialog();
+	if (!pd)
+		return;
+
+	if (auto ctrl = getBuddy(); ctrl)
+		xml->SetAttribute("buddyid", pd->IDToName(ctrl->getID()).c_str());
+}
+
+TiXmlElement* DcxUpDown::toXml(void) const
+{
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 /*!

@@ -47,6 +47,7 @@ public:
 	void parseCommandRequest( const TString & input ) final;
 	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
 
+	DcxControl* getBuddy() const noexcept;
 	LRESULT setBuddy( const HWND mHwnd ) noexcept;
 	LRESULT setRange32( const int iLow, const int iHigh ) noexcept;
 	std::pair<int,int> getRange32() const noexcept;
@@ -56,6 +57,8 @@ public:
 	LRESULT getPos32( const LPBOOL pfError ) const noexcept;
 
 	const TString getStyles(void) const final;
+	void toXml(TiXmlElement* const xml) const final;
+	TiXmlElement* toXml(void) const final;
 
 	inline const TString getType() const final { return TEXT("updown"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::UPDOWN; }
