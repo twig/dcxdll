@@ -2777,7 +2777,7 @@ const TString DcxControl::getStyles(void) const
 		else
 			result.addtok(TEXT("hgradient"));
 	}
-	result.addtok(TEXT("utf8"));
+	//result.addtok(TEXT("utf8"));
 	return result;
 
 	//const dcxWindowStyles Styles{ m_Hwnd };
@@ -2827,8 +2827,15 @@ void DcxControl::toXml(TiXmlElement* const xml) const
 		return;
 
 	const auto styles(getStyles());
-
-	xml->SetAttribute("id", gsl::narrow_cast<int>(getUserID()));
+	if (const auto pd = this->getParentDialog(); pd)
+	{
+		if (const auto tsID(pd->IDToName(getID())); !tsID.empty())
+			xml->SetAttribute("id", tsID.c_str());
+		else
+			xml->SetAttribute("id", gsl::narrow_cast<int>(getUserID()));
+	}
+	else
+		xml->SetAttribute("id", gsl::narrow_cast<int>(getUserID()));
 	xml->SetAttribute("type", getType().c_str());
 	if (!styles.empty())
 		xml->SetAttribute("styles", styles.c_str());

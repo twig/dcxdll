@@ -48,9 +48,9 @@ public:
 
 	LayoutCellFixed() = delete;
 	LayoutCellFixed(const LayoutCellFixed &) = delete;
-	LayoutCellFixed &operator =(const LayoutCellFixed &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) LayoutCellFixed &operator =(const LayoutCellFixed &) = delete;	// No assignments!
 	LayoutCellFixed(LayoutCellFixed &&) = delete;
-	LayoutCellFixed &operator =(LayoutCellFixed &&) = delete;
+	GSL_SUPPRESS(c.128) LayoutCellFixed &operator =(LayoutCellFixed &&) = delete;
 
 	explicit LayoutCellFixed(DcxControl * dcxc, const FixedType nType = FixedType::BOTH) noexcept;
 	explicit LayoutCellFixed( const HWND mHwnd, const FixedType nType = FixedType::BOTH ) noexcept;

@@ -315,11 +315,42 @@ void DcxBox::toXml(TiXmlElement* const xml) const
 	xml->SetAttribute("caption", wtext.c_str());
 	xml->SetAttribute("styles", getStyles().c_str());
 
+#if DCX_USE_TESTCODE
+	// Ook: for this to work all controls MUST be added to CLA, needs fixed.
+	if (m_pLayoutManager)
+	{
+		if (const auto rt = m_pLayoutManager->getRoot(); rt)
+		{
+			rt->toXml(xml);
+			return;
+		}
+	}
+	for (auto hChild = GetWindow(m_Hwnd, GW_CHILD); hChild; hChild = GetWindow(hChild, GW_HWNDNEXT))
+	{
+		auto pthis = Dcx::dcxGetProp<DcxControl*>(hChild, TEXT("dcx_cthis"));
+		if (!pthis)
+			return;
+
+		const Dcx::dcxWindowRect rc(hChild, m_Hwnd);
+
+		if (auto xctrl = pthis->toXml(); xctrl)
+		{
+			xctrl->SetAttribute("weight", 1);
+			xctrl->SetAttribute("x", rc.left);
+			xctrl->SetAttribute("y", rc.top);
+			xctrl->SetAttribute("height", rc.Height());
+			xctrl->SetAttribute("width", rc.Width());
+
+			xml->LinkEndChild(xctrl);
+		}
+	}
+#else
 	if (m_pLayoutManager)
 	{
 		if (const auto rt = m_pLayoutManager->getRoot(); rt)
 			rt->toXml(xml);
 	}
+#endif
 }
 
 GSL_SUPPRESS(lifetime.4)

@@ -349,9 +349,9 @@ public:
 
 	DcxControl() = delete;	// no default constructor
 	DcxControl(const DcxControl& other) = delete;	// no copy constructor
-	DcxControl& operator =(const DcxControl&) = delete;	// No copy assignments!
+	//DcxControl& operator =(const DcxControl&) = delete;	// No copy assignments!
 	DcxControl(DcxControl&& other) = delete;	// no move constructor
-	DcxControl& operator =(DcxControl&&) = delete;	// No move assignments!
+	//DcxControl& operator =(DcxControl&&) = delete;	// No move assignments!
 
 	DcxControl(const UINT mID, gsl::strict_not_null<DcxDialog* const> p_Dialog) noexcept;
 	~DcxControl() noexcept;

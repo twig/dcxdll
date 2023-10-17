@@ -188,6 +188,18 @@ void LayoutCellPane::toXml(TiXmlElement* const xml)
 	else if (this->m_nType == LayoutCellPane::PaneType::VERT)
 		xml->SetAttribute("cascade", "v");
 
+	if (m_rcBorders.top != 0 || m_rcBorders.bottom != 0 || m_rcBorders.left != 0 || m_rcBorders.right != 0)
+	{
+		TString margin;
+
+		margin.addtok(m_rcBorders.left);
+		margin.addtok(m_rcBorders.top);
+		margin.addtok(m_rcBorders.right);
+		margin.addtok(m_rcBorders.bottom);
+
+		xml->SetAttribute("margin", margin.c_str());
+	}
+
 	for (const auto& [lc, weight] : this->m_vpCells)
 	{
 		if (lc)

@@ -52,9 +52,9 @@ class DcxBox final
 public:
 	DcxBox() = delete;
 	DcxBox(const DcxBox&) = delete;
-	DcxBox& operator =(const DcxBox&) = delete;
+	//DcxBox& operator =(const DcxBox&) = delete;
 	DcxBox(DcxBox&&) = delete;
-	DcxBox& operator =(DcxBox&&) = delete;
+	//DcxBox& operator =(DcxBox&&) = delete;
 
 	//DCX_DELETE_CONTROL_METHODS(DcxBox);
 

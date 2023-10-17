@@ -1392,6 +1392,72 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 
 		SetWindowPos(m_Hwnd, nullptr, x, y, w + Diffx, h + Diffy, iFlags);
 	}
+	// xdialog -X [NAME] [SWITCH] [+FLAGS] [NAME] [FILENAME]
+	else if (flags[TEXT('X')])
+	{
+		// save dialogs data to xml file.
+		const XSwitchFlags xFlags(input.getnexttok());
+		auto tsName(input.getnexttok());
+		auto tsFilename(input.getlasttoks());
+
+		if (tsName.empty() || tsFilename.empty() || !xFlags[TEXT('+')])
+			throw DcxExceptions::dcxInvalidArguments();
+
+		TiXmlDocument doc(tsFilename.c_str());
+		doc.SetCondenseWhiteSpace(false);
+
+		if (IsFile(tsFilename))
+		{
+			if (!doc.LoadFile())
+				throw Dcx::dcxException(TEXT("Not an XML File: %"), tsFilename);
+		}
+		// first get or create dcxml item
+		auto xRoot = doc.FirstChildElement("dcxml");
+		if (!xRoot)
+		{
+			xRoot = dynamic_cast<TiXmlElement*>(doc.InsertEndChild(TiXmlElement("dcxml")));
+
+			if (!xRoot)
+				throw Dcx::dcxException("Unable To Add Root <dcxml>");
+		}
+		// get or create dialogs item
+		auto xDialogs = xRoot->FirstChildElement("dialogs");
+		if (!xDialogs)
+		{
+			xDialogs = dynamic_cast<TiXmlElement*>(xRoot->InsertEndChild(TiXmlElement("dialogs")));
+			if (!xDialogs)
+				throw Dcx::dcxException("Unable to add <dialogs> item");
+		}
+		// get or create an item for THIS dialog
+		TiXmlElement* xDialog{};
+		for (auto xTmp = xDialogs->FirstChildElement("dialog"); xTmp; xTmp = xTmp->NextSiblingElement("dialog"))
+		{
+			if (const auto name = xTmp->Attribute("name"); name)
+			{
+				if (_ts_strcmp(name, tsName.c_str()) == 0)
+				{
+					xDialog = xTmp;
+					break;
+				}
+			}
+		}
+		if (!xDialog)
+		{
+			xDialog = dynamic_cast<TiXmlElement*>(xDialogs->InsertEndChild(TiXmlElement("dialog")));
+			if (!xDialog)
+				throw Dcx::dcxException("Unable to add <dialog> item");
+
+		}
+
+		// remove old data.
+		xDialog->Clear();
+
+		// get current setup
+		this->toXml(xDialog, tsName);
+
+		// save to file.
+		doc.SaveFile();
+	}
 	// invalid command
 	else
 		throw DcxExceptions::dcxInvalidCommand();
@@ -3940,15 +4006,52 @@ void DcxDialog::toXml(TiXmlElement* const xml) const
 
 void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 {
-	if (!xml)
+	if (!xml || !m_Hwnd)
 		return;
 
 	const TString dest(TGetWindowText(m_Hwnd));
 	xml->SetAttribute("name", name.c_str());
 	xml->SetAttribute("caption", dest.c_str());
 
+#if DCX_USE_TESTCODE
 	if (m_pLayoutManager)
-		m_pLayoutManager->getRoot()->toXml(xml);
+	{
+		if (const auto rt = m_pLayoutManager->getRoot(); rt)
+		{
+			// if using CLA then all controls here must be in CLA
+			rt->toXml(xml);
+			return;
+		}
+	}
+	// NO CLA, add all controls as static position controls.
+	// don't use EnumChildWindows() here.
+	for (auto hChild = GetWindow(m_Hwnd, GW_CHILD); hChild; hChild = GetWindow(hChild, GW_HWNDNEXT))
+	{
+		auto pthis = Dcx::dcxGetProp<DcxControl*>(hChild, TEXT("dcx_cthis"));
+		if (!pthis)
+			return;
+		
+		const Dcx::dcxWindowRect rc(hChild, m_Hwnd);
+
+		if (auto xctrl = pthis->toXml(); xctrl)
+		{
+			xctrl->SetAttribute("weight", 1);
+			xctrl->SetAttribute("x", rc.left);
+			xctrl->SetAttribute("y", rc.top);
+			xctrl->SetAttribute("height", rc.Height());
+			xctrl->SetAttribute("width", rc.Width());
+		
+			xml->LinkEndChild(xctrl);
+		}
+	}
+#else
+	// Ook: for this to work all controls MUST be added to CLA, needs fixed.
+	if (m_pLayoutManager)
+	{
+		if (const auto rt = m_pLayoutManager->getRoot(); rt)
+			rt->toXml(xml);
+	}
+#endif
 }
 
 TiXmlElement* DcxDialog::toXml() const

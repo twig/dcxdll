@@ -127,12 +127,10 @@ mIRC(_dcxml)
 	}
 	catch (const std::exception& e)
 	{
-		//Dcx::errorex(TEXT("$!dcxml"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("$!dcxml"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!dcxml"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("$!dcxml"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;

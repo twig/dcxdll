@@ -42,9 +42,9 @@ public:
 
 	//LayoutCellPane() = delete;
 	LayoutCellPane(const LayoutCellPane &) = delete;
-	LayoutCellPane &operator =(const LayoutCellPane &) = delete;	// No assignments!
+	//LayoutCellPane &operator =(const LayoutCellPane &) = delete;	// No assignments!
 	LayoutCellPane(LayoutCellPane &&) = delete;
-	LayoutCellPane &operator =(LayoutCellPane &&) = delete;
+	//LayoutCellPane &operator =(LayoutCellPane &&) = delete;
 
 	explicit LayoutCellPane(const PaneType nType = PaneType::HORZ) noexcept;
 	~LayoutCellPane( ) noexcept;

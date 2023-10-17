@@ -36,7 +36,7 @@ public:
 	//explicit LayoutCellFill( DcxControl * dcxc );
 	//virtual ~LayoutCellFill( );
 
-	LayoutCellFill &operator =(const LayoutCellFill &) = delete;	// No assignments!
+	//LayoutCellFill &operator =(const LayoutCellFill &) = delete;	// No assignments!
 
 	void LayoutChild() noexcept final {};
 	HDWP ExecuteLayout( const HDWP hdwp ) noexcept final;

@@ -113,6 +113,9 @@ TiXmlElement * LayoutCellFixed::toXml(void)
 
 void LayoutCellFixed::toXml(TiXmlElement *const xml)
 {
+	if (!xml)
+		return;
+
 	if (this->m_BaseControl)
 		this->m_BaseControl->toXml(xml);
 
