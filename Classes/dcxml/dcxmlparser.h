@@ -96,15 +96,15 @@ public:
 
 	void setZlayered (const bool b) noexcept { m_bZlayered = b; }
 
-	DcxDialog *getDialog () const noexcept { return m_pDcxDialog; }
+	GSL_SUPPRESS(lifetime.1) DcxDialog *getDialog () const noexcept { return m_pDcxDialog; }
 
 	const TString &getDialogMark () const noexcept { return m_tsDialogMark; }
 	const TString &getDialogName () const noexcept { return m_tsDialogName; }
 	const TString &getFilePath () const noexcept { return m_tsFilePath; }
 
-	const TiXmlElement* getRootElement () const noexcept { return m_pRootElement; }
-	const TiXmlElement* getDialogsElement () const noexcept { return m_pDialogsElement; }
-	const TiXmlElement* getDialogElement () const noexcept { return m_pDialogElement; }
+	GSL_SUPPRESS(lifetime.1) const TiXmlElement* getRootElement () const noexcept { return m_pRootElement; }
+	GSL_SUPPRESS(lifetime.1) const TiXmlElement* getDialogsElement () const noexcept { return m_pDialogsElement; }
+	GSL_SUPPRESS(lifetime.1) const TiXmlElement* getDialogElement () const noexcept { return m_pDialogElement; }
 
 	const TiXmlDocument * getDocument () const noexcept { return &m_xmlDocument; }
 
