@@ -85,8 +85,6 @@
 </div>
 </td></tr>
 </table>
-
-Deprecated: preg_replace(): Passing null to parameter #3 ($subject) of type array|string is deprecated in F:\CSource\DCX_Git\dcxdll\docs_new\dcx_wiki.php on line 38
 <table class="description">
 	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a></td></tr>
 	<tr><td><p> <span class="sectionTitle">Introduction
@@ -650,6 +648,30 @@ If you do so it will be ignored<br />
 </table>
 
 <table class="attrs">
+  <tr><th colspan="2">x <span style="color: black;">&amp;</span> y</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Sets X and Y position of the control. Only for non-CLA controls.</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>not applicable.</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;control x=&quot;20&quot; y=&quot;40&quot; &gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
   <tr><th colspan="2">center</th></tr>
   <tr>
     <td class="left">Applies to:</td>
@@ -670,6 +692,30 @@ If you do so it will be ignored<br />
   <tr>
     <td class="left">Example:</td>
     <td>&lt;dialog w=&quot;200&quot; h=&quot;400&quot; center=&quot;&quot;&gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">buddyid</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control type=&quot;updown&quot;&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Sets the updown controls buddy control.</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>not applicable.</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>Any edit control id</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;updown&quot; buddyid=&quot;4&quot; /&gt;</td>
   </tr>
 </table>
 
@@ -1340,7 +1386,7 @@ If you do so it will be ignored<br />
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 12th October, 23</td>
+		<td style="text-align: right;">Last Updated: 18th October, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">
