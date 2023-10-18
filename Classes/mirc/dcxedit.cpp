@@ -98,6 +98,13 @@ namespace Dcx
 			return 0;
 		return gsl::narrow_cast<DWORD>(Edit_LineFromChar(hwnd, ich));
 	}
+	void dcxEdit_GetSel(HWND hwnd, _Maybenull_ DWORD* nStart, _Maybenull_ DWORD* nEnd) noexcept
+	{
+		if (!hwnd)
+			return;
+
+		SendMessage(hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(nStart), reinterpret_cast<LPARAM>(nEnd));
+	}
 }
 
 /*!
@@ -381,7 +388,8 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	{
 		DWORD dwSelStart{}; // selection range starting position
 
-		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwSelStart), 0);
+		Dcx::dcxEdit_GetSel(m_Hwnd, &dwSelStart, nullptr);
+
 		_ts_snprintf(szReturnValue, TEXT("%u"), dwSelStart);
 	}
 	break;
@@ -390,7 +398,8 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	{
 		DWORD dwSelEnd{};   // selection range ending position
 
-		SendMessage(m_Hwnd, EM_GETSEL, 0, reinterpret_cast<LPARAM>(&dwSelEnd));
+		Dcx::dcxEdit_GetSel(m_Hwnd, nullptr, &dwSelEnd);
+
 		_ts_snprintf(szReturnValue, TEXT("%u"), dwSelEnd);
 	}
 	break;
@@ -400,7 +409,8 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		DWORD dwSelStart{}; // selection range starting position
 		DWORD dwSelEnd{};   // selection range ending position
 
-		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwSelStart), reinterpret_cast<LPARAM>(&dwSelEnd));
+		Dcx::dcxEdit_GetSel(m_Hwnd, &dwSelStart, &dwSelEnd);
+
 		_ts_snprintf(szReturnValue, TEXT("%u %u"), dwSelStart, dwSelEnd);
 	}
 	break;
@@ -410,7 +420,8 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		DWORD dwSelStart{}; // selection range starting position
 		DWORD dwSelEnd{};   // selection range ending position
 
-		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwSelStart), reinterpret_cast<LPARAM>(&dwSelEnd));
+		Dcx::dcxEdit_GetSel(m_Hwnd, &dwSelStart, &dwSelEnd);
+
 		const auto tmp = (dwSelEnd - dwSelStart);
 		szReturnValue = m_tsText.mid(gsl::narrow_cast<int>(dwSelStart), gsl::narrow_cast<int>(tmp)).to_chr();
 	}
@@ -470,8 +481,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	{
 		//Supported in Windows 10 1809 and later. The edit control needs to have the ES_EX_ZOOMABLE extended style set, for this message to have an effect
 		//(the zoom ratio is always between 1/64 and 64) NOT inclusive, 1.0 = no zoom
-		int nNumerator{}, nDenominator{};
-		if (Dcx::dcxEdit_GetZoom(m_Hwnd, &nNumerator, &nDenominator))
+		if (int nNumerator{}, nDenominator{}; Dcx::dcxEdit_GetZoom(m_Hwnd, &nNumerator, &nDenominator))
 			_ts_snprintf(szReturnValue, TEXT("%d %d"), nNumerator, nDenominator);
 		else
 			szReturnValue = TEXT("0");
@@ -524,6 +534,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	{
 		this->m_tsText.clear();	// = TEXT("");
 		SetWindowTextW(m_Hwnd, L"");
+		Edit_SetModify(m_Hwnd, FALSE);
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
@@ -720,7 +731,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 
 		const BOOL enabled = (input.getnexttok().to_int() > 0);	// tok 4
 
-		SendMessage(m_Hwnd, EM_SETREADONLY, gsl::narrow_cast<WPARAM>(enabled), 0);
+		Dcx::dcxEdit_SetReadOnly(m_Hwnd, enabled);
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('o')])
@@ -773,6 +784,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 
 		m_tsText = readTextFile(tsFile);
 		SetWindowTextW(m_Hwnd, m_tsText.to_wchr());
+		Edit_SetModify(m_Hwnd, FALSE);
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags[TEXT('u')])
@@ -786,7 +798,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	// xdid -V [NAME] [ID]
 	else if (flags[TEXT('V')])
 	{
-		SendMessage(m_Hwnd, EM_SCROLLCARET, 0, 0);
+		Dcx::dcxEdit_ScrollCaret(m_Hwnd);
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] (END)
 	else if (flags[TEXT('S')])
@@ -798,16 +810,31 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		const auto iend = (numtok > 4) ? input.getnexttok().to_int() : istart;
 
 		SendMessage(m_Hwnd, EM_SETSEL, gsl::narrow_cast<WPARAM>(istart), gsl::narrow_cast<LPARAM>(iend));
-		SendMessage(m_Hwnd, EM_SCROLLCARET, 0, 0);
+		Dcx::dcxEdit_ScrollCaret(m_Hwnd);
 	}
 	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
+	// xdid -E [NAME] [ID] [SWITCH] [+FLAGS] [CUE TEXT]
+	// xdid -E [NAME] [ID] [SWITCH] + [CUE TEXT]
+	// xdid -E [NAME] [ID] [SWITCH] +f [CUE TEXT]
 	else if (flags[TEXT('E')])
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		this->m_tsCue = input.getlasttoks();	// tok 4, -1
-		Edit_SetCueBannerText(m_Hwnd, this->m_tsCue.to_wchr());
+		const auto tsFlags(input.gettok(4));
+		if (tsFlags[0] == TEXT('+'))
+		{
+			const XSwitchFlags xFlags(tsFlags);
+			this->m_tsCue = input.gettok(5,-1);	// tok 5, -1
+			if (xFlags[TEXT('f')])
+				Edit_SetCueBannerTextFocused(m_Hwnd, m_tsCue.to_wchr(), TRUE);
+			else
+				Edit_SetCueBannerText(m_Hwnd, this->m_tsCue.to_wchr());
+		}
+		else {
+			this->m_tsCue = input.getlasttoks();	// tok 4, -1
+			Edit_SetCueBannerText(m_Hwnd, this->m_tsCue.to_wchr());
+		}
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1|-] (0|1)
 	else if (flags[TEXT('y')])
@@ -1330,6 +1357,7 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			GetClientRect(m_Hwnd, &rcClient);
 			if (!PtInRect(&rcClient, pt))
 			{
+				// Ook: should we reset to previous width before the drag started?
 				// outside ctrl, reset to default width.
 				m_GutterWidth = DCX_EDIT_GUTTER_WIDTH;
 			}
@@ -1421,10 +1449,11 @@ LRESULT DcxEdit::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lPa
 
 TString DcxEdit::getLine(int nLine) const
 {
-	TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
-	Edit_GetLine(m_Hwnd, nLine, &szBuf[0], (MIRC_BUFFER_SIZE_CCH - 1));
+	//TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
+	//Edit_GetLine(m_Hwnd, nLine, &szBuf[0], (MIRC_BUFFER_SIZE_CCH - 1));
+	//return szBuf;
 
-	return szBuf;
+	GSL_SUPPRESS(lifetime.1) return m_tsText.gettok(nLine, Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd).to_chr());
 }
 
 Dcx::range_t<DWORD> DcxEdit::GetVisibleRange() const noexcept
@@ -1630,7 +1659,7 @@ void DcxEdit::DrawClientRect(HDC hdc, unsigned int uMsg, LPARAM lParam)
 
 		if (isExStyle(WindowExStyle::Transparent))
 		{
-			RECT rcBkg = getFmtRect();
+			RECT rcBkg{ getFmtRect() };
 
 			if (!IsAlphaBlend())
 				DrawParentsBackground(hdc, &rcBkg);

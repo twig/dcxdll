@@ -47,7 +47,15 @@ namespace Dcx
 	}
 	DWORD dcxEdit_CharFromPos(HWND hwnd, const LONG& iPos) noexcept;
 	DWORD dcxEdit_LineFromChar(HWND hwnd, const LONG& ich) noexcept;
-
+	void dcxEdit_GetSel(HWND hwnd, _Maybenull_ DWORD* nStart, _Maybenull_ DWORD* nEnd) noexcept;
+	inline void dcxEdit_SetReadOnly(HWND hwnd, BOOL bEnable) noexcept
+	{
+		SendMessage(hwnd, EM_SETREADONLY, gsl::narrow_cast<WPARAM>(bEnable), 0);
+	}
+	inline void dcxEdit_ScrollCaret(HWND hwnd) noexcept
+	{
+		SendMessage(hwnd, EM_SCROLLCARET, 0, 0);
+	}
 }
 
 class DcxEdit final
