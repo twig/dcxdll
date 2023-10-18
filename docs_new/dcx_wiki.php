@@ -34,12 +34,16 @@ function wikiData(&$value, $userdata = "") {
 		'<pre class="code">$1</pre>', // code
 	);
 
+    // Ook: passing null is depricated, needs looked at more.
+    if (!$str)
+        $str = "";
+
 	// Do simple BBCode's
 	$value = preg_replace($simple_search, $simple_replace, $str);
         
-        // Perform replacement of advanced tags
-        // [link page='control' section='SECTION' flag='f|mouse']link text[/link]
-        getTagInfo($value, 'link', 'parseAdvancedWikiLink');
+    // Perform replacement of advanced tags
+    // [link page='control' section='SECTION' flag='f|mouse']link text[/link]
+    getTagInfo($value, 'link', 'parseAdvancedWikiLink');
 }
 
 /*

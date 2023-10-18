@@ -593,6 +593,30 @@ If you do so it will be ignored<br />
 </table>
 
 <table class="attrs">
+  <tr><th colspan="2">x <span style="color: black;">&amp;</span> y</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Sets X and Y position of the control. Only for non-CLA controls.</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>not applicable.</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;control x=&quot;20&quot; y=&quot;40&quot; &gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
   <tr><th colspan="2">center</th></tr>
   <tr>
     <td class="left">Applies to:</td>
@@ -613,6 +637,30 @@ If you do so it will be ignored<br />
   <tr>
     <td class="left">Example:</td>
     <td>&lt;dialog w=&quot;200&quot; h=&quot;400&quot; center=&quot;&quot;&gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">buddyid</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control type=&quot;updown&quot;&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Sets the updown controls buddy control.</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>not applicable.</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>Any edit control id</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;updown&quot; buddyid=&quot;4&quot; /&gt;</td>
   </tr>
 </table>
 

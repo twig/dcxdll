@@ -214,6 +214,9 @@ function get_xdidprops_edit(&$XDIDPROPS) {
                     'LINE' => 'The line to start the search at.',
                     'SUBCHAR' => 'The character within the line to start the search at.',
             ),
+			'__return' => array(
+				'OFFSET' => '- The character offset within the text that matched the search.',
+			),
 			'__notes' => array(
 				'If [p]N[/p] is [v]0[/v], returns the total number of matching items.',
 				'The [TAB] characters surrounding the matchtext are mandatory or else it wont work.',
