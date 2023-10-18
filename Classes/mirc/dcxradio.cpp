@@ -328,6 +328,7 @@ void DcxRadio::toXml(TiXmlElement *const xml) const
 	const TString wtext(TGetWindowText(m_Hwnd));
 	xml->SetAttribute("caption", wtext.c_str());
 	xml->SetAttribute("styles", getStyles().c_str());
+	xml->SetAttribute("state", Button_GetCheck(m_Hwnd));
 }
 
 TiXmlElement * DcxRadio::toXml(void) const
