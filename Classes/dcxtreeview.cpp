@@ -509,7 +509,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto* const item = this->parsePath(path);
 
 		if (!item)
-			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
 			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		TreeView_EnsureVisible(m_Hwnd, item); // make sure selected item is visible.
@@ -525,7 +524,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto* const item = this->parsePath(path);
 
 		if (!item)
-			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
 			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		TreeView_EnsureVisible(m_Hwnd, item); // make sure selected item is visible.
@@ -2719,8 +2717,6 @@ void DcxTreeView::xmlSaveTree(HTREEITEM hFromItem, const TString& name, TString&
 	if (hFromItem == TVI_ROOT)
 		hFromItem = TreeView_GetRoot(m_Hwnd);
 
-	//if (auto lbuf = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH); !this->xmlGetItems(hFromItem, xElm, lbuf.get()))
-	//	throw Dcx::dcxException("xmlSaveTree() - Unable To Add Items to XML");
 	if (TCHAR lbuf[MIRC_BUFFER_SIZE_CCH]{}; !this->xmlGetItems(hFromItem, xElm, &lbuf[0]))
 		throw Dcx::dcxException("xmlSaveTree() - Unable To Add Items to XML");
 
@@ -2731,7 +2727,7 @@ void DcxTreeView::xmlSaveTree(HTREEITEM hFromItem, const TString& name, TString&
 	xmlGetItems()
 	Recursive function that loops through all treeview items & adds them to the xml data.
 */
-bool DcxTreeView::xmlGetItems(const HTREEITEM hFirstSibling, TiXmlElement* xElm, TCHAR* buf)
+bool DcxTreeView::xmlGetItems(const HTREEITEM hFirstSibling, TiXmlElement* xElm, TCHAR* buf) const
 {
 	if (!hFirstSibling)
 		return false;
@@ -3098,6 +3094,19 @@ void DcxTreeView::toXml(TiXmlElement* const xml) const
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
+
+	HTREEITEM hRoot = TreeView_GetRoot(m_Hwnd);
+	if (!hRoot)
+		return;
+
+	//auto xData = dynamic_cast<TiXmlElement*>(xml->InsertEndChild(TiXmlElement("treeview_data")));
+	//if (!xData)
+	//	throw Dcx::dcxException("toXml() - Unable to add <treeview_data> item");
+	//if (TCHAR lbuf[MIRC_BUFFER_SIZE_CCH]{}; !this->xmlGetItems(hRoot, xData, &lbuf[0]))
+	//	throw Dcx::dcxException("toXml() - Unable To Add Items to XML");
+
+	if (TCHAR lbuf[MIRC_BUFFER_SIZE_CCH]{}; !this->xmlGetItems(hRoot, xml, &lbuf[0]))
+		throw Dcx::dcxException("toXml() - Unable To Add Items to XML");
 }
 
 TiXmlElement* DcxTreeView::toXml() const

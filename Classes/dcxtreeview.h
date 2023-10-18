@@ -229,7 +229,7 @@ protected:
 #endif
 
 	void xmlSaveTree(HTREEITEM hFromItem, const TString& name, TString& filename);
-	[[nodiscard]] bool xmlGetItems(const HTREEITEM hFirstSibling, TiXmlElement* xElm, TCHAR* buf);
+	[[nodiscard]] bool xmlGetItems(const HTREEITEM hFirstSibling, TiXmlElement* xElm, TCHAR* buf) const;
 	HTREEITEM xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, const TString& name, TString& filename);
 	const TiXmlElement* xmlInsertItems(HTREEITEM hParent, HTREEITEM& hInsertAfter, const TiXmlElement* xElm);
 
