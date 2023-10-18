@@ -8,6 +8,8 @@
 
 #ifndef LBCB_STARTTRACK
 #define LBCB_STARTTRACK                         0x01ae
+#endif
+#ifndef LBCB_ENDTRACK
 #define LBCB_ENDTRACK                           0x01af
 #endif
 
@@ -42,6 +44,7 @@
 #define MC_WM_SETSEL (MC_WM_BASE + 17)
 #define MC_WM_DELETEITEM (MC_WM_BASE + 18)
 #define MC_WM_SETITEM (MC_WM_BASE + 19)
+#define MC_WM_GETCHILD (MC_WM_BASE + 20)
 
 // notifications
 #define MCON_SELCHANGE	(0x0000)
@@ -148,6 +151,8 @@ void MultiCombo_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 void MultiCombo_Drop_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
 void MultiCombo_RemoveChild(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
+
+HWND MultiCombo_GetChild(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
 BOOL MultiCombo_DrawItem(HWND mHwnd, LPDRAWITEMSTRUCT lpdis);
 

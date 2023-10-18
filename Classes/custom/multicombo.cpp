@@ -5,266 +5,270 @@
 #define BUILD_MCOMBO_CLASS 1
 #include "multicombo.h"
 
-LRESULT CALLBACK MultiComboDropWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+namespace
 {
-	switch (uMsg)
+	LRESULT CALLBACK MultiComboDropWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-	default:
-		break;
-
-	case WM_COMMAND:
-	{
-		return MultiCombo_Drop_Command(mHwnd, wParam, lParam);
-	}
-	break;
-
-	//case WM_NOTIFY:
-	//{
-	//	dcxlParam(LPNMHDR, hdr);
-//
-	//	if (!hdr)
-	//		break;
-//
-	//	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
-	//	if (!lpmcdata)
-	//		break;
-//
-	//	if ((lpmcdata->m_hDropChild != hdr->hwndFrom) || (hdr->idFrom != MC_ID_DROPCHILD))
-	//		break;
-//
-	//	switch (lpmcdata->m_Styles)
-	//	{
-	//	default:
-	//		break;
-	//	case MCS_LISTVIEW:
-	//	{
-	//		switch (hdr->code)
-	//		{
-	//		default:
-	//			break;
-	//		case NM_CLICK:
-	//		{
-	//			if (lpmcdata->m_CurrentEditColour)
-	//			{
-	//				DeleteBrush(lpmcdata->m_CurrentEditColour);
-	//				lpmcdata->m_CurrentEditColour = nullptr;
-	//				lpmcdata->m_CurrentEditTextColour = CLR_INVALID;
-	//			}
-//
-	//			dcxlParam(LPNMITEMACTIVATE, nmia);
-		//
-	//			{
-	//				TCHAR buf[1024]{};
-	//				ListView_GetItemText(lpmcdata->m_hDropChild, nmia->iItem, nmia->iSubItem, &buf[0], std::size(buf));
-//
-	//				SetWindowText(lpmcdata->m_hEdit, &buf[0]);
-	//			}
-	//			// dunno about this, needs looked at...
-//
-	//			hdr->idFrom = lpmcdata->m_BaseID;
-	//			hdr->hwndFrom = lpmcdata->m_hBase;
-//
-	//			return SendMessage(GetParent(lpmcdata->m_hBase), uMsg, wParam, lParam);
-	//		}
-	//		break;
-//
-	//		case NM_DBLCLK:
-	//		{
-	//		}
-	//		break;
-	//		}
-	//	}
-	//	break;
-//
-	//	case MCS_TREEVIEW:
-	//	{
-	//	}
-	//	break;
-	//	}
-//
-	//	// dunno about this, needs looked at...
-//
-	//	hdr->idFrom = lpmcdata->m_BaseID;
-	//	hdr->hwndFrom = lpmcdata->m_hBase;
-//
-	//	return SendMessage(GetParent(lpmcdata->m_hBase), uMsg, wParam, lParam);
-	//}
-	//break;
-
-	case WM_SHOWWINDOW:
-	{
-		MultiCombo_Drop_ShowWindow(mHwnd, wParam, lParam);
-	}
-	break;
-
-	case WM_LBUTTONUP:
-	{
-		MultiCombo_OnLButtonUp(mHwnd, wParam, lParam);
-		return 0L;
-	}
-	break;
-
-	//case WM_MOUSEMOVE:
-	//{
-	//	MultiCombo_OnMouseMove(mHwnd, wParam, lParam);
-	//}
-	//break;
-
-	case WM_MOUSELEAVE:
-	{
-		MultiCombo_OnMouseLeave(mHwnd, wParam, lParam);
-		return 0L;
-	}
-	break;
-
-	//case WM_CTLCOLORLISTBOX:
-	//{
-	//	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
-	//	if (!lpmcdata)
-	//		break;
-	//
-	//	if ((lpmcdata->m_Styles == MCS_COLOUR) || (lpmcdata->m_Styles == MCS_LISTBOX))
-	//	{
-	//		//SetBkMode((HDC)wParam, TRANSPARENT);
-	//
-	//		COLORREF clr{ GetSysColor(COLOR_WINDOW) };
-	//		if (lpmcdata->m_hTheme)
-	//			Dcx::UXModule.dcxGetThemeColor(lpmcdata->m_hTheme, CP_BACKGROUND, 0, TMT_COLOR, &clr);
-	//
-	//		if (lpmcdata->m_CurrentEditTextColour != CLR_INVALID)
-	//			SetTextColor((HDC)wParam, lpmcdata->m_CurrentEditTextColour);
-	//
-	//		if (lpmcdata->m_CurrentEditBkgColour != CLR_INVALID)
-	//			SetBkColor((HDC)wParam, lpmcdata->m_CurrentEditBkgColour);
-	//
-	//		if (lpmcdata->m_CurrentEditColour)
-	//			return (LRESULT)lpmcdata->m_CurrentEditColour;
-	//	}
-	//}
-	//break;
-
-	case WM_SIZE:
-	{
-		// size drop window child to match drop window.
-		const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
-		if (!lpmcdata)
-			break;
-
-		if (IsWindow(lpmcdata->m_hDropChild))
-		{
-			// have child window, size it...
-
-			// doesnt size things right...
-			//const auto width = Dcx::dcxLOWORD(lParam);
-			//const auto height = Dcx::dcxHIWORD(lParam);
-			//SetWindowPos(lpmcdata->m_hDropChild, nullptr, 0, 0, width, height, SWP_NOACTIVATE | SWP_NOOWNERZORDER);
-
-			if (RECT rcClient{}; GetClientRect(mHwnd, &rcClient))
-			{
-				const auto width = rcClient.right;
-				const auto height = rcClient.bottom;
-				SetWindowPos(lpmcdata->m_hDropChild, nullptr, 0, 0, width, height, SWP_NOACTIVATE | SWP_NOOWNERZORDER);
-			}
-		}
-	}
-	break;
-
-	case WM_ACTIVATEAPP:
-	{
-		// hide drop window when switching apps...
-		if (wParam)
-			break;
-
-		const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
-		if (!lpmcdata)
-			break;
-
-		if (IsWindowVisible(lpmcdata->m_hDropCtrl))
-			ShowWindow(lpmcdata->m_hDropCtrl, SW_HIDE);
-	}
-	break;
-
-	case WM_DRAWITEM:
-	{
-		dcxlParam(LPDRAWITEMSTRUCT, lpdis);
-
-		if (!lpdis || lpdis->itemID == -1 || wParam == 0)
-			break;
-
-		return MultiCombo_DrawItem(mHwnd, lpdis);
-	}
-	break;
-
-	case WM_MEASUREITEM:
-	{
-		dcxlParam(LPMEASUREITEMSTRUCT, lpmis);
-
-		if (!lpmis)
-			break;
-
-		return MultiCombo_MeasureItem(mHwnd, lpmis);
-	}
-	break;
-	case WM_DELETEITEM:
-	{
-		dcxlParam(PDELETEITEMSTRUCT, delis);
-
-		if (!delis)
-			break;
-
-		auto lpdcxcci = reinterpret_cast<LPMCOMBO_ITEM>(delis->itemData);
-
-		delete lpdcxcci;
-
-		return TRUE;
-
-	}
-	break;
-
-	case WM_VKEYTOITEM:
-	{
-		const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
-		if (!lpmcdata)
-			break;
-
-		if (reinterpret_cast<HWND>(lParam) != lpmcdata->m_hDropChild)
-			break;
-
-		switch (const auto vkChar = Dcx::dcxLOWORD(wParam); vkChar)
+		switch (uMsg)
 		{
 		default:
 			break;
-		case VK_RETURN:
+
+		case WM_COMMAND:
 		{
-			ShowWindow(lpmcdata->m_hDropCtrl, SW_HIDE);
+			return MultiCombo_Drop_Command(mHwnd, wParam, lParam);
 		}
 		break;
-		case VK_TAB:
+
+		//case WM_NOTIFY:
+		//{
+		//	dcxlParam(LPNMHDR, hdr);
+	//
+		//	if (!hdr)
+		//		break;
+	//
+		//	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
+		//	if (!lpmcdata)
+		//		break;
+	//
+		//	if ((lpmcdata->m_hDropChild != hdr->hwndFrom) || (hdr->idFrom != MC_ID_DROPCHILD))
+		//		break;
+	//
+		//	switch (lpmcdata->m_Styles)
+		//	{
+		//	default:
+		//		break;
+		//	case MCS_LISTVIEW:
+		//	{
+		//		switch (hdr->code)
+		//		{
+		//		default:
+		//			break;
+		//		case NM_CLICK:
+		//		{
+		//			if (lpmcdata->m_CurrentEditColour)
+		//			{
+		//				DeleteBrush(lpmcdata->m_CurrentEditColour);
+		//				lpmcdata->m_CurrentEditColour = nullptr;
+		//				lpmcdata->m_CurrentEditTextColour = CLR_INVALID;
+		//			}
+	//
+		//			dcxlParam(LPNMITEMACTIVATE, nmia);
+			//
+		//			{
+		//				TCHAR buf[1024]{};
+		//				ListView_GetItemText(lpmcdata->m_hDropChild, nmia->iItem, nmia->iSubItem, &buf[0], std::size(buf));
+	//
+		//				SetWindowText(lpmcdata->m_hEdit, &buf[0]);
+		//			}
+		//			// dunno about this, needs looked at...
+	//
+		//			hdr->idFrom = lpmcdata->m_BaseID;
+		//			hdr->hwndFrom = lpmcdata->m_hBase;
+	//
+		//			return SendMessage(GetParent(lpmcdata->m_hBase), uMsg, wParam, lParam);
+		//		}
+		//		break;
+	//
+		//		case NM_DBLCLK:
+		//		{
+		//		}
+		//		break;
+		//		}
+		//	}
+		//	break;
+	//
+		//	case MCS_TREEVIEW:
+		//	{
+		//	}
+		//	break;
+		//	}
+	//
+		//	// dunno about this, needs looked at...
+	//
+		//	hdr->idFrom = lpmcdata->m_BaseID;
+		//	hdr->hwndFrom = lpmcdata->m_hBase;
+	//
+		//	return SendMessage(GetParent(lpmcdata->m_hBase), uMsg, wParam, lParam);
+		//}
+		//break;
+
+		case WM_SHOWWINDOW:
 		{
-			ShowWindow(lpmcdata->m_hDropCtrl, SW_HIDE);
-
-			//if (dcx_testflag(dcxGetWindowStyle(lpmcdata->m_hBase), WS_TABSTOP))
-			//{
-			//	//FindWindowEx();
-			//	auto hDlgr = GetAncestor(lpmcdata->m_hBase, GA_ROOTOWNER);
-			//	auto hDlg = GetWindow(lpmcdata->m_hBase, GW_OWNER);
-			//	auto hNext = GetNextDlgTabItem(hDlgr, lpmcdata->m_hBase, FALSE);
-			//	if (hNext)
-			//		SetFocus(hNext);
-			//}
-
-			//INPUT in{};
-			//in.type = INPUT_KEYBOARD;
-			//in.ki.wVk = VK_TAB;
-			//SendInput(1, &in, sizeof(INPUT));
+			MultiCombo_Drop_ShowWindow(mHwnd, wParam, lParam);
 		}
 		break;
-		}
-		return -1;
-	}
-	}
 
-	return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+		case WM_LBUTTONUP:
+		{
+			MultiCombo_OnLButtonUp(mHwnd, wParam, lParam);
+			return 0L;
+		}
+		break;
+
+		//case WM_MOUSEMOVE:
+		//{
+		//	MultiCombo_OnMouseMove(mHwnd, wParam, lParam);
+		//}
+		//break;
+
+		case WM_MOUSELEAVE:
+		{
+			MultiCombo_OnMouseLeave(mHwnd, wParam, lParam);
+			return 0L;
+		}
+		break;
+
+		//case WM_CTLCOLORLISTBOX:
+		//{
+		//	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
+		//	if (!lpmcdata)
+		//		break;
+		//
+		//	if ((lpmcdata->m_Styles == MCS_COLOUR) || (lpmcdata->m_Styles == MCS_LISTBOX))
+		//	{
+		//		//SetBkMode((HDC)wParam, TRANSPARENT);
+		//
+		//		COLORREF clr{ GetSysColor(COLOR_WINDOW) };
+		//		if (lpmcdata->m_hTheme)
+		//			Dcx::UXModule.dcxGetThemeColor(lpmcdata->m_hTheme, CP_BACKGROUND, 0, TMT_COLOR, &clr);
+		//
+		//		if (lpmcdata->m_CurrentEditTextColour != CLR_INVALID)
+		//			SetTextColor((HDC)wParam, lpmcdata->m_CurrentEditTextColour);
+		//
+		//		if (lpmcdata->m_CurrentEditBkgColour != CLR_INVALID)
+		//			SetBkColor((HDC)wParam, lpmcdata->m_CurrentEditBkgColour);
+		//
+		//		if (lpmcdata->m_CurrentEditColour)
+		//			return (LRESULT)lpmcdata->m_CurrentEditColour;
+		//	}
+		//}
+		//break;
+
+		case WM_SIZE:
+		{
+			// size drop window child to match drop window.
+			const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
+			if (!lpmcdata)
+				break;
+
+			if (IsWindow(lpmcdata->m_hDropChild))
+			{
+				// have child window, size it...
+
+				// doesnt size things right...
+				//const auto width = Dcx::dcxLOWORD(lParam);
+				//const auto height = Dcx::dcxHIWORD(lParam);
+				//SetWindowPos(lpmcdata->m_hDropChild, nullptr, 0, 0, width, height, SWP_NOACTIVATE | SWP_NOOWNERZORDER);
+
+				if (RECT rcClient{}; GetClientRect(mHwnd, &rcClient))
+				{
+					const auto width = rcClient.right;
+					const auto height = rcClient.bottom;
+					SetWindowPos(lpmcdata->m_hDropChild, nullptr, 0, 0, width, height, SWP_NOACTIVATE | SWP_NOOWNERZORDER);
+				}
+			}
+		}
+		break;
+
+		case WM_ACTIVATEAPP:
+		{
+			// hide drop window when switching apps...
+			if (wParam)
+				break;
+
+			const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
+			if (!lpmcdata)
+				break;
+
+			if (IsWindowVisible(lpmcdata->m_hDropCtrl))
+				ShowWindow(lpmcdata->m_hDropCtrl, SW_HIDE);
+		}
+		break;
+
+		case WM_DRAWITEM:
+		{
+			dcxlParam(LPDRAWITEMSTRUCT, lpdis);
+
+			if (!lpdis || lpdis->itemID == -1 || wParam == 0)
+				break;
+
+			return MultiCombo_DrawItem(mHwnd, lpdis);
+		}
+		break;
+
+		case WM_MEASUREITEM:
+		{
+			dcxlParam(LPMEASUREITEMSTRUCT, lpmis);
+
+			if (!lpmis)
+				break;
+
+			return MultiCombo_MeasureItem(mHwnd, lpmis);
+		}
+		break;
+
+		case WM_DELETEITEM:
+		{
+			dcxlParam(PDELETEITEMSTRUCT, delis);
+
+			if (!delis)
+				break;
+
+			auto lpdcxcci = reinterpret_cast<LPMCOMBO_ITEM>(delis->itemData);
+
+			delete lpdcxcci;
+
+			return TRUE;
+
+		}
+		break;
+
+		case WM_VKEYTOITEM:
+		{
+			const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
+			if (!lpmcdata)
+				break;
+
+			if (reinterpret_cast<HWND>(lParam) != lpmcdata->m_hDropChild)
+				break;
+
+			switch (const auto vkChar = Dcx::dcxLOWORD(wParam); vkChar)
+			{
+			default:
+				break;
+			case VK_RETURN:
+			{
+				ShowWindow(lpmcdata->m_hDropCtrl, SW_HIDE);
+			}
+			break;
+			case VK_TAB:
+			{
+				ShowWindow(lpmcdata->m_hDropCtrl, SW_HIDE);
+
+				//if (dcx_testflag(dcxGetWindowStyle(lpmcdata->m_hBase), WS_TABSTOP))
+				//{
+				//	//FindWindowEx();
+				//	auto hDlgr = GetAncestor(lpmcdata->m_hBase, GA_ROOTOWNER);
+				//	auto hDlg = GetWindow(lpmcdata->m_hBase, GW_OWNER);
+				//	auto hNext = GetNextDlgTabItem(hDlgr, lpmcdata->m_hBase, FALSE);
+				//	if (hNext)
+				//		SetFocus(hNext);
+				//}
+
+				//INPUT in{};
+				//in.type = INPUT_KEYBOARD;
+				//in.ki.wVk = VK_TAB;
+				//SendInput(1, &in, sizeof(INPUT));
+			}
+			break;
+			}
+			return -1;
+		}
+		}
+
+		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+	}
 }
 
 LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -479,6 +483,14 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		// lParam = zero
 		MultiCombo_RemoveChild(mHwnd, wParam, lParam);
 		return 0L;
+	}
+	break;
+
+	case MC_WM_GETCHILD:
+	{
+		// wParam = zero
+		// lParam = zero
+		return reinterpret_cast<LRESULT>(MultiCombo_GetChild(mHwnd, wParam, lParam));
 	}
 	break;
 
@@ -1197,6 +1209,18 @@ void MultiCombo_RemoveChild(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 	if (IsWindow(hChild))
 		DestroyWindow(hChild);
+}
+
+HWND MultiCombo_GetChild(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (!mHwnd)
+		return nullptr;
+
+	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
+	if (!lpmcdata)
+		return nullptr;
+
+	return lpmcdata->m_hDropChild;
 }
 
 BOOL MultiCombo_DrawItem(HWND mHwnd, LPDRAWITEMSTRUCT lpdis)
