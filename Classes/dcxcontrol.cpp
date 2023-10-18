@@ -2800,27 +2800,6 @@ const TString DcxControl::getStyles(void) const
 	//return result;
 }
 
-const TString DcxControl::getBorderStyles(void) const
-{
-	TString bstyles;
-	const auto exStyles = dcxGetWindowExStyle(m_Hwnd);
-	const auto Styles = dcxGetWindowStyle(m_Hwnd);
-
-	if (dcx_testflag(Styles, WS_BORDER))
-		bstyles += TEXT('b');
-	if (dcx_testflag(exStyles, WS_EX_CLIENTEDGE))
-		bstyles += TEXT('c');
-	if (dcx_testflag(Styles, WS_DLGFRAME))
-		bstyles += TEXT('d');
-	if (dcx_testflag(exStyles, WS_EX_DLGMODALFRAME))
-		bstyles += TEXT('f');
-	if (dcx_testflag(exStyles, WS_EX_STATICEDGE))
-		bstyles += TEXT('s');
-	if (dcx_testflag(exStyles, WS_EX_WINDOWEDGE))
-		bstyles += TEXT('w');
-	return bstyles;
-}
-
 void DcxControl::toXml(TiXmlElement* const xml) const
 {
 	if (!xml)
@@ -2839,6 +2818,7 @@ void DcxControl::toXml(TiXmlElement* const xml) const
 	xml->SetAttribute("type", getType().c_str());
 	if (!styles.empty())
 		xml->SetAttribute("styles", styles.c_str());
+	xml->SetAttribute("border", getBorderStyles().c_str());
 }
 
 TiXmlElement* DcxControl::toXml(void) const

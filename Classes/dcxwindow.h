@@ -159,6 +159,8 @@ public:
 
 	inline void setToolTipHWND(HWND hwnd) noexcept { m_HwndTooltip = hwnd; }
 
+	TString getBorderStyles() const;
+
 	/// <summary>
 	/// Opens tooltip window, if it exists.
 	/// </summary>

@@ -391,7 +391,6 @@ public:
 	virtual const DcxControlTypes getControlType() const noexcept = 0;
 
 	virtual const TString getStyles(void) const;
-	virtual const TString getBorderStyles(void) const;
 	void toXml(TiXmlElement* const xml) const override;
 	virtual TiXmlElement* toXml(void) const;
 

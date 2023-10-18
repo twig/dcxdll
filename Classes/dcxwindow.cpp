@@ -464,3 +464,46 @@ HIMAGELIST DcxWindow::createImageList(const bool bBigIcons) noexcept
 //
 //	return CallWindowProc(m_hDefaultWindowProc, mHwnd, uMsg, wParam, lParam);
 //}
+
+TString DcxWindow::getBorderStyles() const
+{
+	TString tsResult;
+	if (!m_Hwnd)
+		return tsResult;
+
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
+	const auto ExStyles = dcxGetWindowExStyle(m_Hwnd);
+
+	if (dcx_testflag(Styles, WS_BORDER))
+		tsResult += TEXT('b');
+	if (dcx_testflag(ExStyles, WS_EX_CLIENTEDGE))
+		tsResult += TEXT('c');
+	if (dcx_testflag(Styles, WS_DLGFRAME))
+		tsResult += TEXT('d');
+	if (dcx_testflag(ExStyles, WS_EX_DLGMODALFRAME))
+		tsResult += TEXT('f');
+	if (dcx_testflag(ExStyles, WS_EX_CONTEXTHELP))
+		tsResult += TEXT('h');
+	if (dcx_testflag(Styles, WS_MAXIMIZEBOX))
+		tsResult += TEXT('m');
+	if (dcx_testflag(Styles, WS_MINIMIZEBOX))
+		tsResult += TEXT('n');
+	if (dcx_testflag(ExStyles, WS_EX_TOOLWINDOW))
+		tsResult += TEXT('o');
+	if (dcx_testflag(ExStyles, WS_EX_STATICEDGE))
+		tsResult += TEXT('s');
+	if (dcx_testflag(Styles, WS_CAPTION))	// combination of WS_BORDER | WS_DLGFRAME
+		tsResult += TEXT('t');
+	if (dcx_testflag(ExStyles, WS_EX_WINDOWEDGE))
+		tsResult += TEXT('w');
+	if (dcx_testflag(Styles, WS_SYSMENU))
+		tsResult += TEXT('y');
+	if (dcx_testflag(Styles, WS_SIZEBOX))
+		tsResult += TEXT('z');
+	if (dcx_testflag(ExStyles, WS_EX_COMPOSITED))
+		tsResult += TEXT('x');
+	if (dcx_testflag(ExStyles, WS_EX_LAYERED))
+		tsResult += TEXT('v');
+
+	return tsResult;
+}
