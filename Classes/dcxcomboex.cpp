@@ -1189,13 +1189,56 @@ LRESULT CALLBACK DcxComboEx::ComboExEditProc(HWND mHwnd, UINT uMsg, WPARAM wPara
 
 void DcxComboEx::toXml(TiXmlElement* const xml) const
 {
+	if (!xml || !m_Hwnd)
+		return;
+
 	__super::toXml(xml);
 
-	//const TString wtext(TGetWindowText(m_Hwnd));
-	//xml->SetAttribute("caption", wtext.c_str());
 	xml->SetAttribute("styles", getStyles().c_str());
 
-	//TODO: add saving of comboex items
+	TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
+	COMBOBOXEXITEM cbi{};
+	// get editbox contents
+	cbi.iItem = -1;
+	cbi.mask = CBEIF_TEXT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE | CBEIF_INDENT;
+	cbi.cchTextMax = std::size(szBuf);
+	cbi.pszText = &szBuf[0];
+	this->getItem(&cbi);
+	TString wtext(szBuf);
+	xml->SetAttribute("caption", wtext.c_str());
+	if (cbi.iImage > 0)
+		xml->SetAttribute("image", cbi.iImage);
+	if (cbi.iSelectedImage > 0)
+		xml->SetAttribute("selectedimage", cbi.iSelectedImage);
+	if (cbi.iIndent > 0)
+		xml->SetAttribute("indent", cbi.iIndent);
+
+	if (auto hCombo = Dcx::dcxComboEx_GetComboControl(m_Hwnd); hCombo)
+	{
+		const auto iCount = SendMessage(hCombo, CB_GETCOUNT, 0, 0);
+		for (int nItem{}; nItem < iCount; ++nItem)
+		{
+			cbi.iItem = nItem;
+			cbi.cchTextMax = std::size(szBuf);
+			cbi.pszText = &szBuf[0];
+			if (this->getItem(&cbi))
+			{
+				wtext = &szBuf[0];
+
+				TiXmlElement xItem("item");
+
+				xItem.SetAttribute("text", wtext.c_str());
+				if (cbi.iImage > 0)
+					xItem.SetAttribute("image", cbi.iImage);
+				if (cbi.iSelectedImage > 0)
+					xItem.SetAttribute("selectedimage", cbi.iSelectedImage);
+				if (cbi.iIndent > 0)
+					xItem.SetAttribute("indent", cbi.iIndent);
+
+				xml->InsertEndChild(xItem);
+			}
+		}
+	}
 }
 
 TiXmlElement* DcxComboEx::toXml(void) const

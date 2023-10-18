@@ -99,9 +99,9 @@ class DcxComboEx final
 public:
 	DcxComboEx() = delete;
 	DcxComboEx(const DcxComboEx &) = delete;
-	DcxComboEx &operator =(const DcxComboEx &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxComboEx &operator =(const DcxComboEx &) = delete;	// No assignments!
 	DcxComboEx(DcxComboEx &&) = delete;
-	DcxComboEx &operator =(DcxComboEx &&) = delete;
+	GSL_SUPPRESS(c.128) DcxComboEx &operator =(DcxComboEx &&) = delete;
 
 	DcxComboEx(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxComboEx( ) noexcept;
