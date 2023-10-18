@@ -89,6 +89,15 @@ public:
 		SendMessage(m_Hwnd, MC_WM_RESETCONTENT, 0, 0);
 	}
 
+	DcxControl* getChild() const noexcept
+	{
+		if (auto hChild = reinterpret_cast<HWND>(SendMessage(m_Hwnd, MC_WM_GETCHILD, 0, 0)); hChild)
+		{
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(hChild, TEXT("dcx_cthis")); c_this)
+				return c_this;
+		}
+		return nullptr;
+	}
 	bool matchItemText(const int nItem, const dcxSearchData& srch_data) const;
 
 };

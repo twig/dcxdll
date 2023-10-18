@@ -59,6 +59,7 @@ LRESULT DcxMultiCombo::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 		}
 	}
 	break;
+
 	case WM_COMPAREITEM:
 	{
 		dcxlParam(LPCOMPAREITEMSTRUCT, idata);
@@ -411,16 +412,6 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 	//xdid -d -> [NAME] [ID] -d [N] [+flags] [match text]
 	else if (flags[TEXT('d')])
 	{
-		//if (numtok < 4)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
-		//
-		//if ((nItem < 0) || (nItem >= this->getCount()))
-		//	throw DcxExceptions::dcxInvalidItem();
-		//
-		//SendMessage(m_Hwnd, MC_WM_DELETEITEM, nItem, 0);
-
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -576,11 +567,56 @@ bool DcxMultiCombo::matchItemText(const int nItem, const dcxSearchData& srch_dat
 
 void DcxMultiCombo::toXml(TiXmlElement* const xml) const
 {
+	if (!xml)
+		return;
+
 	__super::toXml(xml);
 
 	const TString wtext(TGetWindowText(m_Hwnd));
 	xml->SetAttribute("caption", wtext.c_str());
 	xml->SetAttribute("styles", getStyles().c_str());
+
+	switch (const auto iStyle = this->getCurStyle(); iStyle)
+	{
+	case MCS_CUSTOM:
+	{
+		if (auto ctrl = getChild(); ctrl)
+		{
+			TiXmlElement xChild("control");
+
+			ctrl->toXml(&xChild);
+
+			xml->InsertEndChild(xChild);
+		}
+	}
+	break;
+	case MCS_COLOUR:
+		[[fallthrough]];
+	case MCS_LISTBOX:
+	{
+		const int nCnt = this->getCount();
+
+		if (nCnt < 1)
+			return;
+
+		for (int nItem{}; nItem < nCnt; ++nItem)
+		{
+			auto ItemData = this->getListBoxItem(nItem); // does the same for both styles.
+			
+			TiXmlElement xChild("item");
+			xChild.SetAttribute("text", ItemData.m_tsItemText.c_str());
+			if (ItemData.m_clrItem != CLR_INVALID)
+				xChild.SetAttribute("textbgcolour", ItemData.m_clrItem);
+			if (ItemData.m_clrText != CLR_INVALID)
+				xChild.SetAttribute("textcolour", ItemData.m_clrText);
+
+			xml->InsertEndChild(xChild);
+		}
+	}
+	break;
+	default:
+		break;
+	}
 }
 
 TiXmlElement* DcxMultiCombo::toXml(void) const
