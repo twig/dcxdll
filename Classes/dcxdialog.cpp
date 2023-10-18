@@ -4012,6 +4012,7 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 	const TString dest(TGetWindowText(m_Hwnd));
 	xml->SetAttribute("name", name.c_str());
 	xml->SetAttribute("caption", dest.c_str());
+	xml->SetAttribute("border", getBorderStyles().c_str());
 
 #if DCX_USE_TESTCODE
 	if (m_pLayoutManager)
