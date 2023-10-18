@@ -116,28 +116,6 @@ struct CharRank
 		return !(*this > cs);
 	}
 };
-//struct RankSet
-//{
-//	//(qaohvV)~&@%+-
-//	const CharRank ranks[7]{
-//		{ TEXT('~'), 0},
-//		{ TEXT('&'), 1},
-//		{ TEXT('@'), 2},
-//		{ TEXT('%'), 3},
-//		{ TEXT('+'), 4},
-//		{ TEXT('-'), 5},
-//		{ 0,6 }
-//	};
-//	int GetRank(TCHAR c) const noexcept
-//	{
-//		for (const auto& a : ranks)
-//		{
-//			if (a.c == c)
-//				return a.rank;
-//		}
-//		return gsl::at(ranks, std::size(ranks) - 1).rank;
-//	}
-//};
 
 /*!
  * \brief blah
@@ -326,7 +304,7 @@ namespace Dcx
 	}
 	inline BOOL dcxListView_GetGroupRect(_In_ HWND hwnd, _In_ const int gid, _In_ const long type, _Out_ LPRECT prc) noexcept
 	{
-		return ListView_GetGroupRect(hwnd, gid, type, prc);
+		GSL_SUPPRESS(es.47) return ListView_GetGroupRect(hwnd, gid, type, prc);
 	}
 	inline BOOL dcxListView_GetEmptyText(_In_ HWND hwnd, _Inout_z_ PTCHAR str, _In_ const int sz) noexcept
 	{
@@ -785,7 +763,7 @@ private:
 	RECT GetHeaderButtonRect(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iStateId, _In_ LPCRECT rcHeader) const noexcept
 	{
 		RECT rcButton{};
-		RECT rcBounds{ *rcHeader };
+		const RECT rcBounds{ *rcHeader };
 		Dcx::UXModule.dcxGetThemeBackgroundContentRect(hTheme, hdc, LVP_COLLAPSEBUTTON, iStateId, &rcBounds, &rcButton);
 
 		return rcButton;
