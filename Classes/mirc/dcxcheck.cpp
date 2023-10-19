@@ -72,7 +72,6 @@ DcxCheck::~DcxCheck()
 {
 }
 
-
 void DcxCheck::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
@@ -81,6 +80,19 @@ void DcxCheck::toXml(TiXmlElement* const xml) const
 	xml->SetAttribute("caption", wtext.c_str());
 	xml->SetAttribute("styles", getStyles().c_str());
 	xml->SetAttribute("state", Button_GetCheck(m_Hwnd));
+
+	if (this->m_bCustom)
+	{
+		xml->SetAttribute("checkbgcolour", this->m_Colours.m_clrBackground);
+		xml->SetAttribute("checkframecolour", this->m_Colours.m_clrFrame);
+		xml->SetAttribute("checktickcolour", this->m_Colours.m_clrTick);
+		xml->SetAttribute("checkdisabledbgcolour", this->m_Colours.m_clrDisabledBackground);
+		xml->SetAttribute("checkdisabledframecolour", this->m_Colours.m_clrDisabledFrame);
+		xml->SetAttribute("checkdisabledtickcolour", this->m_Colours.m_clrDisabledTick);
+		xml->SetAttribute("checkhotbgcolour", this->m_Colours.m_clrHotBackground);
+		xml->SetAttribute("checkhotframecolour", this->m_Colours.m_clrHotFrame);
+		xml->SetAttribute("checkhottickcolour", this->m_Colours.m_clrHotTick);
+	}
 }
 
 TiXmlElement* DcxCheck::toXml(void) const

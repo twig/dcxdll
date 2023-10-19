@@ -205,6 +205,8 @@ const TString DcxEdit::getStyles(void) const
 		styles.addtok(TEXT("showsel"));
 	if (m_bShowLineNumbers)
 		styles.addtok(TEXT("showlinenumbers"));
+	if (m_bLockGutter)
+		styles.addtok(TEXT("unlockgutter"));
 	return styles;
 }
 
@@ -212,8 +214,22 @@ void DcxEdit::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
 
-	xml->SetAttribute("caption", m_tsText.c_str());
+	//xml->SetAttribute("caption", m_tsText.c_str());
+
 	xml->SetAttribute("styles", getStyles().c_str());
+	if (this->m_PassChar > 0)
+		xml->SetAttribute("passchar", this->m_PassChar);
+	if (!this->m_tsCue.empty())
+		xml->SetAttribute("cue", this->m_tsCue.c_str());
+
+	xml->SetAttribute("gutterbgcolour", this->m_clrGutter_bkg);
+	xml->SetAttribute("gutterselbgcolour", this->m_clrGutter_selbkg);
+	xml->SetAttribute("guttertextcolour", this->m_clrGutter_txt);
+	xml->SetAttribute("gutterseltextcolour", this->m_clrGutter_seltxt);
+	xml->SetAttribute("gutterbordercolour", this->m_clrGutter_border);
+	xml->SetAttribute("gutterwidth", this->m_GutterWidth);
+
+	xml->LinkEndChild(new TiXmlText(this->m_tsText.c_str()));
 }
 
 TiXmlElement* DcxEdit::toXml(void) const

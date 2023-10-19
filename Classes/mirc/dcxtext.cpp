@@ -363,9 +363,12 @@ void DcxText::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
 
-	const TString wtext(TGetWindowText(m_Hwnd));
-	xml->SetAttribute("caption", wtext.c_str());
+	//const TString wtext(TGetWindowText(m_Hwnd));
+	//xml->SetAttribute("caption", wtext.c_str());
+
 	xml->SetAttribute("styles", getStyles().c_str());
+
+	xml->LinkEndChild(new TiXmlText(this->m_tsText.c_str()));
 }
 
 TiXmlElement* DcxText::toXml(void) const

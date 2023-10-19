@@ -32,9 +32,9 @@ class DcxCheck final
 public:
 	DcxCheck() = delete;
 	DcxCheck(const DcxCheck &) = delete;
-	DcxCheck &operator =(const DcxCheck &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxCheck &operator =(const DcxCheck &) = delete;	// No assignments!
 	DcxCheck(DcxCheck &&) = delete;
-	DcxCheck &operator =(DcxCheck &&) = delete;
+	GSL_SUPPRESS(c.128) DcxCheck &operator =(DcxCheck &&) = delete;
 
 	DcxCheck(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles);
 	~DcxCheck( );
