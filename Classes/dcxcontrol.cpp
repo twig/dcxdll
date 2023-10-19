@@ -734,42 +734,42 @@ DcxControlTypes DcxControl::TSTypeToControlType(const TString& t)
 
 	const static std::map<std::hash<TString>::result_type, DcxControlTypes> dcxTypesMap{
 		{TEXT("box"_hash), DcxControlTypes::BOX},
-		{TEXT("check"_hash), DcxControlTypes::CHECK},
-		{TEXT("edit"_hash), DcxControlTypes::EDIT},
-		{TEXT("image"_hash), DcxControlTypes::IMAGE},
-		{TEXT("line"_hash), DcxControlTypes::LINE},
-		{TEXT("link"_hash), DcxControlTypes::LINK},
-		{TEXT("list"_hash), DcxControlTypes::LIST},
-		{TEXT("radio"_hash), DcxControlTypes::RADIO},
-		{TEXT("scroll"_hash), DcxControlTypes::SCROLL},
-		{TEXT("text"_hash), DcxControlTypes::TEXT},
-		{TEXT("button"_hash), DcxControlTypes::BUTTON},
-		{TEXT("calendar"_hash), DcxControlTypes::CALENDAR},
-		{TEXT("colorcombo"_hash), DcxControlTypes::COLORCOMBO},
-		{TEXT("comboex"_hash), DcxControlTypes::COMBOEX},
-		{TEXT("datetime"_hash), DcxControlTypes::DATETIME},
-		{TEXT("directshow"_hash), DcxControlTypes::DIRECTSHOW},
-		{TEXT("divider"_hash), DcxControlTypes::DIVIDER},
-		{TEXT("ipaddress"_hash), DcxControlTypes::IPADDRESS},
-		{TEXT("listview"_hash), DcxControlTypes::LISTVIEW},
-		{TEXT("dialog"_hash), DcxControlTypes::DIALOG},
-		{TEXT("window"_hash), DcxControlTypes::WINDOW},
-		{TEXT("pager"_hash), DcxControlTypes::PAGER},
-		{TEXT("panel"_hash), DcxControlTypes::PANEL},
-		{TEXT("pbar"_hash), DcxControlTypes::PROGRESSBAR},
-		{TEXT("rebar"_hash), DcxControlTypes::REBAR},
-		{TEXT("richedit"_hash), DcxControlTypes::RICHEDIT},
-		{TEXT("stacker"_hash), DcxControlTypes::STACKER},
-		{TEXT("statusbar"_hash), DcxControlTypes::STATUSBAR},
-		{TEXT("tab"_hash), DcxControlTypes::TABB},
-		{TEXT("toolbar"_hash), DcxControlTypes::TOOLBAR},
-		{TEXT("trackbar"_hash), DcxControlTypes::TRACKBAR},
-		{TEXT("treeview"_hash), DcxControlTypes::TREEVIEW},
-		{TEXT("updown"_hash), DcxControlTypes::UPDOWN},
-		{TEXT("webctrl"_hash), DcxControlTypes::WEBCTRL},
-		{TEXT("multibutton"_hash), DcxControlTypes::MULTIBUTTON},
-		{TEXT("multicombo"_hash), DcxControlTypes::MULTICOMBO},
-		{TEXT("grid"_hash), DcxControlTypes::GRID}
+		{ TEXT("check"_hash), DcxControlTypes::CHECK },
+		{ TEXT("edit"_hash), DcxControlTypes::EDIT },
+		{ TEXT("image"_hash), DcxControlTypes::IMAGE },
+		{ TEXT("line"_hash), DcxControlTypes::LINE },
+		{ TEXT("link"_hash), DcxControlTypes::LINK },
+		{ TEXT("list"_hash), DcxControlTypes::LIST },
+		{ TEXT("radio"_hash), DcxControlTypes::RADIO },
+		{ TEXT("scroll"_hash), DcxControlTypes::SCROLL },
+		{ TEXT("text"_hash), DcxControlTypes::TEXT },
+		{ TEXT("button"_hash), DcxControlTypes::BUTTON },
+		{ TEXT("calendar"_hash), DcxControlTypes::CALENDAR },
+		{ TEXT("colorcombo"_hash), DcxControlTypes::COLORCOMBO },
+		{ TEXT("comboex"_hash), DcxControlTypes::COMBOEX },
+		{ TEXT("datetime"_hash), DcxControlTypes::DATETIME },
+		{ TEXT("directshow"_hash), DcxControlTypes::DIRECTSHOW },
+		{ TEXT("divider"_hash), DcxControlTypes::DIVIDER },
+		{ TEXT("ipaddress"_hash), DcxControlTypes::IPADDRESS },
+		{ TEXT("listview"_hash), DcxControlTypes::LISTVIEW },
+		{ TEXT("dialog"_hash), DcxControlTypes::DIALOG },
+		{ TEXT("window"_hash), DcxControlTypes::WINDOW },
+		{ TEXT("pager"_hash), DcxControlTypes::PAGER },
+		{ TEXT("panel"_hash), DcxControlTypes::PANEL },
+		{ TEXT("pbar"_hash), DcxControlTypes::PROGRESSBAR },
+		{ TEXT("rebar"_hash), DcxControlTypes::REBAR },
+		{ TEXT("richedit"_hash), DcxControlTypes::RICHEDIT },
+		{ TEXT("stacker"_hash), DcxControlTypes::STACKER },
+		{ TEXT("statusbar"_hash), DcxControlTypes::STATUSBAR },
+		{ TEXT("tab"_hash), DcxControlTypes::TABB },
+		{ TEXT("toolbar"_hash), DcxControlTypes::TOOLBAR },
+		{ TEXT("trackbar"_hash), DcxControlTypes::TRACKBAR },
+		{ TEXT("treeview"_hash), DcxControlTypes::TREEVIEW },
+		{ TEXT("updown"_hash), DcxControlTypes::UPDOWN },
+		{ TEXT("webctrl"_hash), DcxControlTypes::WEBCTRL },
+		{ TEXT("multibutton"_hash), DcxControlTypes::MULTIBUTTON },
+		{ TEXT("multicombo"_hash), DcxControlTypes::MULTICOMBO },
+		{ TEXT("grid"_hash), DcxControlTypes::GRID }
 	};
 
 	if (const auto got = dcxTypesMap.find(std::hash<TString>()(t)); got != dcxTypesMap.end())
@@ -2819,6 +2819,25 @@ void DcxControl::toXml(TiXmlElement* const xml) const
 	if (!styles.empty())
 		xml->SetAttribute("styles", styles.c_str());
 	xml->SetAttribute("border", getBorderStyles().c_str());
+	if (this->m_clrBackground != CLR_INVALID)
+		xml->SetAttribute("bgcolour", this->m_clrBackground);
+	if (this->m_clrText != CLR_INVALID)
+		xml->SetAttribute("textcolour", this->m_clrText);
+	if (this->m_clrBackText != CLR_INVALID)
+		xml->SetAttribute("textbgcolour", this->m_clrBackText);
+	if (this->m_clrStartGradient != CLR_INVALID)
+		xml->SetAttribute("gradientstart", this->m_clrStartGradient);
+	if (this->m_clrEndGradient != CLR_INVALID)
+		xml->SetAttribute("gradientend", this->m_clrEndGradient);
+	if (this->m_colTransparentBg != CLR_INVALID)
+		xml->SetAttribute("transparentbg", this->m_colTransparentBg);
+	if (!this->m_tsMark.empty())
+		xml->SetAttribute("mark", m_tsMark.c_str());
+	if (!this->m_tsToolTip.empty())
+		xml->SetAttribute("tooltip", m_tsToolTip.c_str());
+	xml->SetAttribute("eventmask", this->m_dEventMask);
+	if (this->m_iAlphaLevel != 255)
+		xml->SetAttribute("alphalevel", this->m_iAlphaLevel);
 }
 
 TiXmlElement* DcxControl::toXml(void) const

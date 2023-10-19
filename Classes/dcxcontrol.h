@@ -613,6 +613,9 @@ concept HasWinProc = requires(T t)
 template <HasWinProc pClassObj>
 void dcxRegisterNewClass(const TCHAR* const szDcxClass, WNDPROC pDefProc) noexcept
 {
+	if (!szDcxClass || !pDefProc)
+		return;
+
 	const WNDCLASSEX wc{ sizeof(WNDCLASSEX),0, DcxControl::WindowProc, 0, 0, GetModuleHandle(nullptr), nullptr, nullptr, reinterpret_cast<HBRUSH>(COLOR_3DFACE + 1), nullptr, szDcxClass, nullptr };
 	pClassObj::m_hDefaultClassProc = pDefProc;
 	RegisterClassEx(&wc);
@@ -620,6 +623,9 @@ void dcxRegisterNewClass(const TCHAR* const szDcxClass, WNDPROC pDefProc) noexce
 template <HasWinProc pClassObj>
 void dcxRegisterClass(const TCHAR* const szClass, const TCHAR* const szDcxClass) noexcept
 {
+	if (!szClass || !szDcxClass)
+		return;
+
 	WNDCLASSEX wc{};
 	wc.cbSize = sizeof(WNDCLASSEX);
 
