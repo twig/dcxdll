@@ -36,9 +36,9 @@ class DcxImage final
 public:
 	DcxImage() = delete;
 	DcxImage(const DcxImage&) = delete;
-	DcxImage& operator =(const DcxImage&) = delete;
+	GSL_SUPPRESS(c.128) DcxImage& operator =(const DcxImage&) = delete;
 	DcxImage(DcxImage&&) = delete;
-	DcxImage& operator =(DcxImage&&) = delete;
+	GSL_SUPPRESS(c.128) DcxImage& operator =(DcxImage&&) = delete;
 
 	DcxImage(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxImage() noexcept;
@@ -53,6 +53,7 @@ public:
 	inline const TString getType() const final { return TEXT("image"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::IMAGE; }
 
+	const TString getStyles(void) const final;
 	void toXml(TiXmlElement* const xml) const final;
 	TiXmlElement* toXml() const final;
 

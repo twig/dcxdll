@@ -637,6 +637,17 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 #endif
 }
 
+const TString DcxImage::getStyles(void) const
+{
+	auto styles(__super::getStyles());
+
+	if (m_bHCenterImage)
+		styles.addtok(TEXT("hcenter"));
+	if (m_bVCenterImage)
+		styles.addtok(TEXT("vcenter"));
+	return styles;
+}
+
 void DcxImage::toXml(TiXmlElement* const xml) const
 {
 	if (!xml)
@@ -646,7 +657,26 @@ void DcxImage::toXml(TiXmlElement* const xml) const
 
 	if (!this->m_tsFilename.empty())
 		xml->SetAttribute("src", m_tsFilename.c_str());
-	//xml->SetAttribute("styles", getStyles().c_str());
+	if (this->m_clrTransColor != CLR_INVALID)
+		xml->SetAttribute("transparentcolour", this->m_clrTransColor);
+	xml->SetAttribute("iconsize", gsl::narrow_cast<int>(this->m_iIconSize));
+	if (this->m_bIsAnimated)
+		xml->SetAttribute("anim", "1");
+	if (this->m_bResizeImage)
+		xml->SetAttribute("resize", "1");
+	if (this->m_bTileImage)
+		xml->SetAttribute("tile", "1");
+	if (this->m_bKeepAspect)
+		xml->SetAttribute("keepaspect", "1");
+	if (this->m_iXOffset > 0)
+		xml->SetAttribute("xoffset", this->m_iXOffset);
+	if (this->m_iYOffset > 0)
+		xml->SetAttribute("yoffset", this->m_iYOffset);
+
+	xml->SetAttribute("CompositingMode", gsl::narrow_cast<int>(this->m_CMode));
+	xml->SetAttribute("CompositingQuality", gsl::narrow_cast<int>(this->m_CQuality));
+	xml->SetAttribute("InterpolationMode", gsl::narrow_cast<int>(this->m_IMode));
+	xml->SetAttribute("SmoothingMode", gsl::narrow_cast<int>(this->m_SMode));
 }
 
 TiXmlElement* DcxImage::toXml() const
