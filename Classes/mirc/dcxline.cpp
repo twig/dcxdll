@@ -66,6 +66,8 @@ const TString DcxLine::getStyles(void) const
 	const auto Styles = dcxGetWindowStyle(m_Hwnd);
 	if (this->m_bVertical)
 		styles.addtok(TEXT("vertical"));
+	if (this->m_bSimple)
+		styles.addtok(TEXT("simple"));
 	if (dcx_testflag(Styles, SS_LEFTNOWORDWRAP))
 		styles.addtok(TEXT("nowrap"));
 	if (dcx_testflag(Styles, SS_CENTER))

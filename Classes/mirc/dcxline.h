@@ -32,9 +32,9 @@ class DcxLine final
 public:
 	DcxLine() = delete;
 	DcxLine(const DcxLine &) = delete;
-	DcxLine &operator =(const DcxLine &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxLine &operator =(const DcxLine &) = delete;	// No assignments!
 	DcxLine(DcxLine &&) = delete;
-	DcxLine &operator =(DcxLine &&) = delete;
+	GSL_SUPPRESS(c.128) DcxLine &operator =(DcxLine &&) = delete;
 
 	DcxLine( const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxLine( ) noexcept;
