@@ -20,13 +20,6 @@
  /*
  dcxml [-FLAGS] [DNAME] [DATASET] "[PATH]"
  */
- //DcxmlParser::DcxmlParser() noexcept
- //{
- //}
-
- //DcxmlParser::~DcxmlParser() {
- //}
-
 bool DcxmlParser::ParseXML(const TString& tsFilePath, const TString& tsDialogMark, const TString& tsDialogName, const bool verbose, const bool autoClose)
 {
 	m_bLoadSuccess = true;
@@ -230,6 +223,9 @@ void DcxmlParser::parseAttributes(const TiXmlElement* const tElement) noexcept
 /* parseControl() : if current m_pElement is a control perform some extra commands*/
 void DcxmlParser::parseControl()
 {
+	if (!m_pElement)
+		return;
+
 	if (m_pElement->Attribute("zlayer"))
 	{
 		xdialogEX(TEXT("-z"), TEXT("+a %i"), m_iID);

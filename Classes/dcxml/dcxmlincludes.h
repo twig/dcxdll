@@ -1,4 +1,3 @@
-#include "defines.h"
 #include <string>
 #include "Dcx.h"
 #include "Classes/dcxdialog.h"
