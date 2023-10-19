@@ -315,8 +315,6 @@ void DcxBox::toXml(TiXmlElement* const xml) const
 	xml->SetAttribute("caption", wtext.c_str());
 	xml->SetAttribute("styles", getStyles().c_str());
 
-#if DCX_USE_TESTCODE
-	// Ook: for this to work all controls MUST be added to CLA, needs fixed.
 	if (m_pLayoutManager)
 	{
 		if (const auto rt = m_pLayoutManager->getRoot(); rt)
@@ -344,13 +342,6 @@ void DcxBox::toXml(TiXmlElement* const xml) const
 			xml->LinkEndChild(xctrl);
 		}
 	}
-#else
-	if (m_pLayoutManager)
-	{
-		if (const auto rt = m_pLayoutManager->getRoot(); rt)
-			rt->toXml(xml);
-	}
-#endif
 }
 
 GSL_SUPPRESS(lifetime.4)

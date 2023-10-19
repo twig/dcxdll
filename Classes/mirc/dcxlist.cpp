@@ -1479,24 +1479,25 @@ void DcxList::toXml(TiXmlElement* const xml) const
 
 	xml->SetAttribute("styles", getStyles().c_str());
 
-	const int nCnt = ListBox_GetCount(m_Hwnd);
-
-	if (nCnt < 1)
-		return;
-
-	GSL_SUPPRESS(con.4) TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
-
-	for (int nItem{}; nItem < nCnt; ++nItem)
 	{
-		ListBox_GetText(m_Hwnd, nItem, &szBuf[0]);
+		const int nCnt = ListBox_GetCount(m_Hwnd);
 
-		TiXmlElement xChild("item");
-		xChild.SetAttribute("text", TString(szBuf).c_str());
-		// save selection state?
+		if (nCnt < 1)
+			return;
 
-		xml->InsertEndChild(xChild);
+		GSL_SUPPRESS(con.4) TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
+
+		for (int nItem{}; nItem < nCnt; ++nItem)
+		{
+			ListBox_GetText(m_Hwnd, nItem, &szBuf[0]);
+
+			TiXmlElement xChild("item");
+			xChild.SetAttribute("text", TString(szBuf).c_str());
+			// save selection state?
+
+			xml->InsertEndChild(xChild);
+		}
 	}
-
 }
 
 TiXmlElement* DcxList::toXml(void) const
