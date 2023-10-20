@@ -74,6 +74,9 @@ DcxCheck::~DcxCheck()
 
 void DcxCheck::toXml(TiXmlElement* const xml) const
 {
+	if (!xml || !m_Hwnd)
+		return;
+
 	__super::toXml(xml);
 
 	const TString wtext(TGetWindowText(m_Hwnd));
@@ -81,17 +84,20 @@ void DcxCheck::toXml(TiXmlElement* const xml) const
 	xml->SetAttribute("styles", getStyles().c_str());
 	xml->SetAttribute("state", Button_GetCheck(m_Hwnd));
 
-	if (this->m_bCustom)
 	{
-		xml->SetAttribute("checkbgcolour", this->m_Colours.m_clrBackground);
-		xml->SetAttribute("checkframecolour", this->m_Colours.m_clrFrame);
-		xml->SetAttribute("checktickcolour", this->m_Colours.m_clrTick);
-		xml->SetAttribute("checkdisabledbgcolour", this->m_Colours.m_clrDisabledBackground);
-		xml->SetAttribute("checkdisabledframecolour", this->m_Colours.m_clrDisabledFrame);
-		xml->SetAttribute("checkdisabledtickcolour", this->m_Colours.m_clrDisabledTick);
-		xml->SetAttribute("checkhotbgcolour", this->m_Colours.m_clrHotBackground);
-		xml->SetAttribute("checkhotframecolour", this->m_Colours.m_clrHotFrame);
-		xml->SetAttribute("checkhottickcolour", this->m_Colours.m_clrHotTick);
+		TiXmlElement xColours("colours");
+
+		xColours.SetAttribute("checkbgcolour", this->m_Colours.m_clrBackground);
+		xColours.SetAttribute("checkframecolour", this->m_Colours.m_clrFrame);
+		xColours.SetAttribute("checktickcolour", this->m_Colours.m_clrTick);
+		xColours.SetAttribute("checkdisabledbgcolour", this->m_Colours.m_clrDisabledBackground);
+		xColours.SetAttribute("checkdisabledframecolour", this->m_Colours.m_clrDisabledFrame);
+		xColours.SetAttribute("checkdisabledtickcolour", this->m_Colours.m_clrDisabledTick);
+		xColours.SetAttribute("checkhotbgcolour", this->m_Colours.m_clrHotBackground);
+		xColours.SetAttribute("checkhotframecolour", this->m_Colours.m_clrHotFrame);
+		xColours.SetAttribute("checkhottickcolour", this->m_Colours.m_clrHotTick);
+
+		xml->InsertEndChild(xColours);
 	}
 }
 
