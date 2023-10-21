@@ -462,6 +462,7 @@ public:
 	{
 		return m_hCursor.cursor;
 	}
+	TString FontToCommand() const;
 
 	[[nodiscard]] const inline bool& IsAlphaBlend() const noexcept
 	{

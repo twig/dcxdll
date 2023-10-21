@@ -1115,19 +1115,8 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 	break;
 	case L"font"_hash:
 	{
-		auto hFontControl = getControlFont();
-
-		if (!hFontControl)
-			hFontControl = Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT);
-
-		if (hFontControl)
-		{
-			if (auto [code, lfCurrent] = Dcx::dcxGetObject<LOGFONT>(hFontControl); code != 0)
-			{
-				tsResult = ParseLogfontToCommand(&lfCurrent);
+		tsResult = FontToCommand();
 			}
-		}
-	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"tooltipbgcolour"_hash:
@@ -1781,6 +1770,25 @@ const RECT DcxControl::getWindowPosition() const noexcept
 	GetWindowRectParent(m_Hwnd, &rc);
 	return rc;
 #endif
+}
+
+TString DcxControl::FontToCommand() const
+{
+	TString tsResult;
+
+	auto hFontControl = getControlFont();
+
+	if (!hFontControl)
+		hFontControl = Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT);
+
+	if (hFontControl)
+	{
+		if (auto [code, lfCurrent] = Dcx::dcxGetObject<LOGFONT>(hFontControl); code != 0)
+		{
+			tsResult = ParseLogfontToCommand(&lfCurrent);
+		}
+	}
+	return tsResult;
 }
 
 void DcxControl::updateParentCtrl() noexcept
@@ -2838,6 +2846,8 @@ void DcxControl::toXml(TiXmlElement* const xml) const
 	xml->SetAttribute("eventmask", this->m_dEventMask);
 	if (this->m_iAlphaLevel != 255)
 		xml->SetAttribute("alphalevel", this->m_iAlphaLevel);
+	if (const auto tsFont = FontToCommand(); !tsFont.empty())
+		xml->SetAttribute("font", tsFont.c_str());
 }
 
 TiXmlElement* DcxControl::toXml(void) const
