@@ -171,6 +171,9 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 	case DV_GETPANE:
 	{
+		if (!wParam || !lParam)
+			return FALSE;
+
 		switch (auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); wParam)
 		{
 		default:
@@ -210,12 +213,15 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	}
 	break;
 
-	// wParam == (OUT) BOOL isVertical?, lParam == (OUT) integer bar_position
+	// wParam == (OUT) BOOL isVertical? (not used atm), lParam == (OUT) integer bar_position
 	case DV_GETDIVPOS:
 	{
+		if (!wParam || !lParam)
+			return FALSE;
+
 		if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
 			*(reinterpret_cast<LPINT>(lParam)) = (lpdvdata->m_bDragging ? lpdvdata->m_iOldPos : gsl::narrow_cast<int>(lpdvdata->m_iBarPos));
-		return 0L;
+		return TRUE;
 	}
 
 	//case DV_CHANGEPOS:
@@ -238,9 +244,12 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	}
 	break;
 
-	// wParam == 0, lParam == (OUT) clr selected.
+	// wParam == (OUT) clr, lParam == (OUT) clr selected.
 	case DV_GETBARCOLOR:
 	{
+		if (!wParam || !lParam)
+			return FALSE;
+
 		if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
 		{
 			*(reinterpret_cast<COLORREF*>(wParam)) = lpdvdata->clrBar.clrBar;
@@ -266,6 +275,9 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	// wParam == 0, lParam == (OUT) width in pixels
 	case DV_GETBARWIDTH:
 	{
+		if (!lParam)
+			return FALSE;
+
 		if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
 		{
 			*(reinterpret_cast<UINT*>(lParam)) = lpdvdata->m_iLineWidth;
