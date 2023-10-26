@@ -329,6 +329,14 @@ namespace Dcx
 	{
 		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, TTM_GETTIPTEXTCOLOR, 0, 0));
 	}
+	inline COLORREF dcxToolTip_SetTipBkColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
+	{
+		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, TTM_SETTIPBKCOLOR, gsl::narrow_cast<WPARAM>(clr), 0));
+	}
+	inline COLORREF dcxToolTip_SetTipTextColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
+	{
+		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, TTM_SETTIPTEXTCOLOR, gsl::narrow_cast<WPARAM>(clr), 0));
+	}
 }
 
 /*!
@@ -411,6 +419,7 @@ public:
 	void setControlCursor(const HCURSOR c) noexcept { m_hCursor.cursor = c; }
 	void setShadowTextState(const bool b) noexcept { m_bShadowText = b; }
 	void setControlCodeTextState(const bool b) noexcept { m_bCtrlCodeText = b; }
+	void setCursor(const TString &tsFlags, TString tsFilename);
 
 	[[nodiscard]] HFONT getFont() const noexcept;
 	[[nodiscard]] const HFONT& getControlFont() const noexcept

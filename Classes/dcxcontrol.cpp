@@ -338,18 +338,23 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 	// xdid -J DNAME ID [+FLAGS] [CURSOR|FILENAME]
 	else if (flags[TEXT('J')])
 	{
+		//if (numtok < 5)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//const auto iFlags = this->parseCursorFlags(input.getfirsttok(4));
+		//auto filename(input.getlasttoks());
+		//const auto* const CursorType = this->parseCursorType(filename);
+		//
+		//// if previous cursor was the dialogs cursor, just set as blank
+		//if (m_hCursor.cursor == getParentDialog()->getCursor())
+		//	m_hCursor.cursor = nullptr;
+		//
+		//m_hCursor.cursor = Dcx::dcxLoadCursor(iFlags, CursorType, m_hCursor.enabled, m_hCursor.cursor, filename);
+
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto iFlags = this->parseCursorFlags(input.getfirsttok(4));
-		auto filename(input.getlasttoks());
-		const auto* const CursorType = this->parseCursorType(filename);
-
-		// if previous cursor was the dialogs cursor, just set as blank
-		if (m_hCursor.cursor == getParentDialog()->getCursor())
-			m_hCursor.cursor = nullptr;
-
-		m_hCursor.cursor = Dcx::dcxLoadCursor(iFlags, CursorType, m_hCursor.enabled, m_hCursor.cursor, filename);
+		setCursor(input.getfirsttok(4), input.getlasttoks());
 	}
 	// xdid -M [NAME] [ID] [SWITCH] [MARK INFO]
 	else if (flags[TEXT('M')])
@@ -1046,18 +1051,21 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 	break;
 	case L"dpos"_hash:
 	{
+		if (auto pd = getParentDialog(); pd)
+		{
 #if DCX_USE_WRAPPERS
-		const Dcx::dcxWindowRect rc(m_Hwnd, getParentDialog()->getHwnd());
+			const Dcx::dcxWindowRect rc(m_Hwnd, pd->getHwnd());
 
 		tsResult.tsprintf(TEXT("%d %d %d %d"), rc.left, rc.top, rc.Width(), rc.Height());
 #else
 		if (RECT rc{}; GetWindowRect(m_Hwnd, &rc))
 		{
-			MapWindowRect(nullptr, getParentDialog()->getHwnd(), &rc);
+				MapWindowRect(nullptr, pd->getHwnd(), &rc);
 
 			tsResult.tsprintf(TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 		}
 #endif
+	}
 	}
 	break;
 	case L"mark"_hash:
@@ -1673,6 +1681,21 @@ LRESULT DcxControl::setFont(const HFONT hFont, const BOOL fRedraw) noexcept
  *
  * blah
  */
+
+void DcxControl::setCursor(const TString& tsFlags, TString tsFilename)
+{
+	const auto iFlags = this->parseCursorFlags(tsFlags);
+	const auto* const CursorType = this->parseCursorType(tsFilename);
+
+	// if previous cursor was the dialogs cursor, just set as blank
+	if (m_hCursor.cursor == getParentDialog()->getCursor())
+		m_hCursor.cursor = nullptr;
+
+	m_hCursor.src = tsFilename;
+	m_hCursor.flags = tsFlags;
+
+	m_hCursor.cursor = Dcx::dcxLoadCursor(iFlags, CursorType, m_hCursor.enabled, m_hCursor.cursor, tsFilename);
+}
 
 GSL_SUPPRESS(lifetime)
 HFONT DcxControl::getFont() const noexcept
@@ -2829,6 +2852,8 @@ void DcxControl::toXml(TiXmlElement* const xml) const
 	xml->SetAttribute("border", getBorderStyles().c_str());
 	if (this->m_clrBackground != CLR_INVALID)
 		xml->SetAttribute("bgcolour", this->m_clrBackground);
+	if (this->m_hBorderBrush)
+		xml->SetAttribute("bordercolour", Dcx::BrushToColour(this->m_hBorderBrush));
 	if (this->m_clrText != CLR_INVALID)
 		xml->SetAttribute("textcolour", this->m_clrText);
 	if (this->m_clrBackText != CLR_INVALID)
@@ -2843,6 +2868,13 @@ void DcxControl::toXml(TiXmlElement* const xml) const
 		xml->SetAttribute("mark", m_tsMark.c_str());
 	if (!this->m_tsToolTip.empty())
 		xml->SetAttribute("tooltip", m_tsToolTip.c_str());
+	if (auto hTip = getToolTipHWND(); hTip)
+	{
+		if (const auto tmp = Dcx::dcxToolTip_GetTipBkColor(hTip); tmp != CLR_INVALID)
+			xml->SetAttribute("tooltipbgcolour", tmp);
+		if (const auto tmp = Dcx::dcxToolTip_GetTipTextColor(hTip); tmp != CLR_INVALID)
+			xml->SetAttribute("tooltiptextcolour", tmp);
+	}
 	xml->SetAttribute("eventmask", this->m_dEventMask);
 	if (this->m_iAlphaLevel != 255)
 		xml->SetAttribute("alphalevel", this->m_iAlphaLevel);
