@@ -53,9 +53,9 @@ class DcxReBar final
 public:
 	DcxReBar() = delete;
 	DcxReBar(const DcxReBar&) = delete;
-	DcxReBar& operator =(const DcxReBar&) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxReBar& operator =(const DcxReBar&) = delete;	// No assignments!
 	DcxReBar(DcxReBar&&) = delete;
-	DcxReBar& operator =(DcxReBar&&) = delete;
+	GSL_SUPPRESS(c.128) DcxReBar& operator =(DcxReBar&&) = delete;
 
 	DcxReBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* rc, const TString& styles);
 	~DcxReBar() noexcept;
@@ -74,6 +74,7 @@ public:
 
 	void resetContents() noexcept;
 
+	void addBand(int nIndex, UINT cx, UINT cy, UINT width, int nIcon, COLORREF clrText, const TString& tsFlags, const TString& tsText, const TString& tsControl_data, const TString& tsTooltip);
 	LRESULT insertBand(const int uIndex, const LPREBARBANDINFO lprbbi) noexcept;
 	LRESULT deleteBand(const UINT uIndex) noexcept;
 	LRESULT getBandInfo(const UINT uBand, const LPREBARBANDINFO lprbbi) const noexcept;
@@ -96,6 +97,7 @@ public:
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::REBAR; }
 
 	const TString getStyles(void) const final;
+
 	void toXml(TiXmlElement* const xml) const final;
 	TiXmlElement* toXml(void) const final;
 
@@ -107,6 +109,7 @@ public:
 protected:
 
 	static UINT parseBandStyleFlags(const TString& flags) noexcept;
+	static TString parseBandStyleFlags(UINT flags) noexcept;
 
 	int m_iClickedBand{ -1 };  //!< Last LClicked Band Number
 	int m_iRowLimit{};       //!< Rebar Band Row/Column Limit

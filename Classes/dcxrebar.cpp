@@ -113,17 +113,70 @@ void DcxReBar::toXml(TiXmlElement* const xml) const
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
+	xml->SetAttribute("nocla", "1");
 
 	if (const auto count = this->getBandCount(); count > 0)
 	{
+		TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
+		REBARBANDINFO rbbi{};
+		if (Dcx::DwmModule.isVista()) // NB: when rbBand.cbSize is set to the Vista size on XP the insertband will FAIL!! fucking MS!
+			rbbi.cbSize = sizeof(REBARBANDINFO);
+		else
+			GSL_SUPPRESS(es.47) rbbi.cbSize = REBARBANDINFO_V6_SIZE;
+		rbbi.fMask = RBBIM_TEXT | RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_IMAGE | RBBIM_COLORS | RBBIM_STYLE | RBBIM_LPARAM;
+
 		for (auto i = decltype(count){0}; i < count; ++i)
 		{
+			rbbi.lpText = &szBuf[0];
+			rbbi.cch = MIRC_BUFFER_SIZE_CCH;
+
+			this->getBandInfo(i, &rbbi);
+
+			auto lpdrbb = reinterpret_cast<DCXRBBAND *>(rbbi.lParam);
+
+			TiXmlElement xItem("item");
+			{
+				TString tsText(rbbi.lpText);
+				xItem.SetAttribute("text", tsText.c_str());
+				xItem.SetAttribute("icon", rbbi.iImage);
+				xItem.SetAttribute("fgcolour", rbbi.clrFore);
+				xItem.SetAttribute("bgcolour", rbbi.clrBack);
+				xItem.SetAttribute("width", rbbi.cx);
+				xItem.SetAttribute("minwidth", rbbi.cxMinChild);
+				xItem.SetAttribute("minheight", rbbi.cyMinChild);
+
+				if (lpdrbb)
+				{
+					if (lpdrbb->clrText != CLR_INVALID)
+						xItem.SetAttribute("textcolour", lpdrbb->clrText);
+					if (lpdrbb->bBold)
+						xItem.SetAttribute("bold", "1");
+					if (lpdrbb->bUline)
+						xItem.SetAttribute("underline", "1");
+					if (!lpdrbb->tsTipText.empty())
+						xItem.SetAttribute("tooltip", lpdrbb->tsTipText.c_str());
+					if (!lpdrbb->tsMarkText.empty())
+						xItem.SetAttribute("mark", lpdrbb->tsMarkText.c_str());
+				}
+
+				xItem.SetAttribute("flags", parseBandStyleFlags(rbbi.fStyle).c_str());
+			}
 			if (const auto* const c = this->getControl(i); c)
 			{
-				auto subs = std::make_unique<TiXmlElement>("control");
-				c->toXml(subs.get());
-				xml->LinkEndChild(subs.release());
+				//const Dcx::dcxWindowRect rc(rbbi.hwndChild, m_Hwnd);
+
+				TiXmlElement xSub("control");
+
+				c->toXml(&xSub);
+
+				//xSub.SetAttribute("x", rc.left);
+				//xSub.SetAttribute("y", rc.top);
+				//xSub.SetAttribute("height", rc.Height());
+				//xSub.SetAttribute("width", rc.Width());
+
+				xItem.InsertEndChild(xSub);
 			}
+			xml->InsertEndChild(xItem);
 		}
 	}
 }
@@ -326,16 +379,112 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [CX] [CY] [WIDTH] [ICON] [COLOR] [Item Text][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB]Tooltip
 	if (flags[TEXT('a')])
 	{
+		//if (numtok < 10)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//REBARBANDINFO rbBand{};
+		//if (Dcx::DwmModule.isUseable()) // NB: when rbBand.cbSize is set to the Vista size on XP the insertband will FAIL!! fucking MS!
+		//	rbBand.cbSize = sizeof(REBARBANDINFO);
+		//else
+		//	GSL_SUPPRESS(es.47) rbBand.cbSize = REBARBANDINFO_V6_SIZE;
+		//
+		//rbBand.fMask = RBBIM_STYLE | RBBIM_LPARAM;
+		//
+		//const auto data(input.getfirsttok(1, TSTABCHAR).trim());
+		//TString control_data, tooltip;
+		//const auto nToks = input.numtok(TSTABCHAR);
+		//
+		//if (nToks > 1)
+		//{
+		//	control_data = input.getnexttok(TSTABCHAR).trim();		// tok 2
+		//
+		//	if (nToks > 2)
+		//		tooltip = input.getnexttok(TSTABCHAR).trim();		// tok 3
+		//}
+		//auto nIndex = data.getfirsttok(4).to_<int>() - 1;
+		//rbBand.fStyle = parseBandStyleFlags(data.getnexttok());	// tok 5
+		//const auto cx = data.getnexttok().to_<UINT>();					// tok 6
+		//const auto cy = data.getnexttok().to_<UINT>();					// tok 7
+		//const auto width = data.getnexttok().to_<UINT>();				// tok 8
+		//const auto nIcon = data.getnexttok().to_<int>() - 1;			// tok 9
+		//const auto clrText = data.getnexttok().to_<COLORREF>();			// tok 10
+		//
+		//if (nIndex < -1)
+		//	nIndex = -1;
+		//
+		//rbBand.cxMinChild = cx;
+		//rbBand.cyMinChild = cy;
+		//rbBand.cx = width;
+		//rbBand.cyIntegral = 1;
+		//rbBand.cyChild = cy;
+		//
+		//TString itemtext;
+		//if (data.numtok() > 10)
+		//{
+		//	itemtext = data.getlasttoks().trim();	// tok 11, -1
+		//	rbBand.fMask |= RBBIM_TEXT;
+		//	rbBand.lpText = itemtext.to_chr();
+		//	//rbBand.cch = itemtext.len();
+		//}
+		//
+		//// Tooltip Handling
+		//auto lpdcxrbb = std::make_unique<DCXRBBAND>();
+		//
+		//lpdcxrbb->bUline = dcx_testflag(rbBand.fStyle, RBBS_UNDERLINE);
+		//
+		//lpdcxrbb->bBold = dcx_testflag(rbBand.fStyle, RBBS_BOLD);
+		//
+		//if (dcx_testflag(rbBand.fStyle, RBBS_COLOR))
+		//	lpdcxrbb->clrText = clrText;
+		//else
+		//	lpdcxrbb->clrText = CLR_INVALID;
+		//
+		//if (nIcon > -1)
+		//{
+		//	rbBand.iImage = nIcon;
+		//	rbBand.fMask |= RBBIM_IMAGE;
+		//}
+		//
+		//rbBand.lParam = reinterpret_cast<LPARAM>(lpdcxrbb.get());
+		//
+		//DcxControl* p_Control{ nullptr };
+		//if (control_data.numtok() > 5)
+		//{
+		//	p_Control = this->getParentDialog()->addControl(control_data, 1,
+		//		DcxAllowControls::ALLOW_TRACKBAR |
+		//		DcxAllowControls::ALLOW_PBAR |
+		//		DcxAllowControls::ALLOW_COMBOEX |
+		//		DcxAllowControls::ALLOW_TOOLBAR |
+		//		DcxAllowControls::ALLOW_STATUSBAR |
+		//		DcxAllowControls::ALLOW_TREEVIEW |
+		//		DcxAllowControls::ALLOW_LISTVIEW |
+		//		DcxAllowControls::ALLOW_COLORCOMBO |
+		//		DcxAllowControls::ALLOW_BUTTON |
+		//		DcxAllowControls::ALLOW_RICHEDIT |
+		//		DcxAllowControls::ALLOW_DIVIDER |
+		//		DcxAllowControls::ALLOW_PANEL |
+		//		DcxAllowControls::ALLOW_TAB, m_Hwnd);
+		//
+		//	if (const auto dct = p_Control->getControlType(); ((dct == DcxControlTypes::STATUSBAR) || (dct == DcxControlTypes::TOOLBAR)))
+		//		p_Control->addStyle(WindowStyle::CCS_NoParentAlign | CCS_NORESIZE);
+		//
+		//	rbBand.fMask |= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE | RBBIM_ID;
+		//	rbBand.hwndChild = p_Control->getHwnd();
+		//	rbBand.wID = p_Control->getID();
+		//}
+		//
+		//if (this->insertBand(nIndex, &rbBand) == 0L)
+		//{ // 0L means failed.
+		//	this->getParentDialog()->deleteControl(p_Control);
+		//	if (rbBand.hwndChild)
+		//		DestroyWindow(rbBand.hwndChild);
+		//
+		//	throw Dcx::dcxException("Unable To Add Band");
+		//}
+		//lpdcxrbb.release();
+
 		if (numtok < 10)
 			throw DcxExceptions::dcxInvalidArguments();
-
-		REBARBANDINFO rbBand{};
-		if (Dcx::DwmModule.isUseable()) // NB: when rbBand.cbSize is set to the Vista size on XP the insertband will FAIL!! fucking MS!
-			rbBand.cbSize = sizeof(REBARBANDINFO);
-		else
-			GSL_SUPPRESS(es.47) rbBand.cbSize = REBARBANDINFO_V6_SIZE;
-
-		rbBand.fMask = RBBIM_STYLE | RBBIM_LPARAM;
 
 		const auto data(input.getfirsttok(1, TSTABCHAR).trim());
 		TString control_data, tooltip;
@@ -343,92 +492,23 @@ void DcxReBar::parseCommandRequest(const TString& input)
 
 		if (nToks > 1)
 		{
-			control_data = input.getnexttok(TSTABCHAR).trim();		// tok 2
+			control_data = input.getnexttok(TSTABCHAR).trim();			// tok 2
 
 			if (nToks > 2)
-				tooltip = input.getnexttok(TSTABCHAR).trim();		// tok 3
+				tooltip = input.getnexttok(TSTABCHAR).trim();			// tok 3
 		}
-		auto nIndex = data.getfirsttok(4).to_<int>() - 1;
-		rbBand.fStyle = parseBandStyleFlags(data.getnexttok());	// tok 5
+		const auto nIndex = data.getfirsttok(4).to_<int>() - 1;			// tok 4
+		const auto tsFlags = data.getnexttok();							// tok 5
 		const auto cx = data.getnexttok().to_<UINT>();					// tok 6
 		const auto cy = data.getnexttok().to_<UINT>();					// tok 7
 		const auto width = data.getnexttok().to_<UINT>();				// tok 8
 		const auto nIcon = data.getnexttok().to_<int>() - 1;			// tok 9
 		const auto clrText = data.getnexttok().to_<COLORREF>();			// tok 10
-
-		if (nIndex < -1)
-			nIndex = -1;
-
-		rbBand.cxMinChild = cx;
-		rbBand.cyMinChild = cy;
-		rbBand.cx = width;
-		rbBand.cyIntegral = 1;
-		rbBand.cyChild = cy;
-
 		TString itemtext;
 		if (data.numtok() > 10)
-		{
-			itemtext = data.getlasttoks().trim();	// tok 11, -1
-			rbBand.fMask |= RBBIM_TEXT;
-			rbBand.lpText = itemtext.to_chr();
-			//rbBand.cch = itemtext.len();
-		}
+			itemtext = data.getlasttoks().trim();						// tok 11, -1
 
-		// Tooltip Handling
-		auto lpdcxrbb = std::make_unique<DCXRBBAND>();
-
-		lpdcxrbb->bUline = dcx_testflag(rbBand.fStyle, RBBS_UNDERLINE);
-
-		lpdcxrbb->bBold = dcx_testflag(rbBand.fStyle, RBBS_BOLD);
-
-		if (dcx_testflag(rbBand.fStyle, RBBS_COLOR))
-			lpdcxrbb->clrText = clrText;
-		else
-			lpdcxrbb->clrText = CLR_INVALID;
-
-		if (nIcon > -1)
-		{
-			rbBand.iImage = nIcon;
-			rbBand.fMask |= RBBIM_IMAGE;
-		}
-
-		rbBand.lParam = reinterpret_cast<LPARAM>(lpdcxrbb.get());
-
-		DcxControl* p_Control{ nullptr };
-		if (control_data.numtok() > 5)
-		{
-			p_Control = this->getParentDialog()->addControl(control_data, 1,
-				DcxAllowControls::ALLOW_TRACKBAR |
-				DcxAllowControls::ALLOW_PBAR |
-				DcxAllowControls::ALLOW_COMBOEX |
-				DcxAllowControls::ALLOW_TOOLBAR |
-				DcxAllowControls::ALLOW_STATUSBAR |
-				DcxAllowControls::ALLOW_TREEVIEW |
-				DcxAllowControls::ALLOW_LISTVIEW |
-				DcxAllowControls::ALLOW_COLORCOMBO |
-				DcxAllowControls::ALLOW_BUTTON |
-				DcxAllowControls::ALLOW_RICHEDIT |
-				DcxAllowControls::ALLOW_DIVIDER |
-				DcxAllowControls::ALLOW_PANEL |
-				DcxAllowControls::ALLOW_TAB, m_Hwnd);
-
-			if (const auto dct = p_Control->getControlType(); ((dct == DcxControlTypes::STATUSBAR) || (dct == DcxControlTypes::TOOLBAR)))
-				p_Control->addStyle(WindowStyle::CCS_NoParentAlign | CCS_NORESIZE);
-
-			rbBand.fMask |= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE | RBBIM_ID;
-			rbBand.hwndChild = p_Control->getHwnd();
-			rbBand.wID = p_Control->getID();
-		}
-
-		if (this->insertBand(nIndex, &rbBand) == 0L)
-		{ // 0L means failed.
-			this->getParentDialog()->deleteControl(p_Control);
-			if (rbBand.hwndChild)
-				DestroyWindow(rbBand.hwndChild);
-
-			throw Dcx::dcxException("Unable To Add Band");
-		}
-		lpdcxrbb.release();
+		addBand(nIndex, cx, cy, width, nIcon, clrText, tsFlags, itemtext, control_data, tooltip);
 	}
 	// xdid -A [NAME] [ID] [SWITCH] [N] (TEXT)
 	// xdid -A [NAME] [ID] [SWITCH] [N,N2,N3-N4...] (TEXT)
@@ -1027,11 +1107,125 @@ UINT DcxReBar::parseBandStyleFlags(const TString& flags) noexcept
 	return iFlags;
 }
 
+TString DcxReBar::parseBandStyleFlags(UINT flags) noexcept
+{
+	TString tsFlags(L"+");
+
+	if (dcx_testflag(flags, RBBS_BOLD))
+		tsFlags += L'b';
+	if (dcx_testflag(flags, RBBS_COLOR))
+		tsFlags += L'c';
+	if (dcx_testflag(flags, RBBS_CHILDEDGE))
+		tsFlags += L'e';
+	if (dcx_testflag(flags, RBBS_FIXEDSIZE))
+		tsFlags += L'f';
+	if (dcx_testflag(flags, RBBS_GRIPPERALWAYS))
+		tsFlags += L'g';
+	if (dcx_testflag(flags, RBBS_HIDDEN))
+		tsFlags += L'h';
+	if (dcx_testflag(flags, RBBS_NOGRIPPER))
+		tsFlags += L'n';
+	if (dcx_testflag(flags, RBBS_USECHEVRON))
+		tsFlags += L'o';
+	if (dcx_testflag(flags, RBBS_UNDERLINE))
+		tsFlags += L'u';
+	if (dcx_testflag(flags, RBBS_VARIABLEHEIGHT))
+		tsFlags += L'v';
+	if (dcx_testflag(flags, RBBS_BREAK))
+		tsFlags += L'w';
+
+	return tsFlags;
+}
+
 /*!
  * \brief blah
  *
  * blah
  */
+
+void DcxReBar::addBand(int nIndex, UINT cx, UINT cy, UINT width, int nIcon, COLORREF clrText, const TString& tsFlags, const TString& tsText, const TString& tsControl_data, const TString& tsTooltip)
+{
+	REBARBANDINFO rbBand{};
+	if (Dcx::DwmModule.isUseable()) // NB: when rbBand.cbSize is set to the Vista size on XP the insertband will FAIL!! fucking MS!
+		rbBand.cbSize = sizeof(REBARBANDINFO);
+	else
+		GSL_SUPPRESS(es.47) rbBand.cbSize = REBARBANDINFO_V6_SIZE;
+
+	rbBand.fMask = RBBIM_STYLE | RBBIM_LPARAM;
+
+	rbBand.fStyle = parseBandStyleFlags(tsFlags);
+
+	if (nIndex < -1)
+		nIndex = -1;
+
+	rbBand.cxMinChild = cx;
+	rbBand.cyMinChild = cy;
+	rbBand.cx = width;
+	rbBand.cyIntegral = 1;
+	rbBand.cyChild = cy;
+
+	if (!tsText.empty())
+	{
+		rbBand.fMask |= RBBIM_TEXT;
+		rbBand.lpText = const_cast<TCHAR*>(tsText.to_chr());
+	}
+
+	// Tooltip Handling
+	auto lpdcxrbb = std::make_unique<DCXRBBAND>();
+
+	lpdcxrbb->bUline = dcx_testflag(rbBand.fStyle, RBBS_UNDERLINE);
+
+	lpdcxrbb->bBold = dcx_testflag(rbBand.fStyle, RBBS_BOLD);
+
+	if (dcx_testflag(rbBand.fStyle, RBBS_COLOR))
+		lpdcxrbb->clrText = clrText;
+	else
+		lpdcxrbb->clrText = CLR_INVALID;
+
+	if (nIcon > -1)
+	{
+		rbBand.iImage = nIcon;
+		rbBand.fMask |= RBBIM_IMAGE;
+	}
+
+	rbBand.lParam = reinterpret_cast<LPARAM>(lpdcxrbb.get());
+
+	DcxControl* p_Control{ nullptr };
+	if (tsControl_data.numtok() > 5)
+	{
+		p_Control = this->getParentDialog()->addControl(tsControl_data, 1,
+			DcxAllowControls::ALLOW_TRACKBAR |
+			DcxAllowControls::ALLOW_PBAR |
+			DcxAllowControls::ALLOW_COMBOEX |
+			DcxAllowControls::ALLOW_TOOLBAR |
+			DcxAllowControls::ALLOW_STATUSBAR |
+			DcxAllowControls::ALLOW_TREEVIEW |
+			DcxAllowControls::ALLOW_LISTVIEW |
+			DcxAllowControls::ALLOW_COLORCOMBO |
+			DcxAllowControls::ALLOW_BUTTON |
+			DcxAllowControls::ALLOW_RICHEDIT |
+			DcxAllowControls::ALLOW_DIVIDER |
+			DcxAllowControls::ALLOW_PANEL |
+			DcxAllowControls::ALLOW_TAB, m_Hwnd);
+
+		if (const auto dct = p_Control->getControlType(); ((dct == DcxControlTypes::STATUSBAR) || (dct == DcxControlTypes::TOOLBAR)))
+			p_Control->addStyle(WindowStyle::CCS_NoParentAlign | CCS_NORESIZE);
+
+		rbBand.fMask |= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE | RBBIM_ID;
+		rbBand.hwndChild = p_Control->getHwnd();
+		rbBand.wID = p_Control->getID();
+	}
+
+	if (this->insertBand(nIndex, &rbBand) == 0L)
+	{ // 0L means failed.
+		this->getParentDialog()->deleteControl(p_Control);
+		if (rbBand.hwndChild)
+			DestroyWindow(rbBand.hwndChild);
+
+		throw Dcx::dcxException("Unable To Add Band");
+	}
+	lpdcxrbb.release();
+}
 
 LRESULT DcxReBar::insertBand(const int uIndex, const LPREBARBANDINFO lprbbi) noexcept
 {
