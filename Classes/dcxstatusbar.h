@@ -89,9 +89,11 @@ public:
 	LRESULT setPartInfo( const int iPart, const int Style, gsl::owner<const LPSB_PARTINFOX> pPart ) noexcept;
 	LPSB_PARTINFOX getPartInfo(const int iPart) const noexcept;
 	LRESULT getText( const int iPart, PTCHAR lpstr ) const noexcept;
+	TString getText(const int iPart) const;
 	LRESULT getTextLength( const int iPart ) const noexcept;
 	LRESULT setTipText( const int iPart, const LPCTCH lpstr ) noexcept;
 	LRESULT getTipText( const int iPart, const int nSize, PTCHAR lpstr ) const noexcept;
+	TString getTipText(const int iPart) const;
 	LRESULT getRect( const int iPart, gsl::not_null<LPRECT> lprc ) const noexcept;
 	LRESULT setIcon( const int iPart, const HICON hIcon ) noexcept;
 	HICON getIcon( const int iPart ) const noexcept;

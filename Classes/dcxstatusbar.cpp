@@ -576,10 +576,8 @@ void DcxStatusBar::toXml(TiXmlElement* const xml) const
 
 			xItem.SetAttribute("index", n);
 
-			{
-				const TString tsFlags(this->getItemFlags(n));
+			if (const TString tsFlags(this->getItemFlags(n)); !tsFlags.empty())
 				xItem.SetAttribute("flags", tsFlags.c_str());
-			}
 
 			if (const auto pInfo = this->getPartInfo(n); pInfo)
 			{
@@ -593,11 +591,14 @@ void DcxStatusBar::toXml(TiXmlElement* const xml) const
 					xItem.LinkEndChild(pInfo->m_xChild->toXml());
 				}
 			}
-
+			else {
+				const TString tsText(this->getText(n));
+				if (!tsText.empty())
+					xItem.SetAttribute("text", tsText.c_str());
+			}
 			{
-				TString tsTooltip((UINT)MIRC_BUFFER_SIZE_CCH);
-				this->getTipText(n, tsTooltip.capacity_cch(), tsTooltip.to_chr());
-
+				const TString tsTooltip(this->getTipText(n));
+				if (!tsTooltip.empty())
 				xItem.SetAttribute("tooltip", tsTooltip.c_str());
 			}
 
@@ -606,12 +607,6 @@ void DcxStatusBar::toXml(TiXmlElement* const xml) const
 		if (!tsCells.empty())
 			xml->SetAttribute("cells", tsCells.c_str());
 	}
-
-	//const auto nPos = queryIntAttribute(xItem, "index");
-	//const auto iIcon = queryIntAttribute(xItem, "icon");
-	//const TString tsFlags(queryAttribute(xItem, "flags"));
-	//TString tsText(queryAttribute(xItem, "text"));
-	//const TString tsTooltip(queryAttribute(xItem, "tooltip"));
 }
 
 TiXmlElement* DcxStatusBar::toXml(void) const
@@ -832,6 +827,15 @@ LRESULT DcxStatusBar::getText(const int iPart, PTCHAR lpstr) const noexcept
 	return SendMessage(m_Hwnd, SB_GETTEXT, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(lpstr));
 }
 
+TString DcxStatusBar::getText(const int iPart) const
+{
+	TString tsText((UINT)MIRC_BUFFER_SIZE_CCH);
+
+	this->getText(iPart, tsText.to_chr());
+
+	return tsText;
+}
+
 /*!
  * \brief blah
  *
@@ -863,6 +867,15 @@ LRESULT DcxStatusBar::setTipText(const int iPart, const LPCTCH lpstr) noexcept
 LRESULT DcxStatusBar::getTipText(const int iPart, const int nSize, PTCHAR lpstr) const noexcept
 {
 	return SendMessage(m_Hwnd, SB_GETTIPTEXT, MAKEWPARAM(iPart, nSize), reinterpret_cast<LPARAM>(lpstr));
+}
+
+TString DcxStatusBar::getTipText(const int iPart) const
+{
+	TString tsText((UINT)MIRC_BUFFER_SIZE_CCH);
+
+	this->getTipText(iPart, tsText.capacity_cch(), tsText.to_chr());
+
+	return tsText;
 }
 
 /*!
