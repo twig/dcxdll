@@ -44,9 +44,9 @@ class DcxStatusBar final
 public:
 	DcxStatusBar() = delete;
 	DcxStatusBar(const DcxStatusBar &) = delete;
-	DcxStatusBar &operator =(const DcxStatusBar &) = delete;
+	GSL_SUPPRESS(c.128) DcxStatusBar &operator =(const DcxStatusBar &) = delete;
 	DcxStatusBar(DcxStatusBar &&) = delete;
-	DcxStatusBar &operator =(DcxStatusBar &&) = delete;
+	GSL_SUPPRESS(c.128) DcxStatusBar &operator =(DcxStatusBar &&) = delete;
 
 	DcxStatusBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxStatusBar( ) noexcept;
@@ -64,6 +64,7 @@ public:
 	//static HIMAGELIST createImageList( );
 
 	static UINT parseItemFlags( const TString & flags ) noexcept;
+
 	void cleanPartIcons( ) noexcept;
 
 	void toXml(TiXmlElement *const xml) const final;
@@ -73,24 +74,29 @@ public:
 	LRESULT setParts( const int nParts, const LPINT aWidths ) noexcept;
 	LRESULT getParts( const int nParts, LPINT aWidths ) const noexcept;
 	LRESULT getBorders( LPINT aWidths ) const noexcept;
+	void setPartsPositions(const TString &tsPositions);
+	void setPartContents(int nPos, const TString &tsFlags, int nIcon, const TString &tsText, const TString &tsTooltip);
 
 	struct sbBorders
 	{
-		int horizontal, vertical, seperator;
+		int horizontal{}, vertical{}, seperator{};
 	};
 	_NODISCARD sbBorders getBorders() const noexcept;
 
-	LRESULT setBkColor( const COLORREF clrBk ) noexcept;
-	LRESULT setText( const int iPart, const int Style, const PTCHAR lpstr ) noexcept;
+	COLORREF setBkColor( const COLORREF clrBk ) noexcept;
+	COLORREF getBkColor() const noexcept;
+	LRESULT setText( const int iPart, const int Style, const LPCTCH lpstr ) noexcept;
 	LRESULT setPartInfo( const int iPart, const int Style, gsl::owner<const LPSB_PARTINFOX> pPart ) noexcept;
+	LPSB_PARTINFOX getPartInfo(const int iPart) const noexcept;
 	LRESULT getText( const int iPart, PTCHAR lpstr ) const noexcept;
 	LRESULT getTextLength( const int iPart ) const noexcept;
-	LRESULT setTipText( const int iPart, const PTCHAR lpstr ) noexcept;
+	LRESULT setTipText( const int iPart, const LPCTCH lpstr ) noexcept;
 	LRESULT getTipText( const int iPart, const int nSize, PTCHAR lpstr ) const noexcept;
 	LRESULT getRect( const int iPart, gsl::not_null<LPRECT> lprc ) const noexcept;
 	LRESULT setIcon( const int iPart, const HICON hIcon ) noexcept;
 	HICON getIcon( const int iPart ) const noexcept;
 	UINT getPartFlags(const int iPart) const noexcept;
+	TString getItemFlags(int iPos) const noexcept;
 	void updateParts(void);
 
 	int hitTest( const POINT & pt ) const noexcept;

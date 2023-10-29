@@ -257,147 +257,130 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 	// xdid -l -> [NAME] [ID] -l [POS [POS POS ...]]
 	else if (flags[TEXT('l')])
 	{
+		//if (numtok < 4)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//const auto nParts = numtok - 3;
+		//auto parts = std::make_unique<INT[]>(DCX_STATUSBAR_MAX_PARTS);
+		//
+		//auto c = 0U;
+		//TString p;
+		//for (auto i = decltype(nParts){0}; i < nParts; ++i)
+		//{
+		//	if (c >= 100)
+		//		throw Dcx::dcxException("Can't Allocate Over 100% of Statusbar!");
+		//
+		//	p = input.getnexttok();	// tok i+4
+		//	const auto t = p.to_int();
+		//
+		//	if (p.right(1) == TEXT('%'))
+		//	{
+		//		gsl::at(m_iDynamicParts, i) = t;
+		//		c += t;
+		//	}
+		//	else
+		//		gsl::at(m_iFixedParts, i) = t;
+		//
+		//	gsl::at(parts, i) = t;
+		//}
+		//setParts(nParts, parts.get());
+		//updateParts();
+
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nParts = numtok - 3;
-		auto parts = std::make_unique<INT[]>(DCX_STATUSBAR_MAX_PARTS);
-
-		auto c = 0U;
-		TString p;
-		for (auto i = decltype(nParts){0}; i < nParts; ++i)
-		{
-			if (c >= 100)
-				throw Dcx::dcxException("Can't Allocate Over 100% of Statusbar!");
-
-			p = input.getnexttok();	// tok i+4
-			const auto t = p.to_int();
-
-			if (p.right(1) == TEXT('%'))
-			{
-				gsl::at(m_iDynamicParts, i) = t;
-				c += t;
+		setPartsPositions(input.getlasttoks());
 			}
-			else
-				gsl::at(m_iFixedParts, i) = t;
-
-			gsl::at(parts, i) = t;
-		}
-		setParts(nParts, parts.get());
-		updateParts();
-	}
 	// xdid -t [NAME] [ID] [SWITCH] N [+FLAGS] [#ICON] [Cell Text][TAB]Tooltip Text
 	// xdid -t [NAME] [ID] [SWITCH] N [+c] [#ICON] [CID] [CTRL] [X] [Y] [W] [H] (OPTIONS)
 	// xdid -t [NAME] [ID] [SWITCH] N [+f] [#ICON] (TEXT)[TAB]Tooltip Text
 	else if (flags[TEXT('t')])
 	{
+		//if (numtok < 6)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
+		//const auto flag(input.getnexttok());			// tok 5
+		//const auto icon = input.getnexttok().to_int() - 1;	// tok 6
+		//const auto tsTabOne(input.getfirsttok(1, TSTABCHAR).trim());
+		//const auto tsTabTwo(input.getlasttoks().trim());
+		//
+		//if (nPos < 0 || nPos >= this->getParts(DCX_STATUSBAR_MAX_PARTS, nullptr))
+		//	throw Dcx::dcxException("Invalid Part");
+		//
+		//TString itemtext;
+		//TString tooltip;
+		//
+		//deletePartInfo(nPos); // delete custom info if any.
+		//DestroyIcon(getIcon(nPos)); // delete any icon for this part.
+		//setIcon(nPos, nullptr); // set as no icon.
+		//
+		//const auto iFlags = parseItemFlags(flag);
+		//
+		//if (tsTabOne.numtok() > 6)
+		//	itemtext = tsTabOne.gettok(7, -1).trim();
+		//
+		//if (!tsTabTwo.empty())
+		//	tooltip = tsTabTwo;
+		//
+		//if (dcx_testflag(iFlags, SBT_OWNERDRAW))
+		//{
+		//	auto pPart = std::make_unique<SB_PARTINFOX>();
+		//
+		//	pPart->m_xChild = nullptr;
+		//	pPart->m_xiIcon = icon;
+		//	if (flag.find(TEXT('f'), 0))
+		//	{ // mIRC formatted text
+		//		pPart->m_xText = itemtext;
+		//		setTipText(nPos, tooltip.to_chr());
+		//	}
+		//	else { // child control
+		//		// this is split like this to avoid a compiler bug that caused the compiler to use >30GB ram & still fail.
+		//		constexpr auto eAllowedControls1 = DcxAllowControls::ALLOW_PBAR | DcxAllowControls::ALLOW_TRACKBAR | DcxAllowControls::ALLOW_COMBOEX | DcxAllowControls::ALLOW_STATUSBAR | DcxAllowControls::ALLOW_TOOLBAR | DcxAllowControls::ALLOW_MULTICOMBO;
+		//		constexpr auto eAllowedControls2 = DcxAllowControls::ALLOW_TREEVIEW | DcxAllowControls::ALLOW_LISTVIEW | DcxAllowControls::ALLOW_REBAR | DcxAllowControls::ALLOW_BUTTON | DcxAllowControls::ALLOW_EDIT;
+		//		constexpr auto eAllowedControls3 = DcxAllowControls::ALLOW_UPDOWN | DcxAllowControls::ALLOW_IPADDRESS | DcxAllowControls::ALLOW_WEBCTRL | DcxAllowControls::ALLOW_CALANDER | DcxAllowControls::ALLOW_DIVIDER | DcxAllowControls::ALLOW_PANEL;
+		//		constexpr auto eAllowedControls4 = DcxAllowControls::ALLOW_TAB | DcxAllowControls::ALLOW_LINE | DcxAllowControls::ALLOW_BOX | DcxAllowControls::ALLOW_RADIO | DcxAllowControls::ALLOW_CHECK | DcxAllowControls::ALLOW_TEXT | DcxAllowControls::ALLOW_SCROLL | DcxAllowControls::ALLOW_LIST;
+		//		constexpr auto eAllowedControls5 = DcxAllowControls::ALLOW_LINK | DcxAllowControls::ALLOW_IMAGE | DcxAllowControls::ALLOW_PAGER | DcxAllowControls::ALLOW_DATETIME | DcxAllowControls::ALLOW_STACKER | DcxAllowControls::ALLOW_DIRECTSHOW;
+		//		constexpr auto eAllowedControls = eAllowedControls1 | eAllowedControls2 | eAllowedControls3 | eAllowedControls4 | eAllowedControls5;
+		//
+		//		auto p_Control = getParentDialog()->addControl(itemtext, 1,
+		//			eAllowedControls,
+		//			m_Hwnd);
+		//
+		//		/*DcxAllowControls::ALLOW_COLORCOMBO|*/
+		//		/*DcxAllowControls::ALLOW_RICHEDIT|*/
+		//
+		//		pPart->m_xChild = p_Control;
+		//		ShowWindow(p_Control->getHwnd(), SW_HIDE); // hide control untill a WM_DRAWITEM is recieved.
+		//		SendMessage(m_Hwnd, WM_SIZE, 0, 0);
+		//	}
+		//	setPartInfo(nPos, iFlags, pPart.release());
+		//}
+		//else {
+		//
+		//	if (icon != -1)
+		//		setIcon(nPos, ImageList_GetIcon(getImageList(), icon, ILD_TRANSPARENT));
+		//
+		//	setText(nPos, iFlags, itemtext.to_chr());
+		//	setTipText(nPos, tooltip.to_chr());
+		//}
+
+
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
-		const auto flag(input.getnexttok());			// tok 5
-		const auto icon = input.getnexttok().to_int() - 1;	// tok 6
+		const auto tsFlags(input.getnexttok());			// tok 5
+		const auto iIcon = input.getnexttok().to_int() - 1;	// tok 6
 		const auto tsTabOne(input.getfirsttok(1, TSTABCHAR).trim());
-		const auto tsTabTwo(input.getlasttoks().trim());
+		const auto tsTooltip(input.getlasttoks().trim());
 
-		if (nPos < 0 || nPos >= this->getParts(DCX_STATUSBAR_MAX_PARTS, nullptr))
-			throw Dcx::dcxException("Invalid Part");
-
-		TString itemtext;
-		TString tooltip;
-
-		deletePartInfo(nPos); // delete custom info if any.
-		DestroyIcon(getIcon(nPos)); // delete any icon for this part.
-		setIcon(nPos, nullptr); // set as no icon.
-
-		const auto iFlags = parseItemFlags(flag);
+		TString tsText;
 
 		if (tsTabOne.numtok() > 6)
-			itemtext = tsTabOne.gettok(7, -1).trim();
+			tsText = tsTabOne.gettok(7, -1).trim();
 
-		if (!tsTabTwo.empty())
-			tooltip = tsTabTwo;
-
-		if (dcx_testflag(iFlags, SBT_OWNERDRAW))
-		{
-			auto pPart = std::make_unique<SB_PARTINFOX>();
-
-			pPart->m_xChild = nullptr;
-			pPart->m_xiIcon = icon;
-			if (flag.find(TEXT('f'), 0))
-			{ // mIRC formatted text
-				pPart->m_xText = itemtext;
-				setTipText(nPos, tooltip.to_chr());
-			}
-			else { // child control
-				// this is split like this to avoid a compiler bug that caused the compiler to use >30GB ram & still fail.
-				constexpr auto eAllowedControls1 = DcxAllowControls::ALLOW_PBAR | DcxAllowControls::ALLOW_TRACKBAR | DcxAllowControls::ALLOW_COMBOEX | DcxAllowControls::ALLOW_STATUSBAR | DcxAllowControls::ALLOW_TOOLBAR;
-				constexpr auto eAllowedControls2 = DcxAllowControls::ALLOW_TREEVIEW | DcxAllowControls::ALLOW_LISTVIEW | DcxAllowControls::ALLOW_REBAR | DcxAllowControls::ALLOW_BUTTON | DcxAllowControls::ALLOW_EDIT;
-				constexpr auto eAllowedControls3 = DcxAllowControls::ALLOW_UPDOWN | DcxAllowControls::ALLOW_IPADDRESS | DcxAllowControls::ALLOW_WEBCTRL | DcxAllowControls::ALLOW_CALANDER | DcxAllowControls::ALLOW_DIVIDER | DcxAllowControls::ALLOW_PANEL;
-				constexpr auto eAllowedControls4 = DcxAllowControls::ALLOW_TAB | DcxAllowControls::ALLOW_LINE | DcxAllowControls::ALLOW_BOX | DcxAllowControls::ALLOW_RADIO | DcxAllowControls::ALLOW_CHECK | DcxAllowControls::ALLOW_TEXT | DcxAllowControls::ALLOW_SCROLL | DcxAllowControls::ALLOW_LIST;
-				constexpr auto eAllowedControls5 = DcxAllowControls::ALLOW_LINK | DcxAllowControls::ALLOW_IMAGE | DcxAllowControls::ALLOW_PAGER | DcxAllowControls::ALLOW_DATETIME | DcxAllowControls::ALLOW_STACKER | DcxAllowControls::ALLOW_DIRECTSHOW;
-				constexpr auto eAllowedControls = eAllowedControls1 | eAllowedControls2 | eAllowedControls3 | eAllowedControls4 | eAllowedControls5;
-
-				auto p_Control = getParentDialog()->addControl(itemtext, 1,
-					//DcxAllowControls::ALLOW_PBAR | DcxAllowControls::ALLOW_TRACKBAR | DcxAllowControls::ALLOW_COMBOEX |
-					//DcxAllowControls::ALLOW_STATUSBAR | DcxAllowControls::ALLOW_TOOLBAR |
-					//DcxAllowControls::ALLOW_TREEVIEW | DcxAllowControls::ALLOW_LISTVIEW | DcxAllowControls::ALLOW_REBAR |
-					//DcxAllowControls::ALLOW_BUTTON | DcxAllowControls::ALLOW_EDIT |
-					//DcxAllowControls::ALLOW_UPDOWN | DcxAllowControls::ALLOW_IPADDRESS | DcxAllowControls::ALLOW_WEBCTRL |
-					//DcxAllowControls::ALLOW_CALANDER | DcxAllowControls::ALLOW_DIVIDER | DcxAllowControls::ALLOW_PANEL |
-					//DcxAllowControls::ALLOW_TAB | DcxAllowControls::ALLOW_LINE | DcxAllowControls::ALLOW_BOX | DcxAllowControls::ALLOW_RADIO |
-					//DcxAllowControls::ALLOW_CHECK | DcxAllowControls::ALLOW_TEXT | DcxAllowControls::ALLOW_SCROLL | DcxAllowControls::ALLOW_LIST |
-					//DcxAllowControls::ALLOW_LINK | DcxAllowControls::ALLOW_IMAGE | DcxAllowControls::ALLOW_PAGER | DcxAllowControls::ALLOW_DATETIME |
-					//DcxAllowControls::ALLOW_STACKER | DcxAllowControls::ALLOW_DIRECTSHOW,
-					eAllowedControls,
-					m_Hwnd);
-
-				/*DcxAllowControls::ALLOW_COLORCOMBO|*/
-				/*DcxAllowControls::ALLOW_RICHEDIT|*/
-
-				pPart->m_xChild = p_Control;
-				ShowWindow(p_Control->getHwnd(), SW_HIDE); // hide control untill a WM_DRAWITEM is recieved.
-				SendMessage(m_Hwnd, WM_SIZE, 0, 0);
-
-				//const auto ID = mIRC_ID_OFFSET + (UINT)itemtext.gettok(1).to_int();
-				//
-				//if (!this->getParentDialog()->isIDValid(ID, true))
-				//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
-				//
-				//try {
-				//	auto p_Control = DcxControl::controlFactory(this->m_pParentDialog, ID, itemtext, 2,
-				//					DcxAllowControls::ALLOW_PBAR|DcxAllowControls::ALLOW_TRACKBAR|DcxAllowControls::ALLOW_COMBOEX|/*DcxAllowControls::ALLOW_COLORCOMBO|*/
-				//						DcxAllowControls::ALLOW_STATUSBAR|DcxAllowControls::ALLOW_TOOLBAR|
-				//						DcxAllowControls::ALLOW_TREEVIEW|DcxAllowControls::ALLOW_LISTVIEW|DcxAllowControls::ALLOW_REBAR|
-				//						DcxAllowControls::ALLOW_BUTTON|/*DcxAllowControls::ALLOW_RICHEDIT|*/DcxAllowControls::ALLOW_EDIT|
-				//						DcxAllowControls::ALLOW_UPDOWN|DcxAllowControls::ALLOW_IPADDRESS|DcxAllowControls::ALLOW_WEBCTRL|
-				//						DcxAllowControls::ALLOW_CALANDER|DcxAllowControls::ALLOW_DIVIDER|DcxAllowControls::ALLOW_PANEL|
-				//						DcxAllowControls::ALLOW_TAB|DcxAllowControls::ALLOW_LINE|DcxAllowControls::ALLOW_BOX|DcxAllowControls::ALLOW_RADIO|
-				//						DcxAllowControls::ALLOW_CHECK|DcxAllowControls::ALLOW_TEXT|DcxAllowControls::ALLOW_SCROLL|DcxAllowControls::ALLOW_LIST|
-				//						DcxAllowControls::ALLOW_LINK|DcxAllowControls::ALLOW_IMAGE|DcxAllowControls::ALLOW_PAGER|DcxAllowControls::ALLOW_DATETIME|
-				//						DcxAllowControls::ALLOW_STACKER|DcxAllowControls::ALLOW_DIRECTSHOW,m_Hwnd);
-				//
-				//	// problems with colorcombo/richedit, causes odd gfx glitches & dialog slow down.
-				//	this->getParentDialog()->addControl( p_Control );
-				//	pPart->m_xChild = p_Control;
-				//	ShowWindow(p_Control->getHwnd(),SW_HIDE); // hide control untill a WM_DRAWITEM is recieved.
-				//	SendMessage(m_Hwnd,WM_SIZE,0,0);
-				//}
-				//catch (const std::exception &e ) {
-				//	this->showErrorEx(nullptr, TEXT("-t"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
-				//	throw;
-				//}
-			}
-			setPartInfo(nPos, iFlags, pPart.release());
-		}
-		else {
-
-			if (icon != -1)
-				setIcon(nPos, ImageList_GetIcon(getImageList(), icon, ILD_TRANSPARENT));
-
-			setText(nPos, iFlags, itemtext.to_chr());
-			setTipText(nPos, tooltip.to_chr());
-		}
+		setPartContents(nPos, tsFlags, iIcon, tsText, tsTooltip);
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [N] (TEXT)
 	else if (flags[TEXT('v')])
@@ -523,6 +506,30 @@ UINT DcxStatusBar::parseItemFlags(const TString& flags) noexcept
 	return iFlags;
 }
 
+TString DcxStatusBar::getItemFlags(int iPos) const noexcept
+{
+	const UINT nFlags = this->getPartFlags(iPos);
+
+	TString tsFlags(L"+");
+
+	if (dcx_testflag(nFlags, SBT_OWNERDRAW))
+	{
+		if (const auto pInfo = this->getPartInfo(iPos); pInfo)
+		{
+			if (pInfo->m_xChild)
+				tsFlags += L'c';
+			else
+				tsFlags += L'f';
+		}
+	}
+	if (dcx_testflag(nFlags, SBT_NOBORDERS))
+		tsFlags += L'n';
+	if (dcx_testflag(nFlags, SBT_POPOUT))
+		tsFlags += L'p';
+
+	return tsFlags;
+}
+
 /*!
  * \brief blah
  *
@@ -543,6 +550,68 @@ void DcxStatusBar::toXml(TiXmlElement* const xml) const
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
+	xml->SetAttribute("bgcolour", getBkColor());
+
+	const auto nParts = getParts(DCX_STATUSBAR_MAX_PARTS, nullptr);
+
+	{
+		TString tsCells;
+		for (auto n = 0; n < nParts; ++n)
+		{
+			// add item to cell list
+			if (m_iDynamicParts[n])
+			{
+				// perc #%
+				tsCells.addtok(m_iDynamicParts[n]);
+				tsCells += L'%';
+			}
+			else if (m_iFixedParts[n])
+			{
+				// fixed #
+				tsCells.addtok(m_iFixedParts[n]);
+}
+
+			// save item
+			TiXmlElement xItem("item");
+
+			xItem.SetAttribute("index", n);
+
+			{
+				const TString tsFlags(this->getItemFlags(n));
+				xItem.SetAttribute("flags", tsFlags.c_str());
+			}
+
+			if (const auto pInfo = this->getPartInfo(n); pInfo)
+			{
+				if (pInfo->m_xiIcon != -1)
+					xItem.SetAttribute("icon", pInfo->m_xiIcon);
+				if (!pInfo->m_xText.empty())
+					xItem.SetAttribute("text", pInfo->m_xText.c_str());
+				if (pInfo->m_xChild)
+				{
+					// save control here
+					xItem.LinkEndChild(pInfo->m_xChild->toXml());
+				}
+			}
+
+			{
+				TString tsTooltip((UINT)MIRC_BUFFER_SIZE_CCH);
+				this->getTipText(n, tsTooltip.capacity_cch(), tsTooltip.to_chr());
+
+				xItem.SetAttribute("tooltip", tsTooltip.c_str());
+			}
+
+			xml->InsertEndChild(xItem);
+		}
+		if (!tsCells.empty())
+			xml->SetAttribute("cells", tsCells.c_str());
+	}
+
+	//const auto nPos = queryIntAttribute(xItem, "index");
+	//const auto iIcon = queryIntAttribute(xItem, "icon");
+	//const TString tsFlags(queryAttribute(xItem, "flags"));
+	//TString tsText(queryAttribute(xItem, "text"));
+	//const TString tsTooltip(queryAttribute(xItem, "tooltip"));
 }
 
 TiXmlElement* DcxStatusBar::toXml(void) const
@@ -608,6 +677,94 @@ LRESULT DcxStatusBar::getBorders(LPINT aWidths) const noexcept
 	return SendMessage(m_Hwnd, SB_GETBORDERS, 0U, reinterpret_cast<LPARAM>(aWidths));
 }
 
+void DcxStatusBar::setPartsPositions(const TString& tsPositions)
+{
+	const auto nParts = tsPositions.numtok();
+	if (nParts >= DCX_STATUSBAR_MAX_PARTS)
+		return;
+
+	auto parts = std::make_unique<INT[]>(DCX_STATUSBAR_MAX_PARTS);
+
+	auto c = 0U;
+	int i{};
+
+	for (auto p: tsPositions)
+	{
+		if (c >= 100)
+			throw Dcx::dcxException("Can't Allocate Over 100% of Statusbar!");
+
+		const auto t = p.to_int();
+
+		if (p.right(1) == TEXT('%'))
+		{
+			gsl::at(m_iDynamicParts, i) = t;
+			c += t;
+		}
+		else
+			gsl::at(m_iFixedParts, i) = t;
+
+		gsl::at(parts, i) = t;
+
+		++i;
+	}
+	setParts(nParts, parts.get());
+	updateParts();
+}
+
+void DcxStatusBar::setPartContents(int nPos, const TString& tsFlags, int nIcon, const TString& tsText, const TString& tsTooltip)
+{
+	if (nPos < 0 || nPos >= this->getParts(DCX_STATUSBAR_MAX_PARTS, nullptr))
+		throw Dcx::dcxException("Invalid Part");
+
+	deletePartInfo(nPos); // delete custom info if any.
+	DestroyIcon(getIcon(nPos)); // delete any icon for this part.
+	setIcon(nPos, nullptr); // set as no icon.
+
+	const auto iFlags = parseItemFlags(tsFlags);
+
+	if (dcx_testflag(iFlags, SBT_OWNERDRAW))
+	{
+		auto pPart = std::make_unique<SB_PARTINFOX>();
+
+		pPart->m_xChild = nullptr;
+		pPart->m_xiIcon = nIcon;
+		if (tsFlags.find(TEXT('f'), 0))
+		{ // mIRC formatted text
+			pPart->m_xText = tsText;
+			setTipText(nPos, tsTooltip.to_chr());
+		}
+		else { // child control
+			// this is split like this to avoid a compiler bug that caused the compiler to use >30GB ram & still fail.
+			constexpr auto eAllowedControls1 = DcxAllowControls::ALLOW_PBAR | DcxAllowControls::ALLOW_TRACKBAR | DcxAllowControls::ALLOW_COMBOEX | DcxAllowControls::ALLOW_STATUSBAR | DcxAllowControls::ALLOW_TOOLBAR | DcxAllowControls::ALLOW_MULTICOMBO;
+			constexpr auto eAllowedControls2 = DcxAllowControls::ALLOW_TREEVIEW | DcxAllowControls::ALLOW_LISTVIEW | DcxAllowControls::ALLOW_REBAR | DcxAllowControls::ALLOW_BUTTON | DcxAllowControls::ALLOW_EDIT;
+			constexpr auto eAllowedControls3 = DcxAllowControls::ALLOW_UPDOWN | DcxAllowControls::ALLOW_IPADDRESS | DcxAllowControls::ALLOW_WEBCTRL | DcxAllowControls::ALLOW_CALANDER | DcxAllowControls::ALLOW_DIVIDER | DcxAllowControls::ALLOW_PANEL;
+			constexpr auto eAllowedControls4 = DcxAllowControls::ALLOW_TAB | DcxAllowControls::ALLOW_LINE | DcxAllowControls::ALLOW_BOX | DcxAllowControls::ALLOW_RADIO | DcxAllowControls::ALLOW_CHECK | DcxAllowControls::ALLOW_TEXT | DcxAllowControls::ALLOW_SCROLL | DcxAllowControls::ALLOW_LIST;
+			constexpr auto eAllowedControls5 = DcxAllowControls::ALLOW_LINK | DcxAllowControls::ALLOW_IMAGE | DcxAllowControls::ALLOW_PAGER | DcxAllowControls::ALLOW_DATETIME | DcxAllowControls::ALLOW_STACKER | DcxAllowControls::ALLOW_DIRECTSHOW;
+			constexpr auto eAllowedControls = eAllowedControls1 | eAllowedControls2 | eAllowedControls3 | eAllowedControls4 | eAllowedControls5;
+
+			auto p_Control = getParentDialog()->addControl(tsText, 1,
+				eAllowedControls,
+				m_Hwnd);
+
+			/*DcxAllowControls::ALLOW_COLORCOMBO|*/
+			/*DcxAllowControls::ALLOW_RICHEDIT|*/
+
+			pPart->m_xChild = p_Control;
+			ShowWindow(p_Control->getHwnd(), SW_HIDE); // hide control untill a WM_DRAWITEM is recieved.
+			SendMessage(m_Hwnd, WM_SIZE, 0, 0);
+		}
+		setPartInfo(nPos, iFlags, pPart.release());
+	}
+	else {
+
+		if (nIcon != -1)
+			setIcon(nPos, ImageList_GetIcon(getImageList(), nIcon, ILD_TRANSPARENT));
+
+		setText(nPos, iFlags, tsText.to_chr());
+		setTipText(nPos, tsTooltip.to_chr());
+	}
+}
+
 _NODISCARD DcxStatusBar::sbBorders DcxStatusBar::getBorders() const noexcept
 {
 	sbBorders aWidths{};
@@ -621,9 +778,17 @@ _NODISCARD DcxStatusBar::sbBorders DcxStatusBar::getBorders() const noexcept
  * blah
  */
 
-LRESULT DcxStatusBar::setBkColor(const COLORREF clrBk) noexcept
+COLORREF DcxStatusBar::setBkColor(const COLORREF clrBk) noexcept
 {
-	return SendMessage(m_Hwnd, SB_SETBKCOLOR, 0U, gsl::narrow_cast<LPARAM>(clrBk));
+	return gsl::narrow_cast<COLORREF>(SendMessage(m_Hwnd, SB_SETBKCOLOR, 0U, gsl::narrow_cast<LPARAM>(clrBk)));
+}
+
+COLORREF DcxStatusBar::getBkColor() const noexcept
+{
+	auto notthis = const_cast<DcxStatusBar*>(this);
+	const auto oldClr = notthis->setBkColor(CLR_DEFAULT);
+	notthis->setBkColor(oldClr);
+	return oldClr;
 }
 
 /*!
@@ -632,7 +797,7 @@ LRESULT DcxStatusBar::setBkColor(const COLORREF clrBk) noexcept
  * blah
  */
 
-LRESULT DcxStatusBar::setText(const int iPart, const int Style, const PTCHAR lpstr) noexcept
+LRESULT DcxStatusBar::setText(const int iPart, const int Style, const LPCTCH lpstr) noexcept
 {
 	return SendMessage(m_Hwnd, SB_SETTEXT, gsl::narrow_cast<WPARAM>(iPart) | Style, reinterpret_cast<LPARAM>(lpstr));
 }
@@ -646,6 +811,14 @@ LRESULT DcxStatusBar::setText(const int iPart, const int Style, const PTCHAR lps
 LRESULT DcxStatusBar::setPartInfo(const int iPart, const int Style, gsl::owner<const LPSB_PARTINFOX> pPart) noexcept
 {
 	return SendMessage(m_Hwnd, SB_SETTEXT, gsl::narrow_cast<WPARAM>(iPart) | (Style | SBT_OWNERDRAW), reinterpret_cast<LPARAM>(pPart));
+}
+
+LPSB_PARTINFOX DcxStatusBar::getPartInfo(const int iPart) const noexcept
+{
+	if (dcx_testflag(this->getPartFlags(iPart), SBT_OWNERDRAW))
+		return reinterpret_cast<LPSB_PARTINFOX>(SendMessage(m_Hwnd, SB_GETTEXT, gsl::narrow_cast<WPARAM>(iPart), 0));
+
+	return nullptr;
 }
 
 /*!
@@ -676,7 +849,7 @@ LRESULT DcxStatusBar::getTextLength(const int iPart) const noexcept
  * blah
  */
 
-LRESULT DcxStatusBar::setTipText(const int iPart, const PTCHAR lpstr) noexcept
+LRESULT DcxStatusBar::setTipText(const int iPart, const LPCTCH lpstr) noexcept
 {
 	return SendMessage(m_Hwnd, SB_SETTIPTEXT, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(lpstr));
 }
