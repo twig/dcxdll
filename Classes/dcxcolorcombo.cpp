@@ -392,7 +392,6 @@ LPDCXCCOMBOITEM DcxColorCombo::getItemData(const int nItem) const noexcept
 		return nullptr;
 
 	return reinterpret_cast<LPDCXCCOMBOITEM>(ComboBox_GetItemData(m_Hwnd, nItem));
-	//return reinterpret_cast<LPDCXCCOMBOITEM>(SendMessage( m_Hwnd, CB_GETITEMDATA, gsl::narrow_cast<WPARAM>(nItem), (LPARAM) 0U ));
 }
 
 /*!
@@ -503,6 +502,57 @@ BOOL DcxColorCombo::DrawItem(LPDRAWITEMSTRUCT lpdis)
 	return TRUE;
 }
 
+void DcxColorCombo::toXml(TiXmlElement* const xml) const
+{
+	if (!xml || !m_Hwnd)
+		return;
+
+	__super::toXml(xml);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	xml->SetAttribute("sel", getCurSel());
+
+	{
+		RECT rc{};
+		SendMessage(m_Hwnd, CB_GETDROPPEDCONTROLRECT, 0, reinterpret_cast<LPARAM>(&rc));
+
+		xml->SetAttribute("height", (rc.bottom - rc.top));
+	}
+	const auto iCount = this->getCount();
+	for (int nItem{}; nItem < iCount; ++nItem)
+	{
+		if (const auto data = this->getItemData(nItem); data)
+		{
+			TiXmlElement xItem("item");
+
+			xItem.SetAttribute("text", data->tsItemText.c_str());
+			xItem.SetAttribute("textcolour", data->clrText);
+			xItem.SetAttribute("bgcolour", data->clrItem);
+
+			xml->InsertEndChild(xItem);
+		}
+	}
+}
+
+TiXmlElement* DcxColorCombo::toXml(void) const
+{
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
+}
+
+
+const TString DcxColorCombo::getStyles(void) const
+{
+	auto tsStyles(__super::getStyles());
+	//const auto Styles = dcxGetWindowStyle(m_Hwnd);
+
+	if (this->m_bShowNumbers)
+		tsStyles.addtok(TEXT("shownumbers"));
+
+	return tsStyles;
+}
 
 /*!
  * \brief blah

@@ -55,9 +55,9 @@ class DcxColorCombo final
 public:
 	DcxColorCombo() = delete;
 	DcxColorCombo(const DcxColorCombo&) = delete;
-	DcxColorCombo& operator =(const DcxColorCombo&) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxColorCombo& operator =(const DcxColorCombo&) = delete;	// No assignments!
 	DcxColorCombo(DcxColorCombo&&) = delete;
-	DcxColorCombo& operator =(DcxColorCombo&&) = delete;
+	GSL_SUPPRESS(c.128) DcxColorCombo& operator =(DcxColorCombo&&) = delete;
 
 	DcxColorCombo(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxColorCombo() noexcept;
@@ -84,8 +84,11 @@ public:
 	inline const TString getType() const final { return TEXT("colorcombo"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::COLORCOMBO; }
 
-	using DcxControl::toXml;
-	using DcxControl::getStyles;
+	void toXml(TiXmlElement* const xml) const final;
+	TiXmlElement* toXml(void) const final;
+	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) final;
+
+	const TString getStyles(void) const final;
 
 //#ifdef DEBUG
 //	WNDPROC m_hListProc{ nullptr };
