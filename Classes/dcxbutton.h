@@ -45,8 +45,8 @@ public:
 	DcxButton() = delete;
 	DcxButton(const DcxButton&) = delete;
 	DcxButton(DcxButton&&) = delete;
-	//DcxButton& operator =(const DcxButton&) = delete;	// No assignments!
-	//DcxButton& operator =(DcxButton&&) = delete;
+	GSL_SUPPRESS(c.128) DcxButton& operator =(const DcxButton&) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxButton& operator =(DcxButton&&) = delete;
 
 	DcxButton(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxButton();

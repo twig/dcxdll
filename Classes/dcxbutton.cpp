@@ -118,9 +118,24 @@ dcxWindowStyles DcxButton::parseControlStyles(const TString& tsStyles)
 TString DcxButton::parseInfoRequest(const TString& input) const
 {
 	// [NAME] [ID] [PROP]
-	if (input.gettok(3) == TEXT("text"))
+	switch (std::hash<TString>()(input.gettok(3)))
+	{
+	case TEXT("text"_hash):
 		return m_tsCaption;
-
+	case TEXT("note"_hash):
+	{
+		TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+		if (Button_GetNoteLength(m_Hwnd) > 0)
+		{
+			DWORD l{ MIRC_BUFFER_SIZE_CCH - 1 };
+			Button_GetNote(m_Hwnd, tsBuf.data(), &l);	// both args are pointers
+		}
+		return tsBuf;
+	}
+	break;
+	default:
+		break;
+	}
 	return parseGlobalInfoRequest(input);
 }
 
@@ -134,15 +149,17 @@ TString DcxButton::parseInfoRequest(const TString& input) const
  */
 void DcxButton::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
-	// [NAME] [ID] [PROP]
-	if (input.gettok(3) == TEXT("text"))
-	{
-		// if copy fails drop through
-		szReturnValue = m_tsCaption.to_chr();
+	//// [NAME] [ID] [PROP]
+	//if (input.gettok(3) == TEXT("text"))
+	//{
+	//	// if copy fails drop through
+	//	szReturnValue = m_tsCaption.to_chr();
+	//}
+	//else
+	//	parseGlobalInfoRequest(input, szReturnValue);
+
+	szReturnValue = parseInfoRequest(input).to_chr();
 	}
-	else
-		parseGlobalInfoRequest(input, szReturnValue);
-}
 
 /*!
  * \brief blah
@@ -455,19 +472,87 @@ const TString DcxButton::getStyles(void) const
 		tsStyles.addtok(TEXT("bitmap"));
 	if (dcx_testflag(Styles, BS_DEFPUSHBUTTON))
 		tsStyles.addtok(TEXT("default"));
+	if (dcx_testflag(Styles, BS_COMMANDLINK))		// BS_COMMANDLINK == 1110
+		tsStyles.addtok(TEXT("commandlink"));
+	else if (dcx_testflag(Styles, BS_SPLITBUTTON))	// BS_SPLITBUTTON == 1100, so split shows as true when commandlink is used.
+		tsStyles.addtok(TEXT("split"));
 
 	return tsStyles;
 }
 
 void DcxButton::toXml(TiXmlElement* const xml) const
 {
-	if (!xml)
+	if (!xml || !m_Hwnd)
 		return;
 
 	__super::toXml(xml);
 
+	const TString tsStyles(getStyles());
+
+	if (const auto bCmd = tsStyles.istok(TEXT("commandlink")); bCmd || tsStyles.istok(TEXT("split")))
+	{
+		xml->SetAttribute("text", TGetWindowText(m_Hwnd).c_str());
+		if (bCmd)
+		{
+			if (Button_GetNoteLength(m_Hwnd) > 0)
+			{
+				TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
+				DWORD l{ MIRC_BUFFER_SIZE_CCH -1 };
+				Button_GetNote(m_Hwnd, &szBuf[0], &l); // NB: two POINTERS
+				xml->SetAttribute("note", TString(szBuf).c_str());
+			}
+		}
+	}
+	else {
+		if (!m_tsCaption.empty())
 	xml->SetAttribute("caption", m_tsCaption.c_str());
-	xml->SetAttribute("styles", getStyles().c_str());
+		else
+			xml->SetAttribute("text", TGetWindowText(m_Hwnd).c_str());
+	}
+
+	xml->SetAttribute("styles", tsStyles.c_str());
+	if (m_bBitmapText)
+		xml->SetAttribute("bitmaptext", "1");
+
+	if (this->m_iIconSize != DcxIconSizes::SmallIcon) // small is the default.
+		xml->SetAttribute("iconsize", gsl::narrow_cast<int>(this->m_iIconSize));
+
+	{
+		// save colours
+		TiXmlElement xColours("colours");
+		xColours.SetAttribute("normal", m_aColors[0]);
+		xColours.SetAttribute("hover", m_aColors[1]);
+		xColours.SetAttribute("pushed", m_aColors[2]);
+		xColours.SetAttribute("disabled", m_aColors[3]);
+
+		xml->InsertEndChild(xColours);
+	}
+	{
+		// save transparentcolours (used with images)
+		TiXmlElement xColours("transparentcolours");
+		xColours.SetAttribute("normal", m_aTransp[0]);
+		xColours.SetAttribute("hover", m_aTransp[1]);
+		xColours.SetAttribute("pushed", m_aTransp[2]);
+		xColours.SetAttribute("disabled", m_aTransp[3]);
+
+		xml->InsertEndChild(xColours);
+	}
+
+	{
+		// images
+		TiXmlElement xImages("images");
+		if (m_aBitmaps[0].m_hBitmap)
+			xImages.SetAttribute("normalsrc", m_aBitmaps[0].m_tsFilename.c_str());
+		if (m_aBitmaps[1].m_hBitmap)
+			xImages.SetAttribute("hoversrc", m_aBitmaps[1].m_tsFilename.c_str());
+		if (m_aBitmaps[2].m_hBitmap)
+			xImages.SetAttribute("pushedsrc", m_aBitmaps[2].m_tsFilename.c_str());
+		if (m_aBitmaps[3].m_hBitmap)
+			xImages.SetAttribute("disabledsrc", m_aBitmaps[3].m_tsFilename.c_str());
+		if (m_aBitmaps[0].m_hBitmap || m_aBitmaps[1].m_hBitmap || m_aBitmaps[2].m_hBitmap || m_aBitmaps[3].m_hBitmap)
+			xml->InsertEndChild(xImages);
+	}
+	// needs to save icons
 }
 
 TiXmlElement* DcxButton::toXml(void) const
