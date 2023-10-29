@@ -346,8 +346,10 @@ void DcxColorCombo::setmIRCPalette()
 
 int DcxColorCombo::insertItem(const int nPos, const DCXCCOMBOITEM* dci) noexcept
 {
+	if (!m_Hwnd)
+		return -1;
+
 	return ComboBox_InsertString(m_Hwnd, nPos, dci);
-	//return SendMessage(m_Hwnd, CB_INSERTSTRING, gsl::narrow_cast<WPARAM>(nPos), (LPARAM)dci);
 }
 
 /*!
@@ -358,8 +360,10 @@ int DcxColorCombo::insertItem(const int nPos, const DCXCCOMBOITEM* dci) noexcept
 
 int DcxColorCombo::getCount() const noexcept
 {
+	if (!m_Hwnd)
+		return -1;
+
 	return ComboBox_GetCount(m_Hwnd);
-	//return SendMessage(m_Hwnd, CB_GETCOUNT, (WPARAM)0U, (LPARAM)0U);
 }
 
 /*!
@@ -370,8 +374,10 @@ int DcxColorCombo::getCount() const noexcept
 
 int DcxColorCombo::setCurSel(const int nPos) noexcept
 {
+	if (!m_Hwnd)
+		return -1;
+
 	return ComboBox_SetCurSel(m_Hwnd, nPos);
-	//return SendMessage(m_Hwnd, CB_SETCURSEL, gsl::narrow_cast<WPARAM>(nPos), (LPARAM)0U);
 }
 
 /*!
@@ -382,6 +388,9 @@ int DcxColorCombo::setCurSel(const int nPos) noexcept
 
 LPDCXCCOMBOITEM DcxColorCombo::getItemData(const int nItem) const noexcept
 {
+	if (!m_Hwnd)
+		return nullptr;
+
 	return reinterpret_cast<LPDCXCCOMBOITEM>(ComboBox_GetItemData(m_Hwnd, nItem));
 	//return reinterpret_cast<LPDCXCCOMBOITEM>(SendMessage( m_Hwnd, CB_GETITEMDATA, gsl::narrow_cast<WPARAM>(nItem), (LPARAM) 0U ));
 }
@@ -394,8 +403,10 @@ LPDCXCCOMBOITEM DcxColorCombo::getItemData(const int nItem) const noexcept
 
 int DcxColorCombo::getCurSel() const noexcept
 {
+	if (!m_Hwnd)
+		return -1;
+
 	return ComboBox_GetCurSel(m_Hwnd);
-	//return SendMessage( m_Hwnd, CB_GETCURSEL, (WPARAM) 0U, (LPARAM) 0U );
 }
 
 /*!
@@ -406,8 +417,10 @@ int DcxColorCombo::getCurSel() const noexcept
 
 int DcxColorCombo::deleteItem(const int nItem) noexcept
 {
+	if (!m_Hwnd)
+		return -1;
+
 	return ComboBox_DeleteString(m_Hwnd, nItem);
-	//return SendMessage(m_Hwnd, CB_DELETESTRING, gsl::narrow_cast<WPARAM>(nItem), (LPARAM)0U);
 }
 
 /*!
@@ -418,12 +431,17 @@ int DcxColorCombo::deleteItem(const int nItem) noexcept
 
 int DcxColorCombo::resetContent() noexcept
 {
+	if (!m_Hwnd)
+		return -1;
+
 	return ComboBox_ResetContent(m_Hwnd);
-	//return SendMessage(m_Hwnd, CB_RESETCONTENT, (WPARAM)0U, (LPARAM)0U);
 }
 
 BOOL DcxColorCombo::DrawItem(LPDRAWITEMSTRUCT lpdis)
 {
+	if (!lpdis || !lpdis->hDC)
+		return FALSE;
+
 	//const auto lpdcxcci = ListProcData->getItemData(lpdis->itemID);
 	const auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(lpdis->itemData);
 
