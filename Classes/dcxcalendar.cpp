@@ -76,8 +76,29 @@ void DcxCalendar::toXml(TiXmlElement* const xml) const
 
 	__super::toXml(xml);
 
-	xml->SetAttribute("caption", getValue().c_str());
+	{
+		const TString wtext(TGetWindowText(m_Hwnd));
+		xml->SetAttribute("caption", wtext.c_str());
+	}
 	xml->SetAttribute("styles", getStyles().c_str());
+	xml->SetAttribute("value", getValue().c_str());
+	xml->SetAttribute("maxselcount", MonthCal_GetMaxSelCount(m_Hwnd));
+	//xml->SetAttribute("range", MonthCal_GetMaxSelCount(m_Hwnd));
+
+	{
+		TiXmlElement xColours("calcolours");
+
+		xColours.SetAttribute("background", gsl::narrow_cast<COLORREF>(MonthCal_GetColor(m_Hwnd, MCSC_BACKGROUND)));
+		xColours.SetAttribute("monthbk", gsl::narrow_cast<COLORREF>(MonthCal_GetColor(m_Hwnd, MCSC_MONTHBK)));
+		xColours.SetAttribute("text", gsl::narrow_cast<COLORREF>(MonthCal_GetColor(m_Hwnd, MCSC_TEXT)));
+		xColours.SetAttribute("titlebk", gsl::narrow_cast<COLORREF>(MonthCal_GetColor(m_Hwnd, MCSC_TITLEBK)));
+		xColours.SetAttribute("titletext", gsl::narrow_cast<COLORREF>(MonthCal_GetColor(m_Hwnd, MCSC_TITLETEXT)));
+		xColours.SetAttribute("trailingtext", gsl::narrow_cast<COLORREF>(MonthCal_GetColor(m_Hwnd, MCSC_TRAILINGTEXT)));
+
+		xml->InsertEndChild(xColours);
+	}
+
+
 }
 
 TiXmlElement* DcxCalendar::toXml(void) const
@@ -375,12 +396,12 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 		// Set ALL colours at once
 		if (xflags[TEXT('A')])
 		{
-			DateTime_SetMonthCalColor(m_Hwnd, MCSC_BACKGROUND, col);
-			DateTime_SetMonthCalColor(m_Hwnd, MCSC_MONTHBK, input.getnexttokas<COLORREF>());
-			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TEXT, input.getnexttokas<COLORREF>());
-			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TITLEBK, input.getnexttokas<COLORREF>());
-			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TITLETEXT, input.getnexttokas<COLORREF>());
-			DateTime_SetMonthCalColor(m_Hwnd, MCSC_TRAILINGTEXT, input.getnexttokas<COLORREF>());
+			MonthCal_SetColor(m_Hwnd, MCSC_BACKGROUND, col);
+			MonthCal_SetColor(m_Hwnd, MCSC_MONTHBK, input.getnexttokas<COLORREF>());
+			MonthCal_SetColor(m_Hwnd, MCSC_TEXT, input.getnexttokas<COLORREF>());
+			MonthCal_SetColor(m_Hwnd, MCSC_TITLEBK, input.getnexttokas<COLORREF>());
+			MonthCal_SetColor(m_Hwnd, MCSC_TITLETEXT, input.getnexttokas<COLORREF>());
+			MonthCal_SetColor(m_Hwnd, MCSC_TRAILINGTEXT, input.getnexttokas<COLORREF>());
 
 			return;
 		}

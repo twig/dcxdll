@@ -34,9 +34,9 @@ class DcxCalendar final
 public:
 	DcxCalendar() = delete;
 	DcxCalendar(const DcxCalendar &) = delete;
-	DcxCalendar &operator =(const DcxCalendar &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxCalendar &operator =(const DcxCalendar &) = delete;	// No assignments!
 	DcxCalendar(DcxCalendar &&) = delete;
-	DcxCalendar &operator =(DcxCalendar &&) = delete;
+	GSL_SUPPRESS(c.128) DcxCalendar &operator =(DcxCalendar &&) = delete;
 
 	DcxCalendar( const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxCalendar( ) noexcept;
@@ -55,6 +55,7 @@ public:
 	void toXml(TiXmlElement *const xml) const final;
 	TiXmlElement * toXml(void) const final;
 	const TString getStyles(void) const final;
+
 	const TString getValue(void) const;
 	long getCurrentCTime() const;
 
