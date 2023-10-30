@@ -33,9 +33,9 @@ class DcxProgressBar final
 public:
 	DcxProgressBar() = delete;
 	DcxProgressBar(const DcxProgressBar &) = delete;
-	DcxProgressBar &operator =(const DcxProgressBar &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxProgressBar &operator =(const DcxProgressBar &) = delete;	// No assignments!
 	DcxProgressBar(DcxProgressBar &&) = delete;
-	DcxProgressBar &operator =(DcxProgressBar &&) = delete;
+	GSL_SUPPRESS(c.128) DcxProgressBar &operator =(DcxProgressBar &&) = delete;
 
 	DcxProgressBar(_In_ const UINT ID, _In_ gsl::strict_not_null<DcxDialog* const> p_Dialog, _In_ const HWND mParentHwnd, _In_ const RECT *const rc, _In_ const TString & styles);
 	~DcxProgressBar( ) noexcept;
@@ -58,6 +58,10 @@ public:
 
 	LRESULT getPosition( ) const noexcept;
 	LRESULT getRange( const BOOL fWhichLimit, const PPBRANGE ppBRange ) const noexcept;
+
+	int getStep() const noexcept;
+	COLORREF getBarColor() const noexcept;
+	COLORREF getBKColor() const noexcept;
 
 	const TString getStyles(void) const final;
 
@@ -85,6 +89,7 @@ public:
 		}
 		return nPos;
 	}
+
 	inline const TString getType() const final { return TEXT("pbar"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::PROGRESSBAR; }
 

@@ -170,7 +170,6 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 	if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		setBarColor(input.getnexttok().to_<COLORREF>());	// tok 4
@@ -185,7 +184,7 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 		if (numtok > 3)
 			m_tsText = input.getlasttoks();	// tok 4, -1
 		else
-			m_tsText.clear();	// = TEXT("");
+			m_tsText.clear();
 
 		redrawWindow();
 	}
@@ -270,7 +269,7 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 
 		setPosition(input.getnexttok().to_int());	// tok 4
 	}
-	// xdid [-o] [NAME] [ID] [ENABLED]
+	// xdid [-o] [NAME] [ID] [ANGLE]
 	// vertical fonts [1|0]
 	else if (flags[TEXT('o')])
 	{
@@ -353,6 +352,21 @@ LRESULT DcxProgressBar::getRange(const BOOL fWhichLimit, const PPBRANGE ppBRange
 	return SendMessage(m_Hwnd, PBM_GETRANGE, gsl::narrow_cast<WPARAM>(fWhichLimit), reinterpret_cast<LPARAM>(ppBRange));
 }
 
+int DcxProgressBar::getStep() const noexcept
+{
+	return gsl::narrow_cast<int>(SendMessage(m_Hwnd, PBM_GETSTEP, 0U, 0));
+}
+
+COLORREF DcxProgressBar::getBarColor() const noexcept
+{
+	return gsl::narrow_cast<COLORREF>(SendMessage(m_Hwnd, PBM_GETBARCOLOR, 0U, 0));
+}
+
+COLORREF DcxProgressBar::getBKColor() const noexcept
+{
+	return gsl::narrow_cast<COLORREF>(SendMessage(m_Hwnd, PBM_GETBKCOLOR, 0U, 0));
+}
+
 /*!
  * \brief blah
  *
@@ -414,6 +428,20 @@ void DcxProgressBar::toXml(TiXmlElement* const xml) const
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
+	xml->SetAttribute("caption", this->m_tsText.c_str());
+
+	{
+		PBRANGE pbr{};
+		this->getRange(FALSE, &pbr);
+		xml->SetAttribute("min", pbr.iLow);
+		xml->SetAttribute("max", pbr.iHigh);
+}
+	xml->SetAttribute("pos", this->getPosition());
+	xml->SetAttribute("step", this->getStep());
+	xml->SetAttribute("barcolour", this->getBarColor());
+	xml->SetAttribute("bkcolour", this->getBKColor());
+	if (m_bIsAbsoluteValue)
+		xml->SetAttribute("absolute", "1");
 }
 
 TiXmlElement* DcxProgressBar::toXml(void) const
