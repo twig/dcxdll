@@ -65,9 +65,11 @@ DcxPanel::~DcxPanel() noexcept
 
 void DcxPanel::toXml(TiXmlElement* const xml) const
 {
+	if (!xml || !m_Hwnd)
+		return;
+
 	__super::toXml(xml);
 
-#if DCX_USE_TESTCODE
 	if (m_pLayoutManager)
 	{
 		if (const auto rt = m_pLayoutManager->getRoot(); rt)
@@ -76,6 +78,7 @@ void DcxPanel::toXml(TiXmlElement* const xml) const
 			return;
 		}
 	}
+	xml->SetAttribute("nocla", 1);
 	for (auto hChild = GetWindow(m_Hwnd, GW_CHILD); hChild; hChild = GetWindow(hChild, GW_HWNDNEXT))
 	{
 		auto pthis = Dcx::dcxGetProp<DcxControl*>(hChild, TEXT("dcx_cthis"));
@@ -89,21 +92,15 @@ void DcxPanel::toXml(TiXmlElement* const xml) const
 			xctrl->SetAttribute("weight", 1);
 			xctrl->SetAttribute("x", rc.left);
 			xctrl->SetAttribute("y", rc.top);
+			if (!xctrl->Attribute("height"))
 			xctrl->SetAttribute("height", rc.Height());
+			if (!xctrl->Attribute("width"))
 			xctrl->SetAttribute("width", rc.Width());
 
 			xml->LinkEndChild(xctrl);
 		}
 	}
-#else
-	// Ook: for this to work all controls MUST be added to CLA, needs fixed.
-	if (m_pLayoutManager)
-	{
-		if (const auto rt = m_pLayoutManager->getRoot(); rt)
-			rt->toXml(xml);
 	}
-#endif
-}
 
 TiXmlElement* DcxPanel::toXml(void) const
 {
