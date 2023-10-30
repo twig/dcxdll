@@ -45,9 +45,9 @@ class DcxTab final
 public:
 	DcxTab() = delete;
 	DcxTab(const DcxTab &) = delete;
-	DcxTab &operator =(const DcxTab &) = delete;
+	GSL_SUPPRESS(c.128) DcxTab &operator =(const DcxTab &) = delete;
 	DcxTab(DcxTab &&) = delete;
-	DcxTab &operator =(DcxTab &&) = delete;
+	GSL_SUPPRESS(c.128) DcxTab &operator =(DcxTab &&) = delete;
 
 	DcxTab(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxTab( ) noexcept;
@@ -79,6 +79,7 @@ public:
 	void activateTab(int nSel);
 	bool getTab(const int index, const LPTCITEM tcItem) const noexcept;
 	int getTabCount() const noexcept;
+	DcxControl* addTab(int nIndex, int iIcon, const TString &tsText, const TString &tsCtrl, const TString &tsTooltip);
 
 #if DCX_USE_GDIPLUS
 	void DrawGlow(const int nTabIndex, HDC hDC, const RECT &rect) const;

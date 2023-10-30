@@ -297,19 +297,91 @@ void DcxTab::parseCommandRequest(const TString& input)
 	// xdid -a [NAME] [ID] [SWITCH] [N] [ICON] [TEXT][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB](TOOLTIP)
 	if (xflags[TEXT('a')])
 	{
+		//if (numtok < 5)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//TCITEM tci{};
+		//tci.mask = TCIF_IMAGE | TCIF_PARAM;
+		//
+		//const auto data(input.getfirsttok(1, TSTABCHAR).trim());
+		//
+		//TString control_data;
+		//TString tooltip;
+		//const auto nToks = input.numtok(TSTABCHAR);
+		//
+		//if (nToks > 1)
+		//{
+		//	control_data = input.getnexttok(TSTABCHAR).trim();	// tok 2
+		//
+		//	if (nToks > 2)
+		//		tooltip = input.getlasttoks().trim();	// tok 3, -1, TSTAB
+		//}
+		//
+		//auto nIndex = data.getfirsttok(4).to_int() - 1;
+		//
+		//if (nIndex < 0)
+		//	nIndex = getTabCount();
+		//
+		//tci.iImage = data.getnexttok().to_int() - 1;	// tok 5
+		//
+		//auto lpdtci = std::make_unique<DCXTCITEM>();
+		//
+		//lpdtci->tsTipText = tooltip;
+		//
+		//// Itemtext
+		//TString itemtext;
+		//if (data.numtok() > 5)
+		//{
+		//	itemtext = data.getlasttoks();	// tok 6, -1
+		//	tci.mask |= TCIF_TEXT;
+		//
+		//	//if (this->m_bClosable)
+		//	//{
+		//	//	//itemtext += TEXT("***");	// TEXT("   ");
+		//	//	RECT rc;
+		//	//	GetCloseButtonRect(this->m_rc, rc);
+		//	//	TabCtrl_SetPadding(m_Hwnd, 0, 0);
+		//	//}
+		//
+		//	tci.pszText = itemtext.to_chr();
+		//}
+		//
+		//if (control_data.numtok() > 5)
+		//{
+		//	const DcxControl* const p_Control = this->getParentDialog()->addControl(control_data, 1,
+		//		DcxAllowControls::ALLOW_TREEVIEW |
+		//		DcxAllowControls::ALLOW_LISTVIEW |
+		//		DcxAllowControls::ALLOW_RICHEDIT |
+		//		DcxAllowControls::ALLOW_DIVIDER |
+		//		DcxAllowControls::ALLOW_PANEL |
+		//		DcxAllowControls::ALLOW_TAB |
+		//		DcxAllowControls::ALLOW_REBAR |
+		//		DcxAllowControls::ALLOW_WEBCTRL |
+		//		DcxAllowControls::ALLOW_EDIT |
+		//		DcxAllowControls::ALLOW_IMAGE |
+		//		DcxAllowControls::ALLOW_LIST, m_Hwnd);
+		//
+		//	lpdtci->mChildHwnd = p_Control->getHwnd();
+		//}
+		//tci.lParam = reinterpret_cast<LPARAM>(lpdtci.release());
+		//
+		//TabCtrl_InsertItem(m_Hwnd, nIndex, &tci);
+		//
+		////this->activateSelectedTab();
+		//
+		//// Ook: this fixes the incorrectly positioned controls on additional tabs.
+		//this->activateTab(nIndex);
+		//this->activateSelectedTab();
+
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
-
-		TCITEM tci{};
-		tci.mask = TCIF_IMAGE | TCIF_PARAM;
 
 		const auto data(input.getfirsttok(1, TSTABCHAR).trim());
 
 		TString control_data;
 		TString tooltip;
-		const auto nToks = input.numtok(TSTABCHAR);
 
-		if (nToks > 1)
+		if (const auto nToks = input.numtok(TSTABCHAR); nToks > 1)
 		{
 			control_data = input.getnexttok(TSTABCHAR).trim();	// tok 2
 
@@ -317,62 +389,16 @@ void DcxTab::parseCommandRequest(const TString& input)
 				tooltip = input.getlasttoks().trim();	// tok 3, -1, TSTAB
 		}
 
-		auto nIndex = data.getfirsttok(4).to_int() - 1;
-
-		if (nIndex < 0)
-			nIndex = getTabCount();
-
-		tci.iImage = data.getnexttok().to_int() - 1;	// tok 5
-
-		auto lpdtci = std::make_unique<DCXTCITEM>();
-
-		lpdtci->tsTipText = tooltip;
+		const auto nIndex = data.getfirsttok(4).to_int() - 1;
+		const auto iIcon = data.getnexttok().to_int() - 1;	// tok 5
 
 		// Itemtext
 		TString itemtext;
 		if (data.numtok() > 5)
-		{
 			itemtext = data.getlasttoks();	// tok 6, -1
-			tci.mask |= TCIF_TEXT;
 
-			//if (this->m_bClosable)
-			//{
-			//	//itemtext += TEXT("***");	// TEXT("   ");
-			//	RECT rc;
-			//	GetCloseButtonRect(this->m_rc, rc);
-			//	TabCtrl_SetPadding(m_Hwnd, 0, 0);
-			//}
-
-			tci.pszText = itemtext.to_chr();
+		addTab(nIndex, iIcon, itemtext, control_data, tooltip);
 		}
-
-		if (control_data.numtok() > 5)
-		{
-			const DcxControl* const p_Control = this->getParentDialog()->addControl(control_data, 1,
-				DcxAllowControls::ALLOW_TREEVIEW |
-				DcxAllowControls::ALLOW_LISTVIEW |
-				DcxAllowControls::ALLOW_RICHEDIT |
-				DcxAllowControls::ALLOW_DIVIDER |
-				DcxAllowControls::ALLOW_PANEL |
-				DcxAllowControls::ALLOW_TAB |
-				DcxAllowControls::ALLOW_REBAR |
-				DcxAllowControls::ALLOW_WEBCTRL |
-				DcxAllowControls::ALLOW_EDIT |
-				DcxAllowControls::ALLOW_IMAGE |
-				DcxAllowControls::ALLOW_LIST, m_Hwnd);
-
-			lpdtci->mChildHwnd = p_Control->getHwnd();
-		}
-		tci.lParam = reinterpret_cast<LPARAM>(lpdtci.release());
-
-		TabCtrl_InsertItem(m_Hwnd, nIndex, &tci);
-
-		//this->activateSelectedTab();
-
-		// Ook: this fixes the incorrectly positioned controls on additional tabs.
-		this->activateTab(nIndex);
-		this->activateSelectedTab();
-	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (xflags[TEXT('c')])
 	{
@@ -746,6 +772,62 @@ int DcxTab::getTabCount() const noexcept
 	return TabCtrl_GetItemCount(m_Hwnd);
 }
 
+DcxControl* DcxTab::addTab(int nIndex, int iIcon, const TString& tsText, const TString& tsCtrl, const TString& tsTooltip)
+{
+	if (!m_Hwnd)
+		return nullptr;
+
+	TCITEM tci{};
+	tci.mask = TCIF_IMAGE | TCIF_PARAM;
+	tci.iImage = iIcon;
+
+	if (nIndex < 0)
+		nIndex = getTabCount();
+
+	auto lpdtci = std::make_unique<DCXTCITEM>();
+
+	lpdtci->tsTipText = tsTooltip;
+
+	// Itemtext
+	if (!tsText.empty())
+	{
+		tci.mask |= TCIF_TEXT;
+		tci.pszText = const_cast<TCHAR *>(tsText.to_chr());
+	}
+
+	DcxControl* p_Control{};
+
+	if (tsCtrl.numtok() > 5)
+	{
+		if (const auto pd = this->getParentDialog(); pd)
+		{
+			p_Control = pd->addControl(tsCtrl, 1,
+				DcxAllowControls::ALLOW_TREEVIEW |
+				DcxAllowControls::ALLOW_LISTVIEW |
+				DcxAllowControls::ALLOW_RICHEDIT |
+				DcxAllowControls::ALLOW_DIVIDER |
+				DcxAllowControls::ALLOW_PANEL |
+				DcxAllowControls::ALLOW_TAB |
+				DcxAllowControls::ALLOW_REBAR |
+				DcxAllowControls::ALLOW_WEBCTRL |
+				DcxAllowControls::ALLOW_EDIT |
+				DcxAllowControls::ALLOW_IMAGE |
+				DcxAllowControls::ALLOW_LIST, m_Hwnd);
+
+			lpdtci->mChildHwnd = p_Control->getHwnd();
+		}
+	}
+	tci.lParam = reinterpret_cast<LPARAM>(lpdtci.release());
+
+	TabCtrl_InsertItem(m_Hwnd, nIndex, &tci);
+
+	// Ook: this fixes the incorrectly positioned controls on additional tabs.
+	this->activateTab(nIndex);
+	this->activateSelectedTab();
+
+	return p_Control;
+}
+
 //void DcxTab::GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton)
 //{
 //	// ----------
@@ -820,27 +902,35 @@ void DcxTab::toXml(TiXmlElement* const xml) const
 		tci.mask = TCIF_TEXT | TCIF_IMAGE | TCIF_PARAM;
 		if (getTab(i, &tci))
 		{
+			TiXmlElement xTab("item");
+
+			if (dcx_testflag(tci.mask, TCIF_TEXT))
+				xTab.SetAttribute("text", TString(tci.pszText).c_str());
+			if (dcx_testflag(tci.mask, TCIF_IMAGE) && (tci.iImage != -1))	// -1 means no image
+				xTab.SetAttribute("image", tci.iImage);
+
 			if (const auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci)
 			{
 				if (const auto* const ctrl = this->getParentDialog()->getControlByHWND(lpdtci->mChildHwnd); ctrl)
 				{
-					auto ctrlxml = ctrl->toXml();
+					TiXmlElement xChild("control");
+
+					ctrl->toXml(&xChild);
+
 					// we need to remove hidden style here
-					if (TString styles(ctrlxml->Attribute("styles")); !styles.empty())
+					if (TString styles(xChild.Attribute("styles")); !styles.empty())
 					{
 						styles.remtok(TEXT("hidden"), 1);
 						if (!styles.empty())
-							ctrlxml->SetAttribute("styles", styles.c_str());
+							xChild.SetAttribute("styles", styles.c_str());
 						else
-							ctrlxml->RemoveAttribute("styles");
+							xChild.RemoveAttribute("styles");
 					}
-					if (dcx_testflag(tci.mask, TCIF_TEXT))
-						ctrlxml->SetAttribute("caption", TString(tci.pszText).c_str());
-					if (dcx_testflag(tci.mask, TCIF_IMAGE) && (tci.iImage != -1))	// -1 means no image
-						ctrlxml->SetAttribute("image", tci.iImage);
-					xml->LinkEndChild(ctrlxml);
+					xTab.InsertEndChild(xChild);
 				}
 			}
+
+			xml->InsertEndChild(xTab);
 		}
 	}
 }
