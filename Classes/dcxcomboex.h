@@ -136,6 +136,13 @@ public:
 	TString getSelText() const;
 	void setEditboxContents(const TString& tsStr, int icon, int state, int overlay, int indent);
 
+	int AddTokList(int nPos, int iIcon, int iState, int iIndent, int iStart, int iEnd, const TCHAR* tok, const TString& tsTokList);
+	int addItems(int nPos, int iIcon, int iState, int iIndent, const TString &tsFlags, const TString &tsArgs);
+
+	void UpdateHorizExtent();
+	void UpdateHorizExtent(const int nPos);
+	void UpdateHorizExtent(const TString &tsItem);
+
 	static LRESULT CALLBACK ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) noexcept;
 
 	inline const TString getType() const final { return TEXT("comboex"); };
