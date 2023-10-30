@@ -197,8 +197,7 @@ public:
 	inline void incRef() const noexcept { ++m_iRefCount; };
 	inline void decRef() const noexcept { --m_iRefCount; };
 	inline const UINT& getRefCount() const noexcept { return m_iRefCount; };
-	inline const DWORD& getEventMask() const noexcept { return m_dEventMask; };
-	inline const HBITMAP& getBgBitmap() const noexcept { return m_bitmapBg; };
+	inline const HBITMAP& getBgBitmap() const noexcept { return m_BackgroundImage.m_hBitmap; };
 	inline const COLORREF& getBgTransparentCol() const noexcept { return m_colTransparentBg; };
 	inline const bool& IsVistaStyle(void) const noexcept { return m_bVistaStyle; };
 	inline const HDC& GetVistaHDC(void) const noexcept { return m_hVistaHDC; };
