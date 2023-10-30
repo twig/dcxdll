@@ -99,6 +99,8 @@ DcxListView::~DcxListView() noexcept
 	ImageList_Destroy(getImageList(LVSIL_STATE));
 
 	ImageList_Destroy(getImageList(LVSIL_FOOTER));
+
+	ImageList_Destroy(getImageList(LVSIL_GROUPHEADER));
 }
 
 const TString DcxListView::getStyles(void) const
@@ -673,7 +675,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	// [NAME] [ID] [PROP]
 	case L"tbitem"_hash:
 	{
-		// Only gives usefull results when in report or list views & groups are disabled.
+		// Only gives usefull results when in 'report' or 'list' views & groups are disabled.
 		// 
 		//if (this->isStyle(LVS_REPORT) || this->isStyle(LVS_LIST))	// applies to all views??
 		_ts_snprintf(szReturnValue, TEXT("%d %d"), this->getTopIndex() + 1, this->getBottomIndex() + 1);
@@ -2122,6 +2124,31 @@ void DcxListView::parseCommandRequest(const TString& input)
 #endif
 			}
 		}
+
+		// group header icons
+		if (dcx_testflag(iFlags, LVSIL_GROUPHEADER))
+		{
+			if (const auto himl = this->initImageList(LVSIL_GROUPHEADER); index < 0)
+			{
+				AddFileIcons(himl, filename, false, -1);
+	}
+			else {
+#if DCX_USE_WRAPPERS
+				const Dcx::dcxIconResource icon(index, filename, false, tflags);
+
+				ImageList_AddIcon(himl, icon.get());
+#else
+				const HICON icon = dcxLoadIcon(index, filename, false, tflags);
+
+				if (!icon)
+					throw Dcx::dcxException("Unable to load footer icon");
+
+				ImageList_AddIcon(himl, icon);
+
+				DestroyIcon(icon);
+#endif
+			}
+		}
 	}
 	// xdid -W [NAME] [ID] [SWITCH] [STYLE|nochange] (CONTROL EXTENDED STYLES)
 	else if (flags[TEXT('W')])
@@ -2664,7 +2691,8 @@ UINT DcxListView::parseIconFlagOptions(const TString& flags)
 		iFlags |= LVSIL_STATE;
 	if (xflags[TEXT('f')])
 		iFlags |= LVSIL_FOOTER;
-
+	if (xflags[TEXT('g')])
+		iFlags |= LVSIL_GROUPHEADER;
 	return iFlags;
 }
 
@@ -2910,6 +2938,10 @@ UINT DcxListView::parseGroupState(const TString& flags)
 		iFlags |= LVGS_COLLAPSED;
 	if (xflags[TEXT('S')])
 		iFlags |= LVGS_SELECTED;
+	if (xflags[TEXT('s')])
+		iFlags |= LVGS_SUBSETED;
+	//if (xflags[TEXT('L')])
+	//	iFlags |= LVGS_SUBSETLINKFOCUSED;
 
 	return iFlags;
 }
@@ -3314,16 +3346,21 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		{
 			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 			{
-				if (LVHITTESTINFO lvh{}; GetCursorPos(&lvh.pt))
-				{
-					MapWindowPoints(nullptr, m_Hwnd, &lvh.pt, 1);
+				//if (LVHITTESTINFO lvh{}; GetCursorPos(&lvh.pt))
+				//{
+				//	MapWindowPoints(nullptr, m_Hwnd, &lvh.pt, 1);
+				//
+				//	if (Dcx::dcxListView_SubItemHitTest(m_Hwnd, &lvh) == -1)
+				//		execAliasEx(TEXT("hover,%u"), getUserID());
+				//	else
+				//		execAliasEx(TEXT("hover,%u,%d,%d"), getUserID(), lvh.iItem + 1, lvh.iSubItem + 1);
+				//}
 
-					if (Dcx::dcxListView_SubItemHitTest(m_Hwnd, &lvh) == -1)
-						execAliasEx(TEXT("hover,%u"), getUserID());
-					else
+				if (LVHITTESTINFO lvh{ Dcx::dcxListView_CursorHitTest(m_Hwnd) }; lvh.flags & LVHT_ONITEM)
 						execAliasEx(TEXT("hover,%u,%d,%d"), getUserID(), lvh.iItem + 1, lvh.iSubItem + 1);
+				else
+					execAliasEx(TEXT("hover,%u"), getUserID());
 				}
-			}
 			bParsed = TRUE;
 		}
 		break;
@@ -4126,6 +4163,17 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		DrawMargin(reinterpret_cast<HDC>(wParam));
 
 		bParsed = TRUE;
+
+		// trying to fix flicker when drawing margin, partial? success
+		//auto hdc = reinterpret_cast<HDC>(wParam);
+		//auto ai = SetupAlphaBlend(&hdc, true);
+		//Auto(FinishAlphaBlend(ai));
+		//
+		//lRes = CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
+		//
+		//DrawMargin(hdc);
+		//
+		//bParsed = TRUE;
 	}
 	break;
 
@@ -5591,7 +5639,12 @@ LRESULT DcxListView::DrawGroup(LPNMLVCUSTOMDRAW lplvcd)
 		// draw selection rect if any.
 		DrawGroupSelectionRect(hTheme, lplvcd->nmcd.hdc, &lplvcd->rcText, iStateId);
 
-		//const RECT rcMargin = this->getListRect();
+		// draw header bkg image if any
+		if (auto himl = getImageList(LVSIL_GROUPHEADER); himl)
+		{
+			ImageList_Draw(himl, 1, lplvcd->nmcd.hdc, lplvcd->rcText.left, lplvcd->rcText.top, ILD_NORMAL | ILD_TRANSPARENT);
+			//ImageList_DrawEx(himl, 0, lplvcd->nmcd.hdc, lplvcd->rcText.left, lplvcd->rcText.top, (lplvcd->rcText.right - lplvcd->rcText.left), (lplvcd->rcText.bottom - lplvcd->rcText.top), CLR_NONE, CLR_NONE, ILD_NORMAL);
+		}
 
 		// setup text flags
 		constexpr UINT iTextFlags = DT_LEFT | DT_SINGLELINE | DT_NOPREFIX | DT_VCENTER;
@@ -5633,6 +5686,36 @@ LRESULT DcxListView::DrawGroup(LPNMLVCUSTOMDRAW lplvcd)
 		}
 		else
 			DrawGroupHeaderText(lplvcd->nmcd.hdc, hTheme, iStateId, &lplvcd->rcText, tsBuf, iTextFlags, lplvcd->uAlign, bCustomText, 0);
+
+		// draw collapse/expand button.
+		if (IsGroupCollapsible(lplvcd->nmcd.dwItemSpec))
+		{
+			const RECT rcButton{ GetHeaderButtonRect(&lplvcd->rcText) };
+			//RECT rcButton{ lplvcd->rcText };
+			//Dcx::UXModule.dcxGetThemeRect(hTheme, LISTVIEWPARTS::LVP_COLLAPSEBUTTON, LVCB_NORMAL, TMT_RECT, &rcButton);
+
+			//RECT rcHDR{}, rcLABEL{};
+			//Dcx::dcxListView_GetGroupRect(m_Hwnd, lplvcd->nmcd.dwItemSpec, LVGGR_HEADER, &rcHDR);
+			//Dcx::dcxListView_GetGroupRect(m_Hwnd, lplvcd->nmcd.dwItemSpec, LVGGR_LABEL, &rcLABEL);
+
+			const Dcx::dcxCursorPos pt(m_Hwnd);
+
+			int iButtonStateId{ LVEB_NORMAL };
+			//const RECT rcButton{ GetHeaderButtonRect(hTheme, lplvcd->nmcd.hdc, iButtonStateId, &lplvcd->rcText) };
+			//WORD wHitCode{};
+			//Dcx::UXModule.dcxHitTestThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_COLLAPSEBUTTON, iButtonStateId, HTTB_BACKGROUNDSEG, &lplvcd->rcText, nullptr, pt, &wHitCode);
+
+			if (PtInRect(&rcButton, pt))
+				iButtonStateId = LVEB_HOVER;
+
+			if (IsGroupCollapsed(lplvcd->nmcd.dwItemSpec))
+				Dcx::UXModule.dcxDrawThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_EXPANDBUTTON, iButtonStateId, &rcButton, nullptr);
+			else
+				Dcx::UXModule.dcxDrawThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_COLLAPSEBUTTON, iButtonStateId, &rcButton, nullptr);
+
+			// exclude button rect from line (drawn bellow)
+			ExcludeClipRect(lplvcd->nmcd.hdc, rcButton.left, rcButton.top, rcButton.right, rcButton.bottom);
+		}
 
 		{
 			// calc line size.
@@ -6009,13 +6092,67 @@ void DcxListView::Command_v(const TString& input)
 
 void DcxListView::toXml(TiXmlElement* const xml) const
 {
-	if (!xml)
+	if (!xml || !m_Hwnd)
 		return;
 
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
 	//TODO: add saving of listview items
+	//TODO: save icon data
+	{
+		// save column info
+		const auto count = this->getColumnCount();
+		TCHAR szBuffer[MIRC_BUFFER_SIZE_CCH]{};
+		LVCOLUMN lc{};
+		lc.mask = LVCF_TEXT | LVCF_FMT | LVCF_IMAGE | LVCF_WIDTH | LVCF_ORDER;
+
+		for (int iCol{}; iCol < count; ++iCol)
+		{
+			lc.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+			lc.pszText = &szBuffer[0];
+
+			if (Dcx::dcxListView_GetColumn(m_Hwnd, iCol, &lc))
+			{
+				TiXmlElement xColumn("column");
+
+				xColumn.SetAttribute("id", iCol + 1);
+				{
+					const TString tsBuffer(lc.pszText);
+					xColumn.SetAttribute("text", tsBuffer.c_str());
+}
+				xColumn.SetAttribute("image", lc.iImage);
+				xColumn.SetAttribute("width", lc.cx);
+				xColumn.SetAttribute("order", lc.iOrder);
+
+				// setup format in flag form
+				{
+					TString tsFlags(L"+");
+					if (dcx_testflag(lc.fmt, LVCFMT_BITMAP_ON_RIGHT))
+						tsFlags += L"b";
+					if (dcx_testflag(lc.fmt, LVCFMT_CENTER))
+						tsFlags += L"c";
+					if (dcx_testflag(lc.fmt, LVCFMT_SPLITBUTTON))
+						tsFlags += L"d";
+					if (dcx_testflag(lc.fmt, HDF_SORTDOWN))
+						tsFlags += L"e";
+					if (dcx_testflag(lc.fmt, LVCFMT_FIXED_WIDTH))
+						tsFlags += L"f";
+					if (dcx_testflag(lc.fmt, HDF_SORTUP))
+						tsFlags += L"g";
+					if (dcx_testflag(lc.fmt, LVCFMT_LEFT))
+						tsFlags += L"l";
+					if (dcx_testflag(lc.fmt, LVCFMT_FIXED_RATIO))
+						tsFlags += L"q";
+					if (dcx_testflag(lc.fmt, LVCFMT_RIGHT))
+						tsFlags += L"r";
+
+					xColumn.SetAttribute("flags", tsFlags.c_str());
+				}
+				xml->InsertEndChild(xColumn);
+			}
+		}
+	}
 }
 
 TiXmlElement* DcxListView::toXml() const

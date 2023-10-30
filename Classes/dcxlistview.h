@@ -614,9 +614,9 @@ class DcxListView final
 public:
 	DcxListView() = delete;
 	DcxListView(const DcxListView&) = delete;
-	DcxListView& operator =(const DcxListView&) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxListView& operator =(const DcxListView&) = delete;	// No assignments!
 	DcxListView(DcxListView&&) = delete;
-	DcxListView& operator =(DcxListView&&) = delete;
+	GSL_SUPPRESS(c.128) DcxListView& operator =(DcxListView&&) = delete;
 
 	DcxListView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxListView() noexcept;
