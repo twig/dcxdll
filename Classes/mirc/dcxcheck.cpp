@@ -87,15 +87,15 @@ void DcxCheck::toXml(TiXmlElement* const xml) const
 	{
 		TiXmlElement xColours("colours");
 
-		xColours.SetAttribute("checkbgcolour", this->m_Colours.m_clrBackground);
-		xColours.SetAttribute("checkframecolour", this->m_Colours.m_clrFrame);
-		xColours.SetAttribute("checktickcolour", this->m_Colours.m_clrTick);
-		xColours.SetAttribute("checkdisabledbgcolour", this->m_Colours.m_clrDisabledBackground);
-		xColours.SetAttribute("checkdisabledframecolour", this->m_Colours.m_clrDisabledFrame);
-		xColours.SetAttribute("checkdisabledtickcolour", this->m_Colours.m_clrDisabledTick);
-		xColours.SetAttribute("checkhotbgcolour", this->m_Colours.m_clrHotBackground);
-		xColours.SetAttribute("checkhotframecolour", this->m_Colours.m_clrHotFrame);
-		xColours.SetAttribute("checkhottickcolour", this->m_Colours.m_clrHotTick);
+		xColours.SetAttribute("checkbg", this->m_Colours.m_clrBackground);
+		xColours.SetAttribute("checkframe", this->m_Colours.m_clrFrame);
+		xColours.SetAttribute("checktick", this->m_Colours.m_clrTick);
+		xColours.SetAttribute("checkdisabledbg", this->m_Colours.m_clrDisabledBackground);
+		xColours.SetAttribute("checkdisabledframe", this->m_Colours.m_clrDisabledFrame);
+		xColours.SetAttribute("checkdisabledtick", this->m_Colours.m_clrDisabledTick);
+		xColours.SetAttribute("checkhotbg", this->m_Colours.m_clrHotBackground);
+		xColours.SetAttribute("checkhotframe", this->m_Colours.m_clrHotFrame);
+		xColours.SetAttribute("checkhottick", this->m_Colours.m_clrHotTick);
 
 		xml->InsertEndChild(xColours);
 	}
