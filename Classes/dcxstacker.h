@@ -60,9 +60,9 @@ class DcxStacker final
 public:
 	DcxStacker() = delete;
 	DcxStacker(const DcxStacker&) = delete;
-	DcxStacker& operator =(const DcxStacker&) = delete;
+	GSL_SUPPRESS(c.128) DcxStacker& operator =(const DcxStacker&) = delete;
 	DcxStacker(DcxStacker&&) = delete;
-	DcxStacker& operator =(DcxStacker&&) = delete;
+	GSL_SUPPRESS(c.128) DcxStacker& operator =(DcxStacker&&) = delete;
 
 	DcxStacker(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxStacker() noexcept;
