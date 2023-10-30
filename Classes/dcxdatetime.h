@@ -32,9 +32,9 @@ class DcxDateTime final
 public:
 	DcxDateTime() = delete;
 	DcxDateTime(const DcxDateTime &) = delete;
-	DcxDateTime &operator =(const DcxDateTime &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxDateTime &operator =(const DcxDateTime &) = delete;	// No assignments!
 	DcxDateTime(DcxDateTime &&) = delete;
-	DcxDateTime &operator =(DcxDateTime &&) = delete;
+	GSL_SUPPRESS(c.128) DcxDateTime &operator =(DcxDateTime &&) = delete;
 
 	DcxDateTime(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString &styles);
 	~DcxDateTime() noexcept;

@@ -368,9 +368,9 @@ class DcxDirectshow final
 public:
 	DcxDirectshow() = delete;
 	DcxDirectshow(const DcxDirectshow&) = delete;
-	DcxDirectshow& operator =(const DcxDirectshow&) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxDirectshow& operator =(const DcxDirectshow&) = delete;	// No assignments!
 	DcxDirectshow(DcxDirectshow&&) = delete;
-	DcxDirectshow& operator =(DcxDirectshow&&) = delete;
+	GSL_SUPPRESS(c.128) DcxDirectshow& operator =(DcxDirectshow&&) = delete;
 
 	DcxDirectshow(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxDirectshow();
