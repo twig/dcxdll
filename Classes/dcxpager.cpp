@@ -102,6 +102,58 @@ void DcxPager::toXml(TiXmlElement* const xml) const
 	}
 }
 
+void DcxPager::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	const auto pd = this->getParentDialog();
+	if (!pd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "bgcolour", CLR_INVALID)); tmp != CLR_INVALID)
+		Pager_SetBkColor(m_Hwnd, tmp);
+
+	Pager_SetBorder(m_Hwnd, queryIntAttribute(xThis, "bordersize"));
+	Pager_SetButtonSize(m_Hwnd, queryIntAttribute(xThis, "buttonsize"));
+
+	if (auto xCtrl = xThis->FirstChildElement("control"); xCtrl)
+	{
+		const auto iX = queryIntAttribute(xCtrl, "x");
+		const auto iY = queryIntAttribute(xCtrl, "y");
+		const auto iWidth = queryIntAttribute(xCtrl, "width");
+		const auto iHeight = queryIntAttribute(xCtrl, "height");
+		auto szID = queryAttribute(xCtrl, "id");
+		auto szType = queryAttribute(xCtrl, "type");
+		auto szStyles = queryAttribute(xCtrl, "styles");
+
+		// ID is NOT a number!
+		if (_ts_isEmpty(szID)) // needs looked at, think dcxml generates an id.
+			throw DcxExceptions::dcxInvalidItem();
+
+		TString tsInput;
+		_ts_sprintf(tsInput, TEXT("% % % % % % %"), szID, szType, iX, iY, iWidth, iHeight, szStyles);
+		if (auto ctrl = pd->addControl(tsInput, 1,
+			DcxAllowControls::ALLOW_TOOLBAR |
+			DcxAllowControls::ALLOW_REBAR |
+			DcxAllowControls::ALLOW_PANEL |
+			DcxAllowControls::ALLOW_TAB |
+			DcxAllowControls::ALLOW_BOX |
+			DcxAllowControls::ALLOW_IMAGE |
+			DcxAllowControls::ALLOW_PAGER |
+			DcxAllowControls::ALLOW_DOCK,
+			m_Hwnd); ctrl)
+		{
+			ctrl->fromXml(xThis, xCtrl);
+
+			ctrl->addStyle(WindowStyle::CCS_NoResize);
+			this->setChild(ctrl->getHwnd());
+		}
+	}
+
+	Pager_SetPos(m_Hwnd, queryIntAttribute(xThis, "pos")); // set after any control is added.
 }
 
 TiXmlElement* DcxPager::toXml(void) const
@@ -198,19 +250,19 @@ void DcxPager::parseCommandRequest(const TString& input)
 		if (const auto pd = this->getParentDialog(); pd)
 		{
 			const auto p_Control = pd->addControl(input, 4,
-			DcxAllowControls::ALLOW_TOOLBAR |
-			DcxAllowControls::ALLOW_REBAR |
-			DcxAllowControls::ALLOW_PANEL |
-			DcxAllowControls::ALLOW_TAB |
-			DcxAllowControls::ALLOW_BOX |
-			DcxAllowControls::ALLOW_IMAGE |
-			DcxAllowControls::ALLOW_PAGER |
-			DcxAllowControls::ALLOW_DOCK,
-			m_Hwnd);
+				DcxAllowControls::ALLOW_TOOLBAR |
+				DcxAllowControls::ALLOW_REBAR |
+				DcxAllowControls::ALLOW_PANEL |
+				DcxAllowControls::ALLOW_TAB |
+				DcxAllowControls::ALLOW_BOX |
+				DcxAllowControls::ALLOW_IMAGE |
+				DcxAllowControls::ALLOW_PAGER |
+				DcxAllowControls::ALLOW_DOCK,
+				m_Hwnd);
 
-		p_Control->addStyle(WindowStyle::CCS_NoResize);
-		this->setChild(p_Control->getHwnd());
-	}
+			p_Control->addStyle(WindowStyle::CCS_NoResize);
+			this->setChild(p_Control->getHwnd());
+		}
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
 	else if (flags[TEXT('d')])
