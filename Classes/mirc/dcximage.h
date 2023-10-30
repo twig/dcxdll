@@ -153,6 +153,7 @@ private:
 	COLORREF m_clrTransColor{ CLR_INVALID }; //!< Transparent color
 
 	DcxIconSizes m_iIconSize{ DcxIconSizes::SmallIcon };
+	int m_iIconIndex{};				// The icon index within the file.
 	bool m_bResizeImage{ true };	//!< Resize Image
 	bool m_bTileImage{ false };		//!< Tile Image
 	bool m_bBuffer{ false };		//!< Double Buffer Rendering, needed for GDI+ when WS_EX_COMPOSITED
@@ -163,6 +164,7 @@ private:
 
 	int m_iXOffset{}, m_iYOffset{};	//!< X & Y image offsets.
 	TString m_tsFilename;			//!< The loaded images filename.
+	TString m_tsLoadFlags;
 };
 
 #endif // _DCXIMAGE_H_

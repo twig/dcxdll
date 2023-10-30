@@ -280,13 +280,17 @@ void DcxImage::parseCommandRequest(const TString& input)
 
 		this->m_bIsIcon = true;
 
+		this->m_iIconIndex = index;
+
+		this->m_tsLoadFlags = flag;
+
 		// resize window to size of icon
 		RECT wnd{};
 
 		if (!GetWindowRectParent(m_Hwnd, &wnd))
 			throw Dcx::dcxException("Unable to get windows rect");
 
-		MoveWindow(m_Hwnd, wnd.left, wnd.top, size, size, TRUE);
+		MoveWindow(m_Hwnd, wnd.left, wnd.top, gsl::narrow_cast<int>(this->m_iIconSize), gsl::narrow_cast<int>(this->m_iIconSize), TRUE);
 		this->redrawWindow();
 	}
 	//xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [IMAGE]
@@ -322,6 +326,8 @@ void DcxImage::parseCommandRequest(const TString& input)
 			throw Dcx::dcxException("Failed to load image");
 
 		this->m_tsFilename = filename;
+		this->m_tsLoadFlags = flag;
+
 #else
 		this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
 		if (this->m_hBitmap)
@@ -657,9 +663,16 @@ void DcxImage::toXml(TiXmlElement* const xml) const
 
 	if (!this->m_tsFilename.empty())
 		xml->SetAttribute("src", m_tsFilename.c_str());
+	if (!this->m_tsLoadFlags.empty())
+		xml->SetAttribute("flags", m_tsLoadFlags.c_str());
 	if (this->m_clrTransColor != CLR_INVALID)
 		xml->SetAttribute("transparentcolour", this->m_clrTransColor);
+	if (this->m_bIsIcon)
+	{
+		xml->SetAttribute("icon", "1");
+		xml->SetAttribute("index", m_iIconIndex);
 	xml->SetAttribute("iconsize", gsl::narrow_cast<int>(this->m_iIconSize));
+	}
 	if (this->m_bIsAnimated)
 		xml->SetAttribute("anim", "1");
 	if (this->m_bResizeImage)
