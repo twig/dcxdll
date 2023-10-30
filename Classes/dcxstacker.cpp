@@ -439,6 +439,14 @@ TiXmlElement* DcxStacker::toXml(void) const
 	return xml.release();
 }
 
+void DcxStacker::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+}
+
 void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPCRECT rc, const COLORREF clrShape)
 {
 #ifdef DCX_USE_GDIPLUS

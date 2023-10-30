@@ -290,7 +290,7 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		setPartsPositions(input.getlasttoks());
-			}
+	}
 	// xdid -t [NAME] [ID] [SWITCH] N [+FLAGS] [#ICON] [Cell Text][TAB]Tooltip Text
 	// xdid -t [NAME] [ID] [SWITCH] N [+c] [#ICON] [CID] [CTRL] [X] [Y] [W] [H] (OPTIONS)
 	// xdid -t [NAME] [ID] [SWITCH] N [+f] [#ICON] (TEXT)[TAB]Tooltip Text
@@ -569,7 +569,7 @@ void DcxStatusBar::toXml(TiXmlElement* const xml) const
 			{
 				// fixed #
 				tsCells.addtok(m_iFixedParts[n]);
-}
+			}
 
 			// save item
 			TiXmlElement xItem("item");
@@ -599,7 +599,7 @@ void DcxStatusBar::toXml(TiXmlElement* const xml) const
 			{
 				const TString tsTooltip(this->getTipText(n));
 				if (!tsTooltip.empty())
-				xItem.SetAttribute("tooltip", tsTooltip.c_str());
+					xItem.SetAttribute("tooltip", tsTooltip.c_str());
 			}
 
 			xml->InsertEndChild(xItem);
@@ -614,6 +614,65 @@ TiXmlElement* DcxStatusBar::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxStatusBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "bgcolour")); tmp != CLR_INVALID)
+		setBkColor(tmp);
+
+	// setup positions
+	{
+		const TString tsPositions(queryAttribute(xThis, "cells"));
+		setPartsPositions(tsPositions);
+	}
+
+	for (auto xItem = xThis->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
+	{
+		// each item can be a control or text
+		const auto nPos = queryIntAttribute(xItem, "index");
+		const auto iIcon = queryIntAttribute(xItem, "icon");
+		const TString tsFlags(queryAttribute(xItem, "flags"));
+		TString tsText(queryAttribute(xItem, "text"));
+		const TString tsTooltip(queryAttribute(xItem, "tooltip"));
+
+		if (tsFlags.find(TEXT('c'), 0))
+		{
+			// look for control data
+			if (auto xCtrl = xItem->FirstChildElement("control"); xCtrl)
+			{
+				const auto iX = queryIntAttribute(xCtrl, "x");
+				const auto iY = queryIntAttribute(xCtrl, "y");
+				const auto iWidth = queryIntAttribute(xCtrl, "width");
+				const auto iHeight = queryIntAttribute(xCtrl, "height");
+				auto szID = queryAttribute(xCtrl, "id");
+				auto szType = queryAttribute(xCtrl, "type");
+				auto szStyles = queryAttribute(xCtrl, "styles");
+
+				// ID is NOT a number!
+				if (_ts_isEmpty(szID)) // needs looked at, think dcxml generates an id.
+					throw DcxExceptions::dcxInvalidItem();
+
+				_ts_sprintf(tsText, TEXT("% % % % % % %"), szID, szType, iX, iY, iWidth, iHeight, szStyles);
+				setPartContents(nPos, tsFlags, iIcon, tsText, tsTooltip);
+
+				if (auto pInfo = this->getPartInfo(nPos); pInfo)
+				{
+					if (pInfo->m_xChild)
+						pInfo->m_xChild->fromXml(xThis, xCtrl);
+				}
+			}
+		}
+		else
+			setPartContents(nPos, tsFlags, iIcon, tsText, tsTooltip);
+
+	}
+
 }
 
 const TString DcxStatusBar::getStyles(void) const

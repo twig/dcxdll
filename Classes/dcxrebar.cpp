@@ -188,6 +188,63 @@ TiXmlElement* DcxReBar::toXml(void) const
 	return xml.release();
 }
 
+void DcxReBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	{
+		int iIndex{};
+
+		for (auto xItem = xThis->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
+		{
+			TString tsText(queryAttribute(xItem, "text"));
+			const auto nIcon = queryIntAttribute(xItem, "icon");
+			const auto clrText = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "textcolour", CLR_INVALID));
+			//queryIntAttribute(xItem, "fgcolour");
+			//queryIntAttribute(xItem, "bgcolour");
+			const auto width = queryIntAttribute(xItem, "width");
+			const auto minwidth = queryIntAttribute(xItem, "minwidth");
+			const auto minheight = queryIntAttribute(xItem, "minheight");
+			const auto tsFlags(queryAttribute(xItem, "flags", "+"));
+			const auto tsTooltip(queryAttribute(xItem, "tooltip"));
+
+			TString control_data;
+			auto xCtrl = xItem->FirstChildElement("control"); 
+			if (xCtrl)
+			{
+				const auto iX = queryIntAttribute(xCtrl, "x");
+				const auto iY = queryIntAttribute(xCtrl, "y");
+				const auto iWidth = queryIntAttribute(xCtrl, "width");
+				const auto iHeight = queryIntAttribute(xCtrl, "height");
+				auto szID = queryAttribute(xCtrl, "id");
+				auto szType = queryAttribute(xCtrl, "type");
+				auto szStyles = queryAttribute(xCtrl, "styles");
+
+				// ID is NOT a number!
+				if (_ts_isEmpty(szID)) // needs looked at, think dcxml generates an id.
+					throw DcxExceptions::dcxInvalidItem();
+
+				_ts_sprintf(control_data, TEXT("% % % % % % %"), szID, szType, iX, iY, iWidth, iHeight, szStyles);
+			}
+
+			this->addBand(iIndex, minwidth, minheight, width, nIcon, clrText, tsFlags, tsText, control_data, tsTooltip);
+
+			if (xCtrl)
+			{
+				if (auto ctrl = this->getControl(iIndex); ctrl)
+				{
+					ctrl->fromXml(xDcxml, xCtrl);
+				}
+			}
+
+			++iIndex;
+		}
+	}
+}
+
 DcxControl* DcxReBar::getControl(const int index) const noexcept
 {
 	if (index > -1 && index < this->getBandCount())
@@ -990,36 +1047,36 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [N,N2,N3-N4...] [FILENAME] (TODO: allows loading a range of icons into the control)
 	else if (flags[TEXT('w')])
 	{
-//		if (numtok < 6)
-//			throw DcxExceptions::dcxInvalidArguments();
-//
-//		const auto flag(input.getnexttok());		// tok 4
-//		const auto index = input.getnexttok().to_int();	// tok 5
-//		auto filename(input.getlasttoks());			// tok 6, -1
-//
-//		auto himl = this->getImageList();
-//
-//		if (!himl)
-//		{
-//			himl = this->createImageList();
-//
-//			if (himl)
-//				this->setImageList(himl);
-//		}
-//
-//		if (!himl)
-//			throw Dcx::dcxException("Unable to get imagelist");
-//
-//#if DCX_USE_WRAPPERS
-//		const Dcx::dcxIconResource icon(index, filename, false, flag);
-//		ImageList_AddIcon(himl, icon.get());
-//#else
-//		if (const HICON icon = dcxLoadIcon(index, filename, false, flag); icon)
-//		{
-//			ImageList_AddIcon(himl, icon);
-//			DestroyIcon(icon);
-//		}
-//#endif
+		//		if (numtok < 6)
+		//			throw DcxExceptions::dcxInvalidArguments();
+		//
+		//		const auto flag(input.getnexttok());		// tok 4
+		//		const auto index = input.getnexttok().to_int();	// tok 5
+		//		auto filename(input.getlasttoks());			// tok 6, -1
+		//
+		//		auto himl = this->getImageList();
+		//
+		//		if (!himl)
+		//		{
+		//			himl = this->createImageList();
+		//
+		//			if (himl)
+		//				this->setImageList(himl);
+		//		}
+		//
+		//		if (!himl)
+		//			throw Dcx::dcxException("Unable to get imagelist");
+		//
+		//#if DCX_USE_WRAPPERS
+		//		const Dcx::dcxIconResource icon(index, filename, false, flag);
+		//		ImageList_AddIcon(himl, icon.get());
+		//#else
+		//		if (const HICON icon = dcxLoadIcon(index, filename, false, flag); icon)
+		//		{
+		//			ImageList_AddIcon(himl, icon);
+		//			DestroyIcon(icon);
+		//		}
+		//#endif
 
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
@@ -1050,7 +1107,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
-	}
+}
 
 /*!
  * \brief blah

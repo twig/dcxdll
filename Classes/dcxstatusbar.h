@@ -69,6 +69,8 @@ public:
 
 	void toXml(TiXmlElement *const xml) const final;
 	TiXmlElement * toXml(void) const final;
+	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) final;
+
 	const TString getStyles(void) const final;
 
 	LRESULT setParts( const int nParts, const LPINT aWidths ) noexcept;

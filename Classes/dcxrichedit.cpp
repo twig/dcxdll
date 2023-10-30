@@ -563,7 +563,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		const TString tsFontname(input.getlasttoks().trim());	// tok 7, -1
 
 		setRicheditFont(tsFlags, tsCharset, iSize, tsFontname);
-			}
+	}
 	// xdid -g [NAME] [ID] [SWITCH] [Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-) (Border Colour|-) (Unlock Gutter 0|1|-) (Gutter Size|-) (Gutter Border Size|-)
 	else if (flags[TEXT('g')])
 	{
@@ -1767,6 +1767,78 @@ TiXmlElement* DcxRichEdit::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxRichEdit::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	this->m_bIgnoreInput = true;
+
+	{
+		if (auto clr = queryAttribute(xThis, "font"); !_ts_isEmpty(clr))
+		{
+			// single font item
+			// + charset size fontname
+			TString tsFont(clr);
+			TString tsFlags(tsFont.getfirsttok(1));
+			TString tsCharset(tsFont.getnexttok());
+			const auto iSize = tsFont.getnexttokas<UINT>();
+			TString tsFontname(tsFont.getlasttoks());
+
+			setRicheditFont(tsFlags, tsCharset, iSize, tsFontname);
+		}
+		else {
+			// split font parts
+			// fontstyle charset fontsize fontname
+			const auto iSize = queryIntAttribute(xThis, "fontsize", 8);
+			TString tsCharset(queryAttribute(xThis, "chatset", "ansi"));
+			TString tsFlags(queryAttribute(xThis, "fontstyle", "+d"));
+			TString tsFontname(queryAttribute(xThis, "fontname"));
+
+			setRicheditFont(tsFlags, tsCharset, iSize, tsFontname);
+		}
+	}
+
+	if (const auto tmp = gsl::narrow_cast<TCHAR>(queryIntAttribute(xThis, "passchar")); tmp)
+	{
+		Edit_SetPasswordChar(m_Hwnd, tmp);
+		this->m_PassChar = tmp;
+	}
+
+	m_bCueFocused = (queryIntAttribute(xThis, "cuefocused") > 0);
+
+	if (const auto tmp = queryAttribute(xThis, "cue"); tmp)
+	{
+		this->m_tsCue = tmp;
+		Edit_SetCueBannerTextFocused(m_Hwnd, this->m_tsCue.to_chr(), m_bCueFocused);
+	}
+
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "gutterbgcolour", CLR_INVALID)); tmp != CLR_INVALID)
+		this->m_clrGutter_bkg = tmp;
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "gutterselbgcolour", CLR_INVALID)); tmp != CLR_INVALID)
+		this->m_clrGutter_selbkg = tmp;
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "guttertextcolour", CLR_INVALID)); tmp != CLR_INVALID)
+		this->m_clrGutter_txt = tmp;
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "gutterseltextcolour", CLR_INVALID)); tmp != CLR_INVALID)
+		this->m_clrGutter_seltxt = tmp;
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "gutterbordercolour", CLR_INVALID)); tmp != CLR_INVALID)
+		this->m_clrGutter_border = tmp;
+	if (const auto tmp = queryIntAttribute(xThis, "width", DCX_EDIT_GUTTER_WIDTH); tmp >= DCX_EDIT_GUTTER_WIDTH)
+		this->m_GutterWidth = tmp;
+	m_bLockGutter = (queryIntAttribute(xThis, "lockgutter") > 0);
+
+	{
+		this->m_tsText = xThis->GetText();
+		SetWindowText(m_Hwnd, this->m_tsText.to_chr());
+		this->parseContents(TRUE);
+		Edit_SetModify(m_Hwnd, FALSE);
+	}
+
+	this->m_bIgnoreInput = false;
 }
 
 const TString DcxRichEdit::getStyles(void) const
