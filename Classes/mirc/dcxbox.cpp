@@ -323,6 +323,7 @@ void DcxBox::toXml(TiXmlElement* const xml) const
 			return;
 		}
 	}
+	xml->SetAttribute("nocla", 1);
 	for (auto hChild = GetWindow(m_Hwnd, GW_CHILD); hChild; hChild = GetWindow(hChild, GW_HWNDNEXT))
 	{
 		auto pthis = Dcx::dcxGetProp<DcxControl*>(hChild, TEXT("dcx_cthis"));
@@ -336,7 +337,9 @@ void DcxBox::toXml(TiXmlElement* const xml) const
 			xctrl->SetAttribute("weight", 1);
 			xctrl->SetAttribute("x", rc.left);
 			xctrl->SetAttribute("y", rc.top);
+			if (!xctrl->Attribute("height"))
 			xctrl->SetAttribute("height", rc.Height());
+			if (!xctrl->Attribute("width"))
 			xctrl->SetAttribute("width", rc.Width());
 
 			xml->LinkEndChild(xctrl);
