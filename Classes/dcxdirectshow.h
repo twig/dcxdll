@@ -402,6 +402,7 @@ protected:
 
 	HRESULT getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& prop, const Properties type) const noexcept;
 	HRESULT setAlpha(float alpha);
+	float getAlpha() const;
 	HRESULT setVideo(const TString& flags, const float brightness, const float contrast, const float hue, const float saturation, const float alpha);
 	HRESULT getVideo(VMR9ProcAmpControl* amc) const;
 	HRESULT getVideoRange(VMR9ProcAmpControlFlags prop, VMR9ProcAmpControlRange* acr) const;
@@ -414,6 +415,8 @@ protected:
 	float getVolume(void) const;
 	HRESULT setBalance(const long vol);
 	long getBalance(void) const;
+
+	void loadFile(const TString& tsFlags, const TString& tsFilename);
 
 	static NormalizedRange NormalizeValue(float fValue, float fMin, float fMax, float fStep) noexcept;
 

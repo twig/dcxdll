@@ -354,141 +354,146 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const XSwitchFlags xflags(input.getnexttok().trim());	// tok 4
-		auto filename(input.getlasttoks().trim());			// tok 5, -1
+		this->loadFile(input.getnexttok().trim(), input.getlasttoks().trim());
 
-		this->ReleaseAll();
-
-		if (!Dcx::isDX9Installed())
-			Dcx::initDirectX();
-
-		if (!Dcx::isDX9Installed())
-			throw Dcx::dcxException("Needs DirectX 9+");
-
-		if (!xflags[TEXT('+')])
-			throw DcxExceptions::dcxInvalidFlag();
-
-		if (!IsFile(filename))
-			throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
-
-		HRESULT hr = S_OK;
-
-		try {
-			// Create the Filter Graph Manager and query for interfaces.
-			hr = CoCreateInstance(CLSID_FilterGraph, nullptr, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, reinterpret_cast<void**>(&this->m_pGraph));
-
-			if (FAILED(hr) || !this->m_pGraph)
-				throw Dcx::dcxException("Unable to Create FilterGraph");
-
-			hr = this->m_pGraph->QueryInterface(IID_IMediaControl, reinterpret_cast<void**>(&this->m_pControl));
-			if (FAILED(hr) || !this->m_pControl)
-				throw Dcx::dcxException("Unable to Get IMediaControl");
-
-			hr = this->m_pGraph->QueryInterface(IID_IMediaEventEx, reinterpret_cast<void**>(&this->m_pEvent));
-			if (FAILED(hr) || !this->m_pEvent)
-				throw Dcx::dcxException("Unable to Get IMediaEventEx");
-
-			hr = this->m_pGraph->QueryInterface(IID_IMediaSeeking, reinterpret_cast<void**>(&this->m_pSeek));
-			if (FAILED(hr) || !this->m_pSeek)
-				throw Dcx::dcxException("Unable to Get IMediaSeeking");
-
-			hr = this->m_pEvent->SetNotifyWindow(reinterpret_cast<OAHWND>(m_Hwnd), WM_GRAPHNOTIFY, 0);
-			if (FAILED(hr))
-				throw Dcx::dcxException("Unable to Set Window Notify");
-
-			if (!xflags[TEXT('a')])
-			{
-				this->m_pWc = DcxDirectshow::InitWindowlessVMR(m_Hwnd, this->m_pGraph);
-
-				if (!m_pWc)
-					throw Dcx::dcxException("Unable to Create VMR9");
-			}
-
-			if (this->m_pWc)
-			{
-				if (this->m_bKeepRatio)
-					hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_LetterBox); // caused video to maintain aspect ratio
-				else
-					hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_None);
-
-				if (FAILED(hr))
-					throw Dcx::dcxException("Unable to Set Aspect");
-			}
-
-			hr = this->m_pGraph->RenderFile(filename.to_chr(), nullptr);
-			if (FAILED(hr))
-			{
-				TString tsTmp(128U);
-				this->evalAliasEx(tsTmp.to_chr(), tsTmp.capacity_cch(), TEXT("loaderror,%u,%s"), getUserID(), filename.to_chr());
-				if (tsTmp == TEXT("$false"))
-				{
-					this->ReleaseAll();
-					return;
-				}
-				throw Dcx::dcxException("Unable to render file (No codec for file format?)");
-			}
-
-			if (this->m_pWc)
-			{
-				hr = this->SetVideoPos();
-				if (FAILED(hr))
-					throw Dcx::dcxException("Unable to set Video Position");
-
-				if (this->IsAlphaBlend())
-					this->setAlpha(0.5);
-
-				//if (this->IsAlphaBlend())
+		//if (numtok < 5)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//const XSwitchFlags xflags(input.getnexttok().trim());	// tok 4
+		//auto filename(input.getlasttoks().trim());			// tok 5, -1
+		//
+		//this->ReleaseAll();
+		//
+		//if (!Dcx::isDX9Installed())
+		//	Dcx::initDirectX();
+		//
+		//if (!Dcx::isDX9Installed())
+		//	throw Dcx::dcxException("Needs DirectX 9+");
+		//
+		//if (!xflags[TEXT('+')])
+		//	throw DcxExceptions::dcxInvalidFlag();
+		//
+		//if (!IsFile(filename))
+		//	throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
+		//
+		//HRESULT hr = S_OK;
+		//
+		//try {
+		//	// Create the Filter Graph Manager and query for interfaces.
+		//	hr = CoCreateInstance(CLSID_FilterGraph, nullptr, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, reinterpret_cast<void**>(&this->m_pGraph));
+		//
+		//	if (FAILED(hr) || !this->m_pGraph)
+		//		throw Dcx::dcxException("Unable to Create FilterGraph");
+		//
+		//	hr = this->m_pGraph->QueryInterface(IID_IMediaControl, reinterpret_cast<void**>(&this->m_pControl));
+		//	if (FAILED(hr) || !this->m_pControl)
+		//		throw Dcx::dcxException("Unable to Get IMediaControl");
+		//
+		//	hr = this->m_pGraph->QueryInterface(IID_IMediaEventEx, reinterpret_cast<void**>(&this->m_pEvent));
+		//	if (FAILED(hr) || !this->m_pEvent)
+		//		throw Dcx::dcxException("Unable to Get IMediaEventEx");
+		//
+		//	hr = this->m_pGraph->QueryInterface(IID_IMediaSeeking, reinterpret_cast<void**>(&this->m_pSeek));
+		//	if (FAILED(hr) || !this->m_pSeek)
+		//		throw Dcx::dcxException("Unable to Get IMediaSeeking");
+		//
+		//	hr = this->m_pEvent->SetNotifyWindow(reinterpret_cast<OAHWND>(m_Hwnd), WM_GRAPHNOTIFY, 0);
+		//	if (FAILED(hr))
+		//		throw Dcx::dcxException("Unable to Set Window Notify");
+		//
+		//	if (!xflags[TEXT('a')])
+		//	{
+		//		this->m_pWc = DcxDirectshow::InitWindowlessVMR(m_Hwnd, this->m_pGraph);
+		//
+		//		if (!m_pWc)
+		//			throw Dcx::dcxException("Unable to Create VMR9");
+		//	}
+		//
+		//	if (this->m_pWc)
+		//	{
+		//		if (this->m_bKeepRatio)
+		//			hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_LetterBox); // caused video to maintain aspect ratio
+		//		else
+		//			hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_None);
+		//
+		//		if (FAILED(hr))
+		//			throw Dcx::dcxException("Unable to Set Aspect");
+		//	}
+		//
+		//	hr = this->m_pGraph->RenderFile(filename.to_chr(), nullptr);
+		//	if (FAILED(hr))
+		//	{
+		//		TString tsTmp(128U);
+		//		this->evalAliasEx(tsTmp.to_chr(), tsTmp.capacity_cch(), TEXT("loaderror,%u,%s"), getUserID(), filename.to_chr());
+		//		if (tsTmp == TEXT("$false"))
+		//		{
+		//			this->ReleaseAll();
+		//			return;
+		//		}
+		//		throw Dcx::dcxException("Unable to render file (No codec for file format?)");
+		//	}
+		//
+		//	if (this->m_pWc)
+		//	{
+		//		hr = this->SetVideoPos();
+		//		if (FAILED(hr))
+		//			throw Dcx::dcxException("Unable to set Video Position");
+		//
+		//		if (this->IsAlphaBlend())
+		//			this->setAlpha(0.5);
+		//
+		//		//if (this->IsAlphaBlend())
+		//		//{
+		//		//	const float fAlpha = m_iAlphaLevel / 255.0;
+		//		//	this->setAlpha(fAlpha);
+		//		//}
+		//	}
+		//	else {
+		//		// if VMR == nullptr then disable video.
+		//		//IVideoWindow* p_Video{};
+		//		//hr = this->m_pGraph->QueryInterface(IID_IVideoWindow, reinterpret_cast<void**>(&p_Video));
+		//		//if (FAILED(hr))
+		//		//	throw Dcx::dcxException("Unable to get video window");
+		//		//
+		//		//Auto(p_Video->Release());
+//
+		//		MyCOMClass<IVideoWindow> p_Video(this->m_pGraph);
+		//		if (!p_Video)
+		//			throw Dcx::dcxException("Unable to get video window");
+//
+		//		p_Video->put_Visible(OAFALSE);
+		//		p_Video->put_AutoShow(OAFALSE);
+		//		p_Video->put_Owner(reinterpret_cast<OAHWND>(m_Hwnd));
+		//		p_Video->put_MessageDrain(reinterpret_cast<OAHWND>(m_Hwnd));
+		//		long styles{};
+//
+		//		hr = p_Video->get_WindowStyle(&styles);
+		//		if (FAILED(hr))
+		//			throw Dcx::dcxException("Unable to get window styles");
+//
+		//		styles &= ~(WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW | WS_DLGFRAME);
+		//		styles |= WS_CHILD;
+		//		p_Video->put_WindowStyle(styles);
+		//		p_Video->put_Left(0);
+		//		p_Video->put_Top(0);
+		//	}
+//
+		//	m_bLoop = xflags[TEXT('l')];
+//
+		//	if (xflags[TEXT('p')])
+		//		m_pControl->Run();
+//
+		//	m_tsFilename = filename;
+//
+		//	InvalidateRect(m_Hwnd, nullptr, TRUE);
+		//}
+		//catch (const std::exception)
 				//{
-				//	const float fAlpha = m_iAlphaLevel / 255.0;
-				//	this->setAlpha(fAlpha);
+		//	DX_ERR(nullptr, TEXT("-a"), hr);
+		//	this->ReleaseAll();
+		//	throw;
 				//}
 			}
-			else {
-				// if VMR == nullptr then disable video.
-				//IVideoWindow* p_Video{};
-				//hr = this->m_pGraph->QueryInterface(IID_IVideoWindow, reinterpret_cast<void**>(&p_Video));
-				//if (FAILED(hr))
-				//	throw Dcx::dcxException("Unable to get video window");
-				//
-				//Auto(p_Video->Release());
-
-				MyCOMClass<IVideoWindow> p_Video(this->m_pGraph);
-				if (!p_Video)
-					throw Dcx::dcxException("Unable to get video window");
-
-				p_Video->put_Visible(OAFALSE);
-				p_Video->put_AutoShow(OAFALSE);
-				p_Video->put_Owner(reinterpret_cast<OAHWND>(m_Hwnd));
-				p_Video->put_MessageDrain(reinterpret_cast<OAHWND>(m_Hwnd));
-				long styles{};
-
-				hr = p_Video->get_WindowStyle(&styles);
-				if (FAILED(hr))
-					throw Dcx::dcxException("Unable to get window styles");
-
-				styles &= ~(WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW | WS_DLGFRAME);
-				styles |= WS_CHILD;
-				p_Video->put_WindowStyle(styles);
-				p_Video->put_Left(0);
-				p_Video->put_Top(0);
-			}
-
-			m_bLoop = xflags[TEXT('l')];
-
-			if (xflags[TEXT('p')])
-				m_pControl->Run();
-
-			m_tsFilename = filename;
-
-			InvalidateRect(m_Hwnd, nullptr, TRUE);
-		}
-		catch (const std::exception)
-		{
-			DX_ERR(nullptr, TEXT("-a"), hr);
-			this->ReleaseAll();
-			throw;
-		}
-	}
 	// xdid -c [NAME] [ID] [SWITCH] [COMMAND]
 	else if (flags[TEXT('c')])
 	{
@@ -1062,6 +1067,26 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 	return E_FAIL;
 }
 
+float DcxDirectshow::getAlpha() const
+{
+	if (!m_Hwnd)
+		return 1.0f;
+
+	MyBaseCOMClass<IBaseFilter> pVmr(this->m_pGraph, L"Video Mixing Renderer");
+
+	if (!pVmr)
+		return 1.0f;
+
+	if (MyCOMClass<IVMRMixerBitmap9> pBm(pVmr.mData); pBm)
+	{
+		VMR9AlphaBitmap bmpInfo{};
+
+		if (const auto hr = pBm->GetAlphaBitmapParameters(&bmpInfo); SUCCEEDED(hr))
+			return bmpInfo.fAlpha;
+	}
+	return 1.0f;
+}
+
 GSL_SUPPRESS(type.4)
 HRESULT DcxDirectshow::setVideo(const TString& flags, const float brightness, const float contrast, const float hue, const float saturation, const float alpha)
 {
@@ -1159,6 +1184,9 @@ HRESULT DcxDirectshow::setVideo(const TString& flags, const float brightness, co
 GSL_SUPPRESS(type.4)
 HRESULT DcxDirectshow::getVideo(VMR9ProcAmpControl* amc) const
 {
+	if (!amc)
+		return E_POINTER;
+
 	//IBaseFilter* pVmr{};
 	//
 	//auto hr = this->m_pGraph->FindFilterByName(L"Video Mixing Renderer", &pVmr);
@@ -1189,6 +1217,8 @@ HRESULT DcxDirectshow::getVideo(VMR9ProcAmpControl* amc) const
 
 	ZeroMemory(amc, sizeof(VMR9ProcAmpControl));
 	amc->dwSize = sizeof(VMR9ProcAmpControl);
+	amc->dwFlags = ProcAmpControl9_Brightness | ProcAmpControl9_Contrast | ProcAmpControl9_Hue | ProcAmpControl9_Saturation;
+
 	return Mixer->GetProcAmpControl(0, amc);
 }
 
@@ -1449,6 +1479,144 @@ long DcxDirectshow::getBalance(void) const
 	return vol;
 }
 
+void DcxDirectshow::loadFile(const TString& tsFlags, const TString& tsFilename)
+{
+	const XSwitchFlags xflags(tsFlags);
+	auto filename(tsFilename);
+
+	this->ReleaseAll();
+
+	if (!Dcx::isDX9Installed())
+		Dcx::initDirectX();
+
+	if (!Dcx::isDX9Installed())
+		throw Dcx::dcxException("Needs DirectX 9+");
+
+	if (!xflags[TEXT('+')])
+		throw DcxExceptions::dcxInvalidFlag();
+
+	if (!IsFile(filename))
+		throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
+
+	HRESULT hr = S_OK;
+
+	try {
+		// Create the Filter Graph Manager and query for interfaces.
+		hr = CoCreateInstance(CLSID_FilterGraph, nullptr, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, reinterpret_cast<void**>(&this->m_pGraph));
+
+		if (FAILED(hr) || !this->m_pGraph)
+			throw Dcx::dcxException("Unable to Create FilterGraph");
+
+		hr = this->m_pGraph->QueryInterface(IID_IMediaControl, reinterpret_cast<void**>(&this->m_pControl));
+		if (FAILED(hr) || !this->m_pControl)
+			throw Dcx::dcxException("Unable to Get IMediaControl");
+
+		hr = this->m_pGraph->QueryInterface(IID_IMediaEventEx, reinterpret_cast<void**>(&this->m_pEvent));
+		if (FAILED(hr) || !this->m_pEvent)
+			throw Dcx::dcxException("Unable to Get IMediaEventEx");
+
+		hr = this->m_pGraph->QueryInterface(IID_IMediaSeeking, reinterpret_cast<void**>(&this->m_pSeek));
+		if (FAILED(hr) || !this->m_pSeek)
+			throw Dcx::dcxException("Unable to Get IMediaSeeking");
+
+		hr = this->m_pEvent->SetNotifyWindow(reinterpret_cast<OAHWND>(m_Hwnd), WM_GRAPHNOTIFY, 0);
+		if (FAILED(hr))
+			throw Dcx::dcxException("Unable to Set Window Notify");
+
+		if (!xflags[TEXT('a')])
+		{
+			this->m_pWc = DcxDirectshow::InitWindowlessVMR(m_Hwnd, this->m_pGraph);
+
+			if (!m_pWc)
+				throw Dcx::dcxException("Unable to Create VMR9");
+		}
+
+		if (this->m_pWc)
+		{
+			if (this->m_bKeepRatio)
+				hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_LetterBox); // caused video to maintain aspect ratio
+			else
+				hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_None);
+
+			if (FAILED(hr))
+				throw Dcx::dcxException("Unable to Set Aspect");
+		}
+
+		hr = this->m_pGraph->RenderFile(filename.to_chr(), nullptr);
+		if (FAILED(hr))
+		{
+			TString tsTmp(128U);
+			this->evalAliasEx(tsTmp.to_chr(), tsTmp.capacity_cch(), TEXT("loaderror,%u,%s"), getUserID(), filename.to_chr());
+			if (tsTmp == TEXT("$false"))
+			{
+				this->ReleaseAll();
+				return;
+			}
+			throw Dcx::dcxException("Unable to render file (No codec for file format?)");
+		}
+
+		if (this->m_pWc)
+		{
+			hr = this->SetVideoPos();
+			if (FAILED(hr))
+				throw Dcx::dcxException("Unable to set Video Position");
+
+			if (this->IsAlphaBlend())
+				this->setAlpha(0.5);
+
+			//if (this->IsAlphaBlend())
+			//{
+			//	const float fAlpha = m_iAlphaLevel / 255.0;
+			//	this->setAlpha(fAlpha);
+			//}
+		}
+		else {
+			// if VMR == nullptr then disable video.
+			//IVideoWindow* p_Video{};
+			//hr = this->m_pGraph->QueryInterface(IID_IVideoWindow, reinterpret_cast<void**>(&p_Video));
+			//if (FAILED(hr))
+			//	throw Dcx::dcxException("Unable to get video window");
+			//
+			//Auto(p_Video->Release());
+
+			MyCOMClass<IVideoWindow> p_Video(this->m_pGraph);
+			if (!p_Video)
+				throw Dcx::dcxException("Unable to get video window");
+
+			p_Video->put_Visible(OAFALSE);
+			p_Video->put_AutoShow(OAFALSE);
+			p_Video->put_Owner(reinterpret_cast<OAHWND>(m_Hwnd));
+			p_Video->put_MessageDrain(reinterpret_cast<OAHWND>(m_Hwnd));
+			long styles{};
+
+			hr = p_Video->get_WindowStyle(&styles);
+			if (FAILED(hr))
+				throw Dcx::dcxException("Unable to get window styles");
+
+			styles &= ~(WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW | WS_DLGFRAME);
+			styles |= WS_CHILD;
+			p_Video->put_WindowStyle(styles);
+			p_Video->put_Left(0);
+			p_Video->put_Top(0);
+		}
+
+		m_bLoop = xflags[TEXT('l')];
+
+		if (xflags[TEXT('p')])
+			m_pControl->Run();
+
+		m_tsFilename = filename;
+
+		InvalidateRect(m_Hwnd, nullptr, TRUE);
+	}
+	catch (const std::exception)
+	{
+		DX_ERR(nullptr, TEXT("loadFile()"), hr);
+		this->ReleaseAll();
+		throw;
+	}
+}
+
 /// <summary>
 /// Normalize a range into a zero range
 /// </summary>
@@ -1475,6 +1643,27 @@ void DcxDirectshow::toXml(TiXmlElement* const xml) const
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
+	xml->SetAttribute("src", m_tsFilename.c_str());
+
+	if (this->m_pGraph)
+	{
+		//fBrightness, fContrast, fHue, fSaturation, fAlpha
+		VMR9ProcAmpControl amc{};
+		this->getVideo(&amc);
+
+		xml->SetDoubleAttribute("brightness", amc.Brightness);
+		xml->SetDoubleAttribute("contrast", amc.Contrast);
+		xml->SetDoubleAttribute("hue", amc.Hue);
+		xml->SetDoubleAttribute("saturation", amc.Saturation);
+		xml->SetDoubleAttribute("videoalpha", this->getAlpha());
+		xml->SetAttribute("balance", this->getBalance());
+		xml->SetDoubleAttribute("volume", this->getVolume());
+		{
+			TString tsPos;
+			tsPos.addtok(this->getPosition());
+			xml->SetAttribute("pos", tsPos.c_str());
+}
+	}
 }
 
 TiXmlElement* DcxDirectshow::toXml(void) const
