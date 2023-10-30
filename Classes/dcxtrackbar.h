@@ -50,9 +50,9 @@ class DcxTrackBar final
 public:
 	DcxTrackBar() = delete;
 	DcxTrackBar(const DcxTrackBar&) = delete;
-	DcxTrackBar& operator =(const DcxTrackBar&) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxTrackBar& operator =(const DcxTrackBar&) = delete;	// No assignments!
 	DcxTrackBar(DcxTrackBar&&) = delete;
-	DcxTrackBar& operator =(DcxTrackBar&&) = delete;
+	GSL_SUPPRESS(c.128) DcxTrackBar& operator =(DcxTrackBar&&) = delete;
 
 	DcxTrackBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxTrackBar() noexcept;
@@ -76,17 +76,21 @@ public:
 	LRESULT getPos() const noexcept;
 	void setTic(const LONG lPosition) noexcept;
 	void setTicFreq(const LONG wFreq) noexcept;
+	const LONG& getTickFreq() const noexcept { return m_iTickFreq; };
 	LRESULT clearTics() noexcept;
-	LRESULT setTipSide(const int fLocation) noexcept;
+	int setTipSide(const int fLocation) noexcept;
+	int getTipSide() const noexcept;
 	LRESULT setPageSize(const LONG lPageSize) noexcept;
 	LRESULT getPageSize() const noexcept;
 	LRESULT setLineSize(const LONG lLineSize) noexcept;
 	LRESULT getLineSize() const noexcept;
 	LRESULT setThumbLength(const UINT iLength) noexcept;
+	UINT getThumbLength() const noexcept;
 	void setSel(const LONG iLowLim, const LONG iHighLim) noexcept;
 	LRESULT getSelStart() const noexcept;
 	LRESULT getSelEnd() const noexcept;
 	HWND setBuddy(const HWND mHwnd, bool bLeft) noexcept;
+	HWND getBuddy(bool bLeft) const noexcept;
 
 	inline const TString getType() const final { return TEXT("trackbar"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::TRACKBAR; }
@@ -103,6 +107,7 @@ private:
 
 	HBITMAP m_hbmp[sizeof(TrackBarParts)]{ nullptr }; // refer to TBBMP_*
 	COLORREF m_colTransparent{ CLR_INVALID };
+	LONG m_iTickFreq{ 1 };
 	bool m_bUpdatingTooltip{ false };
 	bool m_bReserved[3]{ false };
 };

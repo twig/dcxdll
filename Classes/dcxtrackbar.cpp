@@ -374,7 +374,12 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 
 HWND DcxTrackBar::setBuddy(const HWND mHwnd, bool bLeft) noexcept
 {
-	return reinterpret_cast<HWND>(SendMessage(m_Hwnd, TBM_SETBUDDY, bLeft, reinterpret_cast<WPARAM>(mHwnd)));
+	return reinterpret_cast<HWND>(SendMessage(m_Hwnd, TBM_SETBUDDY, bLeft, reinterpret_cast<LPARAM>(mHwnd)));
+}
+
+HWND DcxTrackBar::getBuddy(bool bLeft) const noexcept
+{
+	return reinterpret_cast<HWND>(SendMessage(m_Hwnd, TBM_GETBUDDY, bLeft, 0));
 }
 
 /*!
@@ -475,6 +480,7 @@ void DcxTrackBar::setTic(const LONG lPosition) noexcept
 void DcxTrackBar::setTicFreq(const LONG wFreq) noexcept
 {
 	SendMessage(m_Hwnd, TBM_SETTICFREQ, gsl::narrow_cast<WPARAM>(wFreq), 0);
+	m_iTickFreq = std::max(wFreq, 1L);
 }
 
 /*!
@@ -494,9 +500,17 @@ LRESULT DcxTrackBar::clearTics() noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::setTipSide(const int fLocation) noexcept
+int DcxTrackBar::setTipSide(const int fLocation) noexcept
 {
-	return SendMessage(m_Hwnd, TBM_SETTIPSIDE, gsl::narrow_cast<WPARAM>(fLocation), 0);
+	return gsl::narrow_cast<int>(SendMessage(m_Hwnd, TBM_SETTIPSIDE, gsl::narrow_cast<WPARAM>(fLocation), 0));
+}
+
+int DcxTrackBar::getTipSide() const noexcept
+{
+	auto notthis = const_cast<DcxTrackBar*>(this);
+	auto oldvalue = notthis->setTipSide(TBTS_LEFT);
+	notthis->setTipSide(oldvalue);
+	return oldvalue;
 }
 
 /*!
@@ -552,6 +566,11 @@ LRESULT DcxTrackBar::getLineSize() const noexcept
 LRESULT DcxTrackBar::setThumbLength(const UINT iLength) noexcept
 {
 	return SendMessage(m_Hwnd, TBM_SETTHUMBLENGTH, gsl::narrow_cast<WPARAM>(iLength), 0);
+}
+
+UINT DcxTrackBar::getThumbLength() const noexcept
+{
+	return gsl::narrow_cast<UINT>(SendMessage(m_Hwnd, TBM_GETTHUMBLENGTH, 0, 0));
 }
 
 /*!
@@ -975,6 +994,33 @@ void DcxTrackBar::toXml(TiXmlElement* const xml) const
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
+
+	// pos min max linesize pagesize tickfreq
+
+	xml->SetAttribute("pos", this->getPos());
+	xml->SetAttribute("min", this->getRangeMin());
+	xml->SetAttribute("max", this->getRangeMax());
+	xml->SetAttribute("linesize", this->getLineSize());
+	xml->SetAttribute("pagesize", this->getPageSize());
+	xml->SetAttribute("tickfreq", this->getTickFreq());
+	if (m_colTransparent != CLR_INVALID)
+		xml->SetAttribute("transparentcolour", m_colTransparent);
+	xml->SetAttribute("tipside", this->getTipSide());
+	xml->SetAttribute("thumblength", this->getThumbLength());
+	if (auto hLeft = this->getBuddy(true); hLeft)
+	{
+		if (auto pthis = Dcx::dcxGetProp<DcxControl*>(hLeft, TEXT("dcx_cthis")); pthis)
+		{
+			xml->SetAttribute("buddyleft", pthis->getUserID());
+}
+	}
+	if (auto hRight = this->getBuddy(false); hRight)
+	{
+		if (auto pthis = Dcx::dcxGetProp<DcxControl*>(hRight, TEXT("dcx_cthis")); pthis)
+		{
+			xml->SetAttribute("buddyright", pthis->getUserID());
+		}
+	}
 }
 
 TiXmlElement* DcxTrackBar::toXml(void) const
