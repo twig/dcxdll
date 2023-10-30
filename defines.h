@@ -205,6 +205,8 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
 #define DLL_DEV_BUILD  "65"
+#define DCXML_VERSION	1
+#define DCXML_DIALOG_VERSION	2
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
@@ -605,6 +607,16 @@ struct clrCheckBox
 	COLORREF m_clrHotTick{ RGB(0,0,255) };
 };
 
+struct dcxImage
+{
+	TString m_tsFilename;
+	HBITMAP m_hBitmap{};
+	HICON m_hIcon{};
+#ifdef DCX_USE_GDIPLUS
+	std::unique_ptr<Gdiplus::Image> m_pImage{ nullptr }; //!< GDI+ Image Object
+#endif
+};
+
 // UNICODE/ANSI wrappers
 #define dcx_atoi(x) ts_atoi(x)
 #define dcx_atoi64(x) ts_atoi64(x)
@@ -635,7 +647,7 @@ if ((x)) (y)[0] = TEXT('1'); \
 template <typename T, typename M>
 constexpr bool dcx_testflag(T x, M y) noexcept {
 	if constexpr (sizeof(T) >= sizeof(M)) return ((x & gsl::narrow_cast<T>(y)) == gsl::narrow_cast<T>(y));
-	else return ((gsl::narrow_cast<T>(x) & y) == y);
+	else return ((gsl::narrow_cast<M>(x) & y) == y);
 }
 
 #define dcxlParam(x,y) const auto y = reinterpret_cast<x>(lParam)
@@ -707,6 +719,8 @@ const char* queryAttribute(const TiXmlElement* element, const char* attribute, c
 int queryIntAttribute(const TiXmlElement* element, const char* attribute, const int defaultValue = 0) noexcept;
 //int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue = 0);
 //std::optional<int> queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute);
+double queryDoubleAttribute(const TiXmlElement* element, const char* attribute, const double defaultValue = 0.0) noexcept;
+float queryFloatAttribute(const TiXmlElement* element, const char* attribute, const float defaultValue = 0.0f) noexcept;
 
 void getmIRCPalette(bool bForce);
 void getmIRCPalette(COLORREF* const Palette, const UINT PaletteItems, bool bForce);
