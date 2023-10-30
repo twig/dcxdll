@@ -488,12 +488,12 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 		//	InvalidateRect(m_Hwnd, nullptr, TRUE);
 		//}
 		//catch (const std::exception)
-				//{
+		//{
 		//	DX_ERR(nullptr, TEXT("-a"), hr);
 		//	this->ReleaseAll();
 		//	throw;
-				//}
-			}
+		//}
+	}
 	// xdid -c [NAME] [ID] [SWITCH] [COMMAND]
 	else if (flags[TEXT('c')])
 	{
@@ -888,7 +888,6 @@ void DcxDirectshow::ReleaseAll() noexcept
 	this->m_tsFilename.clear();	// = TEXT("");
 }
 
-// getProperty() is non-functional atm. Where do i get this interface from? or a similar one.
 GSL_SUPPRESS(type.4)
 HRESULT DcxDirectshow::getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& prop, const Properties type) const noexcept
 {
@@ -1662,7 +1661,7 @@ void DcxDirectshow::toXml(TiXmlElement* const xml) const
 			TString tsPos;
 			tsPos.addtok(this->getPosition());
 			xml->SetAttribute("pos", tsPos.c_str());
-}
+		}
 	}
 }
 
@@ -1671,6 +1670,59 @@ TiXmlElement* DcxDirectshow::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxDirectshow::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+	if (const TString tsFilename(queryAttribute(xThis, "src")); !tsFilename.empty())
+	{
+		const TString tsFlags(queryAttribute(xThis, "flags", "+"));
+
+		this->loadFile(tsFlags, tsFilename);
+
+		if (this->m_pGraph)
+		{
+			{
+				//fBrightness, fContrast, fHue, fSaturation, fAlpha
+				TString tsFlags2(L"+");
+
+				float fBrightness{};
+				if (xThis->QueryFloatAttribute("brightness", &fBrightness) == TiXmlReturns::TIXML_SUCCESS)
+					tsFlags2 += L"b";
+
+				float fContrast{};
+				if (xThis->QueryFloatAttribute("contrast", &fContrast) == TiXmlReturns::TIXML_SUCCESS)
+					tsFlags2 += L"c";
+
+				float fHue{};
+				if (xThis->QueryFloatAttribute("hue", &fHue) == TiXmlReturns::TIXML_SUCCESS)
+					tsFlags2 += L"h";
+
+				float fSaturation{};
+				if (xThis->QueryFloatAttribute("saturation", &fSaturation) == TiXmlReturns::TIXML_SUCCESS)
+					tsFlags2 += L"s";
+
+				float fAlpha{};
+				if (xThis->QueryFloatAttribute("videoalpha", &fAlpha) == TiXmlReturns::TIXML_SUCCESS)
+					tsFlags2 += L"a";
+
+				if (tsFlags2.len() > 1)
+					this->setVideo(tsFlags2, fBrightness, fContrast, fHue, fSaturation, fAlpha);
+			}
+
+			//volume
+			if (float fVolume{}; xThis->QueryFloatAttribute("volume", &fVolume) == TiXmlReturns::TIXML_SUCCESS)
+				this->setVolume(fVolume);
+
+			//pos
+			if (const TString tmp(queryAttribute(xThis, "pos")); !tmp.empty())
+				this->setPosition(tmp.to_<UINT64>());
+		}
+	}
 }
 
 LRESULT DcxDirectshow::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept

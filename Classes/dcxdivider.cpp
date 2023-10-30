@@ -316,19 +316,19 @@ void DcxDivider::toXml(TiXmlElement *const xml) const
 
 	{
 		// left of divider
-	DVPANEINFO left;
-	Divider_GetChildControl(m_Hwnd, DVF_PANELEFT, &left);
+		DVPANEINFO left;
+		Divider_GetChildControl(m_Hwnd, DVF_PANELEFT, &left);
 
 		TiXmlElement xLeft("item");
 		xLeft.SetAttribute("min", left.cxMin);
 		xLeft.SetAttribute("ideal", left.cxIdeal);
 		xLeft.SetAttribute("side", "left");
 
-	if (left.hChild)
-	{
+		if (left.hChild)
+		{
 			if (const auto* const dcxcleft = pParent->getControlByHWND(left.hChild); dcxcleft)
 				xLeft.LinkEndChild(dcxcleft->toXml());
-	}
+		}
 
 		xml->InsertEndChild(xLeft);
 	}
@@ -342,14 +342,14 @@ void DcxDivider::toXml(TiXmlElement *const xml) const
 		xRight.SetAttribute("ideal", right.cxIdeal);
 		xRight.SetAttribute("side", "right");
 
-	if (right.hChild)
-	{
+		if (right.hChild)
+		{
 			if (const auto* const dcxcright = pParent->getControlByHWND(right.hChild); dcxcright)
 				xRight.LinkEndChild(dcxcright->toXml());
-	}
+		}
 
 		xml->InsertEndChild(xRight);
-}
+	}
 }
 
 TiXmlElement * DcxDivider::toXml(void) const
@@ -357,6 +357,71 @@ TiXmlElement * DcxDivider::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxDivider::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	const auto pd = this->getParentDialog();
+	if (!pd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	if (const auto iPos = queryIntAttribute(xThis, "pos", 100); !setDivPos(iPos))
+		throw Dcx::dcxException("Divider position must be between bounds.");
+
+	setBarWidth(queryIntAttribute(xThis, "barwidth", 2));
+
+	setBarColor(gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "barcolour", CLR_INVALID)), gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "barselectedcolour", CLR_INVALID)));
+	
+	for (auto xItem = xThis->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement())
+	{
+		const auto szSide = queryAttribute(xItem, "side");
+		if (_ts_isEmpty(szSide)) // no side, invalid item
+			throw DcxExceptions::dcxInvalidItem();
+
+		DVPANEINFO dvpi;
+		dvpi.cbSize = sizeof(DVPANEINFO);
+		dvpi.fMask = DVPIM_MIN | DVPIM_IDEAL;
+		dvpi.cxIdeal = queryIntAttribute(xItem, "ideal");
+		dvpi.cxMin = queryIntAttribute(xItem, "min");
+
+		if (auto xCtrl = xItem->FirstChildElement("control"); xCtrl)
+		{
+			// control.
+			dvpi.fMask |= DVPIM_CHILD;
+
+			const auto iX = queryIntAttribute(xCtrl, "x");
+			const auto iY = queryIntAttribute(xCtrl, "y");
+			const auto iWidth = queryIntAttribute(xCtrl, "width");
+			const auto iHeight = queryIntAttribute(xCtrl, "height");
+			auto szID = queryAttribute(xCtrl, "id");
+			auto szType = queryAttribute(xCtrl, "type");
+			auto szStyles = queryAttribute(xCtrl, "styles");
+
+			// ID is NOT a number!
+			if (_ts_isEmpty(szID)) // needs looked at, think dcxml generates an id.
+				throw DcxExceptions::dcxInvalidItem();
+
+			TString tsInput;
+			_ts_sprintf(tsInput, TEXT("% % % % % % %"), szID, szType, iX, iY, iWidth, iHeight, szStyles);
+			if (auto ctrl = pd->addControl(tsInput, 1, DcxAllowControls::ALLOW_ALLBUTDOCK, m_Hwnd); ctrl)
+			{
+				ctrl->fromXml(xThis, xCtrl);
+
+				dvpi.hChild = ctrl->getHwnd();
+
+				if (_ts_strcmp(szSide, "left") == 0)
+					setPane(DVF_PANELEFT, &dvpi);
+				else
+					setPane(DVF_PANERIGHT, &dvpi);
+			}
+
+		}
+	}
 }
 
 /*!
