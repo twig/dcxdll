@@ -400,7 +400,7 @@ public:
 
 	virtual const TString getStyles(void) const;
 	void toXml(TiXmlElement* const xml) const override;
-	virtual TiXmlElement* toXml(void) const;
+	TiXmlElement* toXml(void) const override;
 
 	virtual LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
 
@@ -419,7 +419,7 @@ public:
 	void setControlCursor(const HCURSOR c) noexcept { m_hCursor.cursor = c; }
 	void setShadowTextState(const bool b) noexcept { m_bShadowText = b; }
 	void setControlCodeTextState(const bool b) noexcept { m_bCtrlCodeText = b; }
-	void setCursor(const TString &tsFlags, TString tsFilename);
+	void setCursor(const TString &tsFlags, TString &tsFilename);
 
 	[[nodiscard]] HFONT getFont() const noexcept;
 	[[nodiscard]] const HFONT& getControlFont() const noexcept

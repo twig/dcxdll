@@ -35,19 +35,6 @@
 #define DBS_BKGRIGHT	0x00000080 // right aligned
 #define DBS_BKGBOTTOM	0x00000100 // bottom aligned
 
-// Event mask defines.
-#define DCX_EVENT_MOUSE				0x00000001
-#define DCX_EVENT_FOCUS				0x00000002
-#define DCX_EVENT_THEME				0x00000004
-#define DCX_EVENT_MOVE				0x00000008
-#define DCX_EVENT_CLOSE				0x00000010
-#define DCX_EVENT_SIZE				0x00000020
-#define DCX_EVENT_CLICK				0x00000040
-#define DCX_EVENT_DRAG				0x00000080
-#define DCX_EVENT_HELP				0x00000100
-#define DCX_EVENT_EDIT				0x00000200
-#define DCX_EVENT_ALL				0xFFFFFFFF
-
 #define DCX_NAMED_ID_OFFSET 3000U
 
 // dummy runtime classe definition
@@ -76,8 +63,8 @@ public:
 	DcxDialog() = delete;
 	DcxDialog(const DcxDialog& other) = delete;
 	DcxDialog(DcxDialog&& other) = delete;
-	//DcxDialog& operator =(const DcxDialog&) = delete;	// No assignments!
-	//DcxDialog& operator =(DcxDialog&&) = delete;	// No move assignments!
+	GSL_SUPPRESS(c.128) DcxDialog& operator =(const DcxDialog&) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxDialog& operator =(DcxDialog&&) = delete;	// No move assignments!
 
 	DcxDialog(const HWND mHwnd, const TString& tsName, const TString& tsAliasName);
 	~DcxDialog() noexcept;
@@ -139,6 +126,7 @@ public:
 		return mIRCLinker::o_eval<TString>(tsArgs);
 	}
 
+	DcxControl* getControlByNamedID(const TString &tsID) const;
 	DcxControl* getControlByID(const UINT ID) const noexcept;
 	DcxControl* getControlByHWND(const HWND mHwnd) const noexcept;
 
@@ -203,6 +191,8 @@ public:
 		return m_hCursor.cursor;
 	};
 	//inline const HWND& getToolTip(void) const noexcept { return m_ToolTipHWND; };
+
+	void loadCursor(const TString &tsFlags, const TString &tsFilename);
 
 	inline void incRef() const noexcept { ++m_iRefCount; };
 	inline void decRef() const noexcept { --m_iRefCount; };
@@ -395,7 +385,7 @@ public:
 	void UnregisterDragList(const DcxList* const list) noexcept;
 
 	void toXml(TiXmlElement* const xml) const override;
-	[[nodiscard("Memory Leak")]] TiXmlElement* toXml() const;
+	[[nodiscard("Memory Leak")]] TiXmlElement* toXml() const override;
 	[[nodiscard("Memory Leak")]] TiXmlElement* toXml(const TString& name) const;
 	void toXml(TiXmlElement* const xml, const TString& name) const;
 
@@ -432,7 +422,9 @@ private:
 	CursorPair m_hCursor;
 	CursorPair m_hCursorList[22];
 
-	HBITMAP m_bitmapBg{ nullptr };
+	//HBITMAP m_bitmapBg{ nullptr };
+	dcxImage m_BackgroundImage;
+
 	HBITMAP m_hVistaBitmap{ nullptr };
 
 	COLORREF m_colTransparentBg{ RGB(255,0,255) };
@@ -475,6 +467,8 @@ private:
 	void i_showError(const TCHAR* const cType, const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const err) const;
 	void PreloadData(void) noexcept;
 
+	void setBorderStyles(const TString& tsStyles);
+
 	WNDPROC m_hDefaultDialogProc{ nullptr }; //!< Old Window Procedure
 	LRESULT CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 
@@ -482,6 +476,7 @@ private:
 	static const UINT parseBkgFlags(const TString& flags) noexcept;
 	static const UINT parseFlashFlags(const TString& flags) noexcept;
 	static const UINT parseTooltipFlags(const TString& flags) noexcept;
+	static TString BkgFlagsToString(UINT uFlags);
 
 	//// Helper to calculate the alpha-premultiled value for a pixel
 	//constexpr static inline const DWORD PreMultiply(const COLORREF cl, const unsigned char nAlpha) noexcept

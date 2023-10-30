@@ -70,11 +70,14 @@ DcxControl::DcxControl(const UINT mID, gsl::strict_not_null<DcxDialog* const> p_
 	: DcxWindow(mID)
 	, m_pParentDialog(p_Dialog)
 	, m_UserID(mID - mIRC_ID_OFFSET)
-	, m_dEventMask(p_Dialog->getEventMask())	// inherit the parent dialogs event mask
+	//, m_dEventMask(p_Dialog->getEventMask())	// inherit the parent dialogs event mask
 	//, m_ToolTipHWND(p_Dialog->getToolTip())
 {
 	//if (!m_bInitialized)
 	//	throw Dcx::dcxException("DCX Controls NOT Initialized!");
+
+	// Ook: should this be a copy of the parent controls eventmask?
+	m_dEventMask = p_Dialog->getEventMask();	// inherit the parent dialogs event mask
 }
 
 /*!
@@ -353,8 +356,9 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
-
-		setCursor(input.getfirsttok(4), input.getlasttoks());
+		const TString tsFlags(input.getfirsttok(4));
+		TString tsFilename(input.getlasttoks());
+		setCursor(tsFlags, tsFilename);
 	}
 	// xdid -M [NAME] [ID] [SWITCH] [MARK INFO]
 	else if (flags[TEXT('M')])
@@ -1682,7 +1686,7 @@ LRESULT DcxControl::setFont(const HFONT hFont, const BOOL fRedraw) noexcept
  * blah
  */
 
-void DcxControl::setCursor(const TString& tsFlags, TString tsFilename)
+void DcxControl::setCursor(const TString& tsFlags, TString &tsFilename)
 {
 	const auto iFlags = this->parseCursorFlags(tsFlags);
 	const auto* const CursorType = this->parseCursorType(tsFilename);
@@ -2783,7 +2787,7 @@ const TString DcxControl::getStyles(void) const
 	const auto exStyles = dcxGetWindowExStyle(m_Hwnd);
 	const auto Styles = dcxGetWindowStyle(m_Hwnd);
 
-	if (!Dcx::UXModule.dcxGetWindowTheme(m_Hwnd))
+	if (!this->IsThemed())
 		result = TEXT("notheme");
 	if (dcx_testflag(Styles, WS_TABSTOP))
 		result.addtok(TEXT("tabstop"));
@@ -2876,10 +2880,20 @@ void DcxControl::toXml(TiXmlElement* const xml) const
 			xml->SetAttribute("tooltiptextcolour", tmp);
 	}
 	xml->SetAttribute("eventmask", this->m_dEventMask);
-	if (this->m_iAlphaLevel != 255)
-		xml->SetAttribute("alphalevel", this->m_iAlphaLevel);
+	if (m_bAlphaBlend && (this->m_iAlphaLevel < 255U))
+		xml->SetAttribute("alpha", gsl::narrow_cast<int>(this->m_iAlphaLevel));
 	if (const auto tsFont = FontToCommand(); !tsFont.empty())
 		xml->SetAttribute("font", tsFont.c_str());
+	//cursors
+	if (this->m_hCursor.cursor)
+	{
+		TiXmlElement xCursor("cursor");
+
+		xCursor.SetAttribute("filename", (this->m_hCursor.src.empty() ? "arrow" : this->m_hCursor.src.c_str()));
+		xCursor.SetAttribute("flags", (this->m_hCursor.flags.empty() ? "+r" : this->m_hCursor.flags.c_str()));
+
+		xml->InsertEndChild(xCursor);
+	}
 }
 
 TiXmlElement* DcxControl::toXml(void) const

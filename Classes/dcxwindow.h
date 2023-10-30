@@ -19,6 +19,19 @@
 #include "Classes/tinyxml/tinyxml.h"
 #include "EnumConcepts.h"
 
+ // Event mask defines.
+#define DCX_EVENT_MOUSE				0x00000001
+#define DCX_EVENT_FOCUS				0x00000002
+#define DCX_EVENT_THEME				0x00000004
+#define DCX_EVENT_MOVE				0x00000008
+#define DCX_EVENT_CLOSE				0x00000010
+#define DCX_EVENT_SIZE				0x00000020
+#define DCX_EVENT_CLICK				0x00000040
+#define DCX_EVENT_DRAG				0x00000080
+#define DCX_EVENT_HELP				0x00000100
+#define DCX_EVENT_EDIT				0x00000200
+#define DCX_EVENT_ALL				0xFFFFFFFF
+
 enum class DcxResourceFlags
 	: UINT
 {
@@ -99,6 +112,8 @@ struct CursorPair
 {
 	HCURSOR	cursor{ nullptr };
 	bool	enabled{ false };
+	TString src;
+	TString flags;
 
 	explicit operator bool() const noexcept
 	{
@@ -178,12 +193,15 @@ public:
 	void HandleChildSizing(SizingTypes sz) const noexcept;
 
 	virtual void toXml(TiXmlElement* const xml) const = 0;
+	virtual TiXmlElement* toXml() const = 0;
 	virtual void parseCommandRequest(const TString& input) = 0;
 	virtual void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const = 0;
 	virtual TString parseInfoRequest(const TString& input) const
 	{
 		return TString();
 	}
+
+	inline const DWORD &getEventMask() const noexcept { return m_dEventMask; }
 
 	[[nodiscard]] static PTCHAR parseCursorType(const TString& cursor);
 	[[nodiscard]] static DcxResourceFlags parseCursorFlags(const TString& flags) noexcept;
@@ -194,6 +212,8 @@ public:
 protected:
 	HWND m_Hwnd{ nullptr };
 	UINT m_ID{};
+
+	DWORD m_dEventMask{ DCX_EVENT_ALL };
 
 	static inline HRGN m_hZeroRgn{ nullptr };
 	HWND m_HwndTooltip{ nullptr };

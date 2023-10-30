@@ -83,7 +83,7 @@ DcxDialog::~DcxDialog() noexcept
 	if (m_hCursor)
 		GSL_SUPPRESS(lifetime.1) DestroyCursor(m_hCursor.cursor);
 
-	for (const auto& [hCursor, bLoaded] : m_hCursorList)
+	for (const auto& [hCursor, bLoaded, tsFile, tsFlags] : m_hCursorList)
 	{
 		if ((hCursor) && (bLoaded))
 			DestroyCursor(hCursor);
@@ -178,6 +178,14 @@ void DcxDialog::deleteAllControls() noexcept
 	m_NamedIds.clear();
 }
 
+DcxControl* DcxDialog::getControlByNamedID(const TString &tsID) const
+{
+	if (const auto id = NameToID(tsID); id > 0)
+		return getControlByID(id);
+
+	return nullptr;
+}
+
 /*!
  * \brief blah
  *
@@ -220,10 +228,37 @@ DcxControl* DcxDialog::getControlByHWND(const HWND mHwnd) const noexcept
 /// <returns></returns>
 void DcxDialog::PreloadData() noexcept
 {
-	if (m_bitmapBg)
+	if (this->m_BackgroundImage.m_hBitmap)
 	{
-		DeleteObject(m_bitmapBg);
-		m_bitmapBg = nullptr;
+		DeleteObject(this->m_BackgroundImage.m_hBitmap);
+		this->m_BackgroundImage.m_hBitmap = nullptr;
+		this->m_BackgroundImage.m_tsFilename.clear();
+	}
+}
+
+void DcxDialog::setBorderStyles(const TString& tsStyles)
+{
+	removeStyle(WindowStyle::Border | WS_DLGFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_SIZEBOX | WS_CAPTION);
+
+	removeExStyle(WindowExStyle::ClientEdge | WS_EX_DLGMODALFRAME | WS_EX_CONTEXTHELP | WS_EX_TOOLWINDOW | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED | WS_EX_LAYERED);
+
+	RemoveVistaStyle();
+
+	const auto [Styles, ExStyles] = parseBorderStyles(tsStyles);
+
+	addStyle(Styles);
+	addExStyle(ExStyles);
+
+	if (tsStyles.find(TEXT('v'), 0))
+	{
+		// Vista Style Dialog
+		CreateVistaStyle();
+	}
+	SetWindowPos(m_Hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+	InvalidateRect(m_Hwnd, nullptr, TRUE);
+	SendMessage(m_Hwnd, WM_NCPAINT, 1U, 0);
+}
+
 	}
 }
 
@@ -294,28 +329,30 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -b [NAME] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('b')] && numtok > 2)
 	{
-		removeStyle(WindowStyle::Border | WS_DLGFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_SIZEBOX | WS_CAPTION);
+		//removeStyle(WindowStyle::Border | WS_DLGFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_SIZEBOX | WS_CAPTION);
+		//
+		//removeExStyle(WindowExStyle::ClientEdge | WS_EX_DLGMODALFRAME | WS_EX_CONTEXTHELP | WS_EX_TOOLWINDOW | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED | WS_EX_LAYERED);
+		//
+		//RemoveVistaStyle();
+		//
+		//const auto tsStyles(input.getnexttok());	// tok 3
+		//
+		//const auto [Styles, ExStyles] = parseBorderStyles(tsStyles);
+		//
+		//addStyle(Styles);
+		//addExStyle(ExStyles);
+		//
+		//if (tsStyles.find(TEXT('v'), 0))
+		//{
+		//	// Vista Style Dialog
+		//	CreateVistaStyle();
+		//}
+		//SetWindowPos(m_Hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+		//InvalidateRect(m_Hwnd, nullptr, TRUE);
+		//SendMessage(m_Hwnd, WM_NCPAINT, 1U, 0);
 
-		removeExStyle(WindowExStyle::ClientEdge | WS_EX_DLGMODALFRAME | WS_EX_CONTEXTHELP | WS_EX_TOOLWINDOW | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED | WS_EX_LAYERED);
-
-		RemoveVistaStyle();
-
-		const auto tsStyles(input.getnexttok());	// tok 3
-
-		const auto [Styles, ExStyles] = parseBorderStyles(tsStyles);
-
-		addStyle(Styles);
-		addExStyle(ExStyles);
-
-		if (tsStyles.find(TEXT('v'), 0))
-		{
-			// Vista Style Dialog
-			CreateVistaStyle();
+		setBorderStyles(input.getnexttok());
 		}
-		SetWindowPos(m_Hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-		InvalidateRect(m_Hwnd, nullptr, TRUE);
-		SendMessage(m_Hwnd, WM_NCPAINT, 1U, 0);
-	}
 	// xdialog -c [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	else if (flags[TEXT('c')] && numtok > 7)
 	{
@@ -394,7 +431,10 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			PreloadData();
 
 			if (auto filename(input.getlasttoks().trim());	/* tok 4, -1 */ filename != TEXT("none"))
-				m_bitmapBg = dcxLoadBitmap(m_bitmapBg, filename);
+			{
+				this->m_BackgroundImage.m_tsFilename = filename;
+				this->m_BackgroundImage.m_hBitmap = dcxLoadBitmap(this->m_BackgroundImage.m_hBitmap, filename);
+		}
 		}
 
 		//InvalidateRect(m_Hwnd, nullptr, TRUE);
@@ -463,21 +503,37 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -q [NAME] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
 	else if (flags[TEXT('q')] && numtok > 3)
 	{
-		// Ook: TODO allow different cursors for client areas, menus, non client areas
+		//// get cursors flags (either +f or +r atm)
+		//const auto tsFlags(input.getnexttok());	// tok 3
+		//const auto iFlags = parseCursorFlags(tsFlags);
+		//// filename is the resource name if +r
+		//// otherwise its the filename if +f
+		//auto filename(input.getlasttoks());
+		//// get resource cursor type, will be a nullptr if filename is a file
+		//// NB: if a filename is the same as a resource name then this will return the resource, but the file will be loaded.
+		//const auto CursorType = parseCursorType(filename);
+		//
+		//if (const auto CursorArea = parseCursorArea(tsFlags); CursorArea > 0)
+		//{
+		//	gsl::at(m_hCursorList, CursorArea).src = filename;
+		//	gsl::at(m_hCursorList, CursorArea).flags = tsFlags;
+		//
+		//	GSL_SUPPRESS(bounds.3) gsl::at(m_hCursorList, CursorArea).cursor = Dcx::dcxLoadCursor(iFlags, CursorType, gsl::at(m_hCursorList, CursorArea).enabled, gsl::at(m_hCursorList, CursorArea).cursor, filename);
+		//}
+		//else {
+		//	m_hCursor.src = filename;
+		//	m_hCursor.flags = tsFlags;
+		//
+		//	m_hCursor.cursor = Dcx::dcxLoadCursor(iFlags, CursorType, m_hCursor.enabled, m_hCursor.cursor, filename);
+		//}
+
 		// get cursors flags (either +f or +r atm)
 		const auto tsFlags(input.getnexttok());	// tok 3
-		const auto iFlags = parseCursorFlags(tsFlags);
 		// filename is the resource name if +r
 		// otherwise its the filename if +f
 		auto filename(input.getlasttoks());
-		// get resource cursor type, will be a nullptr if filename is a file
-		// NB: if a filename is the same as a resource name then this will return the resource, but the file will be loaded.
-		const auto CursorType = parseCursorType(filename);
 
-		if (const auto CursorArea = parseCursorArea(tsFlags); CursorArea > 0)
-			GSL_SUPPRESS(bounds.3) gsl::at(m_hCursorList, CursorArea).cursor = Dcx::dcxLoadCursor(iFlags, CursorType, gsl::at(m_hCursorList, CursorArea).enabled, gsl::at(m_hCursorList, CursorArea).cursor, filename);
-		else
-			m_hCursor.cursor = Dcx::dcxLoadCursor(iFlags, CursorType, m_hCursor.enabled, m_hCursor.cursor, filename);
+		loadCursor(tsFlags, filename);
 	}
 	// xdialog -x [NAME]
 	else if (flags[TEXT('x')])
@@ -1162,12 +1218,13 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			//this->m_uStyleBg = DBS_BKGBITMAP|DBS_BKGSTRETCH|DBS_BKGCENTER;
 			m_uStyleBg = DBS_BKGBITMAP;
 			auto filename(input.getlasttoks());								// tok 5, -1
-			m_bitmapBg = dcxLoadBitmap(m_bitmapBg, filename);
+			this->m_BackgroundImage.m_tsFilename = filename;
+			this->m_BackgroundImage.m_hBitmap = dcxLoadBitmap(this->m_BackgroundImage.m_hBitmap, filename);
 
-			if (!m_bitmapBg)
+			if (!this->m_BackgroundImage.m_hBitmap)
 				throw Dcx::dcxException("Unable To Load Image file.");
 
-			hRegion = BitmapRegion(m_bitmapBg, m_colTransparentBg, true);
+			hRegion = BitmapRegion(this->m_BackgroundImage.m_hBitmap, m_colTransparentBg, true);
 		}
 		else if (xflags[TEXT('r')]) // rounded rect - radius args (optional)
 		{
@@ -3024,7 +3081,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		if (p_this->m_CustomMenuBar.m_menuTheme)
 		{
-			const DTTOPTS opts = { sizeof(opts), (p_this->m_CustomMenuBar.m_bDrawShadowText ? DTT_TEXTCOLOR|DTT_SHADOWCOLOR : DTT_TEXTCOLOR), clrText,0,RGB(0,0,0) };
+			const DTTOPTS opts = { sizeof(opts), (p_this->m_CustomMenuBar.m_bDrawShadowText ? DTT_TEXTCOLOR | DTT_SHADOWCOLOR : DTT_TEXTCOLOR), clrText,0,RGB(0,0,0) };
 
 			Dcx::UXModule.dcxDrawThemeTextEx(p_this->m_CustomMenuBar.m_menuTheme, pUDMI->um.hdc, MENU_BARITEM, MBI_NORMAL, &menuString[0], mii.cch, dwFlags, &pUDMI->dis.rcItem, &opts);
 		}
@@ -3281,7 +3338,7 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog* const p_this, LPCRECT r
 	else
 		FillRect(hdc, rwnd, GetSysColorBrush(COLOR_3DFACE));
 
-	if (!p_this->m_bitmapBg)
+	if (!p_this->m_BackgroundImage.m_hBitmap)
 		return;
 
 	//BITMAP bmp{};
@@ -3289,12 +3346,12 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog* const p_this, LPCRECT r
 	//if (GetObject(p_this->m_bitmapBg, sizeof(BITMAP), &bmp) == 0)
 	//	return;
 
-	auto [code, bmp] = Dcx::dcxGetObject<BITMAP>(p_this->m_bitmapBg);
+	auto [code, bmp] = Dcx::dcxGetObject<BITMAP>(p_this->m_BackgroundImage.m_hBitmap);
 	if (code == 0)
 		return;
 
 #if DCX_USE_WRAPPERS
-	const Dcx::dcxHDCBitmapResource hdcbmp(hdc, p_this->m_bitmapBg);
+	const Dcx::dcxHDCBitmapResource hdcbmp(hdc, p_this->m_BackgroundImage.m_hBitmap);
 
 	auto x = rwnd->left;
 	auto y = rwnd->top;
@@ -3348,7 +3405,7 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog* const p_this, LPCRECT r
 
 	Auto(DeleteDC(hdcbmp));
 
-	auto hOldBitmap = SelectBitmap(hdcbmp, p_this->m_bitmapBg);
+	auto hOldBitmap = SelectBitmap(hdcbmp, p_this->m_BackgroundImage.m_hBitmap);
 
 	Auto(SelectBitmap(hdcbmp, hOldBitmap));
 
@@ -3433,6 +3490,32 @@ void DcxDialog::i_showError(const TCHAR* const cType, const TCHAR* const prop, c
 	this->execAliasEx(TEXT("error,0,dialog,%s,%s,%s"), (prop ? prop : &szNone[0]), (cmd ? cmd : &szNone[0]), err);
 
 	m_bErrorTriggered = false;
+}
+
+void DcxDialog::loadCursor(const TString& tsFlags, const TString& tsFilename)
+{
+	// get cursors flags (either +f or +r atm)
+	const auto iFlags = parseCursorFlags(tsFlags);
+	// filename is the resource name if +r
+	// otherwise its the filename if +f
+	auto filename(tsFilename);
+	// get resource cursor type, will be a nullptr if filename is a file
+	// NB: if a filename is the same as a resource name then this will return the resource, but the file will be loaded.
+	const auto CursorType = parseCursorType(filename);
+
+	if (const auto CursorArea = parseCursorArea(tsFlags); CursorArea > 0)
+	{
+		gsl::at(m_hCursorList, CursorArea).src = filename;
+		gsl::at(m_hCursorList, CursorArea).flags = tsFlags;
+
+		GSL_SUPPRESS(bounds.3) gsl::at(m_hCursorList, CursorArea).cursor = Dcx::dcxLoadCursor(iFlags, CursorType, gsl::at(m_hCursorList, CursorArea).enabled, gsl::at(m_hCursorList, CursorArea).cursor, filename);
+	}
+	else {
+		m_hCursor.src = filename;
+		m_hCursor.flags = tsFlags;
+
+		m_hCursor.cursor = Dcx::dcxLoadCursor(iFlags, CursorType, m_hCursor.enabled, m_hCursor.cursor, filename);
+	}
 }
 
 /*
