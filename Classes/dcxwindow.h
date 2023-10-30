@@ -192,6 +192,7 @@ public:
 
 	void HandleChildSizing(SizingTypes sz) const noexcept;
 
+	virtual void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) = 0;
 	virtual void toXml(TiXmlElement* const xml) const = 0;
 	virtual TiXmlElement* toXml() const = 0;
 	virtual void parseCommandRequest(const TString& input) = 0;
@@ -200,7 +201,7 @@ public:
 	{
 		return TString();
 	}
-
+	
 	inline const DWORD &getEventMask() const noexcept { return m_dEventMask; }
 
 	[[nodiscard]] static PTCHAR parseCursorType(const TString& cursor);
