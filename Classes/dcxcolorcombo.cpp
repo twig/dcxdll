@@ -542,6 +542,34 @@ TiXmlElement* DcxColorCombo::toXml(void) const
 	return xml.release();
 }
 
+void DcxColorCombo::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	for (auto xItem = xThis->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
+	{
+		const TString tsText(queryAttribute(xItem, "text"));
+		const auto clrTxt = queryIntAttribute(xItem, "textcolour");
+		const auto clrItem = queryIntAttribute(xItem, "bgcolour");
+
+		const auto item = new DCXCCOMBOITEM(clrItem);
+
+		// if optional text supplied, set it.
+		item->tsItemText = tsText;
+		item->clrText = clrTxt;
+		item->clrItem = clrItem;
+
+		if (this->insertItem(-1, item) < 0)
+			delete item;
+	}
+	if (const auto iSel = queryIntAttribute(xThis, "sel"); iSel > 0)
+	{
+		this->setCurSel(iSel);
+	}
+}
 
 const TString DcxColorCombo::getStyles(void) const
 {
@@ -567,7 +595,7 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 	{
 		if (Dcx::dcxHIWORD(wParam) == CBN_SELENDOK)
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(this->getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("sclick,%u,%d"), getUserID(), getCurSel() + 1);
 			bParsed = TRUE;
 			return 0L;
@@ -577,7 +605,7 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 		//{
 		//	if (Dcx::dcxHIWORD(wParam) == CBN_CLOSEUP)
 		//	{
-		//		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		//		if (dcx_testflag(this->getEventMask(), DCX_EVENT_CLICK))
 		//			execAliasEx(TEXT("sclick,%u,%d"), getUserID(), getCurSel() + 1);
 		//		bParsed = TRUE;
 		//		return 0L;
@@ -591,7 +619,7 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 		//else {
 		//	if (Dcx::dcxHIWORD(wParam) == CBN_SELENDOK)
 		//	{
-		//		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		//		if (dcx_testflag(this->getEventMask(), DCX_EVENT_CLICK))
 		//			execAliasEx(TEXT("sclick,%u,%d"), getUserID(), getCurSel() + 1);
 		//		bParsed = TRUE;
 		//		return 0L;
@@ -742,7 +770,7 @@ LRESULT DcxColorCombo::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 	case WM_LBUTTONUP:
 	{
-		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(this->getEventMask(), DCX_EVENT_CLICK))
 			execAliasEx(TEXT("lbup,%u"), getUserID());
 	}
 	break;

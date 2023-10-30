@@ -87,6 +87,14 @@ TiXmlElement * DcxDateTime::toXml(void) const
 	return xml.release();
 }
 
+void DcxDateTime::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+}
+
 const TString DcxDateTime::getStyles(void) const
 {
 	auto styles(__super::getStyles());

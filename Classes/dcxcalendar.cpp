@@ -108,6 +108,15 @@ TiXmlElement* DcxCalendar::toXml(void) const
 	return xml.release();
 }
 
+void DcxCalendar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+}
+
 const TString DcxCalendar::getStyles(void) const
 {
 	auto styles(__super::getStyles());

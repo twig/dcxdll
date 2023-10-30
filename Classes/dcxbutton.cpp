@@ -165,7 +165,7 @@ void DcxButton::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 	//	parseGlobalInfoRequest(input, szReturnValue);
 
 	szReturnValue = parseInfoRequest(input).to_chr();
-	}
+}
 
 /*!
  * \brief blah
@@ -353,7 +353,7 @@ void DcxButton::parseCommandRequest(const TString& input)
 		}
 
 		redrawWindow();
-	}
+}
 	// xdid -m [NAME] [ID] [SWITCH] [ENABLED]
 	else if (flags[TEXT('m')])
 	{
@@ -545,7 +545,7 @@ void DcxButton::toXml(TiXmlElement* const xml) const
 	}
 	else {
 		if (!m_tsCaption.empty())
-	xml->SetAttribute("caption", m_tsCaption.c_str());
+			xml->SetAttribute("caption", m_tsCaption.c_str());
 		else
 			xml->SetAttribute("text", TGetWindowText(m_Hwnd).c_str());
 	}
@@ -600,6 +600,67 @@ TiXmlElement* DcxButton::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxButton::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	{
+		m_tsCaption = queryAttribute(xThis, "caption");
+		const TString tsText(queryAttribute(xThis, "text"));
+
+		const TString tsStyles(getStyles());
+		if (auto bCmd = tsStyles.istok(TEXT("commandlink")); bCmd || tsStyles.istok(TEXT("split")))
+		{
+			Button_SetText(m_Hwnd, tsText.to_chr());
+			if (bCmd)
+			{
+				if (const TString tsNote(queryAttribute(xThis, "note")); !tsNote.empty())
+					Button_SetNote(m_Hwnd, tsNote.to_chr());
+			}
+		}
+		else if (!tsText.empty())
+		{
+			Button_SetText(m_Hwnd, tsText.to_chr());
+		}
+	}
+
+	m_bBitmapText = (queryIntAttribute(xThis, "bitmaptext") > 0);
+	m_iIconSize = NumToIconSize(queryIntAttribute(xThis, "iconsize"));
+
+	if (auto xColours = xThis->FirstChildElement("colours"); xColours)
+	{
+		m_aColors[0] = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "normal", CLR_INVALID));
+		m_aColors[1] = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "hover", CLR_INVALID));
+		m_aColors[2] = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "pushed", CLR_INVALID));
+		m_aColors[3] = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "disabled", CLR_INVALID));
+	}
+	if (auto xColours = xThis->FirstChildElement("transparentcolours"); xColours)
+	{
+		m_aTransp[0] = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "normal", CLR_INVALID));
+		m_aTransp[1] = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "hover", CLR_INVALID));
+		m_aTransp[2] = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "pushed", CLR_INVALID));
+		m_aTransp[3] = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "disabled", CLR_INVALID));
+	}
+	if (auto xImages = xThis->FirstChildElement("images"); xImages)
+	{
+		this->m_aBitmaps[0].m_tsFilename = queryAttribute(xImages, "normalsrc");
+		if (!this->m_aBitmaps[0].m_tsFilename.empty())
+			m_aBitmaps[0].m_hBitmap = dcxLoadBitmap(m_aBitmaps[0].m_hBitmap, this->m_aBitmaps[0].m_tsFilename);
+		this->m_aBitmaps[1].m_tsFilename = queryAttribute(xImages, "hoversrc");
+		if (!this->m_aBitmaps[1].m_tsFilename.empty())
+			m_aBitmaps[1].m_hBitmap = dcxLoadBitmap(m_aBitmaps[1].m_hBitmap, this->m_aBitmaps[1].m_tsFilename);
+		this->m_aBitmaps[2].m_tsFilename = queryAttribute(xImages, "pushedsrc");
+		if (!this->m_aBitmaps[2].m_tsFilename.empty())
+			m_aBitmaps[2].m_hBitmap = dcxLoadBitmap(m_aBitmaps[2].m_hBitmap, this->m_aBitmaps[2].m_tsFilename);
+		this->m_aBitmaps[3].m_tsFilename = queryAttribute(xImages, "disabledsrc");
+		if (!this->m_aBitmaps[3].m_tsFilename.empty())
+			m_aBitmaps[3].m_hBitmap = dcxLoadBitmap(m_aBitmaps[3].m_hBitmap, this->m_aBitmaps[3].m_tsFilename);
+	}
 }
 
 /*!

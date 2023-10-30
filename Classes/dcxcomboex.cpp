@@ -186,7 +186,7 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		else {
 			if (nItem != -1)
 				throw DcxExceptions::dcxInvalidItem();
-			
+
 			if (this->isStyle(WindowStyle::CBS_DropDownList))
 			{
 				// just get seltext
@@ -422,7 +422,7 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 		//		UpdateHorizExtent(itemtext);
 		//	}
 		//}
-			}
+	}
 	// xdid -A [NAME] [ID] [ROW] [+FLAGS] [INFO]
 	// [NAME] [ID] -A [ROW] [+FLAGS] [INFO]
 	else if (flags[TEXT('A')])
@@ -1328,38 +1328,82 @@ void DcxComboEx::toXml(TiXmlElement* const xml) const
 
 	cbi.mask |= CBEIF_LPARAM;
 	const auto iCount = this->getCount();
-		for (int nItem{}; nItem < iCount; ++nItem)
+	for (int nItem{}; nItem < iCount; ++nItem)
+	{
+		cbi.iItem = nItem;
+		cbi.cchTextMax = std::size(szBuf);
+		cbi.pszText = &szBuf[0];
+		if (this->getItem(&cbi))
 		{
-			cbi.iItem = nItem;
-			cbi.cchTextMax = std::size(szBuf);
-			cbi.pszText = &szBuf[0];
-			if (this->getItem(&cbi))
-			{
-				wtext = &szBuf[0];
+			wtext = &szBuf[0];
 			auto mycbi = reinterpret_cast<LPDCXCBITEM>(cbi.lParam);
 
-				TiXmlElement xItem("item");
+			TiXmlElement xItem("item");
 
-				xItem.SetAttribute("text", wtext.c_str());
-				if (cbi.iImage > 0)
+			xItem.SetAttribute("text", wtext.c_str());
+			if (cbi.iImage > 0)
 				xItem.SetAttribute("icon", cbi.iImage + 1);
-				if (cbi.iSelectedImage > 0)
+			if (cbi.iSelectedImage > 0)
 				xItem.SetAttribute("state", cbi.iSelectedImage + 1);
-				if (cbi.iIndent > 0)
-					xItem.SetAttribute("indent", cbi.iIndent);
+			if (cbi.iIndent > 0)
+				xItem.SetAttribute("indent", cbi.iIndent);
 			if (mycbi && !mycbi->tsMark.empty())
 				xItem.SetAttribute("mark", mycbi->tsMark.c_str());
 
-				xml->InsertEndChild(xItem);
-			}
+			xml->InsertEndChild(xItem);
 		}
 	}
+}
 
 TiXmlElement* DcxComboEx::toXml(void) const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxComboEx::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	// Ook: need to save images....
+	{
+		int nPos{};
+
+		// xdid -a [NAME] [ID] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
+		// xdid -a [NAME] [ID] [N] [+FLAGS] [ARGS]
+		// 
+		// xdid -a [NAME] [ID] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
+		// xdid -a [NAME] [ID] [N] + [INDENT] [ICON] [STATE] [OVERLAY] Item Text
+		// xdid -a [NAME] [ID] [N] +T [INDENT] [ICON] [STATE] [OVERLAY] [C] Item Text[C]Item Text[C]...
+		// xdid -a [NAME] [ID] [N] +F [INDENT] [ICON] [STATE] [OVERLAY] [START] [END] [FILENAME]
+		// <items text="args, contents depend on flags" flags="flags for how to add" icon="0" state="0" indent="0">
+		// if adding a basic item, then flags are not needed.
+		for (auto xItem = xThis->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
+		{
+			const TString tsArgs(queryAttribute(xItem, "text"));
+			const TString tsFlags(queryAttribute(xItem, "flags", "+"));
+			const TString tsMark(queryAttribute(xItem, "mark"));
+			const auto iIcon = queryIntAttribute(xItem, "icon") - 1; // == iImage
+			const auto iState = queryIntAttribute(xItem, "state") - 1; // == iSelectedImage
+			const auto iIndent = queryIntAttribute(xItem, "ident");
+
+			nPos = addItems(nPos, iIcon, iState, iIndent, tsFlags, tsArgs);
+
+			if (!tsMark.empty() && nPos > 0)
+			{
+				COMBOBOXEXITEM cbi{ CBEIF_LPARAM, nPos - 1 };
+
+				getItem(&cbi);
+
+				if (auto cbiDcx = reinterpret_cast<LPDCXCBITEM>(cbi.lParam); cbiDcx)
+					cbiDcx->tsMark = tsMark;
+			}
+		}
+	}
 }
 
 LRESULT DcxComboEx::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
