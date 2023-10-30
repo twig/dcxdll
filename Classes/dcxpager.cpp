@@ -66,12 +66,42 @@ const TString DcxPager::getStyles(void) const
 
 void DcxPager::toXml(TiXmlElement* const xml) const
 {
+	if (!xml || !m_Hwnd)
+		return;
+
 	__super::toXml(xml);
 
-	xml->SetAttribute("styles", getStyles().c_str());
+	//const auto pd = this->getParentDialog();
+	//if (!pd)
+	//	return;
 
-	if (const auto* const child = this->getParentDialog()->getControlByHWND(this->m_ChildHWND); child)
-		xml->LinkEndChild(child->toXml());
+	xml->SetAttribute("styles", getStyles().c_str());
+	// no cla allowed in pager control...
+	//xml->SetAttribute("nocla", 1);
+	xml->SetAttribute("bordersize", Pager_GetBorder(m_Hwnd));
+	xml->SetAttribute("buttonsize", Pager_GetButtonSize(m_Hwnd));
+	xml->SetAttribute("bgcolour", Pager_GetBkColor(m_Hwnd));
+	xml->SetAttribute("pos", Pager_GetPos(m_Hwnd));
+
+	auto pChild = Dcx::dcxGetProp<DcxControl*>(this->m_ChildHWND, TEXT("dcx_cthis"));
+	if (!pChild)
+		return;
+
+	const Dcx::dcxWindowRect rc(this->m_ChildHWND, m_Hwnd);
+
+	if (auto xctrl = pChild->toXml(); xctrl)
+	{
+		xctrl->SetAttribute("x", rc.left);
+		xctrl->SetAttribute("y", rc.top);
+		if (!xctrl->Attribute("height"))
+			xctrl->SetAttribute("height", rc.Height());
+		if (!xctrl->Attribute("width"))
+			xctrl->SetAttribute("width", rc.Width());
+
+		xml->LinkEndChild(xctrl);
+	}
+}
+
 }
 
 TiXmlElement* DcxPager::toXml(void) const
@@ -165,7 +195,9 @@ void DcxPager::parseCommandRequest(const TString& input)
 		if (IsWindow(this->m_ChildHWND))
 			throw Dcx::dcxException("Child Control already exists");
 
-		const auto p_Control = this->getParentDialog()->addControl(input, 4,
+		if (const auto pd = this->getParentDialog(); pd)
+		{
+			const auto p_Control = pd->addControl(input, 4,
 			DcxAllowControls::ALLOW_TOOLBAR |
 			DcxAllowControls::ALLOW_REBAR |
 			DcxAllowControls::ALLOW_PANEL |
@@ -179,32 +211,37 @@ void DcxPager::parseCommandRequest(const TString& input)
 		p_Control->addStyle(WindowStyle::CCS_NoResize);
 		this->setChild(p_Control->getHwnd());
 	}
+	}
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
+		const auto pd = this->getParentDialog();
+		if (!pd)
+			throw DcxExceptions::dcxInvalidCommand();
+
 		const auto tsID(input.getnexttok());		// tok 4
-		const auto ID = this->getParentDialog()->NameToID(tsID);
+		const auto ID = pd->NameToID(tsID);
 
-		if (!this->getParentDialog()->isIDValid(ID))
-			throw Dcx::dcxException(TEXT("Unknown control with ID %(%) (dialog %)"), tsID, ID - mIRC_ID_OFFSET, this->getParentDialog()->getName());
+		if (!pd->isIDValid(ID))
+			throw Dcx::dcxException(TEXT("Unknown control with ID %(%) (dialog %)"), tsID, ID - mIRC_ID_OFFSET, pd->getName());
 
-		const auto p_Control = this->getParentDialog()->getControlByID(ID);
+		const auto p_Control = pd->getControlByID(ID);
 		// Ook: no ref count check for dialog or window? needs checked
 
 		if (!p_Control)
-			throw Dcx::dcxException(TEXT("Unable to get control with ID %(%) (dialog %)"), tsID, ID - mIRC_ID_OFFSET, this->getParentDialog()->getName());
+			throw Dcx::dcxException(TEXT("Unable to get control with ID %(%) (dialog %)"), tsID, ID - mIRC_ID_OFFSET, pd->getName());
 
 		if (const auto dct = p_Control->getControlType(); (dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW))
 			delete p_Control;
 		else {
 			if (p_Control->getRefCount() != 0)
-				throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->getParentDialog()->getName());
+				throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), pd->getName());
 
 			auto cHwnd = p_Control->getHwnd();
-			this->getParentDialog()->deleteControl(p_Control); // remove from internal list!
+			pd->deleteControl(p_Control); // remove from internal list!
 			DestroyWindow(cHwnd);
 		}
 
@@ -214,7 +251,6 @@ void DcxPager::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('s')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		this->setButtonSize(input.getlasttoks().to_<LONG>());	// tok 4, -1
@@ -223,7 +259,6 @@ void DcxPager::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		this->setBkColor(input.getlasttoks().to_<COLORREF>());	// tok 4, -1
@@ -232,7 +267,6 @@ void DcxPager::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('z')])
 	{
 		if (numtok < 3)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		this->reCalcSize();

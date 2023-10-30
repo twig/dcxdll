@@ -23,9 +23,9 @@ class DcxPager final
 public:
 	DcxPager() = delete;
 	DcxPager(const DcxPager &) = delete;
-	DcxPager &operator =(const DcxPager &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxPager &operator =(const DcxPager &) = delete;	// No assignments!
 	DcxPager(DcxPager &&) = delete;
-	DcxPager &operator =(DcxPager &&) = delete;
+	GSL_SUPPRESS(c.128) DcxPager &operator =(DcxPager &&) = delete;
 
 	DcxPager(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxPager( ) noexcept;
