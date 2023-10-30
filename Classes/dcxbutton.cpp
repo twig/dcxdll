@@ -78,10 +78,16 @@ DcxButton::~DcxButton()
 {
 	ImageList_Destroy(getImageList());
 
+	//for (const auto& x : m_aBitmaps)
+	//{
+	//	if (x)
+	//		DeleteObject(x);
+	//}
+
 	for (const auto& x : m_aBitmaps)
 	{
-		if (x)
-			DeleteObject(x);
+		if (x.m_hBitmap)
+			DeleteObject(x.m_hBitmap);
 	}
 }
 
@@ -195,6 +201,40 @@ void DcxButton::parseCommandRequest(const TString& input)
 	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] [FILENAME]
 	else if (flags[TEXT('k')])
 	{
+		//if (numtok < 6)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//if (!isStyle(WindowStyle::BS_Bitmap) && !isStyle(WindowStyle::BS_OwnerDraw))
+		//	throw Dcx::dcxException("Command not supported by this button style.");
+		//
+		//const auto iColorStyles = parseColorFlags(input.getnexttok());	// tok 4
+		//const auto clrColor = input.getnexttok().to_<COLORREF>();		// tok 5
+		//
+		//auto filename(input.getlasttoks().trim());	// tok 6, -1
+		//
+		//if (dcx_testflag(iColorStyles, BTNCS_NORMAL))
+		//{
+		//	m_aBitmaps[0] = dcxLoadBitmap(m_aBitmaps[0], filename);
+		//	m_aTransp[0] = clrColor;
+		//}
+		//if (dcx_testflag(iColorStyles, BTNCS_HOVER))
+		//{
+		//	m_aBitmaps[1] = dcxLoadBitmap(m_aBitmaps[1], filename);
+		//	m_aTransp[1] = clrColor;
+		//}
+		//if (dcx_testflag(iColorStyles, BTNCS_SELECTED))
+		//{
+		//	m_aBitmaps[2] = dcxLoadBitmap(m_aBitmaps[2], filename);
+		//	m_aTransp[2] = clrColor;
+		//}
+		//if (dcx_testflag(iColorStyles, BTNCS_DISABLED))
+		//{
+		//	m_aBitmaps[3] = dcxLoadBitmap(m_aBitmaps[3], filename);
+		//	m_aTransp[3] = clrColor;
+		//}
+		//
+		//redrawWindow();
+
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -208,22 +248,26 @@ void DcxButton::parseCommandRequest(const TString& input)
 
 		if (dcx_testflag(iColorStyles, BTNCS_NORMAL))
 		{
-			m_aBitmaps[0] = dcxLoadBitmap(m_aBitmaps[0], filename);
+			m_aBitmaps[0].m_hBitmap = dcxLoadBitmap(m_aBitmaps[0].m_hBitmap, filename);
+			m_aBitmaps[0].m_tsFilename = filename;
 			m_aTransp[0] = clrColor;
 		}
 		if (dcx_testflag(iColorStyles, BTNCS_HOVER))
 		{
-			m_aBitmaps[1] = dcxLoadBitmap(m_aBitmaps[1], filename);
+			m_aBitmaps[1].m_hBitmap = dcxLoadBitmap(m_aBitmaps[1].m_hBitmap, filename);
+			m_aBitmaps[1].m_tsFilename = filename;
 			m_aTransp[1] = clrColor;
 		}
 		if (dcx_testflag(iColorStyles, BTNCS_SELECTED))
 		{
-			m_aBitmaps[2] = dcxLoadBitmap(m_aBitmaps[2], filename);
+			m_aBitmaps[2].m_hBitmap = dcxLoadBitmap(m_aBitmaps[2].m_hBitmap, filename);
+			m_aBitmaps[2].m_tsFilename = filename;
 			m_aTransp[2] = clrColor;
 		}
 		if (dcx_testflag(iColorStyles, BTNCS_DISABLED))
 		{
-			m_aBitmaps[3] = dcxLoadBitmap(m_aBitmaps[3], filename);
+			m_aBitmaps[3].m_hBitmap = dcxLoadBitmap(m_aBitmaps[3].m_hBitmap, filename);
+			m_aBitmaps[3].m_tsFilename = filename;
 			m_aTransp[3] = clrColor;
 		}
 
@@ -260,7 +304,6 @@ void DcxButton::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tflags(input.getnexttok());		// tok 4
@@ -315,7 +358,6 @@ void DcxButton::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto b = input.getnexttok().to_int();	// tok 4
@@ -327,14 +369,12 @@ void DcxButton::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('n')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xFlags(input.getnexttok());	// tok 4
 		const auto tsText(input.getlasttoks().trim());	// tok 5, -1
 
 		if (!xFlags[TEXT('+')])
-			//throw Dcx::dcxException("Invalid flags, missing +");
 			throw DcxExceptions::dcxInvalidFlag();
 
 		m_tsCaption.clear();
@@ -826,10 +866,10 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	{
 		// create a new HDC for background rendering
 #if DCX_USE_WRAPPERS
-		const Dcx::dcxHDCBitmapResource hdcbmp(hdc, gsl::at(m_aBitmaps, nState));
+		const Dcx::dcxHDCBitmapResource hdcbmp(hdc, gsl::at(m_aBitmaps, nState).m_hBitmap);
 
 		// get bitmaps info.
-		if (auto [code, bmp] = Dcx::dcxGetObject<BITMAP>(gsl::at(m_aBitmaps, nState)); code != 0)
+		if (auto [code, bmp] = Dcx::dcxGetObject<BITMAP>(gsl::at(m_aBitmaps, nState).m_hBitmap); code != 0)
 			TransparentBlt(hdc, rcClient.left, rcClient.top, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, gsl::at(m_aTransp, nState));
 
 #else
@@ -838,10 +878,10 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			Auto(DeleteDC(hdcbmp));
 
 			// get bitmaps info.
-			if (BITMAP bmp{}; GetObject(m_aBitmaps[nState], sizeof(BITMAP), &bmp) != 0)
+			if (BITMAP bmp{}; GetObject(m_aBitmaps[nState].m_hBitmap, sizeof(BITMAP), &bmp) != 0)
 			{
 				// associate bitmap with HDC
-				const auto oldbm = SelectBitmap(hdcbmp, m_aBitmaps[nState]);
+				const auto oldbm = SelectBitmap(hdcbmp, m_aBitmaps[nState].m_hBitmap);
 				Auto(SelectBitmap(hdcbmp, oldbm)); // got to put the old bm back.
 
 				TransparentBlt(hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, m_aTransp[nState]);

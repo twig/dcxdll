@@ -78,7 +78,8 @@ private:
 	COLORREF m_aColors[4]{ CLR_INVALID };  //!< Button Colors (normal, hover, pushed, disabled)
 	COLORREF m_aTransp[4]{ CLR_INVALID };  //!< Transparent Colors (normal, hover, pushed, disabled)
 
-	HBITMAP m_aBitmaps[4]{ nullptr };  //!< Button Bitmaps (normal, hover, pushed, disabled)
+	//HBITMAP m_aBitmaps[4]{ nullptr };  //!< Button Bitmaps (normal, hover, pushed, disabled)
+	dcxImage m_aBitmaps[4];  //!< Button Bitmaps (normal, hover, pushed, disabled)
 
 	TString m_tsCaption; //!< Button Caption Text
 
