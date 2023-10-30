@@ -253,13 +253,11 @@ void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"icon"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		TBBUTTONINFO tbbi{ sizeof(TBBUTTONINFO),TBIF_IMAGE | TBIF_BYINDEX };
@@ -367,99 +365,114 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [WIDTH] [#ICON] [COLOR] (Button Text) [TAB] Tooltip Text
 	if (flags[TEXT('a')])
 	{
+		//if (numtok < 5)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//auto nPos = input.getnexttok().to_int() - 1;	// tok 4
+		//
+		//if (nPos == -1)
+		//	nPos += this->getButtonCount() + 1;
+		//
+		//const auto tsFlags(input.getnexttok());						// tok 5
+		//const auto width = input.getnexttok().to_<WORD>();			// tok 6
+		//const auto icon = input.getnexttok().to_int() - 1;			// tok 7
+		//const auto clrText = input.getnexttok().to_<COLORREF>();	// tok 8
+		//const auto iNumtok = input.gettok(1, TSTABCHAR).numtok();
+		//
+		//TBBUTTON tbb{};
+		//
+		//tbb.fsState = parseButtonStateFlags(tsFlags);
+		//tbb.idCommand = this->getFreeButtonID();
+		//const auto buttonStyles = parseButtonStyleFlags(tsFlags);
+		//tbb.fsStyle = gsl::narrow_cast<BYTE>(buttonStyles & 0xFF);
+		//
+		//if ((icon == -1) || (iNumtok < 7))
+		//	tbb.iBitmap = I_IMAGENONE;
+		//else
+		//	tbb.iBitmap = icon;
+		//
+		//TString itemtext;
+		//
+		//if (iNumtok > 8)
+		//{
+		//	itemtext = input.gettok(1, TSTABCHAR).gettok(9, -1).trim();
+		//
+		//	if (itemtext == TEXT('-'))
+		//	{
+		//		tbb.fsStyle = BTNS_SEP;
+		//		//tbb.fsState = TBSTATE_ENABLED;
+		//		tbb.iBitmap = icon;
+		//		tbb.dwData = 0;
+		//		tbb.iString = 0;
+		//
+		//		this->insertButton(nPos, &tbb);
+		//		this->autoSize();
+		//		this->redrawWindow();
+		//		return;
+		//	}
+		//}
+		//
+		//// Tooltip Handling
+		//auto lpdcxtbb = std::make_unique<DCXTBBUTTON>();
+		//
+		//if (input.numtok(TSTABCHAR) > 1)
+		//	lpdcxtbb->tsTipText = input.gettok(2, -1, TSTABCHAR).trim();
+		//
+		//lpdcxtbb->bUline = dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_UNDERLINE);
+		//
+		//lpdcxtbb->bBold = dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_BOLD);
+		//
+		//if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_COLOR))
+		//	lpdcxtbb->clrText = clrText;
+		//else
+		//	lpdcxtbb->clrText = CLR_INVALID;
+		//
+		//lpdcxtbb->clrBtnFace = CLR_INVALID;
+		//lpdcxtbb->clrBtnHighlight = CLR_INVALID;
+		//lpdcxtbb->clrHighlightHotTrack = CLR_INVALID;
+		//lpdcxtbb->clrMark = CLR_INVALID;
+		//lpdcxtbb->clrTextHighlight = CLR_INVALID;
+		//lpdcxtbb->iTextBkgMode = TRANSPARENT;
+		//lpdcxtbb->iTextHighlightBkgMode = TRANSPARENT;
+		//
+		//lpdcxtbb->bText = itemtext;
+		//tbb.iString = reinterpret_cast<INT_PTR>(lpdcxtbb->bText.to_chr());
+		//tbb.dwData = reinterpret_cast<DWORD_PTR>(lpdcxtbb.release());
+		//
+		//// insert button
+		//this->insertButton(nPos, &tbb);
+		////if (nPos == 1) // commented out for possible fix to http://dcx.scriptsdb.org/forum/showthread.php?tid=121 http://dcx.scriptsdb.org/bug/index.php?do=details&task_id=749
+		////	SendMessage(m_Hwnd, TB_CHANGEBITMAP, nPos, MAKELPARAM(I_IMAGENONE,0)); // why was this added?
+		//
+		//// set width of button
+		//if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_WIDTH))
+		//{
+		//	TBBUTTONINFO tbbi{};
+		//	tbbi.cbSize = sizeof(TBBUTTONINFO);
+		//
+		//	tbbi.dwMask = TBIF_SIZE;
+		//	tbbi.cx = width;
+		//	this->setButtonInfo(tbb.idCommand, &tbbi);
+		//}
+		//
+		//this->autoSize();
+		//if (this->m_bAutoStretch)
+		//	this->autoStretchButtons();
+
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
+		const TString tsTabOne(input.gettok(1, TSTABCHAR));
+		const TString tsTooltip(input.gettok(2, -1, TSTABCHAR).trim());
 
-		if (nPos == -1)
-			nPos += this->getButtonCount() + 1;
+		const auto nPos = tsTabOne.getfirsttok(4).to_int() - 1;
+		const auto tsFlags(tsTabOne.getnexttok());
+		const auto width = tsTabOne.getnexttokas<WORD>();
+		const auto icon = tsTabOne.getnexttokas<int>() - 1;
+		const auto clrText = tsTabOne.getnexttokas<COLORREF>();
+		const TString tsText(tsTabOne.getlasttoks().trim());
 
-		const auto tsFlags(input.getnexttok());						// tok 5
-		const auto width = input.getnexttok().to_<WORD>();			// tok 6
-		const auto icon = input.getnexttok().to_int() - 1;			// tok 7
-		const auto clrText = input.getnexttok().to_<COLORREF>();	// tok 8
-		const auto iNumtok = input.gettok(1, TSTABCHAR).numtok();
-
-		TBBUTTON tbb{};
-
-		tbb.fsState = parseButtonStateFlags(tsFlags);
-		tbb.idCommand = this->getFreeButtonID();
-		const auto buttonStyles = parseButtonStyleFlags(tsFlags);
-		tbb.fsStyle = gsl::narrow_cast<BYTE>(buttonStyles & 0xFF);
-
-		if ((icon == -1) || (iNumtok < 7))
-			tbb.iBitmap = I_IMAGENONE;
-		else
-			tbb.iBitmap = icon;
-
-		TString itemtext;
-
-		if (iNumtok > 8)
-		{
-			itemtext = input.gettok(1, TSTABCHAR).gettok(9, -1).trim();
-
-			if (itemtext == TEXT('-'))
-			{
-				tbb.fsStyle = BTNS_SEP;
-				//tbb.fsState = TBSTATE_ENABLED;
-				tbb.iBitmap = icon;
-				tbb.dwData = 0;
-				tbb.iString = 0;
-
-				this->insertButton(nPos, &tbb);
-				this->autoSize();
-				this->redrawWindow();
-				return;
-			}
-		}
-
-		// Tooltip Handling
-		auto lpdcxtbb = std::make_unique<DCXTBBUTTON>();
-
-		if (input.numtok(TSTABCHAR) > 1)
-			lpdcxtbb->tsTipText = input.gettok(2, -1, TSTABCHAR).trim();
-
-		lpdcxtbb->bUline = dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_UNDERLINE);
-
-		lpdcxtbb->bBold = dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_BOLD);
-
-		if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_COLOR))
-			lpdcxtbb->clrText = clrText;
-		else
-			lpdcxtbb->clrText = CLR_INVALID;
-
-		lpdcxtbb->clrBtnFace = CLR_INVALID;
-		lpdcxtbb->clrBtnHighlight = CLR_INVALID;
-		lpdcxtbb->clrHighlightHotTrack = CLR_INVALID;
-		lpdcxtbb->clrMark = CLR_INVALID;
-		lpdcxtbb->clrTextHighlight = CLR_INVALID;
-		lpdcxtbb->iTextBkgMode = TRANSPARENT;
-		lpdcxtbb->iTextHighlightBkgMode = TRANSPARENT;
-
-		lpdcxtbb->bText = itemtext;
-		tbb.iString = reinterpret_cast<INT_PTR>(lpdcxtbb->bText.to_chr());
-		tbb.dwData = reinterpret_cast<DWORD_PTR>(lpdcxtbb.release());
-
-		// insert button
-		this->insertButton(nPos, &tbb);
-		//if (nPos == 1) // commented out for possible fix to http://dcx.scriptsdb.org/forum/showthread.php?tid=121 http://dcx.scriptsdb.org/bug/index.php?do=details&task_id=749
-		//	SendMessage(m_Hwnd, TB_CHANGEBITMAP, nPos, MAKELPARAM(I_IMAGENONE,0)); // why was this added?
-
-		// set width of button
-		if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_WIDTH))
-		{
-			TBBUTTONINFO tbbi{};
-			tbbi.cbSize = sizeof(TBBUTTONINFO);
-
-			tbbi.dwMask = TBIF_SIZE;
-			tbbi.cx = width;
-			this->setButtonInfo(tbb.idCommand, &tbbi);
-		}
-
-		this->autoSize();
-		if (this->m_bAutoStretch)
-			this->autoStretchButtons();
+		addButton(nPos, tsFlags, width, icon, clrText, tsText, tsTooltip);
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N] [+FLAGS] [RGB] [+REMOVEFLAGS]
 	else if (flags[TEXT('c')])
@@ -1043,6 +1056,85 @@ void DcxToolBar::resetContent() noexcept
 * blah
 */
 
+void DcxToolBar::addButton(int iPos, const TString& tsFlags, WORD iWidth, int iIcon, int cColour, const TString& tsText, const TString& tsTooltip)
+{
+	if (iPos == -1)
+		iPos += this->getButtonCount() + 1;
+
+	TBBUTTON tbb{};
+
+	tbb.fsState = parseButtonStateFlags(tsFlags);
+	tbb.idCommand = this->getFreeButtonID();
+	const auto buttonStyles = parseButtonStyleFlags(tsFlags);
+	tbb.fsStyle = gsl::narrow_cast<BYTE>(buttonStyles & 0xFF);
+
+	if (iIcon == -1)
+		tbb.iBitmap = I_IMAGENONE;
+	else
+		tbb.iBitmap = iIcon;
+
+	if (tsText == TEXT('-'))
+	{
+		tbb.fsStyle = BTNS_SEP;
+		//tbb.fsState = TBSTATE_ENABLED;
+		tbb.iBitmap = iIcon;
+		tbb.dwData = 0;
+		tbb.iString = 0;
+
+		this->insertButton(iPos, &tbb);
+		this->autoSize();
+		this->redrawWindow();
+		return;
+	}
+
+	// Tooltip Handling
+	auto lpdcxtbb = std::make_unique<DCXTBBUTTON>();
+
+	if (!tsTooltip.empty())
+		lpdcxtbb->tsTipText = tsTooltip;
+
+	lpdcxtbb->bUline = dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_UNDERLINE);
+
+	lpdcxtbb->bBold = dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_BOLD);
+
+	if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_COLOR))
+		lpdcxtbb->clrText = cColour;
+	else
+		lpdcxtbb->clrText = CLR_INVALID;
+
+	lpdcxtbb->clrBtnFace = CLR_INVALID;
+	lpdcxtbb->clrBtnHighlight = CLR_INVALID;
+	lpdcxtbb->clrHighlightHotTrack = CLR_INVALID;
+	lpdcxtbb->clrMark = CLR_INVALID;
+	lpdcxtbb->clrTextHighlight = CLR_INVALID;
+	lpdcxtbb->iTextBkgMode = TRANSPARENT;
+	lpdcxtbb->iTextHighlightBkgMode = TRANSPARENT;
+
+	lpdcxtbb->bText = tsText;
+	tbb.iString = reinterpret_cast<INT_PTR>(lpdcxtbb->bText.to_chr());
+	tbb.dwData = reinterpret_cast<DWORD_PTR>(lpdcxtbb.release());
+
+	// insert button
+	this->insertButton(iPos, &tbb);
+	//if (iPos == 1) // commented out for possible fix to http://dcx.scriptsdb.org/forum/showthread.php?tid=121 http://dcx.scriptsdb.org/bug/index.php?do=details&task_id=749
+	//	SendMessage(m_Hwnd, TB_CHANGEBITMAP, nPos, MAKELPARAM(I_IMAGENONE,0)); // why was this added?
+
+	// set width of button
+	if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_WIDTH))
+	{
+		TBBUTTONINFO tbbi{};
+		tbbi.cbSize = sizeof(TBBUTTONINFO);
+
+		tbbi.dwMask = TBIF_SIZE;
+		tbbi.cx = iWidth;
+		this->setButtonInfo(tbb.idCommand, &tbbi);
+	}
+
+	this->autoSize();
+	if (this->m_bAutoStretch)
+		this->autoStretchButtons();
+}
+
 void DcxToolBar::autoStretchButtons() noexcept
 {
 	const auto nButtons = this->getButtonCount();
@@ -1214,9 +1306,9 @@ LRESULT DcxToolBar::getButtonInfo(const int idButton, const LPTBBUTTONINFO lpbi)
 * blah
 */
 
-LRESULT DcxToolBar::getTooltips() const noexcept
+HWND DcxToolBar::getTooltips() const noexcept
 {
-	return SendMessage(m_Hwnd, TB_GETTOOLTIPS, 0U, 0);
+	return reinterpret_cast<HWND>(SendMessage(m_Hwnd, TB_GETTOOLTIPS, 0U, 0));
 }
 
 /*!
@@ -1667,6 +1759,59 @@ void DcxToolBar::toXml(TiXmlElement* const xml) const
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
+
+	// save items
+	const auto nButtons = this->getButtonCount();
+	for (int n{}; n < nButtons; ++n)
+	{
+		TiXmlElement xItem("item");
+
+		TBBUTTONINFO bi{};
+		bi.cbSize = sizeof(TBBUTTONINFO);
+		bi.dwMask = TBIF_BYINDEX | TBIF_LPARAM | TBIF_STYLE | TBIF_IMAGE | TBIF_SIZE;
+
+		if (this->getButtonInfo(n, &bi) < 0)
+			throw Dcx::dcxException("Unable to get button info");
+
+		if (bi.iImage >= 0)
+			xItem.SetAttribute("icon", bi.iImage + 1);
+		xItem.SetAttribute("pos", n);
+		//xItem.SetAttribute("flags", bi.fsState); convert!
+
+		if (!dcx_testflag(bi.fsStyle, BTNS_SEP))
+		{
+			xItem.SetAttribute("width", bi.cx);
+
+			if (auto bd = reinterpret_cast<DCXTBBUTTON*>(bi.lParam); bd)
+			{
+				// text
+				xItem.SetAttribute("text", bd->bText.c_str());
+				xItem.SetAttribute("tooltip", bd->tsTipText.c_str());
+				// colours
+				if (bd->clrText != CLR_INVALID)
+					xItem.SetAttribute("textcolour", bd->clrText);
+				if (bd->clrMark != CLR_INVALID)
+					xItem.SetAttribute("markcolour", bd->clrMark);
+				if (bd->clrTextHighlight != CLR_INVALID)
+					xItem.SetAttribute("texthighlightcolour", bd->clrTextHighlight);
+				if (bd->clrBtnFace != CLR_INVALID)
+					xItem.SetAttribute("facecolour", bd->clrBtnFace);
+				if (bd->clrBtnHighlight != CLR_INVALID)
+					xItem.SetAttribute("highlightcolour", bd->clrBtnHighlight);
+				if (bd->clrHighlightHotTrack != CLR_INVALID)
+					xItem.SetAttribute("hotcolour", bd->clrHighlightHotTrack);
+				// text style
+				if (bd->bBold)
+					xItem.SetAttribute("bold", "1");
+				if (bd->bUline)
+					xItem.SetAttribute("underline", "1");
+			}
+		}
+		else
+			xItem.SetAttribute("text", "-");
+
+		xml->InsertEndChild(xItem);
+	}
 }
 
 TiXmlElement* DcxToolBar::toXml(void) const

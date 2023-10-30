@@ -90,18 +90,18 @@ constexpr T& operator |=(T& eStyle, const dcxToolBar_Styles& dStyle) noexcept
 
 struct DCXTBBUTTON
 {
-	TString tsTipText;				//!< Tooltip text
-	TString bText;					//!< Buttons text, MUST be persistant.
+	TString tsTipText;								//!< Tooltip text
+	TString bText;									//!< Buttons text, MUST be persistant.
 	COLORREF clrText{ CLR_INVALID };				//!< Button Caption Color
 	COLORREF clrMark{ CLR_INVALID };				//!< background color that the button will use when marked.
 	COLORREF clrTextHighlight{ CLR_INVALID };		//!< Button Caption Color when highlighted. (An item is highlighted if it has the TBSTATE_MARKED style and is contained in a toolbar that has the TBSTYLE_FLAT style.)
-	COLORREF clrBtnFace{ CLR_INVALID };			//!< The Buttons normal colour.
+	COLORREF clrBtnFace{ CLR_INVALID };				//!< The Buttons normal colour.
 	COLORREF clrBtnHighlight{ CLR_INVALID };		//!< The Buttons highlight colour. (An item is highlighted if it has the TBSTATE_MARKED style and is contained in a toolbar that has the TBSTYLE_FLAT style.)
 	COLORREF clrHighlightHotTrack{ CLR_INVALID };	//!< The Buttons hottrack colour (TBSTYLE_FLAT)
-	bool bBold{ false };						//!< Is Button Caption Bold ?
-	bool bUline{ false };					//!< Is Button Caption Underlined
-	int iTextBkgMode{};				//!< Drawing mode for text on a normal button. (XP+)
-	int iTextHighlightBkgMode{};		//!< Drawing mode for text on a highlighted button. (XP+) (An item is highlighted if it has the TBSTATE_MARKED style and is contained in a toolbar that has the TBSTYLE_FLAT style.)
+	bool bBold{ false };							//!< Is Button Caption Bold ?
+	bool bUline{ false };							//!< Is Button Caption Underlined
+	int iTextBkgMode{};								//!< Drawing mode for text on a normal button. (XP+)
+	int iTextHighlightBkgMode{};					//!< Drawing mode for text on a highlighted button. (XP+) (An item is highlighted if it has the TBSTATE_MARKED style and is contained in a toolbar that has the TBSTYLE_FLAT style.)
 };
 using LPDCXTBBUTTON = DCXTBBUTTON*;
 
@@ -123,9 +123,9 @@ class DcxToolBar final
 public:
 	DcxToolBar() = delete;
 	DcxToolBar(const DcxToolBar&) = delete;
-	DcxToolBar& operator =(const DcxToolBar&) = delete;
+	GSL_SUPPRESS(c.128) DcxToolBar& operator =(const DcxToolBar&) = delete;
 	DcxToolBar(DcxToolBar&&) = delete;
-	DcxToolBar& operator =(DcxToolBar&&) = delete;
+	GSL_SUPPRESS(c.128) DcxToolBar& operator =(DcxToolBar&&) = delete;
 
 	DcxToolBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxToolBar() noexcept;
@@ -153,7 +153,7 @@ public:
 	LRESULT deleteButton(const int iButton) noexcept;
 	LRESULT setButtonInfo(const int idButton, const LPTBBUTTONINFO lpbi) noexcept;
 	LRESULT getButtonInfo(const int idButton, const LPTBBUTTONINFO lpbi) const noexcept;
-	LRESULT getTooltips() const noexcept;
+	HWND getTooltips() const noexcept;
 	LRESULT getButtonText(const int idButton, const LPSTR lpszText) const noexcept;
 	LRESULT getButton(const int iButton, const LPTBBUTTON lpb) const noexcept;
 	LRESULT setButtonState(const int idButton, const UINT fState) noexcept;
@@ -162,6 +162,9 @@ public:
 	LRESULT markButton(const int iButton, const bool fHighlight) noexcept;
 	LRESULT setButtonSize(const int dxButton, const int dyButton) noexcept;
 	LPDCXTBBUTTON getButtonData(const int idButton) const;
+
+	//[N] [+FLAGS] [WIDTH] [#ICON] [COLOR] (Button Text)[TAB] Tooltip Text
+	void addButton(int iPos, const TString &tsFlags, WORD iWidth, int iIcon, int cColour, const TString &tsText, const TString &tsTooltip);
 
 	void autoStretchButtons() noexcept;
 
