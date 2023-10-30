@@ -323,6 +323,9 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 void DcxRadio::toXml(TiXmlElement *const xml) const
 {
+	if (!xml || !m_Hwnd)
+		return;
+
 	__super::toXml(xml);
 
 	const TString wtext(TGetWindowText(m_Hwnd));

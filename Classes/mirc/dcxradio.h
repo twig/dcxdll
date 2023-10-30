@@ -32,9 +32,9 @@ class DcxRadio final
 public:
 	DcxRadio() = delete;
 	DcxRadio(const DcxRadio &) = delete;
-	DcxRadio &operator =(const DcxRadio &) = delete;
+	GSL_SUPPRESS(c.128) DcxRadio &operator =(const DcxRadio &) = delete;
 	DcxRadio(DcxRadio &&) = delete;
-	DcxRadio &operator =(DcxRadio &&) = delete;
+	GSL_SUPPRESS(c.128) DcxRadio &operator =(DcxRadio &&) = delete;
 
 	DcxRadio(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxRadio( ) noexcept;
