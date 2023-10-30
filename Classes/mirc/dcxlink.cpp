@@ -80,12 +80,40 @@ DcxLink::~DcxLink() noexcept
 }
 
 
+const TString DcxLink::getStyles(void) const
+{
+	auto styles(__super::getStyles());
+
+	if (!m_bUnderlineText)
+		styles.addtok(TEXT("nounderline"));
+
+	return styles;
+}
+
 void DcxLink::toXml(TiXmlElement* const xml) const
 {
+	if (!xml)
+		return;
+
 	__super::toXml(xml);
 
 	const TString buf(TGetWindowText(m_Hwnd));
 	xml->SetAttribute("caption", buf.c_str());
+	if (this->m_bVisited)
+		xml->SetAttribute("visited", "1");
+	if (this->m_bUnderlineText)
+		xml->SetAttribute("underline", "1");
+
+	{
+		TiXmlElement xColours("colours");
+
+		xColours.SetAttribute("normal", this->m_aColors[0]);
+		xColours.SetAttribute("hot", this->m_aColors[1]);
+		xColours.SetAttribute("visited", this->m_aColors[2]);
+		xColours.SetAttribute("disabled", this->m_aColors[3]);
+
+		xml->InsertEndChild(xColours);
+}
 }
 
 TiXmlElement* DcxLink::toXml(void) const

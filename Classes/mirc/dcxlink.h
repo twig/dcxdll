@@ -32,9 +32,9 @@ class DcxLink final
 public:
 	DcxLink() = delete;
 	DcxLink(const DcxLink &) = delete;
-	DcxLink &operator =(const DcxLink &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxLink &operator =(const DcxLink &) = delete;	// No assignments!
 	DcxLink(DcxLink &&) = delete;
-	DcxLink &operator =(DcxLink &&) = delete;
+	GSL_SUPPRESS(c.128) DcxLink &operator =(DcxLink &&) = delete;
 
 	DcxLink( const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxLink( ) noexcept;
@@ -50,6 +50,7 @@ public:
 	inline const TString getType() const final { return TEXT("link"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::LINK; }
 
+	const TString getStyles(void) const final;
 	void toXml(TiXmlElement *const xml) const final;
 	TiXmlElement * toXml(void) const final;
 
