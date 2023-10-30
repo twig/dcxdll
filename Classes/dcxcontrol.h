@@ -404,6 +404,8 @@ public:
 
 	virtual LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
 
+	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) override;
+
 	LRESULT setFont(const HFONT hFont, const BOOL fRedraw) noexcept;
 	void setControlFont(const HFONT hFont, const BOOL fRedraw) noexcept;
 	LRESULT setRedraw(const BOOL fView) noexcept;
@@ -570,8 +572,6 @@ protected:
 
 	UINT m_iRefCount{};						//!< Controls reference counter
 	UINT m_UserID{};						//!< controls User ID (ID - mIRC_ID_OFFSET)
-
-	DWORD m_dEventMask{};
 
 	BYTE m_iAlphaLevel{ 0x7f };				//!< The amount the control is alpha blended.
 

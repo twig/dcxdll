@@ -259,7 +259,149 @@ void DcxDialog::setBorderStyles(const TString& tsStyles)
 	SendMessage(m_Hwnd, WM_NCPAINT, 1U, 0);
 }
 
+void DcxDialog::xmlLoadMenubarColours(const TiXmlElement* xParent, XPMENUBARCOLORS& mColours) noexcept
+{
+	if (!xParent)
+		return;
+
+	auto xColours = xParent->FirstChildElement("colours");
+	if (!xColours)
+		return;
+
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "back", CLR_INVALID)); tmp != CLR_INVALID)
+		mColours.m_clrBack = tmp;
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "border", CLR_INVALID)); tmp != CLR_INVALID)
+		mColours.m_clrBorder = tmp;
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "box", CLR_INVALID)); tmp != CLR_INVALID)
+		mColours.m_clrBox = tmp;
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "disabled", CLR_INVALID)); tmp != CLR_INVALID)
+		mColours.m_clrDisabled = tmp;
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "disabledtext", CLR_INVALID)); tmp != CLR_INVALID)
+		mColours.m_clrDisabledText = tmp;
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "hot", CLR_INVALID)); tmp != CLR_INVALID)
+		mColours.m_clrHot = tmp;
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "hotborder", CLR_INVALID)); tmp != CLR_INVALID)
+		mColours.m_clrHotBorder = tmp;
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "hottext", CLR_INVALID)); tmp != CLR_INVALID)
+		mColours.m_clrHotText = tmp;
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "selectedtext", CLR_INVALID)); tmp != CLR_INVALID)
+		mColours.m_clrSelectedText = tmp;
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "selection", CLR_INVALID)); tmp != CLR_INVALID)
+		mColours.m_clrSelection = tmp;
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "selectionborder", CLR_INVALID)); tmp != CLR_INVALID)
+		mColours.m_clrSelectionBorder = tmp;
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "text", CLR_INVALID)); tmp != CLR_INVALID)
+		mColours.m_clrText = tmp;
+}
+
+void DcxDialog::xmlSaveMenubarColours(TiXmlElement* xParent, const XPMENUBARCOLORS& mColours)
+{
+	if (!xParent)
+		return;
+
+	TiXmlElement xColours("colours");
+	if (mColours.m_clrBack != CLR_INVALID)
+		xColours.SetAttribute("back", mColours.m_clrBack);
+	if (mColours.m_clrBorder != CLR_INVALID)
+		xColours.SetAttribute("border", mColours.m_clrBorder);
+	if (mColours.m_clrBox != CLR_INVALID)
+		xColours.SetAttribute("box", mColours.m_clrBorder);
+	if (mColours.m_clrDisabled != CLR_INVALID)
+		xColours.SetAttribute("disabled", mColours.m_clrDisabled);
+	if (mColours.m_clrDisabledText != CLR_INVALID)
+		xColours.SetAttribute("disabledtext", mColours.m_clrDisabledText);
+	if (mColours.m_clrHot != CLR_INVALID)
+		xColours.SetAttribute("hot", mColours.m_clrHot);
+	if (mColours.m_clrHotBorder != CLR_INVALID)
+		xColours.SetAttribute("hotborder", mColours.m_clrHotBorder);
+	if (mColours.m_clrHotText != CLR_INVALID)
+		xColours.SetAttribute("hottext", mColours.m_clrHotText);
+	if (mColours.m_clrSelectedText != CLR_INVALID)
+		xColours.SetAttribute("selectedtext", mColours.m_clrSelectedText);
+	if (mColours.m_clrSelection != CLR_INVALID)
+		xColours.SetAttribute("selection", mColours.m_clrSelection);
+	if (mColours.m_clrSelectionBorder != CLR_INVALID)
+		xColours.SetAttribute("selectionborder", mColours.m_clrSelectionBorder);
+	if (mColours.m_clrText != CLR_INVALID)
+		xColours.SetAttribute("text", mColours.m_clrText);
+
+	xParent->InsertEndChild(xColours);
+}
+
+void DcxDialog::xmlLoadMenubar(const TiXmlElement* xMenubar, XPMENUBAR& mMenubar) noexcept
+{
+	if (!xMenubar)
+		return;
+
+	// custom menubar...
+	if (const auto tmp = queryIntAttribute(xMenubar, "enable"); tmp)
+		mMenubar.m_bEnable = true;
+
+	if (const auto tmp = queryIntAttribute(xMenubar, "drawborder"); tmp)
+		mMenubar.m_bDrawBorder = true;
+	if (const auto tmp = queryIntAttribute(xMenubar, "roundedborder"); tmp)
+		mMenubar.m_bDrawRoundedBorder = true;
+	if (const auto tmp = queryIntAttribute(xMenubar, "shadowtext"); tmp)
+		mMenubar.m_bDrawShadowText = true;
+
+	xmlLoadMenubarColours(xMenubar, mMenubar.m_Default.m_Colours);
+
+	// load images...
+
+	// load item specific settings
+	for (auto xItem = xMenubar->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
+	{
+		XPMENUBARITEM item;
+		int id{};
+
+		if (const auto tmp = queryIntAttribute(xItem, "id"); tmp)
+			id = tmp;
+
+		xmlLoadMenubarColours(xItem, item.m_Colours);
+
+		mMenubar.m_ItemSettings[id] = item;
 	}
+}
+
+void DcxDialog::xmlSaveMenubar(TiXmlElement* xParent, const XPMENUBAR& mMenuBar)
+{
+	if (!xParent)
+		return;
+
+	TiXmlElement xMenubar("menubar");
+
+	if (mMenuBar.m_bEnable)
+		xMenubar.SetAttribute("enable", "1");
+
+	if (mMenuBar.m_bDrawBorder)
+		xMenubar.SetAttribute("drawborder", "1");
+	if (mMenuBar.m_bDrawRoundedBorder)
+		xMenubar.SetAttribute("roundedborder", "1");
+	if (mMenuBar.m_bDrawShadowText)
+		xMenubar.SetAttribute("shadowtext", "1");
+
+	xmlSaveMenubarColours(&xMenubar, mMenuBar.m_Default.m_Colours);
+
+	// default background?
+
+	// menu item specific settings...
+	if (!mMenuBar.m_ItemSettings.empty())
+	{
+		for (const auto& a : mMenuBar.m_ItemSettings)
+		{
+			TiXmlElement xItem("item");
+			xItem.SetAttribute("id", a.first);
+
+			xmlSaveMenubarColours(&xItem, a.second.m_Colours);
+			// save image
+
+			xMenubar.InsertEndChild(xItem);
+		}
+	}
+
+	// save images....
+
+	xParent->InsertEndChild(xMenubar);
 }
 
 /// <summary>
@@ -352,7 +494,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		//SendMessage(m_Hwnd, WM_NCPAINT, 1U, 0);
 
 		setBorderStyles(input.getnexttok());
-		}
+	}
 	// xdialog -c [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	else if (flags[TEXT('c')] && numtok > 7)
 	{
@@ -434,7 +576,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			{
 				this->m_BackgroundImage.m_tsFilename = filename;
 				this->m_BackgroundImage.m_hBitmap = dcxLoadBitmap(this->m_BackgroundImage.m_hBitmap, filename);
-		}
+			}
 		}
 
 		//InvalidateRect(m_Hwnd, nullptr, TRUE);
@@ -1477,6 +1619,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			if (!xRoot)
 				throw Dcx::dcxException("Unable To Add Root <dcxml>");
 		}
+		
 		// get or create dialogs item
 		auto xDialogs = xRoot->FirstChildElement("dialogs");
 		if (!xDialogs)
@@ -1508,16 +1651,25 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 
 		if (xFlags[TEXT('s')])
 		{
-		// remove old data.
-		xDialog->Clear();
+			// remove old data.
+			xDialog->Clear();
 
 			xDialog->SetAttribute("version", DCXML_DIALOG_VERSION);
 			//add GIT_DESCRIBEA ?
 			// save current setup
-		this->toXml(xDialog, tsName);
+			this->toXml(xDialog, tsName);
 
-		// save to file.
-		doc.SaveFile();
+			// save to file.
+			doc.SaveFile();
+		}
+		else if (xFlags[TEXT('l')])
+		{
+			if (queryIntAttribute(xDialog, "version") < DCXML_DIALOG_VERSION)
+				throw Dcx::dcxException("Wrong <dialog> version");
+
+			// load current setup
+			this->fromXml(xRoot, xDialog);
+		}
 	}
 	// invalid command
 	else
@@ -3127,15 +3279,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		bParsed = TRUE;
 	}
 	break;
-case WM_NCPAINT:
-case WM_NCACTIVATE:
-	if (p_this->m_CustomMenuBar.m_bEnable)
-	{
-		bParsed = TRUE;
-		lRes = p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
-		p_this->UAHDrawMenuNCBottomLine(mHwnd);
-	}
-	break;
+	case WM_NCPAINT:
+	case WM_NCACTIVATE:
+		if (p_this->m_CustomMenuBar.m_bEnable)
+		{
+			bParsed = TRUE;
+			lRes = p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
+			p_this->UAHDrawMenuNCBottomLine(mHwnd);
+		}
+		break;
 #endif
 
 	case WM_SETCURSOR:
@@ -3656,7 +3808,7 @@ void DcxDialog::CreateVistaStyle(void) noexcept
 			else
 				DestroyWindow(this->m_hFakeHwnd);
 		}
-}
+	}
 #endif
 }
 
@@ -4126,8 +4278,71 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 	xml->SetAttribute("name", name.c_str());
 	xml->SetAttribute("caption", dest.c_str());
 	xml->SetAttribute("border", getBorderStyles().c_str());
+	xml->SetAttribute("bgstyle", BkgFlagsToString(this->m_uStyleBg).c_str());
 
-#if DCX_USE_TESTCODE
+	if (auto clr = Dcx::BrushToColour(this->m_hBackBrush); clr != CLR_INVALID)
+		xml->SetAttribute("bgcolour", clr);
+
+	{
+		const Dcx::dcxWindowRect rc(m_Hwnd);
+
+		xml->SetAttribute("x", rc.left);
+		xml->SetAttribute("y", rc.top);
+		xml->SetAttribute("height", rc.Height());
+		xml->SetAttribute("width", rc.Width());
+	}
+	if (!this->m_BackgroundImage.m_tsFilename.empty())
+		xml->SetAttribute("src", this->m_BackgroundImage.m_tsFilename.c_str());
+	if (this->m_bDoDrag)
+		xml->SetAttribute("drag", "1");
+	if (this->m_uGhostDragAlpha != std::byte{255})
+		xml->SetAttribute("ghostalpha", gsl::narrow_cast<int>(m_uGhostDragAlpha));
+	if (this->m_iAlphaLevel != std::byte{255})
+		xml->SetAttribute("alphalevel", gsl::narrow_cast<int>(this->m_iAlphaLevel));
+	if (this->m_colTransparentBg != CLR_INVALID)
+		xml->SetAttribute("transparentbg", this->m_colTransparentBg);
+	if (this->m_bHaveKeyColour && (this->m_cKeyColour != CLR_INVALID))
+		xml->SetAttribute("keycolour", this->m_cKeyColour);
+	if (this->m_bVistaStyle)
+	{
+		TString tsOff;
+		tsOff.addtok(this->m_sVistaOffsets.cx);
+		tsOff.addtok(this->m_sVistaOffsets.cy);
+		xml->SetAttribute("vistaoffsets", tsOff.c_str());
+	}
+	{
+		// cursors
+		if (this->m_hCursor.cursor)
+		{
+			TiXmlElement xCursor("cursor");
+
+			xCursor.SetAttribute("filename", (this->m_hCursor.src.empty() ? "arrow" : this->m_hCursor.src.c_str()));
+			xCursor.SetAttribute("flags", (this->m_hCursor.flags.empty() ? "+r" : this->m_hCursor.flags.c_str()));
+
+			xml->InsertEndChild(xCursor);
+		}
+		for (const auto& a : this->m_hCursorList)
+		{
+			if (!a.cursor)
+				continue;
+
+			TiXmlElement xCursor("cursor");
+
+			xCursor.SetAttribute("filename", (a.src.empty() ? "arrow" : a.src.c_str()));
+			xCursor.SetAttribute("flags", (a.flags.empty() ? "+r" : a.flags.c_str()));
+
+			xml->InsertEndChild(xCursor);
+		}
+	}
+	// bother saving glass effects?
+	//RECT extendedFrameBounds{ 0,0,0,0 };
+	//HRESULT hr = ::DwmGetWindowAttribute(hWnd,
+	//	DWMWA_EXTENDED_FRAME_BOUNDS,
+	//	&extendedFrameBounds,
+	//	sizeof(extendedFrameBounds));
+
+	xmlSaveMenubar(xml, this->m_CustomMenuBar);
+
 	if (m_pLayoutManager)
 	{
 		if (const auto rt = m_pLayoutManager->getRoot(); rt)
@@ -4138,34 +4353,168 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 		}
 	}
 	// NO CLA, add all controls as static position controls.
+	xml->SetAttribute("nocla", 1);
+
 	// don't use EnumChildWindows() here.
 	for (auto hChild = GetWindow(m_Hwnd, GW_CHILD); hChild; hChild = GetWindow(hChild, GW_HWNDNEXT))
 	{
 		auto pthis = Dcx::dcxGetProp<DcxControl*>(hChild, TEXT("dcx_cthis"));
 		if (!pthis)
 			return;
-		
+
 		const Dcx::dcxWindowRect rc(hChild, m_Hwnd);
 
 		if (auto xctrl = pthis->toXml(); xctrl)
 		{
-			xctrl->SetAttribute("weight", 1);
-			xctrl->SetAttribute("x", rc.left);
-			xctrl->SetAttribute("y", rc.top);
-			xctrl->SetAttribute("height", rc.Height());
-			xctrl->SetAttribute("width", rc.Width());
-		
+			if (!xctrl->Attribute("weight"))
+				xctrl->SetAttribute("weight", 1);
+			if (!xctrl->Attribute("x"))
+				xctrl->SetAttribute("x", rc.left);
+			if (!xctrl->Attribute("y"))
+				xctrl->SetAttribute("y", rc.top);
+			if (!xctrl->Attribute("height"))
+				xctrl->SetAttribute("height", rc.Height());
+			if (!xctrl->Attribute("width"))
+				xctrl->SetAttribute("width", rc.Width());
+
 			xml->LinkEndChild(xctrl);
 		}
 	}
-#else
-	// Ook: for this to work all controls MUST be added to CLA, needs fixed.
-	if (m_pLayoutManager)
+}
+
+void DcxDialog::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	// no set font for dialog?
+	//if (auto clr = queryAttribute(xThis, "font"); !_ts_isEmpty(clr))
+	//{
+	//	const TString tsFont(clr);
+	//	if (LOGFONT lf{ }; ParseCommandToLogfont(tsFont, &lf))
+	//		this->setControlFont(CreateFontIndirect(&lf), FALSE);
+	//}
+
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "bgcolour", CLR_INVALID)); tmp != CLR_INVALID)
+		m_hBackBrush = CreateSolidBrush(tmp);
+
+	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "alphalevel", 255)); tmp != 255)
+		this->m_iAlphaLevel = gsl::narrow_cast<std::byte>(tmp);
+
+	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "ghostalpha", 255)); tmp != 255)
+		this->m_uGhostDragAlpha = gsl::narrow_cast<std::byte>(tmp);
+
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "transparentbg", CLR_INVALID)); tmp != CLR_INVALID)
+		this->m_colTransparentBg = tmp;
+
+	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "keycolour", CLR_INVALID)); tmp != CLR_INVALID)
+		this->m_cKeyColour = tmp;
+
+	if (const auto tmp = queryIntAttribute(xThis, "drag"); tmp)
+		this->m_bDoDrag = true;
+
+	if (const auto tmp = xThis->Attribute("caption"); tmp)
 	{
-		if (const auto rt = m_pLayoutManager->getRoot(); rt)
-			rt->toXml(xml);
+		TString tsCaption(tmp);
+		SetWindowText(m_Hwnd, tsCaption.to_chr());
 	}
-#endif
+	if (const auto tmp = xThis->Attribute("border"); tmp)
+	{
+		TString tsBorder(TEXT('+'));
+		tsBorder += tmp;
+		setBorderStyles(tsBorder);
+	}
+
+	if (!xThis->Attribute("nocla"))
+	{
+		const auto szCascade = queryAttribute(xThis, "cascade", "v");
+		const auto szMargin = queryAttribute(xThis, "margin", "0 0 0 0");
+		this->parseCommandRequestEX(L"%s -l root \t +p%S 0 0 0 0", this->getName().to_chr(), szCascade);
+		this->parseCommandRequestEX(L"%s -l space root \t + %S", this->getName().to_chr(), szMargin);
+	}
+
+	{
+		//x y width height
+		const Dcx::dcxWindowRect rc(m_Hwnd);
+
+		const int x = queryIntAttribute(xThis, "x", rc.left);
+		const int y = queryIntAttribute(xThis, "y", rc.top);
+		const int width = queryIntAttribute(xThis, "width", rc.Width());
+		const int height = queryIntAttribute(xThis, "height", rc.Height());
+
+		GSL_SUPPRESS(lifetime.1) SetWindowPos(m_Hwnd, nullptr, x, y, width, height, SWP_FRAMECHANGED | SWP_NOZORDER);
+	}
+
+	this->m_uStyleBg = parseBkgFlags(queryAttribute(xThis, "bgstyle"));
+
+	if (const auto tmp = queryAttribute(xThis, "src"); tmp)
+	{
+		this->m_BackgroundImage.m_tsFilename = tmp;
+		if (!this->m_BackgroundImage.m_tsFilename.empty())
+			this->m_BackgroundImage.m_hBitmap = dcxLoadBitmap(this->m_BackgroundImage.m_hBitmap, this->m_BackgroundImage.m_tsFilename);
+	}
+
+	if (const auto tmp = queryAttribute(xThis, "vistaoffsets"); !_ts_isEmpty(tmp))
+	{
+		TString tsOff(tmp);
+		this->m_sVistaOffsets.cx = tsOff.getfirsttok(1).to_<LONG>();
+		this->m_sVistaOffsets.cy = tsOff.getnexttokas<LONG>();
+	}
+	if (auto xMenubar = xThis->FirstChildElement("menubar"); xMenubar)
+	{
+		// custom menubar...
+		xmlLoadMenubar(xMenubar, this->m_CustomMenuBar);
+	}
+
+	// cursors
+	for (auto xCursor = xThis->FirstChildElement("cursor"); xCursor; xCursor = xCursor->NextSiblingElement("cursor"))
+	{
+		const TString tsFilename(queryAttribute(xCursor, "filename", "arrow"));
+		const TString tsFlags(queryAttribute(xCursor, "flags", "+"));
+
+		loadCursor(tsFlags, tsFilename);
+	}
+
+	// tsPath = the cla path to this element
+	// xParent = this elements xml parent. dialog, pane, or control
+	xmlParseElements(L"root"_ts, xThis);
+
+	//// count of panes
+	//int nCLA{};
+	//const bool bHasCLA = (xThis->FirstChildElement("pane") != nullptr);
+	//
+	//// parse all child elements
+	//for (auto xElement = xThis->FirstChildElement(); xElement; xElement = xElement->NextSiblingElement())
+	//{
+	//	switch (std::hash<const char *>()(xElement->Value()))
+	//	{
+	//	case "pane"_hash:
+	//	{
+	//		// its a pane
+	//		xmlAddPane(nCLA, xElement);
+	//
+	//		++nCLA;
+	//	}
+	//	break;
+	//	case "control"_hash:
+	//	{
+	//		xmlAddControl(xThis, xElement);
+	//
+	//		if (bHasCLA && nCLA)
+	//		{
+	//			const auto iID = queryIntAttribute(xElement, "id");
+	//			const auto iWeight = queryIntAttribute(xElement, "weight", 1);
+	//
+	//			if (iID)
+	//				this->parseCommandRequestEX(L"%s -l cell %d \t +li %d %d 0 0", this->getName().to_chr(), nCLA, iID, iWeight);
+	//
+	//		}
+	//	}
+	//	break;
+	//	default:
+	//		break;
+	//	}
+	//}
 }
 
 TiXmlElement* DcxDialog::toXml() const
@@ -4196,4 +4545,122 @@ LRESULT DcxDialog::CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
 	return CallWindowProc(m_hDefaultDialogProc, mHwnd, uMsg, wParam, lParam);
+}
+
+void DcxDialog::xmlParseElements(const TString& tsPath, const TiXmlElement* xParent)
+{
+	if (!xParent || tsPath.empty())
+		return;
+
+	TString tsCurrentPath(tsPath);
+
+	int iCLA{ 1 };
+
+	// parse all child elements
+	for (auto xElement = xParent->FirstChildElement(); xElement; xElement = xElement->NextSiblingElement())
+	{
+		switch (std::hash<const char*>()(xElement->Value()))
+		{
+		case "pane"_hash:
+		{
+			// its a pane
+			TString tsTok;
+			tsTok.addtok(iCLA);
+			tsCurrentPath.puttok(tsTok, tsCurrentPath.numtok());
+
+			xmlAddPane(tsPath, tsCurrentPath, xElement);
+
+			++iCLA;
+		}
+		break;
+		case "control"_hash:
+		{
+			if (xmlAddControl(tsPath, tsCurrentPath, xParent, xElement))
+			{
+				//++iCLA;
+				//TString tsTok;
+				//tsTok.addtok(iCLA);
+				//tsCurrentPath.puttok(tsTok, tsCurrentPath.numtok());
+			}
+		}
+		break;
+		case "style"_hash:
+			// build internal styles list.
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+void DcxDialog::xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement)
+{
+	if (!xElement || tsParentPath.empty())
+		return;
+
+	// cascade margin weight
+	auto szCascade = queryAttribute(xElement, "cascade");
+	auto szMargin = queryAttribute(xElement, "margin", "0 0 0 0");
+	const auto iWidth = queryIntAttribute(xElement, "width");
+	const auto iHeight = queryIntAttribute(xElement, "height");
+	const auto iWeight = queryIntAttribute(xElement, "weight", 1);
+
+	// xdialog -l dname root $chr(9) +p id weight w h
+	// name switch options
+	this->parseCommandRequestEX(L"%s -l cell %s \t +p%S 0 %d %d %d", this->getName().to_chr(), tsParentPath.to_chr(), szCascade, iWeight, iWidth, iHeight);
+	this->parseCommandRequestEX(L"%s -l space %s \t + %S", this->getName().to_chr(), tsCurrentPath.to_chr(), szMargin);
+
+	xmlParseElements(tsCurrentPath, xElement);
+}
+
+bool DcxDialog::xmlAddControl(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCtrl)
+{
+	if (!xParent || !xCtrl || tsParentPath.empty())
+		return false;
+
+	auto szX = queryAttribute(xCtrl, "x", "0");
+	auto szY = queryAttribute(xCtrl, "y", "0");
+	const auto iWidth = queryIntAttribute(xCtrl, "width");
+	const auto iHeight = queryIntAttribute(xCtrl, "height");
+	auto szID = queryAttribute(xCtrl, "id");
+	auto szType = queryAttribute(xCtrl, "type");
+	auto szStyles = queryAttribute(xCtrl, "styles");
+
+	// ID is NOT a number!
+	if (_ts_isEmpty(szID)) // needs looked at, think dcxml generates an id.
+		throw DcxExceptions::dcxInvalidItem();
+
+	// fixed position control, no cla
+	// xdialog -c dname [id] [type] [x] [y] [width] [height] [styles...]
+	TString tsInput;
+	_ts_sprintf(tsInput, TEXT("% % % % % % %"), szID, szType, szX, szY, iWidth, iHeight, szStyles);
+	if (auto ctrl = addControl(tsInput, 1, DcxAllowControls::ALLOW_ALL, nullptr); ctrl)
+	{
+		ctrl->fromXml(xParent, xCtrl);
+
+		// x & y makes this a fixed control, not cla
+		if (!xCtrl->Attribute("x") && !xCtrl->Attribute("y") && !xParent->Attribute("nocla"))
+		{
+			// assume its cla now.
+			const auto iWeight = queryIntAttribute(xCtrl, "weight", 1);
+			TString tsFlags("i"); // id included
+			if (xCtrl->Attribute("width"))
+			{
+				tsFlags += L'f'; // fixed size
+				if (xCtrl->Attribute("height"))
+					tsFlags += L'w'; // both
+				else
+					tsFlags += L'h'; // horizontal
+
+			}
+			else if (xCtrl->Attribute("height"))
+				tsFlags += L"fv"; // fixed vertical
+			else
+				tsFlags += L'l'; // fill
+
+			this->parseCommandRequestEX(L"%s -l cell %s \t +%s %S %d %d %d", this->getName().to_chr(), tsParentPath.to_chr(), tsFlags.to_chr(), szID, iWeight, iWidth, iHeight);
+			return true;
+		}
+	}
+	return false;
 }

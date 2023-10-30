@@ -1060,14 +1060,14 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 #if DCX_USE_WRAPPERS
 			const Dcx::dcxWindowRect rc(m_Hwnd, pd->getHwnd());
 
-		tsResult.tsprintf(TEXT("%d %d %d %d"), rc.left, rc.top, rc.Width(), rc.Height());
+			tsResult.tsprintf(TEXT("%d %d %d %d"), rc.left, rc.top, rc.Width(), rc.Height());
 #else
-		if (RECT rc{}; GetWindowRect(m_Hwnd, &rc))
-		{
+			if (RECT rc{}; GetWindowRect(m_Hwnd, &rc))
+			{
 				MapWindowRect(nullptr, pd->getHwnd(), &rc);
 
-			tsResult.tsprintf(TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
-		}
+				tsResult.tsprintf(TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+			}
 #endif
 	}
 	}
@@ -1128,7 +1128,7 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 	case L"font"_hash:
 	{
 		tsResult = FontToCommand();
-			}
+	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"tooltipbgcolour"_hash:
@@ -1184,7 +1184,7 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 	default:
 		throw Dcx::dcxException("Invalid property or number of arguments");
 		break;
-	}
+}
 	return tsResult;
 }
 
@@ -1668,11 +1668,99 @@ DcxControl* DcxControl::controlFactory(gsl::strict_not_null<DcxDialog* const> p_
 	return nullptr;	// never gets executed, but compilers complain about its absense...
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
+/// <summary>
+/// Setup a control based on some dcxml.
+/// </summary>
+/// <param name="xDcxml"> - the base dcxml tag</param>
+/// <param name="xCtrl"> - the current controls xml</param>
+void DcxControl::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xCtrl)
+{
+	if (!xDcxml || !xCtrl || !m_Hwnd)
+		return;
+
+	// id, type, styles, border? set before creation
+	//const auto pd = this->getParentDialog();
+	//if (!pd)
+	//	throw DcxExceptions::dcxInvalidCommand();
+
+	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "bgcolour", CLR_INVALID)); clr != CLR_INVALID)
+	{
+		this->m_clrBackground = clr;
+		if (this->m_hBackBrush)
+			DeleteObject(this->m_hBackBrush);
+		this->m_hBackBrush = CreateSolidBrush(clr);
+	}
+	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "bordercolour", CLR_INVALID)); clr != CLR_INVALID)
+	{
+		if (this->m_hBorderBrush)
+			DeleteObject(this->m_hBorderBrush);
+		this->m_hBorderBrush = CreateSolidBrush(clr);
+	}
+	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "textcolour", CLR_INVALID)); clr != CLR_INVALID)
+		this->m_clrText = clr;
+	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "textbgcolour", CLR_INVALID)); clr != CLR_INVALID)
+		this->m_clrBackText = clr;
+	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "gradientstart", CLR_INVALID)); clr != CLR_INVALID)
+		this->m_clrStartGradient = clr;
+	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "gradientend", CLR_INVALID)); clr != CLR_INVALID)
+		this->m_clrEndGradient = clr;
+	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "transparentbg", CLR_INVALID)); clr != CLR_INVALID)
+		this->m_colTransparentBg = clr;
+
+	if (auto clr = gsl::narrow_cast<DWORD>(queryIntAttribute(xCtrl, "eventmask", -1)); clr != MAXDWORD)
+		this->m_dEventMask = clr;
+
+	if (auto clr = gsl::narrow_cast<BYTE>(queryIntAttribute(xCtrl, "alpha", 255)); clr != 255)
+		this->m_iAlphaLevel = clr;
+
+	if (auto clr = queryAttribute(xCtrl, "mark"); !_ts_isEmpty(clr))
+		this->m_tsMark = clr;
+	if (auto clr = queryAttribute(xCtrl, "tooltip"); !_ts_isEmpty(clr))
+		this->m_tsToolTip = clr;
+	if (auto hTip = getToolTipHWND(); hTip)
+	{
+		if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "tooltipbgcolour", CLR_INVALID)); clr != CLR_INVALID)
+			Dcx::dcxToolTip_SetTipBkColor(hTip, clr);
+		if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "tooltiptextcolour", CLR_INVALID)); clr != CLR_INVALID)
+			Dcx::dcxToolTip_SetTipTextColor(hTip, clr);
+	}
+
+	if (auto xCursor = xCtrl->FirstChildElement("cursor"); xCursor)
+	{
+		TString tsCursor(queryAttribute(xCursor, "filename", "arrow"));
+		const TString tsFlags(queryAttribute(xCursor, "flags", "+r"));
+
+		setCursor(tsFlags, tsCursor);
+	}
+
+	{
+		TString tsFont;
+
+		if (auto clr = queryAttribute(xCtrl, "font"); !_ts_isEmpty(clr))
+		{
+			// single font item
+			// + charset size fontname
+			tsFont = clr;
+		}
+		else {
+			// split font parts
+			// fontstyle charset fontsize fontname
+			auto fontsize = queryAttribute(xCtrl, "fontsize", "8");
+			auto charset = queryAttribute(xCtrl, "chatset", "ansi");
+			auto fontstyle = queryAttribute(xCtrl, "fontstyle", "d");
+			auto fontname = queryAttribute(xCtrl, "fontname");
+
+			// fontname is the only one without a default & is required.
+			if (!_ts_isEmpty(fontname))
+				_ts_sprintf(tsFont, "+% % % %", fontstyle, charset, fontsize, fontname);
+		}
+		if (!tsFont.empty())
+		{
+			if (LOGFONT lf{ }; ParseCommandToLogfont(tsFont, &lf))
+				setControlFont(CreateFontIndirect(&lf), FALSE);
+		}
+	}
+}
 
 GSL_SUPPRESS(type.4)
 LRESULT DcxControl::setFont(const HFONT hFont, const BOOL fRedraw) noexcept
@@ -2786,7 +2874,7 @@ const TString DcxControl::getStyles(void) const
 	TString result;
 	const auto exStyles = dcxGetWindowExStyle(m_Hwnd);
 	const auto Styles = dcxGetWindowStyle(m_Hwnd);
-
+	
 	if (!this->IsThemed())
 		result = TEXT("notheme");
 	if (dcx_testflag(Styles, WS_TABSTOP))

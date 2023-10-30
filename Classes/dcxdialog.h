@@ -388,6 +388,8 @@ public:
 	[[nodiscard("Memory Leak")]] TiXmlElement* toXml(const TString& name) const;
 	void toXml(TiXmlElement* const xml, const TString& name) const;
 
+	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) override;
+
 	const bool isIDValid(_In_ const UINT ID, _In_ const bool bUnused = false) const noexcept;
 
 	static LRESULT WINAPI WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -432,8 +434,6 @@ private:
 	//HWND m_ToolTipHWND{ nullptr }; //!< Dialogs general tooltip control for use with all controls that don't have their own tooltips.
 	HWND m_hFakeHwnd{ nullptr };
 
-	DWORD m_dEventMask{ DCX_EVENT_ALL };
-
 	std::byte m_iAlphaLevel{ 255 };
 	std::byte m_uGhostDragAlpha{ 255 };
 	BOOL m_bTracking{ FALSE };
@@ -460,7 +460,6 @@ private:
 	RECT m_GlassOffsets{};
 
 	// settings for drawing the dialogs menu bar.
-	//static inline HTHEME g_menuTheme{};
 	XPMENUBAR m_CustomMenuBar;
 
 	void i_showError(const TCHAR* const cType, const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const err) const;
@@ -470,6 +469,15 @@ private:
 
 	WNDPROC m_hDefaultDialogProc{ nullptr }; //!< Old Window Procedure
 	LRESULT CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
+
+	void xmlParseElements(const TString& tsPath, const TiXmlElement* xParent);
+	void xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement);
+	bool xmlAddControl(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement * xParent, const TiXmlElement* xCtrl);
+
+	static void xmlLoadMenubarColours(const TiXmlElement* xParent, XPMENUBARCOLORS& mColours) noexcept;
+	static void xmlSaveMenubarColours(TiXmlElement* xParent, const XPMENUBARCOLORS& mColours);
+	static void xmlLoadMenubar(const TiXmlElement* xMenubar, XPMENUBAR& mMenubar) noexcept;
+	static void xmlSaveMenubar(TiXmlElement* xParent, const XPMENUBAR& mMenuBar);
 
 	static std::pair<WindowStyle, WindowExStyle> parseBorderStyles(const TString& flags) noexcept;
 	static const UINT parseBkgFlags(const TString& flags) noexcept;
