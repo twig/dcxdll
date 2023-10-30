@@ -32,9 +32,9 @@ class DcxScroll final
 public:
 	DcxScroll() = delete;
 	DcxScroll(const DcxScroll &) = delete;
-	DcxScroll &operator =(const DcxScroll &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxScroll &operator =(const DcxScroll &) = delete;	// No assignments!
 	DcxScroll(DcxScroll &&) = delete;
-	DcxScroll &operator =(DcxScroll &&) = delete;
+	GSL_SUPPRESS(c.128) DcxScroll &operator =(DcxScroll &&) = delete;
 
 	DcxScroll(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxScroll( ) noexcept;

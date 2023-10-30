@@ -141,7 +141,6 @@ void DcxScroll::parseCommandRequest( const TString & input )
 	if ( flags[TEXT('l')] )
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nLine = input.getnexttok().to_int();	// tok 4
@@ -153,7 +152,6 @@ void DcxScroll::parseCommandRequest( const TString & input )
 	else if ( flags[TEXT('m')] )
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nPage = input.getnexttok().to_int();	// tok 4
@@ -165,7 +163,6 @@ void DcxScroll::parseCommandRequest( const TString & input )
 	else if ( flags[TEXT('r')] )
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto L = input.getnexttok().to_int();	// tok 4
@@ -179,7 +176,6 @@ void DcxScroll::parseCommandRequest( const TString & input )
 	else if ( flags[TEXT('v')] )
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto pos = input.getnexttok().to_int();	// tok 4
@@ -543,11 +539,28 @@ LRESULT DcxScroll::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 void DcxScroll::toXml(TiXmlElement *const xml) const
 {
+	if (!xml)
+		return;
+
 	__super::toXml(xml);
 
-	const TString wtext(TGetWindowText(m_Hwnd));
-	xml->SetAttribute("caption", wtext.c_str());
+	//const TString wtext(TGetWindowText(m_Hwnd));
+	//xml->SetAttribute("caption", wtext.c_str());
 	xml->SetAttribute("styles", getStyles().c_str());
+	xml->SetAttribute("linesize", this->m_nLine);
+	xml->SetAttribute("pagesize", this->m_nPage);
+
+	// save range
+	// save value
+	{
+		SCROLLINFO si{ sizeof(SCROLLINFO),SIF_RANGE | SIF_POS,0,0,0U,0,0 };
+
+		GetScrollInfo(m_Hwnd, SB_CTL, &si);
+
+		xml->SetAttribute("value", si.nPos);
+		xml->SetAttribute("min", si.nMin);
+		xml->SetAttribute("max", si.nMax);
+}
 }
 
 TiXmlElement * DcxScroll::toXml(void) const
