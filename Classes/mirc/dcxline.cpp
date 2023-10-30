@@ -86,6 +86,9 @@ const TString DcxLine::getStyles(void) const
 
 void DcxLine::toXml(TiXmlElement* const xml) const
 {
+	if (!xml)
+		return;
+
 	__super::toXml(xml);
 
 	TString styles(getStyles());
