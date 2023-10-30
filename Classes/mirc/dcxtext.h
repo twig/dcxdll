@@ -33,9 +33,9 @@ class DcxText final
 public:
 	DcxText() = delete;
 	DcxText(const DcxText &) = delete;
-	DcxText &operator =(const DcxText &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxText &operator =(const DcxText &) = delete;	// No assignments!
 	DcxText(DcxText &&) = delete;
-	DcxText &operator =(DcxText &&) = delete;
+	GSL_SUPPRESS(c.128) DcxText &operator =(DcxText &&) = delete;
 
 	DcxText(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxText( ) noexcept;

@@ -361,10 +361,10 @@ const TString DcxText::getStyles(void) const
 
 void DcxText::toXml(TiXmlElement* const xml) const
 {
-	__super::toXml(xml);
+	if (!xml)
+		return;
 
-	//const TString wtext(TGetWindowText(m_Hwnd));
-	//xml->SetAttribute("caption", wtext.c_str());
+	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
 
