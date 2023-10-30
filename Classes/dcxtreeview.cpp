@@ -1071,21 +1071,18 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (input.numtok(TSTABCHAR) != 2)
-			//throw Dcx::dcxException("Invalid Command Syntax.");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());	// tok 1, TSTAB
 		const auto fileData(input.getnexttok(TSTABCHAR));						// tok 2, TSTAB
 
 		if (fileData.numtok() < 3)
-			//throw Dcx::dcxException("Invalid Command Syntax.");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto name(fileData.getfirsttok(2).trim());	// tok 2
 		auto filename(fileData.getlasttoks().trim());		// tok 3, -1
 
 		if (name.empty())
-			//throw Dcx::dcxException("Invalid dataset");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (path.empty())
@@ -1094,7 +1091,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto item = this->parsePath(path);
 
 		if (!item)
-			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
 			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		this->xmlSaveTree(item, name, filename);
@@ -3111,6 +3107,20 @@ TiXmlElement* DcxTreeView::toXml() const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxTreeView::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	HTREEITEM hRoot = TreeView_GetRoot(m_Hwnd);
+	if (!hRoot)
+		return;
+
+	//this->xmlInsertItems(hRoot, nullptr, xThis);
 }
 
 LRESULT DcxTreeView::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept

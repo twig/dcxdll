@@ -90,6 +90,15 @@ struct DCXTVSORT
 	DcxTreeView* pthis{ nullptr };					//!< TreeView control object pointer
 	TCHAR		itemtext1[MIRC_BUFFER_SIZE_CCH]{};	// Item text buffer One
 	TCHAR		itemtext2[MIRC_BUFFER_SIZE_CCH]{};	// Item Text Buffer Two
+
+	DCXTVSORT() = default;
+
+	bool operator==(const DCXTVSORT& other) const = default;
+
+	DCXTVSORT(const TString& tsCustomAlias, const UINT& iSortFlags, DcxTreeView* pthis)
+		: tsCustomAlias(tsCustomAlias), iSortFlags(iSortFlags), pthis(pthis)
+	{
+	}
 };
 using LPDCXTVSORT = DCXTVSORT*;
 
@@ -104,6 +113,15 @@ struct DCXTVCOLOURS
 {
 	COLORREF	m_clrSelected{ CLR_INVALID };		//!< Colour of selection box.
 	COLORREF	m_clrSelectionBorder{ CLR_INVALID };//!< Colour of selection boxes border.
+
+	DCXTVCOLOURS() = default;
+
+	bool operator==(const DCXTVCOLOURS& other) const = default;
+
+	DCXTVCOLOURS(const COLORREF& m_clrSelected, const COLORREF& m_clrSelectionBorder) noexcept
+		: m_clrSelected(m_clrSelected), m_clrSelectionBorder(m_clrSelectionBorder)
+	{
+	}
 };
 
 struct DCXTVITEM
@@ -116,6 +134,15 @@ struct DCXTVITEM
 	bool		bBold{ false };			//!< Is Item Caption Bold ?
 	bool		bUline{ false };		//!< Is Item Caption Underlined
 	bool		bItalic{ false };		//!< Is Item Caption Italicised
+
+	DCXTVITEM() = default;
+
+	bool operator==(const DCXTVITEM& other) const = default;
+
+	DCXTVITEM(const TString& tsTipText, const TString& tsMark, const COLORREF& clrText, const COLORREF& clrBkg, const HTREEITEM& hHandle, bool bBold, bool bUline, bool bItalic)
+		: tsTipText(tsTipText), tsMark(tsMark), clrText(clrText), clrBkg(clrBkg), hHandle(hHandle), bBold(bBold), bUline(bUline), bItalic(bItalic)
+	{
+	}
 };
 using LPDCXTVITEM = DCXTVITEM*;
 
@@ -133,9 +160,9 @@ class DcxTreeView final
 public:
 	DcxTreeView() = delete;
 	DcxTreeView(const DcxTreeView&) = delete;
-	DcxTreeView& operator =(const DcxTreeView&) = delete;
+	GSL_SUPPRESS(c.128) DcxTreeView& operator =(const DcxTreeView&) = delete;
 	DcxTreeView(DcxTreeView&&) = delete;
-	DcxTreeView& operator =(DcxTreeView&&) = delete;
+	GSL_SUPPRESS(c.128) DcxTreeView& operator =(DcxTreeView&&) = delete;
 
 	DcxTreeView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxTreeView() noexcept;
@@ -165,6 +192,7 @@ public:
 	const TString getStyles() const final;
 	void toXml(TiXmlElement* const xml) const final;
 	TiXmlElement* toXml() const final;
+	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) final;
 
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
