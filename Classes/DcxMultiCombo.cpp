@@ -342,48 +342,8 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 		auto tsItemText(input.getlasttoks());
 
 		// add item to colour/listbox/listview/treeview dropdown
-		switch (const auto dStyle = getCurStyle(); dStyle)
-		{
-		default:
-			break;
-
-		case MCS_LISTBOX:
-		case MCS_COLOUR:
-		{
-			MCOMBO_ITEM item;
-			item.m_clrItem = clr;
-			item.m_tsItemText = tsItemText;
-
-			SendMessage(m_Hwnd, MC_WM_ADDITEM, 0, (LPARAM)&item);
+		addItem(clr, tsItemText);
 		}
-		break;
-
-		//case MCS_LISTVIEW:
-		//{
-		//	TString tsText(input.getlasttoks().trim());
-		//	MCOMBO_LISTVIEWITEM item;
-		//	item.m_Item.mask = LVIF_TEXT | LVIF_GROUPID;
-		//	item.m_Item.pszText = tsText.to_chr();
-		//	//item.m_Item.cchTextMax = tsText.len();
-		//	item.m_Item.iGroupId = I_GROUPIDNONE;
-		//
-		//	SendMessage(m_Hwnd, MC_WM_ADDITEM, 0, (LPARAM)&item);
-		//}
-		//break;
-		//
-		//case MCS_TREEVIEW:
-		//{
-		//	TString tsText(input.getlasttoks().trim());
-		//	MCOMBO_TREEVIEWITEM item;
-		//	item.m_Item.mask = TVIF_TEXT;
-		//	item.m_Item.pszText = tsText.to_chr();
-		//	item.m_Item.hItem = TVI_ROOT;
-		//
-		//	SendMessage(m_Hwnd, MC_WM_ADDITEM, 0, (LPARAM)&item);
-		//}
-		//break;
-		}
-	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('c')])
 	{
@@ -558,6 +518,53 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 		parseGlobalCommandRequest(input, flags);
 }
 
+void DcxMultiCombo::addItem(COLORREF clr, const TString& tsText)
+{
+	// add item to colour/listbox/listview/treeview dropdown
+	switch (const auto dStyle = getCurStyle(); dStyle)
+	{
+	default:
+		break;
+
+	case MCS_LISTBOX:
+	case MCS_COLOUR:
+	{
+		MCOMBO_ITEM item;
+		item.m_clrItem = clr;
+		item.m_tsItemText = tsText;
+		item.m_Type = dStyle;
+
+		SendMessage(m_Hwnd, MC_WM_ADDITEM, 0, (LPARAM)&item);
+	}
+	break;
+
+	//case MCS_LISTVIEW:
+	//{
+	//	TString tsText(input.getlasttoks().trim());
+	//	MCOMBO_LISTVIEWITEM item;
+	//	item.m_Item.mask = LVIF_TEXT | LVIF_GROUPID;
+	//	item.m_Item.pszText = tsText.to_chr();
+	//	//item.m_Item.cchTextMax = tsText.len();
+	//	item.m_Item.iGroupId = I_GROUPIDNONE;
+	//
+	//	SendMessage(m_Hwnd, MC_WM_ADDITEM, 0, (LPARAM)&item);
+	//}
+	//break;
+	//
+	//case MCS_TREEVIEW:
+	//{
+	//	TString tsText(input.getlasttoks().trim());
+	//	MCOMBO_TREEVIEWITEM item;
+	//	item.m_Item.mask = TVIF_TEXT;
+	//	item.m_Item.pszText = tsText.to_chr();
+	//	item.m_Item.hItem = TVI_ROOT;
+	//
+	//	SendMessage(m_Hwnd, MC_WM_ADDITEM, 0, (LPARAM)&item);
+	//}
+	//break;
+	}
+}
+
 bool DcxMultiCombo::matchItemText(const int nItem, const dcxSearchData& srch_data) const
 {
 	const MCOMBO_ITEM res = getListBoxItem(nItem);
@@ -576,6 +583,18 @@ void DcxMultiCombo::toXml(TiXmlElement* const xml) const
 	xml->SetAttribute("caption", wtext.c_str());
 	xml->SetAttribute("styles", getStyles().c_str());
 
+	// Ook: unfinished!
+
+	TiXmlElement xDrop("drop");
+
+	{
+		RECT rcDrop{};
+		SendMessage(m_Hwnd, MC_WM_GETDROPRECT, 0, reinterpret_cast<LPARAM>(&rcDrop));
+
+		xDrop.SetAttribute("height", (rcDrop.bottom - rcDrop.top));
+		xDrop.SetAttribute("width", (rcDrop.right - rcDrop.left));
+	}
+
 	switch (const auto iStyle = this->getCurStyle(); iStyle)
 	{
 	case MCS_CUSTOM:
@@ -586,7 +605,15 @@ void DcxMultiCombo::toXml(TiXmlElement* const xml) const
 
 			ctrl->toXml(&xChild);
 
-			xml->InsertEndChild(xChild);
+			RECT rcDrop{};
+			SendMessage(m_Hwnd, MC_WM_GETDROPRECT, 0, reinterpret_cast<LPARAM>(&rcDrop));
+
+			if (!xChild.Attribute("height"))
+				xChild.SetAttribute("height", (rcDrop.bottom - rcDrop.top));
+			if (!xChild.Attribute("width"))
+				xChild.SetAttribute("width", (rcDrop.right - rcDrop.left));
+
+			xDrop.InsertEndChild(xChild);
 		}
 	}
 	break;
@@ -604,19 +631,23 @@ void DcxMultiCombo::toXml(TiXmlElement* const xml) const
 			auto ItemData = this->getListBoxItem(nItem); // does the same for both styles.
 			
 			TiXmlElement xChild("item");
+
 			xChild.SetAttribute("text", ItemData.m_tsItemText.c_str());
 			if (ItemData.m_clrItem != CLR_INVALID)
 				xChild.SetAttribute("textbgcolour", ItemData.m_clrItem);
-			if (ItemData.m_clrText != CLR_INVALID)
-				xChild.SetAttribute("textcolour", ItemData.m_clrText);
+			//if (ItemData.m_clrText != CLR_INVALID)
+			//	xChild.SetAttribute("textcolour", ItemData.m_clrText);
 
-			xml->InsertEndChild(xChild);
+			xDrop.InsertEndChild(xChild);
 		}
+
 	}
 	break;
 	default:
 		break;
 	}
+
+	xml->InsertEndChild(xDrop);
 }
 
 TiXmlElement* DcxMultiCombo::toXml(void) const

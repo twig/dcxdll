@@ -15,9 +15,9 @@ class DcxMultiCombo final
 public:
 	DcxMultiCombo() = delete;
 	DcxMultiCombo(const DcxMultiCombo&) = delete;
-	DcxMultiCombo& operator =(const DcxMultiCombo&) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxMultiCombo& operator =(const DcxMultiCombo&) = delete;	// No assignments!
 	DcxMultiCombo(DcxMultiCombo&&) = delete;
-	DcxMultiCombo& operator =(DcxMultiCombo&&) = delete;
+	GSL_SUPPRESS(c.128) DcxMultiCombo& operator =(DcxMultiCombo&&) = delete;
 
 	DcxMultiCombo(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxMultiCombo() noexcept;
@@ -98,6 +98,14 @@ public:
 		}
 		return nullptr;
 	}
+
+	void addChild(HWND hwnd) noexcept
+	{
+		SendMessage(m_Hwnd, MC_WM_ADDCHILD, 0, reinterpret_cast<LPARAM>(hwnd));
+	}
+
+	void addItem(COLORREF clr, const TString &tsText);
+
 	bool matchItemText(const int nItem, const dcxSearchData& srch_data) const;
 
 };

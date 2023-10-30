@@ -33,9 +33,9 @@ class DcxMDialog final
 public:
 	DcxMDialog() = delete;
 	DcxMDialog(const DcxMDialog &) = delete;
-	DcxMDialog &operator =(const DcxMDialog &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxMDialog &operator =(const DcxMDialog &) = delete;	// No assignments!
 	DcxMDialog(DcxMDialog &&) = delete;
-	DcxMDialog &operator =(DcxMDialog &&) = delete;
+	GSL_SUPPRESS(c.128) DcxMDialog &operator =(DcxMDialog &&) = delete;
 
 	DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const RECT *const rc, const TString & styles );
 	~DcxMDialog( ) noexcept;
