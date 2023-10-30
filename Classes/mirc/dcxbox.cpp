@@ -207,7 +207,8 @@ void DcxBox::parseCommandRequest(const TString& input)
 		if (numtok < 9)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		getParentDialog()->addControl(input, 4, DcxAllowControls::ALLOW_ALL, m_Hwnd);
+		if (const auto pd = getParentDialog(); pd)
+			pd->addControl(input, 4, DcxAllowControls::ALLOW_ALL, m_Hwnd);
 		redrawWindow();
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
@@ -338,9 +339,9 @@ void DcxBox::toXml(TiXmlElement* const xml) const
 			xctrl->SetAttribute("x", rc.left);
 			xctrl->SetAttribute("y", rc.top);
 			if (!xctrl->Attribute("height"))
-			xctrl->SetAttribute("height", rc.Height());
+				xctrl->SetAttribute("height", rc.Height());
 			if (!xctrl->Attribute("width"))
-			xctrl->SetAttribute("width", rc.Width());
+				xctrl->SetAttribute("width", rc.Width());
 
 			xml->LinkEndChild(xctrl);
 		}
@@ -382,6 +383,174 @@ const TString DcxBox::getStyles(void) const
 		result.addtok(TEXT("radio"));
 
 	return result;
+}
+
+void DcxBox::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	const auto pd = getParentDialog();
+	if (!pd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	if (auto tmp = xThis->Attribute("caption"); tmp)
+	{
+		const TString tsText(tmp);
+		SetWindowText(m_Hwnd, tsText.to_chr());
+	}
+	if (!xThis->Attribute("nocla"))
+	{
+		const auto szCascade = queryAttribute(xThis, "cascade", "v");
+		const auto szMargin = queryAttribute(xThis, "margin", "0 0 0 0");
+
+		TString tsInput;
+		_ts_sprintf(tsInput, L"% % -l root \t +p% 0 0 0 0", pd->getName(), this->getUserID(), szCascade);
+		this->parseCommandRequest(tsInput);
+		_ts_sprintf(tsInput, L"% % -l space root \t + %", pd->getName(), this->getUserID(), szMargin);
+		this->parseCommandRequest(tsInput);
+	}
+
+	// tsPath = the cla path to this element
+	// xParent = this elements xml parent. dialog, pane, or control
+	xmlParseElements(L"root"_ts, xThis);
+}
+
+void DcxBox::xmlParseElements(const TString& tsPath, const TiXmlElement* xParent)
+{
+	if (!xParent || tsPath.empty())
+		return;
+
+	const auto pd = getParentDialog();
+	if (!pd)
+		return;
+
+	TString tsCurrentPath(tsPath);
+
+	int iCLA{ 1 };
+
+	// parse all child elements
+	for (auto xElement = xParent->FirstChildElement(); xElement; xElement = xElement->NextSiblingElement())
+	{
+		switch (std::hash<const char*>()(xElement->Value()))
+		{
+		case "pane"_hash:
+		{
+			// its a pane
+			TString tsTok;
+			tsTok.addtok(iCLA);
+			tsCurrentPath.puttok(tsTok, tsCurrentPath.numtok());
+
+			xmlAddPane(tsPath, tsCurrentPath, xElement);
+
+			++iCLA;
+		}
+		break;
+		case "control"_hash:
+		{
+			if (xmlAddControl(tsPath, tsCurrentPath, xParent, xElement))
+			{
+				//++iCLA;
+				//TString tsTok;
+				//tsTok.addtok(iCLA);
+				//tsCurrentPath.puttok(tsTok, tsCurrentPath.numtok());
+			}
+		}
+		break;
+		case "style"_hash:
+			// build internal styles list.
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+void DcxBox::xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement)
+{
+	if (!xElement || tsParentPath.empty())
+		return;
+
+	const auto pd = getParentDialog();
+	if (!pd)
+		return;
+
+	// cascade margin weight
+	auto szCascade = queryAttribute(xElement, "cascade");
+	auto szMargin = queryAttribute(xElement, "margin", "0 0 0 0");
+	const auto iWidth = queryIntAttribute(xElement, "width");
+	const auto iHeight = queryIntAttribute(xElement, "height");
+	const auto iWeight = queryIntAttribute(xElement, "weight", 1);
+
+	// xdid -l dname id root $chr(9) +p id weight w h
+	// name switch options
+	TString tsInput;
+	_ts_sprintf(tsInput, L"% % -l cell % \t +p% 0 % % %", pd->getName(), this->getUserID(), tsParentPath, szCascade, iWeight, iWidth, iHeight);
+	this->parseCommandRequest(tsInput);
+	_ts_sprintf(tsInput, L"% % -l space % \t + %", pd->getName(), this->getUserID(), tsCurrentPath, szMargin);
+	this->parseCommandRequest(tsInput);
+
+	xmlParseElements(tsCurrentPath, xElement);
+}
+
+bool DcxBox::xmlAddControl(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCtrl)
+{
+	if (!xParent || !xCtrl || tsParentPath.empty())
+		return false;
+	const auto pd = getParentDialog();
+	if (!pd)
+		return false;
+
+	auto szX = queryAttribute(xCtrl, "x", "0");
+	auto szY = queryAttribute(xCtrl, "y", "0");
+	const auto iWidth = queryIntAttribute(xCtrl, "width");
+	const auto iHeight = queryIntAttribute(xCtrl, "height");
+	auto szID = queryAttribute(xCtrl, "id");
+	auto szType = queryAttribute(xCtrl, "type");
+	auto szStyles = queryAttribute(xCtrl, "styles");
+
+	// ID is NOT a number!
+	if (_ts_isEmpty(szID)) // needs looked at, think dcxml generates an id.
+		throw DcxExceptions::dcxInvalidItem();
+
+	// fixed position control, no cla
+	// xdid -c dname id [newid] [type] [x] [y] [width] [height] [styles...]
+	TString tsInput;
+	_ts_sprintf(tsInput, TEXT("% % % % % % %"), szID, szType, szX, szY, iWidth, iHeight, szStyles);
+	if (auto ctrl = pd->addControl(tsInput, 1, DcxAllowControls::ALLOW_ALL, m_Hwnd); ctrl)
+	{
+		ctrl->fromXml(xParent, xCtrl);
+
+		// x & y makes this a fixed control, not cla
+		if (!xCtrl->Attribute("x") && !xCtrl->Attribute("y") && !xParent->Attribute("nocla"))
+		{
+			// assume its cla now.
+			const auto iWeight = queryIntAttribute(xCtrl, "weight", 1);
+			TString tsFlags("i"); // id included
+			if (xCtrl->Attribute("width"))
+			{
+				tsFlags += L'f'; // fixed size
+				if (xCtrl->Attribute("height"))
+					tsFlags += L'w'; // both
+				else
+					tsFlags += L'h'; // horizontal
+
+			}
+			else if (xCtrl->Attribute("height"))
+				tsFlags += L"fv"; // fixed vertical
+			else
+				tsFlags += L'l'; // fill
+
+			{
+				_ts_sprintf(tsInput, L"% % -l cell % \t +% % % % %", pd->getName(), this->getUserID(), tsParentPath, tsFlags, szID, iWeight, iWidth, iHeight);
+				this->parseCommandRequest(tsInput);
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 /*!
