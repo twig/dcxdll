@@ -398,7 +398,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 			itemtext = data.getlasttoks();	// tok 6, -1
 
 		addTab(nIndex, iIcon, itemtext, control_data, tooltip);
-		}
+	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (xflags[TEXT('c')])
 	{
@@ -940,6 +940,57 @@ TiXmlElement* DcxTab::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxTab::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+	const auto pd = getParentDialog();
+	if (!pd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	int nIndex{};
+
+	// <item >
+	for (auto xItem = xThis->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
+	{
+		const TString tsText(queryAttribute(xItem, "text"));
+		const TString tsFlags(queryAttribute(xItem, "flags", "+"));
+		const TString tsTooltip(queryAttribute(xItem, "tooltip"));
+		const auto iImage = queryIntAttribute(xItem, "image");
+		TString tsCtrl;
+
+		// <control ...>
+		if (auto xCtrl = xItem->FirstChildElement("control"); xCtrl)
+		{
+			// found control for tab
+			auto szID = queryAttribute(xCtrl, "id");
+			auto szType = queryAttribute(xCtrl, "type");
+			auto szStyles = queryAttribute(xCtrl, "styles");
+			auto iWidth = queryIntAttribute(xCtrl, "width");
+			auto iHeight = queryIntAttribute(xCtrl, "height");
+
+			// ID is NOT a number!
+			if (_ts_isEmpty(szID)) // needs looked at, think dcxml generates an id.
+				throw DcxExceptions::dcxInvalidItem();
+
+			// fixed position control, no cla
+			//xdid -a DNAME ID [N] [ICON] (TEXT) [TAB] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS) [TAB] (TOOLTIP)
+			_ts_sprintf(tsCtrl, TEXT("% % 0 0 % % %"), szID, szType, iWidth, iHeight, szStyles);
+
+			if (auto pCtrl = addTab(nIndex, iImage, tsText, tsCtrl, tsTooltip); pCtrl)
+			{
+				pCtrl->fromXml(xDcxml, xCtrl);
+			}
+		}
+		else
+			addTab(nIndex, iImage, tsText, tsCtrl, tsTooltip);
+
+		++nIndex;
+	}
 }
 
 /*!

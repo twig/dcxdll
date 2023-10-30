@@ -97,6 +97,8 @@ public:
 
 	void toXml(TiXmlElement* const xml) const final;
 	TiXmlElement* toXml(void) const final;
+	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) final;
+
 	const TString getStyles(void) const final;
 
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure

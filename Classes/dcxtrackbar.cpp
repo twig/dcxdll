@@ -1012,7 +1012,7 @@ void DcxTrackBar::toXml(TiXmlElement* const xml) const
 		if (auto pthis = Dcx::dcxGetProp<DcxControl*>(hLeft, TEXT("dcx_cthis")); pthis)
 		{
 			xml->SetAttribute("buddyleft", pthis->getUserID());
-}
+		}
 	}
 	if (auto hRight = this->getBuddy(false); hRight)
 	{
@@ -1028,6 +1028,48 @@ TiXmlElement* DcxTrackBar::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxTrackBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	this->setRangeMin(queryIntAttribute(xThis, "min"));
+	this->setRangeMax(queryIntAttribute(xThis, "max", 100));	// default 0-100
+	this->setLineSize(queryIntAttribute(xThis, "linesize", 1));	// default is one
+	this->setPageSize(queryIntAttribute(xThis, "pagesize", this->getPageSize()));
+	this->setTicFreq(queryIntAttribute(xThis, "tickfreq", 1));	// default is one
+	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "transparentcolour", CLR_INVALID)); clr != CLR_INVALID)
+		this->m_colTransparent = clr;
+	this->setTipSide(queryIntAttribute(xThis, "tipside", TBTS_LEFT));
+	this->setThumbLength(queryIntAttribute(xThis, "thumblength", 10));	// only affects TBS_FIXEDLENGTH style controls
+
+	{
+		const auto pd = this->getParentDialog();
+		if (!pd)
+			throw DcxExceptions::dcxInvalidCommand();
+
+		if (const TString buddyid(queryAttribute(xThis, "buddyleft")); !buddyid.empty())
+		{
+			if (auto ctrl = pd->getControlByNamedID(buddyid); ctrl)
+			{
+				this->setBuddy(ctrl->getHwnd(), true);
+			}
+		}
+		if (const TString buddyid(queryAttribute(xThis, "buddyright")); !buddyid.empty())
+		{
+			if (auto ctrl = pd->getControlByNamedID(buddyid); ctrl)
+			{
+				this->setBuddy(ctrl->getHwnd(), false);
+			}
+		}
+	}
+
+	// set pos last so we dont get a range error, & in future may update buddy
+	this->setPos(queryIntAttribute(xThis, "pos"));
 }
 
 LRESULT DcxTrackBar::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept

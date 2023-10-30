@@ -1817,6 +1817,39 @@ TiXmlElement* DcxToolBar::toXml(void) const
 	return xml.release();
 }
 
+void DcxToolBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	for (auto xItem = xThis->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
+	{
+		const auto nPos = queryIntAttribute(xItem, "pos");
+		const TString tsFlags(queryAttribute(xItem, "flags"));
+		const auto width = gsl::narrow_cast<WORD>(queryIntAttribute(xItem, "width"));
+		const auto icon = queryIntAttribute(xItem, "icon");
+		const auto clrText = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "textcolour"));
+		const TString tsText(queryAttribute(xItem, "text"));
+		const TString tsTooltip(queryAttribute(xItem, "tooltip"));
+
+		addButton(nPos, tsFlags, width, icon, clrText, tsText, tsTooltip);
+
+		if (auto bd = this->getButtonData(nPos); bd)
+		{
+			bd->bBold = (queryIntAttribute(xItem, "bold") > 0);
+			bd->bUline = (queryIntAttribute(xItem, "underline") > 0);
+			bd->clrBtnFace = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "facecolour", CLR_INVALID));
+			bd->clrBtnHighlight = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "highlightcolour", CLR_INVALID));
+			bd->clrHighlightHotTrack = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "hotcolour", CLR_INVALID));
+			bd->clrMark = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "markcolour", CLR_INVALID));
+			//bd->clrText = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "textcolour", CLR_INVALID));
+			bd->clrTextHighlight = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "texthighlightcolour", CLR_INVALID));
+		}
+	}
+}
+
 LRESULT DcxToolBar::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
 	if (m_hDefaultClassProc)
