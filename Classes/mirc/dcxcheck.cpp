@@ -115,6 +115,43 @@ std::unique_ptr<TiXmlElement> DcxCheck::toXml(int blah) const
 	return xml;
 }
 
+void DcxCheck::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	if (const auto tmp = queryAttribute(xThis, "caption"); !_ts_isEmpty(tmp))
+	{
+		const TString tsText(tmp);
+		SetWindowText(m_Hwnd, tsText.to_chr());
+	}
+	if (const auto tmp = queryIntAttribute(xThis, "state"); tmp)
+		Button_SetCheck(m_Hwnd, tmp);
+	if (auto xColours = xThis->FirstChildElement("colours"); xColours)
+	{
+		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checkbg", CLR_INVALID)); tmp != CLR_INVALID)
+			this->m_Colours.m_clrBackground = tmp;
+		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checkframe", CLR_INVALID)); tmp != CLR_INVALID)
+			this->m_Colours.m_clrFrame = tmp;
+		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checktick", CLR_INVALID)); tmp != CLR_INVALID)
+			this->m_Colours.m_clrTick = tmp;
+		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checkdisabledbg", CLR_INVALID)); tmp != CLR_INVALID)
+			this->m_Colours.m_clrDisabledBackground = tmp;
+		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checkdisabledframe", CLR_INVALID)); tmp != CLR_INVALID)
+			this->m_Colours.m_clrDisabledFrame = tmp;
+		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checkdisabledtick", CLR_INVALID)); tmp != CLR_INVALID)
+			this->m_Colours.m_clrDisabledTick = tmp;
+		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checkhotbg", CLR_INVALID)); tmp != CLR_INVALID)
+			this->m_Colours.m_clrHotBackground = tmp;
+		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checkhotframe", CLR_INVALID)); tmp != CLR_INVALID)
+			this->m_Colours.m_clrHotFrame = tmp;
+		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checkhottick", CLR_INVALID)); tmp != CLR_INVALID)
+			this->m_Colours.m_clrHotTick = tmp;
+	}
+}
+
 const TString DcxCheck::getStyles(void) const
 {
 	auto styles(__super::getStyles());

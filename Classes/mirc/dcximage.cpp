@@ -671,7 +671,7 @@ void DcxImage::toXml(TiXmlElement* const xml) const
 	{
 		xml->SetAttribute("icon", "1");
 		xml->SetAttribute("index", m_iIconIndex);
-	xml->SetAttribute("iconsize", gsl::narrow_cast<int>(this->m_iIconSize));
+		xml->SetAttribute("iconsize", gsl::narrow_cast<int>(this->m_iIconSize));
 	}
 	if (this->m_bIsAnimated)
 		xml->SetAttribute("anim", "1");
@@ -685,11 +685,6 @@ void DcxImage::toXml(TiXmlElement* const xml) const
 		xml->SetAttribute("xoffset", this->m_iXOffset);
 	if (this->m_iYOffset > 0)
 		xml->SetAttribute("yoffset", this->m_iYOffset);
-
-	xml->SetAttribute("CompositingMode", gsl::narrow_cast<int>(this->m_CMode));
-	xml->SetAttribute("CompositingQuality", gsl::narrow_cast<int>(this->m_CQuality));
-	xml->SetAttribute("InterpolationMode", gsl::narrow_cast<int>(this->m_IMode));
-	xml->SetAttribute("SmoothingMode", gsl::narrow_cast<int>(this->m_SMode));
 }
 
 TiXmlElement* DcxImage::toXml() const
@@ -697,6 +692,53 @@ TiXmlElement* DcxImage::toXml() const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxImage::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	PreloadData();
+
+	__super::fromXml(xDcxml, xThis);
+
+	this->m_clrTransColor = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "transparentcolour", CLR_INVALID));
+
+	this->m_iIconSize = NumToIconSize(queryIntAttribute(xThis, "iconsize"));
+	this->m_iIconIndex = queryIntAttribute(xThis, "index");
+	this->m_tsLoadFlags = queryAttribute(xThis, "flags");
+
+	this->m_bIsIcon = (queryIntAttribute(xThis, "icon") > 0);
+	this->m_bIsAnimated = (queryIntAttribute(xThis, "anim") > 0);
+	this->m_bResizeImage = (queryIntAttribute(xThis, "resize") > 0);
+	this->m_bTileImage = (queryIntAttribute(xThis, "tile") > 0);
+	this->m_bKeepAspect = (queryIntAttribute(xThis, "keepaspect") > 0);
+	this->m_iXOffset = queryIntAttribute(xThis, "xoffset");
+	this->m_iYOffset = queryIntAttribute(xThis, "yoffset");
+
+	// set filename last
+	if (const auto tmp = queryAttribute(xThis, "src"); tmp)
+	{
+		this->m_tsFilename = tmp;
+
+		if (this->m_bIsIcon)
+		{
+			// load icon
+			this->m_hIcon = dcxLoadIcon(this->m_iIconIndex, this->m_tsFilename, (this->m_iIconSize != DcxIconSizes::SmallIcon), this->m_tsLoadFlags);
+		}
+		else {
+			// load image
+			if (Dcx::GDIModule.isUseable())
+			{
+				if (!LoadGDIPlusImage(this->m_tsLoadFlags, this->m_tsFilename))
+					throw Dcx::dcxException("Unable to load Image with GDI+"); // <- should never throw this
+			}
+			else
+				this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, this->m_tsFilename);
+		}
+	}
+
 }
 
 /*!
