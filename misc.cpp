@@ -2421,6 +2421,9 @@ void DrawRotatedText(const TString& strDraw, const LPCRECT rc, const HDC hDC, co
 
 const char* queryAttribute(const TiXmlElement* element, const char* attribute, const char* defaultValue) noexcept
 {
+	if (!element || !attribute)
+		return defaultValue;
+
 	const auto t = element->Attribute(attribute);
 	return (t) ? t : defaultValue;
 }
@@ -2441,8 +2444,9 @@ const char* queryAttribute(const TiXmlElement* element, const char* attribute, c
 
 int queryIntAttribute(const TiXmlElement* element, const char* attribute, const int defaultValue) noexcept
 {
-	if (const auto [iStatus, integer] = element->QueryIntAttribute(attribute); iStatus == TiXmlReturns::TIXML_SUCCESS)
-		return integer;
+	if (element && attribute)
+		if (const auto [iStatus, integer] = element->QueryIntAttribute(attribute); iStatus == TiXmlReturns::TIXML_SUCCESS)
+			return integer;
 
 	return defaultValue;
 }
@@ -2462,6 +2466,24 @@ int queryIntAttribute(const TiXmlElement* element, const char* attribute, const 
 //
 //	return {};
 //}
+
+double queryDoubleAttribute(const TiXmlElement* element, const char* attribute, const double defaultValue) noexcept
+{
+	if (element && attribute)
+		if (const auto [iStatus, integer] = element->QueryDoubleAttribute(attribute); iStatus == TiXmlReturns::TIXML_SUCCESS)
+			return integer;
+
+	return defaultValue;
+}
+
+float queryFloatAttribute(const TiXmlElement* element, const char* attribute, const float defaultValue) noexcept
+{
+	if (element && attribute)
+		if (const auto [iStatus, integer] = element->QueryDoubleAttribute(attribute); iStatus == TiXmlReturns::TIXML_SUCCESS)
+			return gsl::narrow_cast<float>(integer);
+
+	return defaultValue;
+}
 
 /*
 	Make the text safe for passing to the callback alias
