@@ -32,9 +32,9 @@ class DcxIpAddress final
 public:
 	DcxIpAddress() = delete;
 	DcxIpAddress(const DcxIpAddress&) = delete;
-	DcxIpAddress& operator =(const DcxIpAddress&) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxIpAddress& operator =(const DcxIpAddress&) = delete;	// No assignments!
 	DcxIpAddress(DcxIpAddress&&) = delete;
-	DcxIpAddress& operator =(DcxIpAddress&&) = delete;
+	GSL_SUPPRESS(c.128) DcxIpAddress& operator =(DcxIpAddress&&) = delete;
 
 	DcxIpAddress(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxIpAddress() noexcept;

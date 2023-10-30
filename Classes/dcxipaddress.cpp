@@ -89,6 +89,45 @@ void DcxIpAddress::toXml(TiXmlElement* const xml) const
 	__super::toXml(xml);
 
 	xml->SetAttribute("caption", buf.c_str());
+
+	// save ip range allowed
+	// NB: atm we cant get the range from the control.
+	{
+		TiXmlElement xField("field");
+
+		xField.SetAttribute("num", 0);
+		xField.SetAttribute("min", 0);
+		xField.SetAttribute("max", 255);
+
+		xml->InsertEndChild(xField);
+	}
+	{
+		TiXmlElement xField("field");
+
+		xField.SetAttribute("num", 1);
+		xField.SetAttribute("min", 0);
+		xField.SetAttribute("max", 255);
+
+		xml->InsertEndChild(xField);
+	}
+	{
+		TiXmlElement xField("field");
+
+		xField.SetAttribute("num", 2);
+		xField.SetAttribute("min", 0);
+		xField.SetAttribute("max", 255);
+
+		xml->InsertEndChild(xField);
+	}
+	{
+		TiXmlElement xField("field");
+
+		xField.SetAttribute("num", 3);
+		xField.SetAttribute("min", 0);
+		xField.SetAttribute("max", 255);
+
+		xml->InsertEndChild(xField);
+}
 }
 
 TiXmlElement* DcxIpAddress::toXml(void) const
