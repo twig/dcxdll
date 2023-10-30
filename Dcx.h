@@ -1510,4 +1510,5 @@ namespace Dcx
 
 	}
 #endif
+	COLORREF BrushToColour(HBRUSH hBrush) noexcept;
 }

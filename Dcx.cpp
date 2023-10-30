@@ -854,4 +854,11 @@ namespace Dcx {
 		}
 	}
 
+	COLORREF BrushToColour(HBRUSH hBrush) noexcept
+	{
+		if (hBrush)
+			if (const auto lg = Dcx::dcxGetObject<LOGBRUSH>(hBrush); lg.code != 0)
+				return lg.value.lbColor;
+		return CLR_INVALID;
+	}
 }
