@@ -539,7 +539,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto item = this->parsePath(path);
 
 		if (!item)
-			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
 			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		TV_DeleteItem(item);
@@ -599,7 +598,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto item = this->parsePath(path);
 
 		if (!item)
-			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
 			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		auto nIcon = icons.getfirsttok(1).to_int() - 1;
@@ -622,7 +620,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		{
 			// overlay is 1-based index
 			if (const auto oIcon = icons.getnexttok().to_int(); oIcon > -1)
-				//TreeView_SetItemState(m_Hwnd, tvi.hItem, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(oIcon)), TVIS_OVERLAYMASK);
 				TV_SetItemState(tvi.hItem, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(oIcon)), TVIS_OVERLAYMASK);
 		}
 
@@ -682,7 +679,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto item = this->parsePath(path);
 
 		if (!item)
-			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
 			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		//TreeView_SetItemState(m_Hwnd, item, INDEXTOSTATEIMAGEMASK(state), TVIS_STATEIMAGEMASK);
@@ -819,7 +815,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto item = this->parsePath(path);
 
 		if (!item)
-			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
 			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		if (const auto lpdcxtvitem = getItemParam(item); lpdcxtvitem)
@@ -837,7 +832,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto item = this->parsePath(path);
 
 		if (!item)
-			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
 			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		if (const auto lpdcxtvitem = getItemParam(item); lpdcxtvitem)
@@ -887,7 +881,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto* const item = this->parsePath(path);
 
 		if (!item)
-			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
 			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		if (dcx_testflag(iFlags, TVIE_EXP))
@@ -907,6 +900,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		TreeView_SelectItem(m_Hwnd, nullptr);
 	}
 	// xdid -v [NAME] [ID] [SWITCH] N N N [TAB] (Item Text)
+	// xdid -v [NAME] [ID] [SWITCH] N N N [TAB] [+FLAGS] (Item Text)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 4)
@@ -921,17 +915,20 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto item = this->parsePath(path);
 
 		if (!item)
-			//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
 			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
-		//TVITEMEX tvi{};
-		//
-		//tvi.mask = TVIF_TEXT | TVIF_HANDLE;
-		//tvi.hItem = item;
-		//tvi.pszText = itemtext.to_chr();
-		//
-		//TreeView_SetItem(m_Hwnd, &tvi);
+		if (const auto tsFlags(itemtext.getfirsttok(1)); tsFlags[0] == TEXT('+'))
+		{
+			itemtext = itemtext.getlasttoks();
 
+			const XSwitchFlags xFlags(tsFlags);
+			if (const auto lpdcxtvitem = getItemParam(item); lpdcxtvitem)
+			{
+				lpdcxtvitem->bBold = xFlags[TEXT('b')];
+				lpdcxtvitem->bItalic = xFlags[TEXT('i')];
+				lpdcxtvitem->bUline = xFlags[TEXT('u')];
+			}
+		}
 		TV_SetItemText(item, itemtext);
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]

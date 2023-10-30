@@ -271,13 +271,11 @@ void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"state"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		TBBUTTONINFO tbbi{ sizeof(TBBUTTONINFO),TBIF_STATE | TBIF_BYINDEX };
@@ -309,13 +307,11 @@ void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"tooltip"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		if (auto lpdcxtbb = getButtonData(iButton); lpdcxtbb)
