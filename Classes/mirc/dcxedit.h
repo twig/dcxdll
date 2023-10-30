@@ -65,9 +65,9 @@ class DcxEdit final
 public:
 	DcxEdit() = delete;
 	DcxEdit(const DcxEdit&) = delete;
-	DcxEdit& operator =(const DcxEdit&) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxEdit& operator =(const DcxEdit&) = delete;	// No assignments!
 	DcxEdit(DcxEdit&&) = delete;
-	DcxEdit& operator =(DcxEdit&&) = delete;
+	GSL_SUPPRESS(c.128) DcxEdit& operator =(DcxEdit&&) = delete;
 
 	DcxEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxEdit() noexcept;
@@ -97,6 +97,7 @@ private:
 	TString m_tsCue; // Cue Text
 	TCHAR	m_PassChar{};	// Password char
 
+	bool m_bCueFocused{ false };
 	bool m_bIgnoreRepeat{ false };
 
 #define WM_DRAW_NUMBERS (WM_USER + 1000)

@@ -212,13 +212,16 @@ const TString DcxEdit::getStyles(void) const
 
 void DcxEdit::toXml(TiXmlElement* const xml) const
 {
-	__super::toXml(xml);
+	if (!xml)
+		return;
 
-	//xml->SetAttribute("caption", m_tsText.c_str());
+	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
 	if (this->m_PassChar > 0)
 		xml->SetAttribute("passchar", this->m_PassChar);
+	if (this->m_bCueFocused)
+		xml->SetAttribute("cuefocused", "1");
 	if (!this->m_tsCue.empty())
 		xml->SetAttribute("cue", this->m_tsCue.c_str());
 
@@ -228,6 +231,8 @@ void DcxEdit::toXml(TiXmlElement* const xml) const
 	xml->SetAttribute("gutterseltextcolour", this->m_clrGutter_seltxt);
 	xml->SetAttribute("gutterbordercolour", this->m_clrGutter_border);
 	xml->SetAttribute("gutterwidth", this->m_GutterWidth);
+	if (this->m_bLockGutter)
+		xml->SetAttribute("lockgutter", "1");
 
 	xml->LinkEndChild(new TiXmlText(this->m_tsText.c_str()));
 }
@@ -842,12 +847,14 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		{
 			const XSwitchFlags xFlags(tsFlags);
 			this->m_tsCue = input.gettok(5,-1);	// tok 5, -1
-			if (xFlags[TEXT('f')])
+			m_bCueFocused = xFlags[TEXT('f')];
+			if (m_bCueFocused)
 				Edit_SetCueBannerTextFocused(m_Hwnd, m_tsCue.to_wchr(), TRUE);
 			else
 				Edit_SetCueBannerText(m_Hwnd, this->m_tsCue.to_wchr());
 		}
 		else {
+			m_bCueFocused = false;
 			this->m_tsCue = input.getlasttoks();	// tok 4, -1
 			Edit_SetCueBannerText(m_Hwnd, this->m_tsCue.to_wchr());
 		}
