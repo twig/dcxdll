@@ -93,14 +93,14 @@ void DcxPanel::toXml(TiXmlElement* const xml) const
 			xctrl->SetAttribute("x", rc.left);
 			xctrl->SetAttribute("y", rc.top);
 			if (!xctrl->Attribute("height"))
-			xctrl->SetAttribute("height", rc.Height());
+				xctrl->SetAttribute("height", rc.Height());
 			if (!xctrl->Attribute("width"))
-			xctrl->SetAttribute("width", rc.Width());
+				xctrl->SetAttribute("width", rc.Width());
 
 			xml->LinkEndChild(xctrl);
 		}
 	}
-	}
+}
 
 TiXmlElement* DcxPanel::toXml(void) const
 {
