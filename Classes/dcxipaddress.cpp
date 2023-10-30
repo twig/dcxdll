@@ -127,7 +127,7 @@ void DcxIpAddress::toXml(TiXmlElement* const xml) const
 		xField.SetAttribute("max", 255);
 
 		xml->InsertEndChild(xField);
-}
+	}
 }
 
 TiXmlElement* DcxIpAddress::toXml(void) const
@@ -135,6 +135,26 @@ TiXmlElement* DcxIpAddress::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxIpAddress::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	const TString tsIP(queryAttribute(xThis, "caption"));
+	this->setAddress(tsIP.to_addr());
+
+	for (auto xField = xThis->FirstChildElement("field"); xField; xField = xField->NextSiblingElement("field"))
+	{
+		const auto nField = queryIntAttribute(xThis, "num");
+		const auto nMin = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "min"));
+		const auto nMax = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "max"));
+		if ((nField >= 0) && (nField < 4))
+			this->setRange(nField, nMin, nMax);
+	}
 }
 
 /*!
@@ -194,7 +214,6 @@ void DcxIpAddress::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto IP(input.getnexttok().strip());	// tok 4
@@ -208,7 +227,6 @@ void DcxIpAddress::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('g')])
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nField = input.getnexttok().to_int() - 1;				// tok 4
@@ -216,7 +234,6 @@ void DcxIpAddress::parseCommandRequest(const TString& input)
 		const auto max = gsl::narrow_cast<BYTE>(input.getnexttok().to_int() & 0xFF);	// tok 6
 
 		if (nField < 0 || nField > 3)
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		this->setRange(nField, min, max);
@@ -225,13 +242,11 @@ void DcxIpAddress::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nField = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nField < 0 || nField > 3)
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		this->setFocus(nField);

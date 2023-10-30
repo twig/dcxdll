@@ -2131,7 +2131,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			if (const auto himl = this->initImageList(LVSIL_GROUPHEADER); index < 0)
 			{
 				AddFileIcons(himl, filename, false, -1);
-	}
+			}
 			else {
 #if DCX_USE_WRAPPERS
 				const Dcx::dcxIconResource icon(index, filename, false, tflags);
@@ -3357,10 +3357,10 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				//}
 
 				if (LVHITTESTINFO lvh{ Dcx::dcxListView_CursorHitTest(m_Hwnd) }; lvh.flags & LVHT_ONITEM)
-						execAliasEx(TEXT("hover,%u,%d,%d"), getUserID(), lvh.iItem + 1, lvh.iSubItem + 1);
+					execAliasEx(TEXT("hover,%u,%d,%d"), getUserID(), lvh.iItem + 1, lvh.iSubItem + 1);
 				else
 					execAliasEx(TEXT("hover,%u"), getUserID());
-				}
+			}
 			bParsed = TRUE;
 		}
 		break;
@@ -3380,12 +3380,6 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				m_OrigEditProc = SubclassWindow(edit_hwnd, DcxListView::EditLabelProc);
 				Dcx::dcxSetProp(edit_hwnd, TEXT("dcx_pthis"), this);
 			}
-
-			//TCHAR ret[256];
-			//evalAliasEx(ret, Dcx::countof(ret), TEXT("labelbegin,%u,%d,%d"), getUserID(), lplvdi->item.iItem +1, lplvdi->item.iSubItem +1);
-			//
-			//if ( ts_strcmp( TEXT("noedit"), ret ) == 0)
-			//	return TRUE;
 
 			const stString<256> sRet;
 			evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("labelbegin,%u,%d,%d"), getUserID(), lplvdi->item.iItem + 1, lplvdi->item.iSubItem + 1);
@@ -3409,12 +3403,6 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			if (!lplvdi->item.pszText)
 				execAliasEx(TEXT("labelcancel,%u"), getUserID());
 			else {
-				//TCHAR ret[256];
-				//evalAliasEx( ret, Dcx::countof(ret), TEXT("labelend,%u,%s"), getUserID( ), lplvdi->item.pszText );
-				//
-				//if ( ts_strcmp( TEXT("noedit"), ret ) == 0)
-				//	return FALSE;
-
 				const stString<256> sRet;
 				evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("labelend,%u,%s"), getUserID(), lplvdi->item.pszText);
 				//evalAlias(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("labelend,%,%"), getUserID(), lplvdi->item.pszText);
@@ -3572,7 +3560,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					}
 				}
 				if (Dcx::m_hDragImage)
-				ImageList_GetImageInfo(Dcx::m_hDragImage, 0, &imf);
+					ImageList_GetImageInfo(Dcx::m_hDragImage, 0, &imf);
 				iHeight = imf.rcImage.bottom;
 			}
 
@@ -6120,7 +6108,7 @@ void DcxListView::toXml(TiXmlElement* const xml) const
 				{
 					const TString tsBuffer(lc.pszText);
 					xColumn.SetAttribute("text", tsBuffer.c_str());
-}
+				}
 				xColumn.SetAttribute("image", lc.iImage);
 				xColumn.SetAttribute("width", lc.cx);
 				xColumn.SetAttribute("order", lc.iOrder);
@@ -6168,6 +6156,19 @@ std::unique_ptr<TiXmlElement> DcxListView::toXml(int blah) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml;
+}
+
+void DcxListView::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	//TODO: load column data
+		//  xdid -t $dname id +c 0 50 Time $chr(9) +c 0 50 Nick $chr(9) + 0 300 File $chr(9) +c 0 60 Network
+	//TODO: load items
+	//TODO: load icons
 }
 
 LRESULT DcxListView::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept

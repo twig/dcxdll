@@ -343,7 +343,7 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 
 		// add item to colour/listbox/listview/treeview dropdown
 		addItem(clr, tsItemText);
-		}
+	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('c')])
 	{
@@ -629,7 +629,7 @@ void DcxMultiCombo::toXml(TiXmlElement* const xml) const
 		for (int nItem{}; nItem < nCnt; ++nItem)
 		{
 			auto ItemData = this->getListBoxItem(nItem); // does the same for both styles.
-			
+
 			TiXmlElement xChild("item");
 
 			xChild.SetAttribute("text", ItemData.m_tsItemText.c_str());
@@ -662,6 +662,61 @@ std::unique_ptr<TiXmlElement> DcxMultiCombo::toXml(int blah) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml;
+}
+
+void DcxMultiCombo::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	// Ook: unfinished!
+	const TString wtext(queryAttribute(xThis, "caption"));
+	SetWindowText(m_Hwnd, wtext.to_chr());
+
+	if (auto xDrop = xThis->FirstChildElement("drop"); xDrop)
+	{
+		if (auto xCtrl = xDrop->FirstChildElement("control"); xCtrl)
+		{
+			const auto iX = queryIntAttribute(xCtrl, "x");
+			const auto iY = queryIntAttribute(xCtrl, "y");
+			const auto iWidth = queryIntAttribute(xCtrl, "width");
+			const auto iHeight = queryIntAttribute(xCtrl, "height");
+			auto szID = queryAttribute(xCtrl, "id");
+			auto szType = queryAttribute(xCtrl, "type");
+			auto szStyles = queryAttribute(xCtrl, "styles");
+
+			// ID is NOT a number!
+			if (_ts_isEmpty(szID)) // needs looked at, think dcxml generates an id.
+				throw DcxExceptions::dcxInvalidItem();
+
+			TString tsInput;
+			_ts_sprintf(tsInput, TEXT("% % % % % % %"), szID, szType, iX, iY, iWidth, iHeight, szStyles);
+			if (auto ctrl = getParentDialog()->addControl(tsInput, 1, DcxAllowControls::ALLOW_ALLBUTDOCK, m_Hwnd); ctrl)
+			{
+				ctrl->fromXml(xThis, xCtrl);
+
+				SendMessage(m_Hwnd, MC_WM_ADDCHILD, 0, reinterpret_cast<LPARAM>(ctrl->getHwnd()));
+			}
+		}
+		else {
+			//const auto iWidth = queryIntAttribute(xDrop, "width");
+			//const auto iHeight = queryIntAttribute(xDrop, "height");
+
+			for (auto xItem = xDrop->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
+			{
+				//clr txt bg
+				const TString tsText(queryAttribute(xItem, "text"));
+				COLORREF clrBgText{ CLR_INVALID };
+
+				if (auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "textbgcolour")); tmp != CLR_INVALID)
+					clrBgText = tmp;
+
+				addItem(clrBgText, tsText);
+			}
+		}
+	}
 }
 
 const TString DcxMultiCombo::getStyles(void) const

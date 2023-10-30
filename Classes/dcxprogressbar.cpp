@@ -192,7 +192,6 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		m_bIsAbsoluteValue = (input.getnexttok() == TEXT('a'));
@@ -203,7 +202,6 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('k')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		setBKColor(input.getnexttok().to_<COLORREF>());	// tok 4
@@ -215,7 +213,6 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 		if (flags[TEXT('o')])
 		{
 			if (numtok < 4)
-				//throw Dcx::dcxException("Insufficient parameters");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			setMarquee(TRUE, input.getnexttok().to_int());	// tok 4
@@ -228,7 +225,6 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('q')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		setTextColor(input.getnexttok().to_<COLORREF>());	// tok 4
@@ -238,7 +234,6 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('r')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iLow = input.getnexttok().to_int();
@@ -255,7 +250,6 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('u')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		setStep(input.getnexttok().to_int());	// tok 4
@@ -264,7 +258,6 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		setPosition(input.getnexttok().to_int());	// tok 4
@@ -435,7 +428,7 @@ void DcxProgressBar::toXml(TiXmlElement* const xml) const
 		this->getRange(FALSE, &pbr);
 		xml->SetAttribute("min", pbr.iLow);
 		xml->SetAttribute("max", pbr.iHigh);
-}
+	}
 	xml->SetAttribute("pos", this->getPosition());
 	xml->SetAttribute("step", this->getStep());
 	xml->SetAttribute("barcolour", this->getBarColor());
@@ -449,6 +442,28 @@ TiXmlElement* DcxProgressBar::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxProgressBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	this->m_tsText = queryAttribute(xThis, "caption");
+	{
+		const auto iLow = queryIntAttribute(xThis, "min");
+		const auto iHigh = queryIntAttribute(xThis, "max", 100);
+		this->setRange(iLow, iHigh);
+	}
+	this->m_bIsAbsoluteValue = (queryIntAttribute(xThis, "absolute") > 0);
+	this->setStep(queryIntAttribute(xThis, "step", 1));
+	this->setPosition(queryIntAttribute(xThis, "pos"));
+	if (auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "barcolour", CLR_INVALID)); tmp != CLR_INVALID)
+		this->setBarColor(tmp);
+	if (auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "bkcolour", CLR_INVALID)); tmp != CLR_INVALID)
+		this->setBKColor(tmp);
 }
 
 /*!
@@ -663,7 +678,7 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			rc.top = ((rc.bottom - rc.top) + w + h) / 2;
 			rc.right = rc.left + h;
 			rc.bottom = rc.top + w;
-			
+
 			if (auto hTmp = Dcx::dcxSelectObject(hdc, m_hfontVertical); !oldfont)
 				oldfont = hTmp;
 		}
