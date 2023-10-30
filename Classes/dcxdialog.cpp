@@ -1506,10 +1506,14 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 
 		}
 
+		if (xFlags[TEXT('s')])
+		{
 		// remove old data.
 		xDialog->Clear();
 
-		// get current setup
+			xDialog->SetAttribute("version", DCXML_DIALOG_VERSION);
+			//add GIT_DESCRIBEA ?
+			// save current setup
 		this->toXml(xDialog, tsName);
 
 		// save to file.
@@ -1636,6 +1640,32 @@ const UINT DcxDialog::parseTooltipFlags(const TString& flags) noexcept
 		iFlags |= TTS_USEVISUALSTYLE;
 
 	return iFlags;
+}
+
+TString DcxDialog::BkgFlagsToString(UINT uFlags)
+{
+	TString tsResult(TEXT('+'));
+
+	if (dcx_testflag(uFlags, DBS_BKGCOLOR))
+		tsResult += TEXT('b');
+	if (dcx_testflag(uFlags, DBS_BKGBITMAP))
+		tsResult += TEXT('i');
+	if (dcx_testflag(uFlags, DBS_BKGNORMAL))
+		tsResult += TEXT('n');
+	if (dcx_testflag(uFlags, DBS_BKGTILE))
+		tsResult += TEXT('t');
+	if (dcx_testflag(uFlags, DBS_BKGSTRETCH))
+		tsResult += TEXT('s');
+	if (dcx_testflag(uFlags, DBS_BKGCENTER))
+		tsResult += TEXT('c');
+	if (dcx_testflag(uFlags, DBS_BKGVCENTER))
+		tsResult += TEXT('v');
+	if (dcx_testflag(uFlags, DBS_BKGRIGHT))
+		tsResult += TEXT('r');
+	if (dcx_testflag(uFlags, DBS_BKGBOTTOM))
+		tsResult += TEXT('o');
+
+	return tsResult;
 }
 
 /// <summary>
