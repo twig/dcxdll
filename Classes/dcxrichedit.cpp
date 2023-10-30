@@ -405,6 +405,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	{
 		this->m_tsText.clear();	// = TEXT("");
 		this->clearContents();
+		Edit_SetModify(m_Hwnd, FALSE);
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
@@ -423,6 +424,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		this->m_tsText += tmp;
 		this->parseStringContents(tmp, TRUE);
 		//this->parseContents(TRUE);
+		Edit_SetModify(m_Hwnd, FALSE);
 
 		this->setCaretPos(pos);
 	}
@@ -506,52 +508,62 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
 	else if (flags[TEXT('f')])
 	{
+		//if (numtok < 4)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//this->m_bIgnoreInput = true;
+		//{
+		//	this->setRedraw(FALSE);
+		//	Auto(this->setRedraw(TRUE));
+		//
+		//	this->parseGlobalCommandRequest(input, flags);
+		//
+		//	const auto iFontFlags = parseFontFlags(input.getnexttok());	// tok 4
+		//
+		//	if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_DEFAULT))
+		//	{
+		//		this->m_clrBackText = GetSysColor(COLOR_WINDOW);
+		//		this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
+		//		this->m_iFontSize = 10 * 20;
+		//		this->m_bFontBold = false;
+		//		this->m_bFontItalic = false;
+		//		this->m_bFontUnderline = false;
+		//		this->m_bFontStrikeout = false;
+		//		this->m_byteCharset = DEFAULT_CHARSET;
+		//		this->setContentsFont();
+		//		this->parseContents(TRUE);
+		//	}
+		//	else if (numtok > 5)
+		//	{
+		//		this->m_byteCharset = gsl::narrow_cast<BYTE>(parseFontCharSet(input.getnexttok()));	// tok 5
+		//		this->m_iFontSize = 20U * input.getnexttok().to_<UINT>();			// tok 6
+		//		this->m_tsFontFaceName = input.getlasttoks().trim();				// tok 7, -1
+		//
+		//		m_bFontBold = dcx_testflag(iFontFlags, dcxFontFlags::DCF_BOLD);
+		//
+		//		m_bFontItalic = dcx_testflag(iFontFlags, dcxFontFlags::DCF_ITALIC);
+		//
+		//		m_bFontStrikeout = dcx_testflag(iFontFlags, dcxFontFlags::DCF_STRIKEOUT);
+		//
+		//		m_bFontUnderline = dcx_testflag(iFontFlags, dcxFontFlags::DCF_UNDERLINE);
+		//
+		//		this->setContentsFont();
+		//		this->parseContents(TRUE);
+		//	}
+		//}
+		//this->m_bIgnoreInput = false;
+		//this->redrawWindow();
+
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		this->m_bIgnoreInput = true;
-		{
-			this->setRedraw(FALSE);
-			Auto(this->setRedraw(TRUE));
+		const TString tsFlags(input.getnexttok());				// tok 4
+		const TString tsCharset(input.getnexttok());			// tok 5
+		const UINT iSize = input.getnexttok().to_<UINT>();		// tok 6
+		const TString tsFontname(input.getlasttoks().trim());	// tok 7, -1
 
-			this->parseGlobalCommandRequest(input, flags);
-
-			const auto iFontFlags = parseFontFlags(input.getnexttok());	// tok 4
-
-			if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_DEFAULT))
-			{
-				this->m_clrBackText = GetSysColor(COLOR_WINDOW);
-				this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
-				this->m_iFontSize = 10 * 20;
-				this->m_bFontBold = false;
-				this->m_bFontItalic = false;
-				this->m_bFontUnderline = false;
-				this->m_bFontStrikeout = false;
-				this->m_byteCharset = DEFAULT_CHARSET;
-				this->setContentsFont();
-				this->parseContents(TRUE);
+		setRicheditFont(tsFlags, tsCharset, iSize, tsFontname);
 			}
-			else if (numtok > 5)
-			{
-				this->m_byteCharset = gsl::narrow_cast<BYTE>(parseFontCharSet(input.getnexttok()));	// tok 5
-				this->m_iFontSize = 20U * input.getnexttok().to_<UINT>();			// tok 6
-				this->m_tsFontFaceName = input.getlasttoks().trim();				// tok 7, -1
-
-				m_bFontBold = dcx_testflag(iFontFlags, dcxFontFlags::DCF_BOLD);
-
-				m_bFontItalic = dcx_testflag(iFontFlags, dcxFontFlags::DCF_ITALIC);
-
-				m_bFontStrikeout = dcx_testflag(iFontFlags, dcxFontFlags::DCF_STRIKEOUT);
-
-				m_bFontUnderline = dcx_testflag(iFontFlags, dcxFontFlags::DCF_UNDERLINE);
-
-				this->setContentsFont();
-				this->parseContents(TRUE);
-			}
-		}
-		this->m_bIgnoreInput = false;
-		this->redrawWindow();
-	}
 	// xdid -g [NAME] [ID] [SWITCH] [Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-) (Border Colour|-) (Unlock Gutter 0|1|-) (Gutter Size|-) (Gutter Border Size|-)
 	else if (flags[TEXT('g')])
 	{
@@ -1551,6 +1563,54 @@ void DcxRichEdit::setCaretPos(DWORD pos) noexcept
 	SendMessage(m_Hwnd, EM_EXSETSEL, 0, reinterpret_cast<LPARAM>(&c));
 }
 
+void DcxRichEdit::setRicheditFont(const TString& tsFlags, const TString& tsCharset, UINT iSize, const TString& tsFontname)
+{
+	this->setRedraw(FALSE);
+	Auto(this->setRedraw(TRUE));
+
+	TString tsInput;
+	tsInput.addtok(tsFlags);
+	tsInput.addtok(tsCharset);
+	tsInput.addtok(iSize);
+	tsInput.addtok(tsFontname);
+	
+	if (LOGFONT lf{ }; ParseCommandToLogfont(tsInput, &lf))
+		setControlFont(CreateFontIndirect(&lf), FALSE);
+
+	const auto iFontFlags = parseFontFlags(tsFlags);
+
+	if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_DEFAULT))
+	{
+		this->m_clrBackText = GetSysColor(COLOR_WINDOW);
+		this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
+		this->m_iFontSize = 10 * 20;
+		this->m_bFontBold = false;
+		this->m_bFontItalic = false;
+		this->m_bFontUnderline = false;
+		this->m_bFontStrikeout = false;
+		this->m_byteCharset = DEFAULT_CHARSET;
+		this->setContentsFont();
+		this->parseContents(TRUE);
+	}
+	else if (!tsFontname.empty())
+	{
+		this->m_byteCharset = gsl::narrow_cast<BYTE>(parseFontCharSet(tsCharset));
+		this->m_iFontSize = 20U * iSize;
+		this->m_tsFontFaceName = tsFontname;
+
+		m_bFontBold = dcx_testflag(iFontFlags, dcxFontFlags::DCF_BOLD);
+
+		m_bFontItalic = dcx_testflag(iFontFlags, dcxFontFlags::DCF_ITALIC);
+
+		m_bFontStrikeout = dcx_testflag(iFontFlags, dcxFontFlags::DCF_STRIKEOUT);
+
+		m_bFontUnderline = dcx_testflag(iFontFlags, dcxFontFlags::DCF_UNDERLINE);
+
+		this->setContentsFont();
+		this->parseContents(TRUE);
+	}
+}
+
 /*!
 * \brief blah
 *
@@ -1677,9 +1737,27 @@ LRESULT DcxRichEdit::setCharFormat(const UINT iType, const CHARFORMAT2* cfm) noe
 
 void DcxRichEdit::toXml(TiXmlElement* const xml) const
 {
+	if (!xml)
+		return;
+
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
+	if (this->m_PassChar > 0)
+		xml->SetAttribute("passchar", this->m_PassChar);
+	if (this->m_bCueFocused)
+		xml->SetAttribute("cuefocused", "1");
+	if (!this->m_tsCue.empty())
+		xml->SetAttribute("cue", this->m_tsCue.c_str());
+
+	xml->SetAttribute("gutterbgcolour", this->m_clrGutter_bkg);
+	xml->SetAttribute("gutterselbgcolour", this->m_clrGutter_selbkg);
+	xml->SetAttribute("guttertextcolour", this->m_clrGutter_txt);
+	xml->SetAttribute("gutterseltextcolour", this->m_clrGutter_seltxt);
+	xml->SetAttribute("gutterbordercolour", this->m_clrGutter_border);
+	xml->SetAttribute("gutterwidth", this->m_GutterWidth);
+	if (this->m_bLockGutter)
+		xml->SetAttribute("lockgutter", "1");
 
 	xml->LinkEndChild(new TiXmlText(this->m_tsText.c_str()));
 }
@@ -1715,7 +1793,7 @@ const TString DcxRichEdit::getStyles(void) const
 	if (dcx_testflag(Styles, ES_DISABLENOSCROLL))
 		styles.addtok(TEXT("disablescroll"));
 	if (m_bShowLineNumbers)
-		styles.addtok(TEXT("shownumbers"));
+		styles.addtok(TEXT("showlinenumbers"));
 	return styles;
 }
 

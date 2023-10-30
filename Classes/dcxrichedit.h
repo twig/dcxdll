@@ -50,9 +50,9 @@ class DcxRichEdit final
 public:
 	DcxRichEdit() = delete;
 	DcxRichEdit(const DcxRichEdit&) = delete;
-	DcxRichEdit& operator =(const DcxRichEdit&) = delete;
+	GSL_SUPPRESS(c.128) DcxRichEdit& operator =(const DcxRichEdit&) = delete;
 	DcxRichEdit(DcxRichEdit&&) = delete;
-	DcxRichEdit& operator =(DcxRichEdit&&) = delete;
+	GSL_SUPPRESS(c.128) DcxRichEdit& operator =(DcxRichEdit&&) = delete;
 
 	DcxRichEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxRichEdit() noexcept = default;
@@ -91,6 +91,10 @@ public:
 protected:
 	TString m_tsText;			//!< RichEdit Text contents
 	TString m_tsFontFaceName;	//!< Font Face Name
+	TString m_tsCue;			// Cue Text
+	TCHAR	m_PassChar{};		// Password char
+
+	bool m_bCueFocused{ false };
 
 	COLORREF m_aColorPalette[mIRC_PALETTE_SIZE]{ CLR_INVALID }; //!< Richedit color palette to parse control codes
 
@@ -205,6 +209,9 @@ protected:
 	DWORD GetCaretPos() const noexcept;
 	DWORD GetCaretLine() const noexcept;
 	void setCaretPos(DWORD pos) noexcept;
+
+	//[+FLAGS] [CHARSET] [SIZE] [FONTNAME]
+	void setRicheditFont(const TString &tsFlags, const TString &tsCharset, UINT iSize, const TString &tsFontname);
 };
 
 #endif // _DCXRICHEDIT_H_
