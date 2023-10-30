@@ -44,9 +44,9 @@ class DcxList final
 public:
 	DcxList() = delete;
 	DcxList(const DcxList &) = delete;
-	DcxList &operator =(const DcxList &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxList &operator =(const DcxList &) = delete;	// No assignments!
 	DcxList(DcxList &&) = delete;
-	DcxList &operator =(DcxList &&) = delete;
+	GSL_SUPPRESS(c.128) DcxList &operator =(DcxList &&) = delete;
 
 	DcxList(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxList( );
@@ -78,6 +78,15 @@ private:
 
 	void UpdateHorizExtent();
 	void UpdateHorizExtent(const int nPos);
+
+	/// <summary>
+	/// Add items to the list.
+	/// </summary>
+	/// <param name="nPos">- Position at which to add this item.</param>
+	/// <param name="tsFlags">- Flags to define what tsArgs means. MUST start with a +</param>
+	/// <param name="tsArgs">- The item data to add.</param>
+	/// <returns>The next position to add an item at.</returns>
+	int addItems(int nPos, const TString &tsFlags, const TString &tsArgs);
 
 	UINT m_iDragList{};
 	int m_iLastDrawnLine{};

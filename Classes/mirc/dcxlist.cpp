@@ -18,7 +18,8 @@
 #include "Classes/dcxdialog.h"
 #include "Dcx.h"
 
-namespace Dcx {
+namespace Dcx
+{
 	[[nodiscard]] TString dcxListBox_GetText(HWND hwnd, int i)
 	{
 		TString tsBuf;
@@ -426,207 +427,209 @@ void DcxList::parseCommandRequest(const TString& input)
 			nPos = ListBox_GetCount(m_Hwnd);
 
 		Dcx::dcxListBox_InsertString(m_Hwnd, nPos, tsItem);
-
-		// Now update the horizontal scroller
-		//const int nHorizExtent = ListBox_GetHorizontalExtent( m_Hwnd );
-		//int nMaxStrlen = tsItem.len();
-		//
-		//this->StrLenToExtent(&nMaxStrlen);
-		//
-		//if (nMaxStrlen > nHorizExtent)
-		//	ListBox_SetHorizontalExtent( m_Hwnd, nMaxStrlen);
-
 	}
 	//xdid -A [NAME] [ID] [SWITCH] [N] [+FLAGS] [TEXT]
 	//xdid -A -> [NAME] [ID] -A [N] [+FLAGS] [TEXT]
 	else if (flags[TEXT('A')])
 	{
+		//if (numtok < 6)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//auto nPos = input.getnexttok().to_int() - 1;	// tok 4
+		//
+		//if (nPos == -1)
+		//	nPos = ListBox_GetCount(m_Hwnd);
+		//
+		//const XSwitchFlags xOpts(input.getnexttok());		// tok 5
+		//auto itemtext(input.getlasttoks().trim());		// tok 6, -1
+		//TString tsRes;
+		//const auto iItemToks = itemtext.numtok();
+		//
+		//if (!xOpts[TEXT('+')])
+		//	throw DcxExceptions::dcxInvalidFlag();
+		//
+		//if (xOpts[TEXT('H')]) // [TEXT] == [table] [item]
+		//{
+		//	if (iItemToks != 2) // load single item from hash table by item name
+		//		throw DcxExceptions::dcxInvalidArguments();
+		//
+		//	mIRCLinker::eval(tsRes, TEXT("$hget(%,%)"), itemtext.getfirsttok(1), itemtext.getnexttok());	// tok 1 then 2
+		//
+		//	if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos, tsRes) < 0)
+		//		throw Dcx::dcxException(TEXT("Error Adding item: %"), tsRes);
+		//}
+		//else if (xOpts[TEXT('n')]) // [TEXT] == [table] [N]
+		//{
+		//	if (iItemToks != 2) // load single item from hash table by index
+		//		throw DcxExceptions::dcxInvalidArguments();
+		//
+		//	mIRCLinker::eval(tsRes, TEXT("$hget(%,%).data"), itemtext.getfirsttok(1), itemtext.getnexttok());	// tok 1 then 2
+		//
+		//	if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos, tsRes) < 0)
+		//		throw Dcx::dcxException(TEXT("Error Adding item: %"), tsRes);
+		//}
+		//else if (xOpts[TEXT('t')]) // [TEXT] == [table] [startN] [endN]
+		//{
+		//	if (iItemToks != 3) // add contents of a hash table to list
+		//		throw DcxExceptions::dcxInvalidArguments();
+		//
+		//	const auto htable(itemtext.getfirsttok(1));
+		//	auto startN = itemtext.getnexttok().to_int();	// tok 2
+		//	auto endN = itemtext.getnexttok().to_int();		// tok 3
+		//
+		//	// get total items in table.
+		//	mIRCLinker::eval(tsRes, TEXT("$hget(%,0).item"), htable);
+		//	const auto max_items = tsRes.to_int();
+		//
+		//	// no items in table.
+		//	if (max_items == 0)
+		//		return;
+		//
+		//	// If neg number is given start from (last item) - startN
+		//	if (startN < 0)
+		//		startN = (max_items + startN);
+		//
+		//	// if start N < 1, make it 1. Allows 0 item. Or case where higher neg number was supplied than items avail.
+		//	if (startN < 1)
+		//		startN = 1;
+		//
+		//	// If neg number is given set end to (last item) - endN
+		//	if (endN < 0)
+		//		endN = (max_items + endN);
+		//	// if endN > max or == 0, set to max, allows 0 item for end meaning all
+		//	else if ((endN > max_items) || (endN == 0))
+		//		endN = max_items;
+		//
+		//	// if endN < 1 set it to 1
+		//	if (endN < 1)
+		//		endN = 1;
+		//
+		//	// check endN comes after startN
+		//	if (endN < startN)
+		//		throw DcxExceptions::dcxOutOfRange();
+		//
+		//	this->setRedraw(FALSE);
+		//	Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
+		//
+		//	for (auto i = startN; i <= endN; ++i)
+		//	{
+		//		//mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%d).data"), htable.to_chr(), i);
+		//		mIRCLinker::eval(tsRes, TEXT("$hget(%,%).data"), htable, i);
+		//
+		//		if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos++, tsRes) < 0)
+		//			throw Dcx::dcxException(TEXT("Error Adding item: %"), tsRes);
+		//	}
+		//}
+		//else if (xOpts[TEXT('f')]) // [TEXT] == [startN] [endN] [filename]
+		//{
+		//	if (iItemToks < 3) // add contents of a file to list
+		//		throw DcxExceptions::dcxInvalidArguments();
+		//
+		//	auto startN = itemtext.getfirsttok(1).to_int();
+		//	auto endN = itemtext.getnexttok().to_int();	// tok 2
+		//	auto filename(itemtext.getlasttoks());	// tok 3, -1
+		//
+		//	if (!IsFile(filename))
+		//		throw Dcx::dcxException(TEXT("Unable To Access File: %"), itemtext);
+		//
+		//	const auto contents(readTextFile(filename));
+		//	if (contents.empty())
+		//		return;
+//
+		//	auto tok = TEXT("\r\n");
+//
+		//	auto max_lines = contents.numtok(tok);
+		//	if (max_lines == 1U)
+		//	{
+		//		tok = TEXT("\n");
+		//		max_lines = contents.numtok(tok);
+		//	}
+//
+		//	// no data in file.
+		//	if (max_lines == 0U)
+		//		return;
+//
+		//	// If neg number is given start from (last line) - startN
+		//	if (startN < 0)
+		//		startN = (gsl::narrow_cast<int>(max_lines) + startN);
+//
+		//	// if start N < 1, make it 1. Allows 0 item. Or case where higher neg number was supplied than lines avail.
+		//	if (startN < 1)
+		//		startN = 1;
+//
+		//	// If neg number is given set end to (last line) - endN
+		//	if (endN < 0)
+		//		endN = (gsl::narrow_cast<int>(max_lines) + endN);
+		//	// if endN > max or == 0, set to max, allows 0 for end meaning all
+		//	else if ((endN > gsl::narrow_cast<int>(max_lines)) || (endN == 0))
+		//		endN = gsl::narrow_cast<int>(max_lines);
+//
+		//	// if endN < 1 set it to 1
+		//	if (endN < 1)
+		//		endN = 1;
+//
+		//	// check endN comes after startN
+		//	if (endN < startN)
+		//		throw DcxExceptions::dcxOutOfRange();
+//
+		//	this->setRedraw(FALSE);
+		//	Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
+//
+		//	{
+		//		const auto itEnd = contents.end();
+		//		for (auto itStart = contents.begin(tok); itStart != itEnd; ++itStart)
+		//		{
+		//			itemtext = (*itStart);
+//
+		//			if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos++, itemtext) < 0)
+		//				throw Dcx::dcxException(TEXT("Error Adding item: %"), itemtext);
+		//		}
+		//	}
+		//}
+		//else if (xOpts[TEXT('T')]) // [TEXT] == [C] [text][c][text]......
+		//{
+		//	if (iItemToks < 2) // add tokens to list
+		//		throw DcxExceptions::dcxInvalidArguments();
+//
+		//	TCHAR tok[2]{};
+		//	tok[0] = gsl::narrow_cast<TCHAR>(itemtext.getfirsttok(1).to_int());
+		//	tok[1] = 0;
+		//	const auto contents(itemtext.getlasttoks());	// tok 2, -1
+//
+		//	setRedraw(FALSE);
+		//	Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
+//
+		//	{
+		//		const auto itEnd = contents.end();
+		//		for (auto itStart = contents.begin(&tok[0]); itStart != itEnd; ++itStart)
+		//		{
+		//			itemtext = (*itStart);
+//
+		//			if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos++, itemtext) < 0)
+		//				throw Dcx::dcxException(TEXT("Error Adding item: %"), itemtext);
+		//		}
+		//	}
+		//}
+		//else
+		//{
+		//	if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos, itemtext) < 0)
+		//		throw Dcx::dcxException(TEXT("Error Adding item: %"), itemtext);
+		//}
+		//// Now update the horizontal scroller
+		//UpdateHorizExtent();
+
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
+		const TString tsFlags(input.getnexttok());
+		const TString tsArgs(input.getlasttoks().trim());
 
 		if (nPos == -1)
 			nPos = ListBox_GetCount(m_Hwnd);
 
-		const XSwitchFlags xOpts(input.getnexttok());		// tok 5
-		auto itemtext(input.getlasttoks().trim());		// tok 6, -1
-		TString tsRes;
-		const auto iItemToks = itemtext.numtok();
+		addItems(nPos, tsFlags, tsArgs);
 
-		if (!xOpts[TEXT('+')])
-			throw DcxExceptions::dcxInvalidFlag();
-
-		if (xOpts[TEXT('H')]) // [TEXT] == [table] [item]
-		{
-			if (iItemToks != 2) // load single item from hash table by item name
-				throw DcxExceptions::dcxInvalidArguments();
-
-			//mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%s)"), itemtext.getfirsttok(1).to_chr(), itemtext.getnexttok().to_chr());	// tok 1 then 2
-			mIRCLinker::eval(tsRes, TEXT("$hget(%,%)"), itemtext.getfirsttok(1), itemtext.getnexttok());	// tok 1 then 2
-
-			if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos, tsRes) < 0)
-				throw Dcx::dcxException(TEXT("Error Adding item: %"), tsRes);
-		}
-		else if (xOpts[TEXT('n')]) // [TEXT] == [table] [N]
-		{
-			if (iItemToks != 2) // load single item from hash table by index
-				throw DcxExceptions::dcxInvalidArguments();
-
-			//mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%s).data"), itemtext.getfirsttok(1).to_chr(), itemtext.getnexttok().to_chr());	// tok 1 then 2
-			mIRCLinker::eval(tsRes, TEXT("$hget(%,%).data"), itemtext.getfirsttok(1), itemtext.getnexttok());	// tok 1 then 2
-
-			if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos, tsRes) < 0)
-				throw Dcx::dcxException(TEXT("Error Adding item: %"), tsRes);
-		}
-		else if (xOpts[TEXT('t')]) // [TEXT] == [table] [startN] [endN]
-		{
-			if (iItemToks != 3) // add contents of a hash table to list
-				throw DcxExceptions::dcxInvalidArguments();
-
-			const auto htable(itemtext.getfirsttok(1));
-			auto startN = itemtext.getnexttok().to_int();	// tok 2
-			auto endN = itemtext.getnexttok().to_int();		// tok 3
-
-			// get total items in table.
-			//mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,0).item"), htable.to_chr());
-			mIRCLinker::eval(tsRes, TEXT("$hget(%,0).item"), htable);
-			const auto max_items = tsRes.to_int();
-
-			// no items in table.
-			if (max_items == 0)
-				return;
-
-			// If neg number is given start from (last item) - startN
-			if (startN < 0)
-				startN = (max_items + startN);
-
-			// if start N < 1, make it 1. Allows 0 item. Or case where higher neg number was supplied than items avail.
-			if (startN < 1)
-				startN = 1;
-
-			// If neg number is given set end to (last item) - endN
-			if (endN < 0)
-				endN = (max_items + endN);
-			// if endN > max or == 0, set to max, allows 0 item for end meaning all
-			else if ((endN > max_items) || (endN == 0))
-				endN = max_items;
-
-			// if endN < 1 set it to 1
-			if (endN < 1)
-				endN = 1;
-
-			// check endN comes after startN
-			if (endN < startN)
-				throw DcxExceptions::dcxOutOfRange();
-
-			this->setRedraw(FALSE);
-			Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
-
-			for (auto i = startN; i <= endN; ++i)
-			{
-				//mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%d).data"), htable.to_chr(), i);
-				mIRCLinker::eval(tsRes, TEXT("$hget(%,%).data"), htable, i);
-
-				if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos++, tsRes) < 0)
-					throw Dcx::dcxException(TEXT("Error Adding item: %"), tsRes);
-			}
-		}
-		else if (xOpts[TEXT('f')]) // [TEXT] == [startN] [endN] [filename]
-		{
-			if (iItemToks < 3) // add contents of a file to list
-				throw DcxExceptions::dcxInvalidArguments();
-
-			auto startN = itemtext.getfirsttok(1).to_int();
-			auto endN = itemtext.getnexttok().to_int();	// tok 2
-			auto filename(itemtext.getlasttoks());	// tok 3, -1
-
-			if (!IsFile(filename))
-				throw Dcx::dcxException(TEXT("Unable To Access File: %"), itemtext);
-
-			const auto contents(readTextFile(filename));
-			if (contents.empty())
-				return;
-
-			auto tok = TEXT("\r\n");
-
-			auto max_lines = contents.numtok(tok);
-			if (max_lines == 1U)
-			{
-				tok = TEXT("\n");
-				max_lines = contents.numtok(tok);
-			}
-
-			// no data in file.
-			if (max_lines == 0U)
-				return;
-
-			// If neg number is given start from (last line) - startN
-			if (startN < 0)
-				startN = (gsl::narrow_cast<int>(max_lines) + startN);
-
-			// if start N < 1, make it 1. Allows 0 item. Or case where higher neg number was supplied than lines avail.
-			if (startN < 1)
-				startN = 1;
-
-			// If neg number is given set end to (last line) - endN
-			if (endN < 0)
-				endN = (gsl::narrow_cast<int>(max_lines) + endN);
-			// if endN > max or == 0, set to max, allows 0 for end meaning all
-			else if ((endN > gsl::narrow_cast<int>(max_lines)) || (endN == 0))
-				endN = gsl::narrow_cast<int>(max_lines);
-
-			// if endN < 1 set it to 1
-			if (endN < 1)
-				endN = 1;
-
-			// check endN comes after startN
-			if (endN < startN)
-				throw DcxExceptions::dcxOutOfRange();
-
-			this->setRedraw(FALSE);
-			Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
-
-			{
-				const auto itEnd = contents.end();
-				for (auto itStart = contents.begin(tok); itStart != itEnd; ++itStart)
-				{
-					itemtext = (*itStart);
-
-					if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos++, itemtext) < 0)
-						throw Dcx::dcxException(TEXT("Error Adding item: %"), itemtext);
-				}
-			}
-		}
-		else if (xOpts[TEXT('T')]) // [TEXT] == [C] [text][c][text]......
-		{
-			if (iItemToks < 2) // add tokens to list
-				throw DcxExceptions::dcxInvalidArguments();
-
-			TCHAR tok[2]{};
-			tok[0] = gsl::narrow_cast<TCHAR>(itemtext.getfirsttok(1).to_int());
-			tok[1] = 0;
-			const auto contents(itemtext.getlasttoks());	// tok 2, -1
-
-			setRedraw(FALSE);
-			Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
-
-			{
-				const auto itEnd = contents.end();
-				for (auto itStart = contents.begin(&tok[0]); itStart != itEnd; ++itStart)
-				{
-					itemtext = (*itStart);
-
-					if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos++, itemtext) < 0)
-						throw Dcx::dcxException(TEXT("Error Adding item: %"), itemtext);
-				}
-			}
-		}
-		else
-		{
-			if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos, itemtext) < 0)
-				throw Dcx::dcxException(TEXT("Error Adding item: %"), itemtext);
-		}
 		// Now update the horizontal scroller
 		UpdateHorizExtent();
 	}
@@ -1455,6 +1458,181 @@ void DcxList::UpdateHorizExtent(const int nPos)
 	}
 }
 
+int DcxList::addItems(int nPos, const TString& tsFlags, const TString& tsArgs)
+{
+	const XSwitchFlags xOpts(tsFlags);
+
+	if (!xOpts[TEXT('+')])
+		throw DcxExceptions::dcxInvalidFlag();
+
+	const auto iArgsToks = tsArgs.numtok();
+	TString tsRes;
+
+	if (xOpts[TEXT('H')]) // [TEXT] == [table] [item]
+	{
+		if (iArgsToks != 2) // load single item from hash table by item name
+			throw DcxExceptions::dcxInvalidArguments();
+
+		mIRCLinker::eval(tsRes, TEXT("$hget(%,%)"), tsArgs.getfirsttok(1), tsArgs.getnexttok());	// tok 1 then 2
+
+		if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos++, tsRes) < 0)
+			throw Dcx::dcxException(TEXT("Error Adding item: %"), tsRes);
+	}
+	else if (xOpts[TEXT('n')]) // [TEXT] == [table] [N]
+	{
+		if (iArgsToks != 2) // load single item from hash table by index
+			throw DcxExceptions::dcxInvalidArguments();
+
+		mIRCLinker::eval(tsRes, TEXT("$hget(%,%).data"), tsArgs.getfirsttok(1), tsArgs.getnexttok());	// tok 1 then 2
+
+		if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos++, tsRes) < 0)
+			throw Dcx::dcxException(TEXT("Error Adding item: %"), tsRes);
+	}
+	else if (xOpts[TEXT('t')]) // [TEXT] == [table] [startN] [endN]
+	{
+		if (iArgsToks != 3) // add contents of a hash table to list
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto htable(tsArgs.getfirsttok(1));
+		auto startN = tsArgs.getnexttok().to_int();	// tok 2
+		auto endN = tsArgs.getnexttok().to_int();		// tok 3
+
+		// get total items in table.
+		mIRCLinker::eval(tsRes, TEXT("$hget(%,0).item"), htable);
+		const auto max_items = tsRes.to_int();
+
+		// no items in table.
+		if (max_items == 0)
+			return nPos;
+
+		// If neg number is given start from (last item) - startN
+		if (startN < 0)
+			startN = (max_items + startN);
+
+		// if start N < 1, make it 1. Allows 0 item. Or case where higher neg number was supplied than items avail.
+		if (startN < 1)
+			startN = 1;
+
+		// If neg number is given set end to (last item) - endN
+		if (endN < 0)
+			endN = (max_items + endN);
+		// if endN > max or == 0, set to max, allows 0 item for end meaning all
+		else if ((endN > max_items) || (endN == 0))
+			endN = max_items;
+
+		// if endN < 1 set it to 1
+		if (endN < 1)
+			endN = 1;
+
+		// check endN comes after startN
+		if (endN < startN)
+			throw DcxExceptions::dcxOutOfRange();
+
+		this->setRedraw(FALSE);
+		Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
+
+		for (auto i = startN; i <= endN; ++i)
+		{
+			mIRCLinker::eval(tsRes, TEXT("$hget(%,%).data"), htable, i);
+
+			if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos++, tsRes) < 0)
+				throw Dcx::dcxException(TEXT("Error Adding item: %"), tsRes);
+		}
+	}
+	else if (xOpts[TEXT('f')]) // [TEXT] == [startN] [endN] [filename]
+	{
+		if (iArgsToks < 3) // add contents of a file to list
+			throw DcxExceptions::dcxInvalidArguments();
+
+		auto startN = tsArgs.getfirsttok(1).to_int();
+		auto endN = tsArgs.getnexttok().to_int();	// tok 2
+		auto filename(tsArgs.getlasttoks());	// tok 3, -1
+
+		if (!IsFile(filename))
+			throw Dcx::dcxException(TEXT("Unable To Access File: %"), tsArgs);
+
+		const auto contents(readTextFile(filename));
+		if (contents.empty())
+			return nPos;
+
+		auto tok = TEXT("\r\n");
+
+		auto max_lines = contents.numtok(tok);
+		if (max_lines == 1U)
+		{
+			tok = TEXT("\n");
+			max_lines = contents.numtok(tok);
+		}
+
+		// no data in file.
+		if (max_lines == 0U)
+			return nPos;
+
+		// If neg number is given start from (last line) - startN
+		if (startN < 0)
+			startN = (gsl::narrow_cast<int>(max_lines) + startN);
+
+		// if start N < 1, make it 1. Allows 0 item. Or case where higher neg number was supplied than lines avail.
+		if (startN < 1)
+			startN = 1;
+
+		// If neg number is given set end to (last line) - endN
+		if (endN < 0)
+			endN = (gsl::narrow_cast<int>(max_lines) + endN);
+		// if endN > max or == 0, set to max, allows 0 for end meaning all
+		else if ((endN > gsl::narrow_cast<int>(max_lines)) || (endN == 0))
+			endN = gsl::narrow_cast<int>(max_lines);
+
+		// if endN < 1 set it to 1
+		if (endN < 1)
+			endN = 1;
+
+		// check endN comes after startN
+		if (endN < startN)
+			throw DcxExceptions::dcxOutOfRange();
+
+		this->setRedraw(FALSE);
+		Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
+
+		{
+			const auto itEnd = contents.end();
+			for (auto itStart = contents.begin(tok); itStart != itEnd; ++itStart)
+			{
+				if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos++, (*itStart)) < 0)
+					throw Dcx::dcxException(TEXT("Error Adding item: %"), (*itStart));
+			}
+		}
+	}
+	else if (xOpts[TEXT('T')]) // [TEXT] == [C] [text][c][text]......
+	{
+		if (iArgsToks < 2) // add tokens to list
+			throw DcxExceptions::dcxInvalidArguments();
+
+		TCHAR tok[2]{};
+		tok[0] = gsl::narrow_cast<TCHAR>(tsArgs.getfirsttok(1).to_int());
+		tok[1] = 0;
+		const auto contents(tsArgs.getlasttoks());	// tok 2, -1
+
+		setRedraw(FALSE);
+		Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
+
+		{
+			const auto itEnd = contents.end();
+			for (auto itStart = contents.begin(&tok[0]); itStart != itEnd; ++itStart)
+			{
+				if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos++, (*itStart)) < 0)
+					throw Dcx::dcxException(TEXT("Error Adding item: %"), (*itStart));
+			}
+		}
+	}
+	else
+	{
+		if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos++, tsArgs) < 0)
+			throw Dcx::dcxException(TEXT("Error Adding item: %"), tsArgs);
+	}
+	return nPos;
+}
+
 void DcxList::UpdateHorizExtent(void)
 {
 	const auto nTotalItems = ListBox_GetCount(m_Hwnd);
@@ -1475,6 +1653,9 @@ void DcxList::UpdateHorizExtent(void)
 
 void DcxList::toXml(TiXmlElement* const xml) const
 {
+	if (!xml)
+		return;
+
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
