@@ -40,15 +40,15 @@ namespace Dcx
 	}
 }
 
- /*!
-  * \brief Constructor
-  *
-  * \param ID Control ID
-  * \param p_Dialog Parent DcxDialog Object
-  * \param mParentHwnd Parent Window Handle
-  * \param rc Window Rectangle
-  * \param styles Window Style Tokenized List
-  */
+/*!
+ * \brief Constructor
+ *
+ * \param ID Control ID
+ * \param p_Dialog Parent DcxDialog Object
+ * \param mParentHwnd Parent Window Handle
+ * \param rc Window Rectangle
+ * \param styles Window Style Tokenized List
+ */
 
 DcxList::DcxList(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
@@ -208,10 +208,10 @@ dcxWindowStyles DcxList::parseControlStyles(const TString& tsStyles)
  * \return > void
  */
 
-//TString DcxList::parseInfoRequest(const TString& input) const
-//{
-//	return TString();
-//}
+ //TString DcxList::parseInfoRequest(const TString& input) const
+ //{
+ //	return TString();
+ //}
 
 void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
@@ -1144,20 +1144,20 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		break;
 
 #ifdef USE_FIX_01
-	//case WM_HSCROLL:
-	//{
-	//	if (isExStyle(WindowExStyle::Transparent) && !getParentDialog()->isExStyle(WindowExStyle::Composited))
-	//	{
-	//		bParsed = TRUE;
-//
-	//		const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
-//
-	//		redrawBufferedWindowClient();
-//
-	//		return lRes;
-	//	}
-	//}
-	//break;
+		//case WM_HSCROLL:
+		//{
+		//	if (isExStyle(WindowExStyle::Transparent) && !getParentDialog()->isExStyle(WindowExStyle::Composited))
+		//	{
+		//		bParsed = TRUE;
+	//
+		//		const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+	//
+		//		redrawBufferedWindowClient();
+	//
+		//		return lRes;
+		//	}
+		//}
+		//break;
 #endif
 
 #ifdef USE_FIX_SCROLL
@@ -1686,6 +1686,40 @@ TiXmlElement* DcxList::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxList::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	{
+		int nPos{};
+
+		//// this adds basic items
+		//// <item text="line text">
+		//for (auto xItem = xThis->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
+		//{
+		//	if (auto tmp = queryAttribute(xItem, "text"); tmp)
+		//		Dcx::dcxListBox_InsertString(m_Hwnd, nPos++, tmp);
+		//}
+
+		// this adds similar to /xdid -A
+		// <item text="args, contents depend on flags" flags="flags for how to add">
+		// if adding a basic item, then flags are not needed.
+		for (auto xItem = xThis->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
+		{
+			const TString tsArgs(queryAttribute(xItem, "text"));
+			const TString tsFlags(queryAttribute(xItem, "flags","+"));
+
+			nPos = addItems(nPos, tsFlags, tsArgs);
+		}
+
+		// Now update the horizontal scroller
+		UpdateHorizExtent();
+	}
 }
 
 LRESULT DcxList::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept

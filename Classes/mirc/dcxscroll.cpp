@@ -560,7 +560,7 @@ void DcxScroll::toXml(TiXmlElement *const xml) const
 		xml->SetAttribute("value", si.nPos);
 		xml->SetAttribute("min", si.nMin);
 		xml->SetAttribute("max", si.nMax);
-}
+	}
 }
 
 TiXmlElement * DcxScroll::toXml(void) const
@@ -568,6 +568,31 @@ TiXmlElement * DcxScroll::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxScroll::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	//if (const auto tmp = queryAttribute(xThis, "caption"); !_ts_isEmpty(tmp))
+	//{
+	//	const TString tsText(tmp);
+	//	SetWindowText(m_Hwnd, tsText.to_chr());
+	//}
+	this->m_nLine = queryIntAttribute(xThis, "linesize", 1);
+	this->m_nPage = queryIntAttribute(xThis, "pagesize", 5);
+
+	{
+		SCROLLINFO si{ sizeof(SCROLLINFO),SIF_RANGE | SIF_POS,0,0,0U,0,0 };
+		si.nPos = queryIntAttribute(xThis, "value");
+		si.nMin = queryIntAttribute(xThis, "min");
+		si.nMax = queryIntAttribute(xThis, "max");
+
+		GSL_SUPPRESS(lifetime.1) SetScrollInfo(m_Hwnd, SB_CTL, &si, FALSE);
+	}
 }
 
 LRESULT DcxScroll::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept

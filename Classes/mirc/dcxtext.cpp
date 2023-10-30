@@ -359,6 +359,17 @@ const TString DcxText::getStyles(void) const
 	return tsStyles;
 }
 
+void DcxText::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	this->m_tsText = xThis->GetText();
+	SetWindowText(m_Hwnd, this->m_tsText.to_chr());
+}
+
 void DcxText::toXml(TiXmlElement* const xml) const
 {
 	if (!xml)

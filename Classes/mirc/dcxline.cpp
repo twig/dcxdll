@@ -108,6 +108,16 @@ TiXmlElement* DcxLine::toXml(void) const
 	return xml.release();
 }
 
+void DcxLine::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	this->m_sText = queryAttribute(xThis, "caption");
+}
+
 /*!
  * \brief blah
  *

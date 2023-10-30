@@ -341,6 +341,22 @@ TiXmlElement * DcxRadio::toXml(void) const
 	return xml.release();
 }
 
+void DcxRadio::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	if (const auto tmp = queryAttribute(xThis, "caption"); !_ts_isEmpty(tmp))
+	{
+		const TString tsText(tmp);
+		SetWindowText(m_Hwnd, tsText.to_chr());
+	}
+	if (const auto tmp = queryIntAttribute(xThis, "state"); tmp)
+		Button_SetCheck(m_Hwnd, tmp);
+}
+
 LRESULT DcxRadio::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
 	if (m_hDefaultClassProc)

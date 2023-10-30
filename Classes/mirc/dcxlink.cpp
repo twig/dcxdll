@@ -113,7 +113,7 @@ void DcxLink::toXml(TiXmlElement* const xml) const
 		xColours.SetAttribute("disabled", this->m_aColors[3]);
 
 		xml->InsertEndChild(xColours);
-}
+	}
 }
 
 TiXmlElement* DcxLink::toXml(void) const
@@ -121,6 +121,36 @@ TiXmlElement* DcxLink::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxLink::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	if (const auto tmp = queryAttribute(xThis, "caption"); !_ts_isEmpty(tmp))
+	{
+		const TString tsText(tmp);
+		SetWindowText(m_Hwnd, tsText.to_chr());
+	}
+	this->m_bVisited = (queryIntAttribute(xThis, "visited") > 0);
+	this->m_bUnderlineText = (queryIntAttribute(xThis, "underline") > 0);
+
+	if (auto xColours = xThis->FirstChildElement("colours"); xColours)
+	{
+		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "normal", CLR_INVALID)); tmp != CLR_INVALID)
+			this->m_aColors[0] = tmp;
+		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "hot", CLR_INVALID)); tmp != CLR_INVALID)
+			this->m_aColors[1] = tmp;
+		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "visited", CLR_INVALID)); tmp != CLR_INVALID)
+			this->m_aColors[2] = tmp;
+		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "disabled", CLR_INVALID)); tmp != CLR_INVALID)
+			this->m_aColors[3] = tmp;
+
+	}
+
 }
 
 /*!
