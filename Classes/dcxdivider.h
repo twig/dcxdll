@@ -33,9 +33,9 @@ class DcxDivider final
 public:
 	DcxDivider() = delete;
 	DcxDivider(const DcxDivider &) = delete;
-	DcxDivider &operator =(const DcxDivider &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxDivider &operator =(const DcxDivider &) = delete;	// No assignments!
 	DcxDivider(DcxDivider &&) = delete;
-	DcxDivider &operator =(DcxDivider &&) = delete;
+	GSL_SUPPRESS(c.128) DcxDivider &operator =(DcxDivider &&) = delete;
 
 	DcxDivider(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxDivider( ) noexcept;
@@ -53,6 +53,10 @@ public:
 	BOOL setBarColor(COLORREF clrUnselected, COLORREF clrSelected) noexcept;
 	BOOL setBarWidth(UINT nWidth) noexcept;
 
+	UINT getDivPos() const noexcept;
+	UINT getBarWidth() const noexcept;
+	std::pair<COLORREF, COLORREF> getBarColours() const noexcept;
+
 	inline const TString getType() const final { return TEXT("divider"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::DIVIDER; }
 
@@ -62,10 +66,6 @@ public:
 
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
-
-//protected:
-//	HWND m_leftPane{ nullptr };
-//	HWND m_rightPane{ nullptr };
 };
 
 #endif // _DCXDIVIDER_H_

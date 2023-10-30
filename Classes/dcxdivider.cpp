@@ -268,6 +268,31 @@ BOOL DcxDivider::setBarWidth(UINT nWidth) noexcept
 	return SendMessage(m_Hwnd, DV_SETBARWIDTH, 0U, gsl::narrow_cast<LPARAM>(nWidth));
 }
 
+UINT DcxDivider::getDivPos() const noexcept
+{
+	BOOL bVert{};
+	UINT iPos{};
+	SendMessage(m_Hwnd, DV_GETDIVPOS, reinterpret_cast<WPARAM>(&bVert), reinterpret_cast<LPARAM>(&iPos));
+	return iPos;
+}
+
+UINT DcxDivider::getBarWidth() const noexcept
+{
+	UINT iPos{};
+	SendMessage(m_Hwnd, DV_GETBARWIDTH, 0U, reinterpret_cast<LPARAM>(&iPos));
+	return iPos;
+}
+
+std::pair<COLORREF, COLORREF> DcxDivider::getBarColours() const noexcept
+{
+	COLORREF clr{ CLR_INVALID };
+	COLORREF selclr{ CLR_INVALID };
+
+	SendMessage(m_Hwnd, DV_GETBARCOLOR, reinterpret_cast<WPARAM>(&clr), reinterpret_cast<LPARAM>(&selclr));
+
+	return { clr, selclr };
+}
+
 void DcxDivider::toXml(TiXmlElement *const xml) const
 {
 	if (!xml)
@@ -281,28 +306,50 @@ void DcxDivider::toXml(TiXmlElement *const xml) const
 
 	xml->SetAttribute("styles", getStyles().c_str());
 
+	xml->SetAttribute("pos", getDivPos());
+	xml->SetAttribute("barwidth", getBarWidth());
+	{
+		auto [clr, selclr] = getBarColours();
+		xml->SetAttribute("barcolour", clr);
+		xml->SetAttribute("barselectedcolour", selclr);
+	}
+
+	{
+		// left of divider
 	DVPANEINFO left;
-	DVPANEINFO right;
 	Divider_GetChildControl(m_Hwnd, DVF_PANELEFT, &left);
-	Divider_GetChildControl(m_Hwnd, DVF_PANERIGHT, &right);
+
+		TiXmlElement xLeft("item");
+		xLeft.SetAttribute("min", left.cxMin);
+		xLeft.SetAttribute("ideal", left.cxIdeal);
+		xLeft.SetAttribute("side", "left");
+
 	if (left.hChild)
 	{
-		if (const auto *const dcxcleft = pParent->getControlByHWND(left.hChild); dcxcleft)
-			xml->LinkEndChild(dcxcleft->toXml());
-		else
-			xml->LinkEndChild(new TiXmlElement("control"));
+			if (const auto* const dcxcleft = pParent->getControlByHWND(left.hChild); dcxcleft)
+				xLeft.LinkEndChild(dcxcleft->toXml());
 	}
-	else
-		xml->LinkEndChild(new TiXmlElement("control"));
+
+		xml->InsertEndChild(xLeft);
+	}
+	{
+		// right of divider
+		DVPANEINFO right;
+		Divider_GetChildControl(m_Hwnd, DVF_PANERIGHT, &right);
+
+		TiXmlElement xRight("item");
+		xRight.SetAttribute("min", right.cxMin);
+		xRight.SetAttribute("ideal", right.cxIdeal);
+		xRight.SetAttribute("side", "right");
+
 	if (right.hChild)
 	{
-		if (const auto *const dcxcright = pParent->getControlByHWND(right.hChild); dcxcright)
-			xml->LinkEndChild(dcxcright->toXml());
-		else
-			xml->LinkEndChild(new TiXmlElement("control"));
+			if (const auto* const dcxcright = pParent->getControlByHWND(right.hChild); dcxcright)
+				xRight.LinkEndChild(dcxcright->toXml());
 	}
-	else
-		xml->LinkEndChild(new TiXmlElement("control"));
+
+		xml->InsertEndChild(xRight);
+}
 }
 
 TiXmlElement * DcxDivider::toXml(void) const
