@@ -418,12 +418,15 @@ private:
 		UINT	strLength;
 		char		    chr;
 	};
-	enum
-	{
-		NUM_ENTITY = 5,
-		MAX_ENTITY_LENGTH = 6
+	//enum
+	//{
+	//	NUM_ENTITY = 5,
+	//	MAX_ENTITY_LENGTH = 6
+	//};
+	//static Entity entity[NUM_ENTITY];
 
-	};
+	constexpr static unsigned int NUM_ENTITY = 5;
+	constexpr static unsigned int MAX_ENTITY_LENGTH = 6;
 	static Entity entity[NUM_ENTITY];
 	static inline bool condenseWhiteSpace{ true };
 };
@@ -490,8 +493,8 @@ public:
 
 	TiXmlNode(const TiXmlNode&) = delete;				// not implemented.
 	TiXmlNode(TiXmlNode&&) = delete;				// not implemented.
-	TiXmlNode& operator=(const TiXmlNode& base) = delete;	// not allowed.
-	TiXmlNode& operator=(TiXmlNode&& base) = delete;	// not allowed.
+	GSL_SUPPRESS(c.128) TiXmlNode& operator=(const TiXmlNode& base) = delete;	// not allowed.
+	GSL_SUPPRESS(c.128) TiXmlNode& operator=(TiXmlNode&& base) = delete;	// not allowed.
 
 	/** The meaning of 'value' changes for the specific type of
 		TiXmlNode.
@@ -833,7 +836,7 @@ public:
 	}
 
 	TiXmlAttribute(const TiXmlAttribute&) = delete;				// not implemented.
-	TiXmlAttribute& operator=(const TiXmlAttribute& base) = delete;	// not allowed.
+	GSL_SUPPRESS(c.128) TiXmlAttribute& operator=(const TiXmlAttribute& base) = delete;	// not allowed.
 
 	const char* Name()  const noexcept { return name.c_str(); }		///< Return the name of this attribute.
 	const char* Value() const noexcept { return value.c_str(); }		///< Return the value of this attribute.
@@ -1004,9 +1007,9 @@ public:
 
 	~TiXmlElement() noexcept;
 
-	TiXmlElement& operator=(const TiXmlElement&) = delete;
+	GSL_SUPPRESS(c.128) TiXmlElement& operator=(const TiXmlElement&) = delete;
 	TiXmlElement(TiXmlElement&&) = delete;
-	TiXmlElement& operator=(TiXmlElement&&) = delete;
+	GSL_SUPPRESS(c.128) TiXmlElement& operator=(TiXmlElement&&) = delete;
 
 	/** Given an attribute name, Attribute() returns the value
 		for the attribute of that name, or null if none exists.
@@ -1052,6 +1055,7 @@ public:
 		}
 		return result;
 	}
+	std::pair<TiXmlReturns, double> QueryDoubleAttribute(const char* name) const noexcept;
 
 #ifdef TIXML_USE_STL
 	/// QueryStringAttribute examines the attribute - see QueryIntAttribute().
@@ -1232,9 +1236,9 @@ public:
 
 	~TiXmlComment()	noexcept = default;
 
-	TiXmlComment& operator=(const TiXmlComment&) = delete;
+	GSL_SUPPRESS(c.128) TiXmlComment& operator=(const TiXmlComment&) = delete;
 	TiXmlComment(TiXmlComment&&) = delete;
-	TiXmlComment& operator=(TiXmlComment&&) = delete;
+	GSL_SUPPRESS(c.128) TiXmlComment& operator=(TiXmlComment&&) = delete;
 
 	/// Returns a copy of this Comment.
 	TiXmlNode* Clone() const override;
@@ -1312,9 +1316,9 @@ public:
 	//warning C26434 : Function 'TiXmlText::operator=' hides a non - virtual function 'TiXmlNode::operator=' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
 	//TiXmlText& operator=(const TiXmlText& base) { base.CopyTo(this); return *this; }
 
-	TiXmlText& operator=(const TiXmlText&) = delete;
+	GSL_SUPPRESS(c.128) TiXmlText& operator=(const TiXmlText&) = delete;
 	TiXmlText(TiXmlText&&) = delete;
-	TiXmlText& operator=(TiXmlText&&) = delete;
+	GSL_SUPPRESS(c.128) TiXmlText& operator=(TiXmlText&&) = delete;
 
 	// Write this text object to a FILE stream.
 	void Print(FILE* cfile, int depth) const override;
@@ -1386,9 +1390,9 @@ public:
 
 	~TiXmlDeclaration() noexcept = default;
 
-	TiXmlDeclaration& operator=(const TiXmlDeclaration&) = delete;
+	GSL_SUPPRESS(c.128) TiXmlDeclaration& operator=(const TiXmlDeclaration&) = delete;
 	TiXmlDeclaration(TiXmlDeclaration&&) = delete;
-	TiXmlDeclaration& operator=(TiXmlDeclaration&&) = delete;
+	GSL_SUPPRESS(c.128) TiXmlDeclaration& operator=(TiXmlDeclaration&&) = delete;
 
 	/// Version. Will return an empty string if none was found.
 	const char* Version() const noexcept { return version.c_str(); }
@@ -1455,9 +1459,9 @@ public:
 	//warning C26434 : Function 'TiXmlUnknown::operator=' hides a non - virtual function 'TiXmlNode::operator=' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
 	//TiXmlUnknown& operator=(const TiXmlUnknown& copy) { copy.CopyTo(this); return *this; }
 	
-	TiXmlUnknown& operator=(const TiXmlUnknown&) = delete;
+	GSL_SUPPRESS(c.128) TiXmlUnknown& operator=(const TiXmlUnknown&) = delete;
 	TiXmlUnknown(TiXmlUnknown&&) = delete;
-	TiXmlUnknown& operator=(TiXmlUnknown&&) = delete;
+	GSL_SUPPRESS(c.128) TiXmlUnknown& operator=(TiXmlUnknown&&) = delete;
 
 	/// Creates a copy of this Unknown and returns it.
 	TiXmlNode* Clone() const override;
@@ -1506,14 +1510,14 @@ public:
 
 	TiXmlDocument(const TiXmlDocument& copy);
 	//warning C26434 : Function 'TiXmlDocument::operator=' hides a non - virtual function 'TiXmlNode::operator=' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
-	TiXmlDocument& operator=(const TiXmlDocument& copy);
+	GSL_SUPPRESS(c.128) TiXmlDocument& operator=(const TiXmlDocument& copy);
 
 	//~TiXmlDocument() noexcept {}
 	~TiXmlDocument() noexcept = default;
 
-	//TiXmlDocument& operator=(const TiXmlDocument&) = delete;
+	//GSL_SUPPRESS(c.128) TiXmlDocument& operator=(const TiXmlDocument&) = delete;
 	TiXmlDocument(TiXmlDocument&&) = delete;
-	TiXmlDocument& operator=(TiXmlDocument&&) = delete;
+	GSL_SUPPRESS(c.128) TiXmlDocument& operator=(TiXmlDocument&&) = delete;
 
 	/** Load a file using the current document value.
 		Returns true if successful. Will delete any existing

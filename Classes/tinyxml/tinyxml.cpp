@@ -676,6 +676,12 @@ TiXmlReturns TiXmlElement::QueryDoubleAttribute(const std::string& name, double*
 }
 #endif
 
+std::pair<TiXmlReturns, double> TiXmlElement::QueryDoubleAttribute(const char* name) const noexcept
+{
+	double iVal{};
+	const auto status = QueryDoubleAttribute(name, &iVal);
+	return{ status,iVal };
+}
 
 void TiXmlElement::SetAttribute(const char* name, int val)
 {
