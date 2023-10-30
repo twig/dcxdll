@@ -462,7 +462,7 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		// lParam = HWND of child
 		MultiCombo_RemoveChild(mHwnd, wParam, lParam);
 
-		if (dcxlParam(HWND,hChild); IsWindow(hChild))
+		if (dcxlParam(HWND, hChild); IsWindow(hChild))
 		{
 			const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 			if (!lpmcdata)
@@ -496,34 +496,41 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 	case MC_WM_GETDROPRECT:
 	{
-		// not finished...
 		// wParam = zero
-		// lParam = zero
+		// lParam = LPRECT
+		if (!lParam)
+			return FALSE;
+
 		const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 		if (!lpmcdata)
-			return 0L;
+			return FALSE;
 
 		RECT rc = lpmcdata->m_rcDrop;
 		MapWindowRect(nullptr, mHwnd, &rc);
 
-		return MAKELRESULT((rc.right - rc.left), (rc.bottom - rc.top));
+		*(reinterpret_cast<LPRECT>(lParam)) = rc;
+		//return MAKELRESULT((rc.right - rc.left), (rc.bottom - rc.top));
+		return TRUE;
 	}
 	break;
 
 	case MC_WM_SETDROPRECT:
 	{
-		// not finished...
 		// wParam = width
 		// lParam = height
 		const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 		if (!lpmcdata)
 			return 0L;
 
-		RECT rc{ 0,0, gsl::narrow_cast<LONG>(wParam), lParam };
+		RECT oldRC{ lpmcdata->m_rcDrop };
+		MapWindowRect(nullptr, mHwnd, &oldRC);
+
+		RECT rc{ oldRC.left, oldRC.top, gsl::narrow_cast<LONG>(wParam), lParam };
 		MapWindowRect(mHwnd, nullptr, &rc);
+
 		lpmcdata->m_rcDrop = rc;
 
-		return 0L;
+		return TRUE;
 	}
 	break;
 
@@ -877,7 +884,7 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 	if (!mHwnd)
 		return -1L;
 
-	dcxlParam(LPCREATESTRUCT,cs);
+	dcxlParam(LPCREATESTRUCT, cs);
 
 	const RECT rc{ 0,0,cs->x + cs->cx,cs->y + cs->cy };
 
@@ -1017,7 +1024,7 @@ void MultiCombo_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 	//}
 	//EndPaint(mHwnd, &ps);
 
-	dcxwParam(HDC,hdc);
+	dcxwParam(HDC, hdc);
 
 	PAINTSTRUCT ps{};
 
@@ -1546,7 +1553,7 @@ BOOL MultiCombo_AddItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 	{
 		// lParam = LPMCOMBO_LISTBOXITEM
 		const auto lpinput = reinterpret_cast<LPMCOMBO_ITEM>(lParam);
-		if ((lpinput->m_Size != sizeof(MCOMBO_ITEM)) || (lpinput->m_Type != MCS_COLOUR))
+		if ((lpinput->m_Size != sizeof(MCOMBO_ITEM)) || (lpinput->m_Type != MCS_LISTBOX))
 			return FALSE;
 
 		ListBox_AddString(lpmcdata->m_hDropChild, lpinput->m_tsItemText.to_chr());
