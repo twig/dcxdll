@@ -26,7 +26,7 @@ bool DcxGDIModule::load(void)
 		//gsi.SuppressBackgroundThread = FALSE;
 		//gsi.SuppressExternalCodecs = FALSE;
 
-		if (Gdiplus::GdiplusStartup(&m_GDIToken,&gsi,nullptr) != Gdiplus::Status::Ok)
+		if (Gdiplus::GdiplusStartup(&m_GDIToken, &gsi, nullptr) != Gdiplus::Status::Ok)
 		{	// dont throw error just display warnings
 			Dcx::error(TEXT("LoadDLL"), TEXT("Unable to Startup GDI+"));
 			Dcx::error(TEXT("LoadDLL"), TEXT("Warning Unable to Initialize GDIPlus.dll, Operating in reduced function mode."));
@@ -48,7 +48,7 @@ bool DcxGDIModule::unload(void) noexcept
 	{
 		Gdiplus::GdiplusShutdown(m_GDIToken);
 
-		FreeLibrary(m_hModule);
+		GSL_SUPPRESS(lifetime.1) FreeLibrary(m_hModule);
 		m_hModule = nullptr;
 	}
 #endif

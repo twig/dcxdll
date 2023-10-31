@@ -12,8 +12,8 @@ public:
 
 	DcxGDIModule(const DcxGDIModule &other) = delete;	// no copy constructor
 	DcxGDIModule(const DcxGDIModule &&other) = delete;	// no move constructor
-	DcxGDIModule &operator =(const DcxGDIModule &) = delete;	// No assignments!
-	DcxGDIModule &operator =(const DcxGDIModule &&) = delete;	// No move assignments!
+	GSL_SUPPRESS(c.128) DcxGDIModule &operator =(const DcxGDIModule &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxGDIModule &operator =(const DcxGDIModule &&) = delete;	// No move assignments!
 
 	bool load(void) final;
 	bool unload(void) noexcept final;

@@ -16,12 +16,19 @@ class DcxDWMModule final
 	bool m_bWin7{ false };
 	bool m_bWin8{ false };
 	bool m_bWin10{ false };
-	static PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx;
-	static PFNDWMGETWINDOWATTRIBUTE DwmGetWindowAttributeUx;
-	static PFNDWMSETWINDOWATTRIBUTE DwmSetWindowAttributeUx;
-	static PFNDWMEXTENDFRAMEINTOCLIENTAREA DwmExtendFrameIntoClientAreaUx;
-	static PFNDWMENABLEBLURBEHINDWINDOW DwmEnableBlurBehindWindowUx;
-	static PFNDWMGETCOLORIZATIONCOLOR DwmGetColorizationColorUx;
+	bool m_bWin11{ false };
+	//static PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx;
+	//static PFNDWMGETWINDOWATTRIBUTE DwmGetWindowAttributeUx;
+	//static PFNDWMSETWINDOWATTRIBUTE DwmSetWindowAttributeUx;
+	//static PFNDWMEXTENDFRAMEINTOCLIENTAREA DwmExtendFrameIntoClientAreaUx;
+	//static PFNDWMENABLEBLURBEHINDWINDOW DwmEnableBlurBehindWindowUx;
+	//static PFNDWMGETCOLORIZATIONCOLOR DwmGetColorizationColorUx;
+	static inline PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx = nullptr;
+	static inline PFNDWMGETWINDOWATTRIBUTE DwmGetWindowAttributeUx = nullptr;
+	static inline PFNDWMSETWINDOWATTRIBUTE DwmSetWindowAttributeUx = nullptr;
+	static inline PFNDWMEXTENDFRAMEINTOCLIENTAREA DwmExtendFrameIntoClientAreaUx = nullptr;
+	static inline PFNDWMENABLEBLURBEHINDWINDOW DwmEnableBlurBehindWindowUx = nullptr;
+	static inline PFNDWMGETCOLORIZATIONCOLOR DwmGetColorizationColorUx = nullptr;
 
 public:
 	constexpr DcxDWMModule(void) noexcept
@@ -32,8 +39,8 @@ public:
 
 	DcxDWMModule(const DcxDWMModule &other) = delete;	// no copy constructor
 	DcxDWMModule(const DcxDWMModule &&other) = delete;	// no move constructor
-	DcxDWMModule &operator =(const DcxDWMModule &) = delete;	// No assignments!
-	DcxDWMModule &operator =(const DcxDWMModule &&) = delete;	// No move assignments!
+	GSL_SUPPRESS(c.128) DcxDWMModule &operator =(const DcxDWMModule &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxDWMModule &operator =(const DcxDWMModule &&) = delete;	// No move assignments!
 
 	bool load(void) final;
 	bool unload(void) noexcept final;

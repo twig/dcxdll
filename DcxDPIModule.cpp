@@ -6,9 +6,9 @@
 #pragma warning(disable: 26425)	//warning C26425 : Assigning 'nullptr' to a static variable.
 
 // Theme functions
-PFNGETDPIFORSYSTEM DcxDPIModule::GetDpiForSystemUx = nullptr;
-PFNGETDPIFORWINDOW DcxDPIModule::GetDpiForWindowUx = nullptr;
-PFNGETSYSTEMMETRICSFORDPI DcxDPIModule::GetSystemMetricsForDpiUx = nullptr;
+//PFNGETDPIFORSYSTEM DcxDPIModule::GetDpiForSystemUx = nullptr;
+//PFNGETDPIFORWINDOW DcxDPIModule::GetDpiForWindowUx = nullptr;
+//PFNGETSYSTEMMETRICSFORDPI DcxDPIModule::GetSystemMetricsForDpiUx = nullptr;
 
 DcxDPIModule::~DcxDPIModule() noexcept
 {
@@ -55,7 +55,7 @@ bool DcxDPIModule::unload() noexcept
 {
 	if (isUseable())
 	{
-		FreeLibrary(m_hModule);
+		GSL_SUPPRESS(lifetime.1) FreeLibrary(m_hModule);
 		m_hModule = nullptr;
 	}
 	// make sure all functions are nullptr

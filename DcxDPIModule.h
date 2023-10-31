@@ -11,9 +11,12 @@ typedef int(WINAPI* PFNGETSYSTEMMETRICSFORDPI)(_In_ int, _In_ UINT);
 class DcxDPIModule final
 	: public DcxModule
 {
-	static PFNGETDPIFORSYSTEM GetDpiForSystemUx;
-	static PFNGETDPIFORWINDOW GetDpiForWindowUx;
-	static PFNGETSYSTEMMETRICSFORDPI GetSystemMetricsForDpiUx;
+	//static PFNGETDPIFORSYSTEM GetDpiForSystemUx;
+	//static PFNGETDPIFORWINDOW GetDpiForWindowUx;
+	//static PFNGETSYSTEMMETRICSFORDPI GetSystemMetricsForDpiUx;
+	static inline PFNGETDPIFORSYSTEM GetDpiForSystemUx = nullptr;
+	static inline PFNGETDPIFORWINDOW GetDpiForWindowUx= nullptr;
+	static inline PFNGETSYSTEMMETRICSFORDPI GetSystemMetricsForDpiUx = nullptr;
 
 public:
 	constexpr DcxDPIModule(void) noexcept
@@ -23,8 +26,8 @@ public:
 
 	DcxDPIModule(const DcxDPIModule& other) = delete;	// no copy constructor
 	DcxDPIModule(const DcxDPIModule&& other) = delete;	// no move constructor
-	DcxDPIModule& operator =(const DcxDPIModule&) = delete;	// No assignments!
-	DcxDPIModule& operator =(const DcxDPIModule&&) = delete;	// No move assignments!
+	GSL_SUPPRESS(c.128) DcxDPIModule& operator =(const DcxDPIModule&) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxDPIModule& operator =(const DcxDPIModule&&) = delete;	// No move assignments!
 
 	bool load(void) final;
 	bool unload(void) noexcept final;

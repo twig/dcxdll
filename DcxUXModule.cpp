@@ -5,36 +5,36 @@
 #pragma warning(push)
 #pragma warning(disable: 26425)	//warning C26425 : Assigning 'nullptr' to a static variable.
 
-// Theme functions
-PFNSETTHEME DcxUXModule::SetWindowThemeUx = nullptr;
-PFNISTHEMEACTIVE DcxUXModule::IsThemeActiveUx = nullptr;
-PFNOPENTHEMEDATA DcxUXModule::OpenThemeDataUx = nullptr;
-PFNCLOSETHEMEDATA DcxUXModule::CloseThemeDataUx = nullptr;
-PFNDRAWTHEMEBACKGROUND DcxUXModule::DrawThemeBackgroundUx = nullptr;
-PFNGETTHEMEBACKGROUNDCONTENTRECT DcxUXModule::GetThemeBackgroundContentRectUx = nullptr;
-PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT DcxUXModule::IsThemeBackgroundPartiallyTransparentUx = nullptr;
-PFNDRAWTHEMEPARENTBACKGROUND DcxUXModule::DrawThemeParentBackgroundUx = nullptr;
-PFNDRAWTHEMETEXT DcxUXModule::DrawThemeTextUx = nullptr;
-PFNDRAWTHEMETEXTEX DcxUXModule::DrawThemeTextExUx = nullptr;
-PFNGETTHEMEBACKGROUNDREGION DcxUXModule::GetThemeBackgroundRegionUx = nullptr;
-PFNGETWINDOWTHEME DcxUXModule::GetWindowThemeUx = nullptr;
-PFNDRAWTHEMEEDGE DcxUXModule::DrawThemeEdgeUx = nullptr;
-PFNGETTHEMECOLOR DcxUXModule::GetThemeColorUx = nullptr;
-PFNGETTHEMEFONT DcxUXModule::GetThemeFontUx = nullptr;
-PFNGETTHEMETEXTEXTENT DcxUXModule::GetThemeTextExtentUx = nullptr;
-PFNDRAWTHEMEPARENTBACKGROUNDEX DcxUXModule::DrawThemeParentBackgroundExUx = nullptr;
-//PFNGETTHEMEBITMAP DcxUXModule::GetThemeBitmapUx = nullptr;
-// Vista Function pointers.
-PFNBUFFEREDPAINTINIT DcxUXModule::BufferedPaintInitUx = nullptr;
-PFNBUFFEREDPAINTUNINIT DcxUXModule::BufferedPaintUnInitUx = nullptr;
-PFNBEGINBUFFEREDPAINT DcxUXModule::BeginBufferedPaintUx = nullptr;
-PFNENDBUFFEREDPAINT DcxUXModule::EndBufferedPaintUx = nullptr;
-PFNBUFFEREDPAINTSETALPHA DcxUXModule::BufferedPaintSetAlphaUx = nullptr;
-PFNBUFFEREDPAINTCLEAR DcxUXModule::BufferedPaintClearUx = nullptr;
-PFNHITTESTTHEMEBACKGROUND DcxUXModule::HitTestThemeBackgroundUx = nullptr;
-PFNGETTHEMERECT DcxUXModule::GetThemeRectUx = nullptr;
-
-bool DcxUXModule::m_bBufferedPaintEnabled = false;
+//// Theme functions
+//PFNSETTHEME DcxUXModule::SetWindowThemeUx = nullptr;
+//PFNISTHEMEACTIVE DcxUXModule::IsThemeActiveUx = nullptr;
+//PFNOPENTHEMEDATA DcxUXModule::OpenThemeDataUx = nullptr;
+//PFNCLOSETHEMEDATA DcxUXModule::CloseThemeDataUx = nullptr;
+//PFNDRAWTHEMEBACKGROUND DcxUXModule::DrawThemeBackgroundUx = nullptr;
+//PFNGETTHEMEBACKGROUNDCONTENTRECT DcxUXModule::GetThemeBackgroundContentRectUx = nullptr;
+//PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT DcxUXModule::IsThemeBackgroundPartiallyTransparentUx = nullptr;
+//PFNDRAWTHEMEPARENTBACKGROUND DcxUXModule::DrawThemeParentBackgroundUx = nullptr;
+//PFNDRAWTHEMETEXT DcxUXModule::DrawThemeTextUx = nullptr;
+//PFNDRAWTHEMETEXTEX DcxUXModule::DrawThemeTextExUx = nullptr;
+//PFNGETTHEMEBACKGROUNDREGION DcxUXModule::GetThemeBackgroundRegionUx = nullptr;
+//PFNGETWINDOWTHEME DcxUXModule::GetWindowThemeUx = nullptr;
+//PFNDRAWTHEMEEDGE DcxUXModule::DrawThemeEdgeUx = nullptr;
+//PFNGETTHEMECOLOR DcxUXModule::GetThemeColorUx = nullptr;
+//PFNGETTHEMEFONT DcxUXModule::GetThemeFontUx = nullptr;
+//PFNGETTHEMETEXTEXTENT DcxUXModule::GetThemeTextExtentUx = nullptr;
+//PFNDRAWTHEMEPARENTBACKGROUNDEX DcxUXModule::DrawThemeParentBackgroundExUx = nullptr;
+////PFNGETTHEMEBITMAP DcxUXModule::GetThemeBitmapUx = nullptr;
+//// Vista Function pointers.
+//PFNBUFFEREDPAINTINIT DcxUXModule::BufferedPaintInitUx = nullptr;
+//PFNBUFFEREDPAINTUNINIT DcxUXModule::BufferedPaintUnInitUx = nullptr;
+//PFNBEGINBUFFEREDPAINT DcxUXModule::BeginBufferedPaintUx = nullptr;
+//PFNENDBUFFEREDPAINT DcxUXModule::EndBufferedPaintUx = nullptr;
+//PFNBUFFEREDPAINTSETALPHA DcxUXModule::BufferedPaintSetAlphaUx = nullptr;
+//PFNBUFFEREDPAINTCLEAR DcxUXModule::BufferedPaintClearUx = nullptr;
+//PFNHITTESTTHEMEBACKGROUND DcxUXModule::HitTestThemeBackgroundUx = nullptr;
+//PFNGETTHEMERECT DcxUXModule::GetThemeRectUx = nullptr;
+//
+//bool DcxUXModule::m_bBufferedPaintEnabled = false;
 
 DcxUXModule::~DcxUXModule() noexcept
 {
@@ -120,7 +120,7 @@ bool DcxUXModule::unload() noexcept
 			dcxBufferedPaintUnInit();
 		m_bBufferedPaintEnabled = false;
 
-		FreeLibrary(m_hModule);
+		GSL_SUPPRESS(lifetime.1) FreeLibrary(m_hModule);
 		m_hModule = nullptr;
 		// make sure all functions are nullptr
 		SetWindowThemeUx = nullptr;
