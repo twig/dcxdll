@@ -1004,7 +1004,7 @@ void DcxTrackBar::toXml(TiXmlElement* const xml) const
 	xml->SetAttribute("pagesize", this->getPageSize());
 	xml->SetAttribute("tickfreq", this->getTickFreq());
 	if (m_colTransparent != CLR_INVALID)
-		xml->SetAttribute("transparentcolour", m_colTransparent);
+		setColourAttribute(xml, "transparentcolour", m_colTransparent);
 	xml->SetAttribute("tipside", this->getTipSide());
 	xml->SetAttribute("thumblength", this->getThumbLength());
 	if (auto hLeft = this->getBuddy(true); hLeft)
@@ -1042,7 +1042,7 @@ void DcxTrackBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	this->setLineSize(queryIntAttribute(xThis, "linesize", 1));	// default is one
 	this->setPageSize(queryIntAttribute(xThis, "pagesize", this->getPageSize()));
 	this->setTicFreq(queryIntAttribute(xThis, "tickfreq", 1));	// default is one
-	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "transparentcolour", CLR_INVALID)); clr != CLR_INVALID)
+	if (auto clr = queryColourAttribute(xThis, "transparentcolour"); clr != CLR_INVALID)
 		this->m_colTransparent = clr;
 	this->setTipSide(queryIntAttribute(xThis, "tipside", TBTS_LEFT));
 	this->setThumbLength(queryIntAttribute(xThis, "thumblength", 10));	// only affects TBS_FIXEDLENGTH style controls

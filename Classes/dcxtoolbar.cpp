@@ -1785,17 +1785,17 @@ void DcxToolBar::toXml(TiXmlElement* const xml) const
 				xItem.SetAttribute("tooltip", bd->tsTipText.c_str());
 				// colours
 				if (bd->clrText != CLR_INVALID)
-					xItem.SetAttribute("textcolour", bd->clrText);
+					setColourAttribute(&xItem, "textcolour", bd->clrText);
 				if (bd->clrMark != CLR_INVALID)
-					xItem.SetAttribute("markcolour", bd->clrMark);
+					setColourAttribute(&xItem, "markcolour", bd->clrMark);
 				if (bd->clrTextHighlight != CLR_INVALID)
-					xItem.SetAttribute("texthighlightcolour", bd->clrTextHighlight);
+					setColourAttribute(&xItem, "texthighlightcolour", bd->clrTextHighlight);
 				if (bd->clrBtnFace != CLR_INVALID)
-					xItem.SetAttribute("facecolour", bd->clrBtnFace);
+					setColourAttribute(&xItem, "facecolour", bd->clrBtnFace);
 				if (bd->clrBtnHighlight != CLR_INVALID)
-					xItem.SetAttribute("highlightcolour", bd->clrBtnHighlight);
+					setColourAttribute(&xItem, "highlightcolour", bd->clrBtnHighlight);
 				if (bd->clrHighlightHotTrack != CLR_INVALID)
-					xItem.SetAttribute("hotcolour", bd->clrHighlightHotTrack);
+					setColourAttribute(&xItem, "hotcolour", bd->clrHighlightHotTrack);
 				// text style
 				if (bd->bBold)
 					xItem.SetAttribute("bold", "1");
@@ -1830,7 +1830,7 @@ void DcxToolBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 		const TString tsFlags(queryAttribute(xItem, "flags"));
 		const auto width = gsl::narrow_cast<WORD>(queryIntAttribute(xItem, "width"));
 		const auto icon = queryIntAttribute(xItem, "icon");
-		const auto clrText = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "textcolour"));
+		const auto clrText = queryColourAttribute(xItem, "textcolour");
 		const TString tsText(queryAttribute(xItem, "text"));
 		const TString tsTooltip(queryAttribute(xItem, "tooltip"));
 
@@ -1840,12 +1840,12 @@ void DcxToolBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 		{
 			bd->bBold = (queryIntAttribute(xItem, "bold") > 0);
 			bd->bUline = (queryIntAttribute(xItem, "underline") > 0);
-			bd->clrBtnFace = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "facecolour", CLR_INVALID));
-			bd->clrBtnHighlight = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "highlightcolour", CLR_INVALID));
-			bd->clrHighlightHotTrack = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "hotcolour", CLR_INVALID));
-			bd->clrMark = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "markcolour", CLR_INVALID));
-			//bd->clrText = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "textcolour", CLR_INVALID));
-			bd->clrTextHighlight = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "texthighlightcolour", CLR_INVALID));
+			bd->clrBtnFace = queryColourAttribute(xItem, "facecolour");
+			bd->clrBtnHighlight = queryColourAttribute(xItem, "highlightcolour");
+			bd->clrHighlightHotTrack = queryColourAttribute(xItem, "hotcolour");
+			bd->clrMark = queryColourAttribute(xItem, "markcolour");
+			//bd->clrText = queryColourAttribute(xItem, "textcolour");
+			bd->clrTextHighlight = queryColourAttribute(xItem, "texthighlightcolour");
 		}
 	}
 }

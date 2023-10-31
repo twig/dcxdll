@@ -1750,11 +1750,11 @@ void DcxRichEdit::toXml(TiXmlElement* const xml) const
 	if (!this->m_tsCue.empty())
 		xml->SetAttribute("cue", this->m_tsCue.c_str());
 
-	xml->SetAttribute("gutterbgcolour", this->m_clrGutter_bkg);
-	xml->SetAttribute("gutterselbgcolour", this->m_clrGutter_selbkg);
-	xml->SetAttribute("guttertextcolour", this->m_clrGutter_txt);
-	xml->SetAttribute("gutterseltextcolour", this->m_clrGutter_seltxt);
-	xml->SetAttribute("gutterbordercolour", this->m_clrGutter_border);
+	setColourAttribute(xml, "gutterbgcolour", this->m_clrGutter_bkg);
+	setColourAttribute(xml, "gutterselbgcolour", this->m_clrGutter_selbkg);
+	setColourAttribute(xml, "guttertextcolour", this->m_clrGutter_txt);
+	setColourAttribute(xml, "gutterseltextcolour", this->m_clrGutter_seltxt);
+	setColourAttribute(xml, "gutterbordercolour", this->m_clrGutter_border);
 	xml->SetAttribute("gutterwidth", this->m_GutterWidth);
 	if (this->m_bLockGutter)
 		xml->SetAttribute("lockgutter", "1");
@@ -1817,17 +1817,17 @@ void DcxRichEdit::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 		Edit_SetCueBannerTextFocused(m_Hwnd, this->m_tsCue.to_chr(), m_bCueFocused);
 	}
 
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "gutterbgcolour", CLR_INVALID)); tmp != CLR_INVALID)
+	if (const auto tmp = queryColourAttribute(xThis, "gutterbgcolour"); tmp != CLR_INVALID)
 		this->m_clrGutter_bkg = tmp;
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "gutterselbgcolour", CLR_INVALID)); tmp != CLR_INVALID)
+	if (const auto tmp = queryColourAttribute(xThis, "gutterselbgcolour"); tmp != CLR_INVALID)
 		this->m_clrGutter_selbkg = tmp;
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "guttertextcolour", CLR_INVALID)); tmp != CLR_INVALID)
+	if (const auto tmp = queryColourAttribute(xThis, "guttertextcolour"); tmp != CLR_INVALID)
 		this->m_clrGutter_txt = tmp;
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "gutterseltextcolour", CLR_INVALID)); tmp != CLR_INVALID)
+	if (const auto tmp = queryColourAttribute(xThis, "gutterseltextcolour"); tmp != CLR_INVALID)
 		this->m_clrGutter_seltxt = tmp;
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "gutterbordercolour", CLR_INVALID)); tmp != CLR_INVALID)
+	if (const auto tmp = queryColourAttribute(xThis, "gutterbordercolour"); tmp != CLR_INVALID)
 		this->m_clrGutter_border = tmp;
-	if (const auto tmp = queryIntAttribute(xThis, "width", DCX_EDIT_GUTTER_WIDTH); tmp >= DCX_EDIT_GUTTER_WIDTH)
+	if (const auto tmp = queryIntAttribute(xThis, "gutterwidth", DCX_EDIT_GUTTER_WIDTH); tmp >= DCX_EDIT_GUTTER_WIDTH)
 		this->m_GutterWidth = tmp;
 	m_bLockGutter = (queryIntAttribute(xThis, "lockgutter") > 0);
 

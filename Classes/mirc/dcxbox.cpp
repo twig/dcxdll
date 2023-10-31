@@ -320,7 +320,11 @@ void DcxBox::toXml(TiXmlElement* const xml) const
 	{
 		if (const auto rt = m_pLayoutManager->getRoot(); rt)
 		{
-			rt->toXml(xml);
+			// NB: root cell can be other than pane, needs looked at more, should we just disallow this?
+			if (rt->getType() != LayoutCell::CellType::PANE)
+				xml->LinkEndChild(rt->toXml());
+			else
+				rt->toXml(xml);
 			return;
 		}
 	}
@@ -450,13 +454,7 @@ void DcxBox::xmlParseElements(const TString& tsPath, const TiXmlElement* xParent
 		break;
 		case "control"_hash:
 		{
-			if (xmlAddControl(tsPath, tsCurrentPath, xParent, xElement))
-			{
-				//++iCLA;
-				//TString tsTok;
-				//tsTok.addtok(iCLA);
-				//tsCurrentPath.puttok(tsTok, tsCurrentPath.numtok());
-			}
+			xmlAddControl(tsPath, tsCurrentPath, xParent, xElement);
 		}
 		break;
 		case "style"_hash:

@@ -550,7 +550,8 @@ void DcxStatusBar::toXml(TiXmlElement* const xml) const
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
-	xml->SetAttribute("bgcolour", getBkColor());
+	if (const auto tmp = getBkColor(); tmp != CLR_INVALID)
+		setColourAttribute(xml, "bgcolour", tmp);
 
 	const auto nParts = getParts(DCX_STATUSBAR_MAX_PARTS, nullptr);
 
@@ -609,7 +610,7 @@ void DcxStatusBar::toXml(TiXmlElement* const xml) const
 	}
 }
 
-TiXmlElement* DcxStatusBar::toXml(void) const
+TiXmlElement* DcxStatusBar::toXml() const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
@@ -623,7 +624,7 @@ void DcxStatusBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis
 
 	__super::fromXml(xDcxml, xThis);
 
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "bgcolour")); tmp != CLR_INVALID)
+	if (const auto tmp = queryColourAttribute(xThis, "bgcolour"); tmp != CLR_INVALID)
 		setBkColor(tmp);
 
 	// setup positions

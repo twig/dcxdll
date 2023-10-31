@@ -310,8 +310,8 @@ void DcxDivider::toXml(TiXmlElement *const xml) const
 	xml->SetAttribute("barwidth", getBarWidth());
 	{
 		auto [clr, selclr] = getBarColours();
-		xml->SetAttribute("barcolour", clr);
-		xml->SetAttribute("barselectedcolour", selclr);
+		setColourAttribute(xml, "barcolour", clr);
+		setColourAttribute(xml, "barselectedcolour", selclr);
 	}
 
 	{
@@ -375,7 +375,7 @@ void DcxDivider::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	setBarWidth(queryIntAttribute(xThis, "barwidth", 2));
 
-	setBarColor(gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "barcolour", CLR_INVALID)), gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "barselectedcolour", CLR_INVALID)));
+	setBarColor(queryColourAttribute(xThis, "barcolour"), queryColourAttribute(xThis, "barselectedcolour"));
 	
 	for (auto xItem = xThis->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement())
 	{

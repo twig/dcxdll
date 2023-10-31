@@ -2428,6 +2428,40 @@ const char* queryAttribute(const TiXmlElement* element, const char* attribute, c
 	return (t) ? t : defaultValue;
 }
 
+COLORREF queryColourAttribute(const TiXmlElement* element, const char* attribute, COLORREF defaultValue) noexcept
+{
+	if (!element || !attribute)
+		return defaultValue;
+
+	if (const auto t = element->Attribute(attribute); t)
+	{
+		char* ptr{};
+		// all colour values are 32bit but only 24bit of that is used, 0x00000000 - 0x00FFFFFF
+		// alpha is ignored.
+
+		// only allows decimal numbers
+		//return gsl::narrow_cast<COLORREF>(_ts_strtoul(t, &ptr, 10));
+
+		//allows hex & decimal, hex numbers must start 0x or 0X
+		if (_ts_strnicmp(t, "0x", 2) == 0)	// base 16 hex number 0x00FFFF
+			return gsl::narrow_cast<COLORREF>(_ts_strtoul(t, &ptr, 16));
+
+		// decimal number
+		return gsl::narrow_cast<COLORREF>(_ts_strtoul(t, &ptr, 10));
+	}
+	return defaultValue;
+}
+
+void setColourAttribute(TiXmlElement* element, const char* attribute, COLORREF Value)
+{
+	if (!element || !attribute)
+		return;
+
+	char szBuf[16]{};
+	_ts_snprintf(&szBuf[0], std::size(szBuf), "%lu", Value);
+	element->SetAttribute(attribute, &szBuf[0]);
+}
+
 //gsl::not_null<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue) noexcept
 //{
 //	const auto t = element->Attribute(attribute);

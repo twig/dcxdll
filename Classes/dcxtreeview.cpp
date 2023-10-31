@@ -60,7 +60,7 @@ DcxTreeView::DcxTreeView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 	if (styles.istok(TEXT("balloon")) && this->getToolTipHWND())
 		dcxSetWindowStyle(getToolTipHWND(), dcxGetWindowStyle(getToolTipHWND()) | TTS_BALLOON);
 
-	if (Dcx::DwmModule.isUseable())
+	if (Dcx::DwmModule.isVista())
 	{
 		//auto ExStylesTreeView = gsl::narrow_cast<long>(TreeView_GetExtendedStyle(m_Hwnd));
 		//parseTreeViewExStyles( styles, &ExStylesTreeView);
@@ -2747,7 +2747,7 @@ bool DcxTreeView::xmlGetItems(const HTREEITEM hFirstSibling, TiXmlElement* xElm,
 			break;
 		}
 		{
-			TiXmlElement xChild("tvitem");
+			TiXmlElement xChild("item");
 			xChild.SetAttribute("text", TString(tvi.pszText).c_str());
 			if (tvi.iImage > -1 && tvi.iImage != 10000)
 				xChild.SetAttribute("image", tvi.iImage + 1);
@@ -2768,9 +2768,9 @@ bool DcxTreeView::xmlGetItems(const HTREEITEM hFirstSibling, TiXmlElement* xElm,
 			if (lpmytvi->bUline)
 				xChild.SetAttribute("textunderline", 1);
 			if (lpmytvi->clrBkg != CLR_INVALID)
-				xChild.SetAttribute("backgroundcolor", gsl::narrow_cast<int>(lpmytvi->clrBkg));
+				setColourAttribute(&xChild, "backgroundcolor", lpmytvi->clrBkg);
 			if (lpmytvi->clrText != CLR_INVALID)
-				xChild.SetAttribute("textcolor", gsl::narrow_cast<int>(lpmytvi->clrText));
+				setColourAttribute(&xChild, "textcolor", lpmytvi->clrText);
 			auto i = (((tvi.state & TVIS_OVERLAYMASK) >> 8) & 0xFF);
 			if (i > 0 && i < 16) // zero means no overlay, so don't save
 				xChild.SetAttribute("overlay", gsl::narrow_cast<int>(i));
@@ -2800,7 +2800,7 @@ const TiXmlElement* DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM& hI
 	const char* attr = nullptr;
 	const TiXmlElement* xRes = xElm;
 
-	for (const auto* xNode = xElm->FirstChildElement("tvitem"); xNode; xNode = xNode->NextSiblingElement("tvitem"))
+	for (const auto* xNode = xElm->FirstChildElement("item"); xNode; xNode = xNode->NextSiblingElement("item"))
 	{
 		ZeroMemory(&tvins, sizeof(tvins));
 		tvins.hInsertAfter = hInsertAfter;
@@ -2841,10 +2841,10 @@ const TiXmlElement* DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM& hI
 				lpmytvi->tsTipText = attr;
 
 			// Items text colour.
-			lpmytvi->clrText = gsl::narrow_cast<COLORREF>(queryIntAttribute(xNode, "textcolor", CLR_INVALID));
+			lpmytvi->clrText = queryColourAttribute(xNode, "textcolor");
 
 			// Items background colour.
-			lpmytvi->clrBkg = gsl::narrow_cast<COLORREF>(queryIntAttribute(xNode, "backgroundcolor", CLR_INVALID));
+			lpmytvi->clrBkg = queryColourAttribute(xNode, "backgroundcolor");
 
 			// Is Item text in Bold?
 			if (queryIntAttribute(xNode, "textbold") > 0)
@@ -2888,7 +2888,7 @@ const TiXmlElement* DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM& hI
 			//TreeView_SetItemState(m_Hwnd, hInsertAfter, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(i)), TVIS_OVERLAYMASK);
 			TV_SetItemState(hInsertAfter, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(i)), TVIS_OVERLAYMASK);
 
-		if (xNode->FirstChild("tvitem"))
+		if (xNode->FirstChild("item"))
 		{
 			// item has children. NB: DON'T update xNode to the result of this call as this stops subsequent items being added.
 			this->xmlInsertItems(hInsertAfter, hInsertAfter, xNode);
@@ -2959,6 +2959,9 @@ const TString DcxTreeView::getStyles() const
 		if (dcx_testflag(Styles, TVS_EX_DIMMEDCHECKBOXES))
 			styles.addtok(TEXT("dimmedchecks"));
 	}
+
+	if (m_bCustomDraw)
+		styles.addtok(TEXT("custom"));
 
 	return styles;
 }
@@ -3116,11 +3119,13 @@ void DcxTreeView::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	__super::fromXml(xDcxml, xThis);
 
-	HTREEITEM hRoot = TreeView_GetRoot(m_Hwnd);
-	if (!hRoot)
-		return;
+	//HTREEITEM hRoot = TreeView_GetRoot(m_Hwnd);
+	//if (!hRoot)
+	//	return;
 
-	//this->xmlInsertItems(hRoot, nullptr, xThis);
+	HTREEITEM hRoot = TVI_ROOT;
+
+	this->xmlInsertItems(hRoot, hRoot, xThis);
 }
 
 LRESULT DcxTreeView::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept

@@ -527,8 +527,8 @@ void DcxColorCombo::toXml(TiXmlElement* const xml) const
 			TiXmlElement xItem("item");
 
 			xItem.SetAttribute("text", data->tsItemText.c_str());
-			xItem.SetAttribute("textcolour", data->clrText);
-			xItem.SetAttribute("bgcolour", data->clrItem);
+			setColourAttribute(&xItem, "textcolour", data->clrText);
+			setColourAttribute(&xItem, "bgcolour", data->clrItem);
 
 			xml->InsertEndChild(xItem);
 		}
@@ -552,8 +552,8 @@ void DcxColorCombo::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThi
 	for (auto xItem = xThis->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
 	{
 		const TString tsText(queryAttribute(xItem, "text"));
-		const auto clrTxt = queryIntAttribute(xItem, "textcolour");
-		const auto clrItem = queryIntAttribute(xItem, "bgcolour");
+		const auto clrTxt = queryColourAttribute(xItem, "textcolour");
+		const auto clrItem = queryColourAttribute(xItem, "bgcolour");
 
 		const auto item = new DCXCCOMBOITEM(clrItem);
 

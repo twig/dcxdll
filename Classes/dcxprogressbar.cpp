@@ -431,8 +431,10 @@ void DcxProgressBar::toXml(TiXmlElement* const xml) const
 	}
 	xml->SetAttribute("pos", this->getPosition());
 	xml->SetAttribute("step", this->getStep());
-	xml->SetAttribute("barcolour", this->getBarColor());
-	xml->SetAttribute("bkcolour", this->getBKColor());
+	if (const auto tmp = this->getBarColor(); tmp != CLR_INVALID)
+		setColourAttribute(xml, "barcolour", tmp);
+	if (const auto tmp = this->getBKColor(); tmp != CLR_INVALID)
+		setColourAttribute(xml, "bkcolour", tmp);
 	if (m_bIsAbsoluteValue)
 		xml->SetAttribute("absolute", "1");
 }
@@ -460,9 +462,9 @@ void DcxProgressBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xTh
 	this->m_bIsAbsoluteValue = (queryIntAttribute(xThis, "absolute") > 0);
 	this->setStep(queryIntAttribute(xThis, "step", 1));
 	this->setPosition(queryIntAttribute(xThis, "pos"));
-	if (auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "barcolour", CLR_INVALID)); tmp != CLR_INVALID)
+	if (const auto tmp = queryColourAttribute(xThis, "barcolour"); tmp != CLR_INVALID)
 		this->setBarColor(tmp);
-	if (auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "bkcolour", CLR_INVALID)); tmp != CLR_INVALID)
+	if (const auto tmp = queryColourAttribute(xThis, "bkcolour"); tmp != CLR_INVALID)
 		this->setBKColor(tmp);
 }
 

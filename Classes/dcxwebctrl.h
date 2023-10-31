@@ -98,7 +98,7 @@ public:
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::WEBCTRL; }
 
 	void toXml(TiXmlElement* const xml) const final;
-	TiXmlElement* toXml(void) const final;
+	TiXmlElement* toXml() const final;
 	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) final;
 
 	//const TString getStyles(void) const final;

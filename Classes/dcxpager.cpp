@@ -80,7 +80,7 @@ void DcxPager::toXml(TiXmlElement* const xml) const
 	//xml->SetAttribute("nocla", 1);
 	xml->SetAttribute("bordersize", Pager_GetBorder(m_Hwnd));
 	xml->SetAttribute("buttonsize", Pager_GetButtonSize(m_Hwnd));
-	xml->SetAttribute("bgcolour", Pager_GetBkColor(m_Hwnd));
+	setColourAttribute(xml, "bgcolour", Pager_GetBkColor(m_Hwnd));
 	xml->SetAttribute("pos", Pager_GetPos(m_Hwnd));
 
 	auto pChild = Dcx::dcxGetProp<DcxControl*>(this->m_ChildHWND, TEXT("dcx_cthis"));
@@ -113,7 +113,7 @@ void DcxPager::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	__super::fromXml(xDcxml, xThis);
 
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "bgcolour", CLR_INVALID)); tmp != CLR_INVALID)
+	if (const auto tmp = queryColourAttribute(xThis, "bgcolour"); tmp != CLR_INVALID)
 		Pager_SetBkColor(m_Hwnd, tmp);
 
 	Pager_SetBorder(m_Hwnd, queryIntAttribute(xThis, "bordersize"));

@@ -666,7 +666,7 @@ void DcxImage::toXml(TiXmlElement* const xml) const
 	if (!this->m_tsLoadFlags.empty())
 		xml->SetAttribute("flags", m_tsLoadFlags.c_str());
 	if (this->m_clrTransColor != CLR_INVALID)
-		xml->SetAttribute("transparentcolour", this->m_clrTransColor);
+		setColourAttribute(xml, "transparentcolour", this->m_clrTransColor);
 	if (this->m_bIsIcon)
 	{
 		xml->SetAttribute("icon", "1");
@@ -703,7 +703,7 @@ void DcxImage::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	__super::fromXml(xDcxml, xThis);
 
-	this->m_clrTransColor = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "transparentcolour", CLR_INVALID));
+	this->m_clrTransColor = queryColourAttribute(xThis, "transparentcolour");
 
 	this->m_iIconSize = NumToIconSize(queryIntAttribute(xThis, "iconsize"));
 	this->m_iIconIndex = queryIntAttribute(xThis, "index");

@@ -1680,28 +1680,28 @@ void DcxControl::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xCtrl)
 
 	// id, type, styles, border? set before creation
 
-	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "bgcolour", CLR_INVALID)); clr != CLR_INVALID)
+	if (auto clr = queryColourAttribute(xCtrl, "bgcolour"); clr != CLR_INVALID)
 	{
 		this->m_clrBackground = clr;
 		if (this->m_hBackBrush)
 			DeleteObject(this->m_hBackBrush);
 		this->m_hBackBrush = CreateSolidBrush(clr);
 	}
-	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "bordercolour", CLR_INVALID)); clr != CLR_INVALID)
+	if (auto clr = queryColourAttribute(xCtrl, "bordercolour"); clr != CLR_INVALID)
 	{
 		if (this->m_hBorderBrush)
 			DeleteObject(this->m_hBorderBrush);
 		this->m_hBorderBrush = CreateSolidBrush(clr);
 	}
-	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "textcolour", CLR_INVALID)); clr != CLR_INVALID)
+	if (auto clr = queryColourAttribute(xCtrl, "textcolour"); clr != CLR_INVALID)
 		this->m_clrText = clr;
-	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "textbgcolour", CLR_INVALID)); clr != CLR_INVALID)
+	if (auto clr = queryColourAttribute(xCtrl, "textbgcolour"); clr != CLR_INVALID)
 		this->m_clrBackText = clr;
-	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "gradientstart", CLR_INVALID)); clr != CLR_INVALID)
+	if (auto clr = queryColourAttribute(xCtrl, "gradientstart"); clr != CLR_INVALID)
 		this->m_clrStartGradient = clr;
-	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "gradientend", CLR_INVALID)); clr != CLR_INVALID)
+	if (auto clr = queryColourAttribute(xCtrl, "gradientend"); clr != CLR_INVALID)
 		this->m_clrEndGradient = clr;
-	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "transparentbg", CLR_INVALID)); clr != CLR_INVALID)
+	if (auto clr = queryColourAttribute(xCtrl, "transparentbg"); clr != CLR_INVALID)
 		this->m_colTransparentBg = clr;
 
 	if (auto clr = gsl::narrow_cast<DWORD>(queryIntAttribute(xCtrl, "eventmask", -1)); clr != MAXDWORD)
@@ -1710,15 +1710,15 @@ void DcxControl::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xCtrl)
 	if (auto clr = gsl::narrow_cast<BYTE>(queryIntAttribute(xCtrl, "alpha", 255)); clr != 255)
 		this->m_iAlphaLevel = clr;
 
-	if (auto clr = queryAttribute(xCtrl, "mark"); !_ts_isEmpty(clr))
-		this->m_tsMark = clr;
-	if (auto clr = queryAttribute(xCtrl, "tooltip"); !_ts_isEmpty(clr))
-		this->m_tsToolTip = clr;
+	if (auto tmp = queryAttribute(xCtrl, "mark"); !_ts_isEmpty(tmp))
+		this->m_tsMark = tmp;
+	if (auto tmp = queryAttribute(xCtrl, "tooltip"); !_ts_isEmpty(tmp))
+		this->m_tsToolTip = tmp;
 	if (auto hTip = getToolTipHWND(); hTip)
 	{
-		if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "tooltipbgcolour", CLR_INVALID)); clr != CLR_INVALID)
+		if (auto clr = queryColourAttribute(xCtrl, "tooltipbgcolour"); clr != CLR_INVALID)
 			Dcx::dcxToolTip_SetTipBkColor(hTip, clr);
-		if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "tooltiptextcolour", CLR_INVALID)); clr != CLR_INVALID)
+		if (auto clr = queryColourAttribute(xCtrl, "tooltiptextcolour"); clr != CLR_INVALID)
 			Dcx::dcxToolTip_SetTipTextColor(hTip, clr);
 	}
 
@@ -2941,19 +2941,19 @@ void DcxControl::toXml(TiXmlElement* const xml) const
 		xml->SetAttribute("styles", styles.c_str());
 	xml->SetAttribute("border", getBorderStyles().c_str());
 	if (this->m_clrBackground != CLR_INVALID)
-		xml->SetAttribute("bgcolour", this->m_clrBackground);
+		setColourAttribute(xml, "bgcolour", this->m_clrBackground);
 	if (this->m_hBorderBrush)
-		xml->SetAttribute("bordercolour", Dcx::BrushToColour(this->m_hBorderBrush));
+		setColourAttribute(xml, "bordercolour", Dcx::BrushToColour(this->m_hBorderBrush));
 	if (this->m_clrText != CLR_INVALID)
-		xml->SetAttribute("textcolour", this->m_clrText);
+		setColourAttribute(xml, "textcolour", this->m_clrText);
 	if (this->m_clrBackText != CLR_INVALID)
-		xml->SetAttribute("textbgcolour", this->m_clrBackText);
+		setColourAttribute(xml, "textbgcolour", this->m_clrBackText);
 	if (this->m_clrStartGradient != CLR_INVALID)
-		xml->SetAttribute("gradientstart", this->m_clrStartGradient);
+		setColourAttribute(xml, "gradientstart", this->m_clrStartGradient);
 	if (this->m_clrEndGradient != CLR_INVALID)
-		xml->SetAttribute("gradientend", this->m_clrEndGradient);
+		setColourAttribute(xml, "gradientend", this->m_clrEndGradient);
 	if (this->m_colTransparentBg != CLR_INVALID)
-		xml->SetAttribute("transparentbg", this->m_colTransparentBg);
+		setColourAttribute(xml, "transparentbg", this->m_colTransparentBg);
 	if (!this->m_tsMark.empty())
 		xml->SetAttribute("mark", m_tsMark.c_str());
 	if (!this->m_tsToolTip.empty())
@@ -2961,9 +2961,9 @@ void DcxControl::toXml(TiXmlElement* const xml) const
 	if (auto hTip = getToolTipHWND(); hTip)
 	{
 		if (const auto tmp = Dcx::dcxToolTip_GetTipBkColor(hTip); tmp != CLR_INVALID)
-			xml->SetAttribute("tooltipbgcolour", tmp);
+			setColourAttribute(xml, "tooltipbgcolour", tmp);
 		if (const auto tmp = Dcx::dcxToolTip_GetTipTextColor(hTip); tmp != CLR_INVALID)
-			xml->SetAttribute("tooltiptextcolour", tmp);
+			setColourAttribute(xml, "tooltiptextcolour", tmp);
 	}
 	xml->SetAttribute("eventmask", this->m_dEventMask);
 	if (m_bAlphaBlend && (this->m_iAlphaLevel < 255U))

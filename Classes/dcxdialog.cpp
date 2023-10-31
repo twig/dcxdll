@@ -4320,7 +4320,7 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 		xml->SetAttribute("tooltipflags", TooltipFlagsToString(GetWindowStyle(hTool)).c_str());
 
 	if (const auto clr = Dcx::BrushToColour(this->m_hBackBrush); clr != CLR_INVALID)
-		xml->SetAttribute("bgcolour", clr);
+		setColourAttribute(xml, "bgcolour", clr);
 
 	{
 		const Dcx::dcxWindowRect rc(m_Hwnd);
@@ -4339,9 +4339,9 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 	if (this->m_iAlphaLevel != std::byte{255})
 		xml->SetAttribute("alphalevel", gsl::narrow_cast<int>(this->m_iAlphaLevel));
 	if (this->m_colTransparentBg != CLR_INVALID)
-		xml->SetAttribute("transparentbg", this->m_colTransparentBg);
+		setColourAttribute(xml, "transparentbg", this->m_colTransparentBg);
 	if (this->m_bHaveKeyColour && (this->m_cKeyColour != CLR_INVALID))
-		xml->SetAttribute("keycolour", this->m_cKeyColour);
+		setColourAttribute(xml, "keycolour", this->m_cKeyColour);
 	if (this->m_bVistaStyle)
 	{
 		TString tsOff;
@@ -4439,7 +4439,7 @@ void DcxDialog::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	//		this->setControlFont(CreateFontIndirect(&lf), FALSE);
 	//}
 
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "bgcolour", CLR_INVALID)); tmp != CLR_INVALID)
+	if (const auto tmp = queryColourAttribute(xThis, "bgcolour"); tmp != CLR_INVALID)
 		m_hBackBrush = CreateSolidBrush(tmp);
 
 	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "alphalevel", 255)); tmp != 255)
@@ -4448,10 +4448,10 @@ void DcxDialog::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "ghostalpha", 255)); tmp != 255)
 		this->m_uGhostDragAlpha = gsl::narrow_cast<std::byte>(tmp);
 
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "transparentbg", CLR_INVALID)); tmp != CLR_INVALID)
+	if (const auto tmp = queryColourAttribute(xThis, "transparentbg"); tmp != CLR_INVALID)
 		this->m_colTransparentBg = tmp;
 
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xThis, "keycolour", CLR_INVALID)); tmp != CLR_INVALID)
+	if (const auto tmp = queryColourAttribute(xThis, "keycolour"); tmp != CLR_INVALID)
 		this->m_cKeyColour = tmp;
 
 	if (const auto tmp = queryIntAttribute(xThis, "drag"); tmp)
@@ -4606,13 +4606,7 @@ void DcxDialog::xmlParseElements(const TString& tsPath, const TiXmlElement* xPar
 		break;
 		case "control"_hash:
 		{
-			if (xmlAddControl(tsPath, tsCurrentPath, xParent, xElement))
-			{
-				//++iCLA;
-				//TString tsTok;
-				//tsTok.addtok(iCLA);
-				//tsCurrentPath.puttok(tsTok, tsCurrentPath.numtok());
-			}
+			xmlAddControl(tsPath, tsCurrentPath, xParent, xElement);
 		}
 		break;
 		case "style"_hash:

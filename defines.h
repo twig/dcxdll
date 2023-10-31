@@ -612,9 +612,22 @@ struct dcxImage
 	TString m_tsFilename;
 	HBITMAP m_hBitmap{};
 	HICON m_hIcon{};
-#ifdef DCX_USE_GDIPLUS
-	std::unique_ptr<Gdiplus::Image> m_pImage{ nullptr }; //!< GDI+ Image Object
-#endif
+//#ifdef DCX_USE_GDIPLUS
+//	std::unique_ptr<Gdiplus::Image> m_pImage{ nullptr }; //!< GDI+ Image Object
+//#endif
+
+	void reset() noexcept
+	{
+		if (m_hBitmap)
+			DeleteBitmap(m_hBitmap);
+		m_hBitmap = nullptr;
+
+		if (m_hIcon)
+			DeleteObject(m_hIcon);
+		m_hIcon = nullptr;
+
+		m_tsFilename.clear();
+	}
 };
 
 // UNICODE/ANSI wrappers
@@ -716,6 +729,8 @@ void FreeOSCompatibility(void) noexcept;
 const char* queryAttribute(const TiXmlElement* element, const char* attribute, const char* defaultValue = "") noexcept;
 //gsl::not_null<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue = gsl::not_null<const char *>("")) noexcept;
 //std::optional<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute) noexcept;
+COLORREF queryColourAttribute(const TiXmlElement* element, const char* attribute, COLORREF defaultValue = CLR_INVALID) noexcept;
+void setColourAttribute(TiXmlElement* element, const char* attribute, COLORREF Value);
 int queryIntAttribute(const TiXmlElement* element, const char* attribute, const int defaultValue = 0) noexcept;
 //int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue = 0);
 //std::optional<int> queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute);

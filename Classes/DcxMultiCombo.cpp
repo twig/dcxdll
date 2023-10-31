@@ -634,7 +634,7 @@ void DcxMultiCombo::toXml(TiXmlElement* const xml) const
 
 			xChild.SetAttribute("text", ItemData.m_tsItemText.c_str());
 			if (ItemData.m_clrItem != CLR_INVALID)
-				xChild.SetAttribute("textbgcolour", ItemData.m_clrItem);
+				setColourAttribute(&xChild, "textbgcolour", ItemData.m_clrItem);
 			//if (ItemData.m_clrText != CLR_INVALID)
 			//	xChild.SetAttribute("textcolour", ItemData.m_clrText);
 
@@ -710,7 +710,7 @@ void DcxMultiCombo::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThi
 				const TString tsText(queryAttribute(xItem, "text"));
 				COLORREF clrBgText{ CLR_INVALID };
 
-				if (auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xItem, "textbgcolour")); tmp != CLR_INVALID)
+				if (auto tmp = queryColourAttribute(xItem, "textbgcolour"); tmp != CLR_INVALID)
 					clrBgText = tmp;
 
 				addItem(clrBgText, tsText);

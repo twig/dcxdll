@@ -87,15 +87,15 @@ void DcxCheck::toXml(TiXmlElement* const xml) const
 	{
 		TiXmlElement xColours("colours");
 
-		xColours.SetAttribute("checkbg", this->m_Colours.m_clrBackground);
-		xColours.SetAttribute("checkframe", this->m_Colours.m_clrFrame);
-		xColours.SetAttribute("checktick", this->m_Colours.m_clrTick);
-		xColours.SetAttribute("checkdisabledbg", this->m_Colours.m_clrDisabledBackground);
-		xColours.SetAttribute("checkdisabledframe", this->m_Colours.m_clrDisabledFrame);
-		xColours.SetAttribute("checkdisabledtick", this->m_Colours.m_clrDisabledTick);
-		xColours.SetAttribute("checkhotbg", this->m_Colours.m_clrHotBackground);
-		xColours.SetAttribute("checkhotframe", this->m_Colours.m_clrHotFrame);
-		xColours.SetAttribute("checkhottick", this->m_Colours.m_clrHotTick);
+		setColourAttribute(&xColours, "checkbg", this->m_Colours.m_clrBackground);
+		setColourAttribute(&xColours, "checkframe", this->m_Colours.m_clrFrame);
+		setColourAttribute(&xColours, "checktick", this->m_Colours.m_clrTick);
+		setColourAttribute(&xColours, "checkdisabledbg", this->m_Colours.m_clrDisabledBackground);
+		setColourAttribute(&xColours, "checkdisabledframe", this->m_Colours.m_clrDisabledFrame);
+		setColourAttribute(&xColours, "checkdisabledtick", this->m_Colours.m_clrDisabledTick);
+		setColourAttribute(&xColours, "checkhotbg", this->m_Colours.m_clrHotBackground);
+		setColourAttribute(&xColours, "checkhotframe", this->m_Colours.m_clrHotFrame);
+		setColourAttribute(&xColours, "checkhottick", this->m_Colours.m_clrHotTick);
 
 		xml->InsertEndChild(xColours);
 	}
@@ -131,23 +131,23 @@ void DcxCheck::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 		Button_SetCheck(m_Hwnd, tmp);
 	if (auto xColours = xThis->FirstChildElement("colours"); xColours)
 	{
-		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checkbg", CLR_INVALID)); tmp != CLR_INVALID)
+		if (const auto tmp = queryColourAttribute(xColours, "checkbg"); tmp != CLR_INVALID)
 			this->m_Colours.m_clrBackground = tmp;
-		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checkframe", CLR_INVALID)); tmp != CLR_INVALID)
+		if (const auto tmp = queryColourAttribute(xColours, "checkframe"); tmp != CLR_INVALID)
 			this->m_Colours.m_clrFrame = tmp;
-		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checktick", CLR_INVALID)); tmp != CLR_INVALID)
+		if (const auto tmp = queryColourAttribute(xColours, "checktick"); tmp != CLR_INVALID)
 			this->m_Colours.m_clrTick = tmp;
-		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checkdisabledbg", CLR_INVALID)); tmp != CLR_INVALID)
+		if (const auto tmp = queryColourAttribute(xColours, "checkdisabledbg"); tmp != CLR_INVALID)
 			this->m_Colours.m_clrDisabledBackground = tmp;
-		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checkdisabledframe", CLR_INVALID)); tmp != CLR_INVALID)
+		if (const auto tmp = queryColourAttribute(xColours, "checkdisabledframe"); tmp != CLR_INVALID)
 			this->m_Colours.m_clrDisabledFrame = tmp;
-		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checkdisabledtick", CLR_INVALID)); tmp != CLR_INVALID)
+		if (const auto tmp = queryColourAttribute(xColours, "checkdisabledtick"); tmp != CLR_INVALID)
 			this->m_Colours.m_clrDisabledTick = tmp;
-		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checkhotbg", CLR_INVALID)); tmp != CLR_INVALID)
+		if (const auto tmp = queryColourAttribute(xColours, "checkhotbg"); tmp != CLR_INVALID)
 			this->m_Colours.m_clrHotBackground = tmp;
-		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checkhotframe", CLR_INVALID)); tmp != CLR_INVALID)
+		if (const auto tmp = queryColourAttribute(xColours, "checkhotframe"); tmp != CLR_INVALID)
 			this->m_Colours.m_clrHotFrame = tmp;
-		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "checkhottick", CLR_INVALID)); tmp != CLR_INVALID)
+		if (const auto tmp = queryColourAttribute(xColours, "checkhottick"); tmp != CLR_INVALID)
 			this->m_Colours.m_clrHotTick = tmp;
 	}
 }

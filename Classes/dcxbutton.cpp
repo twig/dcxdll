@@ -560,20 +560,20 @@ void DcxButton::toXml(TiXmlElement* const xml) const
 	{
 		// save colours
 		TiXmlElement xColours("colours");
-		xColours.SetAttribute("normal", m_aColors[0]);
-		xColours.SetAttribute("hover", m_aColors[1]);
-		xColours.SetAttribute("pushed", m_aColors[2]);
-		xColours.SetAttribute("disabled", m_aColors[3]);
+		setColourAttribute(&xColours, "normal", m_aColors[0]);
+		setColourAttribute(&xColours, "hover", m_aColors[1]);
+		setColourAttribute(&xColours, "pushed", m_aColors[2]);
+		setColourAttribute(&xColours, "disabled", m_aColors[3]);
 
 		xml->InsertEndChild(xColours);
 	}
 	{
 		// save transparentcolours (used with images)
 		TiXmlElement xColours("transparentcolours");
-		xColours.SetAttribute("normal", m_aTransp[0]);
-		xColours.SetAttribute("hover", m_aTransp[1]);
-		xColours.SetAttribute("pushed", m_aTransp[2]);
-		xColours.SetAttribute("disabled", m_aTransp[3]);
+		setColourAttribute(&xColours, "normal", m_aTransp[0]);
+		setColourAttribute(&xColours, "hover", m_aTransp[1]);
+		setColourAttribute(&xColours, "pushed", m_aTransp[2]);
+		setColourAttribute(&xColours, "disabled", m_aTransp[3]);
 
 		xml->InsertEndChild(xColours);
 	}
@@ -634,17 +634,17 @@ void DcxButton::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	if (auto xColours = xThis->FirstChildElement("colours"); xColours)
 	{
-		m_aColors[0] = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "normal", CLR_INVALID));
-		m_aColors[1] = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "hover", CLR_INVALID));
-		m_aColors[2] = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "pushed", CLR_INVALID));
-		m_aColors[3] = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "disabled", CLR_INVALID));
+		m_aColors[0] = queryColourAttribute(xColours, "normal");
+		m_aColors[1] = queryColourAttribute(xColours, "hover");
+		m_aColors[2] = queryColourAttribute(xColours, "pushed");
+		m_aColors[3] = queryColourAttribute(xColours, "disabled");
 	}
 	if (auto xColours = xThis->FirstChildElement("transparentcolours"); xColours)
 	{
-		m_aTransp[0] = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "normal", CLR_INVALID));
-		m_aTransp[1] = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "hover", CLR_INVALID));
-		m_aTransp[2] = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "pushed", CLR_INVALID));
-		m_aTransp[3] = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "disabled", CLR_INVALID));
+		m_aTransp[0] = queryColourAttribute(xColours, "normal");
+		m_aTransp[1] = queryColourAttribute(xColours, "hover");
+		m_aTransp[2] = queryColourAttribute(xColours, "pushed");
+		m_aTransp[3] = queryColourAttribute(xColours, "disabled");
 	}
 	if (auto xImages = xThis->FirstChildElement("images"); xImages)
 	{

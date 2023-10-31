@@ -107,10 +107,10 @@ void DcxLink::toXml(TiXmlElement* const xml) const
 	{
 		TiXmlElement xColours("colours");
 
-		xColours.SetAttribute("normal", this->m_aColors[0]);
-		xColours.SetAttribute("hot", this->m_aColors[1]);
-		xColours.SetAttribute("visited", this->m_aColors[2]);
-		xColours.SetAttribute("disabled", this->m_aColors[3]);
+		setColourAttribute(&xColours, "normal", this->m_aColors[0]);
+		setColourAttribute(&xColours, "hot", this->m_aColors[1]);
+		setColourAttribute(&xColours, "visited", this->m_aColors[2]);
+		setColourAttribute(&xColours, "disabled", this->m_aColors[3]);
 
 		xml->InsertEndChild(xColours);
 	}
@@ -140,13 +140,13 @@ void DcxLink::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	if (auto xColours = xThis->FirstChildElement("colours"); xColours)
 	{
-		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "normal", CLR_INVALID)); tmp != CLR_INVALID)
+		if (const auto tmp = queryColourAttribute(xColours, "normal"); tmp != CLR_INVALID)
 			this->m_aColors[0] = tmp;
-		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "hot", CLR_INVALID)); tmp != CLR_INVALID)
+		if (const auto tmp = queryColourAttribute(xColours, "hot"); tmp != CLR_INVALID)
 			this->m_aColors[1] = tmp;
-		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "visited", CLR_INVALID)); tmp != CLR_INVALID)
+		if (const auto tmp = queryColourAttribute(xColours, "visited"); tmp != CLR_INVALID)
 			this->m_aColors[2] = tmp;
-		if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "disabled", CLR_INVALID)); tmp != CLR_INVALID)
+		if (const auto tmp = queryColourAttribute(xColours, "disabled"); tmp != CLR_INVALID)
 			this->m_aColors[3] = tmp;
 
 	}

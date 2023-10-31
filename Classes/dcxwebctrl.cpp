@@ -830,7 +830,7 @@ void DcxWebControl::toXml(TiXmlElement* const xml) const
 	xml->SetAttribute("statustext", this->getStatusText().c_str());
 }
 
-TiXmlElement* DcxWebControl::toXml(void) const
+TiXmlElement* DcxWebControl::toXml() const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
