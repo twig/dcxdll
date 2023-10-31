@@ -1679,9 +1679,6 @@ void DcxControl::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xCtrl)
 		return;
 
 	// id, type, styles, border? set before creation
-	//const auto pd = this->getParentDialog();
-	//if (!pd)
-	//	throw DcxExceptions::dcxInvalidCommand();
 
 	if (auto clr = gsl::narrow_cast<COLORREF>(queryIntAttribute(xCtrl, "bgcolour", CLR_INVALID)); clr != CLR_INVALID)
 	{
@@ -2900,7 +2897,8 @@ const TString DcxControl::getStyles(void) const
 		else
 			result.addtok(TEXT("hgradient"));
 	}
-	//result.addtok(TEXT("utf8"));
+	if (this->getToolTipHWND())
+		result.addtok(TEXT("tooltips"));
 	return result;
 
 	//const dcxWindowStyles Styles{ m_Hwnd };

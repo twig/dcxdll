@@ -392,6 +392,8 @@ public:
 
 	const bool isIDValid(_In_ const UINT ID, _In_ const bool bUnused = false) const noexcept;
 
+	void createTooltip(const TString& tsFlags);
+
 	static LRESULT WINAPI WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static void DrawDialogBackground(HDC hdc, DcxDialog* const p_this, LPCRECT rwnd);
 	static const WindowAnimStyle getAnimateStyles(const TString& flags) noexcept;
@@ -484,6 +486,7 @@ private:
 	static const UINT parseFlashFlags(const TString& flags) noexcept;
 	static const UINT parseTooltipFlags(const TString& flags) noexcept;
 	static TString BkgFlagsToString(UINT uFlags);
+	static TString TooltipFlagsToString(UINT uFlags);
 
 	//// Helper to calculate the alpha-premultiled value for a pixel
 	//constexpr static inline const DWORD PreMultiply(const COLORREF cl, const unsigned char nAlpha) noexcept

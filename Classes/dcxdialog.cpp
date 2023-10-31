@@ -96,14 +96,22 @@ DcxDialog::~DcxDialog() noexcept
 		GSL_SUPPRESS(lifetime.1) DestroyWindow(getToolTipHWND());
 
 #if DCX_CUSTOM_MENUS
-	if (m_CustomMenuBar.m_Default.m_hBkg)
-		DeleteBitmap(m_CustomMenuBar.m_Default.m_hBkg);
+	//if (m_CustomMenuBar.m_Default.m_hBkg)
+	//	DeleteBitmap(m_CustomMenuBar.m_Default.m_hBkg);
 
-	for (const auto& a : m_CustomMenuBar.m_ItemSettings)
-	{
-		if (a.second.m_hBkg)
-			DeleteBitmap(a.second.m_hBkg);
-	}
+	//for (const auto& a : m_CustomMenuBar.m_ItemSettings)
+	//{
+	//	if (a.second.m_hBkg)
+	//		DeleteBitmap(a.second.m_hBkg);
+	//}
+	//if (m_CustomMenuBar.m_menuTheme)
+	//	Dcx::UXModule.dcxCloseThemeData(m_CustomMenuBar.m_menuTheme);
+
+	m_CustomMenuBar.m_Default.m_hBkg.reset();
+
+	for (auto& a : m_CustomMenuBar.m_ItemSettings)
+		a.second.m_hBkg.reset();
+
 	if (m_CustomMenuBar.m_menuTheme)
 		Dcx::UXModule.dcxCloseThemeData(m_CustomMenuBar.m_menuTheme);
 #endif
@@ -178,7 +186,7 @@ void DcxDialog::deleteAllControls() noexcept
 	m_NamedIds.clear();
 }
 
-DcxControl* DcxDialog::getControlByNamedID(const TString &tsID) const
+DcxControl* DcxDialog::getControlByNamedID(const TString& tsID) const
 {
 	if (const auto id = NameToID(tsID); id > 0)
 		return getControlByID(id);
@@ -305,7 +313,7 @@ void DcxDialog::xmlSaveMenubarColours(TiXmlElement* xParent, const XPMENUBARCOLO
 	if (mColours.m_clrBorder != CLR_INVALID)
 		xColours.SetAttribute("border", mColours.m_clrBorder);
 	if (mColours.m_clrBox != CLR_INVALID)
-		xColours.SetAttribute("box", mColours.m_clrBorder);
+		xColours.SetAttribute("box", mColours.m_clrBox);
 	if (mColours.m_clrDisabled != CLR_INVALID)
 		xColours.SetAttribute("disabled", mColours.m_clrDisabled);
 	if (mColours.m_clrDisabledText != CLR_INVALID)
@@ -347,6 +355,11 @@ void DcxDialog::xmlLoadMenubar(const TiXmlElement* xMenubar, XPMENUBAR& mMenubar
 	xmlLoadMenubarColours(xMenubar, mMenubar.m_Default.m_Colours);
 
 	// load images...
+	{
+		TString tsFilename(queryAttribute(xMenubar, "src"));
+		mMenubar.m_Default.m_hBkg.m_tsFilename = tsFilename;
+		mMenubar.m_Default.m_hBkg.m_hBitmap = dcxLoadBitmap(mMenubar.m_Default.m_hBkg.m_hBitmap, tsFilename);
+	}
 
 	// load item specific settings
 	for (auto xItem = xMenubar->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
@@ -379,7 +392,9 @@ void DcxDialog::xmlSaveMenubar(TiXmlElement* xParent, const XPMENUBAR& mMenuBar)
 		xMenubar.SetAttribute("roundedborder", "1");
 	if (mMenuBar.m_bDrawShadowText)
 		xMenubar.SetAttribute("shadowtext", "1");
-
+	if (!mMenuBar.m_Default.m_hBkg.m_tsFilename.empty())
+		xMenubar.SetAttribute("src", mMenuBar.m_Default.m_hBkg.m_tsFilename.c_str());
+	
 	xmlSaveMenubarColours(&xMenubar, mMenuBar.m_Default.m_Colours);
 
 	// default background?
@@ -788,17 +803,16 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			// enable/disable
 			m_CustomMenuBar.m_bDrawBorder = (tsArgs == TEXT("1"));
 		}
-		else if (xflags[TEXT('f')])
+		else if (xflags[TEXT('f')] && !xflags[TEXT('i')])
 		{
 			// load bkg image.
+
 			if (tsArgs.empty())
-			{
-				if (m_CustomMenuBar.m_Default.m_hBkg)
-					DeleteBitmap(m_CustomMenuBar.m_Default.m_hBkg);
-				m_CustomMenuBar.m_Default.m_hBkg = nullptr;
+				m_CustomMenuBar.m_Default.m_hBkg.reset();
+			else {
+				m_CustomMenuBar.m_Default.m_hBkg.m_tsFilename = tsArgs;
+				m_CustomMenuBar.m_Default.m_hBkg.m_hBitmap = dcxLoadBitmap(m_CustomMenuBar.m_Default.m_hBkg.m_hBitmap, tsArgs);
 			}
-			else
-				m_CustomMenuBar.m_Default.m_hBkg = dcxLoadBitmap(m_CustomMenuBar.m_Default.m_hBkg, tsArgs);
 		}
 		else if (xflags[TEXT('s')])
 		{
@@ -865,14 +879,13 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 				if (xflags[TEXT('f')])
 				{
 					// load bkg image.
+
 					if (tsArgs.empty())
-					{
-						if (xpItem.m_hBkg)
-							DeleteBitmap(xpItem.m_hBkg);
-						xpItem.m_hBkg = nullptr;
+						xpItem.m_hBkg.reset();
+					else {
+						xpItem.m_hBkg.m_tsFilename = tsArgs;
+						xpItem.m_hBkg.m_hBitmap = dcxLoadBitmap(xpItem.m_hBkg.m_hBitmap, tsArgs);
 					}
-					else
-						xpItem.m_hBkg = dcxLoadBitmap(xpItem.m_hBkg, tsArgs);
 				}
 				else {
 					if (numtok < 11)
@@ -1013,27 +1026,29 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -T [NAME] [SWITCH] [FLAGS] [STYLES]
 	else if (flags[TEXT('T')] && numtok > 2)
 	{
-		if (IsWindow(getToolTipHWND()))
-			throw Dcx::dcxException("Tooltip already exists. Cannot recreate");
+		//if (IsWindow(getToolTipHWND()))
+		//	throw Dcx::dcxException("Tooltip already exists. Cannot recreate");
+		//
+		//const auto styles = parseTooltipFlags(input.getnexttok());	// tok 3
+		//
+		//// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/tooltip/styles.asp
+		//setToolTipHWND(CreateWindowEx(WS_EX_TOPMOST,
+		//	TOOLTIPS_CLASS, nullptr,
+		//	styles,
+		//	CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		//	m_Hwnd,
+		//	nullptr, GetModuleHandle(nullptr), nullptr));
+		//
+		//if (this->getToolTipHWND() && IsWindow(this->getToolTipHWND()))
+		//{ // MUST set a limit before $crlf will give multiline tips.
+		//	SendMessage(this->getToolTipHWND(), TTM_SETMAXTIPWIDTH, 0, 400); // 400 seems a good limit for now, we could also add an option to set this.
+		//	//if (input.gettok( 3 ).find(TEXT('T'),0)) {
+		//	//	AddStyles(this->m_ToolTipHWND,GWL_EXSTYLE,WS_EX_LAYERED);
+		//	//	SetLayeredWindowAttributesUx(this->m_ToolTipHWND, 0, 192, LWA_ALPHA);
+		//	//}
+		//}
 
-		const auto styles = parseTooltipFlags(input.getnexttok());	// tok 3
-
-		// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/tooltip/styles.asp
-		setToolTipHWND(CreateWindowEx(WS_EX_TOPMOST,
-			TOOLTIPS_CLASS, nullptr,
-			styles,
-			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-			m_Hwnd,
-			nullptr, GetModuleHandle(nullptr), nullptr));
-
-		if (this->getToolTipHWND() && IsWindow(this->getToolTipHWND()))
-		{ // MUST set a limit before $crlf will give multiline tips.
-			SendMessage(this->getToolTipHWND(), TTM_SETMAXTIPWIDTH, 0, 400); // 400 seems a good limit for now, we could also add an option to set this.
-			//if (input.gettok( 3 ).find(TEXT('T'),0)) {
-			//	AddStyles(this->m_ToolTipHWND,GWL_EXSTYLE,WS_EX_LAYERED);
-			//	SetLayeredWindowAttributesUx(this->m_ToolTipHWND, 0, 192, LWA_ALPHA);
-			//}
-		}
+		this->createTooltip(input.getnexttok());
 	}
 	// xdialog -w [NAME] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 4)
@@ -1300,7 +1315,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			throw DcxExceptions::dcxInvalidFlag();
 
 		return;
-	}
+		}
 	// xdialog -P [NAME] [SWITCH] ([+FLAGS] (FLAG OPTIONS))
 	else if (flags[TEXT('P')])
 	{
@@ -1619,7 +1634,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			if (!xRoot)
 				throw Dcx::dcxException("Unable To Add Root <dcxml>");
 		}
-		
+
 		// get or create dialogs item
 		auto xDialogs = xRoot->FirstChildElement("dialogs");
 		if (!xDialogs)
@@ -1674,7 +1689,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// invalid command
 	else
 		throw DcxExceptions::dcxInvalidCommand();
-}
+	}
 
 /// <summary>
 /// Parse string to border styles.
@@ -1816,6 +1831,28 @@ TString DcxDialog::BkgFlagsToString(UINT uFlags)
 		tsResult += TEXT('r');
 	if (dcx_testflag(uFlags, DBS_BKGBOTTOM))
 		tsResult += TEXT('o');
+
+	return tsResult;
+}
+
+TString DcxDialog::TooltipFlagsToString(UINT uFlags)
+{
+	TString tsResult(TEXT('+'));
+
+	if (dcx_testflag(uFlags, TTS_ALWAYSTIP))
+		tsResult += TEXT('a');
+	if (dcx_testflag(uFlags, TTS_BALLOON))
+		tsResult += TEXT('b');
+	if (dcx_testflag(uFlags, TTS_CLOSE))
+		tsResult += TEXT('c');
+	if (dcx_testflag(uFlags, TTS_NOFADE))
+		tsResult += TEXT('f');
+	if (dcx_testflag(uFlags, TTS_NOPREFIX))
+		tsResult += TEXT('p');
+	if (dcx_testflag(uFlags, TTS_NOANIMATE))
+		tsResult += TEXT('s');
+	if (dcx_testflag(uFlags, TTS_USEVISUALSTYLE))
+		tsResult += TEXT('t');
 
 	return tsResult;
 }
@@ -2126,7 +2163,7 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 		throw Dcx::dcxException("Invalid property or parameters");
 		break;
 	}
-}
+	}
 
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
@@ -2954,7 +2991,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			p_this->UpdateVistaStyle();
 		}
 		break;
-	}
+		}
 
 	case WM_MOUSELEAVE:
 	{
@@ -3145,8 +3182,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		else
 			Dcx::FillRectColour(pUDM->hdc, &rc, GetSysColor(COLOR_MENUBAR));	// if all else fails draw as standard menu colour.
 
-		if (p_this->m_CustomMenuBar.m_Default.m_hBkg)
-			dcxDrawBitMap(pUDM->hdc, &rc, p_this->m_CustomMenuBar.m_Default.m_hBkg, true, false);
+		if (p_this->m_CustomMenuBar.m_Default.m_hBkg.m_hBitmap)
+			dcxDrawBitMap(pUDM->hdc, &rc, p_this->m_CustomMenuBar.m_Default.m_hBkg.m_hBitmap, true, false);
 
 		//else if (p_this->m_bGradientFill)
 		//{
@@ -3171,7 +3208,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 
 		auto mCols = p_this->m_CustomMenuBar.m_Default;
-		mCols.m_hBkg = nullptr;
+		mCols.m_hBkg.m_hBitmap = nullptr;
 
 		if (p_this->m_CustomMenuBar.m_ItemSettings.contains(pUDMI->umi.iPosition))
 			mCols = p_this->m_CustomMenuBar.m_ItemSettings[pUDMI->umi.iPosition];
@@ -3256,8 +3293,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		//else
 		//	Dcx::FillRectColour(pUDMI->um.hdc, &pUDMI->dis.rcItem, clrFill);
 
-		if (mCols.m_hBkg)
-			dcxDrawBitMap(pUDMI->um.hdc, &pUDMI->dis.rcItem, mCols.m_hBkg, true, false);
+		if (mCols.m_hBkg.m_hBitmap)
+			dcxDrawBitMap(pUDMI->um.hdc, &pUDMI->dis.rcItem, mCols.m_hBkg.m_hBitmap, true, false);
 		else
 			dcxDrawRect(pUDMI->um.hdc, &pUDMI->dis.rcItem, clrFill, clrBorder, p_this->m_CustomMenuBar.m_bDrawRoundedBorder);
 
@@ -3504,7 +3541,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		return lRes;
 
 	return p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
-}
+	}
 
 /// <summary>
 /// Draw the dialogs background.
@@ -4279,8 +4316,10 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 	xml->SetAttribute("caption", dest.c_str());
 	xml->SetAttribute("border", getBorderStyles().c_str());
 	xml->SetAttribute("bgstyle", BkgFlagsToString(this->m_uStyleBg).c_str());
+	if (auto hTool = this->getToolTipHWND(); hTool)
+		xml->SetAttribute("tooltipflags", TooltipFlagsToString(GetWindowStyle(hTool)).c_str());
 
-	if (auto clr = Dcx::BrushToColour(this->m_hBackBrush); clr != CLR_INVALID)
+	if (const auto clr = Dcx::BrushToColour(this->m_hBackBrush); clr != CLR_INVALID)
 		xml->SetAttribute("bgcolour", clr);
 
 	{
@@ -4348,7 +4387,12 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 		if (const auto rt = m_pLayoutManager->getRoot(); rt)
 		{
 			// if using CLA then all controls here must be in CLA
-			rt->toXml(xml);
+			// NB: root cell can be other than pane, needs looked at more, should we just disallow this?
+			if (rt->getType() != LayoutCell::CellType::PANE)
+				xml->LinkEndChild(rt->toXml());
+			else
+				rt->toXml(xml);
+
 			return;
 		}
 	}
@@ -4475,46 +4519,12 @@ void DcxDialog::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 		loadCursor(tsFlags, tsFilename);
 	}
 
+	if (const TString tsFlags(queryAttribute(xThis, "tooltipflags")); !tsFlags.empty())
+		this->createTooltip(tsFlags);
+
 	// tsPath = the cla path to this element
 	// xParent = this elements xml parent. dialog, pane, or control
 	xmlParseElements(L"root"_ts, xThis);
-
-	//// count of panes
-	//int nCLA{};
-	//const bool bHasCLA = (xThis->FirstChildElement("pane") != nullptr);
-	//
-	//// parse all child elements
-	//for (auto xElement = xThis->FirstChildElement(); xElement; xElement = xElement->NextSiblingElement())
-	//{
-	//	switch (std::hash<const char *>()(xElement->Value()))
-	//	{
-	//	case "pane"_hash:
-	//	{
-	//		// its a pane
-	//		xmlAddPane(nCLA, xElement);
-	//
-	//		++nCLA;
-	//	}
-	//	break;
-	//	case "control"_hash:
-	//	{
-	//		xmlAddControl(xThis, xElement);
-	//
-	//		if (bHasCLA && nCLA)
-	//		{
-	//			const auto iID = queryIntAttribute(xElement, "id");
-	//			const auto iWeight = queryIntAttribute(xElement, "weight", 1);
-	//
-	//			if (iID)
-	//				this->parseCommandRequestEX(L"%s -l cell %d \t +li %d %d 0 0", this->getName().to_chr(), nCLA, iID, iWeight);
-	//
-	//		}
-	//	}
-	//	break;
-	//	default:
-	//		break;
-	//	}
-	//}
 }
 
 TiXmlElement* DcxDialog::toXml() const
@@ -4537,6 +4547,27 @@ const bool DcxDialog::isIDValid(_In_ const UINT ID, _In_ const bool bUnused) con
 		return ((ID > (mIRC_ID_OFFSET - 1)) && !IsWindow(GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(ID))) && (!getControlByID(ID)));
 	//a control that already exists.
 	return ((ID > (mIRC_ID_OFFSET - 1)) && (IsWindow(GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(ID))) || (getControlByID(ID))));
+}
+
+void DcxDialog::createTooltip(const TString& tsFlags)
+{
+	if (IsWindow(getToolTipHWND()))
+		throw Dcx::dcxException("Tooltip already exists. Cannot recreate");
+
+	const auto styles = parseTooltipFlags(tsFlags);
+
+	// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/tooltip/styles.asp
+	setToolTipHWND(CreateWindowEx(WS_EX_TOPMOST,
+		TOOLTIPS_CLASS, nullptr,
+		styles,
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		m_Hwnd,
+		nullptr, GetModuleHandle(nullptr), nullptr));
+
+	if (this->getToolTipHWND() && IsWindow(this->getToolTipHWND()))
+	{ // MUST set a limit before $crlf will give multiline tips.
+		SendMessage(this->getToolTipHWND(), TTM_SETMAXTIPWIDTH, 0, 400); // 400 seems a good limit for now, we could also add an option to set this.
+	}
 }
 
 LRESULT DcxDialog::CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept

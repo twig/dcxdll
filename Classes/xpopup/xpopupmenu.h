@@ -56,17 +56,18 @@ struct XPMENUBARCOLORS final
 using LPXPMENUBARCOLORS = XPMENUBARCOLORS*;
 struct XPMENUBARITEM
 {
-	XPMENUBARCOLORS m_Colours;						// colours for whole menubar (overridden by m_ItemSettings)
-	HBITMAP m_hBkg{};								// bitmap to draw in menubar. (can be null, if null only colours are used)
+	XPMENUBARCOLORS m_Colours;		// colours for whole menubar (overridden by m_ItemSettings)
+	//HBITMAP m_hBkg{};				// bitmap to draw in menubar. (can be null, if null only colours are used)
+	dcxImage		m_hBkg{};		// bitmap to draw in menubar. (can be null, if null only colours are used)
 
 	XPMENUBARITEM() = default;
 
-	XPMENUBARITEM(const XPMENUBARCOLORS& m_Colours, const HBITMAP& m_hBkg) noexcept
+	bool operator==(const XPMENUBARITEM& other) const = default;
+
+	XPMENUBARITEM(const XPMENUBARCOLORS& m_Colours, const dcxImage& m_hBkg)
 		: m_Colours(m_Colours), m_hBkg(m_hBkg)
 	{
 	}
-
-	bool operator==(const XPMENUBARITEM& other) const = default;
 };
 struct XPMENUBAR
 {
