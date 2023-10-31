@@ -32,9 +32,9 @@ class DcxUpDown final
 public:
 	DcxUpDown() = delete;
 	DcxUpDown(const DcxUpDown &) = delete;
-	DcxUpDown &operator =(const DcxUpDown &) = delete;
+	GSL_SUPPRESS(c.128) DcxUpDown &operator =(const DcxUpDown &) = delete;
 	DcxUpDown(DcxUpDown &&) = delete;
-	DcxUpDown &operator =(DcxUpDown &&) = delete;
+	GSL_SUPPRESS(c.128) DcxUpDown &operator =(DcxUpDown &&) = delete;
 
 	DcxUpDown(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxUpDown( ) noexcept;
@@ -59,6 +59,7 @@ public:
 	const TString getStyles(void) const final;
 	void toXml(TiXmlElement* const xml) const final;
 	TiXmlElement* toXml(void) const final;
+	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) final;
 
 	inline const TString getType() const final { return TEXT("updown"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::UPDOWN; }

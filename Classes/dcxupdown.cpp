@@ -166,7 +166,6 @@ void DcxUpDown::parseCommandRequest(const TString& input)
 		static_assert(CheckFreeCommand(TEXT('c')), "Command in use!");
 
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsID(input.getnexttok());
@@ -187,7 +186,6 @@ void DcxUpDown::parseCommandRequest(const TString& input)
 		static_assert(CheckFreeCommand(TEXT('r')), "Command in use!");
 
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iMin = input.getnexttok().to_int();	// tok 4
@@ -201,7 +199,6 @@ void DcxUpDown::parseCommandRequest(const TString& input)
 		static_assert(CheckFreeCommand(TEXT('t')), "Command in use!");
 
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nBase = input.getnexttok().to_int();	// tok 4
@@ -214,7 +211,6 @@ void DcxUpDown::parseCommandRequest(const TString& input)
 		static_assert(CheckFreeCommand(TEXT('v')), "Command in use!");
 
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nPos = input.getnexttok().to_int();	// tok 4
@@ -338,12 +334,23 @@ void DcxUpDown::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
 
-	auto pd = getParentDialog();
+	const auto pd = getParentDialog();
 	if (!pd)
 		return;
 
+	// range base pos buddy
+
 	if (auto ctrl = getBuddy(); ctrl)
 		xml->SetAttribute("buddyid", pd->IDToName(ctrl->getID()).c_str());
+
+	xml->SetAttribute("base", this->getBase());
+	{
+		const auto [iMin, iMax] = this->getRange32();
+		xml->SetAttribute("min", iMin);
+		xml->SetAttribute("max", iMax);
+	}
+	BOOL bErr{};
+	xml->SetAttribute("pos", this->getPos32(&bErr));
 }
 
 TiXmlElement* DcxUpDown::toXml(void) const
@@ -351,6 +358,34 @@ TiXmlElement* DcxUpDown::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxUpDown::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
+{
+	if (!xDcxml || !xThis || !m_Hwnd)
+		return;
+
+	__super::fromXml(xDcxml, xThis);
+
+	// range base pos buddy
+	this->setBase(queryIntAttribute(xThis, "base", 10));
+	{
+		const auto iMin = queryIntAttribute(xThis, "min");
+		const auto iMax = queryIntAttribute(xThis, "max");
+
+		this->setRange32(iMin, iMax);
+	}
+
+	if (const TString buddyid(queryAttribute(xThis, "buddyid")); !buddyid.empty())
+	{
+		const auto pd = this->getParentDialog();
+		if (!pd)
+			throw DcxExceptions::dcxInvalidCommand();
+
+		if (auto ctrl = pd->getControlByNamedID(buddyid); ctrl)
+			this->setBuddy(ctrl->getHwnd());
+	}
+	this->setPos32(queryIntAttribute(xThis, "pos"));
 }
 
 /*!
