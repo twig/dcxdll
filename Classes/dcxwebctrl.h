@@ -43,9 +43,9 @@ class DcxWebControl final
 public:
 	DcxWebControl() = delete;
 	DcxWebControl(const DcxWebControl&) = delete;
-	DcxWebControl& operator =(const DcxWebControl&) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxWebControl& operator =(const DcxWebControl&) = delete;	// No assignments!
 	DcxWebControl(DcxWebControl&&) = delete;
-	DcxWebControl& operator =(DcxWebControl&&) = delete;
+	GSL_SUPPRESS(c.128) DcxWebControl& operator =(DcxWebControl&&) = delete;
 
 	DcxWebControl(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxWebControl() noexcept;
@@ -96,6 +96,24 @@ public:
 
 	inline const TString getType() const final { return TEXT("webctrl"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::WEBCTRL; }
+
+	void toXml(TiXmlElement* const xml) const final;
+	TiXmlElement* toXml(void) const final;
+	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) final;
+
+	//const TString getStyles(void) const final;
+
+	TString getURL() const;
+	bool IsStatusbarEnabled() const;
+	bool IsFullScreenEnabled() const;
+	bool IsAddressbarEnabled() const;
+	TString getStatusText() const;
+
+	void setFullScreenState(bool bEnable);
+	void setAddressbarState(bool bEnable);
+	void setStatusbarState(bool bEnable);
+	void setStatusText(const TString& tsText);
+	void setURL(const TString& tsURL, const TString &sFlags, const TString &tsMask);
 
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
