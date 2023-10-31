@@ -206,7 +206,9 @@ void LayoutCellPane::toXml(TiXmlElement* const xml)
 		{
 			if (const auto inner = lc->toXml(); inner)
 			{
-				if (weight != 0)
+				// Ook: allow to save zero weight? fixes issue with statusbar
+				//  also, should we ignore weight on fixed size items?
+				//if (weight != 0)
 					inner->SetAttribute("weight", gsl::narrow_cast<int>(weight));
 				xml->LinkEndChild(inner);
 			}
