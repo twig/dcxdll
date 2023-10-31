@@ -431,10 +431,14 @@ void DcxProgressBar::toXml(TiXmlElement* const xml) const
 	}
 	xml->SetAttribute("pos", this->getPosition());
 	xml->SetAttribute("step", this->getStep());
-	if (const auto tmp = this->getBarColor(); tmp != CLR_INVALID)
-		setColourAttribute(xml, "barcolour", tmp);
-	if (const auto tmp = this->getBKColor(); tmp != CLR_INVALID)
-		setColourAttribute(xml, "bkcolour", tmp);
+	if ((this->m_clrStartGradient == CLR_INVALID) && (this->m_clrEndGradient == CLR_INVALID))
+	{
+		if (const auto tmp = this->getBarColor(); tmp != CLR_INVALID)
+			setColourAttribute(xml, "barcolour", tmp);
+
+		if (const auto tmp = this->getBKColor(); tmp != CLR_INVALID)
+			setColourAttribute(xml, "bkcolour", tmp);
+	}
 	if (m_bIsAbsoluteValue)
 		xml->SetAttribute("absolute", "1");
 }
