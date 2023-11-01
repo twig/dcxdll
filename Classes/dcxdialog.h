@@ -45,6 +45,34 @@ using VectorOfControlPtrs = std::vector<DcxControl*>; //!< blah
 using VectorOfDragListPtrs = std::vector<DcxList*>; //!< Vector of draglists
 using IntegerHash = std::map<TString, UINT>;
 
+// id > class > text
+struct xmlStyle
+{
+	TString tsID;
+	TString tsClass;
+	TString tsType;
+	// style data can be any attributes the target will take.
+
+	const TiXmlElement* xStyle{}; // pointer to this style in the xml document, ONLY valid while doc exists!
+};
+using VectorOfStyles = std::vector<xmlStyle>; //!< Vector of XML styles in dcxml
+
+struct xmlTemplate
+{
+	TString tsName;
+	const TiXmlElement* xTemplate{}; // pointer to this template in the xml document, ONLY valid while doc exists!
+};
+using VectorOfTemplates = std::vector<xmlTemplate>; //!< Vector of XML templates in dcxml
+
+struct xmlIcon
+{
+	TString tsID;
+	TString tsClass;
+	TString tsType;
+	const TiXmlElement* xIcon{}; // pointer to this template in the xml document, ONLY valid while doc exists!
+};
+using VectorOfIcons = std::vector<xmlIcon>; //!< Vector of XML templates in dcxml
+
 /*!
  * \brief blah
  *
@@ -387,8 +415,11 @@ public:
 	[[nodiscard("Memory Leak")]] TiXmlElement* toXml() const override;
 	[[nodiscard("Memory Leak")]] TiXmlElement* toXml(const TString& name) const;
 	void toXml(TiXmlElement* const xml, const TString& name) const;
-
 	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) override;
+
+	const VectorOfStyles& xmlGetStyles() const noexcept { return m_xmlStyles; }
+	const VectorOfTemplates& xmlGetTemplates() const noexcept { return m_xmlTemplates; }
+	const VectorOfIcons& xmlGetIcons() const noexcept { return m_xmlIcons; }
 
 	const bool isIDValid(_In_ const UINT ID, _In_ const bool bUnused = false) const noexcept;
 
@@ -411,10 +442,14 @@ private:
 
 	VectorOfDragListPtrs m_vDragLists; //!< Registered draglists
 
+	VectorOfStyles m_xmlStyles;			//!< styles for use in this dialog (only valid during xml loading)
+	VectorOfTemplates m_xmlTemplates;
+	VectorOfIcons m_xmlIcons;
+
 	HBRUSH m_hBackBrush{ nullptr };    //!< Background control color
 
 	UINT m_MouseID{}; //!< Mouse Hover ID
-	UINT m_FocusID{}; //!< Mouse Hover ID
+	UINT m_FocusID{}; //!< Mouse Focus ID
 	UINT m_uStyleBg{ DBS_BKGNORMAL };
 	mutable UINT m_iRefCount{};
 
@@ -472,9 +507,14 @@ private:
 	WNDPROC m_hDefaultDialogProc{ nullptr }; //!< Old Window Procedure
 	LRESULT CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 
-	void xmlParseElements(const TString& tsPath, const TiXmlElement* xParent);
-	void xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement);
+	void xmlParseElements(const TString& tsPath, const TiXmlElement* xParent, const TiXmlElement* xTemplate);
+	void xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement, const TiXmlElement* xTemplate);
 	bool xmlAddControl(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement * xParent, const TiXmlElement* xCtrl);
+	void xmlCallTemplate(const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCallTemplate);
+
+	void xmlbuildStylesList(const TiXmlElement* xElement);
+	void xmlbuildIconsList(const TiXmlElement* xElement);
+	void xmlbuildTemplatesList(const TiXmlElement* xElement);
 
 	static void xmlLoadMenubarColours(const TiXmlElement* xParent, XPMENUBARCOLORS& mColours) noexcept;
 	static void xmlSaveMenubarColours(TiXmlElement* xParent, const XPMENUBARCOLORS& mColours);

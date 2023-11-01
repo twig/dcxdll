@@ -1055,7 +1055,7 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 	break;
 	case L"dpos"_hash:
 	{
-		if (auto pd = getParentDialog(); pd)
+		if (const auto pd = getParentDialog(); pd)
 		{
 #if DCX_USE_WRAPPERS
 			const Dcx::dcxWindowRect rc(m_Hwnd, pd->getHwnd());
@@ -1069,7 +1069,7 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 				tsResult.tsprintf(TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 			}
 #endif
-	}
+		}
 	}
 	break;
 	case L"mark"_hash:
@@ -1184,7 +1184,7 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 	default:
 		throw Dcx::dcxException("Invalid property or number of arguments");
 		break;
-}
+	}
 	return tsResult;
 }
 
@@ -1680,34 +1680,34 @@ void DcxControl::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xCtrl)
 
 	// id, type, styles, border? set before creation
 
-	if (auto clr = queryColourAttribute(xCtrl, "bgcolour"); clr != CLR_INVALID)
+	if (const auto clr = queryColourAttribute(xCtrl, "bgcolour"); clr != CLR_INVALID)
 	{
 		this->m_clrBackground = clr;
 		if (this->m_hBackBrush)
 			DeleteObject(this->m_hBackBrush);
 		this->m_hBackBrush = CreateSolidBrush(clr);
 	}
-	if (auto clr = queryColourAttribute(xCtrl, "bordercolour"); clr != CLR_INVALID)
+	if (const auto clr = queryColourAttribute(xCtrl, "bordercolour"); clr != CLR_INVALID)
 	{
 		if (this->m_hBorderBrush)
 			DeleteObject(this->m_hBorderBrush);
 		this->m_hBorderBrush = CreateSolidBrush(clr);
 	}
-	if (auto clr = queryColourAttribute(xCtrl, "textcolour"); clr != CLR_INVALID)
+	if (const auto clr = queryColourAttribute(xCtrl, "textcolour"); clr != CLR_INVALID)
 		this->m_clrText = clr;
-	if (auto clr = queryColourAttribute(xCtrl, "textbgcolour"); clr != CLR_INVALID)
+	if (const auto clr = queryColourAttribute(xCtrl, "textbgcolour"); clr != CLR_INVALID)
 		this->m_clrBackText = clr;
-	if (auto clr = queryColourAttribute(xCtrl, "gradientstart"); clr != CLR_INVALID)
+	if (const auto clr = queryColourAttribute(xCtrl, "gradientstart"); clr != CLR_INVALID)
 		this->m_clrStartGradient = clr;
-	if (auto clr = queryColourAttribute(xCtrl, "gradientend"); clr != CLR_INVALID)
+	if (const auto clr = queryColourAttribute(xCtrl, "gradientend"); clr != CLR_INVALID)
 		this->m_clrEndGradient = clr;
-	if (auto clr = queryColourAttribute(xCtrl, "transparentbg"); clr != CLR_INVALID)
+	if (const auto clr = queryColourAttribute(xCtrl, "transparentbg"); clr != CLR_INVALID)
 		this->m_colTransparentBg = clr;
 
-	if (auto clr = gsl::narrow_cast<DWORD>(queryIntAttribute(xCtrl, "eventmask", -1)); clr != MAXDWORD)
+	if (const auto clr = gsl::narrow_cast<DWORD>(queryIntAttribute(xCtrl, "eventmask", -1)); clr != MAXDWORD)
 		this->m_dEventMask = clr;
 
-	if (auto clr = gsl::narrow_cast<BYTE>(queryIntAttribute(xCtrl, "alpha", 255)); clr != 255)
+	if (const auto clr = gsl::narrow_cast<BYTE>(queryIntAttribute(xCtrl, "alpha", 255)); clr != 255)
 		this->m_iAlphaLevel = clr;
 
 	if (auto tmp = queryAttribute(xCtrl, "mark"); !_ts_isEmpty(tmp))
@@ -1716,9 +1716,9 @@ void DcxControl::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xCtrl)
 		this->m_tsToolTip = tmp;
 	if (auto hTip = getToolTipHWND(); hTip)
 	{
-		if (auto clr = queryColourAttribute(xCtrl, "tooltipbgcolour"); clr != CLR_INVALID)
+		if (const auto clr = queryColourAttribute(xCtrl, "tooltipbgcolour"); clr != CLR_INVALID)
 			Dcx::dcxToolTip_SetTipBkColor(hTip, clr);
-		if (auto clr = queryColourAttribute(xCtrl, "tooltiptextcolour"); clr != CLR_INVALID)
+		if (const auto clr = queryColourAttribute(xCtrl, "tooltiptextcolour"); clr != CLR_INVALID)
 			Dcx::dcxToolTip_SetTipTextColor(hTip, clr);
 	}
 
@@ -1771,7 +1771,7 @@ LRESULT DcxControl::setFont(const HFONT hFont, const BOOL fRedraw) noexcept
  * blah
  */
 
-void DcxControl::setCursor(const TString& tsFlags, TString &tsFilename)
+void DcxControl::setCursor(const TString& tsFlags, TString& tsFilename)
 {
 	const auto iFlags = this->parseCursorFlags(tsFlags);
 	const auto* const CursorType = this->parseCursorType(tsFilename);
@@ -2871,7 +2871,7 @@ const TString DcxControl::getStyles(void) const
 	TString result;
 	const auto exStyles = dcxGetWindowExStyle(m_Hwnd);
 	const auto Styles = dcxGetWindowStyle(m_Hwnd);
-	
+
 	if (!this->IsThemed())
 		result = TEXT("notheme");
 	if (dcx_testflag(Styles, WS_TABSTOP))
@@ -2987,6 +2987,164 @@ TiXmlElement* DcxControl::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+void DcxControl::xmlParseElements(const TString& tsPath, const TiXmlElement* xParent, const TiXmlElement* xTemplate)
+{
+	if (!xParent || tsPath.empty())
+		return;
+
+	const auto pd = getParentDialog();
+	if (!pd)
+		return;
+
+	TString tsCurrentPath(tsPath);
+
+	int iCLA{ 1 };
+	const TiXmlElement* xBase{ xParent };
+	if (xTemplate)
+		xBase = xTemplate;
+
+	// parse all child elements
+	for (auto xElement = xBase->FirstChildElement(); xElement; xElement = xElement->NextSiblingElement())
+	{
+		switch (std::hash<const char*>()(xElement->Value()))
+		{
+		case "pane"_hash:
+		{
+			// its a pane
+			TString tsTok;
+			tsTok.addtok(iCLA);
+			tsCurrentPath.puttok(tsTok, tsCurrentPath.numtok());
+
+			xmlAddPane(tsPath, tsCurrentPath, xElement, xTemplate);
+
+			++iCLA;
+		}
+		break;
+		case "control"_hash:
+		{
+			xmlAddControl(tsPath, tsCurrentPath, xParent, xElement);
+		}
+		break;
+		case "calltemplate"_hash:
+		{
+			xmlCallTemplate(tsCurrentPath, xParent, xElement);
+		}
+		break;
+		default:
+			break;
+		}
+	}
+}
+
+void DcxControl::xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement, const TiXmlElement* xTemplate)
+{
+	if (!xElement || tsParentPath.empty())
+		return;
+
+	const auto pd = getParentDialog();
+	if (!pd)
+		return;
+
+	// cascade margin weight
+	auto szCascade = queryAttribute(xElement, "cascade");
+	auto szMargin = queryAttribute(xElement, "margin", "0 0 0 0");
+	const auto iWidth = queryIntAttribute(xElement, "width");
+	const auto iHeight = queryIntAttribute(xElement, "height");
+	const auto iWeight = queryIntAttribute(xElement, "weight", 1);
+
+	// xdid -l dname id root $chr(9) +p id weight w h
+	// name switch options
+	TString tsInput;
+	_ts_sprintf(tsInput, L"% % -l cell % \t +p% 0 % % %", pd->getName(), this->getUserID(), tsParentPath, szCascade, iWeight, iWidth, iHeight);
+	this->parseCommandRequest(tsInput);
+	_ts_sprintf(tsInput, L"% % -l space % \t + %", pd->getName(), this->getUserID(), tsCurrentPath, szMargin);
+	this->parseCommandRequest(tsInput);
+
+	xmlParseElements(tsCurrentPath, xElement, xTemplate);
+}
+
+bool DcxControl::xmlAddControl(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCtrl)
+{
+	if (!xParent || !xCtrl || tsParentPath.empty())
+		return false;
+	const auto pd = getParentDialog();
+	if (!pd)
+		return false;
+
+	auto szX = queryAttribute(xCtrl, "x", "0");
+	auto szY = queryAttribute(xCtrl, "y", "0");
+	const auto iWidth = queryIntAttribute(xCtrl, "width");
+	const auto iHeight = queryIntAttribute(xCtrl, "height");
+	TString tsID(queryAttribute(xCtrl, "id"));
+	auto szType = queryAttribute(xCtrl, "type");
+	auto szStyles = queryAttribute(xCtrl, "styles");
+
+	// ID is NOT a number!
+	if (tsID.empty()) // no id, generate one.
+		tsID.addtok(pd->getUniqueID());
+
+	// fixed position control, no cla
+	// xdid -c dname id [newid] [type] [x] [y] [width] [height] [styles...]
+	TString tsInput;
+	_ts_sprintf(tsInput, TEXT("% % % % % % %"), tsID, szType, szX, szY, iWidth, iHeight, szStyles);
+	if (auto ctrl = pd->addControl(tsInput, 1, DcxAllowControls::ALLOW_ALL, m_Hwnd); ctrl)
+	{
+		ctrl->fromXml(xParent, xCtrl);
+
+		// x & y makes this a fixed control, not cla
+		if (!xCtrl->Attribute("x") && !xCtrl->Attribute("y") && !xParent->Attribute("nocla"))
+		{
+			// assume its cla now.
+			const auto iWeight = queryIntAttribute(xCtrl, "weight", 1);
+			TString tsFlags("i"); // id included
+			if (xCtrl->Attribute("width"))
+			{
+				tsFlags += L'f'; // fixed size
+				if (xCtrl->Attribute("height"))
+					tsFlags += L'w'; // both
+				else
+					tsFlags += L'h'; // horizontal
+
+			}
+			else if (xCtrl->Attribute("height"))
+				tsFlags += L"fv"; // fixed vertical
+			else
+				tsFlags += L'l'; // fill
+
+			{
+				_ts_sprintf(tsInput, L"% % -l cell % \t +% % % % %", pd->getName(), this->getUserID(), tsParentPath, tsFlags, tsID, iWeight, iWidth, iHeight);
+				this->parseCommandRequest(tsInput);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void DcxControl::xmlCallTemplate(const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCallTemplate)
+{
+	const auto pd = getParentDialog();
+	if (!pd)
+		return;
+
+	auto& xmlTemplates = pd->xmlGetTemplates();
+
+	if (!xCallTemplate || xmlTemplates.empty())
+		return;
+
+	const TString tsName(queryAttribute(xCallTemplate, "name"));
+
+	const auto itEnd = xmlTemplates.cend();
+	const auto it = std::find_if(xmlTemplates.cbegin(), itEnd, [tsName](const auto& a) noexcept {
+		return (a.tsName == tsName);
+		});
+
+	if (it != itEnd)
+		xmlParseElements(tsCurrentPath, xParent, it->xTemplate);
+
+	// should we throw an error when no match?
 }
 
 // Convert a number into the closest icon size

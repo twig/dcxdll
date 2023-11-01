@@ -32,9 +32,9 @@ class DcxMWindow final
 public:
 	DcxMWindow() = delete;
 	DcxMWindow(const DcxMWindow &) = delete;
-	DcxMWindow &operator =(const DcxMWindow &) = delete;	// No assignments!
+	GSL_SUPPRESS(c.128) DcxMWindow &operator =(const DcxMWindow &) = delete;	// No assignments!
 	DcxMWindow(DcxMWindow &&) = delete;
-	DcxMWindow &operator =(DcxMWindow &&) = delete;
+	GSL_SUPPRESS(c.128) DcxMWindow &operator =(DcxMWindow &&) = delete;
 
 	DcxMWindow( const HWND cHwnd, const HWND pHwnd, const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const RECT *const rc, const TString & styles );
 	~DcxMWindow( ) noexcept;

@@ -651,15 +651,15 @@ void DcxStatusBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis
 				const auto iY = queryIntAttribute(xCtrl, "y");
 				const auto iWidth = queryIntAttribute(xCtrl, "width");
 				const auto iHeight = queryIntAttribute(xCtrl, "height");
-				auto szID = queryAttribute(xCtrl, "id");
+				TString tsID(queryAttribute(xCtrl, "id"));
 				auto szType = queryAttribute(xCtrl, "type");
 				auto szStyles = queryAttribute(xCtrl, "styles");
 
 				// ID is NOT a number!
-				if (_ts_isEmpty(szID)) // needs looked at, think dcxml generates an id.
-					throw DcxExceptions::dcxInvalidItem();
+				if (tsID.empty()) // no id, generate one.
+					tsID.addtok(getParentDialog()->getUniqueID());
 
-				_ts_sprintf(tsText, TEXT("% % % % % % %"), szID, szType, iX, iY, iWidth, iHeight, szStyles);
+				_ts_sprintf(tsText, TEXT("% % % % % % %"), tsID, szType, iX, iY, iWidth, iHeight, szStyles);
 				setPartContents(nPos, tsFlags, iIcon, tsText, tsTooltip);
 
 				if (auto pInfo = this->getPartInfo(nPos); pInfo)

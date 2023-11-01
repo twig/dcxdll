@@ -54,9 +54,9 @@ public:
 	TiXmlElement * toXml(void) const final;
 	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) final;
 
-	void xmlParseElements(const TString& tsPath, const TiXmlElement* xParent);
-	void xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement);
-	bool xmlAddControl(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCtrl);
+	//void xmlParseElements(const TString& tsPath, const TiXmlElement* xParent);
+	//void xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement);
+	//bool xmlAddControl(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCtrl);
 
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;

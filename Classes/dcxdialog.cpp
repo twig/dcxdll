@@ -1643,6 +1643,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			if (!xDialogs)
 				throw Dcx::dcxException("Unable to add <dialogs> item");
 		}
+
 		// get or create an item for THIS dialog
 		TiXmlElement* xDialog{};
 		for (auto xTmp = xDialogs->FirstChildElement("dialog"); xTmp; xTmp = xTmp->NextSiblingElement("dialog"))
@@ -1682,8 +1683,23 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			if (queryIntAttribute(xDialog, "version") < DCXML_DIALOG_VERSION)
 				throw Dcx::dcxException("Wrong <dialog> version");
 
+			// clear any old data just incase.
+			m_xmlStyles.clear();
+			m_xmlIcons.clear();
+			m_xmlTemplates.clear();
+
+			// search for <styles> & <icons> & <templates>
+			this->xmlbuildStylesList(xDialogs);
+			this->xmlbuildIconsList(xDialogs);
+			this->xmlbuildTemplatesList(xDialogs);
+
 			// load current setup
 			this->fromXml(xRoot, xDialog);
+
+			// clear data now we dont need it.
+			m_xmlStyles.clear();
+			m_xmlIcons.clear();
+			m_xmlTemplates.clear();
 		}
 	}
 	// invalid command
@@ -3207,7 +3223,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		if (!pUDMI->um.hdc)
 			break;
 
-		auto mCols = p_this->m_CustomMenuBar.m_Default;
+		XPMENUBARITEM mCols = p_this->m_CustomMenuBar.m_Default;
 		mCols.m_hBkg.m_hBitmap = nullptr;
 
 		if (p_this->m_CustomMenuBar.m_ItemSettings.contains(pUDMI->umi.iPosition))
@@ -3904,11 +3920,10 @@ void DcxDialog::DrawCaret(Gdiplus::Graphics& graph)
 	//if (strClassName != WC_EDIT)
 	//	return;
 
-	if (Dcx::dcxClassName strClassName(pWnd); strClassName != WC_EDIT)
+	if (const Dcx::dcxClassName strClassName(pWnd); strClassName != WC_EDIT)
 		return;
 
-	POINT pt{};
-	if (GetCaretPos(&pt))
+	if (POINT pt{}; GetCaretPos(&pt))
 	{
 		MapWindowPoints(pWnd, m_hFakeHwnd, &pt, 1);
 		Gdiplus::Pen pen(Gdiplus::Color(0, 0, 0), 1.0f);	// black
@@ -4431,6 +4446,10 @@ void DcxDialog::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	if (!xDcxml || !xThis || !m_Hwnd)
 		return;
 
+	// first check for <styles> & <icons>
+	this->xmlbuildStylesList(xThis);
+	this->xmlbuildIconsList(xThis);
+
 	// no set font for dialog?
 	//if (auto clr = queryAttribute(xThis, "font"); !_ts_isEmpty(clr))
 	//{
@@ -4524,7 +4543,7 @@ void DcxDialog::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	// tsPath = the cla path to this element
 	// xParent = this elements xml parent. dialog, pane, or control
-	xmlParseElements(L"root"_ts, xThis);
+	xmlParseElements(L"root"_ts, xThis, nullptr);
 }
 
 TiXmlElement* DcxDialog::toXml() const
@@ -4578,7 +4597,7 @@ LRESULT DcxDialog::CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	return CallWindowProc(m_hDefaultDialogProc, mHwnd, uMsg, wParam, lParam);
 }
 
-void DcxDialog::xmlParseElements(const TString& tsPath, const TiXmlElement* xParent)
+void DcxDialog::xmlParseElements(const TString& tsPath, const TiXmlElement* xParent, const TiXmlElement* xTemplate)
 {
 	if (!xParent || tsPath.empty())
 		return;
@@ -4586,9 +4605,12 @@ void DcxDialog::xmlParseElements(const TString& tsPath, const TiXmlElement* xPar
 	TString tsCurrentPath(tsPath);
 
 	int iCLA{ 1 };
+	const TiXmlElement* xBase{ xParent };
+	if (xTemplate)
+		xBase = xTemplate;
 
 	// parse all child elements
-	for (auto xElement = xParent->FirstChildElement(); xElement; xElement = xElement->NextSiblingElement())
+	for (auto xElement = xBase->FirstChildElement(); xElement; xElement = xElement->NextSiblingElement())
 	{
 		switch (std::hash<const char*>()(xElement->Value()))
 		{
@@ -4599,7 +4621,7 @@ void DcxDialog::xmlParseElements(const TString& tsPath, const TiXmlElement* xPar
 			tsTok.addtok(iCLA);
 			tsCurrentPath.puttok(tsTok, tsCurrentPath.numtok());
 
-			xmlAddPane(tsPath, tsCurrentPath, xElement);
+			xmlAddPane(tsPath, tsCurrentPath, xElement, xTemplate);
 
 			++iCLA;
 		}
@@ -4609,16 +4631,18 @@ void DcxDialog::xmlParseElements(const TString& tsPath, const TiXmlElement* xPar
 			xmlAddControl(tsPath, tsCurrentPath, xParent, xElement);
 		}
 		break;
-		case "style"_hash:
-			// build internal styles list.
-			break;
+		case "calltemplate"_hash:
+		{
+			xmlCallTemplate(tsCurrentPath, xParent, xElement);
+		}
+		break;
 		default:
 			break;
 		}
 	}
 }
 
-void DcxDialog::xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement)
+void DcxDialog::xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement, const TiXmlElement* xTemplate)
 {
 	if (!xElement || tsParentPath.empty())
 		return;
@@ -4635,7 +4659,7 @@ void DcxDialog::xmlAddPane(const TString& tsParentPath, const TString& tsCurrent
 	this->parseCommandRequestEX(L"%s -l cell %s \t +p%S 0 %d %d %d", this->getName().to_chr(), tsParentPath.to_chr(), szCascade, iWeight, iWidth, iHeight);
 	this->parseCommandRequestEX(L"%s -l space %s \t + %S", this->getName().to_chr(), tsCurrentPath.to_chr(), szMargin);
 
-	xmlParseElements(tsCurrentPath, xElement);
+	xmlParseElements(tsCurrentPath, xElement, xTemplate);
 }
 
 bool DcxDialog::xmlAddControl(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCtrl)
@@ -4647,18 +4671,18 @@ bool DcxDialog::xmlAddControl(const TString& tsParentPath, const TString& tsCurr
 	auto szY = queryAttribute(xCtrl, "y", "0");
 	const auto iWidth = queryIntAttribute(xCtrl, "width");
 	const auto iHeight = queryIntAttribute(xCtrl, "height");
-	auto szID = queryAttribute(xCtrl, "id");
+	TString tsID(queryAttribute(xCtrl, "id"));
 	auto szType = queryAttribute(xCtrl, "type");
 	auto szStyles = queryAttribute(xCtrl, "styles");
 
 	// ID is NOT a number!
-	if (_ts_isEmpty(szID)) // needs looked at, think dcxml generates an id.
-		throw DcxExceptions::dcxInvalidItem();
+	if (tsID.empty()) // no id, generate one.
+		tsID.addtok(this->getUniqueID());
 
 	// fixed position control, no cla
 	// xdialog -c dname [id] [type] [x] [y] [width] [height] [styles...]
 	TString tsInput;
-	_ts_sprintf(tsInput, TEXT("% % % % % % %"), szID, szType, szX, szY, iWidth, iHeight, szStyles);
+	_ts_sprintf(tsInput, TEXT("% % % % % % %"), tsID, szType, szX, szY, iWidth, iHeight, szStyles);
 	if (auto ctrl = addControl(tsInput, 1, DcxAllowControls::ALLOW_ALL, nullptr); ctrl)
 	{
 		ctrl->fromXml(xParent, xCtrl);
@@ -4683,9 +4707,107 @@ bool DcxDialog::xmlAddControl(const TString& tsParentPath, const TString& tsCurr
 			else
 				tsFlags += L'l'; // fill
 
-			this->parseCommandRequestEX(L"%s -l cell %s \t +%s %S %d %d %d", this->getName().to_chr(), tsParentPath.to_chr(), tsFlags.to_chr(), szID, iWeight, iWidth, iHeight);
+			this->parseCommandRequestEX(L"%s -l cell %s \t +%s %s %d %d %d", this->getName().to_chr(), tsParentPath.to_chr(), tsFlags.to_chr(), tsID.to_chr(), iWeight, iWidth, iHeight);
 			return true;
 		}
 	}
 	return false;
+}
+
+void DcxDialog::xmlbuildStylesList(const TiXmlElement* xElement)
+{
+	if (!xElement)
+		return;
+
+	if (auto xStyles = xElement->FirstChildElement("styles"); xStyles)
+	{
+		for (auto xTmp = xStyles->FirstChildElement("style"); xTmp; xTmp = xTmp->NextSiblingElement("style"))
+		{
+			xmlStyle xs;
+
+			xs.tsClass = queryAttribute(xTmp, "class");
+			xs.tsID = queryAttribute(xTmp, "id");
+			xs.tsType = queryAttribute(xTmp, "type");
+			xs.xStyle = xTmp;
+
+			const auto itEnd = m_xmlStyles.end();
+			auto it = std::find_if(m_xmlStyles.begin(), itEnd, [xs](const xmlStyle &a) noexcept {
+				return ((xs.tsClass == a.tsClass) && (xs.tsID == a.tsID) && (xs.tsType == a.tsType));
+				});
+			if (it != itEnd)
+				it->xStyle = xs.xStyle; // replace existing style
+			else {
+				if (!xs.tsClass.empty() || !xs.tsID.empty() || !xs.tsType.empty())
+					m_xmlStyles.emplace_back(xs); // new style
+			}
+		}
+	}
+}
+
+void DcxDialog::xmlbuildIconsList(const TiXmlElement* xElement)
+{
+	if (!xElement)
+		return;
+
+	if (auto xIcons = xElement->FirstChildElement("icons"); xIcons)
+	{
+		for (auto xTmp = xIcons->FirstChildElement("icon"); xTmp; xTmp = xTmp->NextSiblingElement("icon"))
+		{
+			xmlIcon xi;
+
+			xi.tsClass = queryAttribute(xTmp, "class");
+			xi.tsID = queryAttribute(xTmp, "id");
+			xi.tsType = queryAttribute(xTmp, "type");
+			xi.xIcon = xTmp;
+
+			if (!xi.tsClass.empty() || !xi.tsID.empty() || !xi.tsType.empty())
+				m_xmlIcons.emplace_back(xi);
+		}
+	}
+}
+
+void DcxDialog::xmlbuildTemplatesList(const TiXmlElement* xElement)
+{
+	if (!xElement)
+		return;
+
+	if (auto xTemplates = xElement->FirstChildElement("templates"); xTemplates)
+	{
+		for (auto xTmp = xTemplates->FirstChildElement("template"); xTmp; xTmp = xTmp->NextSiblingElement("template"))
+		{
+			xmlTemplate xt;
+
+			xt.tsName = queryAttribute(xTmp, "name");
+			xt.xTemplate = xTmp;
+
+			const auto itEnd = m_xmlTemplates.end();
+			auto it = std::find_if(m_xmlTemplates.begin(), itEnd, [xt](const xmlTemplate& a) noexcept {
+				return (xt.tsName == a.tsName);
+				});
+			if (it != itEnd)
+				it->xTemplate = xt.xTemplate; // replace existing template
+			else {
+				if (!xt.tsName.empty())
+					m_xmlTemplates.emplace_back(xt); //new template
+			}
+		}
+	}
+}
+
+void DcxDialog::xmlCallTemplate(const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCallTemplate)
+{
+	if (!xCallTemplate || m_xmlTemplates.empty())
+		return;
+
+	const TString tsName(queryAttribute(xCallTemplate, "name"));
+
+	const auto itEnd = m_xmlTemplates.cend();
+	const auto it = std::find_if(m_xmlTemplates.cbegin(), itEnd, [tsName](const auto &a) noexcept {
+		return (a.tsName == tsName);
+		});
+
+	if (it != itEnd)
+		xmlParseElements(tsCurrentPath, xParent, it->xTemplate);
+
+	// should we throw an error when no match?
 }

@@ -357,9 +357,9 @@ public:
 
 	DcxControl() = delete;	// no default constructor
 	DcxControl(const DcxControl& other) = delete;	// no copy constructor
-	//DcxControl& operator =(const DcxControl&) = delete;	// No copy assignments!
+	GSL_SUPPRESS(c.128) DcxControl& operator =(const DcxControl&) = delete;	// No copy assignments!
 	DcxControl(DcxControl&& other) = delete;	// no move constructor
-	//DcxControl& operator =(DcxControl&&) = delete;	// No move assignments!
+	GSL_SUPPRESS(c.128) DcxControl& operator =(DcxControl&&) = delete;	// No move assignments!
 
 	DcxControl(const UINT mID, gsl::strict_not_null<DcxDialog* const> p_Dialog) noexcept;
 	~DcxControl() noexcept;
@@ -401,10 +401,14 @@ public:
 	virtual const TString getStyles(void) const;
 	void toXml(TiXmlElement* const xml) const override;
 	TiXmlElement* toXml(void) const override;
+	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) override;
+
+	void xmlParseElements(const TString& tsPath, const TiXmlElement* xParent, const TiXmlElement* xTemplate);
+	void xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement, const TiXmlElement* xTemplate);
+	bool xmlAddControl(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCtrl);
+	void xmlCallTemplate(const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCallTemplate);
 
 	virtual LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
-
-	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) override;
 
 	LRESULT setFont(const HFONT hFont, const BOOL fRedraw) noexcept;
 	void setControlFont(const HFONT hFont, const BOOL fRedraw) noexcept;

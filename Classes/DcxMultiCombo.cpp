@@ -683,16 +683,16 @@ void DcxMultiCombo::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThi
 			const auto iY = queryIntAttribute(xCtrl, "y");
 			const auto iWidth = queryIntAttribute(xCtrl, "width");
 			const auto iHeight = queryIntAttribute(xCtrl, "height");
-			auto szID = queryAttribute(xCtrl, "id");
+			TString tsID(queryAttribute(xCtrl, "id"));
 			auto szType = queryAttribute(xCtrl, "type");
 			auto szStyles = queryAttribute(xCtrl, "styles");
 
 			// ID is NOT a number!
-			if (_ts_isEmpty(szID)) // needs looked at, think dcxml generates an id.
-				throw DcxExceptions::dcxInvalidItem();
+			if (tsID.empty()) // no id, generate one.
+				tsID.addtok(getParentDialog()->getUniqueID());
 
 			TString tsInput;
-			_ts_sprintf(tsInput, TEXT("% % % % % % %"), szID, szType, iX, iY, iWidth, iHeight, szStyles);
+			_ts_sprintf(tsInput, TEXT("% % % % % % %"), tsID, szType, iX, iY, iWidth, iHeight, szStyles);
 			if (auto ctrl = getParentDialog()->addControl(tsInput, 1, DcxAllowControls::ALLOW_ALLBUTDOCK, m_Hwnd); ctrl)
 			{
 				ctrl->fromXml(xThis, xCtrl);

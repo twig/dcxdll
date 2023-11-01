@@ -967,19 +967,19 @@ void DcxTab::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 		if (auto xCtrl = xItem->FirstChildElement("control"); xCtrl)
 		{
 			// found control for tab
-			auto szID = queryAttribute(xCtrl, "id");
+			TString tsID(queryAttribute(xCtrl, "id"));
 			auto szType = queryAttribute(xCtrl, "type");
 			auto szStyles = queryAttribute(xCtrl, "styles");
 			auto iWidth = queryIntAttribute(xCtrl, "width");
 			auto iHeight = queryIntAttribute(xCtrl, "height");
 
 			// ID is NOT a number!
-			if (_ts_isEmpty(szID)) // needs looked at, think dcxml generates an id.
-				throw DcxExceptions::dcxInvalidItem();
+			if (tsID.empty()) // no id, generate one.
+				tsID.addtok(getParentDialog()->getUniqueID());
 
 			// fixed position control, no cla
 			//xdid -a DNAME ID [N] [ICON] (TEXT) [TAB] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS) [TAB] (TOOLTIP)
-			_ts_sprintf(tsCtrl, TEXT("% % 0 0 % % %"), szID, szType, iWidth, iHeight, szStyles);
+			_ts_sprintf(tsCtrl, TEXT("% % 0 0 % % %"), tsID, szType, iWidth, iHeight, szStyles);
 
 			if (auto pCtrl = addTab(nIndex, iImage, tsText, tsCtrl, tsTooltip); pCtrl)
 			{
