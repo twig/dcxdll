@@ -100,6 +100,7 @@ private:
 
 	bool m_bCueFocused{ false };
 	bool m_bIgnoreRepeat{ false };
+	bool m_bIgnoreUndo{ false };
 
 #define WM_DRAW_NUMBERS (WM_USER + 1000)
 #define DCX_EDIT_GUTTER_WIDTH 35

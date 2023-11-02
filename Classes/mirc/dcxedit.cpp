@@ -1049,15 +1049,20 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
 			{
 				//this->execAliasEx(TEXT("edit,%u"), getUserID());
-				const stString<256> szRet;
-
-				execAliasEx(szRet, gsl::narrow_cast<int>(szRet.size()), TEXT("edit,%u"), getUserID());
-
-				if (szRet == TEXT("nochange"))
+				if (!m_bIgnoreUndo)
 				{
-					SendMessage(m_Hwnd, EM_UNDO, 0, 0);
-					bParsed = TRUE;
-					return 0L;
+					TCHAR szRet[256]{};
+				
+					evalAliasEx(&szRet[0], std::size(szRet), TEXT("edit,%u"), getUserID());
+				
+					if (_ts_strcmp(&szRet[0], TEXT("nochange")) == 0)
+					{
+						m_bIgnoreUndo = true;
+						SendMessage(m_Hwnd, EM_UNDO, 0, 0);
+						m_bIgnoreUndo = false;
+						//bParsed = TRUE;
+						//return 0L;
+					}
 				}
 			}
 			if (m_bShowLineNumbers)
@@ -1220,16 +1225,23 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 	{
 		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
 		{
-			const stString<256> szRet;
+			execAliasEx(TEXT("keyup,%u,%u"), getUserID(), wParam);
 
-			execAliasEx(szRet, gsl::narrow_cast<int>(szRet.size()), TEXT("keyup,%u,%u"), getUserID(), wParam);
+			//if (!m_bIgnoreUndo)
+			//{
+			//	TCHAR szRet[256]{};
 
-			if (szRet == TEXT("nochange"))
-			{
-				SendMessage(m_Hwnd, EM_UNDO, 0, 0);
-				bParsed = TRUE;
-				return 0L;
-			}
+			//	evalAliasEx(&szRet[0], std::size(szRet), TEXT("keyup,%u,%u"), getUserID(), wParam);
+
+			//	if (_ts_strcmp(&szRet[0], TEXT("nochange")) == 0)
+			//	{
+			//		m_bIgnoreUndo = true;
+			//		SendMessage(m_Hwnd, EM_UNDO, 0, 0);
+			//		m_bIgnoreUndo = false;
+			//		bParsed = TRUE;
+			//		return 0L;
+			//	}
+			//}
 		}
 		if (m_bShowLineNumbers)
 			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
