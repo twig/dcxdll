@@ -1047,8 +1047,19 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 		{
 			this->m_tsText = TGetWindowText(m_Hwnd);
 			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
-				this->execAliasEx(TEXT("edit,%u"), getUserID());
+			{
+				//this->execAliasEx(TEXT("edit,%u"), getUserID());
+				const stString<256> szRet;
 
+				execAliasEx(szRet, gsl::narrow_cast<int>(szRet.size()), TEXT("edit,%u"), getUserID());
+
+				if (szRet == TEXT("nochange"))
+				{
+					SendMessage(m_Hwnd, EM_UNDO, 0, 0);
+					bParsed = TRUE;
+					return 0L;
+				}
+			}
 			if (m_bShowLineNumbers)
 				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
 		}
@@ -1208,8 +1219,18 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 	case WM_KEYUP:
 	{
 		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
-			execAliasEx(TEXT("keyup,%u,%u"), getUserID(), wParam);
+		{
+			const stString<256> szRet;
 
+			execAliasEx(szRet, gsl::narrow_cast<int>(szRet.size()), TEXT("keyup,%u,%u"), getUserID(), wParam);
+
+			if (szRet == TEXT("nochange"))
+			{
+				SendMessage(m_Hwnd, EM_UNDO, 0, 0);
+				bParsed = TRUE;
+				return 0L;
+			}
+		}
 		if (m_bShowLineNumbers)
 			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
 	}
@@ -1413,6 +1434,7 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
 	}
 	break;
+
 	case WM_LBUTTONUP:
 	{
 		if (m_bDraggingGutter)
@@ -1440,6 +1462,7 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
 	}
 	break;
+
 	case WM_MOUSEMOVE:
 	{
 		if (m_bDraggingGutter)
