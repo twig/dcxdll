@@ -161,7 +161,7 @@ namespace
 	}
 
 	// Taken from msft examples.
-	PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp) noexcept
+	PBITMAPINFO CreateBitmapInfoStruct(HBITMAP hBmp) noexcept
 	{
 		if (!hBmp)
 			return nullptr;
@@ -228,7 +228,7 @@ namespace
 	}
 
 	// Taken from msft examples.
-	void CreateBMPFile(HWND hwnd, LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC) noexcept
+	void CreateBMPFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC) noexcept
 	{
 		if ((!pszFile) || (!pbi) || (!hBMP) || (!hDC))
 			return;
@@ -297,7 +297,7 @@ namespace
 		if ((!hBm) || (tsFile.empty()))
 			return false;
 
-		auto pbis = CreateBitmapInfoStruct(nullptr, hBm);
+		auto pbis = CreateBitmapInfoStruct(hBm);
 		if (!pbis)
 			return false;
 		Auto(LocalFree(pbis));
@@ -310,7 +310,7 @@ namespace
 		auto oldBm = SelectObject(hDC, hBm);
 		Auto(SelectObject(hDC, oldBm));
 
-		CreateBMPFile(nullptr, tsFile.to_chr(), pbis, hBm, hDC);
+		CreateBMPFile(tsFile.to_chr(), pbis, hBm, hDC);
 		return true;
 	}
 
@@ -767,24 +767,24 @@ UINT parseFontCharSet(const TString& charset)
 {
 	const static std::map<std::hash<TString>::result_type, UINT> charset_map{
 		{TEXT("ansi"_hash), ANSI_CHARSET},
-		{TEXT("baltic"_hash), BALTIC_CHARSET},
-		{TEXT("chinesebig"_hash), CHINESEBIG5_CHARSET},
-		{TEXT("default"_hash), DEFAULT_CHARSET},
-		{TEXT("easteurope"_hash), EASTEUROPE_CHARSET},
-		{TEXT("gb2312"_hash), GB2312_CHARSET},
-		{TEXT("greek"_hash), GREEK_CHARSET},
-		{TEXT("hangul"_hash), HANGUL_CHARSET},
-		{TEXT("mac"_hash), MAC_CHARSET},
-		{TEXT("oem"_hash), OEM_CHARSET},
-		{TEXT("russian"_hash), RUSSIAN_CHARSET},
-		{TEXT("shiftjis"_hash), SHIFTJIS_CHARSET},
-		{TEXT("symbol"_hash), SYMBOL_CHARSET},
-		{TEXT("turkish"_hash), TURKISH_CHARSET},
-		{TEXT("vietnamese"_hash), VIETNAMESE_CHARSET},
-		{TEXT("johab"_hash), JOHAB_CHARSET},
-		{TEXT("hebrew"_hash), HEBREW_CHARSET},
-		{TEXT("arabic"_hash), ARABIC_CHARSET},
-		{TEXT("thai"_hash), THAI_CHARSET}
+		{ TEXT("baltic"_hash), BALTIC_CHARSET },
+		{ TEXT("chinesebig"_hash), CHINESEBIG5_CHARSET },
+		{ TEXT("default"_hash), DEFAULT_CHARSET },
+		{ TEXT("easteurope"_hash), EASTEUROPE_CHARSET },
+		{ TEXT("gb2312"_hash), GB2312_CHARSET },
+		{ TEXT("greek"_hash), GREEK_CHARSET },
+		{ TEXT("hangul"_hash), HANGUL_CHARSET },
+		{ TEXT("mac"_hash), MAC_CHARSET },
+		{ TEXT("oem"_hash), OEM_CHARSET },
+		{ TEXT("russian"_hash), RUSSIAN_CHARSET },
+		{ TEXT("shiftjis"_hash), SHIFTJIS_CHARSET },
+		{ TEXT("symbol"_hash), SYMBOL_CHARSET },
+		{ TEXT("turkish"_hash), TURKISH_CHARSET },
+		{ TEXT("vietnamese"_hash), VIETNAMESE_CHARSET },
+		{ TEXT("johab"_hash), JOHAB_CHARSET },
+		{ TEXT("hebrew"_hash), HEBREW_CHARSET },
+		{ TEXT("arabic"_hash), ARABIC_CHARSET },
+		{ TEXT("thai"_hash), THAI_CHARSET }
 	};
 
 	if (const auto it = charset_map.find(std::hash<TString>{}(charset)); it != charset_map.end())
@@ -1025,8 +1025,11 @@ HICON dcxLoadIcon(const int index, TString& filename, const bool large, const TS
 	}
 
 	// Check for valid filename
-	if (!IsFile(filename))
-		throw Dcx::dcxException(TEXT("dcxLoadIcon: Could Not Access File: %"), filename);
+	if (!xflags[TEXT('B')])
+	{
+		if (!IsFile(filename))
+			throw Dcx::dcxException(TEXT("dcxLoadIcon: Could Not Access File: %"), filename);
+	}
 
 	HICON icon{};
 
@@ -1067,6 +1070,16 @@ HICON dcxLoadIcon(const int index, TString& filename, const bool large, const TS
 	else if (xflags[TEXT('P')])
 		throw Dcx::dcxException("dcxLoadIcon: Invalid +P without GDI+.");
 #endif
+	else if (xflags[TEXT('B')])
+	{
+		// base64 data in filename.
+		//const auto hbmstring = filename.getfirsttok(1);
+		//const auto maskstring = filename.getlasttoks();
+		//if (large)
+		//	icon = Base64ToIcon(hbmstring.c_str(), maskstring.c_str(), gsl::narrow_cast<long>(DcxIconSizes::LargeIcon));
+		//else
+		//	icon = Base64ToIcon(hbmstring.c_str(), maskstring.c_str(), gsl::narrow_cast<long>(DcxIconSizes::SmallIcon));
+	}
 	else {
 		if (large)
 			ExtractIconEx(filename.to_chr(), index, &icon, nullptr, 1);
@@ -2428,6 +2441,21 @@ const char* queryAttribute(const TiXmlElement* element, const char* attribute, c
 	return (t) ? t : defaultValue;
 }
 
+TString queryEvalAttribute(const TiXmlElement* element, const char* attribute, const char* defaultValue)
+{
+	TString tsRes(queryAttribute(element, attribute, defaultValue));
+	if (tsRes.empty())
+		return tsRes;
+
+	if (auto opt = mIRCLinker::o_eval<TString>(tsRes); opt.has_value())
+	{
+		if (opt.value() != tsRes)
+			tsRes = opt.value();
+	}
+
+	return tsRes;
+}
+
 COLORREF queryColourAttribute(const TiXmlElement* element, const char* attribute, COLORREF defaultValue) noexcept
 {
 	if (!element || !attribute)
@@ -2641,3 +2669,152 @@ COLORREF GetContrastColour(COLORREF sRGB) noexcept
 	return RGB(0, 0, 0);
 }
 
+//#include "Classes/tstring/Base64.h"
+//
+//std::string BitmapToBase64(HBITMAP hBMP)
+//{
+//	if (!hBMP)
+//		return std::string();
+//
+//	//			auto lpBitsPtr = reinterpret_cast<LPBYTE>(lpBits);
+//	//			return Base64::encode(lpBitsPtr, c1);
+//
+//	//			//DWORD szLen = (c1 * 3) / 4;
+//	//			//CHAR* szOut = new CHAR[szLen];
+//	//			//Auto(delete[] szOut);
+//	//			//if (CryptBinaryToStringA(lpBitsPtr, c1, CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, szOut, &szLen))
+//	//			//	return szOut;
+//
+//	auto pbi = CreateBitmapInfoStruct(hBMP);
+//	if (!pbi)
+//		return {};
+//	Auto(LocalFree(pbi));
+//
+//	PBITMAPINFOHEADER pbih = reinterpret_cast<PBITMAPINFOHEADER>(pbi);     // bitmap info-header  
+//	LPBYTE lpBits = static_cast<LPBYTE>(GlobalAlloc(GMEM_FIXED, pbih->biSizeImage));              // memory pointer
+//
+//	if (!lpBits)
+//		return{};
+//	Auto(GlobalFree(lpBits));
+//
+//	auto hDC = ::GetDC(nullptr);
+//	Auto(::ReleaseDC(nullptr, hDC));
+//
+//	// Retrieve the color table (RGBQUAD array) and the bits  
+//	// (array of palette indices) from the DIB.  
+//	if (!GetDIBits(hDC, hBMP, 0, pbih->biHeight, lpBits, pbi, DIB_RGB_COLORS))
+//		return{};
+//
+//	BITMAPFILEHEADER hdr{};       // bitmap file-header  
+//	hdr.bfType = 0x4d42;        // 0x42 = "B" 0x4d = "M"  
+//	// Compute the size of the entire file.  
+//	hdr.bfSize = (sizeof(BITMAPFILEHEADER) + pbih->biSize + (pbih->biClrUsed * sizeof(RGBQUAD)) + pbih->biSizeImage);
+//	hdr.bfReserved1 = 0;
+//	hdr.bfReserved2 = 0;
+//
+//	// Compute the offset to the array of color indices.  
+//	hdr.bfOffBits = sizeof(BITMAPFILEHEADER) + pbih->biSize + (pbih->biClrUsed * sizeof(RGBQUAD));
+//
+//	std::string stOut;
+//
+//	auto szBuf = std::make_unique<BYTE[]>(sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + pbih->biSizeImage);
+//	LPBYTE ptr = szBuf.get();
+//
+//	DWORD dwTmp{ sizeof(BITMAPFILEHEADER) };
+//	DWORD dwTotal{};
+//
+//	// Copy the BITMAPFILEHEADER into the .BMP file.
+//	memcpy(ptr, &hdr, dwTmp);
+//	ptr += dwTmp;
+//	dwTotal += dwTmp;
+//
+//	// Copy the BITMAPINFOHEADER and RGBQUAD array into the file.  
+//	dwTmp = sizeof(BITMAPINFOHEADER) + (pbih->biClrUsed * sizeof(RGBQUAD));
+//	memcpy(ptr, pbih, dwTmp);
+//	ptr += dwTmp;
+//	dwTotal += dwTmp;
+//
+//	// Copy the array of color indices into the .BMP file.
+//	dwTmp = pbih->biSizeImage;
+//	memcpy(ptr, lpBits, dwTmp);
+//	ptr += dwTmp;
+//	dwTotal += dwTmp;
+//
+//	// Close the .BMP file.
+//	return Base64::encode(ptr, dwTotal);
+//}
+//
+//std::string IconToBase64(HICON hIcon)
+//{
+//	if (hIcon)
+//	{
+//		if (ICONINFO icInfo{}; ::GetIconInfo(hIcon, &icInfo))
+//			return BitmapToBase64(icInfo.hbmColor) + " " + BitmapToBase64(icInfo.hbmMask);
+//	}
+//	return std::string();
+//}
+//
+//HBITMAP Base64ToBitmap(const char* vData, long w, long h)
+//{
+//	if (!vData)
+//		return nullptr;
+//
+//	auto hdc = ::GetDC(nullptr);
+//	if (!hdc)
+//		return nullptr;
+//
+//	Auto(::ReleaseDC(nullptr, hdc));
+//
+//	BITMAPFILEHEADER hdr{};
+//	BITMAPINFO bmpInfo{};
+//
+//	auto dec = Base64::decode(vData);
+//	auto ptr = dec.data();
+//
+//	memcpy(&hdr, ptr, sizeof(hdr));
+//	ptr += sizeof(hdr);
+//	memcpy(&hdr, ptr, sizeof(bmpInfo));
+//	ptr += sizeof(bmpInfo);
+//
+//	LPBYTE lpBits = ptr;
+//
+//	return CreateDIBitmap(hdc, &bmpInfo.bmiHeader, CBM_INIT, lpBits, &bmpInfo, DIB_RGB_COLORS);
+//}
+//HICON Base64ToIcon(const char* hbmData, const char* maskData, long sz)
+//{
+//	if (auto hbm = Base64ToBitmap(hbmData, sz, sz); hbm)
+//	{
+//		Auto(DeleteBitmap(hbm));
+//
+//		if (auto hdc = GetDC(nullptr); hdc)
+//		{
+//			Auto(ReleaseDC(nullptr, hdc));
+//
+//			if (auto hbmMask = CreateCompatibleBitmap(hdc, sz, sz); hbmMask)
+//			{
+//				Auto(DeleteBitmap(hbmMask));
+//
+//				ICONINFO   icInfo{};
+//
+//				icInfo.hbmColor = hbm;
+//				icInfo.hbmMask = hbmMask;
+//				icInfo.fIcon = TRUE;
+//
+//				return ::CreateIconIndirect(&icInfo);
+//			}
+//		}
+//		//if (auto hbmMask = Base64ToBitmap(maskData, sz, sz); hbmMask)
+//		//{
+//		//	Auto(DeleteBitmap(hbmMask));
+//
+//		//	ICONINFO   icInfo{};
+//
+//		//	icInfo.hbmColor = hbm;
+//		//	icInfo.hbmMask = hbmMask;
+//		//	icInfo.fIcon = TRUE;
+//
+//		//	return ::CreateIconIndirect(&icInfo);
+//		//}
+//	}
+//	return nullptr;
+//}

@@ -394,7 +394,7 @@ void DcxDialog::xmlSaveMenubar(TiXmlElement* xParent, const XPMENUBAR& mMenuBar)
 		xMenubar.SetAttribute("shadowtext", "1");
 	if (!mMenuBar.m_Default.m_hBkg.m_tsFilename.empty())
 		xMenubar.SetAttribute("src", mMenuBar.m_Default.m_hBkg.m_tsFilename.c_str());
-	
+
 	xmlSaveMenubarColours(&xMenubar, mMenuBar.m_Default.m_Colours);
 
 	// default background?
@@ -1053,9 +1053,9 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -w [NAME] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 4)
 	{
-		const auto tsFlags(input.getnexttok());		// tok 3
+		const auto tsFlags(input.getnexttok());			// tok 3
 		const auto index = input.getnexttok().to_int();	// tok 4
-		auto filename(input.getlasttoks().trim());	// tok 5, -1
+		auto filename(input.getlasttoks().trim());		// tok 5, -1
 
 		ChangeHwndIcon(m_Hwnd, tsFlags, index, filename);
 	}
@@ -1315,7 +1315,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			throw DcxExceptions::dcxInvalidFlag();
 
 		return;
-		}
+	}
 	// xdialog -P [NAME] [SWITCH] ([+FLAGS] (FLAG OPTIONS))
 	else if (flags[TEXT('P')])
 	{
@@ -1705,7 +1705,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// invalid command
 	else
 		throw DcxExceptions::dcxInvalidCommand();
-	}
+}
 
 /// <summary>
 /// Parse string to border styles.
@@ -2179,7 +2179,7 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 		throw Dcx::dcxException("Invalid property or parameters");
 		break;
 	}
-	}
+}
 
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
@@ -3007,7 +3007,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			p_this->UpdateVistaStyle();
 		}
 		break;
-		}
+	}
 
 	case WM_MOUSELEAVE:
 	{
@@ -3557,7 +3557,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		return lRes;
 
 	return p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
-	}
+}
 
 /// <summary>
 /// Draw the dialogs background.
@@ -4292,6 +4292,10 @@ void DcxDialog::UnregisterDragList(const DcxList* const list) noexcept
 	Dcx::eraseIfFound(m_vDragLists, list);
 }
 
+void DcxDialog::loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc)
+{
+}
+
 // Checks if the message should be parsed
 LRESULT DcxDialog::ProcessDragListMessage(DcxDialog* const p_this, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
@@ -4366,14 +4370,16 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 	}
 	{
 		// cursors
+		TiXmlElement xCursors("cursors");
+
 		if (this->m_hCursor.cursor)
 		{
 			TiXmlElement xCursor("cursor");
 
-			xCursor.SetAttribute("filename", (this->m_hCursor.src.empty() ? "arrow" : this->m_hCursor.src.c_str()));
+			xCursor.SetAttribute("src", (this->m_hCursor.src.empty() ? "arrow" : this->m_hCursor.src.c_str()));
 			xCursor.SetAttribute("flags", (this->m_hCursor.flags.empty() ? "+r" : this->m_hCursor.flags.c_str()));
 
-			xml->InsertEndChild(xCursor);
+			xCursors.InsertEndChild(xCursor);
 		}
 		for (const auto& a : this->m_hCursorList)
 		{
@@ -4382,12 +4388,43 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 
 			TiXmlElement xCursor("cursor");
 
-			xCursor.SetAttribute("filename", (a.src.empty() ? "arrow" : a.src.c_str()));
+			xCursor.SetAttribute("src", (a.src.empty() ? "arrow" : a.src.c_str()));
 			xCursor.SetAttribute("flags", (a.flags.empty() ? "+r" : a.flags.c_str()));
 
-			xml->InsertEndChild(xCursor);
+			xCursors.InsertEndChild(xCursor);
 		}
+		if (!xCursors.NoChildren())
+			xml->InsertEndChild(xCursors);
 	}
+	{
+		// icons
+		TiXmlElement xIcons("icons");
+
+		if (HICON hIcon = (HICON)SendMessage(m_Hwnd, WM_GETICON, ICON_SMALL, DcxDPIModule::dcxGetDpiForWindow(m_Hwnd)); hIcon)
+		{
+			TiXmlElement xIcon("icon");
+
+			xIcon.SetAttribute("type", "dialog");
+			xIcon.SetAttribute("flags", "+sB");
+			//xIcon.SetAttribute("src", IconToBase64(hIcon).c_str());
+
+			xIcons.InsertEndChild(xIcon);
+		}
+		if (HICON hIcon = (HICON)SendMessage(m_Hwnd, WM_GETICON, ICON_BIG, DcxDPIModule::dcxGetDpiForWindow(m_Hwnd)); hIcon)
+		{
+			TiXmlElement xIcon("icon");
+
+			xIcon.SetAttribute("type", "dialog");
+			xIcon.SetAttribute("flags", "+bB");
+			//xIcon.SetAttribute("src", IconToBase64(hIcon).c_str());
+
+			xIcons.InsertEndChild(xIcon);
+		}
+
+		if (!xIcons.NoChildren())
+			xml->InsertEndChild(xIcons);
+	}
+
 	// bother saving glass effects?
 	//RECT extendedFrameBounds{ 0,0,0,0 };
 	//HRESULT hr = ::DwmGetWindowAttribute(hWnd,
@@ -4450,28 +4487,20 @@ void DcxDialog::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	this->xmlbuildStylesList(xThis);
 	this->xmlbuildIconsList(xThis);
 
-	// no set font for dialog?
-	//if (auto clr = queryAttribute(xThis, "font"); !_ts_isEmpty(clr))
-	//{
-	//	const TString tsFont(clr);
-	//	if (LOGFONT lf{ }; ParseCommandToLogfont(tsFont, &lf))
-	//		this->setControlFont(CreateFontIndirect(&lf), FALSE);
-	//}
+	// set any styles that apply
+	xmlSetStyles();
 
-	if (const auto tmp = queryColourAttribute(xThis, "bgcolour"); tmp != CLR_INVALID)
-		m_hBackBrush = CreateSolidBrush(tmp);
+	// set dialog icons if any. Only 2 icon small & large
+	xmlSetIcons();
+
+	// check <dialog> for any style info
+	xmlSetStyle(xThis);
 
 	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "alphalevel", 255)); tmp != 255)
 		this->m_iAlphaLevel = gsl::narrow_cast<std::byte>(tmp);
 
 	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "ghostalpha", 255)); tmp != 255)
 		this->m_uGhostDragAlpha = gsl::narrow_cast<std::byte>(tmp);
-
-	if (const auto tmp = queryColourAttribute(xThis, "transparentbg"); tmp != CLR_INVALID)
-		this->m_colTransparentBg = tmp;
-
-	if (const auto tmp = queryColourAttribute(xThis, "keycolour"); tmp != CLR_INVALID)
-		this->m_cKeyColour = tmp;
 
 	if (const auto tmp = queryIntAttribute(xThis, "drag"); tmp)
 		this->m_bDoDrag = true;
@@ -4480,12 +4509,6 @@ void DcxDialog::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	{
 		TString tsCaption(tmp);
 		SetWindowText(m_Hwnd, tsCaption.to_chr());
-	}
-	if (const auto tmp = xThis->Attribute("border"); tmp)
-	{
-		TString tsBorder(TEXT('+'));
-		tsBorder += tmp;
-		setBorderStyles(tsBorder);
 	}
 
 	if (!xThis->Attribute("nocla"))
@@ -4507,8 +4530,6 @@ void DcxDialog::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 		GSL_SUPPRESS(lifetime.1) SetWindowPos(m_Hwnd, nullptr, x, y, width, height, SWP_FRAMECHANGED | SWP_NOZORDER);
 	}
-
-	this->m_uStyleBg = parseBkgFlags(queryAttribute(xThis, "bgstyle"));
 
 	if (const auto tmp = queryAttribute(xThis, "src"); tmp)
 	{
@@ -4532,7 +4553,7 @@ void DcxDialog::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	// cursors
 	for (auto xCursor = xThis->FirstChildElement("cursor"); xCursor; xCursor = xCursor->NextSiblingElement("cursor"))
 	{
-		const TString tsFilename(queryAttribute(xCursor, "filename", "arrow"));
+		const TString tsFilename(queryAttribute(xCursor, "src", "arrow"));
 		const TString tsFlags(queryAttribute(xCursor, "flags", "+"));
 
 		loadCursor(tsFlags, tsFilename);
@@ -4714,6 +4735,94 @@ bool DcxDialog::xmlAddControl(const TString& tsParentPath, const TString& tsCurr
 	return false;
 }
 
+void DcxDialog::xmlSetStyle(const TiXmlElement* xStyle)
+{
+	if (!xStyle)
+		return;
+
+	// font & colours...
+
+	// Ook: cant set dialog font atm...
+	//if (auto tmp = queryAttribute(xStyle, "font"); !_ts_isEmpty(tmp))
+	//{
+	//	const TString tsFont(tmp);
+	//	//if (LOGFONT lf{ }; ParseCommandToLogfont(tsFont, &lf))
+	//	//	this->setControlFont(CreateFontIndirect(&lf), FALSE);
+	//}
+
+	if (const auto tmp = queryColourAttribute(xStyle, "bgcolour"); tmp != CLR_INVALID)
+	{
+		if (this->m_hBackBrush)
+			DeleteObject(this->m_hBackBrush);
+
+		this->m_hBackBrush = CreateSolidBrush(tmp);
+	}
+	if (const auto tmp = queryColourAttribute(xStyle, "transparentbg", this->m_colTransparentBg); tmp != CLR_INVALID)
+		this->m_colTransparentBg = tmp;
+
+	if (const auto tmp = queryColourAttribute(xStyle, "keycolour", this->m_cKeyColour); tmp != CLR_INVALID)
+		this->m_cKeyColour = tmp;
+
+	if (const auto tmp = xStyle->Attribute("border"); tmp)
+	{
+		TString tsBorder(TEXT('+'));
+		tsBorder += tmp;
+		setBorderStyles(tsBorder);
+	}
+
+	if (const TString tmp(xStyle->Attribute("bgstyle")); !tmp.empty())
+		this->m_uStyleBg = parseBkgFlags(tmp);
+
+}
+
+void DcxDialog::xmlSetStyles()
+{
+	// set style...
+	for (const auto& a : m_xmlStyles)
+	{
+		if (a.tsType.empty() && a.tsClass.empty() && a.tsID.empty()) // an <all> tag
+			xmlSetStyle(a.xStyle);
+		else if (a.tsType == L"dialog")
+			xmlSetStyle(a.xStyle);
+		else if (const TString tmp(queryAttribute(a.xStyle, "class")); a.tsClass == tmp)
+			xmlSetStyle(a.xStyle);
+	}
+}
+
+void DcxDialog::xmlSetIcons()
+{
+	xmlIcon xSmallIcon, xLargeIcon;
+	for (const auto& a : m_xmlIcons)
+	{
+		if (a.tsType == L"dialog")
+		{
+			if (auto szFlags = queryAttribute(a.xIcon, "flags"); szFlags)
+			{
+				if (strchr(szFlags, 's'))
+					xSmallIcon = a;
+				else
+					xLargeIcon = a;
+			}
+		}
+	}
+	if (xSmallIcon.xIcon)
+	{
+		TString tsFilename(queryEvalAttribute(xSmallIcon.xIcon, "src"));
+		const TString tsFlags(queryAttribute(xSmallIcon.xIcon, "flags"));
+		const auto iIndex = queryIntAttribute(xSmallIcon.xIcon, "index");
+
+		ChangeHwndIcon(m_Hwnd, tsFlags, iIndex, tsFilename);
+	}
+	if (xLargeIcon.xIcon)
+	{
+		TString tsFilename(queryEvalAttribute(xLargeIcon.xIcon, "src"));
+		const TString tsFlags(queryAttribute(xLargeIcon.xIcon, "flags"));
+		const auto iIndex = queryIntAttribute(xLargeIcon.xIcon, "index");
+
+		ChangeHwndIcon(m_Hwnd, tsFlags, iIndex, tsFilename);
+	}
+}
+
 void DcxDialog::xmlbuildStylesList(const TiXmlElement* xElement)
 {
 	if (!xElement)
@@ -4721,17 +4830,16 @@ void DcxDialog::xmlbuildStylesList(const TiXmlElement* xElement)
 
 	if (auto xStyles = xElement->FirstChildElement("styles"); xStyles)
 	{
-		for (auto xTmp = xStyles->FirstChildElement("style"); xTmp; xTmp = xTmp->NextSiblingElement("style"))
-		{
+		auto handleStyle = [this](const TiXmlElement* xTmp) {
 			xmlStyle xs;
 
-			xs.tsClass = queryAttribute(xTmp, "class");
-			xs.tsID = queryAttribute(xTmp, "id");
-			xs.tsType = queryAttribute(xTmp, "type");
+			xs.tsClass = queryEvalAttribute(xTmp, "class");
+			xs.tsID = queryEvalAttribute(xTmp, "id");
+			xs.tsType = queryEvalAttribute(xTmp, "type");
 			xs.xStyle = xTmp;
 
 			const auto itEnd = m_xmlStyles.end();
-			auto it = std::find_if(m_xmlStyles.begin(), itEnd, [xs](const xmlStyle &a) noexcept {
+			auto it = std::find_if(m_xmlStyles.begin(), itEnd, [xs](const xmlStyle& a) noexcept {
 				return ((xs.tsClass == a.tsClass) && (xs.tsID == a.tsID) && (xs.tsType == a.tsType));
 				});
 			if (it != itEnd)
@@ -4740,6 +4848,17 @@ void DcxDialog::xmlbuildStylesList(const TiXmlElement* xElement)
 				if (!xs.tsClass.empty() || !xs.tsID.empty() || !xs.tsType.empty())
 					m_xmlStyles.emplace_back(xs); // new style
 			}
+		};
+		if (auto xTmp = xStyles->FirstChildElement("all"); xTmp)
+		{
+			// handle general <all> tag (only one of)
+			// the <all> tag is the same as a <style> tag that doesnt have an id or a class or a type.
+			handleStyle(xTmp);
+		}
+		for (auto xTmp = xStyles->FirstChildElement("style"); xTmp; xTmp = xTmp->NextSiblingElement("style"))
+		{
+			// handle all <style> tags
+			handleStyle(xTmp);
 		}
 	}
 }
@@ -4755,9 +4874,9 @@ void DcxDialog::xmlbuildIconsList(const TiXmlElement* xElement)
 		{
 			xmlIcon xi;
 
-			xi.tsClass = queryAttribute(xTmp, "class");
-			xi.tsID = queryAttribute(xTmp, "id");
-			xi.tsType = queryAttribute(xTmp, "type");
+			xi.tsClass = queryEvalAttribute(xTmp, "class");
+			xi.tsID = queryEvalAttribute(xTmp, "id");
+			xi.tsType = queryEvalAttribute(xTmp, "type");
 			xi.xIcon = xTmp;
 
 			if (!xi.tsClass.empty() || !xi.tsID.empty() || !xi.tsType.empty())
@@ -4802,7 +4921,7 @@ void DcxDialog::xmlCallTemplate(const TString& tsCurrentPath, const TiXmlElement
 	const TString tsName(queryAttribute(xCallTemplate, "name"));
 
 	const auto itEnd = m_xmlTemplates.cend();
-	const auto it = std::find_if(m_xmlTemplates.cbegin(), itEnd, [tsName](const auto &a) noexcept {
+	const auto it = std::find_if(m_xmlTemplates.cbegin(), itEnd, [tsName](const auto& a) noexcept {
 		return (a.tsName == tsName);
 		});
 

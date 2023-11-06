@@ -373,6 +373,7 @@ public:
 		}
 		return 0U;
 	}
+
 	bool deleteNamedID(const UINT local_id) noexcept
 	{
 		//const auto itEnd = namedIds.end();
@@ -394,6 +395,7 @@ public:
 		}
 		return false;
 	}
+
 	bool deleteNamedID(const TString& tsName)
 	{
 		if (const auto itEnd = m_NamedIds.end(), itGot = m_NamedIds.find(tsName); itGot != itEnd)
@@ -410,6 +412,8 @@ public:
 
 	void RegisterDragList(DcxList* const list);
 	void UnregisterDragList(const DcxList* const list) noexcept;
+
+	void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) final;
 
 	void toXml(TiXmlElement* const xml) const override;
 	[[nodiscard("Memory Leak")]] TiXmlElement* toXml() const override;
@@ -511,6 +515,15 @@ private:
 	void xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement, const TiXmlElement* xTemplate);
 	bool xmlAddControl(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement * xParent, const TiXmlElement* xCtrl);
 	void xmlCallTemplate(const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCallTemplate);
+
+	/// <summary>
+	/// Sets the dialogs style, as in font and colours
+	/// </summary>
+	/// <param name="xStyle">- Pointer to the &lt;style&gt; tag to apply or to the &lt;dialog&gt; its self if no &lt;style&gt; applies.</param>
+	void xmlSetStyle(const TiXmlElement* xStyle) final;
+
+	void xmlSetStyles();
+	void xmlSetIcons();
 
 	void xmlbuildStylesList(const TiXmlElement* xElement);
 	void xmlbuildIconsList(const TiXmlElement* xElement);

@@ -728,8 +728,12 @@ void ChangeHwndIcon(const HWND hwnd, const TString& flags, const int index, TStr
 		}
 	}
 	else {
-		if (!IsFile(filename))
-			throw Dcx::dcxException(TEXT("ChangeHwndIcon() - Unable to Access File: %"), filename);
+		if (!xflags[TEXT('B')])
+		{
+			// not base64 data as filename
+			if (!IsFile(filename))
+				throw Dcx::dcxException(TEXT("ChangeHwndIcon() - Unable to Access File: %"), filename);
+		}
 
 		// check for +s small icon flag
 		if (xflags[TEXT('s')])
@@ -744,7 +748,6 @@ void ChangeHwndIcon(const HWND hwnd, const TString& flags, const int index, TStr
 			iconSmall = dcxLoadIcon(index, filename, false, flags);
 			iconLarge = dcxLoadIcon(index, filename, true, flags);
 		}
-
 		// set the new icons, get back the current icon
 		if (iconSmall)
 			iconSmall = (HICON)SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)iconSmall);

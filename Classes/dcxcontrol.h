@@ -36,15 +36,15 @@ enum class DcxColourFlags
 	None,								// No styles
 	TEXTCOLOR,							//!< Control Text Color;
 	TEXTBKGCOLOR,						//!< Control Text Background Color;
-	BKGCOLOR			= 0x0004,		//!< Control Background Color;
-	BORDERCOLOR			= 0x0008,		//!< Control Border Color;
-	GRADSTARTCOLOR		= 0x0010,		//!< Colour At the start of the gradient;
-	GRADENDCOLOR		= 0x0020,		//!< Colour At the end of the gradient;
-	CHECKBOXFRAMECOLOR	= 0x0040,		// Checkbox frame colour
-	CHECKBOXBGCOLOR		= 0x0080,		// CheckBox Background colour
-	CHECKBOXTICKCOLOR	= 0x0100,		// CheckBox Tick colour
-	CHECKBOXHOT			= 0x0200,		// CheckBox Background colour
-	CHECKBOXDISABLED	= 0x0400		// CheckBox Background colour
+	BKGCOLOR = 0x0004,		//!< Control Background Color;
+	BORDERCOLOR = 0x0008,		//!< Control Border Color;
+	GRADSTARTCOLOR = 0x0010,		//!< Colour At the start of the gradient;
+	GRADENDCOLOR = 0x0020,		//!< Colour At the end of the gradient;
+	CHECKBOXFRAMECOLOR = 0x0040,		// Checkbox frame colour
+	CHECKBOXBGCOLOR = 0x0080,		// CheckBox Background colour
+	CHECKBOXTICKCOLOR = 0x0100,		// CheckBox Tick colour
+	CHECKBOXHOT = 0x0200,		// CheckBox Background colour
+	CHECKBOXDISABLED = 0x0400		// CheckBox Background colour
 };
 
 //#define CTLF_ALLOW_PBAR				0x0000000000000001ULL
@@ -115,7 +115,7 @@ enum class DcxAllowControls
 	ALLOW_LINK = 0x0000000004000000ULL,
 	ALLOW_IMAGE = 0x0000000008000000ULL,
 	ALLOW_PAGER = 0x0000000010000000ULL,
-	ALLOW_DOCK =  0x0000000020000000ULL, // allows @Window and Dialog docking
+	ALLOW_DOCK = 0x0000000020000000ULL, // allows @Window and Dialog docking
 	ALLOW_DATETIME = 0x0000000040000000ULL,
 	ALLOW_STACKER = 0x0000000080000000ULL,
 	ALLOW_DIRECTSHOW = 0x0000000100000000ULL,
@@ -196,7 +196,7 @@ xclass &operator =(xclass &&) noexcept = delete;
 
 template <class T, std::size_t N>
 GSL_SUPPRESS(bounds)
-consteval bool CheckFreeCommand(T cmd, const T (&global_cmds)[N], std::size_t offset)
+consteval bool CheckFreeCommand(T cmd, const T(&global_cmds)[N], std::size_t offset)
 {
 	if (offset < N)
 		return cmd == global_cmds[offset] ? false : CheckFreeCommand(cmd, global_cmds, offset + 1);
@@ -293,7 +293,7 @@ namespace Dcx
 	{
 		SendMessage(hwnd, TTM_TRACKPOSITION, 0, MAKELPARAM(x + 10, y - 20));
 	}
-	inline void dcxToolTip_UpdateTipText(_In_ HWND hwnd, TOOLINFO *pti) noexcept
+	inline void dcxToolTip_UpdateTipText(_In_ HWND hwnd, TOOLINFO* pti) noexcept
 	{
 		SendMessage(hwnd, TTM_UPDATETIPTEXT, 0, reinterpret_cast<LPARAM>(pti));
 	}
@@ -392,6 +392,8 @@ public:
 		return m_UserID;
 	}
 
+	void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) override;
+
 	virtual LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) = 0;
 	virtual LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) = 0;
 
@@ -407,6 +409,15 @@ public:
 	void xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement, const TiXmlElement* xTemplate);
 	bool xmlAddControl(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCtrl);
 	void xmlCallTemplate(const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCallTemplate);
+
+	/// <summary>
+	/// Sets the dialogs style, as in font and colours
+	/// </summary>
+	/// <param name="xStyle">- Pointer to the &lt;style&gt; tag to apply or to the &lt;dialog&gt; its self if no &lt;style&gt; applies.</param>
+	void xmlSetStyle(const TiXmlElement* xStyle) override;
+
+	void xmlSetStyles();
+	void xmlLoadIcons(const TiXmlElement* xThis);
 
 	virtual LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
 
@@ -425,7 +436,8 @@ public:
 	void setControlCursor(const HCURSOR c) noexcept { m_hCursor.cursor = c; }
 	void setShadowTextState(const bool b) noexcept { m_bShadowText = b; }
 	void setControlCodeTextState(const bool b) noexcept { m_bCtrlCodeText = b; }
-	void setCursor(const TString &tsFlags, TString &tsFilename);
+	void setCursor(const TString& tsFlags, TString& tsFilename);
+	void setRegion(const TString &tsFlags, const TString &tsArgs);
 
 	[[nodiscard]] HFONT getFont() const noexcept;
 	[[nodiscard]] const HFONT& getControlFont() const noexcept

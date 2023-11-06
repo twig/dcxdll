@@ -192,10 +192,12 @@ public:
 
 	void HandleChildSizing(SizingTypes sz) const noexcept;
 
+	virtual void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) = 0;
 	virtual void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) = 0;
 	virtual void toXml(TiXmlElement* const xml) const = 0;
 	virtual TiXmlElement* toXml() const = 0;
 	virtual void parseCommandRequest(const TString& input) = 0;
+	virtual void xmlSetStyle(const TiXmlElement* xStyle) = 0;
 	virtual void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const = 0;
 	virtual TString parseInfoRequest(const TString& input) const
 	{

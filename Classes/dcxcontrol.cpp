@@ -497,135 +497,142 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 	// xdid -R [NAME] [ID] [SWITCH] [+FLAG] [ARGS]
 	else if (flags[TEXT('R')])
 	{
+		//		if (numtok < 4)
+		//			throw DcxExceptions::dcxInvalidArguments();
+		//
+		//		const XSwitchFlags xflags(input.getfirsttok(4));
+		//
+		//		if (!xflags[TEXT('+')])
+		//			throw DcxExceptions::dcxInvalidFlag();
+		//
+		//		HRGN hRegion = nullptr;
+		//		auto RegionMode = 0;
+		//		auto noRegion = false;
+		//
+		//#if DCX_USE_WRAPPERS
+		//		const Dcx::dcxWindowRect rc(m_Hwnd);
+		//#else
+		//		RECT rc = { 0 };
+		//		if (!GetWindowRect(m_Hwnd, &rc))
+		//			throw Dcx::dcxException("Unable to get window rect!");
+		//#endif
+		//
+		//		if (xflags[TEXT('o')])
+		//			RegionMode = RGN_OR;
+		//		else if (xflags[TEXT('a')])
+		//			RegionMode = RGN_AND;
+		//		else if (xflags[TEXT('i')])
+		//			RegionMode = RGN_DIFF;
+		//		else if (xflags[TEXT('x')])
+		//			RegionMode = RGN_XOR;
+		//
+		//		if (xflags[TEXT('f')]) // image file - [COLOR] [FILE]
+		//		{
+		//			if (numtok < 6)
+		//				throw DcxExceptions::dcxInvalidArguments();
+		//
+		//			const auto tCol = input.getnexttok().to_<COLORREF>();		// tok 5
+		//			auto filename(input.getlasttoks());							// tok 6, -1
+		//
+		//			auto bitmapRgn = dcxLoadBitmap(nullptr, filename);
+		//
+		//			if (!bitmapRgn)
+		//				throw Dcx::dcxException("Unable To Load Image file.");
+		//			Auto(DeleteObject(bitmapRgn));
+		//
+		//			if (xflags[TEXT('R')]) // now resize image to match control.
+		//				bitmapRgn = resizeBitmap(bitmapRgn, &rc);
+		//			hRegion = BitmapRegion(bitmapRgn, tCol, (tCol != CLR_INVALID));
+		//		}
+		//		else if (xflags[TEXT('r')]) // rounded rect - radius args (optional)
+		//		{
+		//			const auto radius = (numtok > 4) ? input.getnexttok().to_int() : 20;	// tok 5
+		//
+		//			hRegion = CreateRoundRectRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top, radius, radius);
+		//		}
+		//		else if (xflags[TEXT('c')]) // circle - radius arg (optional)
+		//		{
+		//			if (numtok > 4)
+		//			{
+		//				auto radius = input.getnexttok().to_int();	// tok 5
+		//				if (radius < 1)
+		//					radius = 100; // handle cases where arg isnt a number or is a negative.
+		//				const auto cx = ((rc.right - rc.left) / 2);
+		//				const auto cy = ((rc.bottom - rc.top) / 2);
+		//				hRegion = CreateEllipticRgn(cx - radius, cy - radius, cx + radius, cy + radius);
+		//			}
+		//			else
+		//				hRegion = CreateEllipticRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top);
+		//		}
+		//		else if (xflags[TEXT('p')]) // polygon
+		//		{
+		//			// u need at least 3 points for a shape
+		//			if (numtok < 7)
+		//				throw DcxExceptions::dcxInvalidArguments();
+		//
+		//			const auto strPoints(input.getlasttoks());	// tok 5, -1
+		//			const auto tPoints = strPoints.numtok();
+		//
+		//			if (tPoints < 3)
+		//				throw Dcx::dcxException("Invalid Points: At least 3 points required.");
+		//
+		//			auto pnts = std::make_unique<POINT[]>(tPoints);
+		//			UINT cnt = 0;
+		//
+		//			for (const auto& strPoint : strPoints)
+		//			{
+		//				gsl::at(pnts, cnt).x = strPoint.getfirsttok(1, TSCOMMACHAR).to_<LONG>();
+		//				gsl::at(pnts, cnt).y = strPoint.getnexttok(TSCOMMACHAR).to_<LONG>();	// tok 2
+		//				++cnt;
+		//			}
+		//
+		//			hRegion = CreatePolygonRgn(pnts.get(), gsl::narrow_cast<int>(tPoints), WINDING);
+		//		}
+		//		else if (xflags[TEXT('b')])
+		//		{ // alpha [1|0] [level]
+		//			noRegion = true;
+		//			if (numtok != 6)
+		//				throw DcxExceptions::dcxInvalidArguments();
+		//
+		//			m_bAlphaBlend = (input.getnexttok().to_int() > 0);	// tok 5
+		//
+		//			const auto alpha = gsl::narrow_cast<BYTE>(input.getnexttok().to_int() & 0xFF);	// tok 6
+		//
+		//			if (alpha == 255U)
+		//				m_bAlphaBlend = false;
+		//			m_iAlphaLevel = alpha;
+		//		}
+		//		else {
+		//			if (!xflags[TEXT('n')]) // none, no args
+		//				throw DcxExceptions::dcxInvalidFlag();
+		//
+		//			noRegion = true;
+		//			SetWindowRgn(m_Hwnd, nullptr, FALSE);	// redraw at end
+		//		}
+		//
+		//		if (!noRegion)
+		//		{
+		//			if (!hRegion)
+		//				throw Dcx::dcxException("Unable to create region.");
+		//
+		//			if (RegionMode != 0)
+		//			{
+		//				if (auto wrgn = CreateRectRgn(0, 0, 0, 0); wrgn)
+		//				{
+		//					Auto(DeleteRgn(wrgn));
+		//					if (GetWindowRgn(m_Hwnd, wrgn) != ERROR)
+		//						CombineRgn(hRegion, hRegion, wrgn, RegionMode);
+		//				}
+		//			}
+		//			SetWindowRgn(m_Hwnd, hRegion, FALSE);	// redraw at end
+		//		}
+		//		redrawWindow();
+
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const XSwitchFlags xflags(input.getfirsttok(4));
+		setRegion(input.getfirsttok(4), input.getlasttoks());
 
-		if (!xflags[TEXT('+')])
-			throw DcxExceptions::dcxInvalidFlag();
-
-		HRGN hRegion = nullptr;
-		auto RegionMode = 0;
-		auto noRegion = false;
-
-#if DCX_USE_WRAPPERS
-		const Dcx::dcxWindowRect rc(m_Hwnd);
-#else
-		RECT rc = { 0 };
-		if (!GetWindowRect(m_Hwnd, &rc))
-			throw Dcx::dcxException("Unable to get window rect!");
-#endif
-
-		if (xflags[TEXT('o')])
-			RegionMode = RGN_OR;
-		else if (xflags[TEXT('a')])
-			RegionMode = RGN_AND;
-		else if (xflags[TEXT('i')])
-			RegionMode = RGN_DIFF;
-		else if (xflags[TEXT('x')])
-			RegionMode = RGN_XOR;
-
-		if (xflags[TEXT('f')]) // image file - [COLOR] [FILE]
-		{
-			if (numtok < 6)
-				throw DcxExceptions::dcxInvalidArguments();
-
-			const auto tCol = input.getnexttok().to_<COLORREF>();		// tok 5
-			auto filename(input.getlasttoks());							// tok 6, -1
-
-			auto bitmapRgn = dcxLoadBitmap(nullptr, filename);
-
-			if (!bitmapRgn)
-				throw Dcx::dcxException("Unable To Load Image file.");
-			Auto(DeleteObject(bitmapRgn));
-
-			if (xflags[TEXT('R')]) // now resize image to match control.
-				bitmapRgn = resizeBitmap(bitmapRgn, &rc);
-			hRegion = BitmapRegion(bitmapRgn, tCol, (tCol != CLR_INVALID));
-		}
-		else if (xflags[TEXT('r')]) // rounded rect - radius args (optional)
-		{
-			const auto radius = (numtok > 4) ? input.getnexttok().to_int() : 20;	// tok 5
-
-			hRegion = CreateRoundRectRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top, radius, radius);
-		}
-		else if (xflags[TEXT('c')]) // circle - radius arg (optional)
-		{
-			if (numtok > 4)
-			{
-				auto radius = input.getnexttok().to_int();	// tok 5
-				if (radius < 1)
-					radius = 100; // handle cases where arg isnt a number or is a negative.
-				const auto cx = ((rc.right - rc.left) / 2);
-				const auto cy = ((rc.bottom - rc.top) / 2);
-				hRegion = CreateEllipticRgn(cx - radius, cy - radius, cx + radius, cy + radius);
-			}
-			else
-				hRegion = CreateEllipticRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top);
-		}
-		else if (xflags[TEXT('p')]) // polygon
-		{
-			// u need at least 3 points for a shape
-			if (numtok < 7)
-				throw DcxExceptions::dcxInvalidArguments();
-
-			const auto strPoints(input.getlasttoks());	// tok 5, -1
-			const auto tPoints = strPoints.numtok();
-
-			if (tPoints < 3)
-				throw Dcx::dcxException("Invalid Points: At least 3 points required.");
-
-			auto pnts = std::make_unique<POINT[]>(tPoints);
-			UINT cnt = 0;
-
-			for (const auto& strPoint : strPoints)
-			{
-				gsl::at(pnts, cnt).x = strPoint.getfirsttok(1, TSCOMMACHAR).to_<LONG>();
-				gsl::at(pnts, cnt).y = strPoint.getnexttok(TSCOMMACHAR).to_<LONG>();	// tok 2
-				++cnt;
-			}
-
-			hRegion = CreatePolygonRgn(pnts.get(), gsl::narrow_cast<int>(tPoints), WINDING);
-		}
-		else if (xflags[TEXT('b')])
-		{ // alpha [1|0] [level]
-			noRegion = true;
-			if (numtok != 6)
-				throw DcxExceptions::dcxInvalidArguments();
-
-			m_bAlphaBlend = (input.getnexttok().to_int() > 0);	// tok 5
-
-			const auto alpha = gsl::narrow_cast<BYTE>(input.getnexttok().to_int() & 0xFF);	// tok 6
-
-			if (alpha == 255U)
-				m_bAlphaBlend = false;
-			m_iAlphaLevel = alpha;
-		}
-		else {
-			if (!xflags[TEXT('n')]) // none, no args
-				throw DcxExceptions::dcxInvalidFlag();
-
-			noRegion = true;
-			SetWindowRgn(m_Hwnd, nullptr, FALSE);	// redraw at end
-		}
-
-		if (!noRegion)
-		{
-			if (!hRegion)
-				throw Dcx::dcxException("Unable to create region.");
-
-			if (RegionMode != 0)
-			{
-				if (auto wrgn = CreateRectRgn(0, 0, 0, 0); wrgn)
-				{
-					Auto(DeleteRgn(wrgn));
-					if (GetWindowRgn(m_Hwnd, wrgn) != ERROR)
-						CombineRgn(hRegion, hRegion, wrgn, RegionMode);
-				}
-			}
-			SetWindowRgn(m_Hwnd, hRegion, FALSE);	// redraw at end
-		}
 		redrawWindow();
 	}
 	// invalid command
@@ -1678,31 +1685,14 @@ void DcxControl::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xCtrl)
 	if (!xDcxml || !xCtrl || !m_Hwnd)
 		return;
 
-	// id, type, styles, border? set before creation
+	// set any styles that apply
+	xmlSetStyles();
 
-	if (const auto clr = queryColourAttribute(xCtrl, "bgcolour"); clr != CLR_INVALID)
-	{
-		this->m_clrBackground = clr;
-		if (this->m_hBackBrush)
-			DeleteObject(this->m_hBackBrush);
-		this->m_hBackBrush = CreateSolidBrush(clr);
-	}
-	if (const auto clr = queryColourAttribute(xCtrl, "bordercolour"); clr != CLR_INVALID)
-	{
-		if (this->m_hBorderBrush)
-			DeleteObject(this->m_hBorderBrush);
-		this->m_hBorderBrush = CreateSolidBrush(clr);
-	}
-	if (const auto clr = queryColourAttribute(xCtrl, "textcolour"); clr != CLR_INVALID)
-		this->m_clrText = clr;
-	if (const auto clr = queryColourAttribute(xCtrl, "textbgcolour"); clr != CLR_INVALID)
-		this->m_clrBackText = clr;
-	if (const auto clr = queryColourAttribute(xCtrl, "gradientstart"); clr != CLR_INVALID)
-		this->m_clrStartGradient = clr;
-	if (const auto clr = queryColourAttribute(xCtrl, "gradientend"); clr != CLR_INVALID)
-		this->m_clrEndGradient = clr;
-	if (const auto clr = queryColourAttribute(xCtrl, "transparentbg"); clr != CLR_INVALID)
-		this->m_colTransparentBg = clr;
+	// set control icons if any. ???
+	xmlLoadIcons(xCtrl);
+
+	// check <control> for any style info
+	xmlSetStyle(xCtrl);
 
 	if (const auto clr = gsl::narrow_cast<DWORD>(queryIntAttribute(xCtrl, "eventmask", -1)); clr != MAXDWORD)
 		this->m_dEventMask = clr;
@@ -1714,48 +1704,23 @@ void DcxControl::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xCtrl)
 		this->m_tsMark = tmp;
 	if (auto tmp = queryAttribute(xCtrl, "tooltip"); !_ts_isEmpty(tmp))
 		this->m_tsToolTip = tmp;
-	if (auto hTip = getToolTipHWND(); hTip)
-	{
-		if (const auto clr = queryColourAttribute(xCtrl, "tooltipbgcolour"); clr != CLR_INVALID)
-			Dcx::dcxToolTip_SetTipBkColor(hTip, clr);
-		if (const auto clr = queryColourAttribute(xCtrl, "tooltiptextcolour"); clr != CLR_INVALID)
-			Dcx::dcxToolTip_SetTipTextColor(hTip, clr);
-	}
 
 	if (auto xCursor = xCtrl->FirstChildElement("cursor"); xCursor)
 	{
-		TString tsCursor(queryAttribute(xCursor, "filename", "arrow"));
+		TString tsCursor(queryEvalAttribute(xCursor, "src", "arrow"));
 		const TString tsFlags(queryAttribute(xCursor, "flags", "+r"));
 
 		setCursor(tsFlags, tsCursor);
 	}
-
+	// Load region data
+	// NB: cant save region data yet.
+	if (auto xRegion = xCtrl->FirstChildElement("region"); xRegion)
 	{
-		TString tsFont;
+		TString tsRegion(queryEvalAttribute(xRegion, "src"));
+		const TString tsFlags(queryAttribute(xRegion, "flags", "+"));
 
-		if (auto clr = queryAttribute(xCtrl, "font"); !_ts_isEmpty(clr))
-		{
-			// single font item
-			// + charset size fontname
-			tsFont = clr;
-		}
-		else {
-			// split font parts
-			// fontstyle charset fontsize fontname
-			auto fontsize = queryAttribute(xCtrl, "fontsize", "8");
-			auto charset = queryAttribute(xCtrl, "chatset", "ansi");
-			auto fontstyle = queryAttribute(xCtrl, "fontstyle", "d");
-			auto fontname = queryAttribute(xCtrl, "fontname");
-
-			// fontname is the only one without a default & is required.
-			if (!_ts_isEmpty(fontname))
-				_ts_sprintf(tsFont, "+% % % %", fontstyle, charset, fontsize, fontname);
-		}
-		if (!tsFont.empty())
-		{
-			if (LOGFONT lf{ }; ParseCommandToLogfont(tsFont, &lf))
-				setControlFont(CreateFontIndirect(&lf), FALSE);
-		}
+		if (!tsRegion.empty())
+			setRegion(tsFlags, tsRegion);
 	}
 }
 
@@ -1784,6 +1749,136 @@ void DcxControl::setCursor(const TString& tsFlags, TString& tsFilename)
 	m_hCursor.flags = tsFlags;
 
 	m_hCursor.cursor = Dcx::dcxLoadCursor(iFlags, CursorType, m_hCursor.enabled, m_hCursor.cursor, tsFilename);
+}
+
+void DcxControl::setRegion(const TString& tsFlags, const TString& tsArgs)
+{
+	const XSwitchFlags xflags(tsFlags);
+
+	if (!xflags[TEXT('+')])
+		throw DcxExceptions::dcxInvalidFlag();
+
+	HRGN hRegion = nullptr;
+	auto RegionMode = 0;
+	auto noRegion = false;
+
+#if DCX_USE_WRAPPERS
+	const Dcx::dcxWindowRect rc(m_Hwnd);
+#else
+	RECT rc = { 0 };
+	if (!GetWindowRect(m_Hwnd, &rc))
+		throw Dcx::dcxException("Unable to get window rect!");
+#endif
+
+	if (xflags[TEXT('o')])
+		RegionMode = RGN_OR;
+	else if (xflags[TEXT('a')])
+		RegionMode = RGN_AND;
+	else if (xflags[TEXT('i')])
+		RegionMode = RGN_DIFF;
+	else if (xflags[TEXT('x')])
+		RegionMode = RGN_XOR;
+
+	if (xflags[TEXT('f')]) // image file - [COLOR] [FILE]
+	{
+		if (tsArgs.numtok() < 2)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto tCol = tsArgs.getfirsttok(1).to_<COLORREF>();
+		auto filename(tsArgs.getlasttoks());
+
+		auto bitmapRgn = dcxLoadBitmap(nullptr, filename);
+
+		if (!bitmapRgn)
+			throw Dcx::dcxException("Unable To Load Image file.");
+		Auto(DeleteObject(bitmapRgn));
+
+		if (xflags[TEXT('R')]) // now resize image to match control.
+			bitmapRgn = resizeBitmap(bitmapRgn, &rc);
+		hRegion = BitmapRegion(bitmapRgn, tCol, (tCol != CLR_INVALID));
+	}
+	else if (xflags[TEXT('r')]) // rounded rect - radius args (optional)
+	{
+		const auto radius = (!tsArgs.empty()) ? tsArgs.to_int() : 20;
+
+		hRegion = CreateRoundRectRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top, radius, radius);
+	}
+	else if (xflags[TEXT('c')]) // circle - radius arg (optional)
+	{
+		if (!tsArgs.empty())
+		{
+			auto radius = tsArgs.to_int();
+			if (radius < 1)
+				radius = 100; // handle cases where arg isnt a number or is a negative.
+			const auto cx = ((rc.right - rc.left) / 2);
+			const auto cy = ((rc.bottom - rc.top) / 2);
+			hRegion = CreateEllipticRgn(cx - radius, cy - radius, cx + radius, cy + radius);
+		}
+		else
+			hRegion = CreateEllipticRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top);
+	}
+	else if (xflags[TEXT('p')]) // polygon
+	{
+		// u need at least 3 points for a shape
+		if (tsArgs.numtok() < 3)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto strPoints(tsArgs);
+		const auto tPoints = strPoints.numtok();
+
+		if (tPoints < 3)
+			throw Dcx::dcxException("Invalid Points: At least 3 points required.");
+
+		auto pnts = std::make_unique<POINT[]>(tPoints);
+		UINT cnt = 0;
+
+		for (const auto& strPoint : strPoints)
+		{
+			gsl::at(pnts, cnt).x = strPoint.getfirsttok(1, TSCOMMACHAR).to_<LONG>();
+			gsl::at(pnts, cnt).y = strPoint.getnexttok(TSCOMMACHAR).to_<LONG>();
+			++cnt;
+		}
+
+		hRegion = CreatePolygonRgn(pnts.get(), gsl::narrow_cast<int>(tPoints), WINDING);
+	}
+	else if (xflags[TEXT('b')])
+	{ // alpha [1|0] [level]
+		noRegion = true;
+		if (tsArgs.numtok() != 2)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		m_bAlphaBlend = (tsArgs.getfirsttok(1).to_int() > 0);
+
+		const auto alpha = gsl::narrow_cast<BYTE>(tsArgs.getnexttokas<int>() & 0xFF);
+
+		if (alpha == 255U)
+			m_bAlphaBlend = false;
+		m_iAlphaLevel = alpha;
+	}
+	else {
+		if (!xflags[TEXT('n')]) // none, no args
+			throw DcxExceptions::dcxInvalidFlag();
+
+		noRegion = true;
+		SetWindowRgn(m_Hwnd, nullptr, FALSE);	// redraw at end
+	}
+
+	if (!noRegion)
+	{
+		if (!hRegion)
+			throw Dcx::dcxException("Unable to create region.");
+
+		if (RegionMode != 0)
+		{
+			if (auto wrgn = CreateRectRgn(0, 0, 0, 0); wrgn)
+			{
+				Auto(DeleteRgn(wrgn));
+				if (GetWindowRgn(m_Hwnd, wrgn) != ERROR)
+					CombineRgn(hRegion, hRegion, wrgn, RegionMode);
+			}
+		}
+		SetWindowRgn(m_Hwnd, hRegion, FALSE);	// redraw at end
+	}
 }
 
 GSL_SUPPRESS(lifetime)
@@ -2866,6 +2961,11 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, cons
 		mIRC_DrawText(hdc, txt, rc, style, this->IsShadowTextEnabled());
 }
 
+void DcxControl::loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc)
+{
+	// place holder only, does nothing...
+}
+
 const TString DcxControl::getStyles(void) const
 {
 	TString result;
@@ -2975,7 +3075,7 @@ void DcxControl::toXml(TiXmlElement* const xml) const
 	{
 		TiXmlElement xCursor("cursor");
 
-		xCursor.SetAttribute("filename", (this->m_hCursor.src.empty() ? "arrow" : this->m_hCursor.src.c_str()));
+		xCursor.SetAttribute("src", (this->m_hCursor.src.empty() ? "arrow" : this->m_hCursor.src.c_str()));
 		xCursor.SetAttribute("flags", (this->m_hCursor.flags.empty() ? "+r" : this->m_hCursor.flags.c_str()));
 
 		xml->InsertEndChild(xCursor);
@@ -3145,6 +3245,127 @@ void DcxControl::xmlCallTemplate(const TString& tsCurrentPath, const TiXmlElemen
 		xmlParseElements(tsCurrentPath, xParent, it->xTemplate);
 
 	// should we throw an error when no match?
+}
+
+void DcxControl::xmlSetStyle(const TiXmlElement* xStyle)
+{
+	if (!xStyle)
+		return;
+
+	// font & colours...
+	{
+		TString tsFont;
+
+		if (auto tmp = queryAttribute(xStyle, "font"); !_ts_isEmpty(tmp))
+		{
+			// single font item
+			// + charset size fontname
+			tsFont = tmp;
+		}
+		else {
+			// split font parts
+			// fontstyle charset fontsize fontname
+			auto fontsize = queryAttribute(xStyle, "fontsize", "8");
+			auto charset = queryAttribute(xStyle, "chatset", "ansi");
+			auto fontstyle = queryAttribute(xStyle, "fontstyle", "d");
+			auto fontname = queryAttribute(xStyle, "fontname");
+
+			// fontname is the only one without a default & is required.
+			GSL_SUPPRESS(lifetime.1) if (!_ts_isEmpty(fontname))
+				_ts_sprintf(tsFont, "+% % % %", fontstyle, charset, fontsize, fontname);
+		}
+		if (!tsFont.empty())
+		{
+			if (LOGFONT lf{ }; ParseCommandToLogfont(tsFont, &lf))
+				setControlFont(CreateFontIndirect(&lf), FALSE);
+		}
+	}
+
+	if (const auto clr = queryColourAttribute(xStyle, "bgcolour"); clr != CLR_INVALID)
+	{
+		this->m_clrBackground = clr;
+		if (this->m_hBackBrush)
+			DeleteObject(this->m_hBackBrush);
+		this->m_hBackBrush = CreateSolidBrush(clr);
+	}
+	if (const auto clr = queryColourAttribute(xStyle, "bordercolour"); clr != CLR_INVALID)
+	{
+		if (this->m_hBorderBrush)
+			DeleteObject(this->m_hBorderBrush);
+		this->m_hBorderBrush = CreateSolidBrush(clr);
+	}
+	if (const auto clr = queryColourAttribute(xStyle, "textcolour"); clr != CLR_INVALID)
+		this->m_clrText = clr;
+	if (const auto clr = queryColourAttribute(xStyle, "textbgcolour"); clr != CLR_INVALID)
+		this->m_clrBackText = clr;
+	if (const auto clr = queryColourAttribute(xStyle, "gradientstart"); clr != CLR_INVALID)
+		this->m_clrStartGradient = clr;
+	if (const auto clr = queryColourAttribute(xStyle, "gradientend"); clr != CLR_INVALID)
+		this->m_clrEndGradient = clr;
+	if (const auto clr = queryColourAttribute(xStyle, "transparentbg"); clr != CLR_INVALID)
+		this->m_colTransparentBg = clr;
+	if (auto hTip = getToolTipHWND(); hTip)
+	{
+		if (const auto clr = queryColourAttribute(xStyle, "tooltipbgcolour"); clr != CLR_INVALID)
+			Dcx::dcxToolTip_SetTipBkColor(hTip, clr);
+		if (const auto clr = queryColourAttribute(xStyle, "tooltiptextcolour"); clr != CLR_INVALID)
+			Dcx::dcxToolTip_SetTipTextColor(hTip, clr);
+	}
+}
+
+void DcxControl::xmlSetStyles()
+{
+	// set style...
+	const auto pd = this->getParentDialog();
+	if (!pd)
+		return;
+
+	for (const auto& a : pd->xmlGetStyles())
+	{
+		if (a.tsType.empty() && a.tsClass.empty() && a.tsID.empty()) // an <all> tag
+			xmlSetStyle(a.xStyle);
+		else if (a.tsType == this->getType())
+			xmlSetStyle(a.xStyle);
+		else if (const TString tmpid(queryAttribute(a.xStyle, "id")); a.tsID == tmpid)
+			xmlSetStyle(a.xStyle);
+		else if (const TString tmp(queryAttribute(a.xStyle, "class")); a.tsClass == tmp)
+			xmlSetStyle(a.xStyle);
+	}
+}
+
+void DcxControl::xmlLoadIcons(const TiXmlElement* xThis)
+{
+	const auto pd = this->getParentDialog();
+	if (!pd)
+		return;
+
+	for (const auto& a : pd->xmlGetIcons())
+	{
+		bool bGood = false;
+		// if type matches, use the icon.
+		if (a.tsType == this->getType())
+			bGood = true;
+		// if id matches, load the icon
+		if (!a.tsID.empty() && (pd->NameToID(a.tsID) == this->getID()))
+			bGood = true;
+		// if class matches, load the icon
+		if (!a.tsClass.empty() && (a.tsClass == queryAttribute(xThis, "class")))
+			bGood = true;
+		if (bGood)
+		{
+			const TString tsFlags(queryAttribute(a.xIcon, "flags", "+"));
+			TString tsSrc(queryEvalAttribute(a.xIcon, "src"));
+			TString tsIndex(queryAttribute(a.xIcon, "index"));
+			if (tsIndex.empty())
+			{
+				// no index attribute, so look for indexmin & indexmax (both default to zero)
+				const auto MinIndex(queryIntAttribute(a.xIcon, "indexmin"));
+				const auto MaxIndex(queryIntAttribute(a.xIcon, "indexmax"));
+				_ts_sprintf(tsIndex, L"%-%", MinIndex, MaxIndex);
+			}
+			loadIcon(tsFlags, tsIndex, tsSrc);
+		}
+	}
 }
 
 // Convert a number into the closest icon size
