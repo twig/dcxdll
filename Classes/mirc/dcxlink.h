@@ -50,6 +50,8 @@ public:
 	inline const TString getType() const final { return TEXT("link"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::LINK; }
 
+	void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) override;
+
 	const TString getStyles(void) const final;
 	void toXml(TiXmlElement *const xml) const final;
 	TiXmlElement * toXml(void) const final;

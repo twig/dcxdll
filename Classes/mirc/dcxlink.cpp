@@ -80,6 +80,15 @@ DcxLink::~DcxLink() noexcept
 }
 
 
+void DcxLink::loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc)
+{
+	if (this->m_hIcon)
+		DestroyIcon(this->m_hIcon);
+
+	TString filename(tsSrc);
+	this->m_hIcon = dcxLoadIcon(tsIndex.to_int(), filename, false, tsFlags);
+}
+
 const TString DcxLink::getStyles(void) const
 {
 	auto styles(__super::getStyles());
@@ -148,9 +157,7 @@ void DcxLink::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 			this->m_aColors[2] = tmp;
 		if (const auto tmp = queryColourAttribute(xColours, "disabled"); tmp != CLR_INVALID)
 			this->m_aColors[3] = tmp;
-
 	}
-
 }
 
 /*!
@@ -267,17 +274,28 @@ void DcxLink::parseCommandRequest(const TString& input)
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')])
 	{
+		//if (numtok < 6)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//const auto flag(input.getnexttok());		// tok 4
+		//const auto index = input.getnexttok().to_int();	// tok 5
+		//auto filename(input.getlasttoks());			// tok 6, -1
+		//
+		//if (this->m_hIcon)
+		//	DestroyIcon(this->m_hIcon);
+		//
+		//this->m_hIcon = dcxLoadIcon(index, filename, false, flag);
+		//
+		//this->redrawWindow();
+
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto flag(input.getnexttok());		// tok 4
-		const auto index = input.getnexttok().to_int();	// tok 5
-		auto filename(input.getlasttoks());			// tok 6, -1
+		const auto flag(input.getnexttok());	// tok 4
+		const auto tsIndex(input.getnexttok());	// tok 5
+		auto filename(input.getlasttoks());		// tok 6, -1
 
-		if (this->m_hIcon)
-			DestroyIcon(this->m_hIcon);
-
-		this->m_hIcon = dcxLoadIcon(index, filename, false, flag);
+		this->loadIcon(flag, tsIndex, filename);
 
 		this->redrawWindow();
 	}
