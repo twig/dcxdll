@@ -303,57 +303,67 @@ void DcxButton::parseCommandRequest(const TString& input)
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')])
 	{
+		//		if (numtok < 6)
+		//			throw DcxExceptions::dcxInvalidArguments();
+		//
+		//		const auto tflags(input.getnexttok());		// tok 4
+		//		const auto index = input.getnexttok().to_int();	// tok 5
+		//		const auto flag = parseColorFlags(tflags);
+		//		auto filename(input.getlasttoks());			// tok 6, -1
+		//
+		//		// load the icon
+		//
+		//#if DCX_USE_WRAPPERS
+		//		const Dcx::dcxIconResource icon(index, filename, (m_iIconSize != DcxIconSizes::SmallIcon), tflags);
+		//#else
+		//		const auto icon = dcxLoadIcon(index, filename, (m_iIconSize != DcxIconSizes::SmallIcon), tflags);
+		//
+		//		if (!icon)
+		//			throw Dcx::dcxException("Unable to load icon");
+		//
+		//		Auto(DestroyIcon(icon));
+		//#endif
+		//
+		//		// prepare the image list
+		//		if (auto himl = getImageList(); !himl)
+		//		{
+		//			himl = createImageList();
+		//
+		//			if (himl)
+		//			{
+		//				setImageList(himl);
+		//
+		//				ImageList_AddIcon(himl, icon);
+		//				ImageList_AddIcon(himl, icon);
+		//				ImageList_AddIcon(himl, icon);
+		//				ImageList_AddIcon(himl, icon);
+		//
+		//				m_bHasIcons = true;
+		//			}
+		//		}
+		//		else {
+		//			if (dcx_testflag(flag, BTNCS_DISABLED))
+		//				ImageList_ReplaceIcon(himl, 3, icon);
+		//			if (dcx_testflag(flag, BTNCS_SELECTED))
+		//				ImageList_ReplaceIcon(himl, 2, icon);
+		//			if (dcx_testflag(flag, BTNCS_HOVER))
+		//				ImageList_ReplaceIcon(himl, 1, icon);
+		//			if (dcx_testflag(flag, BTNCS_NORMAL))
+		//				ImageList_ReplaceIcon(himl, 0, icon);
+		//		}
+
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto tflags(input.getnexttok());		// tok 4
-		const auto index = input.getnexttok().to_int();	// tok 5
-		const auto flag = parseColorFlags(tflags);
-		auto filename(input.getlasttoks());			// tok 6, -1
+		const auto tsFlags(input.getnexttok());	// tok 4
+		const auto tsIndex(input.getnexttok());	// tok 5
+		auto filename(input.getlasttoks());		// tok 6, -1
 
 		// load the icon
-
-#if DCX_USE_WRAPPERS
-		const Dcx::dcxIconResource icon(index, filename, (m_iIconSize != DcxIconSizes::SmallIcon), tflags);
-#else
-		const auto icon = dcxLoadIcon(index, filename, (m_iIconSize != DcxIconSizes::SmallIcon), tflags);
-
-		if (!icon)
-			throw Dcx::dcxException("Unable to load icon");
-
-		Auto(DestroyIcon(icon));
-#endif
-
-		// prepare the image list
-		if (auto himl = getImageList(); !himl)
-		{
-			himl = createImageList();
-
-			if (himl)
-			{
-				setImageList(himl);
-
-				ImageList_AddIcon(himl, icon);
-				ImageList_AddIcon(himl, icon);
-				ImageList_AddIcon(himl, icon);
-				ImageList_AddIcon(himl, icon);
-
-				m_bHasIcons = true;
-			}
-		}
-		else {
-			if (dcx_testflag(flag, BTNCS_DISABLED))
-				ImageList_ReplaceIcon(himl, 3, icon);
-			if (dcx_testflag(flag, BTNCS_SELECTED))
-				ImageList_ReplaceIcon(himl, 2, icon);
-			if (dcx_testflag(flag, BTNCS_HOVER))
-				ImageList_ReplaceIcon(himl, 1, icon);
-			if (dcx_testflag(flag, BTNCS_NORMAL))
-				ImageList_ReplaceIcon(himl, 0, icon);
-		}
+		this->loadIcon(tsFlags, tsIndex, filename);
 
 		redrawWindow();
-}
+	}
 	// xdid -m [NAME] [ID] [SWITCH] [ENABLED]
 	else if (flags[TEXT('m')])
 	{
@@ -503,6 +513,54 @@ HIMAGELIST DcxButton::createImageList() noexcept
 	return ImageList_Create(gsl::narrow_cast<int>(m_iIconSize), gsl::narrow_cast<int>(m_iIconSize), ILC_COLOR32 | ILC_MASK, gsl::narrow_cast<int>(std::size(m_aBitmaps)), 0);
 }
 
+void DcxButton::loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc)
+{
+	const auto index = tsIndex.to_int();
+	const auto flag = parseColorFlags(tsFlags);
+	auto filename(tsSrc);
+
+	// load the icon
+
+#if DCX_USE_WRAPPERS
+	const Dcx::dcxIconResource icon(index, filename, (m_iIconSize != DcxIconSizes::SmallIcon), tsFlags);
+#else
+	const auto icon = dcxLoadIcon(index, filename, (m_iIconSize != DcxIconSizes::SmallIcon), tsFlags);
+
+	if (!icon)
+		throw Dcx::dcxException("Unable to load icon");
+
+	Auto(DestroyIcon(icon));
+#endif
+
+	// prepare the image list
+	if (auto himl = getImageList(); !himl)
+	{
+		himl = createImageList();
+
+		if (himl)
+		{
+			setImageList(himl);
+
+			ImageList_AddIcon(himl, icon);
+			ImageList_AddIcon(himl, icon);
+			ImageList_AddIcon(himl, icon);
+			ImageList_AddIcon(himl, icon);
+
+			m_bHasIcons = true;
+		}
+	}
+	else {
+		if (dcx_testflag(flag, BTNCS_DISABLED))
+			ImageList_ReplaceIcon(himl, 3, icon);
+		if (dcx_testflag(flag, BTNCS_SELECTED))
+			ImageList_ReplaceIcon(himl, 2, icon);
+		if (dcx_testflag(flag, BTNCS_HOVER))
+			ImageList_ReplaceIcon(himl, 1, icon);
+		if (dcx_testflag(flag, BTNCS_NORMAL))
+			ImageList_ReplaceIcon(himl, 0, icon);
+	}
+}
+
 const TString DcxButton::getStyles(void) const
 {
 	auto tsStyles(__super::getStyles());
@@ -537,7 +595,7 @@ void DcxButton::toXml(TiXmlElement* const xml) const
 			if (Button_GetNoteLength(m_Hwnd) > 0)
 			{
 				TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
-				DWORD l{ MIRC_BUFFER_SIZE_CCH -1 };
+				DWORD l{ MIRC_BUFFER_SIZE_CCH - 1 };
 				Button_GetNote(m_Hwnd, &szBuf[0], &l); // NB: two POINTERS
 				xml->SetAttribute("note", TString(szBuf).c_str());
 			}
@@ -607,6 +665,9 @@ void DcxButton::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	if (!xDcxml || !xThis || !m_Hwnd)
 		return;
 
+	// NB: needs to be before __super::toXml() to size is set when icons are loaded.
+	m_iIconSize = NumToIconSize(queryIntAttribute(xThis, "iconsize", gsl::narrow_cast<int>(DcxIconSizes::SmallIcon)));
+
 	__super::fromXml(xDcxml, xThis);
 
 	{
@@ -630,7 +691,6 @@ void DcxButton::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	}
 
 	m_bBitmapText = (queryIntAttribute(xThis, "bitmaptext") > 0);
-	m_iIconSize = NumToIconSize(queryIntAttribute(xThis, "iconsize"));
 
 	if (auto xColours = xThis->FirstChildElement("colours"); xColours)
 	{

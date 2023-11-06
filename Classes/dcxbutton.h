@@ -63,6 +63,8 @@ public:
 	void setImageList(const HIMAGELIST himl) noexcept;
 	HIMAGELIST createImageList() noexcept;
 
+	void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) override;
+
 	inline const TString getType() const final { return TEXT("button"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::BUTTON; }
 
