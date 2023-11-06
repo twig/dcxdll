@@ -84,7 +84,7 @@ namespace Dcx
 		else
 			Edit_SetSel(hwnd, nPos, nPos);
 	}
-	DWORD dcxEdit_CharFromPos(HWND hwnd, const LONG &iPos) noexcept
+	DWORD dcxEdit_CharFromPos(HWND hwnd, const LONG& iPos) noexcept
 	{
 		if (!hwnd)
 			return 0;
@@ -888,7 +888,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		if (tsFlags[0] == TEXT('+'))
 		{
 			const XSwitchFlags xFlags(tsFlags);
-			this->m_tsCue = input.gettok(5,-1);	// tok 5, -1
+			this->m_tsCue = input.gettok(5, -1);	// tok 5, -1
 			m_bCueFocused = xFlags[TEXT('f')];
 			if (m_bCueFocused)
 				Edit_SetCueBannerTextFocused(m_Hwnd, m_tsCue.to_wchr(), TRUE);
@@ -1045,28 +1045,35 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 		{
 		case EN_CHANGE:
 		{
-			this->m_tsText = TGetWindowText(m_Hwnd);
 			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
-			{
-				//this->execAliasEx(TEXT("edit,%u"), getUserID());
-				if (!m_bIgnoreUndo)
-				{
-					TCHAR szRet[256]{};
-				
-					evalAliasEx(&szRet[0], std::size(szRet), TEXT("edit,%u"), getUserID());
-				
-					if (_ts_strcmp(&szRet[0], TEXT("nochange")) == 0)
-					{
-						m_bIgnoreUndo = true;
-						SendMessage(m_Hwnd, EM_UNDO, 0, 0);
-						m_bIgnoreUndo = false;
-						//bParsed = TRUE;
-						//return 0L;
-					}
-				}
-			}
+				this->execAliasEx(TEXT("edit,%u"), getUserID());
 			if (m_bShowLineNumbers)
 				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+
+			//if (!m_bIgnoreUndo)
+			//{
+			//	if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+			//	{
+			//		//this->execAliasEx(TEXT("edit,%u"), getUserID());
+			//		TCHAR szRet[256]{};
+
+			//		evalAliasEx(&szRet[0], std::size(szRet), TEXT("edit,%u"), getUserID());
+
+			//		if (_ts_strcmp(&szRet[0], TEXT("nochange")) != 0)
+			//			this->m_tsText = TGetWindowText(m_Hwnd);
+			//		else {
+			//			m_bIgnoreUndo = true;
+			//			const auto pos = this->GetCaretPos();
+			//			SetWindowText(m_Hwnd, this->m_tsText.to_chr());
+			//			this->setCaretPos(pos);
+			//			m_bIgnoreUndo = false;
+			//		}
+			//	}
+			//	else
+			//		this->m_tsText = TGetWindowText(m_Hwnd);
+			//}
+			//if (m_bShowLineNumbers)
+			//	PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
 		}
 		break;
 		//case EN_VSCROLL:
@@ -1162,10 +1169,16 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			if (wParam == VK_RETURN)
 				this->execAliasEx(TEXT("return,%u"), getUserID());
 
-			if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
-				break;
+			if (!((this->m_bIgnoreRepeat) && (lParam & 0x40000000))) // ignore repeats
+				this->execAliasEx(TEXT("keydown,%u,%u"), getUserID(), wParam);
 
-			this->execAliasEx(TEXT("keydown,%u,%u"), getUserID(), wParam);
+			//if (!((this->m_bIgnoreRepeat) && (lParam & 0x40000000))) // ignore repeats
+			//{
+			//	TCHAR szRet[256]{};
+			//	evalAliasEx(&szRet[0], std::size(szRet), TEXT("keydown,%u,%u"), getUserID(), wParam);
+			//	if (_ts_strcmp(&szRet[0], TEXT("nochange")) == 0)
+			//		bParsed = TRUE;
+			//}
 		}
 	}
 	break;
@@ -1225,23 +1238,24 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 	{
 		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
 		{
-			execAliasEx(TEXT("keyup,%u,%u"), getUserID(), wParam);
+			//execAliasEx(TEXT("keyup,%u,%u"), getUserID(), wParam);
 
-			//if (!m_bIgnoreUndo)
-			//{
-			//	TCHAR szRet[256]{};
+			if (!m_bIgnoreUndo)
+			{
+				TCHAR szRet[256]{};
 
-			//	evalAliasEx(&szRet[0], std::size(szRet), TEXT("keyup,%u,%u"), getUserID(), wParam);
+				evalAliasEx(&szRet[0], std::size(szRet), TEXT("keyup,%u,%u"), getUserID(), wParam);
 
-			//	if (_ts_strcmp(&szRet[0], TEXT("nochange")) == 0)
-			//	{
-			//		m_bIgnoreUndo = true;
-			//		SendMessage(m_Hwnd, EM_UNDO, 0, 0);
-			//		m_bIgnoreUndo = false;
-			//		bParsed = TRUE;
-			//		return 0L;
-			//	}
-			//}
+				if (_ts_strcmp(&szRet[0], TEXT("nochange")) == 0)
+				{
+					m_bIgnoreUndo = true;
+					SendMessage(m_Hwnd, EM_UNDO, 0, 0);
+					SendMessage(m_Hwnd, EM_EMPTYUNDOBUFFER, 0, 0);
+					m_bIgnoreUndo = false;
+					bParsed = TRUE;
+					return 0L;
+				}
+			}
 		}
 		if (m_bShowLineNumbers)
 			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
