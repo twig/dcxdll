@@ -1078,27 +1078,36 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		//		}
 		//#endif
 
+		//if (numtok < 6)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//auto himl = this->getImageList();
+		//
+		//if (!himl)
+		//{
+		//	himl = this->createImageList();
+		//
+		//	if (himl)
+		//		this->setImageList(himl);
+		//}
+		//
+		//if (!himl)
+		//	throw Dcx::dcxException("Unable to get imagelist");
+		//
+		//const auto flag(input.getnexttok());		// tok 4
+		//const auto tsRanges(input.getnexttok());	// tok 5
+		//auto filename(input.getlasttoks());			// tok 6, -1
+		//
+		//Dcx::dcxLoadIconRange(himl, filename, false, flag, tsRanges);
+
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
-
-		auto himl = this->getImageList();
-
-		if (!himl)
-		{
-			himl = this->createImageList();
-
-			if (himl)
-				this->setImageList(himl);
-		}
-
-		if (!himl)
-			throw Dcx::dcxException("Unable to get imagelist");
 
 		const auto flag(input.getnexttok());		// tok 4
 		const auto tsRanges(input.getnexttok());	// tok 5
 		auto filename(input.getlasttoks());			// tok 6, -1
 
-		Dcx::dcxLoadIconRange(himl, filename, false, flag, tsRanges);
+		this->loadIcon(flag, tsRanges, filename);
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('y')])
@@ -1463,6 +1472,25 @@ LRESULT DcxReBar::maxBand(const UINT uBand, const BOOL fIdeal) noexcept
 LRESULT DcxReBar::minBand(const UINT uBand, const BOOL fIdeal) noexcept
 {
 	return SendMessage(m_Hwnd, RB_MINIMIZEBAND, gsl::narrow_cast<WPARAM>(uBand), gsl::narrow_cast<LPARAM>(fIdeal));
+}
+
+void DcxReBar::loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc)
+{
+	auto himl = this->getImageList();
+	if (!himl)
+	{
+		himl = this->createImageList();
+
+		if (himl)
+			this->setImageList(himl);
+	}
+
+	if (!himl)
+		throw Dcx::dcxException("Unable to get imagelist");
+
+	auto filename(tsSrc);
+
+	Dcx::dcxLoadIconRange(himl, filename, false, tsFlags, tsIndex);
 }
 
 /*!

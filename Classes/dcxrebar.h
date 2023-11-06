@@ -93,6 +93,8 @@ public:
 	LRESULT maxBand(const UINT uBand, const BOOL fIdeal) noexcept;
 	LRESULT minBand(const UINT uBand, const BOOL fIdeal) noexcept;
 
+	void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) override;
+
 	inline const TString getType() const final { return TEXT("rebar"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::REBAR; }
 

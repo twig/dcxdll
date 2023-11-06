@@ -170,6 +170,8 @@ public:
 
 	void autoPosition(const int width, const int height) noexcept;
 
+	void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) override;
+
 	inline const TString getType() const final { return TEXT("toolbar"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::TOOLBAR; }
 
@@ -197,6 +199,7 @@ protected:
 	int getIndexToCommand(const int iIndex) const noexcept;
 
 	static BYTE parseButtonStateFlags(const TString& flags) noexcept;
+	static TString parseButtonStateFlags(UINT iflags) noexcept;
 	static UINT parseButtonStyleFlags(const TString& flags) noexcept;
 
 	void resetContent() noexcept;

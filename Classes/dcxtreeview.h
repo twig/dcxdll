@@ -186,6 +186,8 @@ public:
 	[[nodiscard]] LPDCXTVITEM getItemParam(const HTREEITEM hItem) const noexcept;
 	[[nodiscard]] int getItemImageID(const HTREEITEM hItem) const noexcept;
 
+	void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) override;
+
 	inline const TString getType() const final { return TEXT("treeview"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::TREEVIEW; }
 

@@ -230,6 +230,26 @@ void DcxStatusBar::deletePartInfo(const int iPart) noexcept
 	}
 }
 
+void DcxStatusBar::loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc)
+{
+	auto filename(tsSrc);
+
+	auto himl = getImageList();
+
+	if (!himl)
+	{
+		himl = createImageList();
+
+		if (himl)
+			setImageList(himl);
+	}
+
+	if (!himl)
+		throw Dcx::dcxException("Unable to get imagelist");
+
+	Dcx::dcxLoadIconRange(himl, filename, false, tsFlags, tsIndex);
+}
+
 /*!
  * \brief blah
  *
@@ -413,39 +433,48 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')])
 	{
+		//		if (numtok < 6)
+		//			throw DcxExceptions::dcxInvalidArguments();
+		//
+		//		const auto flag(input.getnexttok());			// tok 4
+		//		const auto index = input.getnexttok().to_int();		// tok 5
+		//		auto filename(input.getlasttoks());				// tok 6, -1
+		//
+		//		auto himl = getImageList();
+		//
+		//		if (!himl)
+		//		{
+		//			himl = createImageList();
+		//
+		//			if (himl)
+		//				setImageList(himl);
+		//		}
+		//
+		//		if (!himl)
+		//			throw Dcx::dcxException("Unable to get imagelist");
+		//
+		//#if DCX_USE_WRAPPERS
+		//		const Dcx::dcxIconResource icon(index, filename, false, flag);
+		//
+		//		ImageList_AddIcon(himl, icon.get());
+		//#else
+		//		HICON icon = dcxLoadIcon(index, filename, false, flag);
+		//
+		//		if (!icon)
+		//			throw Dcx::dcxException("Unable to load icon");
+		//
+		//		ImageList_AddIcon(himl, icon);
+		//		DestroyIcon(icon);
+		//#endif
+
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto flag(input.getnexttok());			// tok 4
-		const auto index = input.getnexttok().to_int();		// tok 5
-		auto filename(input.getlasttoks());				// tok 6, -1
+		const auto flag(input.getnexttok());	// tok 4
+		const auto tsIndex(input.getnexttok());	// tok 5
+		auto filename(input.getlasttoks());		// tok 6, -1
 
-		auto himl = getImageList();
-
-		if (!himl)
-		{
-			himl = createImageList();
-
-			if (himl)
-				setImageList(himl);
-		}
-
-		if (!himl)
-			throw Dcx::dcxException("Unable to get imagelist");
-
-#if DCX_USE_WRAPPERS
-		const Dcx::dcxIconResource icon(index, filename, false, flag);
-
-		ImageList_AddIcon(himl, icon.get());
-#else
-		HICON icon = dcxLoadIcon(index, filename, false, flag);
-
-		if (!icon)
-			throw Dcx::dcxException("Unable to load icon");
-
-		ImageList_AddIcon(himl, icon);
-		DestroyIcon(icon);
-#endif
+		this->loadIcon(flag, tsIndex, filename);
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('y')])
@@ -479,11 +508,11 @@ void DcxStatusBar::setImageList(const HIMAGELIST himl) noexcept
 	m_hImageList = himl;
 }
 
- /*!
-  * \brief blah
-  *
-  * blah
-  */
+/*!
+ * \brief blah
+ *
+ * blah
+ */
 
 UINT DcxStatusBar::parseItemFlags(const TString& flags) noexcept
 {
@@ -582,8 +611,8 @@ void DcxStatusBar::toXml(TiXmlElement* const xml) const
 
 			if (const auto pInfo = this->getPartInfo(n); pInfo)
 			{
-				if (pInfo->m_xiIcon != -1)
-					xItem.SetAttribute("icon", pInfo->m_xiIcon);
+				if (pInfo->m_xiIcon >= 0)
+					xItem.SetAttribute("icon", pInfo->m_xiIcon + 1);
 				if (!pInfo->m_xText.empty())
 					xItem.SetAttribute("text", pInfo->m_xText.c_str());
 				if (pInfo->m_xChild)
@@ -637,7 +666,7 @@ void DcxStatusBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis
 	{
 		// each item can be a control or text
 		const auto nPos = queryIntAttribute(xItem, "index");
-		const auto iIcon = queryIntAttribute(xItem, "icon");
+		const auto iIcon = queryIntAttribute(xItem, "icon") - 1;
 		const TString tsFlags(queryAttribute(xItem, "flags"));
 		TString tsText(queryAttribute(xItem, "text"));
 		const TString tsTooltip(queryAttribute(xItem, "tooltip"));
@@ -743,7 +772,7 @@ void DcxStatusBar::setPartsPositions(const TString& tsPositions)
 	auto c = 0U;
 	int i{};
 
-	for (auto p: tsPositions)
+	for (auto p : tsPositions)
 	{
 		if (c >= 100)
 			throw Dcx::dcxException("Can't Allocate Over 100% of Statusbar!");

@@ -935,55 +935,64 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [N,N2-N3,N4....] [FILENAME]
 	else if (flags[TEXT('w')])
 	{
+		//if (numtok < 6)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//const auto tsFlags(input.getnexttok());	// tok 4
+		//const auto iFlags = this->parseIconFlagOptions(tsFlags);
+		//
+		//HICON icon{ nullptr };
+		//
+		//const auto index = input.getnexttok().to_int();	// tok 5
+		//auto filename(input.getlasttoks());				// tok 6, -1
+		//const auto bLarge = (m_iIconSize != DcxIconSizes::SmallIcon);
+		//
+		//if (index >= 0)
+		//	icon = dcxLoadIcon(index, filename, bLarge, tsFlags);
+		//
+		//if (dcx_testflag(iFlags, TVIT_NORMAL))
+		//{
+		//	if (auto himl = TV_GetNormalImageList(); himl)
+		//	{
+		//		if (index < 0)
+		//			AddFileIcons(himl, filename, bLarge, -1);
+		//		else if (const auto i = ImageList_AddIcon(himl, icon); tsFlags.find(TEXT('o'), 0))
+		//		{
+		//			// overlay image
+		//			const auto io = tsFlags.find(TEXT('o'), 1) + 1;
+		//			const auto o = tsFlags.mid(io, (gsl::narrow_cast<int>(tsFlags.len()) - io)).to_int();
+		//
+		//			if (o < 1 || o > 15)
+		//				throw Dcx::dcxException("Overlay index out of range (1 -> 15)");
+		//
+		//			if (o > 0)
+		//				ImageList_SetOverlayImage(himl, i, o);
+		//		}
+		//	}
+		//}
+		//
+		//if (dcx_testflag(iFlags, TVIT_STATE))
+		//{
+		//	if (auto himl = TV_GetStateImageList(); himl)
+		//	{
+		//		if (index < 0)
+		//			AddFileIcons(himl, filename, bLarge, -1);
+		//		else
+		//			ImageList_AddIcon(himl, icon);
+		//	}
+		//}
+		//if (icon)
+		//	DestroyIcon(icon);
+
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsFlags(input.getnexttok());	// tok 4
-		const auto iFlags = this->parseIconFlagOptions(tsFlags);
+		const auto tsIndex(input.getnexttok());	// tok 5
+		auto filename(input.getlasttoks());		// tok 6, -1
 
-		HICON icon{ nullptr };
-
-		const auto index = input.getnexttok().to_int();	// tok 5
-		auto filename(input.getlasttoks());				// tok 6, -1
-		const auto bLarge = (m_iIconSize != DcxIconSizes::SmallIcon);
-
-		if (index >= 0)
-			icon = dcxLoadIcon(index, filename, bLarge, tsFlags);
-
-		if (dcx_testflag(iFlags, TVIT_NORMAL))
-		{
-			if (auto himl = TV_GetNormalImageList(); himl)
-			{
-				if (index < 0)
-					AddFileIcons(himl, filename, bLarge, -1);
-				else if (const auto i = ImageList_AddIcon(himl, icon); tsFlags.find(TEXT('o'), 0))
-				{
-					// overlay image
-					const auto io = tsFlags.find(TEXT('o'), 1) + 1;
-					const auto o = tsFlags.mid(io, (gsl::narrow_cast<int>(tsFlags.len()) - io)).to_int();
-
-					if (o < 1 || o > 15)
-						throw Dcx::dcxException("Overlay index out of range (1 -> 15)");
-
-					if (o > 0)
-						ImageList_SetOverlayImage(himl, i, o);
+		this->loadIcon(tsFlags, tsIndex, filename);
 				}
-			}
-		}
-
-		if (dcx_testflag(iFlags, TVIT_STATE))
-		{
-			if (auto himl = TV_GetStateImageList(); himl)
-			{
-				if (index < 0)
-					AddFileIcons(himl, filename, bLarge, -1);
-				else
-					ImageList_AddIcon(himl, icon);
-			}
-		}
-		if (icon)
-			DestroyIcon(icon);
-	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('y')])
 	{
@@ -1667,6 +1676,54 @@ int DcxTreeView::getItemImageID(const HTREEITEM hItem) const noexcept
 	return tvi.iImage;
 }
 
+void DcxTreeView::loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc)
+{
+	const auto iFlags = this->parseIconFlagOptions(tsFlags);
+
+	HICON icon{ nullptr };
+
+	const auto index = tsIndex.to_int();
+	auto filename(tsSrc);
+	const auto bLarge = (m_iIconSize != DcxIconSizes::SmallIcon);
+
+	if (index >= 0)
+		icon = dcxLoadIcon(index, filename, bLarge, tsFlags);
+
+	if (dcx_testflag(iFlags, TVIT_NORMAL))
+	{
+		if (auto himl = TV_GetNormalImageList(); himl)
+		{
+			if (index < 0)
+				AddFileIcons(himl, filename, bLarge, -1);
+			else if (const auto i = ImageList_AddIcon(himl, icon); tsFlags.find(TEXT('o'), 0))
+			{
+				// overlay image
+				const auto io = tsFlags.find(TEXT('o'), 1) + 1;
+				const auto o = tsFlags.mid(io, (gsl::narrow_cast<int>(tsFlags.len()) - io)).to_int();
+
+				if (o < 1 || o > 15)
+					throw Dcx::dcxException("Overlay index out of range (1 -> 15)");
+
+				if (o > 0)
+					ImageList_SetOverlayImage(himl, i, o);
+			}
+		}
+	}
+
+	if (dcx_testflag(iFlags, TVIT_STATE))
+	{
+		if (auto himl = TV_GetStateImageList(); himl)
+		{
+			if (index < 0)
+				AddFileIcons(himl, filename, bLarge, -1);
+			else
+				ImageList_AddIcon(himl, icon);
+		}
+	}
+	if (icon)
+		DestroyIcon(icon);
+}
+
 /*!
  * \brief blah
  *
@@ -2262,7 +2319,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 #else
 						Dcx::FillRectColour(lpntvcd->nmcd.hdc, std::addressof(rcClear), bgClr);
 #endif
-						const auto DrawSelected = [](HDC hdc, const RECT &rcItem, const RECT &rcTxt, COLORREF clrTextBk) noexcept {
+						const auto DrawSelected = [](HDC hdc, const RECT& rcItem, const RECT& rcTxt, COLORREF clrTextBk) noexcept {
 							RECT rcSelected = rcTxt;
 							rcSelected.left = std::max(rcSelected.left - 2, rcItem.left);
 							rcSelected.right = std::min(rcSelected.right + 5, rcItem.right);
@@ -2753,8 +2810,8 @@ bool DcxTreeView::xmlGetItems(const HTREEITEM hFirstSibling, TiXmlElement* xElm,
 				xChild.SetAttribute("image", tvi.iImage + 1);
 			if (tvi.iSelectedImage > -1 && tvi.iSelectedImage != 10000)
 				xChild.SetAttribute("selectedimage", tvi.iSelectedImage + 1);
-			if (tvi.iExpandedImage > 0 && tvi.iExpandedImage != 10000)
-				xChild.SetAttribute("expandedimage", tvi.iExpandedImage);
+			if (tvi.iExpandedImage > -1 && tvi.iExpandedImage != 10000)
+				xChild.SetAttribute("expandedimage", tvi.iExpandedImage + 1);
 			if (tvi.iIntegral > 0)
 				xChild.SetAttribute("itegral", tvi.iIntegral);
 			if (dcx_testflag(tvi.stateMask, TVIS_SELECTED) && dcx_testflag(tvi.state, TVIS_SELECTED))
@@ -2847,14 +2904,13 @@ const TiXmlElement* DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM& hI
 			lpmytvi->clrBkg = queryColourAttribute(xNode, "backgroundcolor");
 
 			// Is Item text in Bold?
-			if (queryIntAttribute(xNode, "textbold") > 0)
+			lpmytvi->bBold = (queryIntAttribute(xNode, "textbold") > 0);
+
+			if (lpmytvi->bBold)
 			{
-				lpmytvi->bBold = true;
 				tvins.itemex.state |= TVIS_BOLD;
 				tvins.itemex.stateMask |= TVIS_BOLD;
 			}
-			else
-				lpmytvi->bBold = false;
 
 			// Is item text in italics?
 			lpmytvi->bItalic = (queryIntAttribute(xNode, "textitalic") > 0);
@@ -2879,13 +2935,11 @@ const TiXmlElement* DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM& hI
 		}
 		// Items state icon.
 		if (auto i = queryIntAttribute(xNode, "state"); i < 5) // zero means no state icon anyway.
-			//TreeView_SetItemState(m_Hwnd, hInsertAfter, INDEXTOSTATEIMAGEMASK(gsl::narrow_cast<UINT>(i)), TVIS_STATEIMAGEMASK);
 			TV_SetItemState(hInsertAfter, INDEXTOSTATEIMAGEMASK(gsl::narrow_cast<UINT>(i)), TVIS_STATEIMAGEMASK);
 
 		// Items overlay icon.
 		// overlay is 1-based index
 		if (auto i = queryIntAttribute(xNode, "overlay"); (i > 0 && i < 16))
-			//TreeView_SetItemState(m_Hwnd, hInsertAfter, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(i)), TVIS_OVERLAYMASK);
 			TV_SetItemState(hInsertAfter, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(i)), TVIS_OVERLAYMASK);
 
 		if (xNode->FirstChild("item"))
@@ -3091,15 +3145,16 @@ void DcxTreeView::toXml(TiXmlElement* const xml) const
 
 	xml->SetAttribute("styles", getStyles().c_str());
 
+	{
+		TiXmlElement xIcons("icons");
+
+		// find & save icon info...
+
+		xml->InsertEndChild(xIcons);
+	}
 	HTREEITEM hRoot = TreeView_GetRoot(m_Hwnd);
 	if (!hRoot)
 		return;
-
-	//auto xData = dynamic_cast<TiXmlElement*>(xml->InsertEndChild(TiXmlElement("treeview_data")));
-	//if (!xData)
-	//	throw Dcx::dcxException("toXml() - Unable to add <treeview_data> item");
-	//if (TCHAR lbuf[MIRC_BUFFER_SIZE_CCH]{}; !this->xmlGetItems(hRoot, xData, &lbuf[0]))
-	//	throw Dcx::dcxException("toXml() - Unable To Add Items to XML");
 
 	if (TCHAR lbuf[MIRC_BUFFER_SIZE_CCH]{}; !this->xmlGetItems(hRoot, xml, &lbuf[0]))
 		throw Dcx::dcxException("toXml() - Unable To Add Items to XML");
@@ -3117,7 +3172,14 @@ void DcxTreeView::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	if (!xDcxml || !xThis || !m_Hwnd)
 		return;
 
+	const auto pd = this->getParentDialog();
+	if (!pd)
+		return;
+
 	__super::fromXml(xDcxml, xThis);
+
+	// load icons...
+	xmlLoadIcons(xThis);
 
 	//HTREEITEM hRoot = TreeView_GetRoot(m_Hwnd);
 	//if (!hRoot)

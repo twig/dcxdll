@@ -641,6 +641,8 @@ public:
 	/// <returns></returns>
 	[[nodiscard]] const int& getColumnCount() const noexcept;
 
+	void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) override;
+
 	inline const TString getType() const final { return TEXT("listview"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::LISTVIEW; }
 

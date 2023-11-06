@@ -3071,6 +3071,152 @@ const int& DcxListView::getColumnCount() const noexcept
 	return m_iColumnCount;
 }
 
+void DcxListView::loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc)
+{
+	auto filename(tsSrc);
+	auto index = tsIndex.to_int();
+	const auto iFlags = parseIconFlagOptions(tsFlags);
+	auto overlayindex = 0;
+
+	// determine overlay index
+	if (tsFlags.find(TEXT('o'), 0))
+	{
+		// overlay id offset
+		const auto io = tsFlags.find(TEXT('o'), 1) + 1;
+		overlayindex = tsFlags.mid(io, gsl::narrow_cast<int>(tsFlags.len() - io)).to_int();
+
+		if (overlayindex < 1 || overlayindex > 15)
+			throw Dcx::dcxException("Overlay index out of range (1 -> 15)");
+	}
+
+	// load both normal and small icons
+	if (dcx_testflag(iFlags, LVSIL_SMALL))
+	{
+		// load normal icon
+		if (const auto himl = this->initImageList(LVSIL_NORMAL); index < 0)
+		{
+			AddFileIcons(himl, filename, true, -1);
+		}
+		else {
+#if DCX_USE_WRAPPERS
+			const Dcx::dcxIconResource icon(index, filename, true, tsFlags);
+
+			if (const auto i = ImageList_AddIcon(himl, icon.get()); overlayindex > 0)
+				ImageList_SetOverlayImage(himl, i, overlayindex);
+#else
+			const HICON icon = dcxLoadIcon(index, filename, true, tflags);
+
+			if (!icon)
+				throw Dcx::dcxException("Unable to load normal icon");
+
+			if (const int i = ImageList_AddIcon(himl, icon); overlayindex > 0)
+				ImageList_SetOverlayImage(himl, i, overlayindex);
+
+			DestroyIcon(icon);
+#endif
+		}
+
+		// load small icon
+		if (const auto himl = this->initImageList(LVSIL_SMALL); index < 0)
+		{
+			AddFileIcons(himl, filename, false, -1);
+		}
+		else {
+#if DCX_USE_WRAPPERS
+			const Dcx::dcxIconResource icon(index, filename, false, tsFlags);
+
+			if (const auto i = ImageList_AddIcon(himl, icon.get()); overlayindex > 0)
+				ImageList_SetOverlayImage(himl, i, overlayindex);
+#else
+			const HICON icon = dcxLoadIcon(index, filename, false, tsFlags);
+
+			if (!icon)
+				throw Dcx::dcxException("Unable to load small icon");
+
+			if (const int i = ImageList_AddIcon(himl, icon); overlayindex > 0)
+				ImageList_SetOverlayImage(himl, i, overlayindex);
+
+			DestroyIcon(icon);
+#endif
+		}
+	}
+
+	// state icon
+	if (dcx_testflag(iFlags, LVSIL_STATE))
+	{
+		if (const auto himl = this->initImageList(LVSIL_STATE); index < 0)
+		{
+			AddFileIcons(himl, filename, false, -1);
+		}
+		else {
+#if DCX_USE_WRAPPERS
+			const Dcx::dcxIconResource icon(index, filename, false, tsFlags);
+
+			ImageList_AddIcon(himl, icon.get());
+#else
+			const HICON icon = dcxLoadIcon(index, filename, false, tsFlags);
+
+			if (!icon)
+				throw Dcx::dcxException("Unable to load state icon");
+
+			ImageList_AddIcon(himl, icon);
+
+			DestroyIcon(icon);
+#endif
+		}
+	}
+
+	// footer icons
+	if (dcx_testflag(iFlags, LVSIL_FOOTER))
+	{
+		if (const auto himl = this->initImageList(LVSIL_FOOTER); index < 0)
+		{
+			AddFileIcons(himl, filename, false, -1);
+		}
+		else {
+#if DCX_USE_WRAPPERS
+			const Dcx::dcxIconResource icon(index, filename, false, tsFlags);
+
+			ImageList_AddIcon(himl, icon.get());
+#else
+			const HICON icon = dcxLoadIcon(index, filename, false, tflags);
+
+			if (!icon)
+				throw Dcx::dcxException("Unable to load footer icon");
+
+			ImageList_AddIcon(himl, icon);
+
+			DestroyIcon(icon);
+#endif
+		}
+	}
+
+	// group header icons
+	if (dcx_testflag(iFlags, LVSIL_GROUPHEADER))
+	{
+		if (const auto himl = this->initImageList(LVSIL_GROUPHEADER); index < 0)
+		{
+			AddFileIcons(himl, filename, false, -1);
+		}
+		else {
+#if DCX_USE_WRAPPERS
+			const Dcx::dcxIconResource icon(index, filename, false, tsFlags);
+
+			ImageList_AddIcon(himl, icon.get());
+#else
+			const HICON icon = dcxLoadIcon(index, filename, false, tflags);
+
+			if (!icon)
+				throw Dcx::dcxException("Unable to load footer icon");
+
+			ImageList_AddIcon(himl, icon);
+
+			DestroyIcon(icon);
+#endif
+		}
+	}
+}
+
 /*!
 * \brief blah
 *

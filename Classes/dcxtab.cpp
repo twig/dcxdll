@@ -147,6 +147,24 @@ dcxWindowStyles DcxTab::parseControlStyles(const TString& tsStyles)
 	return ws;
 }
 
+void DcxTab::loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc)
+{
+	auto filename(tsSrc);
+
+	auto himl = this->getImageList();
+	if (!himl)
+	{
+		himl = this->createImageList();
+
+		if (himl)
+			this->setImageList(himl);
+	}
+	if (!himl)
+		throw Dcx::dcxException("Unable to get Image List");
+
+	Dcx::dcxLoadIconRange(himl, filename, false, tsFlags, tsIndex);
+}
+
 /*!
  * \brief $xdid Parsing Function
  *
@@ -436,7 +454,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 			{
 				if (lpdtci->mChildHwnd && IsWindow(lpdtci->mChildHwnd))
 					DestroyWindow(lpdtci->mChildHwnd);
-			
+
 				delete lpdtci;
 			}
 		}
@@ -580,36 +598,45 @@ void DcxTab::parseCommandRequest(const TString& input)
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (xflags[TEXT('w')])
 	{
+		//		if (numtok < 6)
+		//			throw DcxExceptions::dcxInvalidArguments();
+		//
+		//		const auto flag(input.getnexttok());		// tok 4
+		//		const auto index = input.getnexttok().to_int();	// tok 5
+		//		auto filename(input.getlasttoks());			// tok 6, -1
+		//
+		//		auto himl = this->getImageList();
+		//
+		//		if (!himl)
+		//		{
+		//			himl = this->createImageList();
+		//
+		//			if (himl)
+		//				this->setImageList(himl);
+		//		}
+		//		if (!himl)
+		//			throw Dcx::dcxException("Unable to get Image List");
+		//
+		//#if DCX_USE_WRAPPERS
+		//		const Dcx::dcxIconResource icon(index, filename, false, flag);
+		//
+		//		ImageList_AddIcon(himl, icon.get());
+		//#else
+		//		if (const HICON icon = dcxLoadIcon(index, filename, false, flag); icon)
+		//		{
+		//			ImageList_AddIcon(himl, icon);
+		//			DestroyIcon(icon);
+		//		}
+		//#endif
+
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto flag(input.getnexttok());		// tok 4
-		const auto index = input.getnexttok().to_int();	// tok 5
-		auto filename(input.getlasttoks());			// tok 6, -1
+		const auto flag(input.getnexttok());	// tok 4
+		const auto tsIndex(input.getnexttok());	// tok 5
+		auto filename(input.getlasttoks());		// tok 6, -1
 
-		auto himl = this->getImageList();
-
-		if (!himl)
-		{
-			himl = this->createImageList();
-
-			if (himl)
-				this->setImageList(himl);
-		}
-		if (!himl)
-			throw Dcx::dcxException("Unable to get Image List");
-
-#if DCX_USE_WRAPPERS
-		const Dcx::dcxIconResource icon(index, filename, false, flag);
-
-		ImageList_AddIcon(himl, icon.get());
-#else
-		if (const HICON icon = dcxLoadIcon(index, filename, false, flag); icon)
-		{
-			ImageList_AddIcon(himl, icon);
-			DestroyIcon(icon);
-		}
-#endif
+		this->loadIcon(flag, tsIndex, filename);
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (xflags[TEXT('y')])
@@ -792,7 +819,7 @@ DcxControl* DcxTab::addTab(int nIndex, int iIcon, const TString& tsText, const T
 	if (!tsText.empty())
 	{
 		tci.mask |= TCIF_TEXT;
-		tci.pszText = const_cast<TCHAR *>(tsText.to_chr());
+		tci.pszText = const_cast<TCHAR*>(tsText.to_chr());
 	}
 
 	DcxControl* p_Control{};
@@ -1353,7 +1380,7 @@ void DcxTab::DrawGlow(const int nTabIndex, HDC hDC, const RECT& rect) const
 		const Gdiplus::Color clrGlow(0, 20, 20, 234);
 		brush.SetSurroundColors(&clrGlow, &colCount); //same as your center color, but with the alpha channel set to 0
 
-													  //play with these numbers to get the glow effect you want
+		//play with these numbers to get the glow effect you want
 		const Gdiplus::REAL blendFactors[] = { 0.0f, 0.1f, 0.3f, 1.0f };
 		const Gdiplus::REAL blendPos[] = { 0.0f, 0.4f, 0.6f, 1.0f };
 		//sets how transition toward the center is shaped

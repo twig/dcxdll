@@ -145,6 +145,8 @@ public:
 
 	static LRESULT CALLBACK ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) noexcept;
 
+	void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) override;
+
 	inline const TString getType() const final { return TEXT("comboex"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::COMBOEX; }
 

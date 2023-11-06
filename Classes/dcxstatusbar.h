@@ -107,6 +107,8 @@ public:
 
 	void deletePartInfo(const int iPart) noexcept;
 
+	void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) override;
+
 	inline const TString getType() const final { return TEXT("statusbar"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::STATUSBAR; }
 

@@ -802,76 +802,85 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')])
 	{
+		//		if (numtok < 6)
+		//			throw DcxExceptions::dcxInvalidArguments();
+		//
+		//		const auto tsFlags(input.getnexttok());	// tok 4
+		//		const auto iFlags = this->parseImageListFlags(tsFlags);
+		//
+		//		if (tsFlags[0] != TEXT('+'))
+		//			throw DcxExceptions::dcxInvalidFlag();
+		//
+		//		const auto index = input.getnexttok().to_int();	// tok 5
+		//		auto filename(input.getlasttoks());			// tok 6, -1
+		//
+		//		int cx = 0, cy = 0;
+		//		if (!ImageList_GetIconSize(this->getImageList(dcxToolBar_ImageLists::TB_IML_NORMAL), &cx, &cy))
+		//			throw Dcx::dcxException("Unable to get Icon Size");
+		//
+		//		// load the icon
+		//#if DCX_USE_WRAPPERS
+		//		const Dcx::dcxIconResource icon(index, filename, (NumToIconSize(cx) > DcxIconSizes::SmallIcon), tsFlags);
+		//
+		//		// NORMAL IML
+		//		if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_NORMAL))
+		//		{
+		//			if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_NORMAL); himl)
+		//				ImageList_AddIcon(himl, icon.get());
+		//		}
+		//
+		//		// DISABLED IML
+		//		if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_DISABLE))
+		//		{
+		//			if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_DISABLE); himl)
+		//				ImageList_AddIcon(himl, icon.get());
+		//		}
+		//
+		//		// HOT IML
+		//		if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_HOT))
+		//		{
+		//			if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_HOT); himl)
+		//				ImageList_AddIcon(himl, icon.get());
+		//		}
+		//#else
+		//		const auto icon = dcxLoadIcon(index, filename, (NumToIconSize(cx) > DcxIconSizes::SmallIcon), tsFlags);
+		//
+		//		// if there is an icon to process
+		//		if (!icon)
+		//			throw Dcx::dcxException(TEXT("Icon Failed To Load: %"), filename);
+		//
+		//		Auto(DestroyIcon(icon));
+		//
+		//		// NORMAL IML
+		//		if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_NORMAL))
+		//		{
+		//			if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_NORMAL); himl)
+		//				ImageList_AddIcon(himl, icon);
+		//		}
+		//
+		//		// DISABLED IML
+		//		if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_DISABLE))
+		//		{
+		//			if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_DISABLE); himl)
+		//				ImageList_AddIcon(himl, icon);
+		//		}
+		//
+		//		// HOT IML
+		//		if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_HOT))
+		//		{
+		//			if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_HOT); himl)
+		//				ImageList_AddIcon(himl, icon);
+		//		}
+		//#endif
+
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsFlags(input.getnexttok());	// tok 4
-		const auto iFlags = this->parseImageListFlags(tsFlags);
+		const auto tsIndex(input.getnexttok());	// tok 5
+		auto filename(input.getlasttoks());		// tok 6, -1
 
-		if (tsFlags[0] != TEXT('+'))
-			throw DcxExceptions::dcxInvalidFlag();
-
-		const auto index = input.getnexttok().to_int();	// tok 5
-		auto filename(input.getlasttoks());			// tok 6, -1
-
-		int cx = 0, cy = 0;
-		if (!ImageList_GetIconSize(this->getImageList(dcxToolBar_ImageLists::TB_IML_NORMAL), &cx, &cy))
-			throw Dcx::dcxException("Unable to get Icon Size");
-
-		// load the icon
-#if DCX_USE_WRAPPERS
-		const Dcx::dcxIconResource icon(index, filename, (NumToIconSize(cx) > DcxIconSizes::SmallIcon), tsFlags);
-
-		// NORMAL IML
-		if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_NORMAL))
-		{
-			if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_NORMAL); himl)
-				ImageList_AddIcon(himl, icon.get());
-		}
-
-		// DISABLED IML
-		if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_DISABLE))
-		{
-			if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_DISABLE); himl)
-				ImageList_AddIcon(himl, icon.get());
-		}
-
-		// HOT IML
-		if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_HOT))
-		{
-			if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_HOT); himl)
-				ImageList_AddIcon(himl, icon.get());
-		}
-#else
-		const auto icon = dcxLoadIcon(index, filename, (NumToIconSize(cx) > DcxIconSizes::SmallIcon), tsFlags);
-
-		// if there is an icon to process
-		if (!icon)
-			throw Dcx::dcxException(TEXT("Icon Failed To Load: %"), filename);
-
-		Auto(DestroyIcon(icon));
-
-		// NORMAL IML
-		if (dcx_testflag(iFlags, TB_IML_NORMAL))
-		{
-			if (auto himl = this->getImageList(TB_IML_NORMAL); himl)
-				ImageList_AddIcon(himl, icon);
-		}
-
-		// DISABLED IML
-		if (dcx_testflag(iFlags, TB_IML_DISABLE))
-		{
-			if (auto himl = this->getImageList(TB_IML_DISABLE); himl)
-				ImageList_AddIcon(himl, icon);
-		}
-
-		// HOT IML
-		if (dcx_testflag(iFlags, TB_IML_HOT))
-		{
-			if (auto himl = this->getImageList(TB_IML_HOT); himl)
-				ImageList_AddIcon(himl, icon);
-		}
-#endif
+		this->loadIcon(tsFlags, tsIndex, filename);
 	}
 	else
 		parseGlobalCommandRequest(input, flags);
@@ -906,6 +915,25 @@ BYTE DcxToolBar::parseButtonStateFlags(const TString& flags) noexcept
 		iFlags |= TBSTATE_WRAP;
 
 	return iFlags;
+}
+
+TString DcxToolBar::parseButtonStateFlags(UINT iflags) noexcept
+{
+	TString tsRes(L"+");
+
+	if (!dcx_testflag(iflags, TBSTATE_ENABLED))
+		tsRes += L'd';
+	if (dcx_testflag(iflags, TBSTATE_HIDDEN))
+		tsRes += L'h';
+	if (dcx_testflag(iflags, TBSTATE_INDETERMINATE))
+		tsRes += L'i';
+	if (dcx_testflag(iflags, TBSTATE_PRESSED))
+		tsRes += L'p';
+	if (dcx_testflag(iflags, TBSTATE_CHECKED))
+		tsRes += L'x';
+	if (dcx_testflag(iflags, TBSTATE_WRAP))
+		tsRes += L'w';
+	return tsRes;
 }
 
 /*!
@@ -1064,7 +1092,7 @@ void DcxToolBar::addButton(int iPos, const TString& tsFlags, WORD iWidth, int iI
 	const auto buttonStyles = parseButtonStyleFlags(tsFlags);
 	tbb.fsStyle = gsl::narrow_cast<BYTE>(buttonStyles & 0xFF);
 
-	if (iIcon == -1)
+	if (iIcon < 0)
 		tbb.iBitmap = I_IMAGENONE;
 	else
 		tbb.iBitmap = iIcon;
@@ -1073,7 +1101,7 @@ void DcxToolBar::addButton(int iPos, const TString& tsFlags, WORD iWidth, int iI
 	{
 		tbb.fsStyle = BTNS_SEP;
 		//tbb.fsState = TBSTATE_ENABLED;
-		tbb.iBitmap = iIcon;
+		//tbb.iBitmap = iIcon;
 		tbb.dwData = 0;
 		tbb.iString = 0;
 
@@ -1189,6 +1217,37 @@ void DcxToolBar::autoPosition(const int width, const int height) noexcept
 {
 	if (!this->isStyle(WindowStyle::CCS_NoParentAlign | CCS_NORESIZE))
 		SendMessage(m_Hwnd, WM_SIZE, 0U, 0);
+}
+
+void DcxToolBar::loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc)
+{
+	const auto iFlags = this->parseImageListFlags(tsFlags);
+
+	if (tsFlags[0] != TEXT('+'))
+		throw DcxExceptions::dcxInvalidFlag();
+
+	auto filename(tsSrc);
+
+	// NORMAL IML
+	if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_NORMAL))
+	{
+		if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_NORMAL); himl)
+			Dcx::dcxLoadIconRange(himl, filename, false, tsFlags, tsIndex);
+	}
+
+	// DISABLED IML
+	if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_DISABLE))
+	{
+		if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_DISABLE); himl)
+			Dcx::dcxLoadIconRange(himl, filename, false, tsFlags, tsIndex);
+	}
+
+	// HOT IML
+	if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_HOT))
+	{
+		if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_HOT); himl)
+			Dcx::dcxLoadIconRange(himl, filename, false, tsFlags, tsIndex);
+	}
 }
 
 /*!
@@ -1771,8 +1830,9 @@ void DcxToolBar::toXml(TiXmlElement* const xml) const
 
 		if (bi.iImage >= 0)
 			xItem.SetAttribute("icon", bi.iImage + 1);
-		xItem.SetAttribute("pos", n);
-		//xItem.SetAttribute("flags", bi.fsState); convert!
+		xItem.SetAttribute("pos", n + 1);
+
+		xItem.SetAttribute("flags", parseButtonStateFlags(bi.fsState).c_str());
 
 		if (!dcx_testflag(bi.fsStyle, BTNS_SEP))
 		{
@@ -1822,14 +1882,22 @@ void DcxToolBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	if (!xDcxml || !xThis || !m_Hwnd)
 		return;
 
+	const auto size = NumToIconSize(queryIntAttribute(xThis, "iconsize", gsl::narrow_cast<int>(DcxIconSizes::SmallIcon)));
+
+	setImageList(createImageList(size), dcxToolBar_ImageLists::TB_IML_NORMAL);
+
+	setImageList(createImageList(size), dcxToolBar_ImageLists::TB_IML_DISABLE);
+
+	setImageList(createImageList(size), dcxToolBar_ImageLists::TB_IML_HOT);
+
 	__super::fromXml(xDcxml, xThis);
 
 	for (auto xItem = xThis->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
 	{
-		const auto nPos = queryIntAttribute(xItem, "pos");
-		const TString tsFlags(queryAttribute(xItem, "flags"));
+		const auto nPos = queryIntAttribute(xItem, "pos") - 1;
+		const TString tsFlags(queryAttribute(xItem, "flags", "+"));
 		const auto width = gsl::narrow_cast<WORD>(queryIntAttribute(xItem, "width"));
-		const auto icon = queryIntAttribute(xItem, "icon");
+		const auto icon = queryIntAttribute(xItem, "icon", I_IMAGECALLBACK) - 1; // I_IMAGECALLBACK becomes I_IMAGENONE
 		const auto clrText = queryColourAttribute(xItem, "textcolour");
 		const TString tsText(queryAttribute(xItem, "text"));
 		const TString tsTooltip(queryAttribute(xItem, "tooltip"));
@@ -1844,7 +1912,7 @@ void DcxToolBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 			bd->clrBtnHighlight = queryColourAttribute(xItem, "highlightcolour");
 			bd->clrHighlightHotTrack = queryColourAttribute(xItem, "hotcolour");
 			bd->clrMark = queryColourAttribute(xItem, "markcolour");
-			//bd->clrText = queryColourAttribute(xItem, "textcolour");
+			bd->clrText = clrText;
 			bd->clrTextHighlight = queryColourAttribute(xItem, "texthighlightcolour");
 		}
 	}

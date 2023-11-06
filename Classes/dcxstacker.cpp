@@ -114,6 +114,18 @@ dcxWindowStyles DcxStacker::parseControlStyles(const TString& tsStyles)
 	return ws;
 }
 
+void DcxStacker::loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc)
+{
+#ifdef DCX_USE_GDIPLUS
+	auto filename(tsSrc);
+
+	if (!IsFile(filename))
+		throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
+
+	m_vImageList.push_back(std::make_unique<Gdiplus::Image>(filename.to_wchr()));
+#endif
+}
+
 /*!
  * \brief $xdid Parsing Function
  *
@@ -343,21 +355,27 @@ void DcxStacker::parseCommandRequest(const TString& input)
 	//xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
 	else if (flags[TEXT('w')])
 	{
-		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
-			throw DcxExceptions::dcxInvalidArguments();
+		//		if (numtok < 5)
+		//			throw DcxExceptions::dcxInvalidArguments();
+		//
+		//#ifdef DCX_USE_GDIPLUS
+		//
+		//		const auto flag(input.getnexttok());		// tok 4
+		//		auto filename(input.getnexttok().trim());	// tok 5
+		//
+		//		if (!IsFile(filename))
+		//			throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
+		//
+		//		m_vImageList.push_back(std::make_unique<Gdiplus::Image>(filename.to_wchr()));
+		//#endif
 
-#ifdef DCX_USE_GDIPLUS
+		if (numtok < 5)
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto flag(input.getnexttok());		// tok 4
 		auto filename(input.getnexttok().trim());	// tok 5
 
-		if (!IsFile(filename))
-			throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
-
-		m_vImageList.push_back(std::make_unique<Gdiplus::Image>(filename.to_wchr()));
-		//m_vImageList.emplace_back(filename.to_wchr());
-#endif
+		this->loadIcon(flag, ""_ts, filename);
 	}
 	//xdid -y [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('y')])
