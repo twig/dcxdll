@@ -114,6 +114,28 @@ dcxWindowStyles DcxImage::parseControlStyles(const TString& tsStyles)
 	return parseGeneralControlStyles(tsStyles, ws);
 }
 
+void DcxImage::loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc)
+{
+	TString filename(tsSrc);
+
+	PreloadData();
+
+	this->m_iIconIndex = tsIndex.to_int();
+	this->m_tsFilename = filename;
+	this->m_bIsIcon = true;
+	this->m_tsLoadFlags = tsFlags;
+
+	this->m_hIcon = dcxLoadIcon(this->m_iIconIndex, filename, (m_iIconSize != DcxIconSizes::SmallIcon), tsFlags);
+
+	// resize window to size of icon
+	RECT wnd{};
+
+	if (!GetWindowRectParent(m_Hwnd, &wnd))
+		throw Dcx::dcxException("Unable to get windows rect");
+
+	MoveWindow(m_Hwnd, wnd.left, wnd.top, gsl::narrow_cast<int>(this->m_iIconSize), gsl::narrow_cast<int>(this->m_iIconSize), TRUE);
+}
+
 /*!
  * \brief $xdid Parsing Function
  *
@@ -265,32 +287,42 @@ void DcxImage::parseCommandRequest(const TString& input)
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [SIZE] [FILENAME]
 	if (flags[TEXT('w')] && numtok > 6)
 	{
-		const auto flag(input.getnexttok());		// tok 4
-		const auto index = input.getnexttok().to_int();	// tok 5
-		const auto size = input.getnexttok().to_int();	// tok 6
-		auto filename(input.getlasttoks().trim());	// tok 7, -1
+		//const auto flag(input.getnexttok());		// tok 4
+		//const auto index = input.getnexttok().to_int();	// tok 5
+		//const auto size = input.getnexttok().to_int();	// tok 6
+		//auto filename(input.getlasttoks().trim());	// tok 7, -1
+		//
+		//PreloadData();
+		//
+		//this->m_iIconSize = NumToIconSize(size);
+		//
+		//this->m_hIcon = dcxLoadIcon(index, filename, (m_iIconSize != DcxIconSizes::SmallIcon), flag);
+		//
+		//this->m_tsFilename = filename;
+		//
+		//this->m_bIsIcon = true;
+		//
+		//this->m_iIconIndex = index;
+		//
+		//this->m_tsLoadFlags = flag;
+		//
+		//// resize window to size of icon
+		//RECT wnd{};
+		//
+		//if (!GetWindowRectParent(m_Hwnd, &wnd))
+		//	throw Dcx::dcxException("Unable to get windows rect");
+		//
+		//MoveWindow(m_Hwnd, wnd.left, wnd.top, gsl::narrow_cast<int>(this->m_iIconSize), gsl::narrow_cast<int>(this->m_iIconSize), TRUE);
 
-		PreloadData();
+		const auto flag(input.getnexttok());			// tok 4
+		const auto tsIndex(input.getnexttok());			// tok 5
+		const auto size = input.getnexttok().to_int();	// tok 6
+		auto filename(input.getlasttoks().trim());		// tok 7, -1
 
 		this->m_iIconSize = NumToIconSize(size);
 
-		this->m_hIcon = dcxLoadIcon(index, filename, (m_iIconSize != DcxIconSizes::SmallIcon), flag);
+		this->loadIcon(flag, tsIndex, filename);
 
-		this->m_tsFilename = filename;
-
-		this->m_bIsIcon = true;
-
-		this->m_iIconIndex = index;
-
-		this->m_tsLoadFlags = flag;
-
-		// resize window to size of icon
-		RECT wnd{};
-
-		if (!GetWindowRectParent(m_Hwnd, &wnd))
-			throw Dcx::dcxException("Unable to get windows rect");
-
-		MoveWindow(m_Hwnd, wnd.left, wnd.top, gsl::narrow_cast<int>(this->m_iIconSize), gsl::narrow_cast<int>(this->m_iIconSize), TRUE);
 		this->redrawWindow();
 	}
 	//xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [IMAGE]

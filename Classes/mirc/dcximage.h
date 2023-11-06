@@ -50,6 +50,8 @@ public:
 	void parseCommandRequest(const TString& input) final;
 	dcxWindowStyles parseControlStyles(const TString& tsStyles) final;
 
+	void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) override;
+
 	inline const TString getType() const final { return TEXT("image"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::IMAGE; }
 
