@@ -72,8 +72,10 @@ function get_xdid_toolbar(&$XDID) {
 	                '__values' => array(
 		                'b' => 'The text is bold.',
 						'c' => 'The text is in a color defined by [p]COLOR[/p].',
+						'H' => 'The buttons highlight colour.',
+						'j' => 'The text highlight colour.',
 						'u' => 'The text is underlined.',
-						'x' => 'The background color of the toolbar tooltip.',
+						'X' => 'The background color of the toolbar tooltip.',
 						'z' => 'The text color of the toolbar tooltip.',
 					),
 				),
@@ -258,6 +260,60 @@ function get_events_toolbar(&$EVENTS) {
 			),
 		),
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+	);
+}
+
+function get_ctrldcxml_toolbar(&$CTRLDCXMLS) {
+	$CTRLDCXMLS = array(
+	    "control" => array(
+			'__desc' => "The tag which defines this control.",
+			'__cmd' => 'type="toolbar"',
+			'__eg' => 'type="toolbar" iconsize="16"',
+			'__params' => array(
+				'iconsize' => 'Size of icon to use.',
+			),
+		),
+	    "item" => array(
+			'__desc' => "When a the right mouse button is clicked over a button.",
+			'__cmd' => '',
+			'__eg' => 'pos="1" icon="1" text="item text" flags="+ac" textcolour="255"',
+			'__params' => array(
+				'pos' => 'Buttons position.',
+				'flags' => array(
+					'__desc' => 'Flags to control this items setup.',
+					'__values' => array(
+		                'a' => 'The button is auto-sized to fit in the icon and text.',
+						'b' => 'The button text is bold. (Only works with XP themes disabled)',
+						'c' => 'The button text is colored, defined by [p]textcolour[/p]. (Only works with XP themes disabled)',
+						'd' => 'The button is disabled.',
+						'g' => 'The button is part of a checkgroup (radio checks) (used with [f]-k[/f] flag).',
+						'h' => 'The button is hidden (but still part of the toolbar).',
+						'i' => 'The button is in indeterminate state (greyed out).',
+						'k' => 'The button acts like a checkbox.',
+						'l' => 'Specifies that [p]width[/p] is the button width.',
+						'p' => 'The button appears like pressed.',
+						'u' => 'Item text is underlined. (Only works with XP themes disabled)',
+						'v' => 'The button acts like a dropdown button. (If the [s]arrows[/s] style is specified, a dropdown arrow will be drawn beside the button)',
+						'w' => 'The button after (and all other buttons following) a button with this style will be forced to the next line.',
+						'x' => 'The button is checked.',
+						'H' => 'The buttons highlight colour. defined by [p]highlightcolour[/p]',
+						'j' => 'The text highlight colour. defined by [p]texthighlightcolour[/p]',
+						'X' => 'The background color of the toolbar tooltip.',
+						'z' => 'The text color of the toolbar tooltip.',
+					),
+				),
+				'width' => 'Fxied width of item.',
+				'icon' => 'Icon number to use (1-based range).',
+				'textcolour' => 'Colour to use for items text.',
+				'markcolour' => 'Colour to use for items text, when marked.',
+				'texthighlightcolour' => 'Colour to use for items text, when highlighted.',
+				'tooltip' => 'Tooltip text for this item.',
+				'text' => 'Text for this item.',
+				'facecolour' => 'Colour to use for items button.',
+				'highlightcolour' => 'Colour to use for items button, when highlighted.',
+				'hotcolour' => 'Colour to use for items text, when hot.',
+			),
+		),
 	);
 }
 ?>

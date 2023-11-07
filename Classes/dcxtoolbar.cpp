@@ -961,7 +961,7 @@ UINT DcxToolBar::parseButtonStyleFlags(const TString& flags) noexcept
 		iFlags |= dcxToolBar_Styles::BTNS_COLOR;
 	if (xflags[TEXT('g')])
 		iFlags |= BTNS_GROUP;
-	if (xflags[TEXT('h')])
+	if (xflags[TEXT('j')])
 		iFlags |= dcxToolBar_Styles::BTNS_HIGHLIGHT_TXTCOLOR;
 	if (xflags[TEXT('H')])
 		iFlags |= dcxToolBar_Styles::BTNS_HIGHLIGHT_BTNCOLOR;
@@ -977,7 +977,7 @@ UINT DcxToolBar::parseButtonStyleFlags(const TString& flags) noexcept
 		iFlags |= dcxToolBar_Styles::BTNS_UNDERLINE;
 	if (xflags[TEXT('v')])
 		iFlags |= BTNS_DROPDOWN;
-	if (xflags[TEXT('x')])
+	if (xflags[TEXT('X')])
 		iFlags |= dcxToolBar_Styles::BTNS_TBKGCOLOR;
 	if (xflags[TEXT('z')])
 		iFlags |= dcxToolBar_Styles::BTNS_TTXTCOLOR;
