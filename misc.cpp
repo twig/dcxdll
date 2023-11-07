@@ -2470,9 +2470,11 @@ COLORREF queryColourAttribute(const TiXmlElement* element, const char* attribute
 		// only allows decimal numbers
 		//return gsl::narrow_cast<COLORREF>(_ts_strtoul(t, &ptr, 10));
 
-		//allows hex & decimal, hex numbers must start 0x or 0X
-		if (_ts_strnicmp(t, "0x", 2) == 0)	// base 16 hex number 0x00FFFF
+		//allows hex & decimal, hex numbers must start 0x or 0X or # for web style
+		if (_ts_strnicmp(t, "0x", 2) == 0)	// base 16 hex number 0x00000000 - 0x00FFFFFF
 			return gsl::narrow_cast<COLORREF>(_ts_strtoul(t, &ptr, 16));
+		if (t[0] == '#')	// base 16 hex number #00000000 - #00FFFFFF
+			return gsl::narrow_cast<COLORREF>(_ts_strtoul(&t[1], &ptr, 16));
 
 		// decimal number
 		return gsl::narrow_cast<COLORREF>(_ts_strtoul(t, &ptr, 10));
