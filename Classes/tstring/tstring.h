@@ -635,12 +635,12 @@ public:
 	bool operator >=(const T& other) const noexcept { return !(*this < other); }
 
 	template <TStringConcepts::IsSupportedCompareType T>
-	bool operator ==(const T& other) const noexcept
+	bool operator ==(const T& other) const noexcept(!std::is_same_v<T, char>)
 	{
 		if constexpr (std::is_array_v<T>)
 			return (compare(&other[0]) == 0);
-		else if constexpr (std::is_same_v<T, TString>)
-			return (compare(other.to_chr()) == 0);
+		//else if constexpr (std::is_same_v<T, TString>)
+		//	return (compare(other.to_chr()) == 0);
 		else
 			return (compare(other) == 0);
 	}
@@ -648,22 +648,26 @@ public:
 	//bool operator ==(const nullptr_t& iNull) const noexcept { return (!m_pString && !iNull); }
 
 	template <TStringConcepts::IsSupportedCompareType T>
-	bool operator !=(const T& other) const noexcept { return !(*this == other); }
+	bool operator !=(const T& other) const noexcept(!std::is_same_v<T, char>) { return !(*this == other); }
 
 	template <TStringConcepts::IsSupportedCompareType T>
-	bool operator <(const T& other) const noexcept
+	bool operator <(const T& other) const noexcept(!std::is_same_v<T, char>)
 	{
 		if constexpr (std::is_array_v<T>)
 			return (compare(&other[0]) < 0);
+		//else if constexpr (std::is_same_v<T, TString>)
+		//	return (compare(other.to_chr()) < 0);
 		else
 			return (compare(other) < 0);
 	}
 
 	template <TStringConcepts::IsSupportedCompareType T>
-	bool operator >(const T& other) const noexcept
+	bool operator >(const T& other) const noexcept(!std::is_same_v<T, char>)
 	{
 		if constexpr (std::is_array_v<T>)
 			return (compare(&other[0]) > 0);
+		//else if constexpr (std::is_same_v<T, TString>)
+		//	return (compare(other.to_chr()) > 0);
 		else
 			return (compare(other) > 0);
 	}
@@ -942,18 +946,21 @@ public:
 	/// <param name="other"></param>
 	/// <returns>-1 if less, 0 if equal, 1 if greater</returns>
 	int compare(const TString& other) const noexcept;
+
 	/// <summary>
 	/// Compare this object to a character.
 	/// </summary>
 	/// <param name="other">- Character to compare against.</param>
 	/// <returns>-1 if less, 0 if equal, 1 if greater</returns>
 	int compare(const_reference other) const noexcept;
+
 	/// <summary>
 	/// Compare this object to a pod string.
 	/// </summary>
 	/// <param name="other">- String to compare against.</param>
 	/// <returns>-1 if less, 0 if equal, 1 if greater</returns>
 	int compare(const_pointer_const other) const noexcept;
+
 	/// <summary>
 	/// Compare this object to a pod string of limited length.
 	/// </summary>
@@ -961,6 +968,7 @@ public:
 	/// <param name="iLength">- Number of characters to compare.</param>
 	/// <returns>-1 if less, 0 if equal, 1 if greater</returns>
 	int compare(const_pointer_const other, const size_t iLength) const noexcept;
+
 	/// <summary>
 	/// Compare 'this' to an array.
 	/// </summary>
