@@ -356,6 +356,7 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
+
 		const TString tsFlags(input.getfirsttok(4));
 		TString tsFilename(input.getlasttoks());
 		setCursor(tsFlags, tsFilename);
@@ -631,7 +632,9 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		setRegion(input.getfirsttok(4), input.getlasttoks());
+		const TString tsFlags(input.getfirsttok(4));
+		const TString tsArgs(input.getlasttoks());
+		setRegion(tsFlags, tsArgs);
 
 		redrawWindow();
 	}
