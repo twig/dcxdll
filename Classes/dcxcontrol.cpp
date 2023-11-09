@@ -3348,9 +3348,39 @@ void DcxControl::xmlLoadIcons(const TiXmlElement* xThis)
 		// if type matches, use the icon.
 		if (a.tsType == this->getType())
 			bGood = true;
-		// if id matches, load the icon
-		if (!a.tsID.empty() && (pd->NameToID(a.tsID) == this->getID()))
-			bGood = true;
+		// if id matches, load the icon, id can be id or id,id,id...
+		if (!a.tsID.empty())
+		{
+			const auto HandleIDRange = [=](const TString& tsID) {
+				UINT id_start = 0, id_end = 0;
+				if (tsID.numtok(TEXT('-')) == 2)
+				{
+					id_start = tsID.getfirsttok(1, TEXT('-')).to_<UINT>();
+					id_end = tsID.getnexttok(TEXT('-')).to_<UINT>();
+				}
+				else
+					id_start = id_end = pd->NameToUserID(tsID);
+
+				if ((id_end < id_start) || (id_start == 0) || (id_end == 0))
+					return false;
+
+				return (id_start <= this->getUserID()) && (id_end <= this->getUserID());
+			};
+
+			if (const auto nTok = a.tsID.numtok(TSCOMMACHAR); nTok > 1)
+			{
+				// multiple id ranges...
+				const auto itEnd = a.tsID.end();
+				for (auto itStart = a.tsID.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+				{
+					bGood = HandleIDRange(*itStart);
+				}
+			}
+			else {
+				// single id range
+				bGood = HandleIDRange(a.tsID);
+			}
+		}
 		// if class matches, load the icon
 		if (!a.tsClass.empty() && (a.tsClass == queryAttribute(xThis, "class")))
 			bGood = true;
@@ -3364,7 +3394,10 @@ void DcxControl::xmlLoadIcons(const TiXmlElement* xThis)
 				// no index attribute, so look for indexmin & indexmax (both default to zero)
 				const auto MinIndex(queryIntAttribute(a.xIcon, "indexmin"));
 				const auto MaxIndex(queryIntAttribute(a.xIcon, "indexmax"));
-				_ts_sprintf(tsIndex, L"%-%", MinIndex, MaxIndex);
+				if (MinIndex == 0 && MaxIndex == 0)
+					tsIndex = L"0";
+				else
+					_ts_sprintf(tsIndex, L"%-%", MinIndex, MaxIndex);
 			}
 			loadIcon(tsFlags, tsIndex, tsSrc);
 		}
