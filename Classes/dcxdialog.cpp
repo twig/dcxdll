@@ -1665,6 +1665,11 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 
 		}
 
+		// clear any old data just incase.
+		m_xmlStyles.clear();
+		m_xmlIcons.clear();
+		m_xmlTemplates.clear();
+
 		if (xFlags[TEXT('s')])
 		{
 			// remove old data.
@@ -1683,11 +1688,6 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			if (queryIntAttribute(xDialog, "version") < DCXML_DIALOG_VERSION)
 				throw Dcx::dcxException("Wrong <dialog> version");
 
-			// clear any old data just incase.
-			m_xmlStyles.clear();
-			m_xmlIcons.clear();
-			m_xmlTemplates.clear();
-
 			// search for <styles> & <icons> & <templates>
 			this->xmlbuildStylesList(xDialogs);
 			this->xmlbuildIconsList(xDialogs);
@@ -1695,12 +1695,12 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 
 			// load current setup
 			this->fromXml(xRoot, xDialog);
-
-			// clear data now we dont need it.
-			m_xmlStyles.clear();
-			m_xmlIcons.clear();
-			m_xmlTemplates.clear();
 		}
+
+		// clear data now we dont need it.
+		m_xmlStyles.clear();
+		m_xmlIcons.clear();
+		m_xmlTemplates.clear();
 	}
 	// invalid command
 	else
@@ -4294,6 +4294,7 @@ void DcxDialog::UnregisterDragList(const DcxList* const list) noexcept
 
 void DcxDialog::loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc)
 {
+	// place holder
 }
 
 // Checks if the message should be parsed
@@ -4396,34 +4397,6 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 		if (!xCursors.NoChildren())
 			xml->InsertEndChild(xCursors);
 	}
-	{
-		// icons
-		TiXmlElement xIcons("icons");
-
-		if (HICON hIcon = (HICON)SendMessage(m_Hwnd, WM_GETICON, ICON_SMALL, DcxDPIModule::dcxGetDpiForWindow(m_Hwnd)); hIcon)
-		{
-			TiXmlElement xIcon("icon");
-
-			xIcon.SetAttribute("type", "dialog");
-			xIcon.SetAttribute("flags", "+sB");
-			//xIcon.SetAttribute("src", IconToBase64(hIcon).c_str());
-
-			xIcons.InsertEndChild(xIcon);
-		}
-		if (HICON hIcon = (HICON)SendMessage(m_Hwnd, WM_GETICON, ICON_BIG, DcxDPIModule::dcxGetDpiForWindow(m_Hwnd)); hIcon)
-		{
-			TiXmlElement xIcon("icon");
-
-			xIcon.SetAttribute("type", "dialog");
-			xIcon.SetAttribute("flags", "+bB");
-			//xIcon.SetAttribute("src", IconToBase64(hIcon).c_str());
-
-			xIcons.InsertEndChild(xIcon);
-		}
-
-		if (!xIcons.NoChildren())
-			xml->InsertEndChild(xIcons);
-	}
 
 	// bother saving glass effects?
 	//RECT extendedFrameBounds{ 0,0,0,0 };
@@ -4444,37 +4417,85 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 				xml->LinkEndChild(rt->toXml());
 			else
 				rt->toXml(xml);
-
-			return;
 		}
 	}
-	// NO CLA, add all controls as static position controls.
-	xml->SetAttribute("nocla", 1);
+	else {
+		// NO CLA, add all controls as static position controls.
+		xml->SetAttribute("nocla", 1);
 
-	// don't use EnumChildWindows() here.
-	for (auto hChild = GetWindow(m_Hwnd, GW_CHILD); hChild; hChild = GetWindow(hChild, GW_HWNDNEXT))
-	{
-		auto pthis = Dcx::dcxGetProp<DcxControl*>(hChild, TEXT("dcx_cthis"));
-		if (!pthis)
-			return;
-
-		const Dcx::dcxWindowRect rc(hChild, m_Hwnd);
-
-		if (auto xctrl = pthis->toXml(); xctrl)
+		// don't use EnumChildWindows() here.
+		for (auto hChild = GetWindow(m_Hwnd, GW_CHILD); hChild; hChild = GetWindow(hChild, GW_HWNDNEXT))
 		{
-			if (!xctrl->Attribute("weight"))
-				xctrl->SetAttribute("weight", 1);
-			if (!xctrl->Attribute("x"))
-				xctrl->SetAttribute("x", rc.left);
-			if (!xctrl->Attribute("y"))
-				xctrl->SetAttribute("y", rc.top);
-			if (!xctrl->Attribute("height"))
-				xctrl->SetAttribute("height", rc.Height());
-			if (!xctrl->Attribute("width"))
-				xctrl->SetAttribute("width", rc.Width());
+			auto pthis = Dcx::dcxGetProp<DcxControl*>(hChild, TEXT("dcx_cthis"));
+			if (!pthis)
+				return;
 
-			xml->LinkEndChild(xctrl);
+			const Dcx::dcxWindowRect rc(hChild, m_Hwnd);
+
+			if (auto xctrl = pthis->toXml(); xctrl)
+			{
+				if (!xctrl->Attribute("weight"))
+					xctrl->SetAttribute("weight", 1);
+				if (!xctrl->Attribute("x"))
+					xctrl->SetAttribute("x", rc.left);
+				if (!xctrl->Attribute("y"))
+					xctrl->SetAttribute("y", rc.top);
+				if (!xctrl->Attribute("height"))
+					xctrl->SetAttribute("height", rc.Height());
+				if (!xctrl->Attribute("width"))
+					xctrl->SetAttribute("width", rc.Width());
+
+				xml->LinkEndChild(xctrl);
+			}
 		}
+	}
+
+	{
+		// icons
+		TiXmlElement xIcons("icons");
+
+		if (HICON hIcon = (HICON)SendMessage(m_Hwnd, WM_GETICON, ICON_SMALL, DcxDPIModule::dcxGetDpiForWindow(m_Hwnd)); hIcon)
+		{
+			TiXmlElement xIcon("icon");
+
+			xIcon.SetAttribute("type", "dialog");
+			xIcon.SetAttribute("flags", "+sB");
+			xIcon.SetAttribute("eval", "0"); // diable eval for base64
+			xIcon.SetAttribute("src", IconToBase64(hIcon).c_str());
+
+			xIcons.InsertEndChild(xIcon);
+		}
+		if (HICON hIcon = (HICON)SendMessage(m_Hwnd, WM_GETICON, ICON_BIG, DcxDPIModule::dcxGetDpiForWindow(m_Hwnd)); hIcon)
+		{
+			TiXmlElement xIcon("icon");
+
+			xIcon.SetAttribute("type", "dialog");
+			xIcon.SetAttribute("flags", "+bB");
+			xIcon.SetAttribute("eval", "0"); // diable eval for base64
+			xIcon.SetAttribute("src", IconToBase64(hIcon).c_str());
+
+			xIcons.InsertEndChild(xIcon);
+		}
+
+		for (auto& a : this->m_xmlIcons)
+		{
+			if (!a.tsSrc.empty() && !a.tsID.empty())
+			{
+				TiXmlElement xIcon("icon");
+
+				xIcon.SetAttribute("id", a.tsID.c_str());
+				if (!a.tsType.empty())
+					xIcon.SetAttribute("type", a.tsType.c_str());
+				if (!a.tsFlags.empty())
+					xIcon.SetAttribute("flags", a.tsFlags.c_str());
+				xIcon.SetAttribute("eval", "0"); // diable eval for base64
+				xIcon.SetAttribute("src", a.tsSrc.c_str());
+
+				xIcons.InsertEndChild(xIcon);
+			}
+		}
+		if (!xIcons.NoChildren())
+			xml->InsertEndChild(xIcons);
 	}
 }
 

@@ -66,9 +66,11 @@ using VectorOfTemplates = std::vector<xmlTemplate>; //!< Vector of XML templates
 
 struct xmlIcon
 {
-	TString tsID;
+	TString tsID;		// UserID
 	TString tsClass;
-	TString tsType;
+	TString tsType;		// control type
+	TString tsFlags;
+	TString tsSrc;
 	const TiXmlElement* xIcon{}; // pointer to this template in the xml document, ONLY valid while doc exists!
 };
 using VectorOfIcons = std::vector<xmlIcon>; //!< Vector of XML templates in dcxml
@@ -423,7 +425,7 @@ public:
 
 	const VectorOfStyles& xmlGetStyles() const noexcept { return m_xmlStyles; }
 	const VectorOfTemplates& xmlGetTemplates() const noexcept { return m_xmlTemplates; }
-	const VectorOfIcons& xmlGetIcons() const noexcept { return m_xmlIcons; }
+	VectorOfIcons& xmlGetIcons() const noexcept { return m_xmlIcons; }
 
 	const bool isIDValid(_In_ const UINT ID, _In_ const bool bUnused = false) const noexcept;
 
@@ -448,7 +450,7 @@ private:
 
 	VectorOfStyles m_xmlStyles;			//!< styles for use in this dialog (only valid during xml loading)
 	VectorOfTemplates m_xmlTemplates;
-	VectorOfIcons m_xmlIcons;
+	mutable VectorOfIcons m_xmlIcons;
 
 	HBRUSH m_hBackBrush{ nullptr };    //!< Background control color
 
