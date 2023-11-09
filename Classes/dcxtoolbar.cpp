@@ -1815,6 +1815,62 @@ void DcxToolBar::toXml(TiXmlElement* const xml) const
 
 	xml->SetAttribute("styles", getStyles().c_str());
 
+	{
+		//icons
+		auto _xmlSaveIcons = [this, xml](dcxToolBar_ImageLists listname) {
+			auto himl = this->getImageList(listname);
+			if (!himl)
+				return;
+
+			if (const auto cnt = ImageList_GetImageCount(himl); cnt > 0)
+			{
+				if (!xml->Attribute("iconsize"))
+				{
+					if (int cx{}, cy{}; ImageList_GetIconSize(himl, &cx, &cy))
+					{
+						xml->SetAttribute("iconsize", cx);
+					}
+				}
+				for (int i{}; i < cnt; ++i)
+				{
+					if (auto hIcon = ImageList_GetIcon(himl, i, ILD_TRANSPARENT); hIcon)
+					{
+						Auto(DestroyIcon(hIcon));
+
+						xmlIcon xIcon;
+
+						xIcon.tsType = this->getType();
+						xIcon.tsID = this->getParentDialog()->IDToName(this->getID());
+
+						switch (listname)
+						{
+						case dcxToolBar_ImageLists::TB_IML_HOT:
+							xIcon.tsFlags = "+hB";
+							break;
+						case dcxToolBar_ImageLists::TB_IML_DISABLE:
+							xIcon.tsFlags = "+dB";
+							break;
+						case dcxToolBar_ImageLists::TB_IML_NORMAL:
+						default:
+							xIcon.tsFlags = "+nB";
+							break;
+						}
+						xIcon.tsSrc = IconToBase64(hIcon);
+
+						this->getParentDialog()->xmlGetIcons().emplace_back(xIcon);
+
+					}
+				}
+			}
+		};
+
+		// normal list
+		_xmlSaveIcons(dcxToolBar_ImageLists::TB_IML_NORMAL);
+		// disabled list
+		_xmlSaveIcons(dcxToolBar_ImageLists::TB_IML_DISABLE);
+		// hot list
+		_xmlSaveIcons(dcxToolBar_ImageLists::TB_IML_HOT);
+	}
 	// save items
 	const auto nButtons = this->getButtonCount();
 	for (int n{}; n < nButtons; ++n)
