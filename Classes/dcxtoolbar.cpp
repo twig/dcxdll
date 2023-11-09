@@ -1823,7 +1823,7 @@ void DcxToolBar::toXml(TiXmlElement* const xml) const
 
 		TBBUTTONINFO bi{};
 		bi.cbSize = sizeof(TBBUTTONINFO);
-		bi.dwMask = TBIF_BYINDEX | TBIF_LPARAM | TBIF_STYLE | TBIF_IMAGE | TBIF_SIZE;
+		bi.dwMask = TBIF_BYINDEX | TBIF_LPARAM | TBIF_STYLE | TBIF_IMAGE | TBIF_SIZE | TBIF_STATE;
 
 		if (this->getButtonInfo(n, &bi) < 0)
 			throw Dcx::dcxException("Unable to get button info");
