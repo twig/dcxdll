@@ -511,8 +511,8 @@ private:
 	WNDPROC m_hDefaultDialogProc{ nullptr }; //!< Old Window Procedure
 	LRESULT CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 
-	void xmlParseElements(const TString& tsPath, const TiXmlElement* xParent, const TiXmlElement* xTemplate);
-	void xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement, const TiXmlElement* xTemplate);
+	void xmlParseElements(const TString& tsPath, const TiXmlElement* xParent, __maybenull const TiXmlElement* xTemplate);
+	void xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement, __maybenull const TiXmlElement* xTemplate);
 	bool xmlAddControl(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement * xParent, const TiXmlElement* xCtrl);
 	void xmlCallTemplate(const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCallTemplate);
 

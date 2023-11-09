@@ -4356,7 +4356,7 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 	if (this->m_uGhostDragAlpha != std::byte{255})
 		xml->SetAttribute("ghostalpha", gsl::narrow_cast<int>(m_uGhostDragAlpha));
 	if (this->m_iAlphaLevel != std::byte{255})
-		xml->SetAttribute("alphalevel", gsl::narrow_cast<int>(this->m_iAlphaLevel));
+		xml->SetAttribute("alpha", gsl::narrow_cast<int>(this->m_iAlphaLevel));
 	if (this->m_colTransparentBg != CLR_INVALID)
 		setColourAttribute(xml, "transparentbg", this->m_colTransparentBg);
 	if (this->m_bHaveKeyColour && (this->m_cKeyColour != CLR_INVALID))
@@ -4496,7 +4496,7 @@ void DcxDialog::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	// check <dialog> for any style info
 	xmlSetStyle(xThis);
 
-	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "alphalevel", 255)); tmp != 255)
+	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "alpha", 255)); tmp != 255)
 		this->m_iAlphaLevel = gsl::narrow_cast<std::byte>(tmp);
 
 	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "ghostalpha", 255)); tmp != 255)
@@ -4618,7 +4618,7 @@ LRESULT DcxDialog::CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	return CallWindowProc(m_hDefaultDialogProc, mHwnd, uMsg, wParam, lParam);
 }
 
-void DcxDialog::xmlParseElements(const TString& tsPath, const TiXmlElement* xParent, const TiXmlElement* xTemplate)
+void DcxDialog::xmlParseElements(const TString& tsPath, const TiXmlElement* xParent, __maybenull const TiXmlElement* xTemplate)
 {
 	if (!xParent || tsPath.empty())
 		return;
@@ -4663,7 +4663,7 @@ void DcxDialog::xmlParseElements(const TString& tsPath, const TiXmlElement* xPar
 	}
 }
 
-void DcxDialog::xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement, const TiXmlElement* xTemplate)
+void DcxDialog::xmlAddPane(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xElement, __maybenull const TiXmlElement* xTemplate)
 {
 	if (!xElement || tsParentPath.empty())
 		return;
@@ -4807,17 +4807,24 @@ void DcxDialog::xmlSetIcons()
 	}
 	if (xSmallIcon.xIcon)
 	{
-		TString tsFilename(queryEvalAttribute(xSmallIcon.xIcon, "src"));
+		TString tsFilename;
 		const TString tsFlags(queryAttribute(xSmallIcon.xIcon, "flags"));
 		const auto iIndex = queryIntAttribute(xSmallIcon.xIcon, "index");
-
+		if (tsFlags.find(L'B',0))	// avoid eval when its base64, string is too long.
+			tsFilename = queryAttribute(xSmallIcon.xIcon, "src");
+		else
+			tsFilename = queryEvalAttribute(xSmallIcon.xIcon, "src");
 		ChangeHwndIcon(m_Hwnd, tsFlags, iIndex, tsFilename);
 	}
 	if (xLargeIcon.xIcon)
 	{
-		TString tsFilename(queryEvalAttribute(xLargeIcon.xIcon, "src"));
+		TString tsFilename;
 		const TString tsFlags(queryAttribute(xLargeIcon.xIcon, "flags"));
 		const auto iIndex = queryIntAttribute(xLargeIcon.xIcon, "index");
+		if (tsFlags.find(L'B', 0))	// avoid eval when its base64, string is too long.
+			tsFilename = queryAttribute(xLargeIcon.xIcon, "src");
+		else
+			tsFilename = queryEvalAttribute(xLargeIcon.xIcon, "src");
 
 		ChangeHwndIcon(m_Hwnd, tsFlags, iIndex, tsFilename);
 	}

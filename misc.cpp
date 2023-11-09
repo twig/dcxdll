@@ -1010,12 +1010,6 @@ HICON dcxLoadIcon(const int index, TString& filename, const bool large, const TS
 	{
 		SHFILEINFO shfi{};
 
-		//TString filetype;
-		//filetype.tsprintf(TEXT(".%s"), filename.to_chr());
-		//
-		//TString filetype(TEXT('.'));
-		//filetype += filename;
-
 		TString filetype{ TEXT("."), filename };
 
 		if (SHGetFileInfo(filetype.to_chr(), FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(SHFILEINFO), gsl::narrow_cast<UINT>(SHGFI_ICON | SHGFI_USEFILEATTRIBUTES | (large ? SHGFI_LARGEICON : SHGFI_SMALLICON))) == 0)
@@ -2445,6 +2439,9 @@ TString queryEvalAttribute(const TiXmlElement* element, const char* attribute, c
 {
 	TString tsRes(queryAttribute(element, attribute, defaultValue));
 	if (tsRes.empty())
+		return tsRes;
+
+	if (queryIntAttribute(element, "eval", 1) == 0)
 		return tsRes;
 
 	if (auto opt = mIRCLinker::o_eval<TString>(tsRes); opt.has_value())
