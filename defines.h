@@ -792,10 +792,12 @@ bool dcxDrawBitMap(HDC hdc, LPCRECT prc, HBITMAP hbm, bool bStretch, bool bAlpha
 /// <returns></returns>
 COLORREF GetContrastColour(COLORREF sRGB) noexcept;
 
-//std::string BitmapToBase64(HBITMAP hBMP);
-//std::string IconToBase64(HICON hIcon);
-//HBITMAP Base64ToBitmap(const char* vData, long w, long h);
-//HICON Base64ToIcon(const char* hbmData, const char* maskData, long sz);
+TString BitmapToBase64(HBITMAP hBMP);
+TString IconToBase64(HICON hIcon);
+HBITMAP Base64ToBitmap(const char* vData, long w, long h);
+HICON Base64ToIcon(const char* hbmData, const char* maskData, long sz);
+HBITMAP Base64ToBitmap(const wchar_t* vData, long w, long h);
+HICON Base64ToIcon(const wchar_t* hbmData, const wchar_t* maskData, long sz);
 
 extern SIGNALSWITCH dcxSignal;
 extern COLORREF staticPalette[mIRC_PALETTE_SIZE];

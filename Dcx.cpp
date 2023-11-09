@@ -838,6 +838,21 @@ namespace Dcx {
 
 	void dcxLoadIconRange(HIMAGELIST himl, TString& tsFilename, const bool bLarge, const TString& tsFlags, const TString& tsRanges)
 	{
+		if (tsRanges == L"0")
+		{
+#if DCX_USE_WRAPPERS
+			const dcxIconResource icon(0, tsFilename, bLarge, tsFlags);
+			ImageList_AddIcon(himl, icon.get());
+#else
+			if (const HICON icon = dcxLoadIcon(0, tsFilename, bLarge, tsFlags); icon)
+			{
+				ImageList_AddIcon(himl, icon);
+				DestroyIcon(icon);
+			}
+#endif
+			return;
+		}
+
 		const auto nItemCnt = ExtractIconEx(tsFilename.to_chr(), -1, nullptr, nullptr, 0);
 		const auto itEnd = tsRanges.end();
 

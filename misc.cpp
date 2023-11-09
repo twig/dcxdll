@@ -1067,12 +1067,12 @@ HICON dcxLoadIcon(const int index, TString& filename, const bool large, const TS
 	else if (xflags[TEXT('B')])
 	{
 		// base64 data in filename.
-		//const auto hbmstring = filename.getfirsttok(1);
-		//const auto maskstring = filename.getlasttoks();
-		//if (large)
-		//	icon = Base64ToIcon(hbmstring.c_str(), maskstring.c_str(), gsl::narrow_cast<long>(DcxIconSizes::LargeIcon));
-		//else
-		//	icon = Base64ToIcon(hbmstring.c_str(), maskstring.c_str(), gsl::narrow_cast<long>(DcxIconSizes::SmallIcon));
+		const auto hbmstring = filename.getfirsttok(1);
+		const auto maskstring = filename.getlasttoks();
+		if (large)
+			icon = Base64ToIcon(hbmstring.to_chr(), maskstring.to_chr(), gsl::narrow_cast<long>(DcxIconSizes::LargeIcon));
+		else
+			icon = Base64ToIcon(hbmstring.to_chr(), maskstring.to_chr(), gsl::narrow_cast<long>(DcxIconSizes::SmallIcon));
 	}
 	else {
 		if (large)
@@ -2489,20 +2489,6 @@ void setColourAttribute(TiXmlElement* element, const char* attribute, COLORREF V
 	element->SetAttribute(attribute, &szBuf[0]);
 }
 
-//gsl::not_null<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue) noexcept
-//{
-//	const auto t = element->Attribute(attribute);
-//	return gsl::not_null<const char *>((t != nullptr) ? t : defaultValue.get());
-//}
-
-//std::optional<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute) noexcept
-//{
-//	const auto t = element->Attribute(attribute);
-//	if (t != nullptr)
-//		return t;
-//	return {};
-//}
-
 int queryIntAttribute(const TiXmlElement* element, const char* attribute, const int defaultValue) noexcept
 {
 	if (element && attribute)
@@ -2511,22 +2497,6 @@ int queryIntAttribute(const TiXmlElement* element, const char* attribute, const 
 
 	return defaultValue;
 }
-
-//int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue)
-//{
-//	if (const auto[iStatus, integer] = element->QueryIntAttribute(attribute); iStatus == TIXML_SUCCESS)
-//		return integer;
-//
-//	return defaultValue;
-//}
-
-//std::optional<int> queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute)
-//{
-//	if (const auto[iStatus, integer] = element->QueryIntAttribute(attribute); iStatus == TIXML_SUCCESS)
-//		return integer;
-//
-//	return {};
-//}
 
 double queryDoubleAttribute(const TiXmlElement* element, const char* attribute, const double defaultValue) noexcept
 {
@@ -2668,152 +2638,239 @@ COLORREF GetContrastColour(COLORREF sRGB) noexcept
 	return RGB(0, 0, 0);
 }
 
-//#include "Classes/tstring/Base64.h"
-//
-//std::string BitmapToBase64(HBITMAP hBMP)
-//{
-//	if (!hBMP)
-//		return std::string();
-//
-//	//			auto lpBitsPtr = reinterpret_cast<LPBYTE>(lpBits);
-//	//			return Base64::encode(lpBitsPtr, c1);
-//
-//	//			//DWORD szLen = (c1 * 3) / 4;
-//	//			//CHAR* szOut = new CHAR[szLen];
-//	//			//Auto(delete[] szOut);
-//	//			//if (CryptBinaryToStringA(lpBitsPtr, c1, CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, szOut, &szLen))
-//	//			//	return szOut;
-//
-//	auto pbi = CreateBitmapInfoStruct(hBMP);
-//	if (!pbi)
-//		return {};
-//	Auto(LocalFree(pbi));
-//
-//	PBITMAPINFOHEADER pbih = reinterpret_cast<PBITMAPINFOHEADER>(pbi);     // bitmap info-header  
-//	LPBYTE lpBits = static_cast<LPBYTE>(GlobalAlloc(GMEM_FIXED, pbih->biSizeImage));              // memory pointer
-//
-//	if (!lpBits)
-//		return{};
-//	Auto(GlobalFree(lpBits));
-//
-//	auto hDC = ::GetDC(nullptr);
-//	Auto(::ReleaseDC(nullptr, hDC));
-//
-//	// Retrieve the color table (RGBQUAD array) and the bits  
-//	// (array of palette indices) from the DIB.  
-//	if (!GetDIBits(hDC, hBMP, 0, pbih->biHeight, lpBits, pbi, DIB_RGB_COLORS))
-//		return{};
-//
-//	BITMAPFILEHEADER hdr{};       // bitmap file-header  
-//	hdr.bfType = 0x4d42;        // 0x42 = "B" 0x4d = "M"  
-//	// Compute the size of the entire file.  
-//	hdr.bfSize = (sizeof(BITMAPFILEHEADER) + pbih->biSize + (pbih->biClrUsed * sizeof(RGBQUAD)) + pbih->biSizeImage);
-//	hdr.bfReserved1 = 0;
-//	hdr.bfReserved2 = 0;
-//
-//	// Compute the offset to the array of color indices.  
-//	hdr.bfOffBits = sizeof(BITMAPFILEHEADER) + pbih->biSize + (pbih->biClrUsed * sizeof(RGBQUAD));
-//
-//	std::string stOut;
-//
-//	auto szBuf = std::make_unique<BYTE[]>(sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + pbih->biSizeImage);
-//	LPBYTE ptr = szBuf.get();
-//
-//	DWORD dwTmp{ sizeof(BITMAPFILEHEADER) };
-//	DWORD dwTotal{};
-//
-//	// Copy the BITMAPFILEHEADER into the .BMP file.
-//	memcpy(ptr, &hdr, dwTmp);
-//	ptr += dwTmp;
-//	dwTotal += dwTmp;
-//
-//	// Copy the BITMAPINFOHEADER and RGBQUAD array into the file.  
-//	dwTmp = sizeof(BITMAPINFOHEADER) + (pbih->biClrUsed * sizeof(RGBQUAD));
-//	memcpy(ptr, pbih, dwTmp);
-//	ptr += dwTmp;
-//	dwTotal += dwTmp;
-//
-//	// Copy the array of color indices into the .BMP file.
-//	dwTmp = pbih->biSizeImage;
-//	memcpy(ptr, lpBits, dwTmp);
-//	ptr += dwTmp;
-//	dwTotal += dwTmp;
-//
-//	// Close the .BMP file.
-//	return Base64::encode(ptr, dwTotal);
-//}
-//
-//std::string IconToBase64(HICON hIcon)
-//{
-//	if (hIcon)
-//	{
-//		if (ICONINFO icInfo{}; ::GetIconInfo(hIcon, &icInfo))
-//			return BitmapToBase64(icInfo.hbmColor) + " " + BitmapToBase64(icInfo.hbmMask);
-//	}
-//	return std::string();
-//}
-//
-//HBITMAP Base64ToBitmap(const char* vData, long w, long h)
-//{
-//	if (!vData)
-//		return nullptr;
-//
-//	auto hdc = ::GetDC(nullptr);
-//	if (!hdc)
-//		return nullptr;
-//
-//	Auto(::ReleaseDC(nullptr, hdc));
-//
-//	BITMAPFILEHEADER hdr{};
-//	BITMAPINFO bmpInfo{};
-//
-//	auto dec = Base64::decode(vData);
-//	auto ptr = dec.data();
-//
-//	memcpy(&hdr, ptr, sizeof(hdr));
-//	ptr += sizeof(hdr);
-//	memcpy(&hdr, ptr, sizeof(bmpInfo));
-//	ptr += sizeof(bmpInfo);
-//
-//	LPBYTE lpBits = ptr;
-//
-//	return CreateDIBitmap(hdc, &bmpInfo.bmiHeader, CBM_INIT, lpBits, &bmpInfo, DIB_RGB_COLORS);
-//}
-//HICON Base64ToIcon(const char* hbmData, const char* maskData, long sz)
-//{
-//	if (auto hbm = Base64ToBitmap(hbmData, sz, sz); hbm)
-//	{
-//		Auto(DeleteBitmap(hbm));
-//
-//		if (auto hdc = GetDC(nullptr); hdc)
-//		{
-//			Auto(ReleaseDC(nullptr, hdc));
-//
-//			if (auto hbmMask = CreateCompatibleBitmap(hdc, sz, sz); hbmMask)
-//			{
-//				Auto(DeleteBitmap(hbmMask));
-//
-//				ICONINFO   icInfo{};
-//
-//				icInfo.hbmColor = hbm;
-//				icInfo.hbmMask = hbmMask;
-//				icInfo.fIcon = TRUE;
-//
-//				return ::CreateIconIndirect(&icInfo);
-//			}
-//		}
-//		//if (auto hbmMask = Base64ToBitmap(maskData, sz, sz); hbmMask)
-//		//{
-//		//	Auto(DeleteBitmap(hbmMask));
-//
-//		//	ICONINFO   icInfo{};
-//
-//		//	icInfo.hbmColor = hbm;
-//		//	icInfo.hbmMask = hbmMask;
-//		//	icInfo.fIcon = TRUE;
-//
-//		//	return ::CreateIconIndirect(&icInfo);
-//		//}
-//	}
-//	return nullptr;
-//}
+namespace
+{
+	std::vector<BYTE> Base64Decode(const wchar_t* str, DWORD szLen)
+	{
+		DWORD bLen{};
+		std::vector<BYTE> data;
+
+		if (CryptStringToBinaryW(str, szLen, CRYPT_STRING_BASE64, nullptr, &bLen, nullptr, nullptr))
+		{
+			data.reserve(bLen);
+
+			CryptStringToBinaryW(str, szLen, CRYPT_STRING_BASE64, data.data(), &bLen, nullptr, nullptr);
+		}
+		return data;
+	}
+	std::vector<BYTE> Base64Decode(const char* str, DWORD szLen)
+	{
+		DWORD bLen{};
+		std::vector<BYTE> data;
+
+		if (CryptStringToBinaryA(str, szLen, CRYPT_STRING_BASE64, nullptr, &bLen, nullptr, nullptr))
+		{
+			data.reserve(bLen);
+
+			CryptStringToBinaryA(str, szLen, CRYPT_STRING_BASE64, data.data(), &bLen, nullptr, nullptr);
+		}
+		return data;
+	}
+	TString Base64Encode(LPBYTE data, size_t nLen)
+	{
+		TString tsBuf;
+		DWORD szLen{};
+
+		if (CryptBinaryToStringW(data, nLen, CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, nullptr, &szLen))
+		{
+			tsBuf.reserve(szLen);
+
+			CryptBinaryToStringW(data, nLen, CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, tsBuf.to_wchr(), &szLen);
+		}
+		return tsBuf;
+	}
+}
+
+TString BitmapToBase64(HBITMAP hBMP)
+{
+	if (!hBMP)
+		return {};
+
+	auto pbi = CreateBitmapInfoStruct(hBMP);
+	if (!pbi)
+		return {};
+	Auto(LocalFree(pbi));
+
+	PBITMAPINFOHEADER pbih = reinterpret_cast<PBITMAPINFOHEADER>(pbi);     // bitmap info-header  
+	LPBYTE lpBits = static_cast<LPBYTE>(GlobalAlloc(GMEM_FIXED, pbih->biSizeImage));              // memory pointer
+
+	if (!lpBits)
+		return{};
+	Auto(GlobalFree(lpBits));
+
+	auto hDC = ::GetDC(nullptr);
+	Auto(::ReleaseDC(nullptr, hDC));
+
+	// Retrieve the color table (RGBQUAD array) and the bits  
+	// (array of palette indices) from the DIB.  
+	if (!GetDIBits(hDC, hBMP, 0, pbih->biHeight, lpBits, pbi, DIB_RGB_COLORS))
+		return{};
+
+	BITMAPFILEHEADER hdr{};       // bitmap file-header  
+	hdr.bfType = 0x4d42;        // 0x42 = "B" 0x4d = "M"  
+	// Compute the size of the entire file.  
+	hdr.bfSize = (sizeof(BITMAPFILEHEADER) + pbih->biSize + (pbih->biClrUsed * sizeof(RGBQUAD)) + pbih->biSizeImage);
+	hdr.bfReserved1 = 0;
+	hdr.bfReserved2 = 0;
+
+	// Compute the offset to the array of color indices.  
+	hdr.bfOffBits = sizeof(BITMAPFILEHEADER) + pbih->biSize + (pbih->biClrUsed * sizeof(RGBQUAD));
+
+	std::string stOut;
+
+	//auto szBuf = std::make_unique<BYTE[]>(sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + pbih->biSizeImage);
+	auto szBuf = std::make_unique<BYTE[]>(sizeof(BITMAPFILEHEADER) + (sizeof(BITMAPINFOHEADER) + (pbih->biClrUsed * sizeof(RGBQUAD))) + pbih->biSizeImage);
+	LPBYTE ptr = szBuf.get();
+
+	DWORD dwTmp{ sizeof(BITMAPFILEHEADER) };
+	DWORD dwTotal{};
+
+	// Copy the BITMAPFILEHEADER into the .BMP file.
+	memcpy(ptr, &hdr, dwTmp);
+	ptr += dwTmp;
+	dwTotal += dwTmp;
+
+	// Copy the BITMAPINFOHEADER and RGBQUAD array into the file.  
+	dwTmp = sizeof(BITMAPINFOHEADER) + (pbih->biClrUsed * sizeof(RGBQUAD));
+	memcpy(ptr, pbih, dwTmp);
+	ptr += dwTmp;
+	dwTotal += dwTmp;
+
+	// Copy the array of color indices into the .BMP file.
+	dwTmp = pbih->biSizeImage;
+	memcpy(ptr, lpBits, dwTmp);
+	ptr += dwTmp;
+	dwTotal += dwTmp;
+
+	// Close the .BMP file.
+	//return Base64::encode(szBuf.get(), dwTotal);
+	return Base64Encode(szBuf.get(), dwTotal);
+}
+
+TString IconToBase64(HICON hIcon)
+{
+	if (hIcon)
+	{
+		if (ICONINFO icInfo{}; ::GetIconInfo(hIcon, &icInfo))
+			return BitmapToBase64(icInfo.hbmColor) + ' ' + BitmapToBase64(icInfo.hbmMask);
+	}
+	return {};
+}
+
+HBITMAP Base64ToBitmap(const char* vData, long w, long h)
+{
+	if (_ts_isEmpty(vData))
+		return nullptr;
+
+	auto hdc = ::GetDC(nullptr);
+	if (!hdc)
+		return nullptr;
+
+	Auto(::ReleaseDC(nullptr, hdc));
+
+	BITMAPFILEHEADER hdr{};
+	BITMAPINFOHEADER bmpInfo{};
+
+	auto dec = Base64Decode(vData, _ts_strlen(vData));
+	auto ptr = dec.data();
+
+	size_t allocsz = sizeof(bmpInfo);
+
+	memcpy(&hdr, ptr, sizeof(hdr));
+	ptr += sizeof(hdr);
+	memcpy(&bmpInfo, ptr, allocsz);
+	//if (bmpInfo.biClrUsed < 24)
+	allocsz += (bmpInfo.biClrUsed * sizeof(RGBQUAD));
+
+	std::vector<BYTE> vBinf;
+	vBinf.reserve(allocsz);
+
+	memcpy(vBinf.data(), ptr, allocsz);
+
+	ptr += allocsz;
+
+	LPBYTE lpBits = ptr;
+
+	return CreateDIBitmap(hdc, &bmpInfo, CBM_INIT, lpBits, (BITMAPINFO*)vBinf.data(), DIB_RGB_COLORS);
+}
+
+HICON Base64ToIcon(const char* hbmData, const char* maskData, long sz)
+{
+	if (auto hbm = Base64ToBitmap(hbmData, sz, sz); hbm)
+	{
+		Auto(DeleteBitmap(hbm));
+
+		if (auto hbmMask = Base64ToBitmap(maskData, sz, sz); hbmMask)
+		{
+			Auto(DeleteBitmap(hbmMask));
+
+			ICONINFO   icInfo{};
+
+			icInfo.hbmColor = hbm;
+			icInfo.hbmMask = hbmMask;
+			icInfo.fIcon = TRUE;
+
+			return ::CreateIconIndirect(&icInfo);
+		}
+	}
+	return nullptr;
+}
+
+HBITMAP Base64ToBitmap(const wchar_t* vData, long w, long h)
+{
+	if (_ts_isEmpty(vData))
+		return nullptr;
+
+	auto hdc = ::GetDC(nullptr);
+	if (!hdc)
+		return nullptr;
+
+	Auto(::ReleaseDC(nullptr, hdc));
+
+	BITMAPFILEHEADER hdr{};
+	BITMAPINFOHEADER bmpInfo{};
+
+	auto dec = Base64Decode(vData, _ts_strlen(vData));
+	auto ptr = dec.data();
+
+	size_t allocsz = sizeof(bmpInfo);
+
+	memcpy(&hdr, ptr, sizeof(hdr));
+	ptr += sizeof(hdr);
+	memcpy(&bmpInfo, ptr, allocsz);
+	//if (bmpInfo.biClrUsed < 24)
+	allocsz += (bmpInfo.biClrUsed * sizeof(RGBQUAD));
+
+	std::vector<BYTE> vBinf;
+	vBinf.reserve(allocsz);
+
+	memcpy(vBinf.data(), ptr, allocsz);
+
+	ptr += allocsz;
+
+	LPBYTE lpBits = ptr;
+
+	return CreateDIBitmap(hdc, &bmpInfo, CBM_INIT, lpBits, (BITMAPINFO*)vBinf.data(), DIB_RGB_COLORS);
+}
+
+HICON Base64ToIcon(const wchar_t* hbmData, const wchar_t* maskData, long sz)
+{
+	if (auto hbm = Base64ToBitmap(hbmData, sz, sz); hbm)
+	{
+		Auto(DeleteBitmap(hbm));
+
+		if (auto hbmMask = Base64ToBitmap(maskData, sz, sz); hbmMask)
+		{
+			Auto(DeleteBitmap(hbmMask));
+
+			ICONINFO   icInfo{};
+
+			icInfo.hbmColor = hbm;
+			icInfo.hbmMask = hbmMask;
+			icInfo.fIcon = TRUE;
+
+			return ::CreateIconIndirect(&icInfo);
+		}
+	}
+	return nullptr;
+}
