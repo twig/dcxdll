@@ -582,6 +582,39 @@ void DcxStatusBar::toXml(TiXmlElement* const xml) const
 	if (const auto tmp = getBkColor(); tmp != CLR_INVALID)
 		setColourAttribute(xml, "bgcolour", tmp);
 
+	// icons...
+	if (auto himl = this->getImageList(); himl)
+	{
+		if (const auto cnt = ImageList_GetImageCount(himl); cnt > 0)
+		{
+			if (!xml->Attribute("iconsize"))
+			{
+				if (int cx{}, cy{}; ImageList_GetIconSize(himl, &cx, &cy))
+				{
+					xml->SetAttribute("iconsize", cx);
+				}
+			}
+			for (int i{}; i < cnt; ++i)
+			{
+				if (auto hIcon = ImageList_GetIcon(himl, i, ILD_TRANSPARENT); hIcon)
+				{
+					Auto(DestroyIcon(hIcon));
+
+					xmlIcon xIcon;
+
+					//xIcon.tsType = this->getType();
+					xIcon.tsID = this->getParentDialog()->IDToName(this->getID());
+					xIcon.tsFlags = "+B";
+					xIcon.tsSrc = IconToBase64(hIcon);
+
+					this->getParentDialog()->xmlGetIcons().emplace_back(xIcon);
+
+				}
+			}
+		}
+
+	}
+
 	const auto nParts = getParts(DCX_STATUSBAR_MAX_PARTS, nullptr);
 
 	{
