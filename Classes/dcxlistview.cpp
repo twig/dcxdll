@@ -1128,53 +1128,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 	//xdid -a -> [NAME] [ID] -a [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 	if (flags[TEXT('a')])
 	{
-		static_assert(CheckFreeCommand(TEXT('a')), "Command in use!");
-
-		if (numtok < 13)
-			throw DcxExceptions::dcxInvalidArguments();
-
-		LVITEM lvi{};
-
-		const auto data(input.gettok(1, TSTABCHAR).gettok(4, -1).trim());
-		auto nPos = data.gettok(1).to_int() - 1;
-
-		if (nPos < 0)
-			nPos = Dcx::dcxListView_GetItemCount(m_Hwnd);
-
-		const auto stateFlags = this->parseItemFlags(data.gettok(3));
-
-		if (dcx_testflag(stateFlags, LVIS_XML))
-		{
-			// load all item data from an xml file.
-			const auto tsName(data.getfirsttok(10));		// tok 10
-			auto filename(data.getlasttoks());			// tok 11, -1
-			this->xmlLoadListview(nPos, tsName, filename);
-			return;
-		}
-
-		if (dcx_testflag(stateFlags, LVIS_HASHTABLE))
-		{
-			// load all data from a mIRC hashtable.
-			//this->xLoadListview(nPos, data, TEXT("$hget(%s)"), TEXT("$hget(%s,0).item"), TEXT("$hget(%s,%d)"), TEXT("$hget(%s,%s)"));
-			this->xLoadListview(nPos, data, TEXT("$hget(%)"), TEXT("$hget(%,0).item"), TEXT("$hget(%,%)"), TEXT("$hget(%,%)"));
-			return;
-		}
-
-		if (dcx_testflag(stateFlags, LVIS_WINDOW))
-		{
-			// load all data from a mIRC @window.
-			//this->xLoadListview(nPos, data, TEXT("$window(%s)"), TEXT("$line(%s,0)"), TEXT("$line(%s,%d)"), nullptr);
-			this->xLoadListview(nPos, data, TEXT("$window(%)"), TEXT("$line(%,0)"), TEXT("$line(%,%)"), nullptr);
-			return;
-		}
-
-		if (dcx_testflag(stateFlags, LVIS_CONTROL))
-		{
-			// load all data from another dcx control.
-			this->ctrlLoadListview(nPos, data);
-			return;
-		}
-		massSetItem(nPos, input);
+		Command_a(input);
 	}
 	// xdid -A [NAME] [ID] [SWITCH] [ROW] [COL] [+FLAGS] [INFO]
 	else if (flags[TEXT('A')])
@@ -1471,49 +1425,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 	// xdid -l [NAME] [ID] [SWITCH] [N,N2,N3-N4...] [M,M2,M3-M4...] [ICON] (OVERLAY)
 	else if (flags[TEXT('l')])
 	{
-		//if (numtok < 6)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//const auto nItem = StringToItemNumber(input.getnexttok());	// tok 4
-		//const auto nSubItem = input.getnexttok().to_int() - 1;					// tok 5
-		//const auto nIcon = input.getnexttok().to_int() - 1;					// tok 6
-		//const auto nOverlay = (numtok > 6 ? input.getnexttok().to_int() : -1);	// tok 7
-		//
-		//// invalid item
-		//if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= this->getColumnCount()))
-		//	throw DcxExceptions::dcxInvalidItem();
-		//
-		///*
-		//	nIcon = 0 (use no icon)
-		//	nIcon = -1 (ignore value, just change overlay)
-		//
-		//	overlay = 0 (no icon)
-		//*/
-		//// no icon to change
-		//if ((nIcon < -1) && (nOverlay < 0))
-		//	return;	// not an error, just do nothing.
-		//
-		//LVITEM lvi{};
-		//
-		//lvi.iItem = nItem;
-		//lvi.iSubItem = nSubItem;
-		//
-		//// theres an icon to change
-		//if (nIcon > -2)
-		//{
-		//	lvi.mask = LVIF_IMAGE;
-		//	lvi.iImage = nIcon;
-		//}
-		//
-		//if (nOverlay > -1)
-		//{
-		//	lvi.mask |= LVIF_STATE;
-		//	lvi.stateMask = LVIS_OVERLAYMASK;
-		//	lvi.state = gsl::narrow_cast<UINT>(INDEXTOOVERLAYMASK(nOverlay));
-		//}
-		//
-		//Dcx::dcxListView_SetItem(m_Hwnd, &lvi);
-
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -1873,6 +1784,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 	// xdid -t [NAME] [ID] [SWITCH] [+FLAGS] [#ICON] [WIDTH] (Header text) [{TAB} [+FLAGS] [#ICON] [WIDTH] Header text {TAB} ... ]
 	else if (flags[TEXT('t')])
 	{
+
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -1886,34 +1798,9 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 		TString itemtext;
 		if (data.numtok() > 3)
-			itemtext = data.getlasttoks();				// tok 4, -1
+			itemtext = data.getlasttoks();		// tok 4, -1
 
-		LVCOLUMN lvc{};
-
-		lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
-		lvc.fmt = gsl::narrow_cast<int>(this->parseHeaderFlags(tsflags));
-		lvc.cx = width;
-		lvc.pszText = itemtext.to_chr();
-		lvc.iSubItem = 0;
-		lvc.iImage = I_IMAGENONE;
-
-		if (icon > -1)
-		{
-			lvc.mask |= LVCF_IMAGE;
-			lvc.iImage = icon;
-		}
-
-		// column count always zero here, since we just deleted them all
-		if (Dcx::dcxListView_InsertColumn(m_Hwnd, nColumn, &lvc) == -1)
-			throw Dcx::dcxException(TEXT("Unable to add column: %"), nColumn);
-
-		++this->m_iColumnCount;
-
-		/*
-		*	These flags do NOT make the columns auto size as text is added
-		* They auto size the columns to match the text already present (none).
-		*/
-		this->autoSize(nColumn, tsflags);
+		this->addColumn(nColumn, -1, tsflags, icon, width, itemtext);
 
 		if (const auto tabs = input.numtok(TSTABCHAR); tabs > 1)
 		{
@@ -1931,27 +1818,10 @@ void DcxListView::parseCommandRequest(const TString& input)
 				if (data.numtok() > 3)
 					itemtext = data.getlasttoks();		// tok 4, -1
 
-				lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
-				lvc.cx = width;
-				lvc.fmt = gsl::narrow_cast<int>(this->parseHeaderFlags(tsflags));
-				lvc.iImage = I_IMAGENONE;
-				lvc.iSubItem = 0;
-				lvc.pszText = itemtext.to_chr();
-
-				if (icon > -1)
-				{
-					lvc.mask |= LVCF_IMAGE;
-					lvc.iImage = icon;
-				}
-
-				if (Dcx::dcxListView_InsertColumn(m_Hwnd, nColumn, &lvc) == -1)
-					throw Dcx::dcxException(TEXT("Unable to add column: %"), nColumn);
-
-				++this->m_iColumnCount;
-
-				this->autoSize(nColumn, tsflags);
+				this->addColumn(nColumn, -1, tsflags, icon, width, itemtext);
 			}
 		}
+
 		//redrawWindow();
 	}
 	// xdid -u [NAME] [ID] [SWITCH]
@@ -1962,42 +1832,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 	// xdid -v [NAME] [ID] [SWITCH] [N] [M] (ItemText)
 	else if (flags[TEXT('v')])
 	{
-		//if (numtok < 5)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//const auto nItem = StringToItemNumber(input.getnexttok());
-		//
-		//const auto nSubItem = input.getnexttok().to_int() - 1;	// tok 5
-		//
-		//if (nItem == -2)
-		//{
-		//	// special case -1  (now -2) supplied as item number, sets text for empty listview
-		//	Dcx::dcxListView_SetEmptyText(m_Hwnd, input.getlasttoks().trim().to_chr());	// tok 6, -1
-		//	// if subitem set, redraw
-		//	if (nSubItem)
-		//		redrawWindow();
-		//	return;
-		//}
-		//if (nItem < 0)
-		//	throw DcxExceptions::dcxInvalidItem();
-		//
-		//auto itemtext(input.getlasttoks().trim());	// tok 6, -1
-		//
-		//if (LVITEM lvi{ LVIF_PARAM, nItem }; Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
-		//{
-		//	if (const auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lvi.lParam); (lpdcxlvi && lpdcxlvi->pbar && lpdcxlvi->iPbarCol == nSubItem))
-		//	{
-		//		itemtext = input.getfirsttok(1) + TEXT(' ') + input.getnexttok() + TEXT(' ') + itemtext;
-		//		lpdcxlvi->pbar->parseCommandRequest(itemtext);
-		//	}
-		//	else {
-		//		if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= this->getColumnCount()))
-		//			throw DcxExceptions::dcxInvalidItem();
-		//
-		//		Dcx::dcxListView_SetItemText(m_Hwnd, nItem, nSubItem, itemtext.to_chr());
-		//	}
-		//}
-
 		Command_v(input);
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
@@ -2006,149 +1840,11 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto tflags(input.getnexttok());				// tok 4
-		const auto index = input.getnexttok().to_int();		// tok 5
-		auto filename(input.getlasttoks());					// tok 6, -1
-		const auto iFlags = parseIconFlagOptions(tflags);
-		auto overlayindex = 0;
+		const auto tflags(input.getnexttok());	// tok 4
+		const auto tsIndex(input.getnexttok());	// tok 5
+		auto filename(input.getlasttoks());		// tok 6, -1
 
-		// determine overlay index
-		if (tflags.find(TEXT('o'), 0))
-		{
-			// overlay id offset
-			const auto io = tflags.find(TEXT('o'), 1) + 1;
-			overlayindex = tflags.mid(io, gsl::narrow_cast<int>(tflags.len() - io)).to_int();
-
-			if (overlayindex < 1 || overlayindex > 15)
-				throw Dcx::dcxException("Overlay index out of range (1 -> 15)");
-		}
-
-		// load both normal and small icons
-		if (dcx_testflag(iFlags, LVSIL_SMALL))
-		{
-			// load normal icon
-			if (const auto himl = this->initImageList(LVSIL_NORMAL); index < 0)
-			{
-				AddFileIcons(himl, filename, true, -1);
-			}
-			else {
-#if DCX_USE_WRAPPERS
-				const Dcx::dcxIconResource icon(index, filename, true, tflags);
-
-				if (const auto i = ImageList_AddIcon(himl, icon.get()); overlayindex > 0)
-					ImageList_SetOverlayImage(himl, i, overlayindex);
-#else
-				const HICON icon = dcxLoadIcon(index, filename, true, tflags);
-
-				if (!icon)
-					throw Dcx::dcxException("Unable to load normal icon");
-
-				if (const int i = ImageList_AddIcon(himl, icon); overlayindex > 0)
-					ImageList_SetOverlayImage(himl, i, overlayindex);
-
-				DestroyIcon(icon);
-#endif
-			}
-
-			// load small icon
-			if (const auto himl = this->initImageList(LVSIL_SMALL); index < 0)
-			{
-				AddFileIcons(himl, filename, false, -1);
-			}
-			else {
-#if DCX_USE_WRAPPERS
-				const Dcx::dcxIconResource icon(index, filename, false, tflags);
-
-				if (const auto i = ImageList_AddIcon(himl, icon.get()); overlayindex > 0)
-					ImageList_SetOverlayImage(himl, i, overlayindex);
-#else
-				const HICON icon = dcxLoadIcon(index, filename, false, tflags);
-
-				if (!icon)
-					throw Dcx::dcxException("Unable to load small icon");
-
-				if (const int i = ImageList_AddIcon(himl, icon); overlayindex > 0)
-					ImageList_SetOverlayImage(himl, i, overlayindex);
-
-				DestroyIcon(icon);
-#endif
-			}
-		}
-
-		// state icon
-		if (dcx_testflag(iFlags, LVSIL_STATE))
-		{
-			if (const auto himl = this->initImageList(LVSIL_STATE); index < 0)
-			{
-				AddFileIcons(himl, filename, false, -1);
-			}
-			else {
-#if DCX_USE_WRAPPERS
-				const Dcx::dcxIconResource icon(index, filename, false, tflags);
-
-				ImageList_AddIcon(himl, icon.get());
-#else
-				const HICON icon = dcxLoadIcon(index, filename, false, tflags);
-
-				if (!icon)
-					throw Dcx::dcxException("Unable to load state icon");
-
-				ImageList_AddIcon(himl, icon);
-
-				DestroyIcon(icon);
-#endif
-			}
-		}
-
-		// footer icons
-		if (dcx_testflag(iFlags, LVSIL_FOOTER))
-		{
-			if (const auto himl = this->initImageList(LVSIL_FOOTER); index < 0)
-			{
-				AddFileIcons(himl, filename, false, -1);
-			}
-			else {
-#if DCX_USE_WRAPPERS
-				const Dcx::dcxIconResource icon(index, filename, false, tflags);
-
-				ImageList_AddIcon(himl, icon.get());
-#else
-				const HICON icon = dcxLoadIcon(index, filename, false, tflags);
-
-				if (!icon)
-					throw Dcx::dcxException("Unable to load footer icon");
-
-				ImageList_AddIcon(himl, icon);
-
-				DestroyIcon(icon);
-#endif
-			}
-		}
-
-		// group header icons
-		if (dcx_testflag(iFlags, LVSIL_GROUPHEADER))
-		{
-			if (const auto himl = this->initImageList(LVSIL_GROUPHEADER); index < 0)
-			{
-				AddFileIcons(himl, filename, false, -1);
-			}
-			else {
-#if DCX_USE_WRAPPERS
-				const Dcx::dcxIconResource icon(index, filename, false, tflags);
-
-				ImageList_AddIcon(himl, icon.get());
-#else
-				const HICON icon = dcxLoadIcon(index, filename, false, tflags);
-
-				if (!icon)
-					throw Dcx::dcxException("Unable to load footer icon");
-
-				ImageList_AddIcon(himl, icon);
-
-				DestroyIcon(icon);
-#endif
-			}
-		}
+		this->loadIcon(tflags, tsIndex, filename);
 	}
 	// xdid -W [NAME] [ID] [SWITCH] [STYLE|nochange] (CONTROL EXTENDED STYLES)
 	else if (flags[TEXT('W')])
@@ -2625,6 +2321,42 @@ void DcxListView::setHeaderStyle(HWND h, const int nCol, const TString& info)
 	}
 
 	Dcx::dcxHeader_SetItem(h, nCol, &hdr);
+}
+
+void DcxListView::addColumn(int nColumn, int iOrder, const TString& tsFlags, int iIcon, int iWidth, const TString& tsText)
+{
+	TString itemtext(tsText);
+
+	LVCOLUMN lvc{};
+
+	lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
+	lvc.fmt = gsl::narrow_cast<int>(this->parseHeaderFlags(tsFlags));
+	lvc.cx = iWidth;
+	lvc.pszText = itemtext.to_chr();
+	lvc.iSubItem = 0;
+	lvc.iImage = I_IMAGENONE;
+	if (iOrder >= 0)
+	{
+		lvc.mask |= LVCF_ORDER;
+		lvc.iOrder = iOrder;
+	}
+	if (iIcon > -1)
+	{
+		lvc.mask |= LVCF_IMAGE;
+		lvc.iImage = iIcon;
+	}
+
+	// column count always zero here, since we just deleted them all
+	if (Dcx::dcxListView_InsertColumn(m_Hwnd, nColumn, &lvc) == -1)
+		throw Dcx::dcxException(TEXT("Unable to add column: %"), nColumn);
+
+	++this->m_iColumnCount;
+
+	/*
+	*	These flags do NOT make the columns auto size as text is added
+	* They auto size the columns to match the text already present (none).
+	*/
+	this->autoSize(nColumn, tsFlags);
 }
 
 /*
@@ -4533,14 +4265,13 @@ void DcxListView::ScrollPbars(const int row, const int nCols, const int iTop, co
 	xmlLoadListview()
 	Loads items into a listview control from a dcxml file.
 */
-bool DcxListView::xmlLoadListview(const int nPos, const TString& name, TString& filename)
+bool DcxListView::xmlLoadListview(const int nPos, const TString& dataset, TString& filename)
 {
 	if (!IsFile(filename))
 		throw Dcx::dcxException(TEXT("Unable To Access File: %"), filename);
 
 	TiXmlDocument doc(filename.c_str());
 	doc.SetCondenseWhiteSpace(false);
-	TString tsBuf;
 
 	const auto xmlFile = doc.LoadFile();
 	if (!xmlFile)
@@ -4554,234 +4285,113 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString& name, TString& 
 	if (!xElm)
 		throw Dcx::dcxException("Unable To Find 'listview_data' element");
 
-	xElm = xElm->FirstChildElement(name.c_str());
+	xElm = xElm->FirstChildElement(dataset.c_str());
 	if (!xElm)
-		throw Dcx::dcxException(TEXT("Unable To Find Dataset: %"), name);
-
-	this->setRedraw(FALSE);
+		throw Dcx::dcxException(TEXT("Unable To Find Dataset: %"), dataset);
 
 	Auto(this->redrawWindow());
-	Auto(this->setRedraw(TRUE));
 
-	auto i = 0, nItem = nPos;
-	LVITEM lvi{};
+	return xmlLoadListview(nPos, xElm);
+}
 
-	for (const auto* xNode = xElm->FirstChildElement("lvitem"); xNode; xNode = xNode->NextSiblingElement("lvitem"))
+bool DcxListView::xmlLoadListview(const int nPos, const TiXmlElement* xElm)
+{
+	TString tsBuf;
+
+	for (const auto* xNode = xElm->FirstChildElement("item"); xNode; xNode = xNode->NextSiblingElement("item"))
 	{
-		gsl::owner<LPDCXLVITEM> lpmylvi = new DCXLVITEM;
-		//auto lpmylvi = std::make_unique<DCXLVITEM>();
+		_ts_sprintf(tsBuf, L"dname id -a 0 % % % % % % % % %",
+			queryIntAttribute(xNode, "indent"),
+			queryAttribute(xNode, "flags","+"),
+			queryIntAttribute(xNode, "icon"),
+			queryIntAttribute(xNode, "stateicon"),
+			queryIntAttribute(xNode, "overlayicon"),
+			queryIntAttribute(xNode, "groupid"),
+			queryColourAttribute(xNode, "textcolour"),
+			queryColourAttribute(xNode, "bgcolour"),
+			queryAttribute(xNode, "text"));
 
-		lpmylvi->iPbarCol = 0;
-		lpmylvi->pbar = nullptr;
-		lpmylvi->vInfo.clear();
-
-		xmlSetItem(nItem, 0, xNode, &lvi, lpmylvi, tsBuf);
-
-		// Items state icon.
-		auto stateicon = -1;
-		const auto* attr = xNode->Attribute("stateicon", &i);
-		if (attr && i > -1)
-			stateicon = i;
-
-		// Items overlay icon.
-		auto overlayicon = 0;
-		attr = xNode->Attribute("overlayicon", &i);
-		if (attr && i > 0)
-			overlayicon = i;
-
-		lvi.iItem = Dcx::dcxListView_InsertItem(m_Hwnd, &lvi);
-
-		if (lvi.iItem == -1)
+		for (const auto* xSubNode = xNode->FirstChildElement("subitem"); xSubNode; xSubNode = xSubNode->NextSiblingElement("subitem"))
 		{
-			delete lpmylvi;
-			throw Dcx::dcxException("Unable to add item");
+			TString tsSub;
+			_ts_sprintf(tsSub, L"\t% % % % % %",
+				queryAttribute(xSubNode, "flags", "+"),
+				queryIntAttribute(xSubNode, "icon"),
+				queryIntAttribute(xSubNode, "overlayicon"),
+				queryColourAttribute(xSubNode, "textcolour"),
+				queryColourAttribute(xSubNode, "bgcolour"),
+				queryAttribute(xSubNode, "text"));
+
+			tsBuf += tsSub;
 		}
-
-		if (stateicon > -1)
-			Dcx::dcxListView_SetItemState(m_Hwnd, lvi.iItem, gsl::narrow_cast<UINT>(INDEXTOSTATEIMAGEMASK(stateicon)), LVIS_STATEIMAGEMASK);
-
-		// overlay is 1-based index, max 15 overlay icons
-		if (overlayicon > 0 && overlayicon < 16)
-			Dcx::dcxListView_SetItemState(m_Hwnd, lvi.iItem, gsl::narrow_cast<UINT>(INDEXTOOVERLAYMASK(overlayicon)), LVIS_OVERLAYMASK);
-
-		// Items checked state (if LVS_EX_CHECKBOXES style used)
-		//attr = xNode->Attribute("checked",&i);
-		//if (attr != nullptr && i > 0 && (ListView_GetExtendedListViewStyle(m_Hwnd) & LVS_EX_CHECKBOXES)) // items are always added in `unchecked` state
-		//	ListView_SetCheckState(m_Hwnd, lvi.iItem, TRUE);
-		i = queryIntAttribute(xNode, "checked");
-		if (i > 0 && (Dcx::dcxListView_GetExtendedListViewStyle(m_Hwnd) & LVS_EX_CHECKBOXES)) // items are always added in `unchecked` state
-			Dcx::dcxListView_SetCheckState(m_Hwnd, lvi.iItem, TRUE);
-
-		// autosize the column
-		attr = xNode->Attribute("autosize", &i);
-		if (attr && i > 0)
-			this->autoSize(0, DCX_LV_COLUMNF_AUTO);				//LVSCW_AUTOSIZE
-		else {
-			attr = xNode->Attribute("autosizeheader", &i);
-			if (attr && i > 0)
-				this->autoSize(0, DCX_LV_COLUMNF_AUTOHEADER);	//LVSCW_AUTOSIZE_USEHEADER
-			else {
-				attr = xNode->Attribute("autosizemax", &i);
-				if (attr && i > 0)
-					this->autoSize(0, DCX_LV_COLUMNF_AUTOMAX);	//LVSCW_AUTOSIZE_MAX
-			}
-		}
-		// add items tooltip
-		attr = xNode->Attribute("tooltip");
-		if (attr)
-		{
-			// this version works fine, but lots of +='s
-			//TString cmd(TEXT("0 0 -T "));
-			//cmd += lvi.iItem + 1;
-			//cmd += TEXT(" 0 ");
-			//cmd += attr;
-			//this->parseCommandRequest(cmd);
-
-			// this version fails as we dont have a constructor for numbers
-			//TString cmd{ TEXT("0 0 -T "), lvi.iItem + 1, TEXT(" 0 "), attr };
-			//this->parseCommandRequest(cmd);
-
-			// this version works fine, but uses formatted printing
-			//TString cmd;
-			//cmd.tsprintf(TEXT("0 0 -T %d 0 %S"), lvi.iItem +1, attr);
-			//this->parseCommandRequest(cmd);
-
-			TString cmd;
-			parseCommandRequest(_ts_sprintf(cmd, TEXT("0 0 -T % 0 %"), (lvi.iItem + 1), attr));
-		}
-		// add subitems
-		auto nSubItem = 1;
-		for (const auto* xSubNode = xNode->FirstChildElement("lvsubitem"); xSubNode; xSubNode = xSubNode->NextSiblingElement("lvsubitem"))
-		{
-			xmlSetItem(nItem, nSubItem, xSubNode, &lvi, lpmylvi, tsBuf);
-
-			// SubItems overlay icon.
-			attr = xSubNode->Attribute("overlayicon", &i);
-			if (attr && i > 0)
-			{
-				lvi.mask |= LVIF_STATE;
-				lvi.state |= INDEXTOOVERLAYMASK(i);
-				lvi.stateMask |= LVIS_OVERLAYMASK;
-			}
-			if (Dcx::dcxListView_SetItem(m_Hwnd, &lvi))
-			{
-				attr = xNode->Attribute("autosize", &i);
-				if (attr && i > 0)
-					this->autoSize(nSubItem, DCX_LV_COLUMNF_AUTO);				// LVSCW_AUTOSIZE
-				else {
-					attr = xNode->Attribute("autosizeheader", &i);
-					if (attr && i > 0)
-						this->autoSize(nSubItem, DCX_LV_COLUMNF_AUTOHEADER);	// LVSCW_AUTOSIZE_USEHEADER
-					else {
-						attr = xNode->Attribute("autosizemax", &i);
-						if (attr && i > 0)
-							this->autoSize(nSubItem, DCX_LV_COLUMNF_AUTOMAX);	// LVSCW_AUTOSIZE_MAX
-					}
-				}
-			}
-			++nSubItem;
-		}
-		++nItem;
+		//xdid -a [NAME] [ID] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
+		//[N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
+		if (!tsBuf.empty())
+			Command_a(tsBuf);
 	}
-
 	return true;
 }
 
-void DcxListView::xmlSetItem(const int nItem, const int nSubItem, const TiXmlElement* xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi, TString& tsBuf)
+bool DcxListView::xmlSaveListview(const int nPos, const TString& dataset, TString& filename) const
 {
-	if ((!xNode) || (!lvi) || (!lpmylvi))
-		return;
+	TiXmlDocument doc(filename.c_str());
+	doc.SetCondenseWhiteSpace(false);
 
-	ZeroMemory(lvi, sizeof(LVITEM));
-
-	auto i = 0;
-
+	if (IsFile(filename))
 	{
-		//auto ri = new DCXLVRENDERINFO;
-		//ZeroMemory(ri, sizeof(DCXLVRENDERINFO));
-
-		//auto ri = std::make_unique<DCXLVRENDERINFO>();
-		DCXLVRENDERINFO ri{};
-
-		lvi->iItem = nItem;
-		lvi->iSubItem = nSubItem;
-		if (nSubItem == 0)
-		{
-			lvi->mask = LVIF_PARAM | LVIF_STATE;
-			lvi->lParam = reinterpret_cast<LPARAM>(lpmylvi);
-		}
-
-		// Is Item text in Bold?
-		auto attr = xNode->Attribute("textbold", &i);
-		if (i > 0)
-			ri.m_dFlags |= LVIS_BOLD;
-
-		// Is Item text Underlined?
-		attr = xNode->Attribute("textunderline", &i);
-		if (i > 0)
-			ri.m_dFlags |= LVIS_UNDERLINE;
-
-		// Items text colour.
-		attr = xNode->Attribute("textcolor", &i);
-		if (attr && i > -1)
-		{
-			ri.m_cText = gsl::narrow_cast<COLORREF>(i);
-			ri.m_dFlags |= LVIS_COLOR;
-		}
-		else
-			ri.m_cText = CLR_INVALID;
-
-		// Items background colour.
-		attr = xNode->Attribute("backgroundcolor", &i);
-		if (attr && i > -1)
-		{
-			ri.m_cBg = gsl::narrow_cast<COLORREF>(i);
-			ri.m_dFlags |= LVIS_BGCOLOR;
-		}
-		else
-			ri.m_cBg = CLR_INVALID;
-
-		lvi->state = ri.m_dFlags;
-		lvi->stateMask = (LVIS_FOCUSED | LVIS_SELECTED | LVIS_CUT | LVIS_DROPHILITED); // only alter the controls flags, ignore our custom ones.
-
-		//lpmylvi->vInfo.push_back(ri.release());
-		lpmylvi->vInfo.push_back(ri);
+		if (!doc.LoadFile())
+			throw Dcx::dcxException(TEXT("Not an XML File: %"), filename);
 	}
-
-	// Items icon.
-	lvi->mask |= LVIF_IMAGE; // moved here to turn off icon when none is wanted.
-	auto attr = xNode->Attribute("icon", &i);
-	if (attr && i > 0)
-		lvi->iImage = i - 1;
-	else
-		lvi->iImage = I_IMAGECALLBACK; // NB: using I_IMAGENONE cause a gap to be left for the icon for some reason. Using I_IMAGECALLBACK doesn't do this.
-
-	// Items icon.
-	attr = xNode->Attribute("group", &i);
-	lvi->mask |= LVIF_GROUPID;
-	if (attr && i > -1 && Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(i)))
-		lvi->iGroupId = i;
-	else
-		lvi->iGroupId = I_GROUPIDNONE;
-
-	// Items indent.
-	attr = xNode->Attribute("indent", &i);
-	if (attr && i > -1)
+	// first get or create dcxml item
+	auto xRoot = doc.FirstChildElement("dcxml");
+	if (!xRoot)
 	{
-		lvi->iIndent = i;
-		lvi->mask |= LVIF_INDENT;
-	}
-	else
-		lvi->iIndent = 0;
+		xRoot = dynamic_cast<TiXmlElement*>(doc.InsertEndChild(TiXmlElement("dcxml")));
 
-	// Items Text.
-	attr = xNode->Attribute("text");
-	if (attr)
-	{
-		lvi->mask |= LVIF_TEXT;
-		tsBuf = attr;
-		lvi->pszText = tsBuf.to_chr();
+		if (!xRoot)
+			throw Dcx::dcxException("Unable To Add Root <dcxml>");
 	}
+	// get or create listview_data item
+	auto xData = xRoot->FirstChildElement("listview_data");
+	if (!xData)
+	{
+		xData = dynamic_cast<TiXmlElement*>(xRoot->InsertEndChild(TiXmlElement("listview_data")));
+		if (!xData)
+			throw Dcx::dcxException("Unable to add <listview_data> item");
+	}
+	// get or create dataset item
+	auto xDataset = xRoot->FirstChildElement(dataset.c_str());
+	if (!xDataset)
+	{
+		xDataset = dynamic_cast<TiXmlElement*>(xRoot->InsertEndChild(TiXmlElement(dataset.c_str())));
+		if (!xDataset)
+			throw Dcx::dcxException("Unable to add <dataset> item");
+	}
+	xDataset->Clear();
+
+	// save current setup
+	xmlSaveListview(nPos, xDataset);
+
+	// save to file.
+	return doc.SaveFile();
+}
+
+bool DcxListView::xmlSaveListview(const int nPos, TiXmlElement* xElm) const
+{
+	if (!m_Hwnd || !xElm)
+		return false;
+
+	xElm->SetAttribute("version", DCXML_DIALOG_VERSION);
+
+	const auto nTotal = Dcx::dcxListView_GetItemCount(m_Hwnd);
+	const auto nCols = this->getColumnCount();
+
+	for (int n = nPos; n < nTotal; ++n)
+	{
+		if (auto xml = ItemToXml(n, nCols); xml)
+			xElm->LinkEndChild(xml);
+	}
+	return true;
 }
 
 //[N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] +flags dialog id (N|N1,N2)
@@ -4965,16 +4575,13 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 		ri.m_dFlags = stateFlags;
 		if (dcx_testflag(stateFlags, LVIS_COLOR))
 			ri.m_cText = clrText;
-		else
-			ri.m_cText = CLR_INVALID;
 
 		if (dcx_testflag(stateFlags, LVIS_BGCOLOR))
 			ri.m_cBg = clrBack;
-		else
-			ri.m_cBg = CLR_INVALID;
 
 		//lpmylvi->vInfo.push_back(ri.release());
-		lpmylvi->vInfo.push_back(ri);
+		//lpmylvi->vInfo.push_back(ri);
+		lpmylvi->vInfo.emplace_back(ri);
 	}
 	TString itemtext;
 	if (data.numtok() > 9U)
@@ -5076,7 +4683,8 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 				ri.m_cBg = (dcx_testflag(stateFlags, LVIS_BGCOLOR) ? clrBack : CLR_INVALID);
 
 				//tmp_lpmylvi->vInfo.push_back(ri.release());
-				tmp_lpmylvi->vInfo.push_back(ri);
+				//tmp_lpmylvi->vInfo.push_back(ri);
+				tmp_lpmylvi->vInfo.emplace_back(ri);
 			}
 			lvi.iSubItem = Dcx::numeric_cast<int>(i) - 1;
 			lvi.mask = LVIF_TEXT | LVIF_IMAGE;
@@ -5233,7 +4841,7 @@ void DcxListView::DeleteColumns(const int nColumn) noexcept
 	}
 }
 
-TString DcxListView::ItemToString(int nItem, int iColumns)
+TString DcxListView::ItemToString(int nItem, int iColumns) const
 {
 	TString res;
 
@@ -5243,7 +4851,7 @@ TString DcxListView::ItemToString(int nItem, int iColumns)
 
 	gsl::at(sTextBuffer, 0) = TEXT('\0');
 
-	lvitem.mask = LVIF_GROUPID | LVIF_IMAGE | LVIF_INDENT | LVIF_STATE | LVIF_TEXT;
+	lvitem.mask = LVIF_GROUPID | LVIF_IMAGE | LVIF_INDENT | LVIF_STATE | LVIF_TEXT | LVIF_PARAM;
 	lvitem.iItem = nItem;
 	lvitem.iSubItem = 0;
 	lvitem.pszText = sTextBuffer.get();
@@ -5263,11 +4871,11 @@ TString DcxListView::ItemToString(int nItem, int iColumns)
 			{
 				//if (auto ri = gsl::at(lpmylvi->vInfo, 0); ri)
 				{
-					auto& ri = gsl::at(lpmylvi->vInfo, 0);
+					const auto& ri = gsl::at(lpmylvi->vInfo, 0);
 
 					bgclr = ri.m_cBg;
 					fgclr = ri.m_cText;
-					//auto stateFlags = this->parseItemFlags(data++);
+
 					if (dcx_testflag(ri.m_dFlags, LVIS_COLOR))
 						res += TEXT('c');
 					if (dcx_testflag(ri.m_dFlags, LVIS_BGCOLOR))
@@ -5284,19 +4892,13 @@ TString DcxListView::ItemToString(int nItem, int iColumns)
 			}
 		}
 
-		res.addtok(lvitem.iImage);		// ICON
+		res.addtok(lvitem.iImage + 1);	// ICON
 		res.addtok(lvitem.state);		// state
 		res.addtok(TEXT('0'));			// overlay
 		res.addtok(lvitem.iGroupId);	// group
 
-		if (fgclr == CLR_NONE)
-			res.addtok(TEXT("-1"));		// colour
-		else
-			res.addtok(fgclr);			// colour
-		if (bgclr == CLR_NONE)
-			res.addtok(TEXT("-1"));		// bgcolour
-		else
-			res.addtok(bgclr);			// bgcolour
+		res.addtok(fgclr);			// colour
+		res.addtok(bgclr);			// bgcolour
 
 		if (lvitem.pszText[0] != TEXT('\0'))
 			res.addtok(lvitem.pszText);	// item text
@@ -5315,7 +4917,7 @@ TString DcxListView::ItemToString(int nItem, int iColumns)
 				// { TAB }[+FLAGS][#ICON][#OVERLAY][COLOR][BGCOLOR] Item Text ...
 				res += TEXT('\t');
 				res.addtok(TEXT('+'));			// +flags
-				res.addtok(lvitem.iImage);		// ICON
+				res.addtok(lvitem.iImage + 1);	// ICON
 				res.addtok(TEXT('0'));			// overlay
 
 				bgclr = CLR_NONE;
@@ -5333,14 +4935,8 @@ TString DcxListView::ItemToString(int nItem, int iColumns)
 					}
 				}
 
-				if (fgclr == CLR_NONE)
-					res.addtok(TEXT("-1"));		// colour
-				else
-					res.addtok(fgclr);			// colour
-				if (bgclr == CLR_NONE)
-					res.addtok(TEXT("-1"));		// bgcolour
-				else
-					res.addtok(bgclr);			// bgcolour
+				res.addtok(fgclr);			// colour
+				res.addtok(bgclr);			// bgcolour
 
 				if (lvitem.pszText[0] != TEXT('\0'))
 					res.addtok(lvitem.pszText);	// item text
@@ -5348,6 +4944,130 @@ TString DcxListView::ItemToString(int nItem, int iColumns)
 		}
 	}
 	return res;
+}
+
+TiXmlElement* DcxListView::ItemToXml(int nItem, int iColumns) const
+{
+	auto xItem = std::make_unique<TiXmlElement>("item");
+	auto sTextBuffer = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+
+	LVITEM lvitem{};
+
+	gsl::at(sTextBuffer, 0) = TEXT('\0');
+
+	lvitem.mask = LVIF_GROUPID | LVIF_IMAGE | LVIF_INDENT | LVIF_STATE | LVIF_TEXT | LVIF_PARAM;
+	lvitem.iItem = nItem;
+	lvitem.iSubItem = 0;
+	lvitem.pszText = sTextBuffer.get();
+	lvitem.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+
+	if (Dcx::dcxListView_GetItem(m_Hwnd, &lvitem))
+	{
+		// [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text{ TAB }[+FLAGS][#ICON][#OVERLAY][COLOR][BGCOLOR] Item Text ...
+		xItem->SetAttribute("indent", lvitem.iIndent);		// INDENT
+		LPDCXLVITEM lpmylvi = reinterpret_cast<LPDCXLVITEM>(lvitem.lParam);
+		{
+			TString tsFlags(TEXT('+'));			// +flags
+			if (lpmylvi)
+			{
+				if (!lpmylvi->vInfo.empty())
+				{
+					//if (auto ri = gsl::at(lpmylvi->vInfo, 0); ri)
+					{
+						const auto& ri = gsl::at(lpmylvi->vInfo, 0);
+
+						if (ri.m_cText != CLR_INVALID)
+							setColourAttribute(xItem.get(), "textcolour", ri.m_cText);	// colour
+						if (ri.m_cBg != CLR_INVALID)
+							setColourAttribute(xItem.get(), "bgcolour", ri.m_cBg);		// bgcolour
+
+						if (dcx_testflag(ri.m_dFlags, LVIS_COLOR))
+							tsFlags += TEXT('c');
+						if (dcx_testflag(ri.m_dFlags, LVIS_BGCOLOR))
+							tsFlags += TEXT('k');
+						if (dcx_testflag(ri.m_dFlags, LVIS_BOLD))
+							tsFlags += TEXT('b');
+						if (dcx_testflag(ri.m_dFlags, LVIS_CENTERICON))
+							tsFlags += TEXT('C');
+						if (dcx_testflag(ri.m_dFlags, LVIS_ITALIC))
+							tsFlags += TEXT('i');
+						if (dcx_testflag(ri.m_dFlags, LVIS_UNDERLINE))
+							tsFlags += TEXT('u');
+					}
+				}
+			}
+			xItem->SetAttribute("flags", tsFlags.c_str());	// flags
+		}
+
+		if (lvitem.iImage >= 0)
+			xItem->SetAttribute("icon", lvitem.iImage + 1);	// ICON
+		if (lvitem.state >= 0)
+			xItem->SetAttribute("stateicon", lvitem.state);	// state
+		//xItem->SetAttribute("overlayicon", 0);			// overlay
+		if (lvitem.iGroupId >= 0)
+			xItem->SetAttribute("group", lvitem.iGroupId);	// group
+
+		if (lvitem.pszText[0] != TEXT('\0'))
+			xItem->SetAttribute("text", TString(lvitem.pszText).c_str());	// item text
+
+		for (auto nSubItem = 1; nSubItem < iColumns; ++nSubItem)
+		{
+			gsl::at(sTextBuffer, 0) = TEXT('\0');
+
+			TiXmlElement xSubItem("subitem");
+
+			lvitem.iSubItem = nSubItem;
+			lvitem.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+			lvitem.pszText = sTextBuffer.get();
+			lvitem.mask = LVIF_IMAGE | LVIF_TEXT;
+
+			if (Dcx::dcxListView_GetItem(m_Hwnd, &lvitem))
+			{
+				// { TAB }[+FLAGS][#ICON][#OVERLAY][COLOR][BGCOLOR] Item Text ...
+				if (lvitem.iImage >= 0)
+					xSubItem.SetAttribute("icon", lvitem.iImage + 1);	// ICON
+				//xSubItem.SetAttribute("overlayicon", 0);		// overlay
+
+				{
+					TString tsFlags(TEXT('+'));			// +flags
+
+					if (lpmylvi)
+					{
+						if (nSubItem < gsl::narrow_cast<int>(std::size(lpmylvi->vInfo)))
+						{
+							//if (auto ri = gsl::at(lpmylvi->vInfo, gsl::narrow_cast<size_t>(nSubItem)); ri)
+							{
+								const auto& ri = gsl::at(lpmylvi->vInfo, gsl::narrow_cast<size_t>(nSubItem));
+								if (ri.m_cBg != CLR_INVALID)
+									setColourAttribute(&xSubItem, "bgcolour", ri.m_cBg);		// bgcolour
+								if (ri.m_cText != CLR_INVALID)
+									setColourAttribute(&xSubItem, "textcolour", ri.m_cText);	// colour
+
+								if (dcx_testflag(ri.m_dFlags, LVIS_COLOR))
+									tsFlags += TEXT('c');
+								if (dcx_testflag(ri.m_dFlags, LVIS_BGCOLOR))
+									tsFlags += TEXT('k');
+								if (dcx_testflag(ri.m_dFlags, LVIS_BOLD))
+									tsFlags += TEXT('b');
+								if (dcx_testflag(ri.m_dFlags, LVIS_CENTERICON))
+									tsFlags += TEXT('C');
+								if (dcx_testflag(ri.m_dFlags, LVIS_ITALIC))
+									tsFlags += TEXT('i');
+								if (dcx_testflag(ri.m_dFlags, LVIS_UNDERLINE))
+									tsFlags += TEXT('u');
+							}
+						}
+					}
+					xSubItem.SetAttribute("flags", tsFlags.c_str());				// +flags
+				}
+				if (lvitem.pszText[0] != TEXT('\0'))
+					xSubItem.SetAttribute("text", TString(lvitem.pszText).c_str());	// item text
+			}
+
+			xItem->InsertEndChild(xSubItem);
+		}
+	}
+	return xItem.release();
 }
 
 bool DcxListView::xSaveListview(const int nStartPos, const int nEndPos, const TString& tsData, const TCHAR* sTestCommand, const TCHAR* sStoreCommand)
@@ -6140,6 +5860,61 @@ RECT DcxListView::getListRect() const noexcept
 	return rcMargin;
 }
 
+//xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
+//xdid -a -> [NAME] [ID] -a [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
+void DcxListView::Command_a(const TString& input)
+{
+	if (!m_Hwnd)
+		return;
+
+	const auto numtok = input.numtok();
+
+	if (numtok < 13)
+		throw DcxExceptions::dcxInvalidArguments();
+
+	const auto data(input.gettok(1, TSTABCHAR).gettok(4, -1).trim());
+	auto nPos = data.gettok(1).to_int() - 1;
+
+	if (nPos < 0)
+		nPos = Dcx::dcxListView_GetItemCount(m_Hwnd);
+
+	const auto stateFlags = this->parseItemFlags(data.gettok(3));
+
+	if (dcx_testflag(stateFlags, LVIS_XML))
+	{
+		// load all item data from an xml file.
+		const auto tsName(data.getfirsttok(10));	// tok 10
+		auto filename(data.getlasttoks());			// tok 11, -1
+		this->xmlLoadListview(nPos, tsName, filename);
+		return;
+	}
+
+	if (dcx_testflag(stateFlags, LVIS_HASHTABLE))
+	{
+		// load all data from a mIRC hashtable.
+		//this->xLoadListview(nPos, data, TEXT("$hget(%s)"), TEXT("$hget(%s,0).item"), TEXT("$hget(%s,%d)"), TEXT("$hget(%s,%s)"));
+		this->xLoadListview(nPos, data, TEXT("$hget(%)"), TEXT("$hget(%,0).item"), TEXT("$hget(%,%)"), TEXT("$hget(%,%)"));
+		return;
+	}
+
+	if (dcx_testflag(stateFlags, LVIS_WINDOW))
+	{
+		// load all data from a mIRC @window.
+		//this->xLoadListview(nPos, data, TEXT("$window(%s)"), TEXT("$line(%s,0)"), TEXT("$line(%s,%d)"), nullptr);
+		this->xLoadListview(nPos, data, TEXT("$window(%)"), TEXT("$line(%,0)"), TEXT("$line(%,%)"), nullptr);
+		return;
+	}
+
+	if (dcx_testflag(stateFlags, LVIS_CONTROL))
+	{
+		// load all data from another dcx control.
+		this->ctrlLoadListview(nPos, data);
+		return;
+	}
+
+	massSetItem(nPos, input);
+}
+
 /// <summary>
 /// 
 /// </summary>
@@ -6232,8 +6007,65 @@ void DcxListView::toXml(TiXmlElement* const xml) const
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
-	//TODO: add saving of listview items
-	//TODO: save icon data
+
+	// icons...
+	{
+		auto _xmlSaveIcons = [this, xml](int iListID) {
+			if (auto himl = this->getImageList(iListID); himl)
+			{
+				if (const auto cnt = ImageList_GetImageCount(himl); cnt > 0)
+				{
+					if (!xml->Attribute("iconsize"))
+					{
+						if (int cx{}, cy{}; ImageList_GetIconSize(himl, &cx, &cy))
+						{
+							xml->SetAttribute("iconsize", cx);
+						}
+					}
+					for (int i{}; i < cnt; ++i)
+					{
+						if (auto hIcon = ImageList_GetIcon(himl, i, ILD_TRANSPARENT); hIcon)
+						{
+							Auto(DestroyIcon(hIcon));
+
+							xmlIcon xIcon;
+
+							//xIcon.tsType = this->getType();
+							xIcon.tsID = this->getParentDialog()->IDToName(this->getID());
+							switch (iListID)
+							{
+							case LVSIL_STATE:
+								xIcon.tsFlags = "+sB";
+								break;
+							case LVSIL_FOOTER:
+								xIcon.tsFlags = "+fB";
+								break;
+							case LVSIL_GROUPHEADER:
+								xIcon.tsFlags = "+gB";
+								break;
+							case LVSIL_SMALL:
+							case LVSIL_NORMAL:
+							default:
+								xIcon.tsFlags = "+nB";
+								break;
+							}
+							xIcon.tsSrc = IconToBase64(hIcon);
+
+							this->getParentDialog()->xmlGetIcons().emplace_back(xIcon);
+
+						}
+					}
+				}
+			}
+		};
+
+		_xmlSaveIcons(LVSIL_NORMAL);
+		//_xmlSaveIcons(LVSIL_SMALL); // copy of normal
+		_xmlSaveIcons(LVSIL_STATE);
+		_xmlSaveIcons(LVSIL_FOOTER);
+		_xmlSaveIcons(LVSIL_GROUPHEADER);
+
+	}
 	{
 		// save column info
 		const auto count = this->getColumnCount();
@@ -6287,6 +6119,8 @@ void DcxListView::toXml(TiXmlElement* const xml) const
 			}
 		}
 	}
+
+	xmlSaveListview(0, xml);
 }
 
 TiXmlElement* DcxListView::toXml() const
@@ -6311,10 +6145,25 @@ void DcxListView::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	__super::fromXml(xDcxml, xThis);
 
-	//TODO: load column data
-		//  xdid -t $dname id +c 0 50 Time $chr(9) +c 0 50 Nick $chr(9) + 0 300 File $chr(9) +c 0 60 Network
-	//TODO: load items
-	//TODO: load icons
+	{
+		// load column data
+
+		int nCnt{};
+		for (auto xElm = xThis->FirstChildElement("column"); xElm; xElm = xElm->NextSiblingElement("column"))
+		{
+			const TString tsFlags(queryAttribute(xElm, "flags"));
+			const TString tsText(queryAttribute(xElm, "text"));
+			const auto iIcon = queryIntAttribute(xElm, "icon");
+			const auto iWidth = queryIntAttribute(xElm, "width");
+			const auto iOrder = queryIntAttribute(xElm, "order", -1);
+
+			this->addColumn(nCnt, iOrder, tsFlags, iIcon, iWidth, tsText);
+
+			++nCnt;
+		}
+	}
+
+	xmlLoadListview(0, xThis);
 }
 
 LRESULT DcxListView::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept

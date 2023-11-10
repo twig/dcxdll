@@ -690,15 +690,25 @@ private:
 	void ScrollPbars(const int row, const int nCols, const int iTop, const int iBottom, LPLVITEM lvi) noexcept;
 	void UpdateScrollPbars(void);
 	[[nodiscard]] gsl::strict_not_null<HIMAGELIST> initImageList(const int iImageList);
+
 	bool xmlLoadListview(const int nPos, const TString& dataset, TString& filename);
-	void xmlSetItem(const int nItem, const int nSubItem, const TiXmlElement* xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi, TString& tsBuf);
+	bool xmlLoadListview(const int nPos, const TiXmlElement* xElm);
+
+	bool xmlSaveListview(const int nPos, const TString& dataset, TString& filename) const;
+	bool xmlSaveListview(const int nPos, TiXmlElement* xElm) const;
+
 	bool ctrlLoadListview(const int nPos, const TString& tsData) noexcept;
 	bool xLoadListview(const int nPos, const TString& tsData, const TCHAR* sTest, const TCHAR* sCount, const TCHAR* sGet, const TCHAR* sGetNamed);
+	bool xSaveListview(const int nStartPos, const int nEndPos, const TString& tsData, const TCHAR* sTestCommand, const TCHAR* sStoreCommand);
+
 	void massSetItem(const int nPos, const TString& input);
 	void setHeaderStyle(HWND h, const int nCol, const TString& info);
+
+	void addColumn(int nColumn, int iOrder, const TString& tsFlags, int iIcon, int iWidth, const TString& tsText);
 	void DeleteColumns(const int nColumn) noexcept;
-	[[nodiscard]] TString ItemToString(int nItem, int iColumns);
-	bool xSaveListview(const int nStartPos, const int nEndPos, const TString& tsData, const TCHAR* sTestCommand, const TCHAR* sStoreCommand);
+
+	[[nodiscard]] TString ItemToString(int nItem, int iColumns) const;
+	[[nodiscard]] TiXmlElement* ItemToXml(int nItem, int iColumns) const;
 
 	void DrawEmpty(HDC hdc, const TString &tsBuf);
 	void DrawMargin(HDC hdc) noexcept;
