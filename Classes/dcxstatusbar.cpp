@@ -594,17 +594,19 @@ void DcxStatusBar::toXml(TiXmlElement* const xml) const
 					xml->SetAttribute("iconsize", cx);
 				}
 			}
+
+			xmlIcon xIcon;
+
+			//xIcon.tsType = this->getType();
+			xIcon.tsID = this->getParentDialog()->IDToName(this->getID());
+			xIcon.tsFlags = "+B";
+
 			for (int i{}; i < cnt; ++i)
 			{
 				if (auto hIcon = ImageList_GetIcon(himl, i, ILD_TRANSPARENT); hIcon)
 				{
 					Auto(DestroyIcon(hIcon));
 
-					xmlIcon xIcon;
-
-					//xIcon.tsType = this->getType();
-					xIcon.tsID = this->getParentDialog()->IDToName(this->getID());
-					xIcon.tsFlags = "+B";
 					xIcon.tsSrc = IconToBase64(hIcon);
 
 					this->getParentDialog()->xmlGetIcons().emplace_back(xIcon);
@@ -612,7 +614,6 @@ void DcxStatusBar::toXml(TiXmlElement* const xml) const
 				}
 			}
 		}
-
 	}
 
 	const auto nParts = getParts(DCX_STATUSBAR_MAX_PARTS, nullptr);
