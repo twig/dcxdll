@@ -3399,7 +3399,44 @@ void DcxControl::xmlLoadIcons(const TiXmlElement* xThis)
 				else
 					_ts_sprintf(tsIndex, L"%-%", MinIndex, MaxIndex);
 			}
-			loadIcon(tsFlags, tsIndex, tsSrc);
+			if (!tsFlags.empty() && !tsIndex.empty() && !tsSrc.empty())
+				loadIcon(tsFlags, tsIndex, tsSrc);
+		}
+	}
+}
+
+void DcxControl::xmlSaveImageList(HIMAGELIST himl, TiXmlElement* xml, const TString& tsFlags) const
+{
+	if (!himl || !xml || tsFlags.empty())
+		return;
+
+	if (const auto cnt = ImageList_GetImageCount(himl); cnt > 0)
+	{
+		if (!xml->Attribute("iconsize"))
+		{
+			if (int cx{}, cy{}; ImageList_GetIconSize(himl, &cx, &cy))
+			{
+				xml->SetAttribute("iconsize", cx);
+			}
+		}
+
+		xmlIcon xIcon;
+
+		//xIcon.tsType = this->getType();
+		xIcon.tsID = this->getParentDialog()->IDToName(this->getID());
+		xIcon.tsFlags = tsFlags;
+
+		for (int i{}; i < cnt; ++i)
+		{
+			if (auto hIcon = ImageList_GetIcon(himl, i, ILD_TRANSPARENT); hIcon)
+			{
+				Auto(DestroyIcon(hIcon));
+
+				xIcon.tsSrc = IconToBase64(hIcon);
+
+				this->getParentDialog()->xmlGetIcons().emplace_back(xIcon);
+
+			}
 		}
 	}
 }

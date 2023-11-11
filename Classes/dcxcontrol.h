@@ -418,6 +418,7 @@ public:
 
 	void xmlSetStyles();
 	void xmlLoadIcons(const TiXmlElement* xThis);
+	void xmlSaveImageList(HIMAGELIST himl, TiXmlElement* xml, const TString& tsFlags) const;
 
 	virtual LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
 
