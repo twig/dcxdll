@@ -470,6 +470,25 @@ const TiXmlElement* TiXmlNode::FirstChildElement(const char* _value) const noexc
 	return nullptr;
 }
 
+UINT TiXmlNode::CountChildren(const char* _value) const noexcept
+{
+	UINT nCnt{};
+	for (const TiXmlNode* node = FirstChild(_value); node; node = node->NextSibling(_value))
+	{
+		++nCnt;
+	}
+	return nCnt;
+}
+
+UINT TiXmlNode::CountChildren() const noexcept
+{
+	UINT nCnt{};
+	for (const TiXmlNode* node = FirstChild(); node; node = node->NextSibling())
+	{
+		++nCnt;
+	}
+	return nCnt;
+}
 
 const TiXmlElement* TiXmlNode::NextSiblingElement() const noexcept
 {

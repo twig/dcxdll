@@ -713,6 +713,9 @@ public:
 	TiXmlElement* FirstChildElement(const std::string& _value) { return FirstChildElement(_value.c_str()); }	///< STL std::string form.
 #endif
 
+	UINT CountChildren(const char* _value) const noexcept;
+	UINT CountChildren() const noexcept;
+
 /** Query the type (as an enumerated value, above) of this node.
 	The possible types are: DOCUMENT, ELEMENT, COMMENT,
 							UNKNOWN, TEXT, and DECLARATION.
