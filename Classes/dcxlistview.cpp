@@ -2481,6 +2481,47 @@ UINT DcxListView::parseItemFlags(const TString& flags)
 	return iFlags;
 }
 
+TString DcxListView::parseItemFlags(UINT uFlags)
+{
+	TString tsFlags(L'+');
+	if (dcx_testflag(uFlags, LVIS_BOLD))
+		tsFlags += TEXT('b');
+	if (dcx_testflag(uFlags, LVIS_COLOR))
+		tsFlags += TEXT('c');
+	if (dcx_testflag(uFlags, LVIS_CENTERICON))
+		tsFlags += TEXT('C');
+	if (dcx_testflag(uFlags, LVIS_DROPHILITED))
+		tsFlags += TEXT('d');
+	if (dcx_testflag(uFlags, LVIS_FOCUSED))
+		tsFlags += TEXT('f');
+	if (dcx_testflag(uFlags, LVIS_HASHITEM))
+		tsFlags += TEXT('H');
+	if (dcx_testflag(uFlags, LVIS_ITALIC))
+		tsFlags += TEXT('i');
+	if (dcx_testflag(uFlags, LVIS_BGCOLOR))
+		tsFlags += TEXT('k');
+	if (dcx_testflag(uFlags, LVIS_HASHNUMBER))
+		tsFlags += TEXT('n');
+	if (dcx_testflag(uFlags, LVIS_PBAR))
+		tsFlags += TEXT('p');
+	if (dcx_testflag(uFlags, LVIS_UNDERLINE))
+		tsFlags += TEXT('u');
+	if (dcx_testflag(uFlags, LVIS_SELECTED))
+		tsFlags += TEXT('s');
+	if (dcx_testflag(uFlags, LVIS_CUT))
+		tsFlags += TEXT('t');
+	if (dcx_testflag(uFlags, LVIS_HASHTABLE))
+		tsFlags += TEXT('w');
+	if (dcx_testflag(uFlags, LVIS_XML))
+		tsFlags += TEXT('x');
+	if (dcx_testflag(uFlags, LVIS_WINDOW))
+		tsFlags += TEXT('y');
+	if (dcx_testflag(uFlags, LVIS_CONTROL))
+		tsFlags += TEXT('z');
+
+	return tsFlags;
+}
+
 /*!
 * \brief blah
 *
@@ -4296,7 +4337,7 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString& dataset, TStrin
 
 bool DcxListView::xmlLoadListview(const int nPos, const TiXmlElement* xElm)
 {
-	TString tsBuf;
+	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
 
 	for (const auto* xNode = xElm->FirstChildElement("item"); xNode; xNode = xNode->NextSiblingElement("item"))
 	{
@@ -4304,7 +4345,7 @@ bool DcxListView::xmlLoadListview(const int nPos, const TiXmlElement* xElm)
 			queryIntAttribute(xNode, "indent"),
 			queryAttribute(xNode, "flags","+"),
 			queryIntAttribute(xNode, "icon"),
-			queryIntAttribute(xNode, "stateicon"),
+			queryIntAttribute(xNode, "stateicon", -1),
 			queryIntAttribute(xNode, "overlayicon"),
 			queryIntAttribute(xNode, "groupid"),
 			queryColourAttribute(xNode, "textcolour"),
@@ -4876,18 +4917,20 @@ TString DcxListView::ItemToString(int nItem, int iColumns) const
 					bgclr = ri.m_cBg;
 					fgclr = ri.m_cText;
 
-					if (dcx_testflag(ri.m_dFlags, LVIS_COLOR))
-						res += TEXT('c');
-					if (dcx_testflag(ri.m_dFlags, LVIS_BGCOLOR))
-						res += TEXT('k');
-					if (dcx_testflag(ri.m_dFlags, LVIS_BOLD))
-						res += TEXT('b');
-					if (dcx_testflag(ri.m_dFlags, LVIS_CENTERICON))
-						res += TEXT('C');
-					if (dcx_testflag(ri.m_dFlags, LVIS_ITALIC))
-						res += TEXT('i');
-					if (dcx_testflag(ri.m_dFlags, LVIS_UNDERLINE))
-						res += TEXT('u');
+					res += parseItemFlags(ri.m_dFlags);
+
+					//if (dcx_testflag(ri.m_dFlags, LVIS_COLOR))
+					//	res += TEXT('c');
+					//if (dcx_testflag(ri.m_dFlags, LVIS_BGCOLOR))
+					//	res += TEXT('k');
+					//if (dcx_testflag(ri.m_dFlags, LVIS_BOLD))
+					//	res += TEXT('b');
+					//if (dcx_testflag(ri.m_dFlags, LVIS_CENTERICON))
+					//	res += TEXT('C');
+					//if (dcx_testflag(ri.m_dFlags, LVIS_ITALIC))
+					//	res += TEXT('i');
+					//if (dcx_testflag(ri.m_dFlags, LVIS_UNDERLINE))
+					//	res += TEXT('u');
 				}
 			}
 		}
@@ -4917,8 +4960,6 @@ TString DcxListView::ItemToString(int nItem, int iColumns) const
 				// { TAB }[+FLAGS][#ICON][#OVERLAY][COLOR][BGCOLOR] Item Text ...
 				res += TEXT('\t');
 				res.addtok(TEXT('+'));			// +flags
-				res.addtok(lvitem.iImage + 1);	// ICON
-				res.addtok(TEXT('0'));			// overlay
 
 				bgclr = CLR_NONE;
 				fgclr = CLR_NONE;
@@ -4931,9 +4972,14 @@ TString DcxListView::ItemToString(int nItem, int iColumns) const
 							const auto& ri = gsl::at(lpmylvi->vInfo, gsl::narrow_cast<size_t>(nSubItem));
 							bgclr = ri.m_cBg;
 							fgclr = ri.m_cText;
+
+							res += parseItemFlags(ri.m_dFlags);
 						}
 					}
 				}
+
+				res.addtok(lvitem.iImage + 1);	// ICON
+				res.addtok(TEXT('0'));			// overlay
 
 				res.addtok(fgclr);			// colour
 				res.addtok(bgclr);			// bgcolour
@@ -4960,6 +5006,7 @@ TiXmlElement* DcxListView::ItemToXml(int nItem, int iColumns) const
 	lvitem.iSubItem = 0;
 	lvitem.pszText = sTextBuffer.get();
 	lvitem.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+	lvitem.stateMask = UINT_MAX;
 
 	if (Dcx::dcxListView_GetItem(m_Hwnd, &lvitem))
 	{
@@ -4981,18 +5028,20 @@ TiXmlElement* DcxListView::ItemToXml(int nItem, int iColumns) const
 						if (ri.m_cBg != CLR_INVALID)
 							setColourAttribute(xItem.get(), "bgcolour", ri.m_cBg);		// bgcolour
 
-						if (dcx_testflag(ri.m_dFlags, LVIS_COLOR))
-							tsFlags += TEXT('c');
-						if (dcx_testflag(ri.m_dFlags, LVIS_BGCOLOR))
-							tsFlags += TEXT('k');
-						if (dcx_testflag(ri.m_dFlags, LVIS_BOLD))
-							tsFlags += TEXT('b');
-						if (dcx_testflag(ri.m_dFlags, LVIS_CENTERICON))
-							tsFlags += TEXT('C');
-						if (dcx_testflag(ri.m_dFlags, LVIS_ITALIC))
-							tsFlags += TEXT('i');
-						if (dcx_testflag(ri.m_dFlags, LVIS_UNDERLINE))
-							tsFlags += TEXT('u');
+						tsFlags = parseItemFlags(ri.m_dFlags);
+
+						//if (dcx_testflag(ri.m_dFlags, LVIS_COLOR))
+						//	tsFlags += TEXT('c');
+						//if (dcx_testflag(ri.m_dFlags, LVIS_BGCOLOR))
+						//	tsFlags += TEXT('k');
+						//if (dcx_testflag(ri.m_dFlags, LVIS_BOLD))
+						//	tsFlags += TEXT('b');
+						//if (dcx_testflag(ri.m_dFlags, LVIS_CENTERICON))
+						//	tsFlags += TEXT('C');
+						//if (dcx_testflag(ri.m_dFlags, LVIS_ITALIC))
+						//	tsFlags += TEXT('i');
+						//if (dcx_testflag(ri.m_dFlags, LVIS_UNDERLINE))
+						//	tsFlags += TEXT('u');
 					}
 				}
 			}
@@ -5001,9 +5050,10 @@ TiXmlElement* DcxListView::ItemToXml(int nItem, int iColumns) const
 
 		if (lvitem.iImage >= 0)
 			xItem->SetAttribute("icon", lvitem.iImage + 1);	// ICON
-		if (lvitem.state >= 0)
-			xItem->SetAttribute("stateicon", lvitem.state);	// state
-		//xItem->SetAttribute("overlayicon", 0);			// overlay
+		if (const auto iState = (lvitem.state & LVIS_STATEIMAGEMASK) >> 12; iState > 0)
+			xItem->SetAttribute("stateicon", iState);	// state
+		if (const auto iOverlay = (lvitem.state & LVIS_OVERLAYMASK) >> 8; iOverlay > 0)
+			xItem->SetAttribute("overlayicon", iOverlay);			// overlay 1-based
 		if (lvitem.iGroupId >= 0)
 			xItem->SetAttribute("group", lvitem.iGroupId);	// group
 
@@ -5019,14 +5069,14 @@ TiXmlElement* DcxListView::ItemToXml(int nItem, int iColumns) const
 			lvitem.iSubItem = nSubItem;
 			lvitem.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 			lvitem.pszText = sTextBuffer.get();
-			lvitem.mask = LVIF_IMAGE | LVIF_TEXT;
+			lvitem.mask = LVIF_IMAGE | LVIF_TEXT | LVIF_STATE;
 
 			if (Dcx::dcxListView_GetItem(m_Hwnd, &lvitem))
 			{
 				// { TAB }[+FLAGS][#ICON][#OVERLAY][COLOR][BGCOLOR] Item Text ...
 				if (lvitem.iImage >= 0)
 					xSubItem.SetAttribute("icon", lvitem.iImage + 1);	// ICON
-				//xSubItem.SetAttribute("overlayicon", 0);		// overlay
+				xSubItem.SetAttribute("overlayicon", (lvitem.state & LVIS_OVERLAYMASK) >> 8);			// overlay
 
 				{
 					TString tsFlags(TEXT('+'));			// +flags
@@ -5043,18 +5093,20 @@ TiXmlElement* DcxListView::ItemToXml(int nItem, int iColumns) const
 								if (ri.m_cText != CLR_INVALID)
 									setColourAttribute(&xSubItem, "textcolour", ri.m_cText);	// colour
 
-								if (dcx_testflag(ri.m_dFlags, LVIS_COLOR))
-									tsFlags += TEXT('c');
-								if (dcx_testflag(ri.m_dFlags, LVIS_BGCOLOR))
-									tsFlags += TEXT('k');
-								if (dcx_testflag(ri.m_dFlags, LVIS_BOLD))
-									tsFlags += TEXT('b');
-								if (dcx_testflag(ri.m_dFlags, LVIS_CENTERICON))
-									tsFlags += TEXT('C');
-								if (dcx_testflag(ri.m_dFlags, LVIS_ITALIC))
-									tsFlags += TEXT('i');
-								if (dcx_testflag(ri.m_dFlags, LVIS_UNDERLINE))
-									tsFlags += TEXT('u');
+								tsFlags = parseItemFlags(ri.m_dFlags);
+
+								//if (dcx_testflag(ri.m_dFlags, LVIS_COLOR))
+								//	tsFlags += TEXT('c');
+								//if (dcx_testflag(ri.m_dFlags, LVIS_BGCOLOR))
+								//	tsFlags += TEXT('k');
+								//if (dcx_testflag(ri.m_dFlags, LVIS_BOLD))
+								//	tsFlags += TEXT('b');
+								//if (dcx_testflag(ri.m_dFlags, LVIS_CENTERICON))
+								//	tsFlags += TEXT('C');
+								//if (dcx_testflag(ri.m_dFlags, LVIS_ITALIC))
+								//	tsFlags += TEXT('i');
+								//if (dcx_testflag(ri.m_dFlags, LVIS_UNDERLINE))
+								//	tsFlags += TEXT('u');
 							}
 						}
 					}
@@ -6010,61 +6062,14 @@ void DcxListView::toXml(TiXmlElement* const xml) const
 
 	// icons...
 	{
-		auto _xmlSaveIcons = [this, xml](int iListID) {
-			if (auto himl = this->getImageList(iListID); himl)
-			{
-				if (const auto cnt = ImageList_GetImageCount(himl); cnt > 0)
-				{
-					if (!xml->Attribute("iconsize"))
-					{
-						if (int cx{}, cy{}; ImageList_GetIconSize(himl, &cx, &cy))
-						{
-							xml->SetAttribute("iconsize", cx);
-						}
-					}
-					for (int i{}; i < cnt; ++i)
-					{
-						if (auto hIcon = ImageList_GetIcon(himl, i, ILD_TRANSPARENT); hIcon)
-						{
-							Auto(DestroyIcon(hIcon));
-
-							xmlIcon xIcon;
-
-							//xIcon.tsType = this->getType();
-							xIcon.tsID = this->getParentDialog()->IDToName(this->getID());
-							switch (iListID)
-							{
-							case LVSIL_STATE:
-								xIcon.tsFlags = "+sB";
-								break;
-							case LVSIL_FOOTER:
-								xIcon.tsFlags = "+fB";
-								break;
-							case LVSIL_GROUPHEADER:
-								xIcon.tsFlags = "+gB";
-								break;
-							case LVSIL_SMALL:
-							case LVSIL_NORMAL:
-							default:
-								xIcon.tsFlags = "+nB";
-								break;
-							}
-							xIcon.tsSrc = IconToBase64(hIcon);
-
-							this->getParentDialog()->xmlGetIcons().emplace_back(xIcon);
-
-						}
-					}
-				}
-			}
-		};
-
-		_xmlSaveIcons(LVSIL_NORMAL);
-		//_xmlSaveIcons(LVSIL_SMALL); // copy of normal
-		_xmlSaveIcons(LVSIL_STATE);
-		_xmlSaveIcons(LVSIL_FOOTER);
-		_xmlSaveIcons(LVSIL_GROUPHEADER);
-
+		if (auto himl = this->getImageList(LVSIL_NORMAL); himl)
+			xmlSaveImageList(himl, xml, L"+nB"_ts);
+		if (auto himl = this->getImageList(LVSIL_STATE); himl)
+			xmlSaveImageList(himl, xml, L"+sB"_ts);
+		if (auto himl = this->getImageList(LVSIL_FOOTER); himl)
+			xmlSaveImageList(himl, xml, L"+fB"_ts);
+		if (auto himl = this->getImageList(LVSIL_GROUPHEADER); himl)
+			xmlSaveImageList(himl, xml, L"+gB"_ts);
 	}
 	{
 		// save column info

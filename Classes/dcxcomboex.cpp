@@ -1384,37 +1384,7 @@ void DcxComboEx::toXml(TiXmlElement* const xml) const
 
 	// icons...
 	if (auto himl = this->getImageList(); himl)
-	{
-		if (const auto cnt = ImageList_GetImageCount(himl); cnt > 0)
-		{
-			if (!xml->Attribute("iconsize"))
-			{
-				if (int cx{}, cy{}; ImageList_GetIconSize(himl, &cx, &cy))
-				{
-					xml->SetAttribute("iconsize", cx);
-				}
-			}
-			xmlIcon xIcon;
-
-			//xIcon.tsType = this->getType();
-			xIcon.tsID = this->getParentDialog()->IDToName(this->getID());
-			xIcon.tsFlags = "+B";
-
-			for (int i{}; i < cnt; ++i)
-			{
-				if (auto hIcon = ImageList_GetIcon(himl, i, ILD_TRANSPARENT); hIcon)
-				{
-					Auto(DestroyIcon(hIcon));
-
-					xIcon.tsSrc = IconToBase64(hIcon);
-
-					this->getParentDialog()->xmlGetIcons().emplace_back(xIcon);
-
-				}
-			}
-		}
-	}
-
+		xmlSaveImageList(himl, xml, L"+B"_ts);
 }
 
 TiXmlElement* DcxComboEx::toXml(void) const

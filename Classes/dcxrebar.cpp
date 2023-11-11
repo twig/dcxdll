@@ -115,6 +115,10 @@ void DcxReBar::toXml(TiXmlElement* const xml) const
 	xml->SetAttribute("styles", getStyles().c_str());
 	xml->SetAttribute("nocla", "1");
 
+	// icons...
+	if (auto himl = this->getImageList(); himl)
+		xmlSaveImageList(himl, xml, L"+B"_ts);
+
 	if (const auto count = this->getBandCount(); count > 0)
 	{
 		TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};

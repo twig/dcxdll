@@ -3364,7 +3364,7 @@ void DcxControl::xmlLoadIcons(const TiXmlElement* xThis)
 				if ((id_end < id_start) || (id_start == 0) || (id_end == 0))
 					return false;
 
-				return (id_start <= this->getUserID()) && (id_end <= this->getUserID());
+				return (id_start <= this->getUserID()) && (id_end >= this->getUserID());
 			};
 
 			if (const auto nTok = a.tsID.numtok(TSCOMMACHAR); nTok > 1)

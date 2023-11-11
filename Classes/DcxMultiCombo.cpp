@@ -574,7 +574,7 @@ bool DcxMultiCombo::matchItemText(const int nItem, const dcxSearchData& srch_dat
 
 void DcxMultiCombo::toXml(TiXmlElement* const xml) const
 {
-	if (!xml)
+	if (!xml || !m_Hwnd)
 		return;
 
 	__super::toXml(xml);
@@ -584,6 +584,8 @@ void DcxMultiCombo::toXml(TiXmlElement* const xml) const
 	xml->SetAttribute("styles", getStyles().c_str());
 
 	// Ook: unfinished!
+
+	// no icons...
 
 	TiXmlElement xDrop("drop");
 

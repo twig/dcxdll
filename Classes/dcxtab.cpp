@@ -918,6 +918,9 @@ void DcxTab::toXml(TiXmlElement* const xml) const
 
 	xml->SetAttribute("styles", getStyles().c_str());
 
+	if (auto himl = this->getImageList(); himl)
+		xmlSaveImageList(himl, xml, L"+B"_ts);
+
 	const auto count = this->getTabCount();
 	auto buf = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 	TCITEM tci{};
@@ -933,8 +936,8 @@ void DcxTab::toXml(TiXmlElement* const xml) const
 
 			if (dcx_testflag(tci.mask, TCIF_TEXT))
 				xTab.SetAttribute("text", TString(tci.pszText).c_str());
-			if (dcx_testflag(tci.mask, TCIF_IMAGE) && (tci.iImage != -1))	// -1 means no image
-				xTab.SetAttribute("image", tci.iImage);
+			if (dcx_testflag(tci.mask, TCIF_IMAGE) && (tci.iImage >= 0))	// -1 means no image
+				xTab.SetAttribute("icon", tci.iImage + 1);
 
 			if (const auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci)
 			{
@@ -987,7 +990,7 @@ void DcxTab::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 		const TString tsText(queryAttribute(xItem, "text"));
 		const TString tsFlags(queryAttribute(xItem, "flags", "+"));
 		const TString tsTooltip(queryAttribute(xItem, "tooltip"));
-		const auto iImage = queryIntAttribute(xItem, "image");
+		const auto iImage = queryIntAttribute(xItem, "icon") - 1;
 		TString tsCtrl;
 
 		// <control ...>

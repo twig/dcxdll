@@ -668,6 +668,7 @@ protected:
 
 	[[nodiscard]] static UINT parseIconFlagOptions(const TString& flags);
 	[[nodiscard]] static UINT parseItemFlags(const TString& flags);
+	[[nodiscard]] static TString parseItemFlags(UINT uFlags);
 	[[nodiscard]] static UINT parseHeaderFlags(const TString& flags);
 	[[nodiscard]] static INT parseHeaderFlags2(const TString& flags);
 	[[nodiscard]] static INT parseHeaderFlags2(const XSwitchFlags& xflags);
