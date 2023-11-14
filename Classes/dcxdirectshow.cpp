@@ -354,7 +354,10 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		this->loadFile(input.getnexttok().trim(), input.getlasttoks().trim());
+		const auto tsFlags(input.getnexttok().trim());
+		const auto tsFilename(input.getlasttoks().trim());
+
+		this->loadFile(tsFlags, tsFilename);
 
 		//if (numtok < 5)
 		//	throw DcxExceptions::dcxInvalidArguments();
