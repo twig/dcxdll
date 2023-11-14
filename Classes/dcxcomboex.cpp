@@ -1401,7 +1401,9 @@ void DcxComboEx::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	__super::fromXml(xDcxml, xThis);
 
-	// Ook: need to save images....
+	if (const TString tsArgs(queryAttribute(xThis, "caption")); !tsArgs.empty())
+		this->setEditboxContents(tsArgs, queryIntAttribute(xThis, "icon") - 1, queryIntAttribute(xThis, "state") - 1, queryIntAttribute(xThis, "overlay"), queryIntAttribute(xThis, "indent"));
+
 	{
 		int nPos{};
 
