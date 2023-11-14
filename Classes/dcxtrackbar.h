@@ -107,7 +107,8 @@ public:
 private:
 	bool DrawTrackBarPart(HDC hdc, const TrackBarParts iPartId, const RECT* const rc = nullptr);
 
-	HBITMAP m_hbmp[sizeof(TrackBarParts)]{ nullptr }; // refer to TBBMP_*
+	//HBITMAP m_hbmp[sizeof(TrackBarParts)]{}; // refer to TBBMP_*
+	dcxImage m_hbmp[sizeof(TrackBarParts)]{}; // refer to TBBMP_*
 	COLORREF m_colTransparent{ CLR_INVALID };
 	LONG m_iTickFreq{ 1 };
 	bool m_bUpdatingTooltip{ false };

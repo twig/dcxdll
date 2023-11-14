@@ -68,8 +68,8 @@ DcxTrackBar::~DcxTrackBar() noexcept
 {
 	for (const auto& x : m_hbmp)
 	{
-		if (x)
-			DeleteBitmap(x);
+		if (x.m_hBitmap)
+			DeleteBitmap(x.m_hBitmap);
 	}
 }
 
@@ -206,16 +206,28 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 
 		// background
 		if (dcx_testflag(tflags, TBCS_BACK))
-			gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_BACK)) = dcxLoadBitmap(gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_BACK)), filename);
+		{
+			gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_BACK)).m_hBitmap = dcxLoadBitmap(gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_BACK)).m_hBitmap, filename);
+			gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_BACK)).m_tsFilename = filename;
+		}
 		// thumb
 		if (dcx_testflag(tflags, TBCS_THUMB))
-			gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMB)) = dcxLoadBitmap(gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMB)), filename);
+		{
+			gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMB)).m_hBitmap = dcxLoadBitmap(gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMB)).m_hBitmap, filename);
+			gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMB)).m_tsFilename = filename;
+		}
 		// thumb hover
 		if (dcx_testflag(tflags, TBCS_THUMBDRAG))
-			gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMBDRAG)) = dcxLoadBitmap(gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMBDRAG)), filename);
+		{
+			gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMBDRAG)).m_hBitmap = dcxLoadBitmap(gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMBDRAG)).m_hBitmap, filename);
+			gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMBDRAG)).m_tsFilename = filename;
+		}
 		// channel
 		if (dcx_testflag(tflags, TBCS_CHANNEL))
-			gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_CHANNEL)) = dcxLoadBitmap(gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_CHANNEL)), filename);
+		{
+			gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_CHANNEL)).m_hBitmap = dcxLoadBitmap(gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_CHANNEL)).m_hBitmap, filename);
+			gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_CHANNEL)).m_tsFilename = filename;
+		}
 
 		// these dont seem to work so dont bother calling it
 		//this->redrawWindow();
@@ -677,10 +689,10 @@ LRESULT DcxTrackBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		{
 			// if (no items to draw)
 			if (
-				(!gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_BACK))) &&
-				(!gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMB))) &&
-				(!gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMBDRAG))) &&
-				(!gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_CHANNEL)))
+				(!gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_BACK)).m_hBitmap) &&
+				(!gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMB)).m_hBitmap) &&
+				(!gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMBDRAG)).m_hBitmap) &&
+				(!gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_CHANNEL)).m_hBitmap)
 				)
 				break;
 
@@ -909,7 +921,7 @@ UINT DcxTrackBar::parseImageFlags(const TString& flags) noexcept
 
 bool DcxTrackBar::DrawTrackBarPart(HDC hdc, const TrackBarParts iPartId, const RECT* const rc)
 {
-	if (!gsl::at(m_hbmp, gsl::narrow_cast<UINT>(iPartId)))
+	if (!hdc || !m_Hwnd || !gsl::at(m_hbmp, gsl::narrow_cast<UINT>(iPartId)).m_hBitmap)
 		return false;
 
 	RECT rect{};
@@ -922,11 +934,11 @@ bool DcxTrackBar::DrawTrackBarPart(HDC hdc, const TrackBarParts iPartId, const R
 		CopyRect(&rect, rc);
 
 	BITMAP bmp{};
-	if (GetObject(gsl::at(m_hbmp, gsl::narrow_cast<UINT>(iPartId)), sizeof(BITMAP), &bmp) == 0)
+	if (GetObject(gsl::at(m_hbmp, gsl::narrow_cast<UINT>(iPartId)).m_hBitmap, sizeof(BITMAP), &bmp) == 0)
 		return false;
 
 #if DCX_USE_WRAPPERS
-	Dcx::dcxHDCBitmapResource hdcbmp(hdc, gsl::at(m_hbmp, gsl::narrow_cast<UINT>(iPartId)));
+	Dcx::dcxHDCBitmapResource hdcbmp(hdc, gsl::at(m_hbmp, gsl::narrow_cast<UINT>(iPartId)).m_hBitmap);
 #else
 	auto hdcbmp = CreateCompatibleDC(hdc);
 
@@ -934,7 +946,7 @@ bool DcxTrackBar::DrawTrackBarPart(HDC hdc, const TrackBarParts iPartId, const R
 		return false;
 	Auto(DeleteDC(hdcbmp));
 
-	auto oldBM = Dcx::dcxSelectObject(hdcbmp, gsl::at(m_hbmp, gsl::narrow_cast<UINT>(iPartId)));
+	auto oldBM = Dcx::dcxSelectObject(hdcbmp, gsl::at(m_hbmp, gsl::narrow_cast<UINT>(iPartId)).m_hBitmap);
 	Auto(Dcx::dcxSelectObject(hdcbmp, oldBM));
 #endif
 
@@ -1021,6 +1033,23 @@ void DcxTrackBar::toXml(TiXmlElement* const xml) const
 			xml->SetAttribute("buddyright", pthis->getUserID());
 		}
 	}
+
+	// images
+	{
+		TiXmlElement xImages("images");
+		if (m_hbmp[0].m_hBitmap)
+			xImages.SetAttribute("backsrc", m_hbmp[0].m_tsFilename.c_str());
+		if (m_hbmp[1].m_hBitmap)
+			xImages.SetAttribute("thumbsrc", m_hbmp[1].m_tsFilename.c_str());
+		if (m_hbmp[2].m_hBitmap)
+			xImages.SetAttribute("dragsrc", m_hbmp[2].m_tsFilename.c_str());
+		if (m_hbmp[3].m_hBitmap)
+			xImages.SetAttribute("channelsrc", m_hbmp[3].m_tsFilename.c_str());
+
+		if (m_hbmp[0].m_hBitmap || m_hbmp[1].m_hBitmap || m_hbmp[2].m_hBitmap || m_hbmp[3].m_hBitmap)
+			xml->InsertEndChild(xImages);
+	}
+
 }
 
 TiXmlElement* DcxTrackBar::toXml(void) const
@@ -1070,6 +1099,23 @@ void DcxTrackBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	// set pos last so we dont get a range error, & in future may update buddy
 	this->setPos(queryIntAttribute(xThis, "pos"));
+
+	if (auto xImages = xThis->FirstChildElement("images"); xImages)
+	{
+		this->m_hbmp[0].m_tsFilename = queryAttribute(xImages, "backsrc");
+		if (!this->m_hbmp[0].m_tsFilename.empty())
+			m_hbmp[0].m_hBitmap = dcxLoadBitmap(m_hbmp[0].m_hBitmap, this->m_hbmp[0].m_tsFilename);
+		this->m_hbmp[1].m_tsFilename = queryAttribute(xImages, "thumbsrc");
+		if (!this->m_hbmp[1].m_tsFilename.empty())
+			m_hbmp[1].m_hBitmap = dcxLoadBitmap(m_hbmp[1].m_hBitmap, this->m_hbmp[1].m_tsFilename);
+		this->m_hbmp[2].m_tsFilename = queryAttribute(xImages, "dragsrc");
+		if (!this->m_hbmp[2].m_tsFilename.empty())
+			m_hbmp[2].m_hBitmap = dcxLoadBitmap(m_hbmp[2].m_hBitmap, this->m_hbmp[2].m_tsFilename);
+		this->m_hbmp[3].m_tsFilename = queryAttribute(xImages, "channelsrc");
+		if (!this->m_hbmp[3].m_tsFilename.empty())
+			m_hbmp[3].m_hBitmap = dcxLoadBitmap(m_hbmp[3].m_hBitmap, this->m_hbmp[3].m_tsFilename);
+	}
+
 }
 
 LRESULT DcxTrackBar::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
