@@ -213,7 +213,7 @@ namespace Dcx
 	{
 		return ListView_SetExtendedListViewStyleEx(hwnd, mask, dw);
 	}
-	inline BOOL dcxListView_SetEmptyText(_In_ HWND hwnd, _In_z_ PTCHAR pszText) noexcept
+	inline BOOL dcxListView_SetEmptyText(_In_ HWND hwnd, _In_z_ LPCTCH pszText) noexcept
 	{
 		//const auto res = ListView_SetEmptyText(hwnd, pszText, cchText);
 		const auto res = SetWindowText(hwnd, pszText);
@@ -293,6 +293,10 @@ namespace Dcx
 	inline LRESULT dcxListView_GetGroupInfo(_In_ HWND hwnd, _In_ const unsigned int gid, _Inout_ PLVGROUP pgrp) noexcept
 	{
 		return ListView_GetGroupInfo(hwnd, gid, pgrp);
+	}
+	inline LRESULT dcxListView_GetGroupInfoByIndex(_In_ HWND hwnd, _In_ const unsigned int iIndex, _Inout_ PLVGROUP pgrp) noexcept
+	{
+		return ListView_GetGroupInfoByIndex(hwnd, iIndex, pgrp);
 	}
 	[[nodiscard]] inline LRESULT dcxListView_GetGroupCount(_In_ HWND hwnd) noexcept
 	{
@@ -725,6 +729,18 @@ private:
 	/// <returns></returns>
 	LRESULT DrawItem(LPNMLVCUSTOMDRAW lplvcd);
 
+	/// <summary>
+	/// Draw the groups header text.
+	/// </summary>
+	/// <param name="hdc"></param>
+	/// <param name="hTheme"></param>
+	/// <param name="iStateId"></param>
+	/// <param name="rc"></param>
+	/// <param name="tsText"></param>
+	/// <param name="uTextFlags"></param>
+	/// <param name="uAlign"></param>
+	/// <param name="bCustomText"></param>
+	/// <param name="iCol"></param>
 	void DrawGroupHeaderText(HDC hdc, HTHEME hTheme, int iStateId, LPCRECT rc, const TString &tsText, UINT uTextFlags, UINT uAlign, bool bCustomText, int iCol);
 
 	/// <summary>
@@ -748,6 +764,11 @@ private:
 	/// <returns>The header text</returns>
 	TString getGroupHeader(int gid);
 
+	/// <summary>
+	/// Test if a group is collapsible.
+	/// </summary>
+	/// <param name="gid"></param>
+	/// <returns></returns>
 	bool IsGroupCollapsible(int gid) const noexcept
 	{
 		if (!m_Hwnd)
@@ -756,6 +777,11 @@ private:
 		return (Dcx::dcxListView_GetGroupState(m_Hwnd, gid, LVGS_COLLAPSIBLE) != 0);
 	}
 
+	/// <summary>
+	/// Test if a group is currently collapsed.
+	/// </summary>
+	/// <param name="gid"></param>
+	/// <returns></returns>
 	bool IsGroupCollapsed(int gid) const noexcept
 	{
 		if (!m_Hwnd)
@@ -764,6 +790,11 @@ private:
 		return (Dcx::dcxListView_GetGroupState(m_Hwnd, gid, iState) == iState );
 	}
 
+	/// <summary>
+	/// Get the groups header collapse button rect.
+	/// </summary>
+	/// <param name="rcHeader"></param>
+	/// <returns></returns>
 	RECT GetHeaderButtonRect(_In_ LPCRECT rcHeader) const noexcept
 	{
 		RECT rcButton{ *rcHeader };
@@ -774,6 +805,14 @@ private:
 		return rcButton;
 	}
 
+	/// <summary>
+	/// Get the groups header collapse button rect, based on a theme.
+	/// </summary>
+	/// <param name="hTheme"></param>
+	/// <param name="hdc"></param>
+	/// <param name="iStateId"></param>
+	/// <param name="rcHeader"></param>
+	/// <returns></returns>
 	RECT GetHeaderButtonRect(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iStateId, _In_ LPCRECT rcHeader) const noexcept
 	{
 		RECT rcButton{};
@@ -788,6 +827,14 @@ private:
 	/// </summary>
 	/// <param name="tsInput"></param>
 	void addGroup(const TString &tsInput);
+
+	/// <summary>
+	/// Adds a group to the control.
+	/// </summary>
+	/// <param name="index"></param>
+	/// <param name="tsFlags"></param>
+	/// <param name="gid"></param>
+	void addGroup(int index, const TString& tsFlags, int gid, TString& tsText);
 
 	/// <summary>
 	/// Only called inside NM_CUSTOMDRAW.

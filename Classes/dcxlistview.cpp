@@ -2350,7 +2350,8 @@ void DcxListView::addColumn(int nColumn, int iOrder, const TString& tsFlags, int
 	if (Dcx::dcxListView_InsertColumn(m_Hwnd, nColumn, &lvc) == -1)
 		throw Dcx::dcxException(TEXT("Unable to add column: %"), nColumn);
 
-	++this->m_iColumnCount;
+	//++this->m_iColumnCount;
+	this->m_iColumnCount = -1; // force a recount
 
 	/*
 	*	These flags do NOT make the columns auto size as text is added
@@ -2825,7 +2826,7 @@ const int& DcxListView::getColumnCount() const noexcept
 	//}
 	//return m_iColumnCount;
 
-	if (m_iColumnCount < 0)
+	//if (m_iColumnCount < 0)
 	{
 		if (auto hHeader = Dcx::dcxListView_GetHeader(m_Hwnd); hHeader)
 			m_iColumnCount = Header_GetItemCount(hHeader);
@@ -4337,38 +4338,183 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString& dataset, TStrin
 
 bool DcxListView::xmlLoadListview(const int nPos, const TiXmlElement* xElm)
 {
+	//TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+	//int nItem{ nPos };
+	//
+	//if (nPos < 1)
+	//	nItem = Dcx::dcxListView_GetItemCount(m_Hwnd);
+	//
+	//for (const auto* xNode = xElm->FirstChildElement("item"); xNode; xNode = xNode->NextSiblingElement("item"))
+	//{
+	//	TString tsText(queryAttribute(xNode, "text"));
+	//	const TiXmlElement *xCtrl{};
+	//
+	//	if (xCtrl = xNode->FirstChildElement("control"); xCtrl)
+	//	{
+	//		const auto iX = queryIntAttribute(xCtrl, "x");
+	//		const auto iY = queryIntAttribute(xCtrl, "y");
+	//		const auto iWidth = queryIntAttribute(xCtrl, "width");
+	//		const auto iHeight = queryIntAttribute(xCtrl, "height");
+	//		TString tsID(queryAttribute(xCtrl, "id"));
+	//		auto szType = queryAttribute(xCtrl, "type");
+	//		auto szStyles = queryAttribute(xCtrl, "styles");
+	//
+	//		// ID is NOT a number!
+	//		if (tsID.empty()) // no id, generate one.
+	//			tsID.addtok(getParentDialog()->getUniqueID());
+	//
+	//		_ts_sprintf(tsText, TEXT("% % % % % % %"), tsID, szType, iX, iY, iWidth, iHeight, szStyles);
+	//	}
+	//	_ts_sprintf(tsBuf, L"dname id -a % % % % % % % % % %",
+	//		nItem,
+	//		queryIntAttribute(xNode, "indent"),
+	//		queryAttribute(xNode, "flags","+"),
+	//		queryIntAttribute(xNode, "icon"),
+	//		queryIntAttribute(xNode, "stateicon", -1),
+	//		queryIntAttribute(xNode, "overlayicon"),
+	//		queryIntAttribute(xNode, "groupid"),
+	//		queryColourAttribute(xNode, "textcolour"),
+	//		queryColourAttribute(xNode, "bgcolour"),
+	//		tsText);
+	//
+	//	for (const auto* xSubNode = xNode->FirstChildElement("subitem"); xSubNode; xSubNode = xSubNode->NextSiblingElement("subitem"))
+	//	{
+	//		TString tsSub;
+	//		TString tsSubText(queryAttribute(xSubNode, "text"));
+	//		if (xCtrl = xSubNode->FirstChildElement("control"); xCtrl)
+	//		{
+	//			const auto iX = queryIntAttribute(xCtrl, "x");
+	//			const auto iY = queryIntAttribute(xCtrl, "y");
+	//			const auto iWidth = queryIntAttribute(xCtrl, "width");
+	//			const auto iHeight = queryIntAttribute(xCtrl, "height");
+	//			TString tsID(queryAttribute(xCtrl, "id"));
+	//			auto szType = queryAttribute(xCtrl, "type");
+	//			auto szStyles = queryAttribute(xCtrl, "styles");
+	//
+	//			// ID is NOT a number!
+	//			if (tsID.empty()) // no id, generate one.
+	//				tsID.addtok(getParentDialog()->getUniqueID());
+	//
+	//			_ts_sprintf(tsSubText, TEXT("% % % % % % %"), tsID, szType, iX, iY, iWidth, iHeight, szStyles);
+	//		}
+	//		_ts_sprintf(tsSub, L"\t% % % % % %",
+	//			queryAttribute(xSubNode, "flags", "+"),
+	//			queryIntAttribute(xSubNode, "icon"),
+	//			queryIntAttribute(xSubNode, "overlayicon"),
+	//			queryColourAttribute(xSubNode, "textcolour"),
+	//			queryColourAttribute(xSubNode, "bgcolour"),
+	//			tsSubText);
+	//
+	//		tsBuf += tsSub;
+	//	}
+	//	//xdid -a [NAME] [ID] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
+	//	//[N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
+	//	if (!tsBuf.empty())
+	//	{
+	//		Command_a(tsBuf);
+	//		++nItem;
+	//	}
+	//}
+	//return true;
+
 	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+	int nItem{ nPos };
+
+	if (nPos < 1)
+		nItem = Dcx::dcxListView_GetItemCount(m_Hwnd);
+
+	if (nItem == 0)
+		nItem = 1;
 
 	for (const auto* xNode = xElm->FirstChildElement("item"); xNode; xNode = xNode->NextSiblingElement("item"))
 	{
-		_ts_sprintf(tsBuf, L"dname id -a 0 % % % % % % % % %",
+		TString tsText(queryAttribute(xNode, "text"));
+		const TiXmlElement* xCtrl{};
+
+		if (auto xtmpCtrl = xNode->FirstChildElement("control"); xtmpCtrl)
+		{
+			const auto iX = queryIntAttribute(xtmpCtrl, "x");
+			const auto iY = queryIntAttribute(xtmpCtrl, "y");
+			const auto iWidth = queryIntAttribute(xtmpCtrl, "width");
+			const auto iHeight = queryIntAttribute(xtmpCtrl, "height");
+			TString tsID(queryAttribute(xtmpCtrl, "id"));
+			auto szType = queryAttribute(xtmpCtrl, "type");
+			auto szStyles = queryAttribute(xtmpCtrl, "styles");
+
+			// ID is NOT a number!
+			if (tsID.empty()) // no id, generate one.
+				tsID.addtok(getParentDialog()->getUniqueID());
+
+			_ts_sprintf(tsText, TEXT("% % % % % % %"), tsID, szType, iX, iY, iWidth, iHeight, szStyles);
+
+			xCtrl = xtmpCtrl;
+		}
+		_ts_sprintf(tsBuf, L"dname id -a % % % % % % % % % %",
+			nItem,
 			queryIntAttribute(xNode, "indent"),
-			queryAttribute(xNode, "flags","+"),
+			queryAttribute(xNode, "flags", "+"),
 			queryIntAttribute(xNode, "icon"),
 			queryIntAttribute(xNode, "stateicon", -1),
 			queryIntAttribute(xNode, "overlayicon"),
-			queryIntAttribute(xNode, "groupid"),
+			queryIntAttribute(xNode, "group"),
 			queryColourAttribute(xNode, "textcolour"),
 			queryColourAttribute(xNode, "bgcolour"),
-			queryAttribute(xNode, "text"));
+			tsText);
 
 		for (const auto* xSubNode = xNode->FirstChildElement("subitem"); xSubNode; xSubNode = xSubNode->NextSiblingElement("subitem"))
 		{
 			TString tsSub;
+			TString tsSubText(queryAttribute(xSubNode, "text"));
+			if (auto xtmpCtrl = xSubNode->FirstChildElement("control"); xtmpCtrl)
+			{
+				const auto iX = queryIntAttribute(xtmpCtrl, "x");
+				const auto iY = queryIntAttribute(xtmpCtrl, "y");
+				const auto iWidth = queryIntAttribute(xtmpCtrl, "width");
+				const auto iHeight = queryIntAttribute(xtmpCtrl, "height");
+				TString tsID(queryAttribute(xtmpCtrl, "id"));
+				auto szType = queryAttribute(xtmpCtrl, "type");
+				auto szStyles = queryAttribute(xtmpCtrl, "styles");
+
+				// ID is NOT a number!
+				if (tsID.empty()) // no id, generate one.
+					tsID.addtok(getParentDialog()->getUniqueID());
+
+				_ts_sprintf(tsSubText, TEXT("% % % % % % %"), tsID, szType, iX, iY, iWidth, iHeight, szStyles);
+
+				xCtrl = xtmpCtrl;
+			}
 			_ts_sprintf(tsSub, L"\t% % % % % %",
 				queryAttribute(xSubNode, "flags", "+"),
 				queryIntAttribute(xSubNode, "icon"),
 				queryIntAttribute(xSubNode, "overlayicon"),
 				queryColourAttribute(xSubNode, "textcolour"),
 				queryColourAttribute(xSubNode, "bgcolour"),
-				queryAttribute(xSubNode, "text"));
+				tsSubText);
 
 			tsBuf += tsSub;
 		}
 		//xdid -a [NAME] [ID] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 		//[N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 		if (!tsBuf.empty())
+		{
 			Command_a(tsBuf);
+
+			if (xCtrl)
+			{
+				LVITEM lvi{};
+				lvi.mask = LVIF_PARAM;
+				lvi.iItem = nItem - 1;
+
+				Dcx::dcxListView_GetItem(m_Hwnd, &lvi);
+
+				if (LPDCXLVITEM lpmylvi = reinterpret_cast<LPDCXLVITEM>(lvi.lParam); lpmylvi)
+				{
+					if (lpmylvi->pbar)
+						lpmylvi->pbar->fromXml(xElm, xCtrl);
+				}
+			}
+			++nItem;
+		}
 	}
 	return true;
 }
@@ -5017,6 +5163,11 @@ TiXmlElement* DcxListView::ItemToXml(int nItem, int iColumns) const
 			TString tsFlags(TEXT('+'));			// +flags
 			if (lpmylvi)
 			{
+				if (lpmylvi->pbar && lpmylvi->iPbarCol == 0)
+				{
+					// save pbar info
+					xItem->LinkEndChild(lpmylvi->pbar->toXml());
+				}
 				if (!lpmylvi->vInfo.empty())
 				{
 					//if (auto ri = gsl::at(lpmylvi->vInfo, 0); ri)
@@ -5083,6 +5234,11 @@ TiXmlElement* DcxListView::ItemToXml(int nItem, int iColumns) const
 
 					if (lpmylvi)
 					{
+						if (lpmylvi->pbar && lpmylvi->iPbarCol == nSubItem)
+						{
+							// save pbar info
+							xSubItem.LinkEndChild(lpmylvi->pbar->toXml());
+						}
 						if (nSubItem < gsl::narrow_cast<int>(std::size(lpmylvi->vInfo)))
 						{
 							//if (auto ri = gsl::at(lpmylvi->vInfo, gsl::narrow_cast<size_t>(nSubItem)); ri)
@@ -5708,18 +5864,23 @@ TString DcxListView::getGroupHeader(int gid)
 void DcxListView::addGroup(const TString& tsInput)
 {
 	const auto index = tsInput.getnexttokas<int>() - 1;
-	const auto tsflags(tsInput.getnexttok());
+	const auto tsFlags(tsInput.getnexttok());
 	const auto gid = tsInput.getnexttokas<int>();
-	const auto iFlags = this->parseGroupFlags(tsflags);
+	auto text(tsInput.getlasttoks());
 
+	this->addGroup(index, tsFlags, gid, text);
+}
+
+void DcxListView::addGroup(int index, const TString& tsFlags, int gid, TString& tsText)
+{
 	if (index < 0 || gid <= 0)
 		throw DcxExceptions::dcxInvalidArguments();
 
 	if (Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(gid)))
 		throw Dcx::dcxException(TEXT("Group already exists: %"), gid);
 
-	auto text(tsInput.getlasttoks());
-	const auto iState = this->parseGroupState(tsflags);
+	const auto iFlags = this->parseGroupFlags(tsFlags);
+	const auto iState = this->parseGroupState(tsFlags);
 
 	LVGROUP lvg{};
 	lvg.cbSize = sizeof(LVGROUP);
@@ -5728,7 +5889,7 @@ void DcxListView::addGroup(const TString& tsInput)
 	//lvg.iTitleImage = 0;
 	//lvg.iExtendedImage = 0;
 
-	lvg.pszHeader = text.to_chr();
+	lvg.pszHeader = tsText.to_chr();
 	lvg.iGroupId = gid;
 
 	lvg.stateMask = iState;
@@ -6060,6 +6221,14 @@ void DcxListView::toXml(TiXmlElement* const xml) const
 
 	xml->SetAttribute("styles", getStyles().c_str());
 
+	// empty text
+	if (const TString tsText(TGetWindowText(m_Hwnd)); !tsText.empty())
+		xml->SetAttribute("emptytext", tsText.c_str());
+
+	// group view
+	if (Dcx::dcxListView_IsGroupViewEnabled(m_Hwnd))
+		xml->SetAttribute("groups", "1");
+
 	// icons...
 	{
 		if (auto himl = this->getImageList(LVSIL_NORMAL); himl)
@@ -6071,8 +6240,8 @@ void DcxListView::toXml(TiXmlElement* const xml) const
 		if (auto himl = this->getImageList(LVSIL_GROUPHEADER); himl)
 			xmlSaveImageList(himl, xml, L"+gB"_ts);
 	}
+	// save column info
 	{
-		// save column info
 		const auto count = this->getColumnCount();
 		TCHAR szBuffer[MIRC_BUFFER_SIZE_CCH]{};
 		LVCOLUMN lc{};
@@ -6124,6 +6293,62 @@ void DcxListView::toXml(TiXmlElement* const xml) const
 			}
 		}
 	}
+	// save group info
+	{
+		const auto count = Dcx::dcxListView_GetGroupCount(m_Hwnd);
+		TCHAR szBuffer[MIRC_BUFFER_SIZE_CCH]{};
+		LVGROUP lvg{};
+
+		for (int i{}; i < count; ++i)
+		{
+			lvg.cbSize = sizeof(lvg);
+			lvg.pszHeader = &szBuffer[0];
+			lvg.cchHeader = std::size(szBuffer);
+			lvg.mask = LVGF_HEADER | LVGF_GROUPID | LVGF_ALIGN | LVGF_STATE;
+			lvg.stateMask = LVGS_NORMAL | LVGS_COLLAPSED | LVGS_HIDDEN | LVGS_NOHEADER | LVGS_COLLAPSIBLE | LVGS_SUBSETED | LVGS_SELECTED;
+
+			if (Dcx::dcxListView_GetGroupInfoByIndex(m_Hwnd, i, &lvg))
+			{
+				TiXmlElement xGroup("group");
+
+				xGroup.SetAttribute("id", lvg.iGroupId);
+				if (!dcx_testflag(lvg.state, LVGS_NOHEADER))
+				{
+					const TString tsBuffer(lvg.pszHeader);
+					xGroup.SetAttribute("text", tsBuffer.c_str());
+				}
+				//xGroup.SetAttribute("image", lvg.iTitleImage);
+				//xGroup.SetAttribute("extendedimage", lvg.iExtendedImage);
+
+				// setup format in flag form
+				{
+					TString tsFlags(L"+");
+					if (dcx_testflag(lvg.uAlign, LVGA_HEADER_CENTER))
+						tsFlags += L"c";
+					if (dcx_testflag(lvg.uAlign, LVGA_HEADER_LEFT))
+						tsFlags += L"l";
+					if (dcx_testflag(lvg.uAlign, LVGA_HEADER_RIGHT))
+						tsFlags += L"r";
+
+					if (dcx_testflag(lvg.state, LVGS_COLLAPSIBLE))
+						tsFlags += L"C";
+					if (dcx_testflag(lvg.state, LVGS_HIDDEN))
+						tsFlags += L"H";
+					if (dcx_testflag(lvg.state, LVGS_NOHEADER))
+						tsFlags += L"N";
+					if (dcx_testflag(lvg.state, LVGS_COLLAPSED))
+						tsFlags += L"O";
+					if (dcx_testflag(lvg.state, LVGS_SELECTED))
+						tsFlags += L"S";
+					if (dcx_testflag(lvg.state, LVGS_SUBSETED))
+						tsFlags += L"s";
+
+					xGroup.SetAttribute("flags", tsFlags.c_str());
+				}
+				xml->InsertEndChild(xGroup);
+			}
+		}
+	}
 
 	xmlSaveListview(0, xml);
 }
@@ -6150,13 +6375,18 @@ void DcxListView::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	__super::fromXml(xDcxml, xThis);
 
+	if (const TString tsText(queryAttribute(xThis, "emptytext")); !tsText.empty())
+	{
+		Dcx::dcxListView_SetEmptyText(m_Hwnd, tsText.to_chr());
+	}
+
 	{
 		// load column data
 
 		int nCnt{};
 		for (auto xElm = xThis->FirstChildElement("column"); xElm; xElm = xElm->NextSiblingElement("column"))
 		{
-			const TString tsFlags(queryAttribute(xElm, "flags"));
+			const TString tsFlags(queryAttribute(xElm, "flags", "+"));
 			const TString tsText(queryAttribute(xElm, "text"));
 			const auto iIcon = queryIntAttribute(xElm, "icon");
 			const auto iWidth = queryIntAttribute(xElm, "width");
@@ -6166,6 +6396,26 @@ void DcxListView::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 			++nCnt;
 		}
+	}
+	{
+		// load group data
+		int iIndex{};
+		for (auto xElm = xThis->FirstChildElement("group"); xElm; xElm = xElm->NextSiblingElement("group"))
+		{
+			//const auto iIndex = queryIntAttribute(xElm, "index");
+			const TString tsFlags(queryAttribute(xElm, "flags", "+"));
+			const auto iGID = queryIntAttribute(xElm, "id");
+			TString tsText(queryAttribute(xElm, "text"));
+			//index +flags gid text
+			this->addGroup(iIndex, tsFlags, iGID, tsText);
+
+			++iIndex;
+		}
+	}
+
+	if (queryIntAttribute(xThis, "groups"))
+	{
+		Dcx::dcxListView_EnableGroupView(m_Hwnd, true);
 	}
 
 	xmlLoadListview(0, xThis);
