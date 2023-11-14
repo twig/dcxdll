@@ -921,18 +921,32 @@ TString DcxToolBar::parseButtonStateFlags(UINT iflags) noexcept
 {
 	TString tsRes(L"+");
 
+	// a = style autosize
+	// b = style bold
+	// c = style colour
 	if (!dcx_testflag(iflags, TBSTATE_ENABLED))
 		tsRes += L'd';
+	// g = style group
 	if (dcx_testflag(iflags, TBSTATE_HIDDEN))
 		tsRes += L'h';
+	// H = style button highlight colour
 	if (dcx_testflag(iflags, TBSTATE_INDETERMINATE))
 		tsRes += L'i';
+	// j = style button highlight text colour
+	// k = style check
+	// l = style width
+	// m = style mark colour
 	if (dcx_testflag(iflags, TBSTATE_PRESSED))
 		tsRes += L'p';
-	if (dcx_testflag(iflags, TBSTATE_CHECKED))
-		tsRes += L'x';
+	// T = style button hottrack colour
+	// u = style underline
+	// v = style dropdown
 	if (dcx_testflag(iflags, TBSTATE_WRAP))
 		tsRes += L'w';
+	if (dcx_testflag(iflags, TBSTATE_CHECKED))
+		tsRes += L'x';
+	// X = style tooltip background colour.
+	// z = style tooltip text colour.
 	return tsRes;
 }
 
@@ -959,24 +973,30 @@ UINT DcxToolBar::parseButtonStyleFlags(const TString& flags) noexcept
 		iFlags |= dcxToolBar_Styles::BTNS_BTNCOLOR;
 	if (xflags[TEXT('c')])
 		iFlags |= dcxToolBar_Styles::BTNS_COLOR;
+	// d = state disabled
 	if (xflags[TEXT('g')])
 		iFlags |= BTNS_GROUP;
-	if (xflags[TEXT('j')])
-		iFlags |= dcxToolBar_Styles::BTNS_HIGHLIGHT_TXTCOLOR;
+	// h = state hidden
 	if (xflags[TEXT('H')])
 		iFlags |= dcxToolBar_Styles::BTNS_HIGHLIGHT_BTNCOLOR;
+	if (xflags[TEXT('j')])
+		iFlags |= dcxToolBar_Styles::BTNS_HIGHLIGHT_TXTCOLOR;
+	// i = state indeterminate
 	if (xflags[TEXT('k')])
 		iFlags |= BTNS_CHECK;
 	if (xflags[TEXT('l')])
 		iFlags |= dcxToolBar_Styles::BTNS_WIDTH;
 	if (xflags[TEXT('m')])
 		iFlags |= dcxToolBar_Styles::BTNS_MARK_BKGCOLOR;
+	// p = state pressed
 	if (xflags[TEXT('T')])
 		iFlags |= dcxToolBar_Styles::BTNS_HOTTRACK_BTNCOLOR;
 	if (xflags[TEXT('u')])
 		iFlags |= dcxToolBar_Styles::BTNS_UNDERLINE;
 	if (xflags[TEXT('v')])
 		iFlags |= BTNS_DROPDOWN;
+	// w = state wrap
+	// x = state checked
 	if (xflags[TEXT('X')])
 		iFlags |= dcxToolBar_Styles::BTNS_TBKGCOLOR;
 	if (xflags[TEXT('z')])
@@ -1459,6 +1479,66 @@ LPDCXTBBUTTON DcxToolBar::getButtonData(const int idButton) const
 	return reinterpret_cast<LPDCXTBBUTTON>(tbbi.lParam);
 }
 
+TString DcxToolBar::getButtonFlags(int idButton) const
+{
+	TString tsRes(L"+");
+
+	TBBUTTONINFO bi{};
+	bi.cbSize = sizeof(TBBUTTONINFO);
+	bi.dwMask = TBIF_BYINDEX | TBIF_LPARAM | TBIF_STYLE | TBIF_STATE;
+
+	if (this->getButtonInfo(idButton, &bi) < 0)
+		return tsRes;
+
+	auto data = reinterpret_cast<LPDCXTBBUTTON>(bi.lParam);
+	if (!data)
+		return tsRes;
+
+	if (dcx_testflag(bi.fsStyle, BTNS_AUTOSIZE))
+		tsRes += L'a';
+	if (data->bBold)
+		tsRes += L'b';
+	if (data->clrBtnFace != CLR_INVALID)
+		tsRes += L'B';
+	if (data->clrText != CLR_INVALID)
+		tsRes += L'c';
+	if (!dcx_testflag(bi.fsState, TBSTATE_ENABLED))
+		tsRes += L'd';
+	if (dcx_testflag(bi.fsStyle, BTNS_GROUP))
+		tsRes += L'g';
+	if (dcx_testflag(bi.fsState, TBSTATE_HIDDEN))
+		tsRes += L'h';
+	if (data->clrBtnHighlight != CLR_INVALID)
+		tsRes += L'H';
+	if (dcx_testflag(bi.fsState, TBSTATE_INDETERMINATE))
+		tsRes += L'i';
+	if (data->clrTextHighlight != CLR_INVALID)
+		tsRes += L'j';
+	if (dcx_testflag(bi.fsStyle, BTNS_CHECK))
+		tsRes += L'k';
+	//if (!dcx_testflag(iflags, dcxToolBar_Styles::BTNS_WIDTH))
+	//	tsRes += L'l';
+	if (data->clrMark != CLR_INVALID)
+		tsRes += L'm';
+	if (dcx_testflag(bi.fsState, TBSTATE_PRESSED))
+		tsRes += L'p';
+	if (data->clrHighlightHotTrack != CLR_INVALID)
+		tsRes += L'T';
+	if (data->bUline)
+		tsRes += L'u';
+	if (dcx_testflag(bi.fsStyle, BTNS_DROPDOWN))
+		tsRes += L'v';
+	if (dcx_testflag(bi.fsState, TBSTATE_WRAP))
+		tsRes += L'w';
+	if (dcx_testflag(bi.fsState, TBSTATE_CHECKED))
+		tsRes += L'x';
+	//if (!dcx_testflag(iflags, dcxToolBar_Styles::BTNS_TBKGCOLOR))
+	//	tsRes += L'X';
+	//if (!dcx_testflag(iflags, dcxToolBar_Styles::BTNS_TTXTCOLOR))
+	//	tsRes += L'z';
+	return tsRes;
+}
+
 
 /*!
 * \brief blah
@@ -1817,61 +1897,12 @@ void DcxToolBar::toXml(TiXmlElement* const xml) const
 
 	{
 		//icons
-		const auto tsID(this->getParentDialog()->IDToName(this->getID()));
-
-		auto _xmlSaveIcons = [this, xml, tsID](dcxToolBar_ImageLists listname) {
-			auto himl = this->getImageList(listname);
-			if (!himl)
-				return;
-
-			if (const auto cnt = ImageList_GetImageCount(himl); cnt > 0)
-			{
-				if (!xml->Attribute("iconsize"))
-				{
-					if (int cx{}, cy{}; ImageList_GetIconSize(himl, &cx, &cy))
-					{
-						xml->SetAttribute("iconsize", cx);
-					}
-				}
-				xmlIcon xIcon;
-
-				//xIcon.tsType = this->getType();
-				xIcon.tsID = tsID;
-
-				switch (listname)
-				{
-				case dcxToolBar_ImageLists::TB_IML_HOT:
-					xIcon.tsFlags = "+hB";
-					break;
-				case dcxToolBar_ImageLists::TB_IML_DISABLE:
-					xIcon.tsFlags = "+dB";
-					break;
-				case dcxToolBar_ImageLists::TB_IML_NORMAL:
-				default:
-					xIcon.tsFlags = "+nB";
-					break;
-				}
-
-				for (int i{}; i < cnt; ++i)
-				{
-					if (auto hIcon = ImageList_GetIcon(himl, i, ILD_TRANSPARENT); hIcon)
-					{
-						Auto(DestroyIcon(hIcon));
-
-						xIcon.tsSrc = IconToBase64(hIcon);
-
-						this->getParentDialog()->xmlGetIcons().emplace_back(xIcon);
-					}
-				}
-			}
-		};
-
-		// normal list
-		_xmlSaveIcons(dcxToolBar_ImageLists::TB_IML_NORMAL);
-		// disabled list
-		_xmlSaveIcons(dcxToolBar_ImageLists::TB_IML_DISABLE);
-		// hot list
-		_xmlSaveIcons(dcxToolBar_ImageLists::TB_IML_HOT);
+		if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_NORMAL); himl)
+			xmlSaveImageList(himl, xml, L"+nB"_ts);
+		if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_HOT); himl)
+			xmlSaveImageList(himl, xml, L"+hB"_ts);
+		if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_DISABLE); himl)
+			xmlSaveImageList(himl, xml, L"+dB"_ts);
 	}
 	// save items
 	const auto nButtons = this->getButtonCount();
@@ -1890,7 +1921,7 @@ void DcxToolBar::toXml(TiXmlElement* const xml) const
 			xItem.SetAttribute("icon", bi.iImage + 1);
 		xItem.SetAttribute("pos", n + 1);
 
-		xItem.SetAttribute("flags", parseButtonStateFlags(bi.fsState).c_str());
+		xItem.SetAttribute("flags", getButtonFlags(n).c_str());
 
 		if (!dcx_testflag(bi.fsStyle, BTNS_SEP))
 		{
@@ -1914,11 +1945,11 @@ void DcxToolBar::toXml(TiXmlElement* const xml) const
 					setColourAttribute(&xItem, "highlightcolour", bd->clrBtnHighlight);
 				if (bd->clrHighlightHotTrack != CLR_INVALID)
 					setColourAttribute(&xItem, "hotcolour", bd->clrHighlightHotTrack);
-				// text style
-				if (bd->bBold)
-					xItem.SetAttribute("bold", "1");
-				if (bd->bUline)
-					xItem.SetAttribute("underline", "1");
+				//// text style
+				//if (bd->bBold)
+				//	xItem.SetAttribute("bold", "1");
+				//if (bd->bUline)
+				//	xItem.SetAttribute("underline", "1");
 			}
 		}
 		else

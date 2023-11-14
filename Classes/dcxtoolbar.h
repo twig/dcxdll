@@ -162,6 +162,7 @@ public:
 	LRESULT markButton(const int iButton, const bool fHighlight) noexcept;
 	LRESULT setButtonSize(const int dxButton, const int dyButton) noexcept;
 	LPDCXTBBUTTON getButtonData(const int idButton) const;
+	TString getButtonFlags(int idButton) const;
 
 	//[N] [+FLAGS] [WIDTH] [#ICON] [COLOR] (Button Text)[TAB] Tooltip Text
 	void addButton(int iPos, const TString &tsFlags, WORD iWidth, int iIcon, int cColour, const TString &tsText, const TString &tsTooltip);
