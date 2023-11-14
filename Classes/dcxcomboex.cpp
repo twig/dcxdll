@@ -889,8 +889,9 @@ int DcxComboEx::AddTokList(int nPos, int iIcon, int iState, int iIndent, int iSt
 				}
 				//// Now update the horizontal scroller
 				//UpdateHorizExtent(tsItem);
-
-				++nPos;
+	
+				if (nPos != -1) // dont update pos if adding at the end.
+					++nPos;
 			}
 		}
 		if ((iCnt >= iEnd) && (iEnd != -1))
