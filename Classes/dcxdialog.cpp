@@ -4407,6 +4407,7 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 
 	xmlSaveMenubar(xml, this->m_CustomMenuBar);
 
+	bool bDidCLA{ false };
 	if (m_pLayoutManager)
 	{
 		if (const auto rt = m_pLayoutManager->getRoot(); rt)
@@ -4417,9 +4418,12 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 				xml->LinkEndChild(rt->toXml());
 			else
 				rt->toXml(xml);
+
+			bDidCLA = true;
 		}
 	}
-	else {
+	if (!bDidCLA)
+	{
 		// NO CLA, add all controls as static position controls.
 		xml->SetAttribute("nocla", 1);
 
