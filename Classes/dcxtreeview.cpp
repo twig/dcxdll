@@ -1034,7 +1034,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 			const auto item = this->parsePath(path);
 
 			if (!item)
-				//throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
 				throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 			tvs.hParent = item;
@@ -2303,7 +2302,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 #ifdef DCX_USE_GDIPLUS
 						// Ook: if image supplied the control isnt drawn correctly, no borders or scrollbars etc.. needs looked at
-						if (Dcx::GDIModule.isUseable() && m_pImage)
+						if (Dcx::GDIModule.isUseable() && m_pImage.m_pImage)
 						{
 							if (auto hdc = CreateHDCBuffer(lpntvcd->nmcd.hdc, nullptr); hdc)
 							{
@@ -2460,7 +2459,7 @@ LRESULT DcxTreeView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 	case WM_HSCROLL:
 	{
-		if (Dcx::GDIModule.isUseable() && m_pImage && m_Hwnd && m_bCustomDraw)
+		if (Dcx::GDIModule.isUseable() && m_pImage.m_pImage && m_Hwnd && m_bCustomDraw)
 		{
 			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
 			bParsed = TRUE;
@@ -2554,7 +2553,7 @@ LRESULT CALLBACK DcxTreeView::EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam
 void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 {
 #ifdef DCX_USE_GDIPLUS
-	if (Dcx::GDIModule.isUseable() && m_pImage)
+	if (Dcx::GDIModule.isUseable() && m_pImage.m_pImage)
 	{
 		// Setup alpha blend if any. Double Buffer is needed to stop flicker when a bkg image is used.
 		const auto ai = SetupAlphaBlend(&hdc, true);
@@ -2577,7 +2576,8 @@ void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 void DcxTreeView::PreloadData() noexcept
 {
 #ifdef DCX_USE_GDIPLUS
-	m_pImage.reset(nullptr);
+	//m_pImage.reset(nullptr);
+	m_pImage.reset();
 #endif
 }
 
@@ -2588,10 +2588,12 @@ void DcxTreeView::LoadGDIPlusImage(const TString& flags, TString& filename)
 	if (!IsFile(filename))
 		throw Dcx::dcxException(TEXT("LoadGDIPlusImage() - Unable to Access File: %"), filename);
 
-	m_pImage = std::make_unique<Gdiplus::Image>(filename.to_chr(), TRUE);
+	//m_pImage = std::make_unique<Gdiplus::Image>(filename.to_chr(), TRUE);
+	m_pImage.m_pImage = new Gdiplus::Image(filename.to_chr(), TRUE);
+	m_pImage.m_tsFilename = filename;
 
 	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
-	if (const auto status = m_pImage->GetLastStatus(); status != Gdiplus::Status::Ok)
+	if (const auto status = m_pImage.m_pImage->GetLastStatus(); status != Gdiplus::Status::Ok)
 	{
 		PreloadData();
 		throw Dcx::dcxException(TEXT("LoadGDIPlusImage() - %"), GetLastStatusStr(status));
@@ -2656,7 +2658,7 @@ void DcxTreeView::DrawGDIPlusImage(HDC hdc)
 	grphx.SetCompositingMode(m_CMode);
 	grphx.SetSmoothingMode(m_SMode);
 
-	if (((m_pImage->GetWidth() == 1) || (m_pImage->GetHeight() == 1)) && m_bResizeImage)
+	if (((m_pImage.m_pImage->GetWidth() == 1) || (m_pImage.m_pImage->GetHeight() == 1)) && m_bResizeImage)
 	{
 		// This fixes a GDI+ bug when resizing 1 px images
 		// http://www.devnewsgroups.net/group/microsoft.public.dotnet.framework.windowsforms/topic11515.aspx
@@ -2671,16 +2673,16 @@ void DcxTreeView::DrawGDIPlusImage(HDC hdc)
 		Gdiplus::ImageAttributes imAtt;
 		imAtt.SetWrapMode(Gdiplus::WrapModeTile);
 
-		grphx.DrawImage(m_pImage.get(),
+		grphx.DrawImage(m_pImage.m_pImage,
 			Gdiplus::Rect(x + m_iXOffset, y + m_iYOffset, w, h),  // dest rect
 			0, 0, w, h,       // source rect
 			Gdiplus::UnitPixel,
 			&imAtt);
 	}
 	else if (m_bResizeImage)
-		grphx.DrawImage(m_pImage.get(), m_iXOffset, m_iYOffset, w, h);
+		grphx.DrawImage(m_pImage.m_pImage, m_iXOffset, m_iYOffset, w, h);
 	else
-		grphx.DrawImage(m_pImage.get(), m_iXOffset, m_iYOffset);
+		grphx.DrawImage(m_pImage.m_pImage, m_iXOffset, m_iYOffset);
 }
 #endif
 /*
@@ -3145,12 +3147,35 @@ void DcxTreeView::toXml(TiXmlElement* const xml) const
 
 	xml->SetAttribute("styles", getStyles().c_str());
 
+	if (m_pImage.m_pImage)
 	{
-		TiXmlElement xIcons("icons");
+		TiXmlElement xImage("image");
 
-		// find & save icon info...
+		xImage.SetAttribute("src", m_pImage.m_tsFilename.c_str());
+		TString tsFlags(L"+");
+		if (this->m_bResizeImage)
+			tsFlags += L'r';
+		if (this->m_bTileImage)
+			tsFlags += L't';
+		if (this->m_CQuality == Gdiplus::CompositingQualityHighQuality)
+			tsFlags += L'h';
+		if (this->m_CMode == Gdiplus::CompositingModeSourceOver)
+			tsFlags += L'b';
+		if (this->m_SMode == Gdiplus::SmoothingModeAntiAlias)
+			tsFlags += L'a';
 
-		xml->InsertEndChild(xIcons);
+		xImage.SetAttribute("flags", tsFlags.c_str());
+
+		xml->InsertEndChild(xImage);
+	}
+
+	{
+		// icons...
+
+		if (auto himl = this->getImageList(TVSIL_NORMAL); himl)
+			xmlSaveImageList(himl, xml, L"+nB"_ts);
+		if (auto himl = this->getImageList(TVSIL_STATE); himl)
+			xmlSaveImageList(himl, xml, L"+sB"_ts);
 	}
 	HTREEITEM hRoot = TreeView_GetRoot(m_Hwnd);
 	if (!hRoot)
@@ -3180,6 +3205,15 @@ void DcxTreeView::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	// load icons...
 	xmlLoadIcons(xThis);
+
+	// background image...
+	if (auto xImage = xThis->FirstChildElement("image"); xImage)
+	{
+		const TString tsFlags(queryAttribute(xImage, "flags", "+"));
+		TString tsFilename(queryEvalAttribute(xImage, "src"));
+
+		LoadGDIPlusImage(tsFlags, tsFilename);
+	}
 
 	//HTREEITEM hRoot = TreeView_GetRoot(m_Hwnd);
 	//if (!hRoot)

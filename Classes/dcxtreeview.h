@@ -246,7 +246,7 @@ protected:
 	void LoadGDIPlusImage(const TString& flags, TString& filename);
 	void DrawGDIPlusImage(HDC hdc);
 
-	std::unique_ptr<Gdiplus::Image> m_pImage{ nullptr };							// Background Image
+	dcxImage m_pImage;																// Background Image
 	Gdiplus::CompositingQuality m_CQuality{ Gdiplus::CompositingQualityDefault };	// Image Rendering Quality
 	Gdiplus::CompositingMode m_CMode{ Gdiplus::CompositingModeSourceCopy };			// Image Rendering Mode
 	Gdiplus::InterpolationMode m_IMode{ Gdiplus::InterpolationModeDefault };		//
