@@ -612,12 +612,17 @@ struct dcxImage
 	TString m_tsFilename;
 	HBITMAP m_hBitmap{};
 	HICON m_hIcon{};
-//#ifdef DCX_USE_GDIPLUS
-//	std::unique_ptr<Gdiplus::Image> m_pImage{ nullptr }; //!< GDI+ Image Object
-//#endif
+#ifdef DCX_USE_GDIPLUS
+	Gdiplus::Image *m_pImage{ nullptr }; //!< GDI+ Image Object
+#endif
 
 	void reset() noexcept
 	{
+#ifdef DCX_USE_GDIPLUS
+		delete m_pImage;
+		m_pImage = nullptr;
+#endif
+
 		if (m_hBitmap)
 			DeleteBitmap(m_hBitmap);
 		m_hBitmap = nullptr;
