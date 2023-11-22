@@ -116,18 +116,7 @@ alias xdidtok {
     }
   }
   elseif (%type == comboex) {
-    if (!$isid) {
-      ; no custom cmd atm
-      ; xdid -a [DNAME] [ID] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
-      ; xdid -a [DNAME] [ID] [N] [+FLAGS] ([INDENT] [ICON] [STATE] [OVERLAY] Item Text)
-      ;var %item = $3, %c = 1
-      ;while ($gettok($5-,%c,$4) != $null) {
-      ;  xdid -a $1 $2 %item 0 0 0 0 $v1
-      ;  inc %c
-      ;  if (%item isnum 1-) inc %item
-      ;}
-      xdid -a $1 $2 $3 +T 0 0 0 0 $4 $5-
-    }
+    if (!$isid) xdid -a $1 $2 $3 +T 0 0 0 0 $4 $5-
     else {
       ; warning buffer overflow possible!
       var %res, %c = $max(1,$3), %t = $xdid($1,$2).num
