@@ -211,9 +211,12 @@ function get_xpopup(&$XPOPUP) {
 		),
 		'd' => 'This command lets you destroy a XPopup menu.',
 		'i' => array(
-	        '__desc' => 'This command lets you add an icon to the menu image list.',
+	        '__desc' => 'This command lets you add one or more icons to the menu image list.',
 	        '__cmd' => '[+FLAGS] [INDEX] [FILENAME]',
-	        '__eg' => '+g 113 shell32.dll',
+	        '__eg' => array(
+				'+g 113 shell32.dll',
+				'+ 1,13,20-26 shell32.dll',
+			),
 	        '__params' => array(
 	        	// +FLAGS
 	            'INDEX' => 'Icon index in icon archive',
@@ -223,10 +226,10 @@ function get_xpopup(&$XPOPUP) {
 		),
 		'j' => 'This command lets you clear the menu image list.',
 		'l' => array(
-                '__desc' => 'This command lets you set the Nth color in the menu as given by the order listed in [f]/xpopup -p[/f].',
+            '__desc' => 'This command lets you set the Nth color in the menu as given by the order listed in [f]/xpopup -p[/f].',
 	        '__cmd' => '[N] [COLOR]',
 	        '__eg' => '2 $rgb(255,0,0)',
-                '__notes' => 'You can specify [v]default[/v] in [p]COLOR[/p] to reset it to the default value.',
+            '__notes' => 'You can specify [v]default[/v] in [p]COLOR[/p] to reset it to the default value.',
 		),
         'm' => array(
             '__desc' => 'This command patches mIRC v6.20, allowing XPopup to work.',
@@ -236,7 +239,7 @@ function get_xpopup(&$XPOPUP) {
             ),
         ),
 		'M' => array(
-                '__desc' => 'This command lets you set the marked text, which can contain any information.',
+            '__desc' => 'This command lets you set the marked text, which can contain any information.',
 	        '__cmd' => '(TEXT)',
 	        '__eg' => 'additional information',
 		),
@@ -245,23 +248,23 @@ function get_xpopup(&$XPOPUP) {
 	        '__cmd' => '[COLOR1] [COLOR2] [COLOR...] [COLOR10]',
 	        '__eg' => '$rgb(255,0,0) $rgb(0,0,255) ... $rgb(0,255,0)',
                 '__params' => array(
-                        'COLORS' => array(
-							'__desc' => 'The colors in $rgb() format must be in this order:',
-							'__values' => array(
-						'1' => 'Menu background color',
-						'2' => 'Icon box color',
-						'3' => 'Checkbox color',
-						'4' => 'Disabled checkbox color',
-						'5' => 'Disabled selection box color',
-						'6' => 'Disabled text color',
-						'7' => 'Selection box color',
-						'8' => 'Selection box border color',
-						'9' => 'Separator line color',
-						'10' => 'Text color',
-						'11' => 'Selected text color',
+                    'COLORS' => array(
+						'__desc' => 'The colors in $rgb() format must be in this order:',
+						'__values' => array(
+							'1' => 'Menu background color',
+							'2' => 'Icon box color',
+							'3' => 'Checkbox color',
+							'4' => 'Disabled checkbox color',
+							'5' => 'Disabled selection box color',
+							'6' => 'Disabled text color',
+							'7' => 'Selection box color',
+							'8' => 'Selection box border color',
+							'9' => 'Separator line color',
+							'10' => 'Text color',
+							'11' => 'Selected text color',
+						),
 					),
 				),
-			),
 	        '__notes' => array(
 				"If you are not using the [s]checkbox[/s] style, this function can also change the state icon of an item. Be sure to insert the state icons before you use them.",
 				'You can specify [v]default[/v] in [p]COLORS[/p] to reset it to the default value.',
@@ -271,10 +274,10 @@ function get_xpopup(&$XPOPUP) {
 			'__desc' => 'This command lets you add more visual styles to your XPopup',
 			'__cmd' => '[+FLAG] [ARGS]',
 			'__eg' => array(
-					'+r 1',
-					'+a 150',
-					'+t 1',
-					'+R 1',
+				'+r 1',
+				'+a 150',
+				'+t 1',
+				'+R 1',
 			),
             '__params' => array(
 				'MENU' => 'Name of the Xpopup you wish to style.',
