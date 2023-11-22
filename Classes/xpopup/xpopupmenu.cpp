@@ -1090,6 +1090,9 @@ const bool XPopupMenu::isItemValid(const XPopupMenuItem* const pItem) const noex
 
 void XPopupMenu::toXml(const DcxDialog* d, TiXmlElement* const xml) const
 {
+	if (!d || !xml)
+		return;
+
 	{
 		TString tsStyle;
 		switch (getStyle())
@@ -1155,7 +1158,7 @@ void XPopupMenu::toXml(const DcxDialog* d, TiXmlElement* const xml) const
 		xml->InsertEndChild(xImage);
 	}
 
-	xmlSaveImageList(d, xml);
+	xmlSaveImageList(d->xmlGetIcons(), xml);
 
 	xml->LinkEndChild(getColors()->toXml());
 
@@ -1226,9 +1229,9 @@ void XPopupMenu::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, 
 	}
 }
 
-void XPopupMenu::xmlSaveImageList(const DcxDialog* d, TiXmlElement* xml) const
+void XPopupMenu::xmlSaveImageList(VectorOfIcons &vIcons, TiXmlElement* xml) const
 {
-	if (!m_hImageList || !xml || !d)
+	if (!m_hImageList || !xml)
 		return;
 
 	if (const auto cnt = ImageList_GetImageCount(m_hImageList); cnt > 0)
@@ -1255,7 +1258,7 @@ void XPopupMenu::xmlSaveImageList(const DcxDialog* d, TiXmlElement* xml) const
 
 				xIcon.tsSrc = IconToBase64(hIcon);
 
-				d->xmlGetIcons().emplace_back(xIcon);
+				vIcons.emplace_back(xIcon);
 			}
 		}
 	}

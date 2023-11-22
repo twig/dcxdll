@@ -368,7 +368,7 @@ public:
 	TiXmlElement* toXml(const DcxDialog* d) const;
 	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, const VectorOfIcons& vIcons);
 
-	void xmlSaveImageList(const DcxDialog *d, TiXmlElement* xml) const;
+	void xmlSaveImageList(VectorOfIcons& vIcons, TiXmlElement* xml) const;
 
 	VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects
 
