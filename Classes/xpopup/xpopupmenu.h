@@ -44,13 +44,64 @@ struct XPMENUBARCOLORS final
 	COLORREF m_clrDisabledText{ RGB(128, 128, 128) };		//!< Menu Item Disabled Text Color
 
 
-	XPMENUBARCOLORS() = default;
+	XPMENUBARCOLORS() noexcept = default;
 
 	bool operator==(const XPMENUBARCOLORS& other) const = default;
 
 	XPMENUBARCOLORS(const COLORREF& m_clrBack, const COLORREF& m_clrBox, const COLORREF& m_clrSelection, const COLORREF& m_clrHot, const COLORREF& m_clrDisabled, const COLORREF& m_clrBorder, const COLORREF& m_clrHotBorder, const COLORREF& m_clrSelectionBorder, const COLORREF& m_clrText, const COLORREF& m_clrSelectedText, const COLORREF& m_clrHotText, const COLORREF& m_clrDisabledText) noexcept
 		: m_clrBack(m_clrBack), m_clrBox(m_clrBox), m_clrSelection(m_clrSelection), m_clrHot(m_clrHot), m_clrDisabled(m_clrDisabled), m_clrBorder(m_clrBorder), m_clrHotBorder(m_clrHotBorder), m_clrSelectionBorder(m_clrSelectionBorder), m_clrText(m_clrText), m_clrSelectedText(m_clrSelectedText), m_clrHotText(m_clrHotText), m_clrDisabledText(m_clrDisabledText)
 	{
+	}
+	void toXml(TiXmlElement* xml) const
+	{
+		setColourAttribute(xml, "back", m_clrBack);
+
+		setColourAttribute(xml, "box", m_clrBox);
+		setColourAttribute(xml, "selection", m_clrSelection);
+		setColourAttribute(xml, "hot", m_clrHot);
+		setColourAttribute(xml, "disabled", m_clrDisabled);
+
+		setColourAttribute(xml, "border", m_clrBorder);
+		setColourAttribute(xml, "hotborder", m_clrHotBorder);
+		setColourAttribute(xml, "selectionborder", m_clrSelectionBorder);
+
+		setColourAttribute(xml, "text", m_clrText);
+		setColourAttribute(xml, "selectedtext", m_clrSelectedText);
+		setColourAttribute(xml, "hottext", m_clrHotText);
+		setColourAttribute(xml, "disabledtext", m_clrDisabledText);
+	}
+	TiXmlElement* toXml() const
+	{
+		auto xml = std::make_unique<TiXmlElement>("colours");
+		toXml(xml.get());
+		return xml.release();
+	}
+	void fromXml(const TiXmlElement* xml) noexcept
+	{
+		if (const auto tmp = queryColourAttribute(xml, "back"); tmp != CLR_INVALID)
+			m_clrBack = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "border"); tmp != CLR_INVALID)
+			m_clrBorder = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "box"); tmp != CLR_INVALID)
+			m_clrBox = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "disabled"); tmp != CLR_INVALID)
+			m_clrDisabled = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "disabledtext"); tmp != CLR_INVALID)
+			m_clrDisabledText = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "hot"); tmp != CLR_INVALID)
+			m_clrHot = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "hotborder"); tmp != CLR_INVALID)
+			m_clrHotBorder = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "hottext"); tmp != CLR_INVALID)
+			m_clrHotText = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "selectedtext"); tmp != CLR_INVALID)
+			m_clrSelectedText = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "selection"); tmp != CLR_INVALID)
+			m_clrSelection = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "selectionborder"); tmp != CLR_INVALID)
+			m_clrSelectionBorder = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "text"); tmp != CLR_INVALID)
+			m_clrText = tmp;
 	}
 };
 using LPXPMENUBARCOLORS = XPMENUBARCOLORS*;
@@ -60,7 +111,7 @@ struct XPMENUBARITEM
 	//HBITMAP m_hBkg{};				// bitmap to draw in menubar. (can be null, if null only colours are used)
 	dcxImage		m_hBkg{};		// bitmap to draw in menubar. (can be null, if null only colours are used)
 
-	XPMENUBARITEM() = default;
+	XPMENUBARITEM() noexcept = default;
 
 	bool operator==(const XPMENUBARITEM& other) const = default;
 
@@ -80,7 +131,7 @@ struct XPMENUBAR
 	XPMENUBARITEM m_Default;						// colours for whole menubar (overridden by m_ItemSettings)
 	std::map<int, XPMENUBARITEM> m_ItemSettings;	// item specific colour settings.
 
-	XPMENUBAR() = default;
+	XPMENUBAR() noexcept = default;
 
 	bool operator==(const XPMENUBAR& other) const = default;
 
