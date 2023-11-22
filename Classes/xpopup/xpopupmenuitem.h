@@ -51,6 +51,61 @@ struct XPMENUCOLORS final
 	COLORREF m_clrSeparatorLine{ RGB(128, 128, 128) };		//!< Menu Item Separator Line Color
 	COLORREF m_clrSelectionBorder{ RGB(0, 0, 0) };			//!< Menu Item Selection Box Border Color
 	COLORREF m_clrSelectedText{ RGB(0, 0, 0) };				//!< Menu Item Selected Text Colour
+
+	void toXml(TiXmlElement* xml) const
+	{
+		setColourAttribute(xml, "back", m_clrBack);
+
+		setColourAttribute(xml, "box", m_clrBox);
+		setColourAttribute(xml, "lightbox", m_clrLightBox);
+		setColourAttribute(xml, "selection", m_clrSelection);
+		setColourAttribute(xml, "disabledsel", m_clrDisabledSelection);
+
+		setColourAttribute(xml, "text", m_clrText);
+		setColourAttribute(xml, "disabledtext", m_clrDisabledText);
+		setColourAttribute(xml, "selectedtext", m_clrSelectedText);
+
+		setColourAttribute(xml, "checkbox", m_clrCheckBox);
+		setColourAttribute(xml, "disabledcheckbox", m_clrDisabledCheckBox);
+
+		setColourAttribute(xml, "separator", m_clrSeparatorLine);
+		setColourAttribute(xml, "selectionborder", m_clrSelectionBorder);
+	}
+	TiXmlElement* toXml() const
+	{
+		auto xml = std::make_unique<TiXmlElement>("colours");
+		toXml(xml.get());
+		return xml.release();
+	}
+	void fromXml(const TiXmlElement* xml)
+	{
+		if (const auto tmp = queryColourAttribute(xml, "back"); tmp != CLR_INVALID)
+			m_clrBack = tmp;
+
+		if (const auto tmp = queryColourAttribute(xml, "box"); tmp != CLR_INVALID)
+			m_clrBox = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "lightbox"); tmp != CLR_INVALID)
+			m_clrLightBox = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "selection"); tmp != CLR_INVALID)
+			m_clrSelection = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "disabledsel"); tmp != CLR_INVALID)
+			m_clrDisabledSelection = tmp;
+
+		if (const auto tmp = queryColourAttribute(xml, "text"); tmp != CLR_INVALID)
+			m_clrText = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "disabledtext"); tmp != CLR_INVALID)
+			m_clrDisabledText = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "selectedtext"); tmp != CLR_INVALID)
+			m_clrSelectedText = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "checkbox"); tmp != CLR_INVALID)
+			m_clrCheckBox = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "disabledcheckbox"); tmp != CLR_INVALID)
+			m_clrDisabledCheckBox = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "separator"); tmp != CLR_INVALID)
+			m_clrSeparatorLine = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "selectionborder"); tmp != CLR_INVALID)
+			m_clrSelectionBorder = tmp;
+	}
 };
 using LPXPMENUCOLORS = XPMENUCOLORS*;
 
