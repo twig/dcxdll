@@ -635,6 +635,36 @@ struct dcxImage
 	}
 };
 
+// id > class > text
+struct xmlStyle
+{
+	TString tsID;
+	TString tsClass;
+	TString tsType;
+	// style data can be any attributes the target will take.
+
+	const TiXmlElement* xStyle{}; // pointer to this style in the xml document, ONLY valid while doc exists!
+};
+using VectorOfStyles = std::vector<xmlStyle>; //!< Vector of XML styles in dcxml
+
+struct xmlTemplate
+{
+	TString tsName;
+	const TiXmlElement* xTemplate{}; // pointer to this template in the xml document, ONLY valid while doc exists!
+};
+using VectorOfTemplates = std::vector<xmlTemplate>; //!< Vector of XML templates in dcxml
+
+struct xmlIcon
+{
+	TString tsID;		// UserID
+	TString tsClass;
+	TString tsType;		// control type
+	TString tsFlags;
+	TString tsSrc;
+	const TiXmlElement* xIcon{}; // pointer to this template in the xml document, ONLY valid while doc exists!
+};
+using VectorOfIcons = std::vector<xmlIcon>; //!< Vector of XML templates in dcxml
+
 // UNICODE/ANSI wrappers
 #define dcx_atoi(x) ts_atoi(x)
 #define dcx_atoi64(x) ts_atoi64(x)
