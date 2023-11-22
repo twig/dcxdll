@@ -490,6 +490,30 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	// xpopup -i -> [MENU] -i [FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('i')])
 	{
+//		if (numtok < 5)
+//			throw DcxExceptions::dcxInvalidArguments();
+//
+//		auto himl = p_Menu->getImageList();
+//		if (!himl)
+//			throw Dcx::dcxException(TEXT("Invalid ImageList."));
+//
+//		const auto tsFlags(input.getnexttok());			// tok 3
+//		const auto index = input.getnexttok().to_int();	// tok 4
+//		auto filename(input.getlasttoks());				// tok 5, -1
+//
+//#if DCX_USE_WRAPPERS
+//		const Dcx::dcxIconResource icon(index, filename, false, tsFlags);
+//
+//		ImageList_AddIcon(himl, icon.get());
+//#else
+//		const HICON icon = dcxLoadIcon(index, filename, false, tsFlags);
+//		if (icon == nullptr)
+//			throw Dcx::dcxException(TEXT("Unable to Load Icon: % in file: %"), index, filename);
+//
+//		ImageList_AddIcon(himl, icon);
+//		DestroyIcon(icon);
+//#endif
+
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -497,22 +521,11 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 		if (!himl)
 			throw Dcx::dcxException(TEXT("Invalid ImageList."));
 
-		const auto tsFlags(input.getnexttok());			// tok 3
-		const auto index = input.getnexttok().to_int();	// tok 4
-		auto filename(input.getlasttoks());				// tok 5, -1
+		const auto tsFlags(input.getnexttok());	// tok 3
+		const auto tsIndex(input.getnexttok());	// tok 4
+		auto filename(input.getlasttoks());		// tok 5, -1
 
-#if DCX_USE_WRAPPERS
-		const Dcx::dcxIconResource icon(index, filename, false, tsFlags);
-
-		ImageList_AddIcon(himl, icon.get());
-#else
-		const HICON icon = dcxLoadIcon(index, filename, false, tsFlags);
-		if (icon == nullptr)
-			throw Dcx::dcxException(TEXT("Unable to Load Icon: % in file: %"), index, filename);
-
-		ImageList_AddIcon(himl, icon);
-		DestroyIcon(icon);
-#endif
+		Dcx::dcxLoadIconRange(himl, filename, false, tsFlags, tsIndex);
 	}
 	// xpopup -j -> [MENU] [SWITCH]
 	else if (flags[TEXT('j')])
