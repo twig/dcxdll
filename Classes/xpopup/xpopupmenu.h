@@ -330,9 +330,9 @@ public:
 
 	const HBITMAP &getBackBitmap() const noexcept
 	{
-		return m_hBitmap;
+		return m_hBitmap.m_hBitmap;
 	}
-	void setBackBitmap(HBITMAP hBitmap) noexcept;
+	void setBackBitmap(HBITMAP hBitmap, const TString &tsFilename) noexcept;
 
 	const inline bool &IsRoundedSelector(void) const noexcept { return this->m_bRoundedSel; };
 	const inline bool& IsRoundedWindow(void) const noexcept { return this->m_bRoundedWindow; };
@@ -376,7 +376,8 @@ protected:
 	UINT m_MenuItemStyles{};			//!< Menu Item Styles
 	size_t m_menuNameHash{};			//!< Hash of tsMenuName
 
-	HBITMAP m_hBitmap{ nullptr };		//!< Menu Item Background Image in Custom Style
+	//HBITMAP m_hBitmap{ nullptr };		//!< Menu Item Background Image in Custom Style
+	dcxImage m_hBitmap;					//!< Menu Item Background Image in Custom Style
 
 	XPMENUCOLORS m_MenuColors;			//!< Menu Colors
 

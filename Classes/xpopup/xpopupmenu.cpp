@@ -54,8 +54,10 @@ XPopupMenu::~XPopupMenu()
 
 	this->clearAllMenuItems();
 	
-	if (this->m_hBitmap)
-		DeleteBitmap(this->m_hBitmap);
+	this->m_hBitmap.reset();
+
+	//if (this->m_hBitmap)
+	//	DeleteBitmap(this->m_hBitmap);
 
 	//if (m_hMenu && m_menuNameHash != TEXT("mircbar"_hash) && m_menuNameHash != TEXT("dialog"_hash))
 	//	DestroyMenu(this->m_hMenu);
@@ -1012,12 +1014,13 @@ void XPopupMenu::clearAllMenuItems() noexcept
 * blah
 */
 
-void XPopupMenu::setBackBitmap(HBITMAP hBitmap) noexcept
+void XPopupMenu::setBackBitmap(HBITMAP hBitmap, const TString& tsFilename) noexcept
 {
-	if (this->m_hBitmap)
-		DeleteObject(this->m_hBitmap);
+	if (this->m_hBitmap.m_hBitmap)
+		DeleteObject(this->m_hBitmap.m_hBitmap);
 
-	this->m_hBitmap = hBitmap;
+	this->m_hBitmap.m_hBitmap = hBitmap;
+	this->m_hBitmap.m_tsFilename = tsFilename;
 }
 
 /**
