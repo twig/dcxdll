@@ -53,7 +53,7 @@ XPopupMenu::~XPopupMenu()
 		this->detachFromMenuBar(nullptr);
 
 	this->clearAllMenuItems();
-	
+
 	this->m_hBitmap.reset();
 
 	//if (this->m_hBitmap)
@@ -1086,6 +1086,179 @@ const bool XPopupMenu::isItemValid(const XPopupMenuItem* const pItem) const noex
 			return true;
 	}
 	return false;
+}
+
+void XPopupMenu::toXml(const DcxDialog* d, TiXmlElement* const xml) const
+{
+	{
+		TString tsStyle;
+		switch (getStyle())
+		{
+		case XPopupMenu::MenuStyle::XPMS_OFFICE2003:
+			tsStyle = L"office2003";
+			break;
+		case XPopupMenu::MenuStyle::XPMS_OFFICE2003_REV:
+			tsStyle = L"office2003rev";
+			break;
+		case XPopupMenu::MenuStyle::XPMS_OFFICEXP:
+			tsStyle = L"officexp";
+			break;
+		case XPopupMenu::MenuStyle::XPMS_ICY:
+			tsStyle = L"icy";
+			break;
+		case XPopupMenu::MenuStyle::XPMS_ICY_REV:
+			tsStyle = L"icyrev";
+			break;
+		case XPopupMenu::MenuStyle::XPMS_GRADE:
+			tsStyle = L"grade";
+			break;
+		case XPopupMenu::MenuStyle::XPMS_GRADE_REV:
+			tsStyle = L"graderev";
+			break;
+		case XPopupMenu::MenuStyle::XPMS_NORMAL:
+			tsStyle = L"normal";
+			break;
+		case XPopupMenu::MenuStyle::XPMS_CUSTOM:
+			tsStyle = L"custom";
+			break;
+		case XPopupMenu::MenuStyle::XPMS_VERTICAL:
+			tsStyle = L"vertical";
+			break;
+		case XPopupMenu::MenuStyle::XPMS_VERTICAL_REV:
+			tsStyle = L"verticalrev";
+			break;
+		case XPopupMenu::MenuStyle::XPMS_BUTTON:
+			tsStyle = L"button";
+			break;
+		case XPopupMenu::MenuStyle::XPMS_BUTTON_REV:
+			tsStyle = L"buttonrev";
+			break;
+		case XPopupMenu::MenuStyle::XPMS_CUSTOMBIG:
+			tsStyle = L"custombig";
+			break;
+		default:
+			break;
+		}
+		xml->SetAttribute("style", tsStyle.c_str());
+	}
+
+	if (auto tsMark(getMarkedText()); !tsMark.empty())
+		xml->SetAttribute("mark", tsMark.c_str());
+
+	if (!m_hBitmap.m_tsFilename.empty() && m_hBitmap.m_tsFilename != L"none")
+	{
+		TiXmlElement xImage("image");
+
+		xImage.SetAttribute("eval", "0"); // diable eval
+		xImage.SetAttribute("src", m_hBitmap.m_tsFilename.c_str());
+
+		xml->InsertEndChild(xImage);
+	}
+
+	xmlSaveImageList(d, xml);
+
+	xml->LinkEndChild(getColors()->toXml());
+
+	if (this->IsRoundedSelector())
+		xml->SetAttribute("roundedselector", "1");
+	if (this->IsRoundedWindow())
+		xml->SetAttribute("roundedwindow", "1");
+	if (this->IsToolTipsEnabled())
+		xml->SetAttribute("tooltips", "1");
+
+	if (auto alpha = gsl::narrow_cast<int>(this->IsAlpha()); alpha < 255)
+		xml->SetAttribute("alpha", alpha);
+}
+
+TiXmlElement* XPopupMenu::toXml(const DcxDialog* d) const
+{
+	auto xml = std::make_unique<TiXmlElement>("menu");
+	toXml(d, xml.get());
+	return xml.release();
+}
+
+void XPopupMenu::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, const VectorOfIcons &vIcons)
+{
+	if (!xThis)
+		return;
+
+	if (const TString tsMark(queryAttribute(xThis, "mark")); !tsMark.empty())
+		this->setMarkedText(tsMark);
+
+	if (const auto tmp = queryIntAttribute(xThis, "roundedselector"); tmp)
+		this->SetRoundedSelector(true);
+	if (const auto tmp = queryIntAttribute(xThis, "roundedwindow"); tmp)
+		this->SetRoundedWindow(true);
+	if (const auto tmp = queryIntAttribute(xThis, "tooltips"); tmp)
+		this->setTooltipsState(true);
+	//if (const auto tmp = queryIntAttribute(xThis, "alpha"); tmp < 255)
+	//	this->SetAlpha(Dcx::numeric_cast<std::byte>(tmp));
+	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "alpha")); tmp < 255)
+		this->SetAlpha(std::byte{ tmp });
+
+	if (auto xml = xThis->FirstChildElement("image"); xml)
+	{
+		if (TString tsSrc(queryEvalAttribute(xml, "src")); !tsSrc.empty() && tsSrc != L"none")
+		{
+			if (const auto hBitmap = dcxLoadBitmap(nullptr, tsSrc); hBitmap)
+				setBackBitmap(hBitmap, tsSrc);
+		}
+	}
+
+	if (const TString tsStyle(queryAttribute(xThis, "style")); !tsStyle.empty())
+		this->setStyle(this->parseStyle(tsStyle));
+
+	if (auto xml = xThis->FirstChildElement("colours"); xml)
+		m_MenuColors.fromXml(xml);
+
+	if (auto himl = this->getImageList(); himl)
+	{
+		for (auto& a : vIcons)
+		{
+			if ((a.tsType != L"menu") || (a.tsID != L"dialog"))
+				continue;
+
+			TString tsSrc(queryEvalAttribute(a.xIcon, "src"));
+			const TString tsIndex(queryAttribute(a.xIcon, "index", "0"));
+			const TString tsFlags(queryAttribute(a.xIcon, "flags", "+"));
+			Dcx::dcxLoadIconRange(himl, tsSrc, false, tsFlags, tsIndex);
+		}
+	}
+}
+
+void XPopupMenu::xmlSaveImageList(const DcxDialog* d, TiXmlElement* xml) const
+{
+	if (!m_hImageList || !xml || !d)
+		return;
+
+	if (const auto cnt = ImageList_GetImageCount(m_hImageList); cnt > 0)
+	{
+		//if (!xml->Attribute("iconsize"))
+		//{
+		//	if (int cx{}, cy{}; ImageList_GetIconSize(m_hImageList, &cx, &cy))
+		//	{
+		//		xml->SetAttribute("iconsize", cx);
+		//	}
+		//}
+
+		xmlIcon xIcon;
+
+		xIcon.tsType = L"menu";
+		xIcon.tsID = this->getName();
+		xIcon.tsFlags = L"+B";
+
+		for (int i{}; i < cnt; ++i)
+		{
+			if (auto hIcon = ImageList_GetIcon(m_hImageList, i, ILD_TRANSPARENT); hIcon)
+			{
+				Auto(DestroyIcon(hIcon));
+
+				xIcon.tsSrc = IconToBase64(hIcon);
+
+				d->xmlGetIcons().emplace_back(xIcon);
+			}
+		}
+	}
 }
 
 /*

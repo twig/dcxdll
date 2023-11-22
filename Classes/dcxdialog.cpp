@@ -276,30 +276,7 @@ void DcxDialog::xmlLoadMenubarColours(const TiXmlElement* xParent, XPMENUBARCOLO
 	if (!xColours)
 		return;
 
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "back", CLR_INVALID)); tmp != CLR_INVALID)
-		mColours.m_clrBack = tmp;
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "border", CLR_INVALID)); tmp != CLR_INVALID)
-		mColours.m_clrBorder = tmp;
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "box", CLR_INVALID)); tmp != CLR_INVALID)
-		mColours.m_clrBox = tmp;
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "disabled", CLR_INVALID)); tmp != CLR_INVALID)
-		mColours.m_clrDisabled = tmp;
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "disabledtext", CLR_INVALID)); tmp != CLR_INVALID)
-		mColours.m_clrDisabledText = tmp;
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "hot", CLR_INVALID)); tmp != CLR_INVALID)
-		mColours.m_clrHot = tmp;
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "hotborder", CLR_INVALID)); tmp != CLR_INVALID)
-		mColours.m_clrHotBorder = tmp;
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "hottext", CLR_INVALID)); tmp != CLR_INVALID)
-		mColours.m_clrHotText = tmp;
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "selectedtext", CLR_INVALID)); tmp != CLR_INVALID)
-		mColours.m_clrSelectedText = tmp;
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "selection", CLR_INVALID)); tmp != CLR_INVALID)
-		mColours.m_clrSelection = tmp;
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "selectionborder", CLR_INVALID)); tmp != CLR_INVALID)
-		mColours.m_clrSelectionBorder = tmp;
-	if (const auto tmp = gsl::narrow_cast<COLORREF>(queryIntAttribute(xColours, "text", CLR_INVALID)); tmp != CLR_INVALID)
-		mColours.m_clrText = tmp;
+	mColours.fromXml(xColours);
 }
 
 void DcxDialog::xmlSaveMenubarColours(TiXmlElement* xParent, const XPMENUBARCOLORS& mColours)
@@ -307,36 +284,10 @@ void DcxDialog::xmlSaveMenubarColours(TiXmlElement* xParent, const XPMENUBARCOLO
 	if (!xParent)
 		return;
 
-	TiXmlElement xColours("colours");
-	if (mColours.m_clrBack != CLR_INVALID)
-		xColours.SetAttribute("back", mColours.m_clrBack);
-	if (mColours.m_clrBorder != CLR_INVALID)
-		xColours.SetAttribute("border", mColours.m_clrBorder);
-	if (mColours.m_clrBox != CLR_INVALID)
-		xColours.SetAttribute("box", mColours.m_clrBox);
-	if (mColours.m_clrDisabled != CLR_INVALID)
-		xColours.SetAttribute("disabled", mColours.m_clrDisabled);
-	if (mColours.m_clrDisabledText != CLR_INVALID)
-		xColours.SetAttribute("disabledtext", mColours.m_clrDisabledText);
-	if (mColours.m_clrHot != CLR_INVALID)
-		xColours.SetAttribute("hot", mColours.m_clrHot);
-	if (mColours.m_clrHotBorder != CLR_INVALID)
-		xColours.SetAttribute("hotborder", mColours.m_clrHotBorder);
-	if (mColours.m_clrHotText != CLR_INVALID)
-		xColours.SetAttribute("hottext", mColours.m_clrHotText);
-	if (mColours.m_clrSelectedText != CLR_INVALID)
-		xColours.SetAttribute("selectedtext", mColours.m_clrSelectedText);
-	if (mColours.m_clrSelection != CLR_INVALID)
-		xColours.SetAttribute("selection", mColours.m_clrSelection);
-	if (mColours.m_clrSelectionBorder != CLR_INVALID)
-		xColours.SetAttribute("selectionborder", mColours.m_clrSelectionBorder);
-	if (mColours.m_clrText != CLR_INVALID)
-		xColours.SetAttribute("text", mColours.m_clrText);
-
-	xParent->InsertEndChild(xColours);
+	xParent->LinkEndChild(mColours.toXml());
 }
 
-void DcxDialog::xmlLoadMenubar(const TiXmlElement* xMenubar, XPMENUBAR& mMenubar) noexcept
+void DcxDialog::xmlLoadMenubar(const TiXmlElement* xMenubar, XPMENUBAR& mMenubar)
 {
 	if (!xMenubar)
 		return;
@@ -354,9 +305,9 @@ void DcxDialog::xmlLoadMenubar(const TiXmlElement* xMenubar, XPMENUBAR& mMenubar
 
 	xmlLoadMenubarColours(xMenubar, mMenubar.m_Default.m_Colours);
 
-	// load images...
+	// load default image.
+	if (TString tsFilename(queryEvalAttribute(xMenubar, "src")); !tsFilename.empty())
 	{
-		TString tsFilename(queryAttribute(xMenubar, "src"));
 		mMenubar.m_Default.m_hBkg.m_tsFilename = tsFilename;
 		mMenubar.m_Default.m_hBkg.m_hBitmap = dcxLoadBitmap(mMenubar.m_Default.m_hBkg.m_hBitmap, tsFilename);
 	}
@@ -367,10 +318,17 @@ void DcxDialog::xmlLoadMenubar(const TiXmlElement* xMenubar, XPMENUBAR& mMenubar
 		XPMENUBARITEM item;
 		int id{};
 
-		if (const auto tmp = queryIntAttribute(xItem, "id"); tmp)
+		if (const auto tmp = queryIntAttribute(xItem, "id"); tmp)	// NB: ID is always a number here.
 			id = tmp;
 
 		xmlLoadMenubarColours(xItem, item.m_Colours);
+
+		// load image.
+		if (TString tsFilename(queryEvalAttribute(xItem, "src")); !tsFilename.empty())
+		{
+			item.m_hBkg.m_tsFilename = tsFilename;
+			item.m_hBkg.m_hBitmap = dcxLoadBitmap(item.m_hBkg.m_hBitmap, tsFilename);
+		}
 
 		mMenubar.m_ItemSettings[id] = item;
 	}
@@ -397,9 +355,7 @@ void DcxDialog::xmlSaveMenubar(TiXmlElement* xParent, const XPMENUBAR& mMenuBar)
 
 	xmlSaveMenubarColours(&xMenubar, mMenuBar.m_Default.m_Colours);
 
-	// default background?
-
-	// menu item specific settings...
+	// menubar item specific settings...
 	if (!mMenuBar.m_ItemSettings.empty())
 	{
 		for (const auto& a : mMenuBar.m_ItemSettings)
@@ -408,13 +364,14 @@ void DcxDialog::xmlSaveMenubar(TiXmlElement* xParent, const XPMENUBAR& mMenuBar)
 			xItem.SetAttribute("id", a.first);
 
 			xmlSaveMenubarColours(&xItem, a.second.m_Colours);
+
 			// save image
+			if (!a.second.m_hBkg.m_tsFilename.empty())
+				xItem.SetAttribute("src", a.second.m_hBkg.m_tsFilename.c_str());
 
 			xMenubar.InsertEndChild(xItem);
 		}
 	}
-
-	// save images....
 
 	xParent->InsertEndChild(xMenubar);
 }
@@ -1283,7 +1240,6 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 
 			// if the index is out of bounds
 			if ((n < 0) || (n >= gsl::narrow_cast<int>(m_vZLayers.size())))
-				//throw Dcx::dcxException("Index array out of bounds");
 				throw DcxExceptions::dcxOutOfRange();
 
 			execAliasEx(TEXT("zlayershow,%d,%d"), n + 1, gsl::at(m_vZLayers, gsl::narrow_cast<UINT>(n)) - mIRC_ID_OFFSET);
@@ -1319,24 +1275,24 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -P [NAME] [SWITCH] ([+FLAGS] (FLAG OPTIONS))
 	else if (flags[TEXT('P')])
 	{
-		// create the menu
-		if (!m_popup)
-		{
-			auto menu = GetMenu(m_Hwnd);
+		//// create the menu
+		//if (!m_popup)
+		//{
+		//	auto menu = GetMenu(m_Hwnd);
+		//
+		//	if (!menu)
+		//		throw Dcx::dcxException("Menu Does Not Exist");
+		//
+		//	m_popup = std::make_unique<XPopupMenu>(TEXT("dialog"_ts), menu);
+		//}
+		//if (m_popup)
+		//{
+		//	auto menuargs(TEXT("dialog "_ts) + input.getlasttoks());
+		//
+		//	Dcx::XPopups.parseCommand(menuargs, m_popup.get());
+		//}
 
-			if (!menu)
-				throw Dcx::dcxException("Menu Does Not Exist");
-
-			//m_popup = new XPopupMenu(TEXT("dialog"_ts), menu);
-			m_popup = std::make_unique<XPopupMenu>(TEXT("dialog"_ts), menu);
-		}
-		if (m_popup)
-		{
-			auto menuargs(TEXT("dialog "_ts) + input.getlasttoks());
-			//menuargs += input.getlasttoks();
-
-			Dcx::XPopups.parseCommand(menuargs, m_popup.get());
-		}
+		CustomMenuCommand(input.getlasttoks());
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]
 	else if (flags[TEXT('R')] && numtok > 2)
@@ -1633,7 +1589,11 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 
 			if (!xRoot)
 				throw Dcx::dcxException("Unable To Add Root <dcxml>");
+
+			xRoot->SetAttribute("version", DCXML_VERSION);
 		}
+		else if (queryIntAttribute(xRoot, "version") < DCXML_VERSION)
+			throw Dcx::dcxException("Wrong <dcxml> version");
 
 		// get or create dialogs item
 		auto xDialogs = xRoot->FirstChildElement("dialogs");
@@ -1676,6 +1636,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			xDialog->Clear();
 
 			xDialog->SetAttribute("version", DCXML_DIALOG_VERSION);
+
 			//add GIT_DESCRIBEA ?
 			// save current setup
 			this->toXml(xDialog, tsName);
@@ -4257,6 +4218,26 @@ void DcxDialog::SetVistaStyleSize(void) noexcept
 	}
 }
 
+void DcxDialog::CustomMenuCommand(const TString& tsArgs)
+{
+	// create the menu
+	if (!m_popup)
+	{
+		auto menu = GetMenu(m_Hwnd);
+
+		if (!menu)
+			throw Dcx::dcxException("Menu Does Not Exist");
+
+		m_popup = std::make_unique<XPopupMenu>(TEXT("dialog"_ts), menu);
+	}
+	if (m_popup)
+	{
+		auto menuargs(TEXT("dialog "_ts) + tsArgs);
+
+		Dcx::XPopups.parseCommand(menuargs, m_popup.get());
+	}
+}
+
 void DcxDialog::MapVistaRect(HWND hwnd, LPRECT rc) const noexcept
 {
 	MapWindowRect(hwnd, m_Hwnd, rc);
@@ -4331,6 +4312,8 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 	if (!xml || !m_Hwnd)
 		return;
 
+	xml->SetAttribute("eval", "0"); // diable eval
+
 	const TString dest(TGetWindowText(m_Hwnd));
 	xml->SetAttribute("name", name.c_str());
 	xml->SetAttribute("caption", dest.c_str());
@@ -4342,6 +4325,7 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 	if (const auto clr = Dcx::BrushToColour(this->m_hBackBrush); clr != CLR_INVALID)
 		setColourAttribute(xml, "bgcolour", clr);
 
+	// x, y, width, & height
 	{
 		const Dcx::dcxWindowRect rc(m_Hwnd);
 
@@ -4369,8 +4353,8 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 		tsOff.addtok(this->m_sVistaOffsets.cy);
 		xml->SetAttribute("vistaoffsets", tsOff.c_str());
 	}
+	// cursors
 	{
-		// cursors
 		TiXmlElement xCursors("cursors");
 
 		if (this->m_hCursor.cursor)
@@ -4405,7 +4389,12 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 	//	&extendedFrameBounds,
 	//	sizeof(extendedFrameBounds));
 
+	// menus
 	xmlSaveMenubar(xml, this->m_CustomMenuBar);
+
+	// custom menu style if any
+	if (m_popup)
+		xml->LinkEndChild(m_popup->toXml(this));
 
 	bool bDidCLA{ false };
 	if (m_pLayoutManager)
@@ -4454,8 +4443,8 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 		}
 	}
 
+	// icons
 	{
-		// icons
 		TiXmlElement xIcons("icons");
 
 		if (HICON hIcon = (HICON)SendMessage(m_Hwnd, WM_GETICON, ICON_SMALL, DcxDPIModule::dcxGetDpiForWindow(m_Hwnd)); hIcon)
@@ -4498,6 +4487,50 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 				xIcons.InsertEndChild(xIcon);
 			}
 		}
+
+		//// remove duplicates.
+		//{
+		//	VectorOfIcons vIcons;
+		//	for (auto& a : this->m_xmlIcons)
+		//	{
+		//		auto itEnd = vIcons.end();
+		//		auto itGet = std::find_if(vIcons.begin(), itEnd, [a](const xmlIcon& b) noexcept {
+		//			if (a.tsFlags == b.tsFlags)
+		//			{
+		//				if ((a.tsSrc == b.tsSrc) && (!b.tsID.istok(a.tsID, TSCOMMACHAR)))
+		//					return true;
+		//			}
+		//			return false;
+		//			});
+		//
+		//		if (itGet != itEnd)
+		//		{
+		//			(*itGet).tsID.addtok(a.tsID, TSCOMMACHAR);
+		//		}
+		//		else {
+		//			vIcons.emplace_back(a);
+		//		}
+		//	}
+		//
+		//	for (auto& a : vIcons)
+		//	{
+		//		if (!a.tsSrc.empty() && !a.tsID.empty())
+		//		{
+		//			TiXmlElement xIcon("icon");
+		//
+		//			xIcon.SetAttribute("id", a.tsID.c_str());
+		//			if (!a.tsType.empty())
+		//				xIcon.SetAttribute("type", a.tsType.c_str());
+		//			if (!a.tsFlags.empty())
+		//				xIcon.SetAttribute("flags", a.tsFlags.c_str());
+		//			xIcon.SetAttribute("eval", "0"); // diable eval for base64
+		//			xIcon.SetAttribute("src", a.tsSrc.c_str());
+		//
+		//			xIcons.InsertEndChild(xIcon);
+		//		}
+		//	}
+		//}
+
 		if (!xIcons.NoChildren())
 			xml->InsertEndChild(xIcons);
 	}
@@ -4515,7 +4548,7 @@ void DcxDialog::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	// set any styles that apply
 	xmlSetStyles();
 
-	// set dialog icons if any. Only 2 icon small & large
+	// set dialog icons if any. Only 2 icons, small & large
 	xmlSetIcons();
 
 	// check <dialog> for any style info
@@ -4569,10 +4602,24 @@ void DcxDialog::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 		this->m_sVistaOffsets.cx = tsOff.getfirsttok(1).to_<LONG>();
 		this->m_sVistaOffsets.cy = tsOff.getnexttokas<LONG>();
 	}
+
+	// custom menubar...
 	if (auto xMenubar = xThis->FirstChildElement("menubar"); xMenubar)
 	{
-		// custom menubar...
 		xmlLoadMenubar(xMenubar, this->m_CustomMenuBar);
+	}
+
+	// menus
+	if (auto xMenu = xThis->FirstChildElement("menu"); xMenu)
+	{
+		auto menu = GetMenu(m_Hwnd);
+
+		if (!menu)
+			throw Dcx::dcxException("Menu Does Not Exist");
+
+		m_popup = std::make_unique<XPopupMenu>(TEXT("dialog"_ts), menu);
+
+		m_popup->fromXml(xDcxml, xMenu, xmlGetIcons());
 	}
 
 	// cursors
@@ -4906,8 +4953,8 @@ void DcxDialog::xmlbuildIconsList(const TiXmlElement* xElement)
 		{
 			xmlIcon xi;
 
-			xi.tsClass = queryEvalAttribute(xTmp, "class");
 			xi.tsID = queryEvalAttribute(xTmp, "id");
+			xi.tsClass = queryEvalAttribute(xTmp, "class");
 			xi.tsType = queryEvalAttribute(xTmp, "type");
 			xi.xIcon = xTmp;
 
@@ -4944,6 +4991,41 @@ void DcxDialog::xmlbuildTemplatesList(const TiXmlElement* xElement)
 		}
 	}
 }
+
+//void DcxDialog::xmlSaveImageList(HIMAGELIST himl, TiXmlElement* xml, const TString& tsFlags) const
+//{
+//	if (!himl || !xml || tsFlags.empty())
+//		return;
+//
+//	if (const auto cnt = ImageList_GetImageCount(himl); cnt > 0)
+//	{
+//		if (!xml->Attribute("iconsize"))
+//		{
+//			if (int cx{}, cy{}; ImageList_GetIconSize(himl, &cx, &cy))
+//			{
+//				xml->SetAttribute("iconsize", cx);
+//			}
+//		}
+//
+//		xmlIcon xIcon;
+//
+//		//xIcon.tsType = this->getType();
+//		//xIcon.tsID = this->IDToName(this->getID());
+//		xIcon.tsFlags = tsFlags;
+//
+//		for (int i{}; i < cnt; ++i)
+//		{
+//			if (auto hIcon = ImageList_GetIcon(himl, i, ILD_TRANSPARENT); hIcon)
+//			{
+//				Auto(DestroyIcon(hIcon));
+//
+//				xIcon.tsSrc = IconToBase64(hIcon);
+//
+//				this->xmlGetIcons().emplace_back(xIcon);
+//			}
+//		}
+//	}
+//}
 
 void DcxDialog::xmlCallTemplate(const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCallTemplate)
 {

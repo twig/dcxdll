@@ -3351,7 +3351,7 @@ void DcxControl::xmlLoadIcons(const TiXmlElement* xThis)
 		// if id matches, load the icon, id can be id or id,id,id...
 		if (!a.tsID.empty())
 		{
-			const auto HandleIDRange = [=](const TString& tsID) {
+			const auto HandleIDRange = [this, pd](const TString& tsID) {
 				UINT id_start = 0, id_end = 0;
 				if (tsID.numtok(TEXT('-')) == 2)
 				{
@@ -3410,6 +3410,12 @@ void DcxControl::xmlSaveImageList(HIMAGELIST himl, TiXmlElement* xml, const TStr
 	if (!himl || !xml || tsFlags.empty())
 		return;
 
+	auto pd = this->getParentDialog();
+	if (!pd)
+		return;
+
+	//pd->xmlSaveImageList(himl, xml, tsFlags);
+
 	if (const auto cnt = ImageList_GetImageCount(himl); cnt > 0)
 	{
 		if (!xml->Attribute("iconsize"))
@@ -3419,23 +3425,22 @@ void DcxControl::xmlSaveImageList(HIMAGELIST himl, TiXmlElement* xml, const TStr
 				xml->SetAttribute("iconsize", cx);
 			}
 		}
-
+	
 		xmlIcon xIcon;
-
+	
 		//xIcon.tsType = this->getType();
-		xIcon.tsID = this->getParentDialog()->IDToName(this->getID());
+		xIcon.tsID = pd->IDToName(this->getID());
 		xIcon.tsFlags = tsFlags;
-
+	
 		for (int i{}; i < cnt; ++i)
 		{
 			if (auto hIcon = ImageList_GetIcon(himl, i, ILD_TRANSPARENT); hIcon)
 			{
 				Auto(DestroyIcon(hIcon));
-
+	
 				xIcon.tsSrc = IconToBase64(hIcon);
-
-				this->getParentDialog()->xmlGetIcons().emplace_back(xIcon);
-
+	
+				pd->xmlGetIcons().emplace_back(xIcon);
 			}
 		}
 	}

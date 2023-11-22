@@ -225,6 +225,8 @@ public:
 	void SetVistaStylePos(void) noexcept;
 	void SetVistaStyleSize(void) noexcept;
 
+	void CustomMenuCommand(const TString &tsArgs);
+
 	/// <summary>
 	/// Check if a name already exists on the internal list.
 	/// </summary>
@@ -396,6 +398,7 @@ public:
 	const VectorOfStyles& xmlGetStyles() const noexcept { return m_xmlStyles; }
 	const VectorOfTemplates& xmlGetTemplates() const noexcept { return m_xmlTemplates; }
 	VectorOfIcons& xmlGetIcons() const noexcept { return m_xmlIcons; }
+	//void xmlSaveImageList(HIMAGELIST himl, TiXmlElement* xml, const TString& tsFlags) const;
 
 	const bool isIDValid(_In_ const UINT ID, _In_ const bool bUnused = false) const noexcept;
 
@@ -503,7 +506,7 @@ private:
 
 	static void xmlLoadMenubarColours(const TiXmlElement* xParent, XPMENUBARCOLORS& mColours) noexcept;
 	static void xmlSaveMenubarColours(TiXmlElement* xParent, const XPMENUBARCOLORS& mColours);
-	static void xmlLoadMenubar(const TiXmlElement* xMenubar, XPMENUBAR& mMenubar) noexcept;
+	static void xmlLoadMenubar(const TiXmlElement* xMenubar, XPMENUBAR& mMenubar);
 	static void xmlSaveMenubar(TiXmlElement* xParent, const XPMENUBAR& mMenuBar);
 
 	static std::pair<WindowStyle, WindowExStyle> parseBorderStyles(const TString& flags) noexcept;

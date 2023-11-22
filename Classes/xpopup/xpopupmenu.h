@@ -364,6 +364,12 @@ public:
 
 	const bool isItemValid(const XPopupMenuItem* const pItem) const noexcept;
 
+	void toXml(const DcxDialog* d, TiXmlElement* const xml) const;
+	TiXmlElement* toXml(const DcxDialog* d) const;
+	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, const VectorOfIcons& vIcons);
+
+	void xmlSaveImageList(const DcxDialog *d, TiXmlElement* xml) const;
+
 	VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects
 
 protected:
