@@ -385,6 +385,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 				if (const auto nLine = input.getnexttok().to_int(); (nLine > 0 && nLine <= gsl::narrow_cast<int>(m_tsText.numtok(sepChars.to_chr()))))
 					szReturnValue = m_tsText.gettok(nLine, sepChars.to_chr()).to_chr();
 			}
+			// Ook: should we return the entire line when no line number is given?
 		}
 		else
 			szReturnValue = m_tsText.to_chr();
