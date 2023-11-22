@@ -61,8 +61,8 @@ mIRC(dcxml)
 		else if (xFlags[TEXT('p')])
 		{
 			const auto popupName(input.getnexttok());		// tok 2
-			const auto popupDataset(input.getnexttok());		// tok 3
-			auto tsFilename(input.getlasttoks().trim());		// tok 4, -1
+			const auto popupDataset(input.getnexttok());	// tok 3
+			auto tsFilename(input.getlasttoks().trim());	// tok 4, -1
 
 			{
 				const auto popupNameHash = std::hash<TString>{}(popupName);
@@ -78,11 +78,11 @@ mIRC(dcxml)
 				throw Dcx::dcxException("Unable to load XML file");
 
 			const auto dcxmlElem = doc.FirstChildElement("dcxml");
-			if (dcxmlElem == nullptr)
+			if (!dcxmlElem)
 				throw Dcx::dcxException("Unable to find <dcxml> group");
 
 			const auto* const popups = dcxmlElem->FirstChildElement("popups");
-			if (popups == nullptr)
+			if (!popups)
 				throw Dcx::dcxException("Unable to find <popups> group");
 
 			XPopupMenuManager::LoadPopupsFromXML(popups, nullptr, popupName, popupDataset);
