@@ -1106,16 +1106,20 @@ const UINT XPopupMenuManager::parseTrackFlags(const TString& flags) noexcept
  */
 void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, const TiXmlElement* popup, const TString& popupName, const TString& popupDataset)
 {
+	if (!popups)
+		throw DcxExceptions::dcxInvalidArguments();
+
+	if (!popup)
+	{
 	// Find the dataset with the name we want.
 	for (auto element = popups->FirstChildElement("popup"); element; element = element->NextSiblingElement("popup"))
 	{
-		const TString name(element->Attribute("name"));
-
-		if (name == popupDataset)
+			if (const TString name(element->Attribute("name")); name == popupDataset)
 		{
 			popup = element;
 			break;
 		}
+	}
 	}
 
 	// Dataset not found.
@@ -1194,26 +1198,29 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, cons
 
 	for (const auto& tmp : colors)
 	{
-		if (auto tsAttr = GetMenuAttributeFromXML(tmp.value, popup, globalStyles); !tsAttr.empty())
+		if (auto tsAttr(GetMenuAttributeFromXML(tmp.value, popup, globalStyles)); !tsAttr.empty())
 		{
 			mIRCLinker::eval(tsAttr, tsAttr);
+			if (!tsAttr.empty())
 			menu->setColor(tmp.code, tsAttr.to_<COLORREF>());
 		}
 	}
 
 	// Set background image if CUSTOM style used
-	if (style == XPopupMenu::MenuStyle::XPMS_CUSTOM)
+	if ((style == XPopupMenu::MenuStyle::XPMS_CUSTOM) || (style == XPopupMenu::MenuStyle::XPMS_CUSTOMBIG))
 	{
-		const TString tsBkg(popup->Attribute("background"));
+		//if (TString tsBkg(popup->Attribute("background")); !tsBkg.empty())
+		//{
+		//	mIRCLinker::eval(tsBkg, tsBkg);
+		//
+		//	if (const auto hBitmap = dcxLoadBitmap(nullptr, tsBkg); hBitmap)
+		//		menu->setBackBitmap(hBitmap);
+		//}
 
-		if (!tsBkg.empty())
+		if (TString tsBkg(queryEvalAttribute(popup, "background")); !tsBkg.empty())
 		{
-			TString filename;
-
-			mIRCLinker::eval(filename, tsBkg);
-
-			if (const auto hBitmap = dcxLoadBitmap(nullptr, filename); hBitmap)
-				menu->setBackBitmap(hBitmap);
+			if (const auto hBitmap = dcxLoadBitmap(nullptr, tsBkg); hBitmap)
+				menu->setBackBitmap(hBitmap, tsBkg);
 		}
 	}
 
@@ -1221,37 +1228,50 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, cons
 	Dcx::XPopups.addMenu(menu);
 
 	// Parse icons
-	if (const auto* element = popup->FirstChildElement("icons"); element)
+	if (const auto* xIcons = popup->FirstChildElement("icons"); xIcons)
 	{
-		for (element = element->FirstChildElement("icon"); element; element = element->NextSiblingElement("icon"))
+		for (auto xIcon = xIcons->FirstChildElement("icon"); xIcon; xIcon = xIcon->NextSiblingElement("icon"))
 		{
+			//// Flags
+			//const TString flags(queryAttribute(xIcon, "flags", "+"));
+			//const TString tsSrc(xIcon->Attribute("src"));
+			//const TString indexes(queryAttribute(xIcon, "index", "0"));
+			//
+			//// Filename
+			//if (!tsSrc.empty())
+			//{
+			//	TString tsFilename;
+			//	mIRCLinker::eval(tsFilename, tsSrc);
+			//
+			//	if (!tsFilename.empty())
+			//	{
+			//		TString command;
+			//		const auto itEnd = indexes.end();
+			//		for (auto itStart = indexes.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			//		{
+			//			_ts_sprintf(command, TEXT("% -i % % %"), popupName, flags, (*itStart), tsFilename);
+			//			Dcx::XPopups.parseCommand(command, menu);
+			//		}
+			//	}
+			//}
+
 			// Flags
-			const TString flags(queryAttribute(element, "flags", "+"));
-			const TString tsSrc(element->Attribute("src"));
-			const TString indexes(queryAttribute(element, "index", "0"));
+			const TString flags(queryAttribute(xIcon, "flags", "+"));
+			const TString indexes(queryAttribute(xIcon, "index", "0"));
 
 			// Filename
-			if (!tsSrc.empty())
-			{
-				TString tsFilename;
-				mIRCLinker::eval(tsFilename, tsSrc);
-
-				if (!tsFilename.empty())
+			if (const TString tsSrc(queryEvalAttribute(xIcon, "src")); !tsSrc.empty())
 				{
 					TString command;
 					const auto itEnd = indexes.end();
 					for (auto itStart = indexes.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 					{
-						// does (*itStart) NEED to be converted to an int?
-						//command.tsprintf(TEXT("%s -i %s %d %s"), popupName.to_chr(), flags.to_chr(), (*itStart).to_int(), tsFilename.to_chr());
-						//command.tsprintf(TEXT("%s -i %s %s %s"), popupName.to_chr(), flags.to_chr(), (*itStart).to_chr(), tsFilename.to_chr());
-						_ts_sprintf(command, TEXT("% -i % % %"), popupName, flags, (*itStart), tsFilename);
+					_ts_sprintf(command, TEXT("% -i % % %"), popupName, flags, (*itStart), tsSrc);
 						Dcx::XPopups.parseCommand(command, menu);
 					}
 				}
 			}
 		}
-	}
 
 	if (!LoadPopupItemsFromXML(menu, menu->getMenuHandle(), popup))
 		throw Dcx::dcxException(TEXT("Unable to load menu items: %"), popupName);
@@ -1266,7 +1286,7 @@ const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu* menu, HMENU hMen
 	if ((!menu) || (!hMenu) || (!items))
 		return false;
 
-	// Iterate through each child m_pElement.
+	// Iterate through each child Element.
 	for (const auto* element = items->FirstChildElement("item"); element; element = element->NextSiblingElement("item"))
 	{
 		MENUITEMINFO mii{};
@@ -1328,6 +1348,9 @@ const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu* menu, HMENU hMen
 
 const TString XPopupMenuManager::GetMenuAttributeFromXML(const char* const attrib, const TiXmlElement* const popup, const TiXmlElement* const global)
 {
+	if (!attrib || !popup)
+		return {};
+
 	const TString tmp(popup->Attribute(attrib));
 
 	// Specific menu attribute set, ignore global.
