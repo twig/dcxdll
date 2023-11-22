@@ -426,35 +426,35 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	const auto numtok = input.numtok();
 
 	// Special mIRC Menu
-	if (p_Menu == nullptr && !flags[TEXT('c')])
+	if (!p_Menu && !flags[TEXT('c')])
 		throw Dcx::dcxException(TEXT("\"%\" doesn't exist : see /xpopup -c"), tsMenuName);
 
 	// xpopup -b - [MENU] [SWITCH] [FILENAME]
 	if (flags[TEXT('b')])
 	{
 		HBITMAP hBitmap = nullptr;
+		TString tsFilename;
 
 		if (numtok > 2)
 		{
-			auto filename(input.getlasttoks().trim());	// tok 3, -1
+			tsFilename = input.getlasttoks().trim();	// tok 3, -1
 
-			if (filename == TEXT("none"))
+			if (tsFilename == TEXT("none"))
 			{
 				// ignore 'none' to maintain compatibility
 			}
 			else {
-				if (!IsFile(filename))
-					throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
+				if (!IsFile(tsFilename))
+					throw Dcx::dcxException(TEXT("Unable to Access File: %"), tsFilename);
 
-				hBitmap = dcxLoadBitmap(hBitmap, filename);
+				hBitmap = dcxLoadBitmap(hBitmap, tsFilename);
 
 				if (hBitmap == nullptr)
-					throw Dcx::dcxException(TEXT("Unable to Load Image: %"), filename);
+					throw Dcx::dcxException(TEXT("Unable to Load Image: %"), tsFilename);
 			}
 		}
 
-		p_Menu->setBackBitmap(hBitmap);
-
+		p_Menu->setBackBitmap(hBitmap, tsFilename);
 	}
 	// xpopup -c -> [MENU] [SWITCH] [STYLE]
 	else if (flags[TEXT('c')])
@@ -1111,15 +1111,15 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, cons
 
 	if (!popup)
 	{
-	// Find the dataset with the name we want.
-	for (auto element = popups->FirstChildElement("popup"); element; element = element->NextSiblingElement("popup"))
-	{
-			if (const TString name(element->Attribute("name")); name == popupDataset)
+		// Find the dataset with the name we want.
+		for (auto element = popups->FirstChildElement("popup"); element; element = element->NextSiblingElement("popup"))
 		{
-			popup = element;
-			break;
+			if (const TString name(element->Attribute("name")); name == popupDataset)
+			{
+				popup = element;
+				break;
+			}
 		}
-	}
 	}
 
 	// Dataset not found.
@@ -1202,7 +1202,7 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, cons
 		{
 			mIRCLinker::eval(tsAttr, tsAttr);
 			if (!tsAttr.empty())
-			menu->setColor(tmp.code, tsAttr.to_<COLORREF>());
+				menu->setColor(tmp.code, tsAttr.to_<COLORREF>());
 		}
 	}
 
@@ -1261,17 +1261,17 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, cons
 
 			// Filename
 			if (const TString tsSrc(queryEvalAttribute(xIcon, "src")); !tsSrc.empty())
+			{
+				TString command;
+				const auto itEnd = indexes.end();
+				for (auto itStart = indexes.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 				{
-					TString command;
-					const auto itEnd = indexes.end();
-					for (auto itStart = indexes.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-					{
 					_ts_sprintf(command, TEXT("% -i % % %"), popupName, flags, (*itStart), tsSrc);
-						Dcx::XPopups.parseCommand(command, menu);
-					}
+					Dcx::XPopups.parseCommand(command, menu);
 				}
 			}
 		}
+	}
 
 	if (!LoadPopupItemsFromXML(menu, menu->getMenuHandle(), popup))
 		throw Dcx::dcxException(TEXT("Unable to load menu items: %"), popupName);
