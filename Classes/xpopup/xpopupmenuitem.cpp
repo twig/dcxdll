@@ -123,24 +123,18 @@ SIZE XPopupMenuItem::getItemSize(const HWND mHwnd)
 
 	if (const auto typeHash = m_pXParentMenu->getNameHash(); ((typeHash == TEXT("mirc"_hash)) || (typeHash == TEXT("mircbar"_hash)) || (typeHash == TEXT("dialog"_hash))))
 	{
+		// handle icons
+		if (constexpr TCHAR sepChar = TEXT('\v'); m_tsItemText.numtok(sepChar) > 1)
 		{
-			// handle icons
-			constexpr TCHAR sepChar = TEXT('\v');	// 11
-			if (m_tsItemText.numtok(sepChar) > 1)
-			{
-				m_nIcon = m_tsItemText.getfirsttok(1, sepChar).to_int() - 1;	// tok 1, TEXT("\v")	get embeded icon number if any
-				m_tsItemText = m_tsItemText.getlasttoks().trim();				// tok 2, TEXT("\v")	get real item text
-			}
+			m_nIcon = m_tsItemText.getfirsttok(1, sepChar).to_int() - 1;	// tok 1, TEXT("\v")	get embeded icon number if any
+			m_tsItemText = m_tsItemText.getlasttoks().trim();				// tok 2, TEXT("\v")	get real item text
 		}
+		// handles tooltips
+		if (constexpr TCHAR sepChar = TEXT('\t'); m_tsItemText.numtok(sepChar) > 1)
 		{
-			// handles tooltips
-			constexpr TCHAR sepChar = TEXT('\t');	// 9
-			if (m_tsItemText.numtok(sepChar) > 1)
-			{
-				TString tsTmp(m_tsItemText);							// copy item text
-				m_tsItemText = tsTmp.getfirsttok(1, sepChar).trim();	// tok 1, get real item text
-				m_tsTooltipText = tsTmp.getlasttoks().trim();			// tok 2-, get tooltip text
-			}
+			TString tsTmp(m_tsItemText);							// copy item text
+			m_tsItemText = tsTmp.getfirsttok(1, sepChar).trim();	// tok 1, get real item text
+			m_tsTooltipText = tsTmp.getlasttoks().trim();			// tok 2-, get tooltip text
 		}
 	}
 	else
@@ -194,7 +188,7 @@ void XPopupMenuItem::DrawItem(const LPDRAWITEMSTRUCT lpdis)
 	if ((!lpdis) || (!this->m_pXParentMenu))
 		return;
 
-	const auto lpcol = this->m_pXParentMenu->getColors();
+	const auto lpcol = &this->m_pXParentMenu->getColors();
 	const auto iItemStyle = this->m_pXParentMenu->getItemStyle();
 	const auto bGrayed = dcx_testflag(lpdis->itemState, ODS_GRAYED);
 	const auto bSelected = dcx_testflag(lpdis->itemState, ODS_SELECTED);
@@ -479,42 +473,46 @@ void XPopupMenuItem::DrawItemText(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLO
 
 void XPopupMenuItem::DrawItemIcon(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const UINT iExStyles, const bool bSel, const bool bDis) noexcept
 {
-	if (!this->m_pXParentMenu || !lpdis || !lpdis->hDC)
+	if (!this->m_pXParentMenu || (this->m_nIcon < 0) || !lpdis || !lpdis->hDC)
 		return;
 
-	if (const auto himl = this->m_pXParentMenu->getImageList(); (himl && this->m_nIcon > -1 && this->m_nIcon < ImageList_GetImageCount(himl)))
+	const auto himl = this->m_pXParentMenu->getImageList();
+	if (!himl)
+		return;
+
+	if (this->m_nIcon >= ImageList_GetImageCount(himl))
+		return;
+
+	constexpr auto x = (XPMI_BOXLPAD + XPMI_BOXLPAD + XPMI_BOXWIDTH - XPMI_ICONSIZE) / 2;
+	const auto y = (lpdis->rcItem.top + lpdis->rcItem.bottom - XPMI_ICONSIZE) / 2;
+
+	// Selected Item
+	if (bSel)
 	{
-		constexpr auto x = (XPMI_BOXLPAD + XPMI_BOXLPAD + XPMI_BOXWIDTH - XPMI_ICONSIZE) / 2;
-		const auto y = (lpdis->rcItem.top + lpdis->rcItem.bottom - XPMI_ICONSIZE) / 2;
-
-		// Selected Item
-		if (bSel)
-		{
-			// Disabled
-			if (bDis)
-				ImageList_DrawEx(himl, this->m_nIcon, lpdis->hDC, x, y, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT | ILD_BLEND50);
-			else {
-
-				if (dcx_testflag(iExStyles, XPS_ICON3DSHADOW))
-				{
-					ImageList_DrawEx(himl, this->m_nIcon, lpdis->hDC, x, y, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT | ILD_BLEND25);
-					ImageList_DrawEx(himl, this->m_nIcon, lpdis->hDC, x - 1, y - 1, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT);
-
-				}
-				else if (dcx_testflag(iExStyles, XPS_ICON3D))
-					ImageList_DrawEx(himl, this->m_nIcon, lpdis->hDC, x - 1, y - 1, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT);
-				else
-					ImageList_DrawEx(himl, this->m_nIcon, lpdis->hDC, x, y, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT);
-			}
-		}
-		// Not selected
+		// Disabled
+		if (bDis)
+			ImageList_DrawEx(himl, this->m_nIcon, lpdis->hDC, x, y, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT | ILD_BLEND50);
 		else {
 
-			if (bDis)
-				ImageList_DrawEx(himl, this->m_nIcon, lpdis->hDC, x, y, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT | ILD_BLEND50);
+			if (dcx_testflag(iExStyles, XPS_ICON3DSHADOW))
+			{
+				ImageList_DrawEx(himl, this->m_nIcon, lpdis->hDC, x, y, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT | ILD_BLEND25);
+				ImageList_DrawEx(himl, this->m_nIcon, lpdis->hDC, x - 1, y - 1, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT);
+
+			}
+			else if (dcx_testflag(iExStyles, XPS_ICON3D))
+				ImageList_DrawEx(himl, this->m_nIcon, lpdis->hDC, x - 1, y - 1, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT);
 			else
-				ImageList_DrawEx(himl, this->m_nIcon, lpdis->hDC, x, y, 0, 0, CLR_NONE, RGB(0, 0, 0), ILD_TRANSPARENT);
+				ImageList_DrawEx(himl, this->m_nIcon, lpdis->hDC, x, y, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT);
 		}
+	}
+	// Not selected
+	else {
+
+		if (bDis)
+			ImageList_DrawEx(himl, this->m_nIcon, lpdis->hDC, x, y, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT | ILD_BLEND50);
+		else
+			ImageList_DrawEx(himl, this->m_nIcon, lpdis->hDC, x, y, 0, 0, CLR_NONE, RGB(0, 0, 0), ILD_TRANSPARENT);
 	}
 }
 

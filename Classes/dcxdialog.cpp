@@ -292,46 +292,48 @@ void DcxDialog::xmlLoadMenubar(const TiXmlElement* xMenubar, XPMENUBAR& mMenubar
 	if (!xMenubar)
 		return;
 
-	// custom menubar...
-	if (const auto tmp = queryIntAttribute(xMenubar, "enable"); tmp)
-		mMenubar.m_bEnable = true;
+	//// custom menubar...
+	//if (const auto tmp = queryIntAttribute(xMenubar, "enable"); tmp)
+	//	mMenubar.m_bEnable = true;
+	//
+	//if (const auto tmp = queryIntAttribute(xMenubar, "drawborder"); tmp)
+	//	mMenubar.m_bDrawBorder = true;
+	//if (const auto tmp = queryIntAttribute(xMenubar, "roundedborder"); tmp)
+	//	mMenubar.m_bDrawRoundedBorder = true;
+	//if (const auto tmp = queryIntAttribute(xMenubar, "shadowtext"); tmp)
+	//	mMenubar.m_bDrawShadowText = true;
+	//
+	//xmlLoadMenubarColours(xMenubar, mMenubar.m_Default.m_Colours);
+	//
+	//// load default image.
+	//if (TString tsFilename(queryEvalAttribute(xMenubar, "src")); !tsFilename.empty())
+	//{
+	//	mMenubar.m_Default.m_hBkg.m_tsFilename = tsFilename;
+	//	mMenubar.m_Default.m_hBkg.m_hBitmap = dcxLoadBitmap(mMenubar.m_Default.m_hBkg.m_hBitmap, tsFilename);
+	//}
+	//
+	//// load item specific settings
+	//for (auto xItem = xMenubar->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
+	//{
+	//	XPMENUBARITEM item;
+	//	int id{};
+	//
+	//	if (const auto tmp = queryIntAttribute(xItem, "id"); tmp)	// NB: ID is always a number here.
+	//		id = tmp;
+	//
+	//	xmlLoadMenubarColours(xItem, item.m_Colours);
+	//
+	//	// load image.
+	//	if (TString tsFilename(queryEvalAttribute(xItem, "src")); !tsFilename.empty())
+	//	{
+	//		item.m_hBkg.m_tsFilename = tsFilename;
+	//		item.m_hBkg.m_hBitmap = dcxLoadBitmap(item.m_hBkg.m_hBitmap, tsFilename);
+	//	}
+	//
+	//	mMenubar.m_ItemSettings[id] = item;
+	//}
 
-	if (const auto tmp = queryIntAttribute(xMenubar, "drawborder"); tmp)
-		mMenubar.m_bDrawBorder = true;
-	if (const auto tmp = queryIntAttribute(xMenubar, "roundedborder"); tmp)
-		mMenubar.m_bDrawRoundedBorder = true;
-	if (const auto tmp = queryIntAttribute(xMenubar, "shadowtext"); tmp)
-		mMenubar.m_bDrawShadowText = true;
-
-	xmlLoadMenubarColours(xMenubar, mMenubar.m_Default.m_Colours);
-
-	// load default image.
-	if (TString tsFilename(queryEvalAttribute(xMenubar, "src")); !tsFilename.empty())
-	{
-		mMenubar.m_Default.m_hBkg.m_tsFilename = tsFilename;
-		mMenubar.m_Default.m_hBkg.m_hBitmap = dcxLoadBitmap(mMenubar.m_Default.m_hBkg.m_hBitmap, tsFilename);
-	}
-
-	// load item specific settings
-	for (auto xItem = xMenubar->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
-	{
-		XPMENUBARITEM item;
-		int id{};
-
-		if (const auto tmp = queryIntAttribute(xItem, "id"); tmp)	// NB: ID is always a number here.
-			id = tmp;
-
-		xmlLoadMenubarColours(xItem, item.m_Colours);
-
-		// load image.
-		if (TString tsFilename(queryEvalAttribute(xItem, "src")); !tsFilename.empty())
-		{
-			item.m_hBkg.m_tsFilename = tsFilename;
-			item.m_hBkg.m_hBitmap = dcxLoadBitmap(item.m_hBkg.m_hBitmap, tsFilename);
-		}
-
-		mMenubar.m_ItemSettings[id] = item;
-	}
+	mMenubar.fromXml(xMenubar);
 }
 
 void DcxDialog::xmlSaveMenubar(TiXmlElement* xParent, const XPMENUBAR& mMenuBar)
@@ -339,41 +341,35 @@ void DcxDialog::xmlSaveMenubar(TiXmlElement* xParent, const XPMENUBAR& mMenuBar)
 	if (!xParent)
 		return;
 
-	TiXmlElement xMenubar("menubar");
+	//TiXmlElement xMenubar("menubar");
+	//if (mMenuBar.m_bEnable)
+	//	xMenubar.SetAttribute("enable", "1");
+	//if (mMenuBar.m_bDrawBorder)
+	//	xMenubar.SetAttribute("drawborder", "1");
+	//if (mMenuBar.m_bDrawRoundedBorder)
+	//	xMenubar.SetAttribute("roundedborder", "1");
+	//if (mMenuBar.m_bDrawShadowText)
+	//	xMenubar.SetAttribute("shadowtext", "1");
+	//if (!mMenuBar.m_Default.m_hBkg.m_tsFilename.empty())
+	//	xMenubar.SetAttribute("src", mMenuBar.m_Default.m_hBkg.m_tsFilename.c_str());
+	//xmlSaveMenubarColours(&xMenubar, mMenuBar.m_Default.m_Colours);
+	//// menubar item specific settings...
+	//if (!mMenuBar.m_ItemSettings.empty())
+	//{
+	//	for (const auto& a : mMenuBar.m_ItemSettings)
+	//	{
+	//		TiXmlElement xItem("item");
+	//		xItem.SetAttribute("id", a.first);
+	//		xmlSaveMenubarColours(&xItem, a.second.m_Colours);
+	//		// save image
+	//		if (!a.second.m_hBkg.m_tsFilename.empty())
+	//			xItem.SetAttribute("src", a.second.m_hBkg.m_tsFilename.c_str());
+	//		xMenubar.InsertEndChild(xItem);
+	//	}
+	//}
+	//xParent->InsertEndChild(xMenubar);
 
-	if (mMenuBar.m_bEnable)
-		xMenubar.SetAttribute("enable", "1");
-
-	if (mMenuBar.m_bDrawBorder)
-		xMenubar.SetAttribute("drawborder", "1");
-	if (mMenuBar.m_bDrawRoundedBorder)
-		xMenubar.SetAttribute("roundedborder", "1");
-	if (mMenuBar.m_bDrawShadowText)
-		xMenubar.SetAttribute("shadowtext", "1");
-	if (!mMenuBar.m_Default.m_hBkg.m_tsFilename.empty())
-		xMenubar.SetAttribute("src", mMenuBar.m_Default.m_hBkg.m_tsFilename.c_str());
-
-	xmlSaveMenubarColours(&xMenubar, mMenuBar.m_Default.m_Colours);
-
-	// menubar item specific settings...
-	if (!mMenuBar.m_ItemSettings.empty())
-	{
-		for (const auto& a : mMenuBar.m_ItemSettings)
-		{
-			TiXmlElement xItem("item");
-			xItem.SetAttribute("id", a.first);
-
-			xmlSaveMenubarColours(&xItem, a.second.m_Colours);
-
-			// save image
-			if (!a.second.m_hBkg.m_tsFilename.empty())
-				xItem.SetAttribute("src", a.second.m_hBkg.m_tsFilename.c_str());
-
-			xMenubar.InsertEndChild(xItem);
-		}
-	}
-
-	xParent->InsertEndChild(xMenubar);
+	xParent->LinkEndChild(mMenuBar.toXml());
 }
 
 /// <summary>
@@ -4605,9 +4601,7 @@ void DcxDialog::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	// custom menubar...
 	if (auto xMenubar = xThis->FirstChildElement("menubar"); xMenubar)
-	{
 		xmlLoadMenubar(xMenubar, this->m_CustomMenuBar);
-	}
 
 	// menus
 	if (auto xMenu = xThis->FirstChildElement("menu"); xMenu)

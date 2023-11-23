@@ -607,6 +607,9 @@ struct clrCheckBox
 	COLORREF m_clrHotTick{ RGB(0,0,255) };
 };
 
+TString queryEvalAttribute(const TiXmlElement* element, const char* attribute, const char* defaultValue = "");
+[[nodiscard("Memory Leak")]] HBITMAP dcxLoadBitmap(HBITMAP dest, TString& filename);
+
 struct dcxImage
 {
 	TString m_tsFilename;
@@ -632,6 +635,30 @@ struct dcxImage
 		m_hIcon = nullptr;
 
 		m_tsFilename.clear();
+	}
+	void toXml(TiXmlElement* xml) const
+	{
+		if (!xml)
+			return;
+
+		xml->SetAttribute("eval", "0"); // diable eval
+		xml->SetAttribute("src", m_tsFilename.c_str());
+	}
+	TiXmlElement* toXml() const
+	{
+		auto xml = std::make_unique<TiXmlElement>("image");
+		toXml(xml.get());
+		return xml.release();
+	}
+	void fromXml(const TiXmlElement* xml)
+	{
+		if (!xml)
+			return;
+
+		reset();
+		m_tsFilename = queryEvalAttribute(xml, "src");
+		if (!m_tsFilename.empty())
+			m_hBitmap = dcxLoadBitmap(m_hBitmap, m_tsFilename);
 	}
 };
 
@@ -726,7 +753,7 @@ HWND FindOwner(const TString& data, const gsl::not_null<HWND>& defaultWnd);
 std::optional<HWND> FindOwner(const TString& data);
 bool CopyToClipboard(const HWND owner, const TString& str) noexcept;
 
-[[nodiscard("Memory Leak")]] HBITMAP dcxLoadBitmap(HBITMAP dest, TString& filename);
+//[[nodiscard("Memory Leak")]] HBITMAP dcxLoadBitmap(HBITMAP dest, TString& filename);
 [[nodiscard("Memory Leak")]] HICON dcxLoadIcon(const int index, TString& filename, const bool large, const TString& flags);
 [[nodiscard("Memory Leak")]] HICON CreateGrayscaleIcon(HICON hIcon) noexcept;
 
@@ -764,7 +791,7 @@ void FreeOSCompatibility(void) noexcept;
 const char* queryAttribute(const TiXmlElement* element, const char* attribute, const char* defaultValue = "") noexcept;
 //gsl::not_null<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue = gsl::not_null<const char *>("")) noexcept;
 //std::optional<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute) noexcept;
-TString queryEvalAttribute(const TiXmlElement* element, const char* attribute, const char* defaultValue = "");
+//TString queryEvalAttribute(const TiXmlElement* element, const char* attribute, const char* defaultValue = "");
 COLORREF queryColourAttribute(const TiXmlElement* element, const char* attribute, COLORREF defaultValue = CLR_INVALID) noexcept;
 void setColourAttribute(TiXmlElement* element, const char* attribute, COLORREF Value);
 int queryIntAttribute(const TiXmlElement* element, const char* attribute, const int defaultValue = 0) noexcept;

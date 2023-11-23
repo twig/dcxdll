@@ -1016,8 +1016,7 @@ void XPopupMenu::clearAllMenuItems() noexcept
 
 void XPopupMenu::setBackBitmap(HBITMAP hBitmap, const TString& tsFilename) noexcept
 {
-	if (this->m_hBitmap.m_hBitmap)
-		DeleteObject(this->m_hBitmap.m_hBitmap);
+	this->m_hBitmap.reset();
 
 	this->m_hBitmap.m_hBitmap = hBitmap;
 	this->m_hBitmap.m_tsFilename = tsFilename;
@@ -1149,18 +1148,11 @@ void XPopupMenu::toXml(const DcxDialog* d, TiXmlElement* const xml) const
 		xml->SetAttribute("mark", tsMark.c_str());
 
 	if (!m_hBitmap.m_tsFilename.empty() && m_hBitmap.m_tsFilename != L"none")
-	{
-		TiXmlElement xImage("image");
-
-		xImage.SetAttribute("eval", "0"); // diable eval
-		xImage.SetAttribute("src", m_hBitmap.m_tsFilename.c_str());
-
-		xml->InsertEndChild(xImage);
-	}
+		xml->LinkEndChild(m_hBitmap.toXml());
 
 	xmlSaveImageList(d->xmlGetIcons(), xml);
 
-	xml->LinkEndChild(getColors()->toXml());
+	xml->LinkEndChild(getColors().toXml());
 
 	if (this->IsRoundedSelector())
 		xml->SetAttribute("roundedselector", "1");
@@ -1194,19 +1186,11 @@ void XPopupMenu::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, 
 		this->SetRoundedWindow(true);
 	if (const auto tmp = queryIntAttribute(xThis, "tooltips"); tmp)
 		this->setTooltipsState(true);
-	//if (const auto tmp = queryIntAttribute(xThis, "alpha"); tmp < 255)
-	//	this->SetAlpha(Dcx::numeric_cast<std::byte>(tmp));
 	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "alpha")); tmp < 255)
 		this->SetAlpha(std::byte{ tmp });
 
 	if (auto xml = xThis->FirstChildElement("image"); xml)
-	{
-		if (TString tsSrc(queryEvalAttribute(xml, "src")); !tsSrc.empty() && tsSrc != L"none")
-		{
-			if (const auto hBitmap = dcxLoadBitmap(nullptr, tsSrc); hBitmap)
-				setBackBitmap(hBitmap, tsSrc);
-		}
-	}
+		m_hBitmap.fromXml(xml);
 
 	if (const TString tsStyle(queryAttribute(xThis, "style")); !tsStyle.empty())
 		this->setStyle(this->parseStyle(tsStyle));
@@ -1240,7 +1224,7 @@ void XPopupMenu::xmlSaveImageList(VectorOfIcons &vIcons, TiXmlElement* xml) cons
 		//{
 		//	if (int cx{}, cy{}; ImageList_GetIconSize(m_hImageList, &cx, &cy))
 		//	{
-		//		xml->SetAttribute("iconsize", cx);
+		//		xml->SetAttribute("iconsize", cx); // XPMI_ICONSIZE
 		//	}
 		//}
 

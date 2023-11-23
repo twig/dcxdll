@@ -119,6 +119,27 @@ struct XPMENUBARITEM
 		: m_Colours(m_Colours), m_hBkg(m_hBkg)
 	{
 	}
+	void toXml(TiXmlElement* xml) const
+	{
+		xml->LinkEndChild(m_Colours.toXml());
+		if (!m_hBkg.m_tsFilename.empty() && m_hBkg.m_tsFilename != L"none")
+			xml->LinkEndChild(m_hBkg.toXml());
+	}
+	TiXmlElement* toXml() const
+	{
+		auto xml = std::make_unique<TiXmlElement>("item");
+		toXml(xml.get());
+		return xml.release();
+	}
+	void fromXml(const TiXmlElement* xml) noexcept
+	{
+		if (auto xColours = xml->FirstChildElement("colours"); xColours)
+			m_Colours.fromXml(xColours);
+
+		// load image.
+		if (auto xImage = xml->FirstChildElement("image"); xImage)
+			m_hBkg.fromXml(xImage);
+	}
 };
 struct XPMENUBAR
 {
@@ -138,6 +159,67 @@ struct XPMENUBAR
 	XPMENUBAR(bool m_bEnable, bool m_bDrawBorder, bool m_bDrawRoundedBorder, bool m_bDrawShadowText, const XPMENUBARITEM& m_Default, const std::map<int, XPMENUBARITEM>& m_ItemSettings)
 		: m_bEnable(m_bEnable), m_bDrawBorder(m_bDrawBorder), m_bDrawRoundedBorder(m_bDrawRoundedBorder), m_bDrawShadowText(m_bDrawShadowText), m_Default(m_Default), m_ItemSettings(m_ItemSettings)
 	{
+	}
+	void toXml(TiXmlElement* xml) const
+	{
+		if (m_bEnable)
+			xml->SetAttribute("enable", "1");
+		if (m_bDrawBorder)
+			xml->SetAttribute("drawborder", "1");
+		if (m_bDrawRoundedBorder)
+			xml->SetAttribute("roundedborder", "1");
+		if (m_bDrawShadowText)
+			xml->SetAttribute("shadowtext", "1");
+
+		m_Default.toXml(xml);	// defaults NOT in an item.
+
+		// menubar item specific settings...
+		if (!m_ItemSettings.empty())
+		{
+			for (const auto& a : m_ItemSettings)
+			{
+				TiXmlElement xItem("item");
+				xItem.SetAttribute("id", a.first);
+
+				a.second.toXml(&xItem);
+
+				xml->InsertEndChild(xItem);
+			}
+		}
+	}
+	TiXmlElement* toXml() const
+	{
+		auto xml = std::make_unique<TiXmlElement>("menubar");
+		toXml(xml.get());
+		return xml.release();
+	}
+	void fromXml(const TiXmlElement* xml) noexcept
+	{
+		if (const auto tmp = queryIntAttribute(xml, "enable"); tmp)
+			m_bEnable = true;
+
+		if (const auto tmp = queryIntAttribute(xml, "drawborder"); tmp)
+			m_bDrawBorder = true;
+		if (const auto tmp = queryIntAttribute(xml, "roundedborder"); tmp)
+			m_bDrawRoundedBorder = true;
+		if (const auto tmp = queryIntAttribute(xml, "shadowtext"); tmp)
+			m_bDrawShadowText = true;
+
+		m_Default.fromXml(xml);
+
+		// load item specific settings
+		for (auto xItem = xml->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
+		{
+			XPMENUBARITEM item;
+			int id{};
+
+			if (const auto tmp = queryIntAttribute(xItem, "id"); tmp)	// NB: ID is always a number here.
+				id = tmp;
+
+			item.fromXml(xItem);
+
+			m_ItemSettings[id] = item;
+		}
 	}
 };
 
@@ -229,38 +311,25 @@ public:
 	HIMAGELIST &getImageList() noexcept;
 	void destroyImageList() noexcept;
 
-	const MenuStyle &getStyle() const noexcept
-	{
-		return this->m_MenuStyle;
-	}
-	constexpr void setStyle(const MenuStyle style) noexcept
-	{
-		this->m_MenuStyle = style;
-	}
-	const UINT &getItemStyle() const noexcept
-	{
-		return this->m_MenuItemStyles;
-	}
-	constexpr void setItemStyle(const UINT iExStyles) noexcept
-	{
-		this->m_MenuItemStyles = iExStyles;
-	}
+	const MenuStyle &getStyle() const noexcept { return this->m_MenuStyle; }
+
+	constexpr void setStyle(const MenuStyle style) noexcept { this->m_MenuStyle = style; }
+
+	const UINT &getItemStyle() const noexcept { return this->m_MenuItemStyles; }
+
+	constexpr void setItemStyle(const UINT iExStyles) noexcept { this->m_MenuItemStyles = iExStyles; }
 
 	void deleteMenuItemData(const XPopupMenuItem *const p_Item, LPMENUITEMINFO mii = nullptr) noexcept;
 	void deleteAllItemData(HMENU hMenu);
 
-	const TString &getName() const noexcept
-	{
-		return this->m_tsMenuName;
-	}
+	const TString &getName() const noexcept { return this->m_tsMenuName; }
+
 	const size_t &getNameHash() const noexcept { return m_menuNameHash; }
 
 	const inline HMENU &getMenuHandle() const noexcept { return this->m_hMenu; };
 
-	const XPMENUCOLORS *getColors() const noexcept
-	{
-		return &m_MenuColors;
-	}
+	//const XPMENUCOLORS *getColors() const noexcept { return &m_MenuColors; }
+	const XPMENUCOLORS& getColors() const noexcept { return m_MenuColors; }
 	void setColor(const MenuColours nColor, const COLORREF clrColor) noexcept;
 	COLORREF getColor(const MenuColours nColor) const noexcept;
 	GSL_SUPPRESS(type.4) constexpr void setDefaultColor(const MenuColours nColor) noexcept
@@ -328,10 +397,7 @@ public:
 	static void cleanMenu(HMENU hMenu) noexcept;
 	void clearAllMenuItems() noexcept;
 
-	const HBITMAP &getBackBitmap() const noexcept
-	{
-		return m_hBitmap.m_hBitmap;
-	}
+	const HBITMAP &getBackBitmap() const noexcept { return m_hBitmap.m_hBitmap; }
 	void setBackBitmap(HBITMAP hBitmap, const TString &tsFilename) noexcept;
 
 	const inline bool &IsRoundedSelector(void) const noexcept { return this->m_bRoundedSel; };
@@ -349,14 +415,9 @@ public:
 	void detachFromMenuBar(HMENU menubar) noexcept;
 
 	// Methods to access marked text.
-	void setMarkedText(const TString &text)
-	{
-		this->m_tsMarkedText = text;
-	}
-	const TString &getMarkedText() const noexcept
-	{
-		return this->m_tsMarkedText;
-	}
+	void setMarkedText(const TString &text) { this->m_tsMarkedText = text; }
+	const TString &getMarkedText() const noexcept { return this->m_tsMarkedText; }
+
 	const bool& IsToolTipsEnabled() const noexcept { return m_bEnableTooltips; }
 	void setTooltipsState(bool a) noexcept { m_bEnableTooltips = a; }
 
