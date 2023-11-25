@@ -5,17 +5,19 @@
 #include "Classes/UltraDock/dcxDock.h"
 #include "Dcx.h"
 
-BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam);
-
-std::unique_ptr<DcxDock> g_dockMDI = nullptr;
-std::unique_ptr<DcxDock> g_dockTreebar = nullptr;
-std::unique_ptr<DcxDock> g_dockSwitchbar = nullptr; // needed to adjust size for statusbar.
-std::unique_ptr<DcxDock> g_dockToolbar = nullptr; // needed to adjust size for statusbar.
+namespace
+{
+	std::unique_ptr<DcxDock> g_dockMDI = nullptr;
+	std::unique_ptr<DcxDock> g_dockTreebar = nullptr;
+	std::unique_ptr<DcxDock> g_dockSwitchbar = nullptr; // needed to adjust size for statusbar.
+	std::unique_ptr<DcxDock> g_dockToolbar = nullptr; // needed to adjust size for statusbar.
+}
 
 // force a window update.
 void UpdatemIRC(void) noexcept
 {
-	SendMessage(mIRCLinker::getHWND(), WM_SIZE, 0, 0);
+	if (auto hwnd = mIRCLinker::getHWND(); hwnd)
+		SendMessage(hwnd, WM_SIZE, 0, 0);
 }
 
 /*
@@ -59,69 +61,69 @@ void CloseUltraDock(void) noexcept
 
 bool FindUltraDock(const HWND hwnd)
 {
-	if (!g_dockMDI)
+	if (!g_dockMDI || !hwnd)
 		return false;
-	return g_dockMDI->FindDock(hwnd);
+	GSL_SUPPRESS(lifetime.1) return g_dockMDI->FindDock(hwnd);
 }
 
 bool FindTreebarDock(const HWND hwnd)
 {
-	if (!g_dockTreebar)
+	if (!g_dockTreebar || !hwnd)
 		return false;
-	return g_dockTreebar->FindDock(hwnd);
+	GSL_SUPPRESS(lifetime.1) return g_dockTreebar->FindDock(hwnd);
 }
 
 LPDCXULTRADOCK GetUltraDock(const HWND hwnd)
 {
 	if (!g_dockMDI)
 		return nullptr;
-	return g_dockMDI->GetDock(hwnd);
+	GSL_SUPPRESS(lifetime.1) return g_dockMDI->GetDock(hwnd);
 }
 
 void UltraDock(const HWND mWnd, HWND temp, const TString &flag)
 {
 	UNREFERENCED_PARAMETER(mWnd);
 	// mWnd is unused.
-	if (!g_dockMDI)
+	if (!g_dockMDI || !mWnd || !temp)
 		return;
 	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,TEXT("dcx_docked"))))
 		throw Dcx::dcxException("Window already docked");
 
-	g_dockMDI->DockWindow(temp, flag);
+	GSL_SUPPRESS(lifetime.1) g_dockMDI->DockWindow(temp, flag);
 }
 
 void UltraUnDock(const HWND hwnd)
 {
-	if (!g_dockMDI)
+	if (!g_dockMDI || !hwnd)
 		return;
-	g_dockMDI->UnDockWindow(hwnd);
+	GSL_SUPPRESS(lifetime.1) g_dockMDI->UnDockWindow(hwnd);
 }
 
 LPDCXULTRADOCK GetTreebarDock(const HWND hwnd)
 {
-	if (!g_dockTreebar)
+	if (!g_dockTreebar || !hwnd)
 		return nullptr;
-	return g_dockTreebar->GetDock(hwnd);
+	GSL_SUPPRESS(lifetime.1) return g_dockTreebar->GetDock(hwnd);
 }
 
 void TreebarDock(HWND temp, const TString &flag)
 {
 	// mWnd is unused.
-	if (!g_dockTreebar)
+	if (!g_dockTreebar || !temp)
 		return;
 	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,TEXT("dcx_docked"))))
 		throw Dcx::dcxException("Window already docked");
 	
-	g_dockTreebar->DockWindow(temp, flag);
+	GSL_SUPPRESS(lifetime.1) g_dockTreebar->DockWindow(temp, flag);
 
 	UpdatemIRC(); // seems needed to force the size update
 }
 
 void TreebarUnDock(const HWND hwnd)
 {
-	if (!g_dockTreebar)
+	if (!g_dockTreebar || !hwnd)
 		return;
-	g_dockTreebar->UnDockWindow(hwnd);
+	GSL_SUPPRESS(lifetime.1) g_dockTreebar->UnDockWindow(hwnd);
 }
 
 // #####################################################################################

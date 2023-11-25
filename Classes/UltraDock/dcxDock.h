@@ -35,32 +35,34 @@ enum class DockFlags
 	DOCKF_TOP = 0x040,				//!< Dock to top. (UltraDock)
 	DOCKF_BOTTOM = 0x080,			//!< Dock to bottom. (UltraDock)
 	DOCKF_NOSCROLLBARS = 0x100,		//!< Disable parents scrollbars.
-	DOCKF_SHOWSCROLLBARS = 0x200	//!< Stop the auto-sized window from covering the scrollbars of its parent.
+	DOCKF_SHOWSCROLLBARS = 0x200,	//!< Stop the auto-sized window from covering the scrollbars of its parent.
+	DOCKF_UNDERSTATIC = 0x400,		//!< Keep the docked window under the parents static control. (auto sized to match width of static)
+	DOCKF_ABOVESTATIC = 0x800		//!< Keep the docked window above the parents static control. (auto sized to match width of static)
 };
-template <typename T>
-constexpr DockFlags& operator |=(DockFlags& eStyle, const T& dStyle) noexcept
-{
-	return eStyle = static_cast<DockFlags>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
-}
-template <typename T>
-constexpr DockFlags& operator &=(DockFlags& eStyle, const T& dStyle) noexcept
-{
-	return eStyle = static_cast<DockFlags>(static_cast<DWORD>(eStyle)& static_cast<DWORD>(dStyle));
-}
-template <typename T>
-constexpr DockFlags operator &(const DockFlags& eStyle, const T& dStyle) noexcept
-{
-	return static_cast<DockFlags>(static_cast<DWORD>(eStyle)& static_cast<DWORD>(dStyle));
-}
-template <typename T>
-constexpr DockFlags operator |(const DockFlags& eStyle, const T& dStyle) noexcept
-{
-	return static_cast<DockFlags>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
-}
-constexpr DockFlags operator ~(const DockFlags& eStyle) noexcept
-{
-	return static_cast<DockFlags>(~static_cast<DWORD>(eStyle));
-}
+//template <typename T>
+//constexpr DockFlags& operator |=(DockFlags& eStyle, const T& dStyle) noexcept
+//{
+//	return eStyle = static_cast<DockFlags>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
+//}
+//template <typename T>
+//constexpr DockFlags& operator &=(DockFlags& eStyle, const T& dStyle) noexcept
+//{
+//	return eStyle = static_cast<DockFlags>(static_cast<DWORD>(eStyle)& static_cast<DWORD>(dStyle));
+//}
+//template <typename T>
+//constexpr DockFlags operator &(const DockFlags& eStyle, const T& dStyle) noexcept
+//{
+//	return static_cast<DockFlags>(static_cast<DWORD>(eStyle)& static_cast<DWORD>(dStyle));
+//}
+//template <typename T>
+//constexpr DockFlags operator |(const DockFlags& eStyle, const T& dStyle) noexcept
+//{
+//	return static_cast<DockFlags>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
+//}
+//constexpr DockFlags operator ~(const DockFlags& eStyle) noexcept
+//{
+//	return static_cast<DockFlags>(~static_cast<DWORD>(eStyle));
+//}
 
 //#define DOCKF_NORMAL					0x001	//!< No special flags.
 //#define DOCKF_AUTOH						0x002	//!< Auto Horizontal size.
@@ -220,6 +222,16 @@ void InitUltraDock(void);
 void CloseUltraDock(void) noexcept;
 const SwitchBarPos SwitchbarPos(const DockTypes type) noexcept;
 void UpdatemIRC(void) noexcept;
+void UltraDock(const HWND mWnd, HWND temp, const TString& flag);
+void UltraUnDock(const HWND hwnd);
+bool FindUltraDock(const HWND hwnd);
+LPDCXULTRADOCK GetUltraDock(const HWND hwnd);
+void TreebarDock(HWND temp, const TString& flag);
+void TreebarUnDock(const HWND hwnd);
+bool FindTreebarDock(const HWND hwnd);
+LPDCXULTRADOCK GetTreebarDock(const HWND hwnd);
+//void UnDock(const HWND hwnd);
+BOOL CALLBACK EnumDocked(HWND hwnd, LPARAM lParam);
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop );
