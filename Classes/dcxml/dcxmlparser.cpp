@@ -14,7 +14,6 @@
  * © ScriptsDB.org - 2006
  */
 #include "defines.h"
-#include "dcxmlincludes.h"
 #include "dcxmlparser.h"
 
  /*
@@ -65,20 +64,16 @@ bool DcxmlParser::ParseXML(const TString& tsFilePath, const TString& tsDialogMar
 		const auto tBorder = tx->Attribute("border");
 
 		m_iControls = 0;
-		//m_sMargin = (m_sTemp = m_pElement->Attribute("padding")) ? m_sTemp : "0 0 0 0";
 
 		if (tBorder) //!< set border ONLY if defined on <dialog>
 			xdialogEX(TEXT("-b"), TEXT("+%S"), tBorder);
 
-		//mIRCLinker::execex(TEXT("//dialog -t %s %S"), tsDialogMark.to_chr(), tCaption);
 		mIRCLinker::exec(TEXT("//dialog -t % %"), tsDialogMark, tCaption);
 		xdialogEX(TEXT("-l"), TEXT("root \t +p%S 0 0 0 0"), tCascade);
 		xdialogEX(TEXT("-l"), TEXT("space root \t + %S"), tMargin);
 
 		parseDialog(); //!< Parse <dialog> children onto the dialog
 
-		//if (tx->Attribute("center")) //!< Centers the dialog
-		//	mIRCLinker::execex(TEXT("/dialog -r %s"), tsDialogMark.to_chr());
 		if (tx->Attribute("center")) //!< Centers the dialog
 			mIRCLinker::exec(TEXT("/dialog -r %"), tsDialogMark);
 
@@ -86,7 +81,6 @@ bool DcxmlParser::ParseXML(const TString& tsFilePath, const TString& tsDialogMar
 		if (getZlayered())
 			xdialogEX(TEXT("-z"), TEXT("+s 1"));
 
-		//mIRCLinker::execex(TEXT("/.timer 1 0 %s %s ready"), getDialog()->getAliasName().to_chr(), tsDialogMark.to_chr()); //!< Tell user that dcxml is finished, & they can do a cla update or whatever.
 		mIRCLinker::exec(TEXT("/.timer 1 0 % % ready"), getDialog()->getAliasName(), tsDialogMark); //!< Tell user that dcxml is finished, & they can do a cla update or whatever.
 		return m_bLoadSuccess;
 	}
@@ -120,9 +114,6 @@ void DcxmlParser::loadDocument()
 		throw Dcx::dcxException(TEXT("XML error in \"%\" (row % column %) %"), tsPath, doc.ErrorRow(), doc.ErrorCol(), doc.ErrorDesc());
 
 	m_xmlDocument = doc;
-
-	//m_xmlDocument.Clear();
-	//doc.CopyTo(m_xmlDocument);
 }
 
 void DcxmlParser::loadDialog()
@@ -166,58 +157,62 @@ void DcxmlParser::parseAttributes() noexcept
 
 void DcxmlParser::parseAttributes(const TiXmlElement* const tElement) noexcept
 {
-	m_sElem = tElement->Value();
-	m_sParentelem = m_pParent->Value();
-	m_sParenttype = queryAttribute(m_pParent, "type", "panel");
-	m_sType = queryAttribute(m_pElement, "type", "panel");
-	m_sSTclass = queryAttribute(m_pElement, "class");
-	m_sWeight = queryAttribute(tElement, "weight", "1");
-	m_sHeight = queryAttribute(tElement, "height", "0");
-	m_sDropdown = nullptr;
+	if (!tElement || !m_pParent || !m_pElement)
+		return;
 
-	const auto sElemHash = dcx_hash(m_sElem);
-	if ((sElemHash == "comboex"_hash) || (sElemHash == "colorcombo"_hash))
-		m_sDropdown = queryAttribute(tElement, "dropdown", "100");
+	m_Attributes.m_sElem = tElement->Value();
+	m_Attributes.m_sParentelem = m_pParent->Value();
+	m_Attributes.m_sParenttype = queryAttribute(m_pParent, "type", "panel");
+	m_Attributes.m_sType = queryAttribute(m_pElement, "type", "panel");
+	m_Attributes.m_sSTclass = queryAttribute(m_pElement, "class");
+	m_Attributes.m_sWeight = queryAttribute(tElement, "weight", "1");
+	m_Attributes.m_sHeight = queryAttribute(tElement, "height", "0");
+	m_Attributes.m_sDropdown = nullptr;
 
-	m_sWidth = queryAttribute(tElement, "width", "0");
-	m_sMargin = queryAttribute(tElement, "margin", "0 0 0 0");
-	m_sStyles = queryAttribute(tElement, "styles", "");
+	if (const auto sElemHash = dcx_hash(m_Attributes.m_sElem); (sElemHash == "comboex"_hash) || (sElemHash == "colorcombo"_hash) || (sElemHash == "multicombo"_hash))
+		m_Attributes.m_sDropdown = queryAttribute(tElement, "dropdown", "100");
 
-	m_sCaption = tElement->Attribute("caption");
-	if (!m_sCaption)
-		m_sCaption = tElement->GetText();
+	m_Attributes.m_sWidth = queryAttribute(tElement, "width", "0");
+	m_Attributes.m_sMargin = queryAttribute(tElement, "margin", "0 0 0 0");
+	m_Attributes.m_sStyles = queryAttribute(tElement, "styles", "");
 
-	m_sTooltip = queryAttribute(tElement, "tooltip");
-	m_sCascade = queryAttribute(tElement, "cascade");
-	m_sIcon = queryAttribute(tElement, "icon", "0");
-	m_sIntegral = queryAttribute(tElement, "integral", "0");
-	m_sState = queryAttribute(tElement, "state", "0");
-	m_sIndent = queryAttribute(tElement, "indent", "0");
+	m_Attributes.m_sCaption = tElement->Attribute("caption");
+	if (!m_Attributes.m_sCaption)
+		m_Attributes.m_sCaption = tElement->GetText();
+
+	m_Attributes.m_sTooltip = queryAttribute(tElement, "tooltip");
+	m_Attributes.m_sCascade = queryAttribute(tElement, "cascade");
+	m_Attributes.m_sIcon = queryAttribute(tElement, "icon", "0");
+	m_Attributes.m_sIntegral = queryAttribute(tElement, "integral", "0");
+	m_Attributes.m_sState = queryAttribute(tElement, "state", "0");
+	m_Attributes.m_sIndent = queryAttribute(tElement, "indent", "0");
 	//flags attribute defaults different per type/item
-	m_sTFlags = tElement->Attribute("flags");
-	m_sSrc = queryAttribute(tElement, "src");
-	m_sCells = queryAttribute(tElement, "cells", "-1");
-	m_sRebarMinHeight = queryAttribute(tElement, "minheight", "0");
-	m_sRebarMinWidth = queryAttribute(tElement, "minwidth", "0");
-	m_sIconsize = queryAttribute(tElement, "iconsize", "16");
-	m_iEval = queryIntAttribute(tElement, "eval");
+	m_Attributes.m_sTFlags = tElement->Attribute("flags");
+	m_Attributes.m_sSrc = queryAttribute(tElement, "src");
+	m_Attributes.m_sCells = queryAttribute(tElement, "cells", "-1");
+	m_Attributes.m_sRebarMinHeight = queryAttribute(tElement, "minheight", "0");
+	m_Attributes.m_sRebarMinWidth = queryAttribute(tElement, "minwidth", "0");
+	m_Attributes.m_sIconsize = queryAttribute(tElement, "iconsize", "16");
+	m_Attributes.m_iEval = queryIntAttribute(tElement, "eval");
 
-	m_sFontstyle = queryAttribute(tElement, "fontstyle", "d");
-	m_sCharset = queryAttribute(tElement, "charset", "ansi");
-	m_sFontsize = queryAttribute(tElement, "fontsize");
-	m_sFontname = queryAttribute(tElement, "fontname");
-	m_sBorder = queryAttribute(tElement, "border");
-	m_sCursor = queryAttribute(tElement, "cursor", "arrow");
-	m_sBgcolour = queryAttribute(tElement, "bgcolour", "0");
-	m_sTextbgcolour = queryAttribute(tElement, "textbgcolour");
-	m_sTextcolour = queryAttribute(tElement, "textcolour", "0");
+	m_Attributes.m_sFontstyle = queryAttribute(tElement, "fontstyle", "d");
+	m_Attributes.m_sCharset = queryAttribute(tElement, "charset", "ansi");
+	m_Attributes.m_sFontsize = queryAttribute(tElement, "fontsize");
+	m_Attributes.m_sFontname = queryAttribute(tElement, "fontname");
+	m_Attributes.m_sBorder = queryAttribute(tElement, "border");
+	m_Attributes.m_sCursor = queryAttribute(tElement, "cursor", "arrow");
+	m_Attributes.m_sBgcolour = queryAttribute(tElement, "bgcolour", "0");
+	m_Attributes.m_sTextbgcolour = queryAttribute(tElement, "textbgcolour");
+	m_Attributes.m_sTextcolour = queryAttribute(tElement, "textcolour", "0");
 
-	m_sGradientstart = queryAttribute(tElement, "gradientstart");
-	m_sGradientend = queryAttribute(tElement, "gradientend");
+	m_Attributes.m_sGradientstart = queryAttribute(tElement, "gradientstart");
+	m_Attributes.m_sGradientend = queryAttribute(tElement, "gradientend");
 
-	m_sDisabledsrc = queryAttribute(tElement, "disabledsrc");
-	m_sHoversrc = queryAttribute(tElement, "hoversrc");
-	m_sSelectedsrc = queryAttribute(tElement, "selectedsrc");
+	m_Attributes.m_sDisabledsrc = queryAttribute(tElement, "disabledsrc");
+	m_Attributes.m_sHoversrc = queryAttribute(tElement, "hoversrc");
+	m_Attributes.m_sSelectedsrc = queryAttribute(tElement, "selectedsrc");
+
+	m_Attributes.m_sBuddyID = queryAttribute(tElement, "buddyid");
 }
 
 /* parseControl() : if current m_pElement is a control perform some extra commands*/
@@ -228,18 +223,17 @@ void DcxmlParser::parseControl()
 
 	if (m_pElement->Attribute("zlayer"))
 	{
-		xdialogEX(TEXT("-z"), TEXT("+a %i"), m_iID);
+		xdialogEX(TEXT("-z"), TEXT("+a %i"), m_Attributes.m_iID);
 		setZlayered(true);
 	}
 
-	switch (const auto nType = dcx_hash(m_sType); nType)
+	switch (const auto nType = dcx_hash(m_Attributes.m_sType); nType)
 	{
 	case "divider"_hash:		//	divider
-		//xdidEX(m_iParentID, TEXT("-v"), TEXT("%d"), queryIntAttribute(m_pElement, "width", 0));
-		xdidEX(m_iID, TEXT("-v"), TEXT("%d"), queryIntAttribute(m_pElement, "width", 0));
+		xdidEX(m_Attributes.m_iID, TEXT("-v"), TEXT("%d"), queryIntAttribute(m_pElement, "width", 0));
 		break;
 	case "button"_hash:		//	button
-		xdidEX(m_iID, TEXT("-l"), TEXT("%S"), m_sIconsize);
+		xdidEX(m_Attributes.m_iID, TEXT("-l"), TEXT("%S"), m_Attributes.m_sIconsize);
 		[[fallthrough]];
 	case "radio"_hash:		//	radio
 		[[fallthrough]];
@@ -248,33 +242,35 @@ void DcxmlParser::parseControl()
 	case "check"_hash:	//	check
 		[[fallthrough]];
 	case "box"_hash:	//	box
-		if (m_sCaption)
-			xdidEX(m_iID, TEXT("-t"), TEXT("%S"), m_sCaption);
+		if (m_Attributes.m_sCaption)
+			xdidEX(m_Attributes.m_iID, TEXT("-t"), TEXT("%S"), m_Attributes.m_sCaption);
 		break;
 	case "toolbar"_hash:		//	toolbar
 		[[fallthrough]];
 	case "treeview"_hash:		//	treeview
-		xdidEX(m_iID, TEXT("-l"), TEXT("%S"), m_sIconsize);
+		xdidEX(m_Attributes.m_iID, TEXT("-l"), TEXT("%S"), m_Attributes.m_sIconsize);
 		[[fallthrough]];
 	case "comboex"_hash:		//	comboex
 		[[fallthrough]];
-	case "list"_hash:		//	list
+	case "list"_hash:			//	list
+		[[fallthrough]];
+	case "multicombo"_hash:		//	multicombo
 		[[fallthrough]];
 	case "listview"_hash:		//	listview
 		parseItems(m_pElement);
 		break;
 	case "ipaddress"_hash:	//	ipaddress
-		if (m_sCaption)
-			xdidEX(m_iID, TEXT("-a"), TEXT("%S"), m_sCaption);
+		if (m_Attributes.m_sCaption)
+			xdidEX(m_Attributes.m_iID, TEXT("-a"), TEXT("%S"), m_Attributes.m_sCaption);
 		break;
 	case "webctrl"_hash:	//	webctrl
-		if (m_sSrc)
-			xdidEX(m_iID, TEXT("-n"), TEXT("%S"), m_sSrc);
+		if (m_Attributes.m_sSrc)
+			xdidEX(m_Attributes.m_iID, TEXT("-n"), TEXT("%S"), m_Attributes.m_sSrc);
 		break;
 	case "text"_hash:	//	text
-		if (m_sCaption)
+		if (m_Attributes.m_sCaption)
 		{
-			TString mystring(m_sCaption);
+			TString mystring(m_Attributes.m_sCaption);
 
 			if (mystring.left(2) == TEXT("\r\n"))
 				mystring = mystring.right(-2);
@@ -291,21 +287,21 @@ void DcxmlParser::parseControl()
 				printstring.addtok(tsTmp);
 				if (printstring.len() > (MIRC_BUFFER_SIZE_CCH - 100))
 				{
-					xdidEX(m_iID, TEXT("-a"), TEXT("%i %s"), textspace, printstring.to_chr());
+					xdidEX(m_Attributes.m_iID, TEXT("-a"), TEXT("%i %s"), textspace, printstring.to_chr());
 					printstring.clear();	// = TEXT("");
 					textspace = 1;
 				}
 			}
 			if (!printstring.empty())
-				xdidEX(m_iID, TEXT("-a"), TEXT("%i %s"), textspace, printstring.to_chr());
+				xdidEX(m_Attributes.m_iID, TEXT("-a"), TEXT("%i %s"), textspace, printstring.to_chr());
 		}
 		break;
 	case "edit"_hash:	//	edit
 		[[fallthrough]];
 	case "richedit"_hash:	//	richedit
-		if (m_sCaption)
+		if (m_Attributes.m_sCaption)
 		{
-			TString mystring(m_sCaption);
+			TString mystring(m_Attributes.m_sCaption);
 
 			if (mystring.left(2) == TEXT("\r\n"))
 				mystring = mystring.right(-2);
@@ -333,29 +329,33 @@ void DcxmlParser::parseControl()
 				for (auto itStart = mystring.begin(TEXT("\r\n")); itStart != itEnd; ++itStart)
 				{
 					++line;
-					xdidEX(m_iID, TEXT("-i"), TEXT("%u %s"), line, (*itStart).to_chr());
+					xdidEX(m_Attributes.m_iID, TEXT("-i"), TEXT("%u %s"), line, (*itStart).to_chr());
 				}
 			}
 		}
 		break;
 	case "pbar"_hash:	//	pbar
-		if (m_sCaption)
-			xdidEX(m_iID, TEXT("-i"), TEXT("%S"), m_sCaption);
+		if (m_Attributes.m_sCaption)
+			xdidEX(m_Attributes.m_iID, TEXT("-i"), TEXT("%S"), m_Attributes.m_sCaption);
 		break;
 	case "statusbar"_hash:	//	statusbar
-		xdidEX(m_iID, TEXT("-l"), TEXT("%S"), m_sCells);
+		xdidEX(m_Attributes.m_iID, TEXT("-l"), TEXT("%S"), m_Attributes.m_sCells);
 		parseItems(m_pElement);
 		break;
 	case "image"_hash:	//	image
-		if (m_sSrc)
-			xdidEX(m_iID, TEXT("-i"), TEXT("+%S %S"), ((m_sTFlags) ? m_sTFlags : ""), m_sSrc);
+		if (m_Attributes.m_sSrc)
+			xdidEX(m_Attributes.m_iID, TEXT("-i"), TEXT("+%S %S"), ((m_Attributes.m_sTFlags) ? m_Attributes.m_sTFlags : ""), m_Attributes.m_sSrc);
+		break;
+	case "updown"_hash:	//	updown
+		if (m_Attributes.m_sBuddyID)
+			xdidEX(m_Attributes.m_iID, TEXT("-c"), TEXT("%S"), m_Attributes.m_sBuddyID);
 		break;
 	default:	//	unknown?!?!?!
 		break;
 	}
 
-	m_sDisabledsrc = queryAttribute(m_pElement, "disabledsrc");
-	m_sHoversrc = queryAttribute(m_pElement, "hoversrc");
+	m_Attributes.m_sDisabledsrc = queryAttribute(m_pElement, "disabledsrc");
+	m_Attributes.m_sHoversrc = queryAttribute(m_pElement, "hoversrc");
 }
 
 /* xdialogEX(switch,format[,args[]]) : performs an xdialog command internally or through mIRC */
@@ -382,55 +382,32 @@ void DcxmlParser::xdialogEX(const TCHAR* const sw, const TCHAR* const dFormat, .
 
 void DcxmlParser::xml_xdialog(const TCHAR* const sSwitch, const TString& sArgs)
 {
-	//#if DCX_DEBUG_OUTPUT
-	//	if (isVerbose())
-	//		mIRCLinker::execex(TEXT("/echo -a dcxml debug: /xdialog %s %s %s"), sSwitch, getDialogMark().to_chr(), sArgs);
-	//#endif
-	//
-	//	if (m_iEval > 0) mIRCLinker::execex(TEXT("//xdialog %s %s %s"), sSwitch, getDialogMark().to_chr(), sArgs);
-	//	else getDialog()->parseCommandRequestEX(TEXT("%s %s %s"), getDialogMark().to_chr(), sSwitch, sArgs);
-
 #if DCX_DEBUG_OUTPUT
-	//static_assert(TStringConcepts::IsTString<decltype(sArgs)>, "hfhg");
-	//const char& txt{};
-	//static_assert(TStringConcepts::IsCharText<decltype(txt)>, "hfhg");
-	//const char*const txt{};
-	//static_assert(TStringConcepts::IsPODTextPointer<decltype(txt)>, "hfhg");
-
 	if (isVerbose())
 		mIRCLinker::echo(TEXT("dcxml debug: /xdialog % % %"), sSwitch, getDialogMark(), sArgs);
 #endif
 
-	if (m_iEval > 0) mIRCLinker::exec(TEXT("//xdialog % % %"), sSwitch, getDialogMark(), sArgs);
+	if (m_Attributes.m_iEval > 0) mIRCLinker::exec(TEXT("//xdialog % % %"), sSwitch, getDialogMark(), sArgs);
 	else {
-		//getDialog()->parseCommandRequestEX(TEXT("%s %s %s"), getDialogMark().to_chr(), sSwitch, sArgs.to_chr());
 		if (auto d = getDialog(); d)
 			d->parseCommandRequestEX(TEXT("%s %s %s"), getDialogMark().to_chr(), sSwitch, sArgs.to_chr());
-}
+	}
 }
 
 /* xdidEX(controlId,switch,args) : performs an xdid command internally or through mIRC on the specified ID */
 void DcxmlParser::xml_xdid(const UINT cid, const TCHAR* const sSwitch, const TString& sArgs)
 {
-	//#if DCX_DEBUG_OUTPUT
-	//	if (isVerbose())
-	//		mIRCLinker::execex(TEXT("/echo -a dcxml debug: /xdid %s %s %u %s"), sSwitch, getDialogMark().to_chr(), cid, sArgs);
-	//#endif
-	//
-	//	if (m_iEval > 0) mIRCLinker::execex(TEXT("//xdid %s %s %u %s"), sSwitch, getDialogMark().to_chr(), cid, sArgs);
-	//	else getDialog()->parseComControlRequestEX(cid, TEXT("%s %u %s %s"), getDialogMark().to_chr(), cid, sSwitch, sArgs);
-
 #if DCX_DEBUG_OUTPUT
 	if (isVerbose())
 		mIRCLinker::exec(TEXT("/echo -a dcxml debug: /xdid % % % %"), sSwitch, getDialogMark(), cid, sArgs);
 #endif
 
-	if (m_iEval > 0) mIRCLinker::exec(TEXT("//xdid % % % %"), sSwitch, getDialogMark(), cid, sArgs);
+	if (m_Attributes.m_iEval > 0) mIRCLinker::exec(TEXT("//xdid % % % %"), sSwitch, getDialogMark(), cid, sArgs);
 	else {
 		//getDialog()->parseComControlRequestEX(cid, TEXT("%s %u %s %s"), getDialogMark().to_chr(), cid, sSwitch, sArgs.to_chr());
 		if (auto d = getDialog(); d)
 			d->parseComControlRequestEX(cid, TEXT("%s %u %s %s"), getDialogMark().to_chr(), cid, sSwitch, sArgs.to_chr());
-}
+	}
 }
 
 /* xdidEX(controlId,switch,format[,args[]]) : performs an xdid command internally or through mIRC on the specified ID */
@@ -455,15 +432,15 @@ void DcxmlParser::xdidEX(const UINT cid, const TCHAR* const sw, const TCHAR* con
 /* parseCLA(int numberOfClaControlsInCurrentBranch) : parses control and pane elements and applies the right CLA commands */
 TString DcxmlParser::parseCLA(const int cCla)
 {
-	const auto sParentelemHash = dcx_hash(m_sParentelem);
+	const auto sParentelemHash = dcx_hash(m_Attributes.m_sParentelem);
 
-	if (const auto sElemHash = dcx_hash(m_sElem); sElemHash == "control"_hash)
+	if (const auto sElemHash = dcx_hash(m_Attributes.m_sElem); sElemHash == "control"_hash)
 	{
-		if (const auto sTypeHash = dcx_hash(m_sType); ((sTypeHash == "panel"_hash) || (sTypeHash == "box"_hash)))
+		if (const auto sTypeHash = dcx_hash(m_Attributes.m_sType); ((sTypeHash == "panel"_hash) || (sTypeHash == "box"_hash)))
 		{
-			xdidEX(m_iID, TEXT("-l"), TEXT("root \t +p%S 0 0 0 0"), m_sCascade);
-			xdidEX(m_iID, TEXT("-l"), TEXT("space root \t + %S"), m_sMargin);
-			g_bResetCLA = true;
+			xdidEX(m_Attributes.m_iID, TEXT("-l"), TEXT("root \t +p%S 0 0 0 0"), m_Attributes.m_sCascade);
+			xdidEX(m_Attributes.m_iID, TEXT("-l"), TEXT("space root \t + %S"), m_Attributes.m_sMargin);
+			m_CLA.m_bResetCLA = true;
 		}
 		const char* fHeigth = "";
 		const char* fWidth = "";
@@ -472,51 +449,51 @@ TString DcxmlParser::parseCLA(const int cCla)
 		{
 			fHeigth = "v";
 			fixed = "f";
-			m_sWeight = "0";
+			m_Attributes.m_sWeight = "0";
 		}
 		if (m_pElement->Attribute("width"))
 		{
 			fWidth = "h";
 			fixed = "f";
-			m_sWeight = "0";
+			m_Attributes.m_sWeight = "0";
 		}
 
 		if (sParentelemHash == "dialog"_hash)
-			xdialogEX(TEXT("-l"), TEXT("cell %S \t +%S%S%Si %u %S %S %S"), g_claPath, fixed, fHeigth, fWidth, m_iID, m_sWeight, m_sWidth, m_sHeight);
+			xdialogEX(TEXT("-l"), TEXT("cell %S \t +%S%S%Si %u %S %S %S"), m_CLA.m_claPath, fixed, fHeigth, fWidth, m_Attributes.m_iID, m_Attributes.m_sWeight, m_Attributes.m_sWidth, m_Attributes.m_sHeight);
 		else if (sParentelemHash == "control"_hash)
 		{
 			if (m_pParent)
 			{
-			if (const char* const t_type = m_pParent->Attribute("type"); ((t_type) && (m_iParentID > 0)))
-			{
-				if (const auto t_typeHash = dcx_hash(t_type); ((t_typeHash == "panel"_hash) || (t_typeHash == "box"_hash)))
-					xdidEX(m_iParentID, TEXT("-l"), TEXT("cell %S \t +%S%S%Si %u %S %S %S"), g_claPath, fixed, fHeigth, fWidth, m_iID, m_sWeight, m_sWidth, m_sHeight);
+				if (const char* const t_type = m_pParent->Attribute("type"); ((t_type) && (m_Attributes.m_iParentID > 0)))
+				{
+					if (const auto t_typeHash = dcx_hash(t_type); ((t_typeHash == "panel"_hash) || (t_typeHash == "box"_hash)))
+						xdidEX(m_Attributes.m_iParentID, TEXT("-l"), TEXT("cell %S \t +%S%S%Si %u %S %S %S"), m_CLA.m_claPath, fixed, fHeigth, fWidth, m_Attributes.m_iID, m_Attributes.m_sWeight, m_Attributes.m_sWidth, m_Attributes.m_sHeight);
+				}
 			}
 		}
-	}
 	}
 	else if (sElemHash == "pane"_hash)
 	{
 		if (sParentelemHash == "dialog"_hash)
-			xdialogEX(TEXT("-l"), TEXT("cell %S \t +p%S 0 %S 0 0"), g_claPath, m_sCascade, m_sWeight);
+			xdialogEX(TEXT("-l"), TEXT("cell %S \t +p%S 0 %S 0 0"), m_CLA.m_claPath, m_Attributes.m_sCascade, m_Attributes.m_sWeight);
 		else if (sParentelemHash == "control"_hash)
 		{
-			if ((m_sParenttype) && (m_iParentID > 0))
+			if ((m_Attributes.m_sParenttype) && (m_Attributes.m_iParentID > 0))
 			{
-				if (const auto sParenttypeHash = dcx_hash(m_sParenttype); ((sParenttypeHash == "panel"_hash) || (sParenttypeHash == "box"_hash)))
-					xdidEX(m_iParentID, TEXT("-l"), TEXT("cell %S \t +p%S 0 %S 0 0"), g_claPath, m_sCascade, m_sWeight);
+				if (const auto sParenttypeHash = dcx_hash(m_Attributes.m_sParenttype); ((sParenttypeHash == "panel"_hash) || (sParenttypeHash == "box"_hash)))
+					xdidEX(m_Attributes.m_iParentID, TEXT("-l"), TEXT("cell %S \t +p%S 0 %S 0 0"), m_CLA.m_claPath, m_Attributes.m_sCascade, m_Attributes.m_sWeight);
 			}
 		}
 	}
 
 	TString claPathx;
 
-	if (g_bResetCLA)
+	if (m_CLA.m_bResetCLA)
 		claPathx = TEXT("root");
 	else
 	{
-		if (0 != ts_strcmp(g_claPath, "root"))
-			claPathx = g_claPath;
+		if (0 != ts_strcmp(m_CLA.m_claPath, "root"))
+			claPathx = m_CLA.m_claPath;
 
 		claPathx.addtok(cCla);
 	}
@@ -524,11 +501,11 @@ TString DcxmlParser::parseCLA(const int cCla)
 	if (m_pElement->Attribute("margin"))
 	{
 		if (sParentelemHash == "dialog"_hash)
-			xdialogEX(TEXT("-l"), TEXT("space %s \t + %S"), claPathx.to_chr(), m_sMargin);
+			xdialogEX(TEXT("-l"), TEXT("space %s \t + %S"), claPathx.to_chr(), m_Attributes.m_sMargin);
 		else
-			xdidEX(m_iParentID, TEXT("-l"), TEXT("space %S \t + %S"), g_claPath, m_sMargin);
+			xdidEX(m_Attributes.m_iParentID, TEXT("-l"), TEXT("space %S \t + %S"), m_CLA.m_claPath, m_Attributes.m_sMargin);
 	}
-	g_bResetCLA = false;
+	m_CLA.m_bResetCLA = false;
 	return claPathx;
 }
 
@@ -540,87 +517,92 @@ void DcxmlParser::setStyle(const TiXmlElement* const style)
 
 	//style attributes evaluate by default unless eval="0" is set on the m_pElement explicitly
 
-	m_iEval = queryIntAttribute(style, "eval", 1);
+	m_Attributes.m_iEval = queryIntAttribute(style, "eval", 1);
 
 	//font
-	m_sFontstyle = queryAttribute(style, "fontstyle", "d");
-	m_sCharset = queryAttribute(style, "charset", "ansi");
-	m_sFontsize = queryAttribute(style, "fontsize");
-	m_sFontname = queryAttribute(style, "fontname");
+	m_Attributes.m_sFontstyle = queryAttribute(style, "fontstyle", "d");
+	m_Attributes.m_sCharset = queryAttribute(style, "charset", "ansi");
+	m_Attributes.m_sFontsize = queryAttribute(style, "fontsize");
+	m_Attributes.m_sFontname = queryAttribute(style, "fontname");
 	if ((style->Attribute("fontsize")) || (style->Attribute("fontname")))
-		xdidEX(m_iID, TEXT("-f"), TEXT("+%S %S %S %S"), m_sFontstyle, m_sCharset, m_sFontsize, m_sFontname);
+		xdidEX(m_Attributes.m_iID, TEXT("-f"), TEXT("+%S %S %S %S"), m_Attributes.m_sFontstyle, m_Attributes.m_sCharset, m_Attributes.m_sFontsize, m_Attributes.m_sFontname);
 	//border
-	m_sBorder = queryAttribute(style, "border");
-	if (!_ts_isEmpty(m_sBorder))
-		xdidEX(m_iID, TEXT("-x"), TEXT("+%S"), m_sBorder);
-	//colours
+	m_Attributes.m_sBorder = queryAttribute(style, "border");
+	if (!_ts_isEmpty(m_Attributes.m_sBorder))
+		xdidEX(m_Attributes.m_iID, TEXT("-x"), TEXT("+%S"), m_Attributes.m_sBorder);
+
 	//m_sCursor = queryAttribute(style, "cursor", "arrow");
-	m_sCursor = style->Attribute("cursor");	// can be null
-	m_sBgcolour = queryAttribute(style, "bgcolour");
-	m_sTextbgcolour = queryAttribute(style, "textbgcolour");
-	m_sTextcolour = queryAttribute(style, "textcolour");
+	m_Attributes.m_sCursor = style->Attribute("cursor");	// can be null
 
-	const auto sTypeHash = dcx_hash(m_sType);
+	//colours
+	m_Attributes.m_sBgcolour = queryAttribute(style, "bgcolour");
+	m_Attributes.m_sTextbgcolour = queryAttribute(style, "textbgcolour");
+	m_Attributes.m_sTextcolour = queryAttribute(style, "textcolour");
 
-	if (!_ts_isEmpty(m_sBgcolour))
+	const auto sTypeHash = dcx_hash(m_Attributes.m_sType);
+
+	if (!_ts_isEmpty(m_Attributes.m_sBgcolour))
 	{
-		xdidEX(m_iID, TEXT("-C"), TEXT("+b %S"), m_sBgcolour);
+		xdidEX(m_Attributes.m_iID, TEXT("-C"), TEXT("+b %S"), m_Attributes.m_sBgcolour);
 		if (sTypeHash == "pbar"_hash)
 		{
-			xdidEX(m_iID, TEXT("-k"), TEXT("%S"), m_sBgcolour);
-			xml_xdid(m_iID, TEXT("-U"), TEXT(""));
+			xdidEX(m_Attributes.m_iID, TEXT("-k"), TEXT("%S"), m_Attributes.m_sBgcolour);
+			xml_xdid(m_Attributes.m_iID, TEXT("-U"), TEXT(""));
 		}
 	}
 
-	if (!_ts_isEmpty(m_sTextbgcolour))
+	if (!_ts_isEmpty(m_Attributes.m_sTextbgcolour))
 	{
-		xdidEX(m_iID, TEXT("-C"), TEXT("+k %S"), m_sTextbgcolour);
+		xdidEX(m_Attributes.m_iID, TEXT("-C"), TEXT("+k %S"), m_Attributes.m_sTextbgcolour);
 		if (sTypeHash == "pbar"_hash)
 		{
-			xdidEX(m_iID, TEXT("-c"), TEXT("%S"), m_sTextbgcolour);
-			xml_xdid(m_iID, TEXT("-U"), TEXT(""));
+			xdidEX(m_Attributes.m_iID, TEXT("-c"), TEXT("%S"), m_Attributes.m_sTextbgcolour);
+			xml_xdid(m_Attributes.m_iID, TEXT("-U"), TEXT(""));
 		}
 	}
-	else if (!_ts_isEmpty(m_sBgcolour))
-		xdidEX(m_iID, TEXT("-C"), TEXT("+k %S"), m_sBgcolour);
+	else if (!_ts_isEmpty(m_Attributes.m_sBgcolour))
+		xdidEX(m_Attributes.m_iID, TEXT("-C"), TEXT("+k %S"), m_Attributes.m_sBgcolour);
 
-	if (!_ts_isEmpty(m_sTextcolour))
+	if (!_ts_isEmpty(m_Attributes.m_sTextcolour))
 	{
-		xdidEX(m_iID, TEXT("-C"), TEXT("+t %S"), m_sTextcolour);
+		xdidEX(m_Attributes.m_iID, TEXT("-C"), TEXT("+t %S"), m_Attributes.m_sTextcolour);
 		if (sTypeHash == "pbar"_hash)
 		{
-			xdidEX(m_iID, TEXT("-q"), TEXT("%S"), m_sTextcolour);
-			xml_xdid(m_iID, TEXT("-U"), TEXT(""));
+			xdidEX(m_Attributes.m_iID, TEXT("-q"), TEXT("%S"), m_Attributes.m_sTextcolour);
+			xml_xdid(m_Attributes.m_iID, TEXT("-U"), TEXT(""));
 		}
 	}
 
-	if (!_ts_isEmpty(m_sGradientstart))
-		xdidEX(m_iID, TEXT("-C"), TEXT("+g %S"), m_sGradientstart);
-	if (!_ts_isEmpty(m_sGradientstart))
-		xdidEX(m_iID, TEXT("-C"), TEXT("+G %S"), m_sGradientend);
+	if (!_ts_isEmpty(m_Attributes.m_sGradientstart))
+		xdidEX(m_Attributes.m_iID, TEXT("-C"), TEXT("+g %S"), m_Attributes.m_sGradientstart);
+	if (!_ts_isEmpty(m_Attributes.m_sGradientstart))
+		xdidEX(m_Attributes.m_iID, TEXT("-C"), TEXT("+G %S"), m_Attributes.m_sGradientend);
 
 	//cursor
-	if (!_ts_isEmpty(m_sCursor))
-		xdidEX(m_iID, TEXT("-J"), TEXT("+r %S"), m_sCursor);	// Ook: assumes cursor is a resource, needs changed.
+	if (!_ts_isEmpty(m_Attributes.m_sCursor))
+		xdidEX(m_Attributes.m_iID, TEXT("-J"), TEXT("+r %S"), m_Attributes.m_sCursor);	// Ook: assumes cursor is a resource, needs changed.
 
 	//iconsize
 	if (style->Attribute("iconsize"))
 	{
 		if (((sTypeHash == "toolbar"_hash) || (sTypeHash == "button"_hash)) || (sTypeHash == "treeview"_hash))
-			xdidEX(m_iID, TEXT("-l"), TEXT("%S"), m_sIconsize);
+			xdidEX(m_Attributes.m_iID, TEXT("-l"), TEXT("%S"), m_Attributes.m_sIconsize);
 	}
 	if (sTypeHash == "button"_hash)
 	{
-		if ((m_pElement) && !m_pElement->Attribute("bgcolour"))
-			m_sBgcolour = "65280";
-		if ((m_pElement) && m_pElement->Attribute("src"))
-			xdidEX(m_iID, TEXT("-k"), TEXT("+n %S %S"), m_sBgcolour, m_sSrc);
-		if ((m_pElement) && m_pElement->Attribute("disabledsrc"))
-			xdidEX(m_iID, TEXT("-k"), TEXT("+d %S %S"), m_sBgcolour, m_sDisabledsrc);
-		if ((m_pElement) && m_pElement->Attribute("hoversrc"))
-			xdidEX(m_iID, TEXT("-k"), TEXT("+h %S %S"), m_sBgcolour, m_sHoversrc);
-		if ((m_pElement) && m_pElement->Attribute("selectedsrc"))
-			xdidEX(m_iID, TEXT("-k"), TEXT("+s %S %S"), m_sBgcolour, m_sSelectedsrc);
+		if (m_pElement)
+		{
+			if (!m_pElement->Attribute("bgcolour"))
+				m_Attributes.m_sBgcolour = "65280";
+			if (m_pElement->Attribute("src"))
+				xdidEX(m_Attributes.m_iID, TEXT("-k"), TEXT("+n %S %S"), m_Attributes.m_sBgcolour, m_Attributes.m_sSrc);
+			if (m_pElement->Attribute("disabledsrc"))
+				xdidEX(m_Attributes.m_iID, TEXT("-k"), TEXT("+d %S %S"), m_Attributes.m_sBgcolour, m_Attributes.m_sDisabledsrc);
+			if (m_pElement->Attribute("hoversrc"))
+				xdidEX(m_Attributes.m_iID, TEXT("-k"), TEXT("+h %S %S"), m_Attributes.m_sBgcolour, m_Attributes.m_sHoversrc);
+			if (m_pElement->Attribute("selectedsrc"))
+				xdidEX(m_Attributes.m_iID, TEXT("-k"), TEXT("+s %S %S"), m_Attributes.m_sBgcolour, m_Attributes.m_sSelectedsrc);
+		}
 	}
 }
 
@@ -655,16 +637,16 @@ void DcxmlParser::parseStyle(int depth)
 		{
 			if (const auto ctmp = style->Attribute("class"); ctmp)
 			{
-				if (0 == ts_strcmp(ctmp, m_sSTclass))
+				if (0 == ts_strcmp(ctmp, m_Attributes.m_sSTclass))
 					ClassElement = style;
 			}
 
 			if (const auto ctmp = style->Attribute("type"); ctmp)
 			{
-				if (0 == ts_strcmp(ctmp, m_sType))
+				if (0 == ts_strcmp(ctmp, m_Attributes.m_sType))
 					TypeElement = style;
 			}
-			if (parseId(style) == m_iID)
+			if (parseId(style) == m_Attributes.m_iID)
 				IdElement = style;
 		}
 		if (IdElement)
@@ -704,17 +686,17 @@ void DcxmlParser::parseIcons(int depth)
 		{
 			if (const auto ctmp = tiIcon->Attribute("class"); ctmp)
 			{
-				if (0 == ts_strcmp(ctmp, m_sSTclass))
+				if (0 == ts_strcmp(ctmp, m_Attributes.m_sSTclass))
 					ClassElement = tiIcon;
 			}
 
 			if (const auto ctmp = tiIcon->Attribute("type"); ctmp)
 			{
-				if (0 == ts_strcmp(ctmp, m_sType))
+				if (0 == ts_strcmp(ctmp, m_Attributes.m_sType))
 					TypeElement = tiIcon;
 			}
 
-			if (m_iID == parseId(tiIcon))
+			if (m_Attributes.m_iID == parseId(tiIcon))
 				IdElement = tiIcon;
 		}
 
@@ -740,16 +722,12 @@ void DcxmlParser::parseIcons(int depth)
 				if (indexmin <= indexmax)
 					//method sucks but looping in C++ is WAYYY too fast for mIRC
 				{
-					//mIRCLinker::execex(TEXT("//var %%x = %i | while (%%x <= %i ) { xdid -w %s %u +%S %%x %S | inc %%x }"), indexmin,indexmax,getDialogMark().to_chr(),m_iID,flags,tIconSrc);
-					////mIRCLinker::execex(TEXT("//xdid -w %s %u +%S %i-%i %S"), getDialogMark().to_chr(), m_iID, flags, indexmin, indexmax, tIconSrc);
-
 					// NB: last %x does NOT have the % escaped, this is due to how _ts_sprintf() works when u have more % than args.
-					mIRCLinker::exec(TEXT("//var \\%x = % | while (\\%x <= % ) { xdid -w % % +% \\%x % | inc %x }"), indexmin, indexmax, getDialogMark(), m_iID, flags, tIconSrc);
-					//mIRCLinker::exec(TEXT("//xdid -w % % +% %-% %"), getDialogMark(), m_iID, flags, indexmin, indexmax, tIconSrc);
+					mIRCLinker::exec(TEXT("//var \\%x = % | while (\\%x <= % ) { xdid -w % % +% \\%x % | inc %x }"), indexmin, indexmax, getDialogMark(), m_Attributes.m_iID, flags, tIconSrc);
+					//mIRCLinker::exec(TEXT("//xdid -w % % +% %-% %"), getDialogMark(), m_Attributes.m_iID, flags, indexmin, indexmax, tIconSrc);
 				}
 				else
-					//mIRCLinker::execex(TEXT("//xdid -w %s %u +%S %S %S"),getDialogMark().to_chr(),m_iID,flags,index,tIconSrc);
-					mIRCLinker::exec(TEXT("//xdid -w % % +% % %"), getDialogMark(), m_iID, flags, index, tIconSrc);
+					mIRCLinker::exec(TEXT("//xdid -w % % +% % %"), getDialogMark(), m_Attributes.m_iID, flags, index, tIconSrc);
 			}
 			else
 			{
@@ -758,10 +736,8 @@ void DcxmlParser::parseIcons(int depth)
 					const auto tflags = queryAttribute(iconchild, "flags", "n");
 					const auto tindex = queryAttribute(iconchild, "index", "0");
 
-					//if (const auto tsrc = iconchild->Attribute("src"); tsrc != nullptr)
-					//	mIRCLinker::execex(TEXT("//xdid -w %s %u +%S %S %S"),getDialogMark().to_chr(),m_iID,tflags,tindex,tsrc);
 					if (const auto tsrc = iconchild->Attribute("src"); tsrc)
-						mIRCLinker::exec(TEXT("//xdid -w % % +% % %"), getDialogMark(), m_iID, tflags, tindex, tsrc);
+						mIRCLinker::exec(TEXT("//xdid -w % % +% % %"), getDialogMark(), m_Attributes.m_iID, tflags, tindex, tsrc);
 				}
 			}
 		}
@@ -777,7 +753,7 @@ void DcxmlParser::parseItems(const TiXmlElement* const tiElement, const UINT dep
 		return;
 
 	auto item = 0, cell = 0;
-	const auto sTypeHash = dcx_hash(m_sType);
+	const auto sTypeHash = dcx_hash(m_Attributes.m_sType);
 
 	for (auto child = tiElement->FirstChildElement(); child; child = child->NextSiblingElement())
 	{
@@ -817,11 +793,11 @@ void DcxmlParser::parseItems(const TiXmlElement* const tiElement, const UINT dep
 					//tsArguments.addtok(tsBuffer,TEXT('\t'));
 				}
 				if (!tsArguments.empty())
-					xdidEX(m_iID, TEXT("-t"), TEXT("%s"), tsArguments.to_chr());
+					xdidEX(m_Attributes.m_iID, TEXT("-t"), TEXT("%s"), tsArguments.to_chr());
 			}
 			//if (childelemHash == "dataset"_hash)
 			//{
-			//	//auto listView = this->d_Host->getControlByID(m_iID);
+			//	//auto listView = this->d_Host->getControlByID(m_Attributes.m_iID);
 			//}
 		}
 
@@ -834,31 +810,31 @@ void DcxmlParser::parseItems(const TiXmlElement* const tiElement, const UINT dep
 		{
 			++item;
 			if (sTypeHash == "toolbar"_hash)
-				xdidEX(m_iID, TEXT("-a"), TEXT("0 +%S %S %S %S %S \t %S"), ((m_sTFlags) ? m_sTFlags : "a"), m_sWidth, m_sIcon, m_sTextcolour, m_sCaption, m_sTooltip);
+				xdidEX(m_Attributes.m_iID, TEXT("-a"), TEXT("0 +%S %S %S %S %S \t %S"), ((m_Attributes.m_sTFlags) ? m_Attributes.m_sTFlags : "a"), m_Attributes.m_sWidth, m_Attributes.m_sIcon, m_Attributes.m_sTextcolour, m_Attributes.m_sCaption, m_Attributes.m_sTooltip);
 			else if (sTypeHash == "comboex"_hash)
-				xdidEX(m_iID, TEXT("-a"), TEXT("0 %S %S %S 0 %S"), m_sIndent, m_sIcon, m_sIcon, m_sCaption);
+				xdidEX(m_Attributes.m_iID, TEXT("-a"), TEXT("0 %S %S %S 0 %S"), m_Attributes.m_sIndent, m_Attributes.m_sIcon, m_Attributes.m_sIcon, m_Attributes.m_sCaption);
 			else if (sTypeHash == "list"_hash)
 			{
-				if (m_sCaption)
-					xdidEX(m_iID, TEXT("-a"), TEXT("0 %S"), m_sCaption);
+				if (m_Attributes.m_sCaption)
+					xdidEX(m_Attributes.m_iID, TEXT("-a"), TEXT("0 %S"), m_Attributes.m_sCaption);
 			}
 			else if (sTypeHash == "statusbar"_hash)
 			{
-				if (m_sCaption)
-					xdidEX(m_iID, TEXT("-t"), TEXT("%i +%S %S %S \t %S"), cell, ((m_sTFlags) ? m_sTFlags : "f"), m_sIcon, m_sCaption, m_sTooltip);
+				if (m_Attributes.m_sCaption)
+					xdidEX(m_Attributes.m_iID, TEXT("-t"), TEXT("%i +%S %S %S \t %S"), cell, ((m_Attributes.m_sTFlags) ? m_Attributes.m_sTFlags : "f"), m_Attributes.m_sIcon, m_Attributes.m_sCaption, m_Attributes.m_sTooltip);
 			}
 			else if (sTypeHash == "treeview"_hash)
 			{
 				// Ook: recursive loop needs looked at, use a TString reference object instead of multiple char[]'s for itemPath
 				//itemPath += item;
-				//xdidEX(m_iID, TEXT("-a"), TEXT("%s \t +%S %S %S 0 %S %S %S %S %S \t %S"), itemPath.to_chr(), ((m_sTFlags) ? m_sTFlags : "a"), m_sIcon, m_sIcon, m_sState, m_sIntegral, m_sTextcolour, m_sBgcolour, m_sCaption, m_sTooltip);
+				//xdidEX(m_Attributes.m_iID, TEXT("-a"), TEXT("%s \t +%S %S %S 0 %S %S %S %S %S \t %S"), itemPath.to_chr(), ((m_sTFlags) ? m_sTFlags : "a"), m_sIcon, m_sIcon, m_sState, m_sIntegral, m_sTextcolour, m_Attributes.m_sBgcolour, m_sCaption, m_sTooltip);
 				//parseItems(child, depth, itemPath);
 				char pathx[100]{};
 				//wnsprintfA(&pathx[0], gsl::narrow_cast<int>(Dcx::countof(pathx)), "%s %i", itemPath, item);
 				//_ts_snprintf(&pathx[0], gsl::narrow_cast<int>(Dcx::countof(pathx)), "%s %i", itemPath, item);
 				_ts_snprintf(&pathx[0], std::size(pathx), "%s %i", itemPath, item);
-				if (m_sCaption)
-					xdidEX(m_iID, TEXT("-a"), TEXT("%S \t +%S %S %S 0 %S %S %S %S %S \t %S"), &pathx[0], ((m_sTFlags != nullptr) ? m_sTFlags : "a"), m_sIcon, m_sIcon, m_sState, m_sIntegral, m_sTextcolour, m_sBgcolour, m_sCaption, m_sTooltip);
+				if (m_Attributes.m_sCaption)
+					xdidEX(m_Attributes.m_iID, TEXT("-a"), TEXT("%S \t +%S %S %S 0 %S %S %S %S %S \t %S"), &pathx[0], ((m_Attributes.m_sTFlags) ? m_Attributes.m_sTFlags : "a"), m_Attributes.m_sIcon, m_Attributes.m_sIcon, m_Attributes.m_sState, m_Attributes.m_sIntegral, m_Attributes.m_sTextcolour, m_Attributes.m_sBgcolour, m_Attributes.m_sCaption, m_Attributes.m_sTooltip);
 				parseItems(child, depth, &pathx[0]);
 			}
 		}
@@ -905,9 +881,9 @@ void DcxmlParser::parseTemplate(const UINT dialogDepth, const char* const claPat
 void DcxmlParser::parseDialog(const UINT depth, const char* claPath, const UINT passedid, const bool ignoreParent)
 {
 	auto control = 0, cCla = 0, cell = 0;
-	g_claPath = nullptr;
-	g_claPathx = nullptr;
-	g_bResetCLA = false;
+	m_CLA.m_claPath = nullptr;
+	m_CLA.m_claPathx = nullptr;
+	m_CLA.m_bResetCLA = false;
 
 	if (!m_pElement)
 		return;
@@ -923,7 +899,7 @@ void DcxmlParser::parseDialog(const UINT depth, const char* claPath, const UINT 
 		//STEP 2: PARSE ATTRIBUTES OF ELEMENTS
 		parseAttributes();
 
-		const auto sElemHash = dcx_hash(m_sElem);
+		const auto sElemHash = dcx_hash(m_Attributes.m_sElem);
 
 		//dont itterate over unneccessary items
 		if (sElemHash == "calltemplate"_hash)
@@ -931,8 +907,8 @@ void DcxmlParser::parseDialog(const UINT depth, const char* claPath, const UINT 
 			if (const refString<const char> refParentVal(m_pElement->Parent()->ToElement()->Value()); refParentVal != "template")
 			{
 				++cCla;
-				m_pTemplateRef = m_pElement;
-				m_iTemplateRefcCla = cCla;
+				m_Templates.m_pTemplateRef = m_pElement;
+				m_Templates.m_iTemplateRefcCla = cCla;
 
 				sString<100> t_buffer;
 				const char* t_claPathx = t_buffer;
@@ -960,25 +936,40 @@ void DcxmlParser::parseDialog(const UINT depth, const char* claPath, const UINT 
 				//	mIRCLinker::exec(TEXT("//unset \\%%"), iter->first);
 				//}
 
-				for (const auto& attribute : *m_pElement->FirstAttribute())
+				if (auto attrlist = m_pElement->FirstAttribute(); attrlist)
 				{
-					const refString<const char> refName(attribute->Name());
-					if (refName == "name")
-						continue;
-					m_mTemplate_vars[refName] = attribute->Value();
+					for (const auto& attribute : *attrlist)
+					{
+						//if (const refString<const char> refName(attribute->Name()); refName)
+						//{
+						//	if (refName == "name")
+						//		continue;
+						//	m_mTemplate_vars[refName] = attribute->Value();
+						//}
+
+						if (attribute)
+						{
+							if (const auto refName = attribute->Name(); refName)
+							{
+								if (ts_strcmp(refName, "name") == 0)
+									continue;
+								m_Templates.m_mTemplate_vars[refName] = attribute->Value();
+							}
+						}
+					}
 				}
-				for (const auto& x : m_mTemplate_vars)
+				for (const auto& x : m_Templates.m_mTemplate_vars)
 				{
 					mIRCLinker::exec(TEXT("//set \\%% %"), x.first, x.second);
 				}
-				m_sTemplateRefclaPath = t_claPathx;
+				m_Templates.m_sTemplateRefclaPath = t_claPathx;
 				parseTemplate(depth, claPath, passedid);
-				m_pTemplateRef = nullptr;
-				for (const auto& x : m_mTemplate_vars)
+				m_Templates.m_pTemplateRef = nullptr;
+				for (const auto& x : m_Templates.m_mTemplate_vars)
 				{
 					mIRCLinker::exec(TEXT("//unset \\%%"), x.first);
 				}
-				m_mTemplate_vars.clear();
+				m_Templates.m_mTemplate_vars.clear();
 			}
 			continue;
 		}
@@ -991,50 +982,49 @@ void DcxmlParser::parseDialog(const UINT depth, const char* claPath, const UINT 
 		if (sElemHash == "control"_hash)
 		{
 			++m_iControls;
-			m_iID = parseId(m_pElement);
+			m_Attributes.m_iID = parseId(m_pElement);
 
-			if (m_iID == 0)
-				m_iID = DCXML_ID_OFFSET + m_iControls;	// this is user id, so will later have mIRC_ID_OFFSET added to it.
+			if (m_Attributes.m_iID == 0)
+				m_Attributes.m_iID = DCXML_ID_OFFSET + m_iControls;	// this is user id, so will later have mIRC_ID_OFFSET added to it.
 
-			registerId(m_pElement, m_iID); // Ook: does this twice??
-										   //registerId(m_pElement,m_iID);
+			registerId(m_pElement, m_Attributes.m_iID);
 		}
 		else
-			m_iID = passedid;
+			m_Attributes.m_iID = passedid;
 
 		//assign m_pParent CONTROL of m_pElement
-		if (m_sParentelem)
+		if (m_Attributes.m_sParentelem)
 		{
-		while (m_pParent)
-		{
-			if (0 == ts_strcmp(m_sParentelem, "template"))
+			while (m_pParent)
 			{
-					if (m_pTemplateRef)
+				if (0 == ts_strcmp(m_Attributes.m_sParentelem, "template"))
+				{
+					if (m_Templates.m_pTemplateRef)
 					{
-				const gsl::not_null<const TiXmlNode*> xNodeTmp(m_pTemplateRef->Parent());
-				m_pParent = xNodeTmp->ToElement();
-				m_sParentelem = xNodeTmp->Value();
-				cCla = m_iTemplateRefcCla;
-				claPath = m_sTemplateRefclaPath;
-			}
+						const gsl::not_null<const TiXmlNode*> xNodeTmp(m_Templates.m_pTemplateRef->Parent());
+						m_pParent = xNodeTmp->ToElement();
+						m_Attributes.m_sParentelem = xNodeTmp->Value();
+						cCla = m_Templates.m_iTemplateRefcCla;
+						claPath = m_Templates.m_sTemplateRefclaPath;
+					}
 				}
-			else if (0 == ts_strcmp(m_sParentelem, "pane"))
-			{
-				m_pParent = m_pParent->Parent()->ToElement();
+				else if (0 == ts_strcmp(m_Attributes.m_sParentelem, "pane"))
+				{
+					m_pParent = m_pParent->Parent()->ToElement();
 					if (m_pParent)
-				m_sParentelem = m_pParent->Value();
+						m_Attributes.m_sParentelem = m_pParent->Value();
+				}
+				else break;
 			}
-			else break;
-		}
 		}
 		if (m_pParent)
-			m_sParenttype = queryAttribute(m_pParent, "type", "panel");
+			m_Attributes.m_sParenttype = queryAttribute(m_pParent, "type", "panel");
 		else
-			m_sParenttype = "panel";
+			m_Attributes.m_sParenttype = "panel";
 
-		m_iParentID = parseId(m_pParent);
-		if (m_iParentID <= 0)
-			m_iParentID = passedid;
+		m_Attributes.m_iParentID = parseId(m_pParent);
+		if (m_Attributes.m_iParentID <= 0)
+			m_Attributes.m_iParentID = passedid;
 		//IF TEMPLATE ELEMENT REROUTE TO TEMPLATE DEFINITION
 
 
@@ -1046,13 +1036,15 @@ void DcxmlParser::parseDialog(const UINT depth, const char* claPath, const UINT 
 
 			//check how to insert the control in the m_pParent Control/Dialog
 			//If parentNode is pane loop untill parentNode is not a pane
-			const auto sParentelemHash = dcx_hash(m_sParentelem);
+			const auto sParentelemHash = dcx_hash(m_Attributes.m_sParentelem);
 
 			if (sParentelemHash == "dialog"_hash)
-				xdialogEX(TEXT("-c"), TEXT("%u %S 0 0 %S %S %S"), m_iID, m_sType, m_sWidth, (m_sDropdown ? m_sDropdown : m_sHeight), m_sStyles);
+				xdialogEX(TEXT("-c"), TEXT("%u %S 0 0 %S %S %S"),
+					m_Attributes.m_iID, m_Attributes.m_sType, m_Attributes.m_sWidth,
+					(m_Attributes.m_sDropdown ? m_Attributes.m_sDropdown : m_Attributes.m_sHeight), m_Attributes.m_sStyles);
 			else if (sParentelemHash == "control"_hash)
 			{
-				switch (dcx_hash(m_sParenttype))
+				switch (dcx_hash(m_Attributes.m_sParenttype))
 				{
 				case "pager"_hash:
 					if (control != 1)
@@ -1061,32 +1053,46 @@ void DcxmlParser::parseDialog(const UINT depth, const char* claPath, const UINT 
 				case "panel"_hash:
 					[[fallthrough]];
 				case "box"_hash:
-					xdidEX(m_iParentID, TEXT("-c"), TEXT("%u %S 0 0 %S %S %S"), m_iID, m_sType, m_sWidth, (m_sDropdown ? m_sDropdown : m_sHeight), m_sStyles);
+					xdidEX(m_Attributes.m_iParentID, TEXT("-c"), TEXT("%u %S 0 0 %S %S %S"),
+						m_Attributes.m_iID, m_Attributes.m_sType, m_Attributes.m_sWidth,
+						(m_Attributes.m_sDropdown ? m_Attributes.m_sDropdown : m_Attributes.m_sHeight), m_Attributes.m_sStyles);
 					break;
 				case "tab"_hash:
-					xdidEX(m_iParentID, TEXT("-a"), TEXT("0 %S %S \t %u %S 0 0 %S %S %S \t %S"), m_sIcon, m_sCaption, m_iID, m_sType, m_sWidth, (m_sDropdown ? m_sDropdown : m_sHeight), m_sStyles, m_sTooltip);
+					xdidEX(m_Attributes.m_iParentID, TEXT("-a"), TEXT("0 %S %S \t %u %S 0 0 %S %S %S \t %S"),
+						m_Attributes.m_sIcon, m_Attributes.m_sCaption, m_Attributes.m_iID, m_Attributes.m_sType, m_Attributes.m_sWidth,
+						(m_Attributes.m_sDropdown ? m_Attributes.m_sDropdown : m_Attributes.m_sHeight), m_Attributes.m_sStyles, m_Attributes.m_sTooltip);
 					break;
 				case "divider"_hash:
 					if (control <= 2)
 					{
 						// <= 2 so MUST be either 1 or 2, can't be zero
 						if (control == 1)
-							xdidEX(m_iParentID, TEXT("-l"), TEXT("%S 0 \t %u %S 0 0 %S %S %S"), m_sWidth, m_iID, m_sType, m_sWidth, (m_sDropdown ? m_sDropdown : m_sHeight), m_sStyles);
+							xdidEX(m_Attributes.m_iParentID, TEXT("-l"), TEXT("%S 0 \t %u %S 0 0 %S %S %S"),
+								m_Attributes.m_sWidth, m_Attributes.m_iID, m_Attributes.m_sType, m_Attributes.m_sWidth,
+								(m_Attributes.m_sDropdown ? m_Attributes.m_sDropdown : m_Attributes.m_sHeight), m_Attributes.m_sStyles);
 						else
-							xdidEX(m_iParentID, TEXT("-r"), TEXT("%S 0 \t %u %S 0 0 %S %S %S"), m_sWidth, m_iID, m_sType, m_sWidth, (m_sDropdown ? m_sDropdown : m_sHeight), m_sStyles);
+							xdidEX(m_Attributes.m_iParentID, TEXT("-r"), TEXT("%S 0 \t %u %S 0 0 %S %S %S"),
+								m_Attributes.m_sWidth, m_Attributes.m_iID, m_Attributes.m_sType, m_Attributes.m_sWidth,
+								(m_Attributes.m_sDropdown ? m_Attributes.m_sDropdown : m_Attributes.m_sHeight), m_Attributes.m_sStyles);
 					}
 					break;
 				case "rebar"_hash:
 				{
-					const char* flags = (m_sTFlags) ? m_sTFlags : "ceg";
-					xdidEX(m_iParentID, TEXT("-a"), TEXT("0 +%S %S %S %S %S %S %S \t %u %S 0 0 %S %S %S \t %S"), flags, m_sRebarMinWidth, m_sRebarMinHeight, m_sWidth, m_sIcon, m_sTextcolour, m_sCaption, m_iID, m_sType, m_sWidth, (m_sDropdown ? m_sDropdown : m_sHeight), m_sStyles, m_sTooltip);
+					const char* flags = (m_Attributes.m_sTFlags) ? m_Attributes.m_sTFlags : "ceg";
+					xdidEX(m_Attributes.m_iParentID, TEXT("-a"), TEXT("0 +%S %S %S %S %S %S %S \t %u %S 0 0 %S %S %S \t %S"), flags,
+						m_Attributes.m_sRebarMinWidth, m_Attributes.m_sRebarMinHeight, m_Attributes.m_sWidth, m_Attributes.m_sIcon, m_Attributes.m_sTextcolour,
+						m_Attributes.m_sCaption, m_Attributes.m_iID, m_Attributes.m_sType, m_Attributes.m_sWidth,
+						(m_Attributes.m_sDropdown ? m_Attributes.m_sDropdown : m_Attributes.m_sHeight), m_Attributes.m_sStyles, m_Attributes.m_sTooltip);
 				}
 				break;
 				case "stacker"_hash:
-					xdidEX(m_iParentID, TEXT("-a"), TEXT("0 + %S %S %S \t %u %S 0 0 %S %S %S"), m_sTextcolour, m_sBgcolour, m_sCaption, m_iID, m_sType, m_sWidth, (m_sDropdown ? m_sDropdown : m_sHeight), m_sStyles);
+					xdidEX(m_Attributes.m_iParentID, TEXT("-a"), TEXT("0 + %S %S %S \t %u %S 0 0 %S %S %S"),
+						m_Attributes.m_sTextcolour, m_Attributes.m_sBgcolour, m_Attributes.m_sCaption, m_Attributes.m_iID, m_Attributes.m_sType, m_Attributes.m_sWidth,
+						(m_Attributes.m_sDropdown ? m_Attributes.m_sDropdown : m_Attributes.m_sHeight), m_Attributes.m_sStyles);
 					break;
 				case "statusbar"_hash:
-					xdidEX(m_iParentID, TEXT("-t"), TEXT("%i +c %S %u %S 0 0 0 0 %S"), cell, m_sIcon, m_iID, m_sType, m_sStyles);
+					xdidEX(m_Attributes.m_iParentID, TEXT("-t"), TEXT("%i +c %S %u %S 0 0 0 0 %S"), cell,
+						m_Attributes.m_sIcon, m_Attributes.m_iID, m_Attributes.m_sType, m_Attributes.m_sStyles);
 					break;
 
 				//Ook: MUST add MultiCombo !!
@@ -1097,7 +1103,7 @@ void DcxmlParser::parseDialog(const UINT depth, const char* claPath, const UINT 
 			}
 		}
 		//Set CLA for control or pane
-		g_claPath = claPath;
+		m_CLA.m_claPath = claPath;
 		const auto claPathx(parseCLA(cCla));
 
 		//Perform some control specific commands
@@ -1109,7 +1115,7 @@ void DcxmlParser::parseDialog(const UINT depth, const char* claPath, const UINT 
 		}
 		//char *claPathx = "root";
 		//mIRCLinker::execex(TEXT("//echo -a clapath:%s"),claPathx);
-		parseDialog(depth + 1, claPathx.c_str(), m_iID);
+		parseDialog(depth + 1, claPathx.c_str(), m_Attributes.m_iID);
 	}
 }
 
@@ -1118,41 +1124,10 @@ void DcxmlParser::registerId(const TiXmlElement* const idElement, const UINT iNe
 	if (!idElement)
 		return;
 
-	//auto elementId = 0;
-	//if (idElement->QueryIntAttribute("id", &elementId) != TIXML_SUCCESS) //<! id attr. is not an int
-	//{
-	//	if (const TString elementNamedId(idElement->Attribute("id")); !elementNamedId.empty())
-	//	{
-	//		if (mIRCEvalToUnsignedInt(elementNamedId) < 0) //<! id attr. doesn't evaluate to an int
-	//			getDialog()->AddNamedId(elementNamedId, iNewID + mIRC_ID_OFFSET);
-	//	}
-	//}
-
-//#pragma warning(push)
-//#pragma warning(disable: 4101)	//warning C4101 : 'elementId' : unreferenced local variable
-//
-//	if (const auto[iStatus, elementId] = idElement->QueryIntAttribute("id"); iStatus != TIXML_SUCCESS) //<! id attr. is not an int
-//	{
-//		if (const TString elementNamedId(idElement->Attribute("id")); !elementNamedId.empty())
-//		{
-//			//if (mIRCEvalToUnsignedInt(elementNamedId) < 0) //<! id attr. doesn't evaluate to an int
-//			//	getDialog()->AddNamedId(elementNamedId, iNewID + mIRC_ID_OFFSET);
-//
-//			//if (const auto[bSuccess, _elementId] = mIRCEvalToUnsignedInt2(elementNamedId); !bSuccess) //<! id attr. doesn't evaluate to an int
-//			//	getDialog()->AddNamedId(elementNamedId, iNewID + mIRC_ID_OFFSET);
-//
-//			if (mIRCEvalToUnsignedInt2(elementNamedId).first) //<! id attr. doesn't evaluate to an int
-//				getDialog()->AddNamedId(elementNamedId, iNewID + mIRC_ID_OFFSET);
-//		}
-//	}
-//#pragma warning(pop)
-
 	if (idElement->QueryIntAttribute("id").first != TiXmlReturns::TIXML_SUCCESS) //<! id attr. is not an int
 	{
 		if (const TString elementNamedId(idElement->Attribute("id")); !elementNamedId.empty())
 		{
-			//if (mIRCEvalToUnsignedInt2(elementNamedId).first) //<! id attr. doesn't evaluate to an int
-			//if (mIRCLinker::uEval<UINT>(elementNamedId).first) //<! id attr. doesn't evaluate to an int
 			if (mIRCLinker::uEval<UINT>(elementNamedId).has_value()) //<! id attr. doesn't evaluate to an int
 				if (const auto d = getDialog(); d)
 					d->AddNamedId(elementNamedId, iNewID + mIRC_ID_OFFSET);
@@ -1162,35 +1137,6 @@ void DcxmlParser::registerId(const TiXmlElement* const idElement, const UINT iNe
 
 UINT DcxmlParser::parseId(const TiXmlElement* const idElement)
 {
-	//if (idElement == nullptr)
-	//	return 0U;
-	//
-	////<! if id attribute is already integer return it
-	//auto local_id = 0;
-	//if (idElement->QueryIntAttribute("id", &local_id) == TIXML_SUCCESS)
-	//{
-	//	// found ID as a number,  if its not a negative, return it.
-	//	return gsl::narrow_cast<UINT>(std::max(local_id, 0));
-	//}
-	//
-	//const TString attributeIdValue(idElement->Attribute("id"));
-	//if (!attributeIdValue.empty())
-	//{
-	//	// got ID attrib, evaluate it to try & resolve to a number.
-	//	local_id = mIRCEvalToUnsignedInt(attributeIdValue);
-	//	// if ID is > zero return it.
-	//	if (local_id > 0)
-	//		return gsl::narrow_cast<UINT>(local_id);
-	//
-	//	// didn't evaluate to a number, so must be a name...
-	//	//auto it = getDialog()->getNamedIds().find(attributeIdValue);
-	//	//if (it != getDialog()->getNamedIds().end())
-	//	//	return it->second;
-	//
-	//	return getDialog()->NameToUserID(attributeIdValue);
-	//}
-	//return 0U;
-
 	if (!idElement)
 		return 0U;
 
@@ -1206,12 +1152,6 @@ UINT DcxmlParser::parseId(const TiXmlElement* const idElement)
 		// got ID attrib, evaluate it to try & resolve to a number.
 
 		// if ID is > zero return it.
-
-		//if (const auto[bSuccess,local_id] = mIRCEvalToUnsignedInt2(attributeIdValue); bSuccess)
-		//	return local_id;
-
-		//if (const auto[bSuccess, local_id] = mIRCLinker::uEval<UINT>(attributeIdValue); bSuccess)
-		//	return local_id;
 
 		if (const auto local_id = mIRCLinker::uEval<UINT>(attributeIdValue); local_id.has_value())
 			GSL_SUPPRESS(lifetime) return local_id.value();
