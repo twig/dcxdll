@@ -50,11 +50,11 @@ XPopupMenuItem::XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, co
 	parseItemText();
 }
 
- /*!
-  * \brief blah
-  *
-  * blah
-  */
+/*!
+ * \brief blah
+ *
+ * blah
+ */
 
 void XPopupMenuItem::setSubMenu(const bool bSubMenu) noexcept
 {
@@ -676,29 +676,16 @@ void XPopupMenuItem::DrawItemSeparator(const LPDRAWITEMSTRUCT lpdis, const XPMEN
 	if (!this->m_pXParentMenu || !lpdis || !lpcol || !lpdis->hDC)
 		return;
 
+	auto x1 = lpdis->rcItem.left;
+	const auto x2 = lpdis->rcItem.right;
+	const auto y = (lpdis->rcItem.bottom + lpdis->rcItem.top) / 2;
+
 	switch (this->m_pXParentMenu->getStyle())
 	{
 	case XPopupMenu::MenuStyle::XPMS_ICY:
 	case XPopupMenu::MenuStyle::XPMS_ICY_REV:
 	case XPopupMenu::MenuStyle::XPMS_NORMAL:
 	case XPopupMenu::MenuStyle::XPMS_BUTTON:
-	{
-		const auto hPen = CreatePen(PS_SOLID, 1, lpcol->m_clrSeparatorLine);
-
-		if (!hPen)
-			break;
-		Auto(DeleteObject(hPen));
-
-		const auto x1 = lpdis->rcItem.left;
-		const auto x2 = lpdis->rcItem.right;
-		const auto y = (lpdis->rcItem.bottom + lpdis->rcItem.top) / 2;
-
-		const auto oldPen = SelectObject(lpdis->hDC, hPen);
-		Auto(SelectObject(lpdis->hDC, oldPen));
-
-		MoveToEx(lpdis->hDC, x1, y, nullptr);
-		LineTo(lpdis->hDC, x2, y);
-	}
 	break;
 
 	case XPopupMenu::MenuStyle::XPMS_OFFICEXP:
@@ -711,16 +698,16 @@ void XPopupMenuItem::DrawItemSeparator(const LPDRAWITEMSTRUCT lpdis, const XPMEN
 	case XPopupMenu::MenuStyle::XPMS_VERTICAL:
 	case XPopupMenu::MenuStyle::XPMS_VERTICAL_REV:
 	default:
+		x1 = XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
+	break;
+	}
+
 	{
 		const auto hPen = CreatePen(PS_SOLID, 1, lpcol->m_clrSeparatorLine);
 
 		if (!hPen)
-			break;
+			return;
 		Auto(DeleteObject(hPen));
-
-		constexpr auto x1 = XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
-		const auto x2 = lpdis->rcItem.right;
-		const auto y = (lpdis->rcItem.bottom + lpdis->rcItem.top) / 2;
 
 		const auto oldPen = SelectObject(lpdis->hDC, hPen);
 		Auto(SelectObject(lpdis->hDC, oldPen));
@@ -728,7 +715,21 @@ void XPopupMenuItem::DrawItemSeparator(const LPDRAWITEMSTRUCT lpdis, const XPMEN
 		MoveToEx(lpdis->hDC, x1, y, nullptr);
 		LineTo(lpdis->hDC, x2, y);
 	}
+
+	if (dcx_testflag(this->m_pXParentMenu->getItemStyle(), XPS_DOUBLESEP))
+	{
+		const auto hContrastPen = CreatePen(PS_SOLID, 1, GetContrastColour(lpcol->m_clrSeparatorLine));
+		if (!hContrastPen)
+			return;
+		Auto(DeleteObject(hContrastPen));
+
+		const auto oldPen = SelectObject(lpdis->hDC, hContrastPen);
+		Auto(SelectObject(lpdis->hDC, oldPen));
+
+		MoveToEx(lpdis->hDC, x1, y + 1, nullptr);
+		LineTo(lpdis->hDC, x2, y + 1);
 	}
+
 }
 
 /*!
@@ -879,7 +880,7 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const XPMENUC
 			XPopupMenuItem::DrawGradient(lpdis->hDC, &rcIntersect, lpcol->m_clrBox, lpcol->m_clrLightBox, TRUE);
 		else
 			XPopupMenuItem::DrawGradient(lpdis->hDC, &rcIntersect, lpcol->m_clrLightBox, lpcol->m_clrBox, TRUE);
-}
+	}
 #endif
 }
 
@@ -1049,8 +1050,8 @@ bool XPopupMenuItem::DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBi
 
 			// copy the box we want from the whole gradient bar
 			BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, *hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
+		}
 	}
-}
 	return true;
 #endif
 }

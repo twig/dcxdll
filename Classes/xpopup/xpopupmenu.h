@@ -22,6 +22,7 @@
 constexpr auto XPS_ICON3D = 0x01; //!< Icons have a 3D effect
 constexpr auto XPS_DISABLEDSEL = 0x02; //!< Disabled Items have a selectionbox
 constexpr auto XPS_ICON3DSHADOW = 0x04; //!< Icons have a 3D effect with undershadow
+constexpr auto XPS_DOUBLESEP = 0x08; //!< Seperator items have a double line.
 
 using VectorOfXPopupMenu = std::vector<XPopupMenu *>; //!< Vector of XPopupMenu Objects
 

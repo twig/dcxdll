@@ -639,6 +639,8 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 			iStyles |= XPS_DISABLEDSEL;
 		if (xflags[TEXT('p')])
 			iStyles |= XPS_ICON3DSHADOW;
+		if (xflags[TEXT('D')])
+			iStyles |= XPS_DOUBLESEP;
 
 		p_Menu->setItemStyle(iStyles);
 	}
