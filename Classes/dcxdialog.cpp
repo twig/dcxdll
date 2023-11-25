@@ -4330,8 +4330,11 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 		xml->SetAttribute("height", rc.Height());
 		xml->SetAttribute("width", rc.Width());
 	}
-	if (!this->m_BackgroundImage.m_tsFilename.empty())
-		xml->SetAttribute("src", this->m_BackgroundImage.m_tsFilename.c_str());
+	//if (!this->m_BackgroundImage.m_tsFilename.empty())
+	//	xml->SetAttribute("src", this->m_BackgroundImage.m_tsFilename.c_str());
+	if (this->m_BackgroundImage)
+		xml->LinkEndChild(this->m_BackgroundImage.toXml());
+
 	if (this->m_bDoDrag)
 		xml->SetAttribute("drag", "1");
 	if (this->m_uGhostDragAlpha != std::byte{255})
@@ -4390,7 +4393,7 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 
 	// custom menu style if any
 	if (m_popup)
-		xml->LinkEndChild(m_popup->toXml(this));
+		xml->LinkEndChild(m_popup->toXml(this->xmlGetIcons()));
 
 	bool bDidCLA{ false };
 	if (m_pLayoutManager)
@@ -4585,12 +4588,16 @@ void DcxDialog::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 		GSL_SUPPRESS(lifetime.1) SetWindowPos(m_Hwnd, nullptr, x, y, width, height, SWP_FRAMECHANGED | SWP_NOZORDER);
 	}
 
-	if (const auto tmp = queryAttribute(xThis, "src"); tmp)
-	{
-		this->m_BackgroundImage.m_tsFilename = tmp;
-		if (!this->m_BackgroundImage.m_tsFilename.empty())
-			this->m_BackgroundImage.m_hBitmap = dcxLoadBitmap(this->m_BackgroundImage.m_hBitmap, this->m_BackgroundImage.m_tsFilename);
-	}
+	//if (const auto tmp = queryAttribute(xThis, "src"); tmp)
+	//{
+	//	this->m_BackgroundImage.m_tsFilename = tmp;
+	//	if (!this->m_BackgroundImage.m_tsFilename.empty())
+	//		this->m_BackgroundImage.m_hBitmap = dcxLoadBitmap(this->m_BackgroundImage.m_hBitmap, this->m_BackgroundImage.m_tsFilename);
+	//}
+
+	// background image...
+	if (auto xImage = xThis->FirstChildElement("image"); xImage)
+		m_BackgroundImage.fromXml(xImage);
 
 	if (const auto tmp = queryAttribute(xThis, "vistaoffsets"); !_ts_isEmpty(tmp))
 	{
@@ -4985,41 +4992,6 @@ void DcxDialog::xmlbuildTemplatesList(const TiXmlElement* xElement)
 		}
 	}
 }
-
-//void DcxDialog::xmlSaveImageList(HIMAGELIST himl, TiXmlElement* xml, const TString& tsFlags) const
-//{
-//	if (!himl || !xml || tsFlags.empty())
-//		return;
-//
-//	if (const auto cnt = ImageList_GetImageCount(himl); cnt > 0)
-//	{
-//		if (!xml->Attribute("iconsize"))
-//		{
-//			if (int cx{}, cy{}; ImageList_GetIconSize(himl, &cx, &cy))
-//			{
-//				xml->SetAttribute("iconsize", cx);
-//			}
-//		}
-//
-//		xmlIcon xIcon;
-//
-//		//xIcon.tsType = this->getType();
-//		//xIcon.tsID = this->IDToName(this->getID());
-//		xIcon.tsFlags = tsFlags;
-//
-//		for (int i{}; i < cnt; ++i)
-//		{
-//			if (auto hIcon = ImageList_GetIcon(himl, i, ILD_TRANSPARENT); hIcon)
-//			{
-//				Auto(DestroyIcon(hIcon));
-//
-//				xIcon.tsSrc = IconToBase64(hIcon);
-//
-//				this->xmlGetIcons().emplace_back(xIcon);
-//			}
-//		}
-//	}
-//}
 
 void DcxDialog::xmlCallTemplate(const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCallTemplate)
 {
