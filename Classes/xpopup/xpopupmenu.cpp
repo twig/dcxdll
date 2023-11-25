@@ -1087,61 +1087,58 @@ const bool XPopupMenu::isItemValid(const XPopupMenuItem* const pItem) const noex
 	return false;
 }
 
-void XPopupMenu::toXml(const DcxDialog* d, TiXmlElement* const xml) const
+void XPopupMenu::toXml(VectorOfIcons& vIcons, TiXmlElement* const xml) const
 {
-	if (!d || !xml)
+	if (!xml)
 		return;
 
 	{
-		TString tsStyle;
 		switch (getStyle())
 		{
 		case XPopupMenu::MenuStyle::XPMS_OFFICE2003:
-			tsStyle = L"office2003";
+			xml->SetAttribute("style", "office2003");
 			break;
 		case XPopupMenu::MenuStyle::XPMS_OFFICE2003_REV:
-			tsStyle = L"office2003rev";
+			xml->SetAttribute("style", "office2003rev");
 			break;
 		case XPopupMenu::MenuStyle::XPMS_OFFICEXP:
-			tsStyle = L"officexp";
+			xml->SetAttribute("style", "officexp");
 			break;
 		case XPopupMenu::MenuStyle::XPMS_ICY:
-			tsStyle = L"icy";
+			xml->SetAttribute("style", "icy");
 			break;
 		case XPopupMenu::MenuStyle::XPMS_ICY_REV:
-			tsStyle = L"icyrev";
+			xml->SetAttribute("style", "icyrev");
 			break;
 		case XPopupMenu::MenuStyle::XPMS_GRADE:
-			tsStyle = L"grade";
+			xml->SetAttribute("style", "grade");
 			break;
 		case XPopupMenu::MenuStyle::XPMS_GRADE_REV:
-			tsStyle = L"graderev";
-			break;
-		case XPopupMenu::MenuStyle::XPMS_NORMAL:
-			tsStyle = L"normal";
+			xml->SetAttribute("style", "graderev");
 			break;
 		case XPopupMenu::MenuStyle::XPMS_CUSTOM:
-			tsStyle = L"custom";
+			xml->SetAttribute("style", "custom");
 			break;
 		case XPopupMenu::MenuStyle::XPMS_VERTICAL:
-			tsStyle = L"vertical";
+			xml->SetAttribute("style", "vertical");
 			break;
 		case XPopupMenu::MenuStyle::XPMS_VERTICAL_REV:
-			tsStyle = L"verticalrev";
+			xml->SetAttribute("style", "verticalrev");
 			break;
 		case XPopupMenu::MenuStyle::XPMS_BUTTON:
-			tsStyle = L"button";
+			xml->SetAttribute("style", "button");
 			break;
 		case XPopupMenu::MenuStyle::XPMS_BUTTON_REV:
-			tsStyle = L"buttonrev";
+			xml->SetAttribute("style", "buttonrev");
 			break;
 		case XPopupMenu::MenuStyle::XPMS_CUSTOMBIG:
-			tsStyle = L"custombig";
+			xml->SetAttribute("style", "custombig");
 			break;
 		default:
+		case XPopupMenu::MenuStyle::XPMS_NORMAL:
+			xml->SetAttribute("style", "normal");
 			break;
 		}
-		xml->SetAttribute("style", tsStyle.c_str());
 	}
 
 	if (auto tsMark(getMarkedText()); !tsMark.empty())
@@ -1150,7 +1147,7 @@ void XPopupMenu::toXml(const DcxDialog* d, TiXmlElement* const xml) const
 	if (!m_hBitmap.m_tsFilename.empty() && m_hBitmap.m_tsFilename != L"none")
 		xml->LinkEndChild(m_hBitmap.toXml());
 
-	xmlSaveImageList(d->xmlGetIcons(), xml);
+	xmlSaveImageList(vIcons, xml);
 
 	xml->LinkEndChild(getColors().toXml());
 
@@ -1165,10 +1162,10 @@ void XPopupMenu::toXml(const DcxDialog* d, TiXmlElement* const xml) const
 		xml->SetAttribute("alpha", alpha);
 }
 
-TiXmlElement* XPopupMenu::toXml(const DcxDialog* d) const
+TiXmlElement* XPopupMenu::toXml(VectorOfIcons& vIcons) const
 {
 	auto xml = std::make_unique<TiXmlElement>("menu");
-	toXml(d, xml.get());
+	toXml(vIcons, xml.get());
 	return xml.release();
 }
 

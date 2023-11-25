@@ -328,7 +328,6 @@ public:
 
 	const inline HMENU &getMenuHandle() const noexcept { return this->m_hMenu; };
 
-	//const XPMENUCOLORS *getColors() const noexcept { return &m_MenuColors; }
 	const XPMENUCOLORS& getColors() const noexcept { return m_MenuColors; }
 	void setColor(const MenuColours nColor, const COLORREF clrColor) noexcept;
 	COLORREF getColor(const MenuColours nColor) const noexcept;
@@ -423,12 +422,42 @@ public:
 
 	bool getMenuInfo(const UINT iMask, const TString &path, MENUITEMINFO &mii) const;
 
+	/// <summary>
+	/// Check if a menu item is valid.
+	/// </summary>
+	/// <param name="pItem"></param>
+	/// <returns></returns>
 	const bool isItemValid(const XPopupMenuItem* const pItem) const noexcept;
 
-	void toXml(const DcxDialog* d, TiXmlElement* const xml) const;
-	TiXmlElement* toXml(const DcxDialog* d) const;
+	/// <summary>
+	/// Convert a menu into a dcxml.
+	/// NB: Icon information is stored in vIcons to be saved by the dialogs toXml() at the end.
+	/// </summary>
+	/// <param name="vIcons"></param>
+	/// <param name="xml"></param>
+	void toXml(VectorOfIcons& vIcons, TiXmlElement* const xml) const;
+
+	/// <summary>
+	/// Convert a menu into a dcxml.
+	/// NB: Icon information is stored in vIcons to be saved by the dialogs toXml() at the end.
+	/// </summary>
+	/// <param name="vIcons"></param>
+	/// <returns></returns>
+	TiXmlElement* toXml(VectorOfIcons& vIcons) const;
+
+	/// <summary>
+	/// Convert a DCXML into a menu.
+	/// </summary>
+	/// <param name="xDcxml"></param>
+	/// <param name="xThis"></param>
+	/// <param name="vIcons"></param>
 	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, const VectorOfIcons& vIcons);
 
+	/// <summary>
+	/// Save the menus image list to vIcons.
+	/// </summary>
+	/// <param name="vIcons"></param>
+	/// <param name="xml"></param>
 	void xmlSaveImageList(VectorOfIcons& vIcons, TiXmlElement* xml) const;
 
 	VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects

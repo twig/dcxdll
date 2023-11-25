@@ -77,7 +77,7 @@ struct XPMENUCOLORS final
 		toXml(xml.get());
 		return xml.release();
 	}
-	void fromXml(const TiXmlElement* xml)
+	void fromXml(const TiXmlElement* xml) noexcept
 	{
 		if (const auto tmp = queryColourAttribute(xml, "back"); tmp != CLR_INVALID)
 			m_clrBack = tmp;
@@ -180,6 +180,8 @@ public:
 	const ULONG_PTR& getItemDataBackup() const noexcept	{ return m_dwItemDataBackup; }
 
 	bool IsTooltipsEnabled() const noexcept;
+
+	bool parseItemText();
 
 protected:
 

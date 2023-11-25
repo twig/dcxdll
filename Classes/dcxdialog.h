@@ -241,6 +241,7 @@ public:
 
 		return (itGot != itEnd);
 	}
+
 	/// <summary>
 	/// Add a name and ID pair to the internal list.
 	/// </summary>
@@ -255,6 +256,7 @@ public:
 		m_NamedIds[NamedID] = local_id;
 		return true;
 	}
+
 	/// <summary>
 	/// Convert a name to an ID
 	/// </summary>
@@ -271,6 +273,7 @@ public:
 		}
 		return 0U;
 	}
+
 	/// <summary>
 	/// Convert a name to a UserID
 	/// </summary>
@@ -290,6 +293,7 @@ public:
 			return local_id - mIRC_ID_OFFSET;
 		return 0U;
 	}
+
 	/// <summary>
 	/// Convert an ID number to its name.
 	/// </summary>
@@ -306,6 +310,7 @@ public:
 		}
 		return tsEmpty;
 	}
+
 	/// <summary>
 	/// Convert a User ID number to its name.
 	/// </summary>
@@ -315,6 +320,7 @@ public:
 	{
 		return IDToName(local_id + mIRC_ID_OFFSET);
 	}
+
 	/// <summary>
 	/// Get a unique ID
 	/// </summary>
@@ -348,17 +354,13 @@ public:
 		return 0U;
 	}
 
+	/// <summary>
+	/// Delete named ID matching the id provided.
+	/// </summary>
+	/// <param name="local_id"></param>
+	/// <returns></returns>
 	bool deleteNamedID(const UINT local_id) noexcept
 	{
-		//const auto itEnd = namedIds.end();
-		//const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id](const auto &arg) { return (arg.second == local_id); });
-		//if (itGot != itEnd)
-		//{
-		//	namedIds.erase(itGot);
-		//	return true;
-		//}
-		//return false;
-
 		for (auto itStart = m_NamedIds.begin(), itEnd = m_NamedIds.end(); itStart != itEnd; ++itStart)
 		{
 			if (itStart->second == local_id)
@@ -370,6 +372,11 @@ public:
 		return false;
 	}
 
+	/// <summary>
+	/// Delete a named id matching the name provided.
+	/// </summary>
+	/// <param name="tsName"></param>
+	/// <returns></returns>
 	bool deleteNamedID(const TString& tsName)
 	{
 		if (const auto itEnd = m_NamedIds.end(), itGot = m_NamedIds.find(tsName); itGot != itEnd)
@@ -387,6 +394,12 @@ public:
 	void RegisterDragList(DcxList* const list);
 	void UnregisterDragList(const DcxList* const list) noexcept;
 
+	/// <summary>
+	/// Load an icon or icons
+	/// </summary>
+	/// <param name="tsFlags"> - Flags to define how the icon is gotten from the file.</param>
+	/// <param name="tsIndex"> - The icon indexes to load.</param>
+	/// <param name="tsSrc"> - The icon file to load from. The type of file depends on the flags use.</param>
 	void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) final;
 
 	void toXml(TiXmlElement* const xml) const override;
@@ -398,7 +411,6 @@ public:
 	const VectorOfStyles& xmlGetStyles() const noexcept { return m_xmlStyles; }
 	const VectorOfTemplates& xmlGetTemplates() const noexcept { return m_xmlTemplates; }
 	VectorOfIcons& xmlGetIcons() const noexcept { return m_xmlIcons; }
-	//void xmlSaveImageList(HIMAGELIST himl, TiXmlElement* xml, const TString& tsFlags) const;
 
 	const bool isIDValid(_In_ const UINT ID, _In_ const bool bUnused = false) const noexcept;
 

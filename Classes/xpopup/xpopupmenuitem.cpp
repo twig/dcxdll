@@ -37,6 +37,8 @@ XPopupMenuItem::XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, co
 	: m_pXParentMenu(Parent), m_tsItemText(tsItemText), m_nIcon(nIcon), m_bSubMenu(bSubMenu), m_dwItemDataBackup(dwDataBackup)
 {
 	m_tsItemText.trim();
+
+	parseItemText();
 }
 
 XPopupMenuItem::XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, const TString& tsTooltip, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup)
@@ -44,6 +46,8 @@ XPopupMenuItem::XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, co
 {
 	m_tsItemText.trim();
 	m_tsTooltipText.trim();
+
+	parseItemText();
 }
 
  /*!
@@ -110,17 +114,8 @@ bool XPopupMenuItem::IsTooltipsEnabled() const noexcept
 	return m_pXParentMenu->IsToolTipsEnabled();
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
-SIZE XPopupMenuItem::getItemSize(const HWND mHwnd)
+bool XPopupMenuItem::parseItemText()
 {
-	if ((this->m_bSep) || (!m_pXParentMenu))
-		return{ XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD, XPMI_SEPHEIGHT };
-
 	if (const auto typeHash = m_pXParentMenu->getNameHash(); ((typeHash == TEXT("mirc"_hash)) || (typeHash == TEXT("mircbar"_hash)) || (typeHash == TEXT("dialog"_hash))))
 	{
 		// handle icons
@@ -136,15 +131,64 @@ SIZE XPopupMenuItem::getItemSize(const HWND mHwnd)
 			m_tsItemText = tsTmp.getfirsttok(1, sepChar).trim();	// tok 1, get real item text
 			m_tsTooltipText = tsTmp.getlasttoks().trim();			// tok 2-, get tooltip text
 		}
+		//check if the first char is $chr(12), if so then the text is utf8 (this is kept for compatability with old script only)
+		if (m_tsItemText[0] == 12)
+		{
+			// remove $chr(12) from text and trim whitespaces
+			m_tsItemText = m_tsItemText.right(-1).trim();
+		}
+		return true;
 	}
-	else
+	return false;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+SIZE XPopupMenuItem::getItemSize(const HWND mHwnd)
+{
+	if ((this->m_bSep) || (!m_pXParentMenu))
+		return{ XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD, XPMI_SEPHEIGHT };
+
+	//if (const auto typeHash = m_pXParentMenu->getNameHash(); ((typeHash == TEXT("mirc"_hash)) || (typeHash == TEXT("mircbar"_hash)) || (typeHash == TEXT("dialog"_hash))))
+	//{
+	//	// handle icons
+	//	if (constexpr TCHAR sepChar = TEXT('\v'); m_tsItemText.numtok(sepChar) > 1)
+	//	{
+	//		m_nIcon = m_tsItemText.getfirsttok(1, sepChar).to_int() - 1;	// tok 1, TEXT("\v")	get embeded icon number if any
+	//		m_tsItemText = m_tsItemText.getlasttoks().trim();				// tok 2, TEXT("\v")	get real item text
+	//	}
+	//	// handles tooltips
+	//	if (constexpr TCHAR sepChar = TEXT('\t'); m_tsItemText.numtok(sepChar) > 1)
+	//	{
+	//		TString tsTmp(m_tsItemText);							// copy item text
+	//		m_tsItemText = tsTmp.getfirsttok(1, sepChar).trim();	// tok 1, get real item text
+	//		m_tsTooltipText = tsTmp.getlasttoks().trim();			// tok 2-, get tooltip text
+	//	}
+	//}
+	//else
+	//	mIRCLinker::eval(m_tsItemText, m_tsItemText);
+	//
+	////check if the first char is $chr(12), if so then the text is utf8 (this is kept for compatability with old script only)
+	//if (m_tsItemText[0] == 12)
+	//{
+	//	// remove $chr(12) from text and trim whitespaces
+	//	m_tsItemText = m_tsItemText.right(-1).trim();
+	//}
+
+	if (!parseItemText())
+	{
 		mIRCLinker::eval(m_tsItemText, m_tsItemText);
 
-	//check if the first char is $chr(12), if so then the text is utf8 (this is kept for compatability with old script only)
-	if (m_tsItemText[0] == 12)
-	{
-		// remove $chr(12) from text and trim whitespaces
-		m_tsItemText = m_tsItemText.right(-1).trim();
+		//check if the first char is $chr(12), if so then the text is utf8 (this is kept for compatability with old script only)
+		if (m_tsItemText[0] == 12)
+		{
+			// remove $chr(12) from text and trim whitespaces
+			m_tsItemText = m_tsItemText.right(-1).trim();
+		}
 	}
 
 	SIZE size{ XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD, XPMI_HEIGHT };
