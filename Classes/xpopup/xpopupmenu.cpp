@@ -587,6 +587,43 @@ HMENU XPopupMenu::parsePath(const TString& path, const HMENU hParent, const UINT
  * blah
  */
 
+void XPopupMenu::setItemStyleString(const TString& tsFlags)
+{
+	const XSwitchFlags xflags(tsFlags);
+
+	if (!xflags[TEXT('+')])
+		throw DcxExceptions::dcxInvalidFlag();
+
+	UINT iStyles = 0;
+	if (xflags[TEXT('i')])
+		iStyles |= XPS_ICON3D;
+	if (xflags[TEXT('d')])
+		iStyles |= XPS_DISABLEDSEL;
+	if (xflags[TEXT('p')])
+		iStyles |= XPS_ICON3DSHADOW;
+	if (xflags[TEXT('D')])
+		iStyles |= XPS_DOUBLESEP;
+
+	setItemStyle(iStyles);
+}
+
+TString XPopupMenu::getItemStyleString() const
+{
+	TString szStyles(TEXT('+'));
+	const UINT iExStyles = getItemStyle();
+
+	if (dcx_testflag(iExStyles, XPS_ICON3D))
+		szStyles += TEXT('i');
+	if (dcx_testflag(iExStyles, XPS_DISABLEDSEL))
+		szStyles += TEXT('d');
+	if (dcx_testflag(iExStyles, XPS_ICON3DSHADOW))
+		szStyles += TEXT('p');
+	if (dcx_testflag(iExStyles, XPS_DOUBLESEP))
+		szStyles += TEXT('D');
+
+	return szStyles;
+}
+
 void XPopupMenu::deleteMenuItemData(const XPopupMenuItem* const p_Item, LPMENUITEMINFO mii) noexcept
 {
 	//auto itStart = this->m_vpMenuItem.begin();
@@ -1014,6 +1051,11 @@ void XPopupMenu::toXml(VectorOfIcons& vIcons, TiXmlElement* const xml) const
 
 	if (auto alpha = gsl::narrow_cast<int>(this->IsAlpha()); alpha < 255)
 		xml->SetAttribute("alpha", alpha);
+
+	{
+		TString tsStyles(getItemStyleString());
+		xml->SetAttribute("itemstyles", tsStyles.c_str());
+	}
 }
 
 TiXmlElement* XPopupMenu::toXml(VectorOfIcons& vIcons) const
@@ -1046,6 +1088,9 @@ void XPopupMenu::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, 
 	if (const TString tsStyle(queryAttribute(xThis, "style")); !tsStyle.empty())
 		this->setStyle(this->parseStyle(tsStyle));
 
+	if (const TString tsStyle(queryAttribute(xThis, "itemstyles")); !tsStyle.empty())
+		this->setItemStyleString(tsStyle);
+
 	if (auto xml = xThis->FirstChildElement("colours"); xml)
 		m_MenuColors.fromXml(xml);
 
@@ -1053,7 +1098,7 @@ void XPopupMenu::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, 
 	{
 		for (auto& a : vIcons)
 		{
-			if ((a.tsType != L"menu") || (a.tsID != L"dialog"))
+			if ((a.tsType != L"menu") || (a.tsID != L"0"))
 				continue;
 
 			TString tsSrc(queryEvalAttribute(a.xIcon, "src"));
@@ -1082,7 +1127,7 @@ void XPopupMenu::xmlSaveImageList(VectorOfIcons &vIcons, TiXmlElement* xml) cons
 		xmlIcon xIcon;
 
 		xIcon.tsType = L"menu";
-		xIcon.tsID = this->getName();
+		xIcon.tsID = L"0";
 		xIcon.tsFlags = L"+B";
 
 		for (int i{}; i < cnt; ++i)

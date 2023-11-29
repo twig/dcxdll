@@ -328,7 +328,11 @@ LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM l
 	auto menu = reinterpret_cast<HMENU>(wParam);
 
 #if DCX_CUSTOM_MENUS
-	getGlobalMenuList().pop_back();
+	if (!m_bIsSysMenu)	// we dont care about system menus
+	{
+		if (auto vMenu = getGlobalMenuList(); !vMenu.empty())	// check vector is not empty before poping.
+			vMenu.pop_back();
+	}
 #endif
 
 	// Unset the custom menu handle so we dont have to keep track of submenus anymore.
@@ -490,36 +494,12 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	// xpopup -i -> [MENU] -i [FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('i')])
 	{
-//		if (numtok < 5)
-//			throw DcxExceptions::dcxInvalidArguments();
-//
-//		auto himl = p_Menu->getImageList();
-//		if (!himl)
-//			throw Dcx::dcxException(TEXT("Invalid ImageList."));
-//
-//		const auto tsFlags(input.getnexttok());			// tok 3
-//		const auto index = input.getnexttok().to_int();	// tok 4
-//		auto filename(input.getlasttoks());				// tok 5, -1
-//
-//#if DCX_USE_WRAPPERS
-//		const Dcx::dcxIconResource icon(index, filename, false, tsFlags);
-//
-//		ImageList_AddIcon(himl, icon.get());
-//#else
-//		const HICON icon = dcxLoadIcon(index, filename, false, tsFlags);
-//		if (icon == nullptr)
-//			throw Dcx::dcxException(TEXT("Unable to Load Icon: % in file: %"), index, filename);
-//
-//		ImageList_AddIcon(himl, icon);
-//		DestroyIcon(icon);
-//#endif
-
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto himl = p_Menu->getImageList();
 		if (!himl)
-			throw Dcx::dcxException(TEXT("Invalid ImageList."));
+			throw DcxExceptions::dcxUnableToCreateImageList();
 
 		const auto tsFlags(input.getnexttok());	// tok 3
 		const auto tsIndex(input.getnexttok());	// tok 4
@@ -627,22 +607,7 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 		if (numtok < 3)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const XSwitchFlags xflags(input.getnexttok());	// tok 3
-
-		if (!xflags[TEXT('+')])
-			throw DcxExceptions::dcxInvalidFlag();
-
-		UINT iStyles = 0;
-		if (xflags[TEXT('i')])
-			iStyles |= XPS_ICON3D;
-		if (xflags[TEXT('d')])
-			iStyles |= XPS_DISABLEDSEL;
-		if (xflags[TEXT('p')])
-			iStyles |= XPS_ICON3DSHADOW;
-		if (xflags[TEXT('D')])
-			iStyles |= XPS_DOUBLESEP;
-
-		p_Menu->setItemStyle(iStyles);
+		p_Menu->setItemStyleString(input.getnexttok());
 	}
 	// xpopup -R -> [MENU] [SWITCH] [+FLAGS] (FLAG OPTIONS)
 	else if (flags[TEXT('R')])
@@ -761,20 +726,25 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 	break;
 	case TEXT("exstyle"_hash):
 	{
+		//if (!p_Menu)
+		//	throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
+		//
+		//TString szStyles(TEXT('+'));
+		//const auto iExStyles = p_Menu->getItemStyle();
+		//
+		//if (dcx_testflag(iExStyles, XPS_ICON3D))
+		//	szStyles += TEXT('i');
+		//if (dcx_testflag(iExStyles, XPS_DISABLEDSEL))
+		//	szStyles += TEXT('d');
+		//if (dcx_testflag(iExStyles, XPS_ICON3DSHADOW))
+		//	szStyles += TEXT('p');
+		//
+		//return szStyles;
+
 		if (!p_Menu)
 			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
 
-		TString szStyles(TEXT('+'));
-		const auto iExStyles = p_Menu->getItemStyle();
-
-		if (dcx_testflag(iExStyles, XPS_ICON3D))
-			szStyles += TEXT('i');
-		if (dcx_testflag(iExStyles, XPS_DISABLEDSEL))
-			szStyles += TEXT('d');
-		if (dcx_testflag(iExStyles, XPS_ICON3DSHADOW))
-			szStyles += TEXT('p');
-
-		return szStyles;
+		return p_Menu->getItemStyleString();
 	}
 	break;
 	case TEXT("colours"_hash):
@@ -1146,43 +1116,25 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, cons
 	// Ook: this needs looked at, should be protected....
 	const auto menu = new XPopupMenu(popupName, style);
 
-	//const static TString colors(TEXT("bgcolour iconcolour cbcolour discbcolour disselcolour distextcolour selcolour selbordercolour seperatorcolour textcolour seltextcolour"));
-	//
-	//UINT i = 1;
-	//for (const auto& tmp : colors)
-	//{
-	//	if (auto tsAttr = GetMenuAttributeFromXML(tmp.c_str(), popup, globalStyles); !tsAttr.empty())
-	//	{
-	//		mIRCLinker::eval(tsAttr, tsAttr);
-	//		menu->setColor(gsl::narrow_cast<XPopupMenu::MenuColours>(i), tsAttr.to_<COLORREF>());
-	//	}
-	//	++i;
-	//}
+	if (queryIntAttribute(popup, "version") > 0)
+	{
+		VectorOfIcons vIcons;
+		// Parse icons
+		if (const auto* xIcons = popup->FirstChildElement("icons"); xIcons)
+		{
+			for (auto xIcon = xIcons->FirstChildElement("icon"); xIcon; xIcon = xIcon->NextSiblingElement("icon"))
+			{
+				xmlIcon xi;
+				xi.xIcon = xIcon;
+				xi.tsID = L"0";
+				xi.tsType = L"menu";
 
-	//const static char* colors[] = {
-	//	"bgcolour"
-	//	"iconcolour"
-	//	"cbcolour"
-	//	"discbcolour"
-	//	"disselcolour"
-	//	"distextcolour"
-	//	"selcolour"
-	//	"selbordercolour"
-	//	"seperatorcolour"
-	//	"textcolour"
-	//	"seltextcolour"
-	//};
-	//
-	//UINT i = 1;
-	//for (const auto& tmp : colors)
-	//{
-	//	if (auto tsAttr = GetMenuAttributeFromXML(tmp, popup, globalStyles); !tsAttr.empty())
-	//	{
-	//		mIRCLinker::eval(tsAttr, tsAttr);
-	//		menu->setColor(gsl::narrow_cast<XPopupMenu::MenuColours>(i), tsAttr.to_<COLORREF>());
-	//	}
-	//	++i;
-	//}
+				vIcons.push_back(xi);
+			}
+		}
+		menu->fromXml(popups, popup, vIcons);
+		return;
+	}
 
 	const static Dcx::CodeValue<const char*, XPopupMenu::MenuColours> colors[] = {
 		{ XPopupMenu::MenuColours::XPMC_BACKGROUND, "bgcolour" },
@@ -1211,14 +1163,6 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, cons
 	// Set background image if CUSTOM style used
 	if ((style == XPopupMenu::MenuStyle::XPMS_CUSTOM) || (style == XPopupMenu::MenuStyle::XPMS_CUSTOMBIG))
 	{
-		//if (TString tsBkg(popup->Attribute("background")); !tsBkg.empty())
-		//{
-		//	mIRCLinker::eval(tsBkg, tsBkg);
-		//
-		//	if (const auto hBitmap = dcxLoadBitmap(nullptr, tsBkg); hBitmap)
-		//		menu->setBackBitmap(hBitmap);
-		//}
-
 		if (TString tsBkg(queryEvalAttribute(popup, "background")); !tsBkg.empty())
 		{
 			if (const auto hBitmap = dcxLoadBitmap(nullptr, tsBkg); hBitmap)
@@ -1234,29 +1178,6 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, cons
 	{
 		for (auto xIcon = xIcons->FirstChildElement("icon"); xIcon; xIcon = xIcon->NextSiblingElement("icon"))
 		{
-			//// Flags
-			//const TString flags(queryAttribute(xIcon, "flags", "+"));
-			//const TString tsSrc(xIcon->Attribute("src"));
-			//const TString indexes(queryAttribute(xIcon, "index", "0"));
-			//
-			//// Filename
-			//if (!tsSrc.empty())
-			//{
-			//	TString tsFilename;
-			//	mIRCLinker::eval(tsFilename, tsSrc);
-			//
-			//	if (!tsFilename.empty())
-			//	{
-			//		TString command;
-			//		const auto itEnd = indexes.end();
-			//		for (auto itStart = indexes.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-			//		{
-			//			_ts_sprintf(command, TEXT("% -i % % %"), popupName, flags, (*itStart), tsFilename);
-			//			Dcx::XPopups.parseCommand(command, menu);
-			//		}
-			//	}
-			//}
-
 			// Flags
 			const TString flags(queryAttribute(xIcon, "flags", "+"));
 			const TString indexes(queryAttribute(xIcon, "index", "0"));
@@ -1265,12 +1186,8 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, cons
 			if (const TString tsSrc(queryEvalAttribute(xIcon, "src")); !tsSrc.empty())
 			{
 				TString command;
-				const auto itEnd = indexes.end();
-				for (auto itStart = indexes.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-				{
-					_ts_sprintf(command, TEXT("% -i % % %"), popupName, flags, (*itStart), tsSrc);
-					Dcx::XPopups.parseCommand(command, menu);
-				}
+				_ts_sprintf(command, TEXT("% -i % % %"), popupName, flags, indexes, tsSrc);
+				Dcx::XPopups.parseCommand(command, menu);
 			}
 		}
 	}

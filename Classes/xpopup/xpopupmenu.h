@@ -320,6 +320,9 @@ public:
 
 	constexpr void setItemStyle(const UINT iExStyles) noexcept { this->m_MenuItemStyles = iExStyles; }
 
+	void setItemStyleString(const TString& tsFlags);
+	TString getItemStyleString() const;
+
 	void deleteMenuItemData(const XPopupMenuItem *const p_Item, LPMENUITEMINFO mii = nullptr) noexcept;
 	void deleteAllItemData(HMENU hMenu);
 
