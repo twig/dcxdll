@@ -205,8 +205,9 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
 #define DLL_DEV_BUILD  "65"
-#define DCXML_VERSION	1
+#define DCXML_VERSION			1
 #define DCXML_DIALOG_VERSION	2
+#define DCXML_POPUP_VERSION		2
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
@@ -617,6 +618,10 @@ struct dcxImage
 	HICON m_hIcon{};
 #ifdef DCX_USE_GDIPLUS
 	Gdiplus::Image *m_pImage{ nullptr }; //!< GDI+ Image Object
+
+	explicit operator bool() const noexcept { return (!m_tsFilename.empty() && (m_hBitmap || m_hIcon || m_pImage)); }
+#else
+	explicit operator bool() const noexcept { return (!m_tsFilename.empty() && (m_hBitmap || m_hIcon)); }
 #endif
 
 	void reset() noexcept
@@ -636,6 +641,7 @@ struct dcxImage
 
 		m_tsFilename.clear();
 	}
+
 	void toXml(TiXmlElement* xml) const
 	{
 		if (!xml)
@@ -644,12 +650,14 @@ struct dcxImage
 		xml->SetAttribute("eval", "0"); // diable eval
 		xml->SetAttribute("src", m_tsFilename.c_str());
 	}
+
 	TiXmlElement* toXml() const
 	{
 		auto xml = std::make_unique<TiXmlElement>("image");
 		toXml(xml.get());
 		return xml.release();
 	}
+
 	void fromXml(const TiXmlElement* xml)
 	{
 		if (!xml)
