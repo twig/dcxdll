@@ -106,8 +106,9 @@ void DcxDivider::parseInfoRequest(const TString & input, const refString<TCHAR, 
 	case TEXT("position"_hash):
 	{
 		auto iDivPos = 0;
+		BOOL bVert{};
 
-		SendMessage(m_Hwnd, DV_GETDIVPOS, 0U, reinterpret_cast<LPARAM>(&iDivPos));
+		SendMessage(m_Hwnd, DV_GETDIVPOS, reinterpret_cast<WPARAM>(&bVert), reinterpret_cast<LPARAM>(&iDivPos));
 		_ts_snprintf(szReturnValue, TEXT("%d"), iDivPos);
 	}
 	break;
@@ -465,6 +466,7 @@ LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		}
 	}
 	break;
+
 	case WM_COMPAREITEM:
 	{
 		dcxlParam(LPCOMPAREITEMSTRUCT, idata);
@@ -535,11 +537,9 @@ LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 	case DV_CHANGEPOS:
 	{
-		//dcxwParam(int, phase);
 		dcxlParam(LPPOINT, pt);
 
 		const auto phase = gsl::narrow_cast<int>(wParam);
-		//const auto pt = reinterpret_cast<LPPOINT>(lParam);
 
 		constexpr TCHAR szdrag_begin[] = TEXT("dragbegin");
 		constexpr TCHAR szdrag[] = TEXT("drag");

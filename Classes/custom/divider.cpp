@@ -216,14 +216,19 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	// wParam == (OUT) BOOL isVertical? (not used atm), lParam == (OUT) integer bar_position
 	case DV_GETDIVPOS:
 	{
-		if (!wParam || !lParam)
+		if (!lParam)
 			return FALSE;
 
 		if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
+		{
 			*(reinterpret_cast<LPINT>(lParam)) = (lpdvdata->m_bDragging ? lpdvdata->m_iOldPos : gsl::narrow_cast<int>(lpdvdata->m_iBarPos));
+			if (wParam)
+				*(reinterpret_cast<BOOL*>(wParam)) = (dcx_testflag(dcxGetWindowStyle(mHwnd), DVS_VERT) ? TRUE : FALSE);
+		}
 		return TRUE;
 	}
 
+	// wParam == (IN) DVNM_DRAG_START or DVNM_DRAG_END, lParam == (IN) LPPOINT bar_position x & y
 	//case DV_CHANGEPOS:
 	//{
 	//	// does nothing here... this is handled by the OurMessage() routine.
