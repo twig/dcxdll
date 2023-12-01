@@ -105,11 +105,7 @@ void DcxDivider::parseInfoRequest(const TString & input, const refString<TCHAR, 
 		// [NAME] [ID] [PROP]
 	case TEXT("position"_hash):
 	{
-		auto iDivPos = 0;
-		BOOL bVert{};
-
-		SendMessage(m_Hwnd, DV_GETDIVPOS, reinterpret_cast<WPARAM>(&bVert), reinterpret_cast<LPARAM>(&iDivPos));
-		_ts_snprintf(szReturnValue, TEXT("%d"), iDivPos);
+		_ts_snprintf(szReturnValue, TEXT("%u"), getDivPos());
 	}
 	break;
 
@@ -120,20 +116,14 @@ void DcxDivider::parseInfoRequest(const TString & input, const refString<TCHAR, 
 	case TEXT("barcolours"_hash):
 	case TEXT("barcolors"_hash):
 	{
-		COLORREF clr{};
-		COLORREF clrSel{};
-
-		SendMessage(m_Hwnd, DV_GETBARCOLOR, reinterpret_cast<LPARAM>(&clr), reinterpret_cast<LPARAM>(&clrSel));
+		const auto [clr, clrSel] = getBarColours();
 		_ts_snprintf(szReturnValue, TEXT("%u %u"), clr, clrSel);
 	}
 	break;
 
 	case TEXT("barwidth"_hash):
 	{
-		UINT nWidth{};
-
-		SendMessage(m_Hwnd, DV_GETBARWIDTH, 0U, reinterpret_cast<LPARAM>(&nWidth));
-		_ts_snprintf(szReturnValue, TEXT("%u"), nWidth);
+		_ts_snprintf(szReturnValue, TEXT("%u"), getBarWidth());
 	}
 	break;
 
@@ -273,14 +263,16 @@ UINT DcxDivider::getDivPos() const noexcept
 {
 	BOOL bVert{};
 	UINT iPos{};
-	SendMessage(m_Hwnd, DV_GETDIVPOS, reinterpret_cast<WPARAM>(&bVert), reinterpret_cast<LPARAM>(&iPos));
+	if (m_Hwnd)
+		SendMessage(m_Hwnd, DV_GETDIVPOS, reinterpret_cast<WPARAM>(&bVert), reinterpret_cast<LPARAM>(&iPos));
 	return iPos;
 }
 
 UINT DcxDivider::getBarWidth() const noexcept
 {
 	UINT iPos{};
-	SendMessage(m_Hwnd, DV_GETBARWIDTH, 0U, reinterpret_cast<LPARAM>(&iPos));
+	if (m_Hwnd)
+		SendMessage(m_Hwnd, DV_GETBARWIDTH, 0U, reinterpret_cast<LPARAM>(&iPos));
 	return iPos;
 }
 
@@ -289,7 +281,8 @@ std::pair<COLORREF, COLORREF> DcxDivider::getBarColours() const noexcept
 	COLORREF clr{ CLR_INVALID };
 	COLORREF selclr{ CLR_INVALID };
 
-	SendMessage(m_Hwnd, DV_GETBARCOLOR, reinterpret_cast<WPARAM>(&clr), reinterpret_cast<LPARAM>(&selclr));
+	if (m_Hwnd)
+		SendMessage(m_Hwnd, DV_GETBARCOLOR, reinterpret_cast<WPARAM>(&clr), reinterpret_cast<LPARAM>(&selclr));
 
 	return { clr, selclr };
 }
@@ -310,7 +303,7 @@ void DcxDivider::toXml(TiXmlElement *const xml) const
 	xml->SetAttribute("pos", getDivPos());
 	xml->SetAttribute("barwidth", getBarWidth());
 	{
-		auto [clr, selclr] = getBarColours();
+		const auto [clr, selclr] = getBarColours();
 		setColourAttribute(xml, "barcolour", clr);
 		setColourAttribute(xml, "barselectedcolour", selclr);
 	}
