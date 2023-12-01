@@ -361,100 +361,6 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [WIDTH] [#ICON] [COLOR] (Button Text) [TAB] Tooltip Text
 	if (flags[TEXT('a')])
 	{
-		//if (numtok < 5)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//auto nPos = input.getnexttok().to_int() - 1;	// tok 4
-		//
-		//if (nPos == -1)
-		//	nPos += this->getButtonCount() + 1;
-		//
-		//const auto tsFlags(input.getnexttok());						// tok 5
-		//const auto width = input.getnexttok().to_<WORD>();			// tok 6
-		//const auto icon = input.getnexttok().to_int() - 1;			// tok 7
-		//const auto clrText = input.getnexttok().to_<COLORREF>();	// tok 8
-		//const auto iNumtok = input.gettok(1, TSTABCHAR).numtok();
-		//
-		//TBBUTTON tbb{};
-		//
-		//tbb.fsState = parseButtonStateFlags(tsFlags);
-		//tbb.idCommand = this->getFreeButtonID();
-		//const auto buttonStyles = parseButtonStyleFlags(tsFlags);
-		//tbb.fsStyle = gsl::narrow_cast<BYTE>(buttonStyles & 0xFF);
-		//
-		//if ((icon == -1) || (iNumtok < 7))
-		//	tbb.iBitmap = I_IMAGENONE;
-		//else
-		//	tbb.iBitmap = icon;
-		//
-		//TString itemtext;
-		//
-		//if (iNumtok > 8)
-		//{
-		//	itemtext = input.gettok(1, TSTABCHAR).gettok(9, -1).trim();
-		//
-		//	if (itemtext == TEXT('-'))
-		//	{
-		//		tbb.fsStyle = BTNS_SEP;
-		//		//tbb.fsState = TBSTATE_ENABLED;
-		//		tbb.iBitmap = icon;
-		//		tbb.dwData = 0;
-		//		tbb.iString = 0;
-		//
-		//		this->insertButton(nPos, &tbb);
-		//		this->autoSize();
-		//		this->redrawWindow();
-		//		return;
-		//	}
-		//}
-		//
-		//// Tooltip Handling
-		//auto lpdcxtbb = std::make_unique<DCXTBBUTTON>();
-		//
-		//if (input.numtok(TSTABCHAR) > 1)
-		//	lpdcxtbb->tsTipText = input.gettok(2, -1, TSTABCHAR).trim();
-		//
-		//lpdcxtbb->bUline = dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_UNDERLINE);
-		//
-		//lpdcxtbb->bBold = dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_BOLD);
-		//
-		//if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_COLOR))
-		//	lpdcxtbb->clrText = clrText;
-		//else
-		//	lpdcxtbb->clrText = CLR_INVALID;
-		//
-		//lpdcxtbb->clrBtnFace = CLR_INVALID;
-		//lpdcxtbb->clrBtnHighlight = CLR_INVALID;
-		//lpdcxtbb->clrHighlightHotTrack = CLR_INVALID;
-		//lpdcxtbb->clrMark = CLR_INVALID;
-		//lpdcxtbb->clrTextHighlight = CLR_INVALID;
-		//lpdcxtbb->iTextBkgMode = TRANSPARENT;
-		//lpdcxtbb->iTextHighlightBkgMode = TRANSPARENT;
-		//
-		//lpdcxtbb->bText = itemtext;
-		//tbb.iString = reinterpret_cast<INT_PTR>(lpdcxtbb->bText.to_chr());
-		//tbb.dwData = reinterpret_cast<DWORD_PTR>(lpdcxtbb.release());
-		//
-		//// insert button
-		//this->insertButton(nPos, &tbb);
-		////if (nPos == 1) // commented out for possible fix to http://dcx.scriptsdb.org/forum/showthread.php?tid=121 http://dcx.scriptsdb.org/bug/index.php?do=details&task_id=749
-		////	SendMessage(m_Hwnd, TB_CHANGEBITMAP, nPos, MAKELPARAM(I_IMAGENONE,0)); // why was this added?
-		//
-		//// set width of button
-		//if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_WIDTH))
-		//{
-		//	TBBUTTONINFO tbbi{};
-		//	tbbi.cbSize = sizeof(TBBUTTONINFO);
-		//
-		//	tbbi.dwMask = TBIF_SIZE;
-		//	tbbi.cx = width;
-		//	this->setButtonInfo(tbb.idCommand, &tbbi);
-		//}
-		//
-		//this->autoSize();
-		//if (this->m_bAutoStretch)
-		//	this->autoStretchButtons();
-
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -589,19 +495,6 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	{
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
-
-		//const auto nButton = input.getnexttok().to_int() - 1;	// tok 4
-		//auto iImage = input.getnexttok().to_int() - 1;			// tok 5
-		//
-		//if (iImage < 0)
-		//	iImage = I_IMAGENONE;
-		//
-		//TBBUTTONINFO tbbi{};
-		//tbbi.cbSize = sizeof(TBBUTTONINFO);
-		//tbbi.dwMask = TBIF_IMAGE | TBIF_BYINDEX;
-		//tbbi.iImage = iImage;
-		//
-		//this->setButtonInfo(nButton /*this->getIndexToCommand( nButton )*/, &tbbi);
 
 		const TString tsButton(input.getnexttok());
 		auto iImage = input.getnexttok().to_int() - 1;			// tok 5
@@ -1252,21 +1145,39 @@ void DcxToolBar::loadIcon(const TString& tsFlags, const TString& tsIndex, const 
 	if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_NORMAL))
 	{
 		if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_NORMAL); himl)
-			Dcx::dcxLoadIconRange(himl, filename, false, tsFlags, tsIndex);
+		{
+			int cx = 0, cy = 0;
+			if (!ImageList_GetIconSize(himl, &cx, &cy))
+				throw Dcx::dcxException("Unable to get Icon Size");
+
+			Dcx::dcxLoadIconRange(himl, filename, (NumToIconSize(cx) > DcxIconSizes::SmallIcon), tsFlags, tsIndex);
+		}
 	}
 
 	// DISABLED IML
 	if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_DISABLE))
 	{
 		if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_DISABLE); himl)
-			Dcx::dcxLoadIconRange(himl, filename, false, tsFlags, tsIndex);
+		{
+			int cx = 0, cy = 0;
+			if (!ImageList_GetIconSize(himl, &cx, &cy))
+				throw Dcx::dcxException("Unable to get Icon Size");
+
+			Dcx::dcxLoadIconRange(himl, filename, (NumToIconSize(cx) > DcxIconSizes::SmallIcon), tsFlags, tsIndex);
+		}
 	}
 
 	// HOT IML
 	if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_HOT))
 	{
 		if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_HOT); himl)
-			Dcx::dcxLoadIconRange(himl, filename, false, tsFlags, tsIndex);
+		{
+			int cx = 0, cy = 0;
+			if (!ImageList_GetIconSize(himl, &cx, &cy))
+				throw Dcx::dcxException("Unable to get Icon Size");
+
+			Dcx::dcxLoadIconRange(himl, filename, (NumToIconSize(cx) > DcxIconSizes::SmallIcon), tsFlags, tsIndex);
+		}
 	}
 }
 
