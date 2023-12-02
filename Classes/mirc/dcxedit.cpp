@@ -1046,6 +1046,8 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 		{
 		case EN_CHANGE:
 		{
+			this->m_tsText = TGetWindowText(m_Hwnd);
+
 			if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
 				this->execAliasEx(TEXT("edit,%u"), getUserID());
 			if (m_bShowLineNumbers)
