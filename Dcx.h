@@ -177,6 +177,7 @@ namespace Dcx
 	using dcxHDC_t = std::unique_ptr<HDC__, void(*)(HDC)>;
 	using dcxBitmap_t = std::unique_ptr<HBITMAP__, void(*)(HBITMAP)>;
 	using dcxBSTR_t = std::unique_ptr<OLECHAR, void(*)(BSTR)>;
+	using dcxBRUSH_t = std::unique_ptr<HBRUSH__, void(*)(HBRUSH)>;
 
 	/// <summary>
 	/// Make a cursor resource
@@ -961,7 +962,7 @@ namespace Dcx
 			TVITEMEX item{};
 			if (!m_Window || !m_Item)
 				return item;
-			
+
 			item.hItem = m_Item;
 			// exclude text flag as no buffer set.
 			item.mask = (uMask & ~TVIF_TEXT) | TVIF_HANDLE;
@@ -1082,6 +1083,92 @@ namespace Dcx
 
 		HWND		m_Window{};
 		HTREEITEM	m_Item{};
+	};
+
+	struct dcxBrush final
+	{
+		dcxBrush() noexcept = default;
+		dcxBrush(dcxBrush&& other) = default;
+		dcxBrush(const dcxBrush&) = delete;
+
+		dcxBrush(const HBRUSH& m_data) noexcept
+			: m_data(m_data)
+		{
+		}
+
+		dcxBrush& operator =(dcxBrush& other) = delete;
+		dcxBrush& operator =(dcxBrush&& other) noexcept = default;
+
+		~dcxBrush()
+		{
+			if (m_data)
+				DeleteBrush(m_data);
+		}
+
+		bool operator==(const dcxBrush& other) const noexcept = default;
+
+		operator HBRUSH () const noexcept
+		{
+			return m_data;
+		}
+
+		explicit operator bool () const noexcept
+		{
+			return (m_data != nullptr);
+		}
+
+		dcxBrush& operator =(HBRUSH other) noexcept
+		{
+			if (m_data)
+				DeleteBrush(m_data);
+
+			m_data = other;
+
+			return *this;
+		}
+
+	private:
+		HBRUSH m_data{};
+	};
+
+	struct dcxBrushResource final
+		: dcxResource < dcxBRUSH_t >
+	{
+		dcxBrushResource() = delete;														// no default!
+		dcxBrushResource(const dcxBrushResource&) = delete;									// no copy!
+		GSL_SUPPRESS(c.128) dcxBrushResource& operator =(const dcxBrushResource&) = delete;	// No copy assignments!
+		dcxBrushResource(dcxBrushResource&&) = delete;										// no move
+		GSL_SUPPRESS(c.128) dcxBrushResource& operator =(dcxBrushResource&&) = delete;		// no move assignment
+
+		//calls CreateSolidBrush()
+		dcxBrushResource(COLORREF clr)
+			: dcxResource(make_resource(CreateSolidBrush, [](HBRUSH obj) noexcept { if (obj) DeleteBrush(obj); }, clr))
+		{
+		}
+
+		//calls CreatePatternBrush()
+		dcxBrushResource(HBITMAP hbm)
+			: dcxResource(make_resource(CreatePatternBrush, [](HBRUSH obj) noexcept { if (obj) DeleteBrush(obj); }, hbm))
+		{
+		}
+
+		//calls CreateHatchBrush()
+		dcxBrushResource(int iHatch, COLORREF clr)
+			: dcxResource(make_resource(CreateHatchBrush, [](HBRUSH obj) noexcept { if (obj) DeleteBrush(obj); }, iHatch, clr))
+		{
+		}
+
+		//calls CreateBrushIndirect()
+		dcxBrushResource(LOGBRUSH* plbrush)
+			: dcxResource(make_resource(CreateBrushIndirect, [](HBRUSH obj) noexcept { if (obj) DeleteBrush(obj); }, plbrush))
+		{
+		}
+
+		//calls CreateDIBPatternBrush()
+		dcxBrushResource(HGLOBAL h, UINT iUsage)
+			: dcxResource(make_resource(CreateDIBPatternBrush, [](HBRUSH obj) noexcept { if (obj) DeleteBrush(obj); }, h, iUsage))
+		{
+		}
 	};
 
 	using MapOfCursors = std::map<HCURSOR, HCURSOR>;
@@ -1407,7 +1494,7 @@ namespace Dcx
 
 		bool operator==(const CodeValue& other) const = default;
 
-		CodeValue(const CodeType& code, const T& value) noexcept(std::is_nothrow_copy_constructible_v<CodeType> && std::is_nothrow_copy_constructible_v<T>)
+		CodeValue(const CodeType& code, const T& value) noexcept(std::is_nothrow_copy_constructible_v<CodeType>&& std::is_nothrow_copy_constructible_v<T>)
 			: code(code), value(value)
 		{
 		}
