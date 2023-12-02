@@ -1046,7 +1046,7 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 		{
 		case EN_CHANGE:
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
 				this->execAliasEx(TEXT("edit,%u"), getUserID());
 			if (m_bShowLineNumbers)
 				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
@@ -1057,9 +1057,9 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 			//	{
 			//		//this->execAliasEx(TEXT("edit,%u"), getUserID());
 			//		TCHAR szRet[256]{};
-
+			//
 			//		evalAliasEx(&szRet[0], std::size(szRet), TEXT("edit,%u"), getUserID());
-
+			//
 			//		if (_ts_strcmp(&szRet[0], TEXT("nochange")) != 0)
 			//			this->m_tsText = TGetWindowText(m_Hwnd);
 			//		else {
@@ -1165,7 +1165,7 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		if (m_bShowLineNumbers)
 			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
 
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
 		{
 			if (wParam == VK_RETURN)
 				this->execAliasEx(TEXT("return,%u"), getUserID());
@@ -1186,7 +1186,7 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 	case WM_COPY:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
 		{
 			const stString<256> szRet;
 
@@ -1203,7 +1203,7 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 	case WM_CUT:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
 		{
 			const stString<256> szRet;
 
@@ -1220,7 +1220,7 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 	case WM_PASTE:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
 		{
 			const stString<256> szRet;
 
@@ -1237,7 +1237,7 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 	case WM_KEYUP:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
 		{
 			//execAliasEx(TEXT("keyup,%u,%u"), getUserID(), wParam);
 

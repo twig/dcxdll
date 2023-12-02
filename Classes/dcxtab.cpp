@@ -1043,7 +1043,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 		{
 		case NM_RCLICK:
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
 				if (const auto tab = HitTestOnItem(); tab != -1)
 					this->execAliasEx(TEXT("rclick,%u,%d"), getUserID(), tab + 1);
@@ -1055,7 +1055,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 
 		case NM_CLICK:
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
 				if (const auto tab = TabCtrl_GetCurFocus(m_Hwnd); tab != -1)
 				{
@@ -1276,7 +1276,7 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 	case WM_SIZE:
 	{
 		this->activateSelectedTab();
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_SIZE))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_SIZE))
 			this->execAliasEx(TEXT("sizing,%u"), getUserID());
 	}
 	break;

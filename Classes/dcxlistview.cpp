@@ -3176,7 +3176,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 			const auto lvexstyles = Dcx::dcxListView_GetExtendedListViewStyle(m_Hwnd);
 
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
 				if (dcx_testflag(lvh.flags, LVHT_ONITEMSTATEICON) && dcx_testflag(lvexstyles, LVS_EX_CHECKBOXES) && !dcx_testflag(lvh.flags, LVHT_ONITEMICON) && !dcx_testflag(lvh.flags, LVHT_ONITEMLABEL))
 				{
@@ -3216,7 +3216,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		{
 			bParsed = TRUE;
 
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
 				dcxlParam(LPNMITEMACTIVATE, nmia);
 				LVHITTESTINFO lvh{ nmia->ptAction, 0U,0,0,0 };
@@ -3231,7 +3231,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 		case NM_RCLICK:
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
 				dcxlParam(LPNMITEMACTIVATE, nmia);
 				LVHITTESTINFO lvh{ nmia->ptAction, 0U,0,0,0 };
@@ -3248,7 +3248,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 		case NM_RDBLCLK:
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
 				dcxlParam(LPNMITEMACTIVATE, nmia);
 				LVHITTESTINFO lvh{ nmia->ptAction, 0U,0,0,0 };
@@ -3264,7 +3264,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 		case NM_HOVER:
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
 				//if (LVHITTESTINFO lvh{}; GetCursorPos(&lvh.pt))
 				//{
@@ -3399,7 +3399,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			if (!m_bAllowDrag)
 				break;
 
-			if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_DRAG))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_DRAG))
 				execAliasEx(TEXT("begindrag,%u"), getUserID()); // allow blocking the drag?
 
 			// You can set your customized cursor here
@@ -3570,7 +3570,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 		case LVN_ITEMCHANGED:	// no return value
 		{
-			if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
 				const auto pnmv = reinterpret_cast<const LPNMLISTVIEW>(lParam);
 				if (!pnmv || pnmv->iItem == -1)
@@ -3756,7 +3756,7 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 			{
 			case NM_RCLICK:
 			{
-				if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+				if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				{
 					if (Dcx::dcxListView_GetHeader(m_Hwnd) == hdr->hwndFrom)
 					{
@@ -3798,7 +3798,7 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 			{
 				bParsed = TRUE;
 
-				if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+				if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				{
 					dcxlParam(LPNMHEADER, lphdr);
 
@@ -3850,7 +3850,7 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 			{
 				bParsed = TRUE;
 
-				if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+				if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				{
 					dcxlParam(LPNMHEADER, lphdr);
 					if (!lphdr)
@@ -3864,7 +3864,7 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 			{
 				bParsed = TRUE;
 
-				if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+				if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				{
 					dcxlParam(LPNMHEADER, lphdr);
 					if (!lphdr)

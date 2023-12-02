@@ -967,7 +967,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 	{
 	case WM_COMMAND:
 	{
-		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 		{
 			switch (Dcx::dcxHIWORD(wParam))
 			{

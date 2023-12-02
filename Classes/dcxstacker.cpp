@@ -733,13 +733,13 @@ LRESULT DcxStacker::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 		{
 		case LBN_DBLCLK:
 		{
-			if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("dclick,%u,%d"), getUserID(), getSelItemID());
 		}
 		break;
 		case LBN_SELCHANGE:
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				this->execAliasEx(TEXT("sclick,%u,%d"), getUserID(), getSelItemID());
 		}
 		break;
@@ -977,7 +977,7 @@ LRESULT DcxStacker::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 
 	case WM_LBUTTONUP:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			this->execAliasEx(TEXT("lbup,%u,%d"), getUserID(), this->getItemID());
 	}
 	break;

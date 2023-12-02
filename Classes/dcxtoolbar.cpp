@@ -1498,7 +1498,7 @@ LRESULT DcxToolBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 	{
 		if (Dcx::dcxHIWORD(wParam) == BN_CLICKED)
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
 				if (const auto iButton = gsl::narrow_cast<int>(Dcx::dcxLOWORD(wParam)); iButton > -1)
 					this->execAliasEx(TEXT("sclick,%u,%d"), getUserID(), this->getCommandToIndex(iButton) + 1);
@@ -1531,7 +1531,7 @@ LRESULT DcxToolBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 		case NM_RCLICK:
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
 				dcxlParam(LPNMCLICK, lpnm);
 
@@ -1550,7 +1550,7 @@ LRESULT DcxToolBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 		case TBN_DROPDOWN:
 		{
 			LRESULT lRes = TBDDRET_DEFAULT;
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
 				dcxlParam(LPNMTOOLBAR, lpnmtb);
 

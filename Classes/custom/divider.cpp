@@ -372,6 +372,49 @@ void Divider_SizeWindowContents(HWND mHwnd, const int nWidth, const int nHeight)
 	}
 }
 
+namespace
+{
+	HBRUSH CreateXorBrush() noexcept
+	{
+		//static HBRUSH hbr{};
+		//
+		//if (!hbr)
+		//{
+		//	constexpr static const WORD _dotPatternBmp[8] =
+		//	{
+		//		0x00aa, 0x0055, 0x00aa, 0x0055,
+		//		0x00aa, 0x0055, 0x00aa, 0x0055
+		//	};
+		//
+		//	if (const auto hbm = CreateBitmap(8, 8, 1, 1, &_dotPatternBmp[0]); hbm)
+		//	{
+		//		Auto(DeleteObject(hbm));
+		//
+		//		hbr = CreatePatternBrush(hbm);
+		//	}
+		//}
+		//return hbr;
+
+		static Dcx::dcxBrush hbr;
+
+		if (!hbr)
+		{
+			constexpr static const WORD _dotPatternBmp[8] =
+			{
+				0x00aa, 0x0055, 0x00aa, 0x0055,
+				0x00aa, 0x0055, 0x00aa, 0x0055
+			};
+
+			if (const auto hbm = CreateBitmap(8, 8, 1, 1, &_dotPatternBmp[0]); hbm)
+			{
+				Auto(DeleteObject(hbm));
+
+				hbr = CreatePatternBrush(hbm);
+			}
+		}
+		return hbr;
+	}
+}
 
 /*!
  * \brief blah
@@ -382,33 +425,51 @@ void Divider_SizeWindowContents(HWND mHwnd, const int nWidth, const int nHeight)
 GSL_SUPPRESS(type.4)
 void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int height, COLORREF clrFg, COLORREF clrBg) noexcept
 {
-	// Ook: Possibly pre-allocate these...
-	constexpr static const WORD _dotPatternBmp[8] =
+	if (!hdc)
+		return;
+
+	//// Ook: Possibly pre-allocate these...
+	//constexpr static const WORD _dotPatternBmp[8] =
+	//{
+	//	0x00aa, 0x0055, 0x00aa, 0x0055,
+	//	0x00aa, 0x0055, 0x00aa, 0x0055
+	//};
+	//
+	//if (const auto hbm = CreateBitmap(8, 8, 1, 1, &_dotPatternBmp[0]); hbm)
+	//{
+	//	Auto(DeleteObject(hbm));
+	//
+	//	if (const auto hbr = CreatePatternBrush(hbm); hbr)
+	//	{
+	//		Auto(DeleteObject(hbr));
+	//
+	//		SetBrushOrgEx(hdc, x1, y1, nullptr);
+	//		const auto hbrushOld = Dcx::dcxSelectObject<HBRUSH>(hdc, hbr);
+	//		Auto(Dcx::dcxSelectObject<HBRUSH>(hdc, hbrushOld));
+	//
+	//		// sets colours of bar
+	//		if (clrFg != CLR_INVALID)
+	//			SetTextColor(hdc, clrFg);
+	//		if (clrBg != CLR_INVALID)
+	//			SetBkColor(hdc, clrBg);
+	//
+	//		PatBlt(hdc, x1, y1, width, height, PATINVERT);
+	//	}
+	//}
+
+	if (const auto hbr = CreateXorBrush(); hbr)
 	{
-		0x00aa, 0x0055, 0x00aa, 0x0055,
-		0x00aa, 0x0055, 0x00aa, 0x0055
-	};
+		SetBrushOrgEx(hdc, x1, y1, nullptr);
+		const auto hbrushOld = Dcx::dcxSelectObject<HBRUSH>(hdc, hbr);
+		Auto(Dcx::dcxSelectObject<HBRUSH>(hdc, hbrushOld));
 
-	if (const auto hbm = CreateBitmap(8, 8, 1, 1, &_dotPatternBmp[0]); hbm)
-	{
-		Auto(DeleteObject(hbm));
+		// sets colours of bar
+		if (clrFg != CLR_INVALID)
+			SetTextColor(hdc, clrFg);
+		if (clrBg != CLR_INVALID)
+			SetBkColor(hdc, clrBg);
 
-		if (const auto hbr = CreatePatternBrush(hbm); hbr)
-		{
-			Auto(DeleteObject(hbr));
-
-			SetBrushOrgEx(hdc, x1, y1, nullptr);
-			const auto hbrushOld = Dcx::dcxSelectObject<HBRUSH>(hdc, hbr);
-			Auto(Dcx::dcxSelectObject<HBRUSH>(hdc, hbrushOld));
-
-			// sets colours of bar
-			if (clrFg != CLR_INVALID)
-				SetTextColor(hdc, clrFg);
-			if (clrBg != CLR_INVALID)
-				SetBkColor(hdc, clrBg);
-
-			PatBlt(hdc, x1, y1, width, height, PATINVERT);
-		}
+		PatBlt(hdc, x1, y1, width, height, PATINVERT);
 	}
 }
 

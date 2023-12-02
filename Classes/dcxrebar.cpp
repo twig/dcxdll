@@ -1671,7 +1671,7 @@ LRESULT DcxReBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 			{
 				m_iClickedBand = band;
 
-				if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+				if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 					this->execAliasEx(TEXT("sclick,%u,%d"), getUserID(), band + 1);
 			}
 		}
@@ -1680,7 +1680,7 @@ LRESULT DcxReBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 
 	case WM_CONTEXTMENU:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 		{
 			if (RBHITTESTINFO rbhi{}; GetCursorPos(&rbhi.pt))
 			{

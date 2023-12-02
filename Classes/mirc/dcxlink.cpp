@@ -357,7 +357,7 @@ LRESULT DcxLink::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			this->m_bVisited = true;
 			InvalidateRect(m_Hwnd, nullptr, FALSE);
 		}
-		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			this->execAliasEx(TEXT("lbdown,%u"), getUserID());
 	}
 	break;

@@ -260,7 +260,7 @@ LRESULT DcxRadio::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 	case WM_LBUTTONUP:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 		{
 			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
 			bParsed = TRUE;

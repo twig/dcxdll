@@ -131,14 +131,14 @@ LRESULT DcxMultiCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 		if (!pDialog)
 			break;
 
-		if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 		{
 			switch (Dcx::dcxHIWORD(wParam))
 			{
 			case MCON_EDITCHANGE:
 			{
 				bParsed = TRUE;
-				if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_EDIT))
+				if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
 					this->execAliasEx(TEXT("edit,%u"), getUserID());
 			}
 			break;
@@ -147,7 +147,7 @@ LRESULT DcxMultiCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 			{
 				bParsed = TRUE;
 
-				if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
+				if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				{
 					const auto nItem = getCurSel();
 
@@ -160,7 +160,7 @@ LRESULT DcxMultiCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 			{
 				bParsed = TRUE;
 
-				if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
+				if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				{
 					const auto nItem = getCurSel();
 
@@ -184,11 +184,11 @@ LRESULT DcxMultiCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 			//lpMeasureItem->itemHeight = 160;
 			//lpMeasureItem->itemWidth = 200;
 
-			const auto pDialog = getParentDialog();
-			if (!pDialog)
-				break;
+			//const auto pDialog = getParentDialog();
+			//if (!pDialog)
+			//	break;
 
-			if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_SIZE))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_SIZE))
 			{
 				TString tsBuf(128u);
 				evalAliasEx(tsBuf.to_chr(), tsBuf.capacity_cch(), TEXT("measureitem,%u,%u,%u"), getUserID(), lpmis->itemWidth, lpmis->itemHeight);

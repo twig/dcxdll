@@ -2315,7 +2315,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		}
 #endif
 
-		if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_THEME))
+		if (dcx_testflag(p_this->getEventMask(), DCX_EVENT_THEME))
 			p_this->execAlias(TEXT("themechanged,0"));
 		break;
 	}
@@ -2324,7 +2324,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	{
 		dcxlParam(LPCRECT, pRc);
 
-		if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_THEME))
+		if (dcx_testflag(p_this->getEventMask(), DCX_EVENT_THEME))
 			p_this->execAliasEx(TEXT("dpichanged,0,%d,%d,%d,%d,%d"), Dcx::dcxLOWORD(wParam), pRc->top, pRc->bottom, pRc->left, pRc->right);
 
 		if (!p_this->m_Hwnd)
@@ -4330,8 +4330,7 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 		xml->SetAttribute("height", rc.Height());
 		xml->SetAttribute("width", rc.Width());
 	}
-	//if (!this->m_BackgroundImage.m_tsFilename.empty())
-	//	xml->SetAttribute("src", this->m_BackgroundImage.m_tsFilename.c_str());
+
 	if (this->m_BackgroundImage)
 		xml->LinkEndChild(this->m_BackgroundImage.toXml());
 

@@ -530,14 +530,17 @@ LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 	case DV_CHANGEPOS:
 	{
-		dcxlParam(LPPOINT, pt);
+		if (dcx_testflag(getEventMask(), DCX_EVENT_DRAG))
+		{
+			dcxlParam(LPPOINT, pt);
 
-		const auto phase = gsl::narrow_cast<int>(wParam);
+			const auto phase = gsl::narrow_cast<int>(wParam);
 
-		constexpr TCHAR szdrag_begin[] = TEXT("dragbegin");
-		constexpr TCHAR szdrag[] = TEXT("drag");
-		constexpr TCHAR szdrag_finish[] = TEXT("dragfinish");
-		this->execAliasEx(TEXT("%s,%u,%d,%d"), (phase == DVNM_DRAG_START ? &szdrag_begin[0] : (phase == DVNM_DRAG_END ? &szdrag_finish[0] : &szdrag[0])), this->getUserID(), pt->x, pt->y);
+			constexpr TCHAR szdrag_begin[] = TEXT("dragbegin");
+			constexpr TCHAR szdrag[] = TEXT("drag");
+			constexpr TCHAR szdrag_finish[] = TEXT("dragfinish");
+			this->execAliasEx(TEXT("%s,%u,%d,%d"), (phase == DVNM_DRAG_START ? &szdrag_begin[0] : (phase == DVNM_DRAG_END ? &szdrag_finish[0] : &szdrag[0])), this->getUserID(), pt->x, pt->y);
+		}
 	}
 	break;
 

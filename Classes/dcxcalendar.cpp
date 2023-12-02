@@ -631,7 +631,7 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		}
 		case NM_RELEASEDCAPTURE:
 		{
-			if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("sclick,%u"), getUserID());
 			break;
 		}
@@ -648,15 +648,15 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 LRESULT DcxCalendar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
-	const auto pDialog = getParentDialog();
-	if (!pDialog)
-		return 0L;	// something went very wrong...
+	//const auto pDialog = getParentDialog();
+	//if (!pDialog)
+	//	return 0L;	// something went very wrong...
 
 	switch (uMsg)
 	{
 	case WM_LBUTTONUP:
 	{
-		if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			execAliasEx(TEXT("lbup,%u"), getUserID());
 	}
 	break;

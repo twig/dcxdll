@@ -522,7 +522,7 @@ LRESULT DcxProgressBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 	case WM_LBUTTONUP:
 	{
-		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 		{
 			const auto iLower = getRange(TRUE, nullptr);
 			const auto iHigher = getRange(FALSE, nullptr);
@@ -548,7 +548,7 @@ LRESULT DcxProgressBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 	case WM_CONTEXTMENU:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 		{
 			const auto iLower = getRange(TRUE, nullptr);
 			const auto iHigher = getRange(FALSE, nullptr);
@@ -562,7 +562,7 @@ LRESULT DcxProgressBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	{
 		this->getParentDialog()->setMouseControl(this->getUserID());
 
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 		{
 			if (wParam == MK_LBUTTON)
 			{

@@ -108,13 +108,6 @@ DcxControl::~DcxControl() noexcept
 		m_hBorderBrush = nullptr;
 	}
 
-	//// check if we need to destroy the cursor (do not destroy if same cursor as parent dialog, parent will destroy this for us)
-	//if (m_bCursorFromFile && m_hCursor && m_hCursor != getParentDialog()->getCursor())
-	//{
-	//	DestroyCursor(m_hCursor);
-	//	m_hCursor = nullptr;
-	//}
-
 	if (const auto pd = getParentDialog(); pd)
 	{
 		// check if we need to destroy the cursor (do not destroy if same cursor as parent dialog, parent will destroy this for us)
@@ -2065,6 +2058,9 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl* const p_thi
 
 void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 {
+	if (!hDC || !hwnd)
+		return;
+
 #if DCX_USE_WRAPPERS
 	// if window matches this one, don't draw (loop condition)
 	if (hwnd == m_Hwnd)
@@ -2556,7 +2552,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 	{
 	case WM_HELP:
 	{
-		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_HELP))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_HELP))
 			execAliasEx(TEXT("help,%u"), getUserID());
 		bParsed = TRUE;
 		lRes = TRUE;
@@ -2566,7 +2562,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 	case WM_DPICHANGED_AFTERPARENT:
 	{
 		// win10+ only
-		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_THEME))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_THEME))
 			execAliasEx(TEXT("dpichanged,%u,afterparent"), getUserID());
 	}
 	break;
@@ -2576,7 +2572,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 		// win8.1+ only
 		dcxlParam(LPCRECT, pRc);
 
-		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_THEME))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_THEME))
 			execAliasEx(TEXT("dpichanged,%u,%d,%d,%d,%d,%d"), getUserID(), Dcx::dcxLOWORD(wParam), pRc->top, pRc->bottom, pRc->left, pRc->right);
 
 		if (!IsValidWindow())
@@ -2668,14 +2664,14 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 
 	case WM_LBUTTONDOWN:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(this->getEventMask(), DCX_EVENT_CLICK))
 			execAliasEx(TEXT("lbdown,%u"), getUserID());
 	}
 	break;
 
 	case WM_LBUTTONUP:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(this->getEventMask(), DCX_EVENT_CLICK))
 		{
 			execAliasEx(TEXT("lbup,%u"), getUserID());
 			execAliasEx(TEXT("sclick,%u"), getUserID());
@@ -2685,7 +2681,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 
 	case WM_LBUTTONDBLCLK:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(this->getEventMask(), DCX_EVENT_CLICK))
 		{
 			execAliasEx(TEXT("dclick,%u"), getUserID());
 			execAliasEx(TEXT("lbdblclk,%u"), getUserID());
@@ -2695,31 +2691,38 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 
 	case WM_RBUTTONDOWN:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(this->getEventMask(), DCX_EVENT_CLICK))
 			execAliasEx(TEXT("rbdown,%u"), getUserID());
 	}
 	break;
 
 	case WM_RBUTTONUP:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(this->getEventMask(), DCX_EVENT_CLICK))
 			execAliasEx(TEXT("rbup,%u"), getUserID());
 	}
 	break;
 
 	case WM_RBUTTONDBLCLK:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(this->getEventMask(), DCX_EVENT_CLICK))
 			execAliasEx(TEXT("rdclick,%u"), getUserID());
 	}
 	break;
 
 	case WM_CONTEXTMENU:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(this->getEventMask(), DCX_EVENT_CLICK))
 		{
+			//if (auto hwnd = reinterpret_cast<HWND>(wParam); hwnd == m_Hwnd)
+			//{
+			//	if (execAliasEx(TEXT("rclick,%u"), getUserID()))
+			//		lRes = CallDefaultClassProc(uMsg, wParam, lParam);	// this allows the display of local context menus (like copy/paste with edit control)
+			//}
+
 			if (execAliasEx(TEXT("rclick,%u"), getUserID()))
 				lRes = CallDefaultClassProc(uMsg, wParam, lParam);	// this allows the display of local context menus (like copy/paste with edit control)
+
 			// default menu is NOT displayed when rclick event returns $false
 			// this allows the display of custom menus...
 		}
@@ -2739,7 +2742,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 
 		if (const auto count = DragQueryFile(files, 0xFFFFFFFF, sFilename, std::size(sFilename)); count > 0)
 		{
-			if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_DRAG))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_DRAG))
 			{
 				const stString<20> sRet;
 
@@ -2836,7 +2839,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 	break;
 	case WM_KEYDOWN:
 	{
-		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
 		{
 			if (wParam == VK_RETURN)
 				execAliasEx(TEXT("return,%u"), getUserID());
@@ -2850,7 +2853,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 	}
 	case WM_KEYUP:
 	{
-		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
 			execAliasEx(TEXT("keyup,%u,%d"), getUserID(), wParam);
 		break;
 	}
@@ -2889,7 +2892,7 @@ void DcxControl::HandleChildControlSize()
 {
 	HandleChildSizing(SizingTypes::ReBar | SizingTypes::Status | SizingTypes::Toolbar);
 
-	if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_SIZE))
+	if (dcx_testflag(getEventMask(), DCX_EVENT_SIZE))
 		execAliasEx(TEXT("sizing,%u"), getUserID());
 }
 
@@ -2972,6 +2975,9 @@ void DcxControl::loadIcon(const TString& tsFlags, const TString& tsIndex, const 
 const TString DcxControl::getStyles(void) const
 {
 	TString result;
+	if (!m_Hwnd)
+		return result;
+
 	const auto exStyles = dcxGetWindowExStyle(m_Hwnd);
 	const auto Styles = dcxGetWindowStyle(m_Hwnd);
 
@@ -3003,25 +3009,6 @@ const TString DcxControl::getStyles(void) const
 	if (this->getToolTipHWND())
 		result.addtok(TEXT("tooltips"));
 	return result;
-
-	//const dcxWindowStyles Styles{ m_Hwnd };
-	//TString result(Styles.ToString());
-	//
-	//if (this->IsAlphaBlend())
-	//	result.addtok(TEXT("alpha"));
-	//if (this->IsShadowTextEnabled())
-	//	result.addtok(TEXT("shadow"));
-	//if (!this->IsControlCodeTextEnabled())
-	//	result.addtok(TEXT("noformat"));
-	//if (this->IsGradientFillEnabled())
-	//{
-	//	if (this->IsGradientFillVertical())
-	//		result.addtok(TEXT("vgradient"));
-	//	else
-	//		result.addtok(TEXT("hgradient"));
-	//}
-	//result.addtok(TEXT("utf8"));
-	//return result;
 }
 
 void DcxControl::toXml(TiXmlElement* const xml) const

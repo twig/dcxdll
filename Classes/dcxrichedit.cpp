@@ -1889,7 +1889,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		{
 		case EN_LINK:
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
 				if (dcxlParam(ENLINK*, enl); (enl) && ((enl->msg == WM_LBUTTONDOWN) || (enl->msg == WM_LBUTTONDBLCLK) || (enl->msg == WM_RBUTTONDOWN)))
 				{
@@ -1927,7 +1927,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			if (const auto pSelChange = reinterpret_cast<SELCHANGE*>(lParam); pSelChange && pSelChange->seltyp == SEL_EMPTY && m_bShowLineNumbers)
 				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
 
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
 			{
 				if (const auto* const sel = reinterpret_cast<SELCHANGE*>(lParam); (sel) && (sel->seltyp != SEL_EMPTY))
 				{
@@ -2035,7 +2035,7 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		if (m_bShowLineNumbers)
 			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
 
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
 		{
 			if (wParam == VK_RETURN)
 				this->execAliasEx(TEXT("return,%u"), getUserID());
@@ -2050,7 +2050,7 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 	case WM_KEYUP:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
 			this->execAliasEx(TEXT("keyup,%u,%d"), getUserID(), wParam);
 
 		if (m_bShowLineNumbers)
@@ -2239,18 +2239,17 @@ bool DcxRichEdit::LoadRichTextFromXml(HWND hWnd, TString& tsFilename, const TStr
 
 	TiXmlDocument doc(tsFilename.c_str());
 	doc.SetCondenseWhiteSpace(false);
-	TString tsBuf;
 
 	if (!doc.LoadFile())
 		throw Dcx::dcxException(TEXT("Not an XML File: %"), tsFilename);
 
 	const auto* const xRoot = doc.FirstChildElement("dcxml");
 	if (!xRoot)
-		throw Dcx::dcxException("Unable Find 'dcxml' root");
+		throw Dcx::dcxException("Unable Find <dcxml> root");
 
 	const auto* xElm = xRoot->FirstChildElement("richedit_data");
 	if (!xElm)
-		throw Dcx::dcxException("Unable To Find 'richedit_data' element");
+		throw Dcx::dcxException("Unable To Find <richedit_data> element");
 
 	xElm = xElm->FirstChildElement(tsDataSet.c_str());
 	if (!xElm)

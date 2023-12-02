@@ -336,7 +336,7 @@ LRESULT DcxIpAddress::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 		if (hdr->code == IPN_FIELDCHANGED)
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
 				this->execAliasEx(TEXT("edit,%u"), getUserID());
 			bParsed = TRUE;
 		}
@@ -361,7 +361,7 @@ LRESULT DcxIpAddress::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 	case WM_MOUSEACTIVATE:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 		{
 			switch (Dcx::dcxHIWORD(lParam))
 			{

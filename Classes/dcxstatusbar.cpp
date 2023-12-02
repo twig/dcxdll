@@ -1055,7 +1055,7 @@ LRESULT DcxStatusBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 		{
 		case NM_CLICK:
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
 #if DCX_USE_WRAPPERS
 				if (const Dcx::dcxCursorPos pt(m_Hwnd); pt)
@@ -1077,7 +1077,7 @@ LRESULT DcxStatusBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 		case NM_RCLICK:
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
 #if DCX_USE_WRAPPERS
 				if (const Dcx::dcxCursorPos pt(m_Hwnd); pt)
@@ -1099,7 +1099,7 @@ LRESULT DcxStatusBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 		case NM_DBLCLK:
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
 #if DCX_USE_WRAPPERS
 				if (const Dcx::dcxCursorPos pt(m_Hwnd); pt)

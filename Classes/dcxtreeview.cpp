@@ -2017,7 +2017,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 			//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/treeview/reflist.asp
 
-			if (!dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (!dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				break;
 
 			TVHITTESTINFO tvh{ TV_GetCursorItem() };
@@ -2043,7 +2043,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 		case NM_DBLCLK:
 		{
-			if (!dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (!dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				break;
 
 			TVHITTESTINFO tvh{ TV_GetCursorItem() };
@@ -2058,7 +2058,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 		case NM_RCLICK:
 		{
-			if (!dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (!dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				break;
 
 			TVHITTESTINFO tvh{ TV_GetCursorItem() };
@@ -3147,6 +3147,7 @@ void DcxTreeView::toXml(TiXmlElement* const xml) const
 
 	xml->SetAttribute("styles", getStyles().c_str());
 
+	// background image
 	if (m_pImage.m_pImage)
 	{
 		TiXmlElement xImage("image");

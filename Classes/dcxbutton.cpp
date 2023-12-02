@@ -732,9 +732,9 @@ void DcxButton::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
  */
 LRESULT DcxButton::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
-	const auto pDialog = getParentDialog();
-	if (!pDialog)
-		return 0L;	// something went very wrong...
+	//const auto pDialog = getParentDialog();
+	//if (!pDialog)
+	//	return 0L;	// something went very wrong...
 
 	switch (uMsg)
 	{
@@ -744,13 +744,13 @@ LRESULT DcxButton::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 		{
 		case BN_CLICKED:
 		{
-			if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("sclick,%u"), getUserID());
 		}
 		break;
 		case BN_DBLCLK:
 		{
-			if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("dclick,%u"), getUserID());
 		}
 		break;
@@ -770,7 +770,7 @@ LRESULT DcxButton::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 		{
 		case BCN_HOTITEMCHANGE:
 		{
-			if (dcxlParam(LPNMBCHOTITEM, item); dcx_testflag(pDialog->getEventMask(), DCX_EVENT_FOCUS))
+			if (dcxlParam(LPNMBCHOTITEM, item); dcx_testflag(getEventMask(), DCX_EVENT_FOCUS))
 			{
 				if (dcx_testflag(item->dwFlags, HICF_ENTERING))
 					execAliasEx(TEXT("hotchange,%u,entering"), getUserID());
@@ -781,7 +781,7 @@ LRESULT DcxButton::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 		break;
 		case BCN_DROPDOWN:
 		{
-			if (dcxlParam(LPNMBCDROPDOWN, item); dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
+			if (dcxlParam(LPNMBCDROPDOWN, item); dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
 				execAliasEx(TEXT("dropdown,%u,%d,%d,%d,%d"), getUserID(), item->rcButton.top, item->rcButton.left, item->rcButton.bottom, item->rcButton.right);
 			}
@@ -800,15 +800,16 @@ LRESULT DcxButton::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 LRESULT DcxButton::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
-	const auto pDialog = getParentDialog();
-	if (!pDialog)
-		return 0L;	// something went very wrong...
+	//const auto pDialog = getParentDialog();
+	//if (!pDialog)
+	//	return 0L;	// something went very wrong...
 
 	switch (uMsg)
 	{
 	case WM_MOUSEMOVE:
 	{
-		pDialog->setMouseControl(getUserID());
+		if (const auto pDialog = getParentDialog(); pDialog)
+			pDialog->setMouseControl(getUserID());
 
 		if (m_bTracking == FALSE)
 		{
@@ -852,7 +853,7 @@ LRESULT DcxButton::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 			m_bSelected = true;
 			InvalidateRect(m_Hwnd, nullptr, FALSE);
 		}
-		if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			execAliasEx(TEXT("lbdown,%u"), getUserID());
 	}
 	break;
@@ -860,7 +861,7 @@ LRESULT DcxButton::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 	case WM_LBUTTONUP:
 	{
 		m_bSelected = false;
-		if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			execAliasEx(TEXT("lbup,%u"), getUserID());
 	}
 	break;

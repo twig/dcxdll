@@ -604,7 +604,7 @@ LRESULT DcxBox::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 
 						ReleaseDC(m_Hwnd, hdc);
 					}
-					if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+					if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 					{
 						const stString<10> sRet;
 

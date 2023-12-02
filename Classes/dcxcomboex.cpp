@@ -1064,14 +1064,14 @@ LRESULT DcxComboEx::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 		switch (Dcx::dcxHIWORD(wParam))
 		{
 		case CBN_DBLCLK:
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("dclick,%u,%d"), getUserID(), getCurSel() + 1);
 			bParsed = TRUE;
 			return TRUE;
 			break;
 		case CBN_SELENDOK:
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("sclick,%u,%d"), getUserID(), getCurSel() + 1);
 
 			// Ook: This code seems completely unneeded.
@@ -1093,7 +1093,7 @@ LRESULT DcxComboEx::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 		break;
 		case CBN_EDITCHANGE:
 		{
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
 				execAliasEx(TEXT("edit,%u"), getUserID());
 
 			bParsed = TRUE;
@@ -1117,7 +1117,7 @@ LRESULT DcxComboEx::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 			if (endedit->iWhy == CBENF_RETURN)
 			{
-				if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+				if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
 					execAliasEx(TEXT("return,%u"), getUserID());
 				bParsed = TRUE;
 			}
@@ -1154,7 +1154,7 @@ LRESULT DcxComboEx::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 	{
 	case WM_LBUTTONUP:
 	{
-		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			execAliasEx(TEXT("lbup,%u"), getUserID());
 	}
 	break;
@@ -1170,7 +1170,7 @@ LRESULT DcxComboEx::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 		case WM_RBUTTONDOWN:
 		{
 			// NB: rclick doesnt change selection!
-			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("rclick,%u,%d"), getUserID(), getCurSel() + 1);
 		}
 		break;

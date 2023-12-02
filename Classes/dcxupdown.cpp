@@ -408,7 +408,7 @@ LRESULT DcxUpDown::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 		{
 		case UDN_DELTAPOS:
 		{
-			if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("sclick,%u"), getUserID());
 			bParsed = TRUE;
 		}
