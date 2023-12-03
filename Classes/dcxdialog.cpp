@@ -3289,6 +3289,33 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		bParsed = TRUE;
 	}
 	break;
+	//case WM_NCPAINT:
+	//{
+	//	lRes = p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
+	//	bParsed = TRUE;
+
+	//	if (HDC hdc = GetWindowDC(mHwnd); /*GetDCEx(mHwnd, (HRGN)wParam, DCX_WINDOW | DCX_INTERSECTRGN);*/ hdc)
+	//	{
+	//		TITLEBARINFOEX tbiex{};
+	//		tbiex.cbSize = sizeof(TITLEBARINFOEX);
+
+	//		SendMessage(mHwnd, WM_GETTITLEBARINFOEX, 0, reinterpret_cast<LPARAM>(&tbiex));
+
+	//		RECT rc = tbiex.rcTitleBar;
+	//		MapWindowRect(nullptr, mHwnd, &rc);
+
+	//		OffsetRect(&rc, -rc.left, -rc.top);
+
+	//		Dcx::FillRectColour(hdc, &rc, RGB(255, 0, 0));
+
+	//		ReleaseDC(mHwnd, hdc);
+	//	}
+
+	//	if (p_this->m_CustomMenuBar.m_bEnable)
+	//		p_this->UAHDrawMenuNCBottomLine(mHwnd);
+
+	//	break;
+	//}
 	case WM_NCPAINT:
 	case WM_NCACTIVATE:
 		if (p_this->m_CustomMenuBar.m_bEnable)
@@ -4882,7 +4909,7 @@ void DcxDialog::xmlSetIcons()
 		TString tsFilename;
 		const TString tsFlags(queryAttribute(xSmallIcon.xIcon, "flags"));
 		const auto iIndex = queryIntAttribute(xSmallIcon.xIcon, "index");
-		if (tsFlags.find(L'B',0))	// avoid eval when its base64, string is too long.
+		if (tsFlags.find(L'B', 0))	// avoid eval when its base64, string is too long.
 			tsFilename = queryAttribute(xSmallIcon.xIcon, "src");
 		else
 			tsFilename = queryEvalAttribute(xSmallIcon.xIcon, "src");

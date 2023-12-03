@@ -118,7 +118,7 @@ protected:
 	static DWORD CALLBACK StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, const LONG cb, LONG* pcb) noexcept;
 	static bool SaveRichTextToFile(HWND hWnd, const TString& tsFilename) noexcept;
 	static bool LoadRichTextFromFile(HWND hWnd, const TString& tsFilename) noexcept;
-	static bool LoadRichTextFromXml(HWND hWnd, TString& tsFilename, const TString& tsDataSet);
+	bool LoadRichTextFromXml(TString& tsFilename, const TString& tsDataSet);
 
 	void insertText(const TCHAR* const text, bool bline, bool uline, bool iline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse) noexcept;
 	void parseStringContents(const TString& tsStr, const BOOL fNewLine) noexcept;

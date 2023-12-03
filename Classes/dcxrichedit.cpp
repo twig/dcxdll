@@ -855,7 +855,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 				TString tsFile(tsArgs.gettok(1, gsl::narrow_cast<int>(tsArgs.numtok()) - 1));
 				const TString tsDataSet(tsArgs.gettok(tsArgs.numtok()));
 
-				if (!LoadRichTextFromXml(m_Hwnd, tsFile, tsDataSet))	// default load rtf text
+				if (!LoadRichTextFromXml(tsFile, tsDataSet))	// default load rtf text
 					throw Dcx::dcxException(TEXT("Unable to load: % Dataset: %"), tsFile, tsDataSet);
 			}
 			else {
@@ -2232,7 +2232,7 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 }
 
 // Incomplete
-bool DcxRichEdit::LoadRichTextFromXml(HWND hWnd, TString& tsFilename, const TString& tsDataSet)
+bool DcxRichEdit::LoadRichTextFromXml(TString& tsFilename, const TString& tsDataSet)
 {
 	if (!IsFile(tsFilename))
 		throw Dcx::dcxException(TEXT("Unable To Access File: %"), tsFilename);
@@ -2255,11 +2255,28 @@ bool DcxRichEdit::LoadRichTextFromXml(HWND hWnd, TString& tsFilename, const TStr
 	if (!xElm)
 		throw Dcx::dcxException(TEXT("Unable To Find Dataset: %"), tsDataSet);
 
-	//xElm->Value();
+	TString tsText(xElm->GetText());
 
-	// incomplete....
+	if (tsText.left(2) == TEXT("\r\n"))
+		tsText = tsText.right(-2);
+	else if (tsText[0] == TEXT('\n'))
+		tsText = tsText.right(-1);
 
-	return false;
+	tsText -= TEXT('\t'); // remove all tabs from text.
+
+	// converts \c -> ctrl-k, \b -> ctrl-b, \r -> ctrl-r, \u -> ctrl-u, \i -> ctrl-i, \o -> ctrl-o
+	tsText.replace(TEXT("\\c"), TEXT('\x03'));	// mirc colours
+	tsText.replace(TEXT("\\b"), TEXT('\x02'));	// bold
+	tsText.replace(TEXT("\\r"), TEXT('\x16'));	// reverse
+	tsText.replace(TEXT("\\u"), TEXT('\x1F'));	// underline
+	tsText.replace(TEXT("\\i"), TEXT('\x1D'));	// italics
+	tsText.replace(TEXT("\\o"), TEXT('\x0F'));	// ctrl-o
+
+	m_tsText = tsText;
+
+	parseContents(TRUE);
+
+	return true;
 }
 
 LRESULT DcxRichEdit::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
