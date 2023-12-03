@@ -1098,6 +1098,7 @@ enum class WindowStyle
 
 	// Tab
 	TCS_ForceLeftAlign = TCS_FORCELABELLEFT,
+	TCS_Buttons = TCS_BUTTONS,
 
 	// ProgressBar
 	PBS_Vertical = PBS_VERTICAL,

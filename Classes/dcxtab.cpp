@@ -48,14 +48,8 @@ DcxTab::DcxTab(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, c
 	setNoThemed(ws.m_NoTheme);
 
 	if (this->m_bClosable)
-	{
-		//RECT rcClose;
-		//GetCloseButtonRect(*rc, rcClose);
-		//TabCtrl_SetPadding(m_Hwnd, (rcClose.right - rcClose.left), GetSystemMetrics(SM_CXFIXEDFRAME));
-
-		//TabCtrl_SetPadding(m_Hwnd, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYFIXEDFRAME));
 		TabCtrl_SetPadding(m_Hwnd, Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CXSMICON), Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CYFIXEDFRAME));
-	}
+
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
@@ -267,6 +261,38 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 			_ts_snprintf(szReturnValue, TEXT("%d"), tab + 1);
 		else
 			throw Dcx::dcxException("Unable to get cursor position");
+	}
+	break;
+	case L"tabrect"_hash:
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (nItem < 0 || nItem >= getTabCount())
+			throw DcxExceptions::dcxInvalidItem();
+
+		RECT rc{};
+		TabCtrl_GetItemRect(m_Hwnd, nItem, &rc);
+		_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right, rc.bottom);
+	}
+	break;
+	case L"tabsrect"_hash:
+	{
+		const auto nTotal = getTabCount();
+		RECT rc{};
+		TabCtrl_GetItemRect(m_Hwnd, 0, &rc);
+
+		for (int nItem{ 1 }; nItem < nTotal; ++nItem)
+		{
+			RECT rcItem{};
+			TabCtrl_GetItemRect(m_Hwnd, nItem, &rcItem);
+
+			//rc.bottom += (rcItem.bottom - rcItem.top);
+			rc.right += (rcItem.right - rcItem.left);
+		}
+		_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right, rc.bottom);
 	}
 	break;
 	default:
@@ -1096,11 +1122,18 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 
 		RECT rect{};
 		const auto nTabIndex = gsl::narrow_cast<int>(idata->itemID);
+		const bool bCurSel = (TabCtrl_GetCurSel(m_Hwnd) == nTabIndex);
 
 		CopyRect(&rect, &idata->rcItem);
 
 		const auto savedDC = SaveDC(idata->hDC);
 		Auto(RestoreDC(idata->hDC, savedDC));
+
+		if (!bCurSel && !isStyle(WindowStyle::TCS_Buttons))
+		{
+			// Ook: This is a hack to fix the gap left between a non-selected tab & the tab area when NOT TCS_BUTTONS
+			rect.bottom += Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CYEDGE); // 2
+		}
 
 		//DcxControl::DrawCtrlBackground(idata->hDC, this, &rect);
 
@@ -1243,6 +1276,14 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 
 	case WM_HSCROLL:
 	case WM_VSCROLL:
+	{
+		//if (!IsWindow(reinterpret_cast<HWND>(lParam)))
+		{
+			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
+				this->execAliasEx(TEXT("scroll,%u,%u"), getUserID(), wParam);
+		}
+	}
+	[[fallthrough]];
 	case WM_COMMAND:
 	{
 		if (IsWindow(reinterpret_cast<HWND>(lParam)))

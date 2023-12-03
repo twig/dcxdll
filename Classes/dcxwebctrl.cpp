@@ -257,8 +257,6 @@ bool DcxWebControl::InitializeInterface() noexcept
 			SafeRelease();
 
 			return false;
-			//DestroyWindow(m_Hwnd);
-			//throw Dcx::dcxException("Unable To Create Browser Window");
 		}
 	}
 	catch (...)
@@ -364,78 +362,6 @@ void DcxWebControl::parseCommandRequest(const TString& input)
 	// [NAME] [ID] -m [+FLAGS] [+MASK] (URL)
 	else if (flags[TEXT('m')])
 	{
-		//		if (numtok < 5)
-		//			throw DcxExceptions::dcxInvalidArguments();
-		//
-		//		const XSwitchFlags xflags(input.getnexttok());		// tok 4 flags to change
-		//		const XSwitchFlags xmask(input.getnexttok());		// tok 5 state mask, flags here are enabled, otherwise they are disabled.
-		//		const auto URL(input.getlasttoks().trim());		// tok 6, -1 optional
-		//
-		//#if DCX_USE_WRAPPERS
-		//		Dcx::dcxVariant vEmpty;
-		//		Dcx::dcxVariant vFlags;
-		//		VARIANT_BOOL bEnabled = VARIANT_FALSE;
-		//#else
-		//		VARIANT vEmpty;
-		//		VARIANT vFlags;
-		//		VARIANT_BOOL bEnabled = VARIANT_FALSE;
-		//		VariantInit(&vEmpty);
-		//		Auto(VariantClear(&vEmpty));
-		//#endif
-		//
-		//		V_VT(&vFlags) = VT_I4;
-		//		V_I4(&vFlags) = 0;
-		//
-		//		if (xflags['h'] && xmask['h']) // no history
-		//			V_I4(&vFlags) |= navNoHistory;
-		//		if (xflags['r'] && xmask['r']) // no read from cache
-		//			V_I4(&vFlags) |= navNoReadFromCache;
-		//		if (xflags['w'] && xmask['w']) // no write to cache
-		//			V_I4(&vFlags) |= navNoWriteToCache;
-		//		if (xflags['a'] && xmask['a']) // allow auto search
-		//			V_I4(&vFlags) |= navAllowAutosearch;
-		//		if (xflags['e'] && xmask['e']) // enforce restricted zone
-		//			V_I4(&vFlags) |= navEnforceRestricted;
-		//		if (xflags['m'] && xmask['m']) // Manage popup windows.
-		//			V_I4(&vFlags) |= navNewWindowsManaged;
-		//		if (xflags['u'] && xmask['u']) // dont allow downloads.
-		//			V_I4(&vFlags) |= navUntrustedForDownload;
-		//		if (xflags['x'] && xmask['x']) // allow active x install prompts (doesnt auto install, you still need to ok the prompt)
-		//			V_I4(&vFlags) |= navTrustedForActiveX;
-		//		if (xflags['b']) { // toggle address bar on/off
-		//			if (xmask['b'])
-		//				bEnabled = VARIANT_TRUE;
-		//			else
-		//				bEnabled = VARIANT_FALSE;
-		//			m_pWebBrowser2->put_AddressBar(bEnabled);
-		//		}
-		//		if (xflags['f']) { // fullscreen on/off
-		//			if (xmask['f'])
-		//				bEnabled = VARIANT_TRUE;
-		//			else
-		//				bEnabled = VARIANT_FALSE;
-		//			m_pWebBrowser2->put_FullScreen(bEnabled);
-		//		}
-		//		if (xflags['s']) // statusbar on/off
-		//			this->setStatusbarState(xmask['s']);
-		//
-		//		// only open url if one supplied.
-		//		if (!URL.empty())
-		//		{
-		//#if DCX_USE_WRAPPERS
-		//			const Dcx::dcxBSTRResource bstrUrl(URL.to_wchr());
-		//
-		//			m_pWebBrowser2->Navigate(bstrUrl.get(), &vFlags, &vEmpty, &vEmpty, &vEmpty);
-		//#else
-		//			auto bstrUrl = SysAllocString(URL.to_chr());
-		//			if (!bstrUrl)
-		//				throw Dcx::dcxException("Unable to Allocate Memory");
-		//			Auto(SysFreeString(bstrUrl));
-		//
-		//			m_pWebBrowser2->Navigate(bstrUrl, &vFlags, &vEmpty, &vEmpty, &vEmpty);
-		//#endif
-		//		}
-
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -449,29 +375,6 @@ void DcxWebControl::parseCommandRequest(const TString& input)
 	// [NAME] [ID] -n [URL]
 	else if (flags[TEXT('n')])
 	{
-		//		if (numtok < 4)
-		//			throw DcxExceptions::dcxInvalidArguments();
-		//
-		//		const auto URL(input.getlasttoks().trim());	// tok 4, -1
-		//
-		//#if DCX_USE_WRAPPERS
-		//		Dcx::dcxVariant v;
-		//		const Dcx::dcxBSTRResource bstrUrl(URL.to_wchr());
-		//
-		//		m_pWebBrowser2->Navigate(bstrUrl.get(), &v, &v, &v, &v);
-		//#else
-		//		VARIANT v;
-		//		VariantInit(&v);
-		//		Auto(VariantClear(&v));
-		//
-		//		auto bstrUrl = SysAllocString(URL.to_wchr());
-		//		if (!bstrUrl)
-		//			throw Dcx::dcxException("Unable to Allocate Memory");
-		//		Auto(SysFreeString(bstrUrl));
-		//
-		//		m_pWebBrowser2->Navigate(bstrUrl, &v, &v, &v, &v);
-		//#endif
-
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -1276,6 +1179,7 @@ void DcxWebControl::setURL(const TString& tsURL, const TString& tsFlags, const T
 		else
 			bEnabled = VARIANT_FALSE;
 		m_pWebBrowser2->put_AddressBar(bEnabled);
+		//m_pWebBrowser2->ShowBrowserBar();
 	}
 	if (xflags['f']) { // fullscreen on/off
 		if (xmask['f'])
