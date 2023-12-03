@@ -885,7 +885,7 @@ LRESULT DcxWebControl::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 {
 #if DCX_DEBUG_OUTPUT
 	//mIRCLinker::signalex(true,TEXT("webctrl debug %lu"), uMsg);
-	mIRCLinker::signal(TEXT("webctrl debug %"), uMsg);
+	//mIRCLinker::signal(TEXT("webctrl debug %"), uMsg);
 #endif
 	switch (uMsg)
 	{
@@ -1121,7 +1121,7 @@ TString DcxWebControl::CallScript(const TString& tsCmd) const
 
 TString DcxWebControl::getURL() const
 {
-	TString tsURL;
+	TString tsURL((UINT)MIRC_BUFFER_SIZE_CCH);
 	if (this->m_pWebBrowser2)
 	{
 		if (BSTR str = nullptr; SUCCEEDED(this->m_pWebBrowser2->get_LocationURL(&str)))
@@ -1174,7 +1174,7 @@ bool DcxWebControl::IsAddressbarEnabled() const
 
 TString DcxWebControl::getStatusText() const
 {
-	TString tsText;
+	TString tsText((UINT)MIRC_BUFFER_SIZE_CCH);
 	if (this->m_pWebBrowser2)
 	{
 		if (BSTR str = nullptr; SUCCEEDED(this->m_pWebBrowser2->get_StatusText(&str)))
