@@ -146,7 +146,6 @@ function get_xdialog_xdialog(&$XDIALOG) {
                                                 'updown' => "Creates an UpDown control.",
                                                 'webctrl' => "Creates a Web control.",
 						'&nbsp;' => '&nbsp;',
-                                                
                                                 'box' => "Creates a Box control.",
                                                 'check' => "Creates a Check control.",
                                                 'edit' => "Creates a Edit control.",
@@ -158,15 +157,14 @@ function get_xdialog_xdialog(&$XDIALOG) {
                                                 'scroll' => "Creates a Scroll control.",
                                                 'text' => "Creates a Text control.",
 						'&nbsp;&nbsp;' => '&nbsp;',
-                                                
                                                 'divider' => "Creates a Divider control.",
                                                 'pager' => "Creates a Pager control.",
                                                 'panel' => "Creates a Panel control.",
                                                 'rebar' => "Creates a Rebar control.",
                                                 'stacker' => 'Creates a Stacker control.',
                                                 'tab' => "Creates a Tab control.",
+                        'multicombo' => "Creates a custom comboex control.",
 						'&nbsp;&nbsp;&nbsp;' => '&nbsp;',
-                                                
                                                 'dialog' => "Docks a mIRC dialog. The first parameter in the [p](OPTIONS)[/p] must be the dialog name.",
 						'window' => "Docks a mIRC @window. The first parameter in the [p](OPTIONS)[/p] must be the @window name.",
 					),

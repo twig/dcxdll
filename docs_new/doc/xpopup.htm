@@ -308,14 +308,14 @@ ON *:SIGNAL:Xpopup-*: {
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
 			<a name="xpopup.i"></a>/xpopup -i	</td></tr>
-	<tr><td colspan="2">This command lets you add an icon to the menu image list.</td></tr>
+	<tr><td colspan="2">This command lets you add one or more icons to the menu image list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xpopup -i [MENU] [+FLAGS] [INDEX] [FILENAME]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpopup -i mymenu +g 113 shell32.dll</div></td>
+		<td><div class="example">/xpopup -i mymenu +g 113 shell32.dll<br />/xpopup -i mymenu + 1,13,20-26 shell32.dll<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -388,7 +388,7 @@ ON *:SIGNAL:Xpopup-*: {
 		<td class="example">Example:</td>
 		<td><div class="example">/xpopup -m mymenu</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>After patching, mIRC will crash if /dll -u is used.</li><li>This will only apply to mIRC menus, so use <a class="value">mirc</a> for <a class="param">MENU</a>.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>THIS ONLY WORKED ON MIRC v6.20, AND NO LONGER DOES ANYTHING AS THIS DLL IS MIRC V7+</li><li>After patching, mIRC will crash if /dll -u is used.</li><li>This will only apply to mIRC menus, so use <a class="value">mirc</a> for <a class="param">MENU</a>.</li></ul></td></tr></table>
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
@@ -1468,7 +1468,7 @@ The only difference is that you can load multiple icons by seperating the indexe
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 18th October, 23</td>
+		<td style="text-align: right;">Last Updated: 4th December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

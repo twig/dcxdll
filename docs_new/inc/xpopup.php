@@ -234,6 +234,7 @@ function get_xpopup(&$XPOPUP) {
         'm' => array(
             '__desc' => 'This command patches mIRC v6.20, allowing XPopup to work.',
             '__notes' => array(
+				'THIS ONLY WORKED ON MIRC v6.20, AND NO LONGER DOES ANYTHING AS THIS DLL IS MIRC V7+',
                 'After patching, mIRC will crash if /dll -u is used.',
                 'This will only apply to mIRC menus, so use [v]mirc[/v] for [p]MENU[/p].'
             ),

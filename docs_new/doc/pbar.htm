@@ -444,6 +444,233 @@
 	</tr>
 </table>
 <br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #CCACC7; color: #CCACC7;"><a name="ctrldcxml"></a>Generic &lt;dcxml&gt;</td></tr>
+	<tr><td>These generic dcxml tags are used to define all controls.</td></tr>
+</table>
+<table class="ctrldcxml">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="ctrldcxml.control"></a>&lt;control&gt;	</td></tr>
+	<tr><td colspan="2">The tag which defines a control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">&lt;control type="box"/&gt;</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">x</td>
+		<td>The X position within the controls parent to place it.</td>
+	</tr>
+	<tr>
+		<td class="param">y</td>
+		<td>The Y position within the controls parent to place it.</td>
+	</tr>
+	<tr>
+		<td class="param">width</td>
+		<td>The controls width.</td>
+	</tr>
+	<tr>
+		<td class="param">height</td>
+		<td>The controls height.</td>
+	</tr>
+	<tr>
+		<td class="param">id</td>
+		<td>The id to use for this control, can be either numeric or alphanumeric</td>
+	</tr>
+	<tr>
+		<td class="param">type</td>
+		<td>The type of control: <a href="box.htm">box</a>, <a href="button.htm">button</a>, <a href="calendar.htm">calendar</a>, <a href="colorcombo.htm">colorcombo</a>,
+<a href="comboex.htm">comboex</a>, <a href="datetime.htm">datetime</a>, <a href="directshow.htm">directshow</a>, <a href="ipaddress.htm">ipaddress</a>,  <a href="listview.htm">listview</a>,
+<a href="pbar.htm">pbar</a>, <a href="richedit.htm">richedit</a>, <a href="statusbar.htm">statusbar</a>, <a href="toolbar.htm">toolbar</a>, <a href="trackbar.htm">trackbar</a>,
+<a href="treeview.htm">treeview</a>, <a href="updown.htm">updown</a>, <a href="webctrl.htm">webctrl</a>, <a href="check.htm">check</a>, <a href="edit.htm">edit</a>, <a href="image.htm">image</a>,
+<a href="line.htm">line</a>, <a href="link.htm">link</a>, <a href="list.htm">list</a>, <a href="radio.htm">radio</a>, <a href="scroll.htm">scroll</a>, <a href="text.htm">text</a>,
+<a href="divider.htm">divider</a>, <a href="pager.htm">pager</a>, <a href="panel.htm">panel</a>, <a href="rebar.htm">rebar</a>, <a href="stacker.htm">stacker</a>, <a href="tab.htm">tab</a>,
+<a href="dialog.htm">dialog</a>, <a href="window.htm">window</a>, <a href="multicombo.htm">multicombo</a>.</td>
+	</tr>
+	<tr>
+		<td class="param">styles</td>
+		<td>The controls styles.</td>
+	</tr>
+	<tr>
+		<td class="param">weight</td>
+		<td>The weight to give this control when calculating the layout.</td>
+	</tr>
+	<tr>
+		<td class="param">class</td>
+		<td>The style class to use for this control.</td>
+	</tr>
+	<tr>
+		<td class="param">font</td>
+		<td>The font for the control. This is the combined font data in a single tag.</td>
+	</tr>
+	<tr>
+		<td class="param">fontsize</td>
+		<td>Sets the fontsize.</td>
+	</tr>
+	<tr>
+		<td class="param">fontstyle</td>
+		<td>Sets the font style.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Antialiased</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Bold</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Italic</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Strikeout</td>
+	</tr>
+	<tr>
+		<td class="value">u</td>
+		<td>Underline</td>
+	</tr>
+	<tr>
+		<td class="param">fontname</td>
+		<td>The name of the font to use.</td>
+	</tr>
+	<tr>
+		<td class="param">charset</td>
+		<td>The chatset to use.</td>
+	</tr>
+	<tr>
+		<td class="value">default</td>
+		<td>The default charset. Use this for Unicode.</td>
+	</tr>
+	<tr>
+		<td class="value">ansi</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">baltic</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">chinesebig</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">easteurope</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">gb2312</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">greek</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">hangul</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">mac</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">oem</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">russian</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">shiftjis</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">symbol</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">turkish</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">vietnamese</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">johab</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">hebrew</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">arabic</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">thai</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="param">bgcolour</td>
+		<td>The controls background colour.</td>
+	</tr>
+	<tr>
+		<td class="param">bordercolour</td>
+		<td>The controls border colour.</td>
+	</tr>
+	<tr>
+		<td class="param">textcolour</td>
+		<td>The controls text colour.</td>
+	</tr>
+	<tr>
+		<td class="param">textbgcolour</td>
+		<td>The controls text background colour.</td>
+	</tr>
+	<tr>
+		<td class="param">gradientstart</td>
+		<td>The control start colour for a gradient.</td>
+	</tr>
+	<tr>
+		<td class="param">gradientend</td>
+		<td>The controls end colour for a gradient.</td>
+	</tr>
+	<tr>
+		<td class="param">transparentbg</td>
+		<td>The controls transparent background colour.</td>
+	</tr>
+	<tr>
+		<td class="param">tooltiptextcolour</td>
+		<td>The controls tooltip text colour.</td>
+	</tr>
+	<tr>
+		<td class="param">tooltipbgcolour</td>
+		<td>The controls tooltip background colour.</td>
+	</tr>
+</table>
+<br />
+<table class="ctrldcxml">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="ctrldcxml.calltemplate"></a>&lt;calltemplate&gt;	</td></tr>
+	<tr><td colspan="2">Call a pre defined &lt;template&gt; to setup this control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">&lt;calltemplate name="[NAME OF TEMPLATE]"&gt;</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
+	</tr>
+</table>
+<br />
 </td><td width="80%" valign="top" class="menuright">
 <div class='rightmenu' style='border:1px solid #B49696'>
 	<a class='header' href="#style"><div style='background:#B49696;'>Control Styles</div></a>
@@ -490,7 +717,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 18th October, 23</td>
+		<td style="text-align: right;">Last Updated: 4th December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

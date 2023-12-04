@@ -823,6 +823,196 @@ alias setcursors {
 }
 </pre></td></tr></table></td></tr>
 </table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>WebBrowser</td></tr>
+	<tr><td><table><tr><td><strong>Command:</strong></td><td>/dcx_webbrowser</td></tr><tr><td><strong>Teaches:</strong></td><td>- Use of webctrl, tab, divider, treeview, cla<br /></td></tr><tr><td colspan='2'><strong>Script by Ook</strong></td></tr><tr><td colspan='2'><pre class="code">menu status,menubar {
+  DCX
+  .Scripts
+  ..WebBrowser: dcx_webbrowser
+}
+
+alias dcx_webbrowser {
+  if ($dialog(dcx_webbrowser)) dialog -x dcx_webbrowser
+  else dialog -m dcx_webbrowser dcx_webbrowser
+}
+dialog dcx_webbrowser {
+  title "DCX Tabbed WebBrowser"
+  icon $mircexe,0
+  option pixels
+  size -1 -1 500 400
+}
+alias dcx_webbrowser_postinit {
+  xdialog -l $1 update
+  xdialog -j $1
+}
+; $1 = dname, $2 = tab id, $3- = url
+alias dcx_webbrowser_newurl {
+  var %id = $2, %url = $3-, %edit_id = $+(%id,_edit), %web_id = $+(%id,_web)
+
+  xdid -ra $1 %edit_id %url
+  xdid -m $1 %web_id + + %url
+}
+; $1 = dname
+alias dcx_webbrowser_positionaddbutton {
+  var %pos = $xdid($1,5).pos, %tabsrect = $xdid($1,4).tabsrect
+  xdid -p $1 5 $gettok(%tabsrect,3,32) $gettok(%pos,2-,32)
+}
+; $1 = dname, $2- = tabnum
+alias dcx_webbrowser_remtab {
+  if ($xdid($1,4).num &lt; 2) return
+  xdid -d $1 4 $2
+  dcx_webbrowser_positionaddbutton $1
+}
+; $1 = dname, $2- = url if any
+alias dcx_webbrowser_addtab {
+  inc %dcx_browser_tabcnt
+  var %id = $+(Tab,%dcx_browser_tabcnt), %url = $iif($2 != $null,$2,about:blank)
+  var %edit_id = $+(%id,_edit), %web_id = $+(%id,_web), %back_id = $+(%id,_back), %forward_id = $+(%id,_forward), %refresh_id = $+(%id,_refresh), %home_id = $+(%id,_home)
+
+  xdid -a $1 4 0 1 Tab %dcx_browser_tabcnt $chr(9) %id panel 0 0 400 300 notheme $chr(9) %url
+  xdid -c $1 %id %back_id button 0 0 0 0 noformat
+  xdid -t $1 %back_id Back
+  xdid -c $1 %id %forward_id button 0 0 0 0 noformat
+  xdid -t $1 %forward_id Forward
+  xdid -c $1 %id %refresh_id button 0 0 0 0 noformat
+  xdid -t $1 %refresh_id Refresh
+  xdid -c $1 %id %home_id button 0 0 0 0 noformat
+  xdid -t $1 %home_id Home
+
+  xdid -c $1 %id %edit_id edit 0 0 0 0 autohs
+  xdid -c $1 %id %web_id webctrl 0 0 0 0
+
+  xdid -l $1 %id root $chr(9) +pv 0 1 0 0
+  xdid -l $1 %id space root $chr(9) + 0 0 0 0
+  xdid -l $1 %id cell root $chr(9) +ph 0 0 0 0
+  xdid -l $1 %id cell 1 $chr(9) +fiwvh %back_id 1 20 20
+  xdid -l $1 %id cell 1 $chr(9) +fiwvh %forward_id 1 20 20
+  xdid -l $1 %id cell 1 $chr(9) +fiwvh %refresh_id 1 20 20
+  xdid -l $1 %id cell 1 $chr(9) +fiwvh %home_id 1 20 20
+  xdid -l $1 %id cell 1 $chr(9) +fiwv %edit_id 1 0 20
+  xdid -l $1 %id cell root $chr(9) +li %web_id 10 0 0
+
+  dcx_webbrowser_positionaddbutton $1
+
+  dcx_webbrowser_newurl $1 %id %url
+}
+on *:DIALOG:dcx_webbrowser:init:0:{
+  set %dcx_browser_tabcnt 0
+
+  dcx Mark $dname dcx_webbrowser_work
+  xdialog -b $dname +tyz
+  xdialog -g $dname +b $rgb(100,10,17)
+  xdialog -T $dname +pb
+
+  xdialog -c $dname 1 divider 20 20 460 360 notheme vertical transparen
+  xdid -x $dname 1 +
+  ;xdid -v $dname 1 30
+  xdid -W $dname 1 3
+  xdid -Q $dname 1 $rgb(20,20,25) $rgb(255,150,0)
+  xdid -C $dname 1 +b $rgb(0,255,0)
+
+  xdid -l $dname 1 50 0 $chr(9) 2 treeview 0 0 0 0 notheme
+  xdid -r $dname 1 100 0 $chr(9) 3 panel 0 0 0 0 notheme transparen
+  xdid -C $dname 3 +b $rgb(255,25,25)
+
+  xdid -c $dname 3 4 tab 0 0 0 0 notheme closable gradient tooltips tabstop shadow hottrack transparent
+  xdid -C $dname 4 +bk $rgb(0,233,192)
+  xdid -C $dname 4 +t $rgb(0,255,0)
+
+  xdid -J $dname 3,4 +r arrow
+
+  xdid -c $dname 3 5 button 10 0 30 20 transparent noformat bitmap
+  xdid -t $dname 5 +
+  xdid -c $dname 5 +h $rgb(0,255,0)
+  xdid -m $dname 5 1
+
+  xdialog -c $dname 24 statusbar 0 0 0 20 tooltips
+  xdid -l $dname 24 40% -1
+  xdid -w $dname 24 + 0 $mircdirCanada.ico
+  xdid -t $dname 24 1 +c 0 25 pbar 0 0 100 20 tooltips gradient transparent shadow noformat
+  xdid -c $dname 25 16776960
+  xdid -v $dname 25 50
+  xdid -T $dname 25 ProgressBar ToolTip!
+  xdid -t $dname 24 2 +f 1 4red text $+($chr(226),$chr(152),$chr(186)) $chr(9) tooltip text
+
+  xdid -l $dname 3 root $chr(9) +pv 0 1 0 0
+  xdid -l $dname 3 space root $chr(9) + 0 0 0 0
+  xdid -l $dname 3 cell root $chr(9) +li 4 1 0 0
+
+  xdialog -l $dname root $chr(9) +pv 0 1 0 0
+  xdialog -l $dname space root $chr(9) + 5 5 5 22
+  xdialog -l $dname cell root $chr(9) +li 1 1 0 0
+
+  var %url = http://www.google.co.uk/
+  xdid -a $dname 2 $tab(-1,+ec 1 2 1 1 0 $rgb(0,0,255) 0 %url, %url)
+  var %url = http://www.youtube.com/
+  xdid -a $dname 2 $tab(-1,+ec 1 2 1 1 0 $rgb(0,0,255) 0 %url, %url)
+
+  dcx_webbrowser_addtab $dname
+
+  .timer 1 0 dcx_webbrowser_postinit $dname
+}
+alias dcx_webbrowser_work {
+  !if ($2 == error) echo -s DCXError: $1 ID: $3 Type: $4 Prop: $5 Cmd: $6 Error: $7-
+  !else echo -s dname: $1 :event: $2 :id: $3 :args: $4-
+
+  if ($2 == sclick) {
+    if ($3 == 2) {
+      ; treeview control
+      if ($4- != $null) echo -s treeview item path: $v1 treeview item text: $xdid($1,$3,$4-).text
+    }
+    elseif ($3 == 5) dcx_webbrowser_addtab $1
+    else {
+      var %id = $xdialog($1,$3).namedid
+      if (Tab*_back iswm %id) xdid -k $1 $+($gettok(%id,1,95),_web)
+      elseif (Tab*_forward iswm %id) xdid -i $1 $+($gettok(%id,1,95),_web)
+      elseif (Tab*_refresh iswm %id) xdid -r $1 $+($gettok(%id,1,95),_web)
+      elseif (Tab*_home iswm %id) xdid -g $1 $+($gettok(%id,1,95),_web)
+    }
+  }
+  elseif ($2 == dclick) {
+    if ($3 == 2) {
+      ; treeview control
+      if ($4- != $null) {
+        ;echo -s treeview item path: $v1 treeview item text: $xdid($1,$3,$4-).text
+        var %url = $xdid($1,$3,$4-).text
+        if (%url != $null) {
+          var %id = $xdialog($1,$xdid($1,4,$xdid($1,4).sel).childid).namedid
+          dcx_webbrowser_newurl $1 %id %url
+        }
+      }
+    }
+  }
+  elseif ($2 == closetab) dcx_webbrowser_remtab $1 $4
+  elseif ($2 == title) {
+    var %id = $gettok($xdialog($1,$3).namedid,1,95), %cnt = 1, %total = $xdid($1,4).num
+    while (%cnt &lt; %total) {
+      if (%id == $xdialog($1,$xdid($1,4,%cnt).childid).namedid) break
+      inc %cnt
+    }
+    xdid -t $1 4 %cnt $left($4-,40) $+ ...
+    dcx_webbrowser_positionaddbutton $1
+  }
+  elseif ($2 == endsize) {
+    .timer 1 0 dcx_webbrowser_positionaddbutton $1
+  }
+  elseif ($2 == scroll) {
+    if ($3 == 4) .timer 1 0 dcx_webbrowser_positionaddbutton $1
+  }
+  elseif ($2 == dleave) xdid -t $1 24 2 + 1 - $chr(9) -
+  elseif ($2 == status) xdid -t $1 24 2 + 1 $4- $chr(9) $4-
+  elseif ($2 == doc_complete) xdid -t $1 24 2 + 1 Done $chr(9) tooltip text
+  elseif ($2 == nav_begin) xdid -t $1 24 2 + 1 Downloading... $chr(9) $4-
+  elseif (($2 == keyup) &amp;&amp; ($4 == 13)) {
+    var %id = $xdialog($1,$3).namedid
+    if (Tab*_edit iswm %id) {
+      var %url = $xdid($1,%id).text
+      if (%url != $null) dcx_webbrowser_newurl $1 $gettok(%id,1,95) %url
+    }
+  }
+}
+</pre></td></tr></table></td></tr>
+</table>
 </td>  </tr>
 </table>
 
@@ -830,7 +1020,7 @@ alias setcursors {
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 18th October, 23</td>
+		<td style="text-align: right;">Last Updated: 4th December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

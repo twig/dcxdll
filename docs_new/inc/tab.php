@@ -14,7 +14,7 @@ function get_styles_tab(&$STYLES) {
 		'fixedwidth' => 'All tabs are the same width.',
 		'buttons' => 'The tabs appear as buttons like a toolbar.',
 		'flat' => 'The tab buttons appear flat. (Only with buttons)',
-		'hot' => 'The tab item under the mouse is highlighted (may not work on some systems).',
+		'hottrack' => 'The tab item under the mouse is highlighted (may not work on some systems).',
 		'multiline' => 'The tabs aline themselves on multiple rows (default is single row).',
 		'rightjustify' => 'The width of each tab is increased so the tab fills the entire width of the row (Only with multi).',
 		'scrollopposite' => 'Unneeded tabs scroll to the opposite side of the control when a tab is selected.',

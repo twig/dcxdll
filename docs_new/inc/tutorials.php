@@ -149,6 +149,13 @@ function get_examples(&$EXAMPLES) {
 				'Use of /dcx SetmIRCCursors',
 			),
 		),
+		'WebBrowser' => array(
+			'__author' => 'Ook',
+			'__cmd' => 'dcx_webbrowser',
+			'__teaches' => array(
+				'Use of webctrl, tab, divider, treeview, cla',
+			),
+		),
 	);
 }
 ?>

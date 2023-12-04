@@ -116,7 +116,8 @@ function get_xdid_toolbar(&$XDID) {
 			),
 			'__notes' => array(
 			    "This command can also be used to clear the images lists.",
-				"This command must be issued before adding icons to the toolbar image lists."
+				"This command must be issued before adding icons to the toolbar image lists.",
+				"If used after images have been added, you must add the images again.",
 			),
 		),
 		'm' => array(
@@ -161,6 +162,7 @@ function get_xdid_toolbar(&$XDID) {
 	        '__desc' => 'This command lets change the toolbar default button size.',
 	        '__cmd' => '[WIDTH] [HEIGHT]',
 	        '__eg' => '20 15',
+	        '__notes' => 'If a button has been added with the +a flag this command will not change the width.'
 		),
 		'v' => array(
 	        '__desc' => 'This command lets you change the Nth button text (text is optional).',
