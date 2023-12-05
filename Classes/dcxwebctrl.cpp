@@ -289,12 +289,15 @@ void DcxWebControl::parseInfoRequest(const TString& input, const refString<TCHAR
 	// [NAME] [ID] [PROP]
 	case L"ready"_hash:
 	{
-		if (READYSTATE ready_state{}; SUCCEEDED(this->m_pWebBrowser2->get_ReadyState(&ready_state)))
+		if (this->m_pWebBrowser2)
 		{
-			if (ready_state == READYSTATE_COMPLETE)
+			if (READYSTATE ready_state{}; SUCCEEDED(this->m_pWebBrowser2->get_ReadyState(&ready_state)))
 			{
-				szReturnValue = TEXT("$true");
-				return;
+				if (ready_state == READYSTATE_COMPLETE)
+				{
+					szReturnValue = TEXT("$true");
+					return;
+				}
 			}
 		}
 		szReturnValue = TEXT("$false");
@@ -422,117 +425,6 @@ HRESULT DcxWebControl::Invoke(DISPID dispIdMember,
 	Auto(VariantClear(&arg2));
 #endif
 
-	//if (SUCCEEDED(DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err)) && SUCCEEDED(DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err)))
-	//{
-	//	switch (dispIdMember) {
-	//	case DISPID_NAVIGATECOMPLETE2:
-	//	{
-	//									 if (!this->m_bHideEvents)
-	//											 this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("nav_complete"), this->getUserID(), arg2.bstrVal);
-	//	}
-	//		break;
-	//
-	//	case DISPID_BEFORENAVIGATE2:
-	//	{
-	//								   if (!this->m_bHideEvents)
-	//								   {
-	//										   TCHAR ret[256];
-	//										   this->evalAliasEx(ret, 255, TEXT("%s,%d,%ws"), TEXT("nav_begin"), this->getUserID(), arg2.bstrVal);
-	//
-	//										   if (lstrcmpi(ret, TEXT("cancel")) == 0)
-	//											   *pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
-	//										   else
-	//											   *pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
-	//								   }
-	//	}
-	//		break;
-	//
-	//	case DISPID_DOCUMENTCOMPLETE:
-	//	{
-	//									if (!this->m_bHideEvents)
-	//									{
-	//											this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("doc_complete"), this->getUserID(), arg2.bstrVal);
-	//									}
-	//									else
-	//										this->m_bHideEvents = false; // allow events to be seen after first doc loads `about:blank`
-	//	}
-	//		break;
-	//
-	//	case DISPID_DOWNLOADBEGIN:
-	//	{
-	//								 if (!this->m_bHideEvents)
-	//									 this->execAliasEx(TEXT("%s,%d"), TEXT("dl_begin"), this->getUserID());
-	//	}
-	//		break;
-	//
-	//	case DISPID_DOWNLOADCOMPLETE:
-	//	{
-	//									if (!this->m_bHideEvents)
-	//										this->execAliasEx(TEXT("%s,%d"), TEXT("dl_complete"), this->getUserID());
-	//	}
-	//		break;
-	//
-	//	case DISPID_NEWWINDOW2:
-	//	{
-	//							  if (!this->m_bHideEvents)
-	//							  {
-	//								  TCHAR ret[256];
-	//								  this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("win_open"), this->getUserID());
-	//
-	//								  if (lstrcmpi(ret, TEXT("cancel")) == 0)
-	//									  *pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
-	//								  else
-	//									  *pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
-	//							  }
-	//	}
-	//		break;
-	//
-	//	case DISPID_STATUSTEXTCHANGE:
-	//	{
-	//									if (!this->m_bHideEvents)
-	//										this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("status"), this->getUserID(), arg1.bstrVal);
-	//	}
-	//		break;
-	//
-	//	case DISPID_TITLECHANGE:
-	//	{
-	//							   if (!this->m_bHideEvents)
-	//								   this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("title"), this->getUserID(), arg1.bstrVal);
-	//	}
-	//		break;
-	//
-	//	case DISPID_PROGRESSCHANGE:
-	//	{
-	//								  if (!this->m_bHideEvents)
-	//									  this->execAliasEx(TEXT("%s,%d,%ws,%ws"), TEXT("dl_progress"), this->getUserID(), arg1.bstrVal, arg2.bstrVal);
-	//	}
-	//		break;
-	//
-	//	case DISPID_COMMANDSTATECHANGE:
-	//	{
-	//									  if (!this->m_bHideEvents)
-	//									  {
-	//										  switch (arg1.bstrVal[0]) {
-	//										  case L'1':
-	//											  this->execAliasEx(TEXT("%s,%d,%s"), TEXT("forward"), this->getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
-	//											  break;
-	//
-	//										  case L'2':
-	//											  this->execAliasEx(TEXT("%s,%d,%s"), TEXT("back"), this->getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
-	//											  break;
-	//										  }
-	//									  }
-	//	}
-	//		break;
-	//	}
-	//	VariantClear(&arg1);
-	//	VariantClear(&arg2);
-	//}
-	//else
-	//	showErrorEx(nullptr, TEXT("DcxWebControl::Invoke()"), TEXT("Unable to get object state: %ld"), err);
-//
-	//return S_OK;
-
 	HRESULT hRes = S_OK;
 
 	try {
@@ -555,14 +447,6 @@ HRESULT DcxWebControl::Invoke(DISPID dispIdMember,
 				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
 				if (FAILED(hRes))
 					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_BEFORENAVIGATE2) -> Unable to get Params: %"), err);
-
-				//TCHAR ret[256];
-				//evalAliasEx(ret, Dcx::countof(ret), TEXT("nav_begin,%u,%ws"), getUserID(), arg2.bstrVal);
-				//
-				//if (lstrcmpi(ret, TEXT("cancel")) == 0)
-				//	*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
-				//else
-				//	*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
 
 				const stString<256> sRet;
 				evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("nav_begin,%u,%ws"), getUserID(), arg2.bstrVal);
@@ -594,14 +478,6 @@ HRESULT DcxWebControl::Invoke(DISPID dispIdMember,
 
 			case DISPID_NEWWINDOW2:
 			{
-				//TCHAR ret[256];
-				//evalAliasEx(ret, Dcx::countof(ret), TEXT("win_open,%u"), getUserID());
-				//
-				//if (lstrcmpi(ret, TEXT("cancel")) == 0)
-				//	*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
-				//else
-				//	*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
-
 				const stString<256> sRet;
 				evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("win_open,%u"), getUserID());
 
@@ -699,6 +575,9 @@ HRESULT DcxWebControl::Invoke(DISPID dispIdMember,
 
 HRESULT STDMETHODCALLTYPE DcxWebControl::QueryInterface(REFIID riid, void __RPC_FAR* __RPC_FAR* ppvObject) noexcept
 {
+	if (!ppvObject)
+		return E_FAIL;
+
 	*ppvObject = nullptr;
 
 	if (IID_IUnknown == riid)
@@ -763,6 +642,9 @@ void DcxWebControl::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThi
 
 HRESULT STDMETHODCALLTYPE DcxWebControl::GetWindowContext(IOleInPlaceFrame __RPC_FAR* __RPC_FAR* ppFrame, IOleInPlaceUIWindow __RPC_FAR* __RPC_FAR* ppDoc, LPRECT pPR, LPRECT pCR, LPOLEINPLACEFRAMEINFO pFI) noexcept
 {
+	if (!ppFrame || !ppDoc || !pPR || !pCR || !m_Hwnd)
+		return E_FAIL;
+
 	*ppFrame = nullptr;
 	*ppDoc = nullptr;
 
@@ -881,6 +763,9 @@ LRESULT DcxWebControl::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 TString DcxWebControl::CallScript(const TString& tsCmd) const
 {
+	if (!m_pWebBrowser2)
+		throw Dcx::dcxException("Browser NOT Loaded");
+
 	if (READYSTATE ready_state{ READYSTATE_UNINITIALIZED }; FAILED(m_pWebBrowser2->get_ReadyState(&ready_state)) || ready_state != READYSTATE_COMPLETE)
 		throw Dcx::dcxException("Browser NOT in Ready State");
 
@@ -896,34 +781,6 @@ TString DcxWebControl::CallScript(const TString& tsCmd) const
 		if (SUCCEEDED(htmlDisp->QueryInterface(IID_IHTMLDocument2, (void**)&doc)))
 		{
 			Auto(SafeReleaseCom(&doc));
-
-			//			IHTMLWindow2 * window = nullptr;
-			//
-			//			if (SUCCEEDED(doc->get_parentWindow(&window)))
-			//			{
-			//				Auto(window->Release());
-			//
-			//				//VARIANT v;
-			//				//VariantInit(&v);
-			//				//Auto(VariantClear(&v));
-			//
-			//				Dcx::dcxVariant v;
-			//
-			//#if DCX_USE_WRAPPERS
-			//				const Dcx::dcxBSTRResource strCMD(tsCmd.to_wchr());
-			//
-			//				window->execScript(strCMD, nullptr, &v);	// this works well, but is deprecated in latest IE's?
-			//#else
-			//				auto strCMD = SysAllocString(CMD.to_chr());
-			//				if (strCMD != nullptr)
-			//				{
-			//					Auto(SysFreeString(strCMD));
-			//
-			//					window->execScript(strCMD, nullptr, &v);
-			//				}
-			//#endif
-			//			}
-
 
 #if DCX_USE_WRAPPERS
 			IDispatch* idisp{};
@@ -1029,7 +886,7 @@ TString DcxWebControl::getURL() const
 	{
 		if (BSTR str = nullptr; SUCCEEDED(this->m_pWebBrowser2->get_LocationURL(&str)))
 		{
-			_ts_snprintf(tsURL, TEXT("%ws"), str); // possible overflow, needs fixing at some point.
+			_ts_snprintf(tsURL, TEXT("%ws"), str); // possible overflow, needs fixing at some point. Wont overflow as _ts_snprintf() will limit it.
 			SysFreeString(str);
 		}
 	}
@@ -1082,7 +939,7 @@ TString DcxWebControl::getStatusText() const
 	{
 		if (BSTR str = nullptr; SUCCEEDED(this->m_pWebBrowser2->get_StatusText(&str)))
 		{
-			_ts_snprintf(tsText, TEXT("%ws"), str); // possible overflow, needs fixing at some point.
+			_ts_snprintf(tsText, TEXT("%ws"), str); // possible overflow, needs fixing at some point. Wont overflow as _ts_snprintf() will limit it.
 			SysFreeString(str);
 		}
 	}
