@@ -411,6 +411,65 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.E"></a>/xdid -E	</td></tr>
+	<tr><td colspan="2">This command lets you enable/disable callback events.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -E [DNAME] [ID] [+FLAGS] [-FLAGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -E dcx 4 +c -d</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">FLAGS</td>
+		<td>Flags for events.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Click events (eg. sclick, dclick, rclick, ...).</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Drag events (eg. dragbegin, ect..).</td>
+	</tr>
+	<tr>
+		<td class="value">e</td>
+		<td>Edit events (eg. edit, keydown, keyup, ...).</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Focus events (eg. focus and focusout).</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Help event.</td>
+	</tr>
+	<tr>
+		<td class="value">m</td>
+		<td>Mouse events (eg. mouseleave, mouseenter, mouse, ...).</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Sizing events (eg. sizing, min, max, ...).</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Theme event (eg. themechanged).</td>
+	</tr>
+	<tr>
+		<td class="value">C</td>
+		<td>Close event.</td>
+	</tr>
+	<tr>
+		<td class="value">M</td>
+		<td>Move events (eg. beginmove, endmove, ...).</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>The first parameter <a class="param">+FLAGS</a> allows the you to specify which events should be enabled. The second flag parameter specifies which events to disable.</li><li>If you use the same event flag to <a class="value">+</a> and <a class="value">-</a> flags then the events is disabled.</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.big.F"></a>/xdid -F	</td></tr>
 	<tr><td colspan="2">This command lets you set the focus on the control.</td></tr>
 	<tr>
@@ -1276,6 +1335,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 		<a class='flag' href="#xdid.s"><div>-s</div></a>
 		<a class='flag' href="#xdid.x"><div>-x</div></a>
 		<a class='flag' href="#xdid.big.C"><div>-C</div></a>
+		<a class='flag' href="#xdid.big.E"><div>-E</div></a>
 		<a class='flag' href="#xdid.big.F"><div>-F</div></a>
 		<a class='flag' href="#xdid.big.J"><div>-J</div></a>
 		<a class='flag' href="#xdid.big.M"><div>-M</div></a>
@@ -1321,7 +1381,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 4th December, 23</td>
+		<td style="text-align: right;">Last Updated: 5th December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

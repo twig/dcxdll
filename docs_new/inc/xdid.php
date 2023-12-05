@@ -30,6 +30,32 @@ function get_xdid_xdid(&$XDID) {
 		"e" => array(
 			'__desc' => "This command lets you enable the control.",
 		),
+		"E" => array(
+			'__desc' => "This command lets you enable/disable callback events.",
+			'__cmd' => "[+FLAGS] [-FLAGS]",
+			'__eg' => "+c -d",
+			'__params' => array(
+				'FLAGS' => array(
+					'__desc' => "Flags for events.",
+					'__values' => array(
+						'c' => "Click events (eg. sclick, dclick, rclick, ...).",
+						'd' => "Drag events (eg. dragbegin, ect..).",
+						'e' => "Edit events (eg. edit, keydown, keyup, ...).",
+						'f' => "Focus events (eg. focus and focusout).",
+						'h' => "Help event.",
+						'm' => "Mouse events (eg. mouseleave, mouseenter, mouse, ...).",
+						's' => "Sizing events (eg. sizing, min, max, ...).",
+						't' => "Theme event (eg. themechanged).",
+						'C' => "Close event.",
+						'M' => "Move events (eg. beginmove, endmove, ...).",
+					),
+				),
+			),
+			'__notes' => array(
+				"The first parameter [p]+FLAGS[/p] allows the you to specify which events should be enabled. The second flag parameter specifies which events to disable.",
+				"If you use the same event flag to [v]+[/v] and [v]-[/v] flags then the events is disabled.",
+			),
+		),
 		"f" => array(
 			'__desc' => "This command lets you change a control font.",
 			'__cmd' => "[+FLAGS] [CHARSET] [SIZE] [FONTNAME]",
