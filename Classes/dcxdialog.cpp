@@ -439,28 +439,6 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -b [NAME] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('b')] && numtok > 2)
 	{
-		//removeStyle(WindowStyle::Border | WS_DLGFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_SIZEBOX | WS_CAPTION);
-		//
-		//removeExStyle(WindowExStyle::ClientEdge | WS_EX_DLGMODALFRAME | WS_EX_CONTEXTHELP | WS_EX_TOOLWINDOW | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED | WS_EX_LAYERED);
-		//
-		//RemoveVistaStyle();
-		//
-		//const auto tsStyles(input.getnexttok());	// tok 3
-		//
-		//const auto [Styles, ExStyles] = parseBorderStyles(tsStyles);
-		//
-		//addStyle(Styles);
-		//addExStyle(ExStyles);
-		//
-		//if (tsStyles.find(TEXT('v'), 0))
-		//{
-		//	// Vista Style Dialog
-		//	CreateVistaStyle();
-		//}
-		//SetWindowPos(m_Hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-		//InvalidateRect(m_Hwnd, nullptr, TRUE);
-		//SendMessage(m_Hwnd, WM_NCPAINT, 1U, 0);
-
 		setBorderStyles(input.getnexttok());
 	}
 	// xdialog -c [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
@@ -613,30 +591,6 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -q [NAME] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
 	else if (flags[TEXT('q')] && numtok > 3)
 	{
-		//// get cursors flags (either +f or +r atm)
-		//const auto tsFlags(input.getnexttok());	// tok 3
-		//const auto iFlags = parseCursorFlags(tsFlags);
-		//// filename is the resource name if +r
-		//// otherwise its the filename if +f
-		//auto filename(input.getlasttoks());
-		//// get resource cursor type, will be a nullptr if filename is a file
-		//// NB: if a filename is the same as a resource name then this will return the resource, but the file will be loaded.
-		//const auto CursorType = parseCursorType(filename);
-		//
-		//if (const auto CursorArea = parseCursorArea(tsFlags); CursorArea > 0)
-		//{
-		//	gsl::at(m_hCursorList, CursorArea).src = filename;
-		//	gsl::at(m_hCursorList, CursorArea).flags = tsFlags;
-		//
-		//	GSL_SUPPRESS(bounds.3) gsl::at(m_hCursorList, CursorArea).cursor = Dcx::dcxLoadCursor(iFlags, CursorType, gsl::at(m_hCursorList, CursorArea).enabled, gsl::at(m_hCursorList, CursorArea).cursor, filename);
-		//}
-		//else {
-		//	m_hCursor.src = filename;
-		//	m_hCursor.flags = tsFlags;
-		//
-		//	m_hCursor.cursor = Dcx::dcxLoadCursor(iFlags, CursorType, m_hCursor.enabled, m_hCursor.cursor, filename);
-		//}
-
 		// get cursors flags (either +f or +r atm)
 		const auto tsFlags(input.getnexttok());	// tok 3
 		// filename is the resource name if +r
@@ -650,43 +604,10 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	{
 		if (getRefCount() == 0)
 		{
-			//DestroyWindow(m_Hwnd);
-			//SendMessage(m_Hwnd,WM_CLOSE,0,0); // this allows the dialogs WndProc to EndDialog() if needed.
-
-			//TCHAR sRet[32];
-			//mIRCLinker::evalex(sRet, Dcx::countof(sRet), TEXT("$dialog(%s).modal"), this->m_tsName.to_chr());
-			//if (ts_strcmp(sRet, TEXT("$true")) == 0) // Modal Dialog
-			//	SendMessage(m_Hwnd, WM_CLOSE, 0, 0); // this allows the dialogs WndProc to EndDialog() if needed.
-			//else // Modeless Dialog
-			//	DestroyWindow(m_Hwnd);
-
-			//stString<32> sRet;
-			//mIRCLinker::evalex(sRet, sRet.size(), TEXT("$dialog(%s).modal"), m_tsName.to_chr());
-			//if (sRet == TEXT("$true")) // Modal Dialog
-			//	SendMessage(m_Hwnd, WM_CLOSE, 0, 0); // this allows the dialogs WndProc to EndDialog() if needed.
-			//else // Modeless Dialog
-			//	DestroyWindow(m_Hwnd);
-
-			//if (mIRCLinker::evalex(nullptr, 0, TEXT("$dialog(%s).modal"), m_tsName.to_chr())) // Modal Dialog
-			//	SendMessage(m_Hwnd, WM_CLOSE, 0, 0); // this allows the dialogs WndProc to EndDialog() if needed.
-			//else // Modeless Dialog
-			//	DestroyWindow(m_Hwnd);
-
-			//if (mIRCLinker::eval(nullptr, TEXT("$dialog(%).modal"), m_tsName)) // Modal Dialog
-			//	SendMessage(m_Hwnd, WM_CLOSE, 0, 0); // this allows the dialogs WndProc to EndDialog() if needed.
-			//else // Modeless Dialog
-			//	DestroyWindow(m_Hwnd);
-
 			if (mIRCLinker::o_eval<TString>(TEXT("$dialog(%).modal"), m_tsName).has_value()) // Modal Dialog
 				SendMessage(m_Hwnd, WM_CLOSE, 0, 0); // this allows the dialogs WndProc to EndDialog() if needed.
 			else // Modeless Dialog
 				DestroyWindow(m_Hwnd);
-
-			//GetLastActivePopup(GetParent(m_Hwnd));
-			//if (!IsWindowEnabled(GetParent(m_Hwnd)))	// detect if dialog is modal, better than doing an eval?
-			//	SendMessage(m_Hwnd, WM_CLOSE, 0, 0); // this allows the dialogs WndProc to EndDialog() if needed.
-			//else // Modeless Dialog
-			//	DestroyWindow(m_Hwnd);
 		}
 		else
 			//mIRCLinker::execex(TEXT("/.timer -m 1 0 xdialog -x %s"), this->getName().to_chr());
@@ -979,28 +900,6 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -T [NAME] [SWITCH] [FLAGS] [STYLES]
 	else if (flags[TEXT('T')] && numtok > 2)
 	{
-		//if (IsWindow(getToolTipHWND()))
-		//	throw Dcx::dcxException("Tooltip already exists. Cannot recreate");
-		//
-		//const auto styles = parseTooltipFlags(input.getnexttok());	// tok 3
-		//
-		//// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/tooltip/styles.asp
-		//setToolTipHWND(CreateWindowEx(WS_EX_TOPMOST,
-		//	TOOLTIPS_CLASS, nullptr,
-		//	styles,
-		//	CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-		//	m_Hwnd,
-		//	nullptr, GetModuleHandle(nullptr), nullptr));
-		//
-		//if (this->getToolTipHWND() && IsWindow(this->getToolTipHWND()))
-		//{ // MUST set a limit before $crlf will give multiline tips.
-		//	SendMessage(this->getToolTipHWND(), TTM_SETMAXTIPWIDTH, 0, 400); // 400 seems a good limit for now, we could also add an option to set this.
-		//	//if (input.gettok( 3 ).find(TEXT('T'),0)) {
-		//	//	AddStyles(this->m_ToolTipHWND,GWL_EXSTYLE,WS_EX_LAYERED);
-		//	//	SetLayeredWindowAttributesUx(this->m_ToolTipHWND, 0, 192, LWA_ALPHA);
-		//	//}
-		//}
-
 		this->createTooltip(input.getnexttok());
 	}
 	// xdialog -w [NAME] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
@@ -1017,127 +916,6 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	{
 		const XSwitchFlags xflag(input.getnexttok());	// tok 3
 		const auto tsID(input.getnexttok());
-
-		//auto n = tsID.to_int();
-		//// invalid input for [N]
-		//if ((n <= 0) || (!xflag[TEXT('+')]))
-		//	throw DcxExceptions::dcxInvalidArguments();
-		// adding control ID to list
-//		if (xflag[TEXT('a')])
-//		{
-//			// add mIRC offset since getControlByID() needs it
-//			n += mIRC_ID_OFFSET;
-//
-//			// check if the ID is already in the list
-//			if (Dcx::find(m_vZLayers, n))
-//				throw Dcx::dcxException(TEXT("control % already in list"), n);
-//
-//			// if the specified control exists on the dialog, hide it
-//			if (const auto* const ctrl = getControlByID(gsl::narrow_cast<UINT>(n)); ctrl)
-//			{
-//				ShowWindow(ctrl->getHwnd(), SW_HIDE);
-//
-//				RECT rc{};
-//				if (!GetClientRect(getHwnd(), &rc))
-//					throw Dcx::dcxException("Unable to get client rect!");
-//
-//				if (updateLayout(rc))
-//					redrawWindow();
-//			}
-//
-//			// append the item to the end of the list
-//			m_vZLayers.push_back(n);
-//		}
-//		// position to match CID [CID]
-//		else if (xflag[TEXT('p')])
-//		{
-//			// add mIRC offset since getControlByID() needs it
-//			n += mIRC_ID_OFFSET;
-//
-//			// get the control which will be used to retrieve the target position
-//			auto ctrl = getControlByID(gsl::narrow_cast<UINT>(n));
-//
-//			// target control not found
-//			if (ctrl == nullptr)
-//				throw Dcx::dcxException("No such control");
-//
-//#if DCX_USE_WRAPPERS
-//			// variables used to move control
-//			const Dcx::dcxWindowRect r(ctrl->getHwnd(), GetParent(ctrl->getHwnd()));
-//
-//			// for each control in the internal list
-//			for (const auto& x : m_vZLayers)
-//			{
-//				// ignore target control
-//				if (x != n)
-//				{
-//					// get control to be moved
-//					ctrl = getControlByID(gsl::narrow_cast<UINT>(x));
-//
-//					// if it exists, move it
-//					if (ctrl)
-//						MoveWindow(ctrl->getHwnd(), r.left, r.top, r.Width(), r.Height(), FALSE);
-//				}
-//			}
-//#else
-//			// variables used to move control
-//			RECT r{};
-//
-//			// figure out coordinates of control
-//			if (!GetWindowRectParent(ctrl->getHwnd(), &r))
-//				throw Dcx::dcxException("Unable to get window rect!");
-//
-//			// for each control in the internal list
-//			for (const auto& x : m_vZLayers)
-//			{
-//				// ignore target control
-//				if (x != n)
-//				{
-//					// get control to be moved
-//					ctrl = getControlByID(static_cast<UINT>(x));
-//
-//					// if it exists, move it
-//					if (ctrl)
-//						MoveWindow(ctrl->getHwnd(), r.left, r.top, r.right - r.left, r.bottom - r.top, FALSE);
-//				}
-//			}
-//#endif
-//		}
-//		// show index [N]
-//		else if (xflag[TEXT('s')])
-//		{
-//			// minus since indexes are zero-based
-//			n--;
-//
-//			// if the index is out of bounds
-//			if (n >= gsl::narrow_cast<int>(m_vZLayers.size()))
-//				throw Dcx::dcxException("Index array out of bounds");
-//
-//			execAliasEx(TEXT("zlayershow,%d,%d"), n + 1, gsl::at(m_vZLayers, gsl::narrow_cast<UINT>(n)) - mIRC_ID_OFFSET);
-//
-//			// hide the previous control
-//			auto ctrl = getControlByID(gsl::narrow_cast<UINT>(gsl::at(m_vZLayers, m_zLayerCurrent)));
-//
-//			if (ctrl)
-//				ShowWindow(ctrl->getHwnd(), SW_HIDE);
-//
-//			// set the new index to the currently selected index
-//			m_zLayerCurrent = gsl::narrow_cast<UINT>(n);
-//			ctrl = getControlByID(gsl::narrow_cast<UINT>(gsl::at(m_vZLayers, gsl::narrow_cast<UINT>(n))));
-//
-//			// if the selected control exists, show control
-//			if (!ctrl)
-//				throw Dcx::dcxException("Invalid Control ID");
-//
-//			ShowWindow(ctrl->getHwnd(), SW_SHOW);
-//
-//			RECT rc{};
-//			if (!GetClientRect(getHwnd(), &rc))
-//				throw Dcx::dcxException("Unable to get client rect!");
-//
-//			if (updateLayout(rc))
-//				redrawWindow();
-//		}
 
 		// invalid input for [N]
 		if (!xflag[TEXT('+')])
@@ -1271,23 +1049,6 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -P [NAME] [SWITCH] ([+FLAGS] (FLAG OPTIONS))
 	else if (flags[TEXT('P')])
 	{
-		//// create the menu
-		//if (!m_popup)
-		//{
-		//	auto menu = GetMenu(m_Hwnd);
-		//
-		//	if (!menu)
-		//		throw Dcx::dcxException("Menu Does Not Exist");
-		//
-		//	m_popup = std::make_unique<XPopupMenu>(TEXT("dialog"_ts), menu);
-		//}
-		//if (m_popup)
-		//{
-		//	auto menuargs(TEXT("dialog "_ts) + input.getlasttoks());
-		//
-		//	Dcx::XPopups.parseCommand(menuargs, m_popup.get());
-		//}
-
 		CustomMenuCommand(input.getlasttoks());
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]
@@ -1424,56 +1185,68 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -E [NAME] [SWITCH] [+flags] [-flags]
 	else if (flags[TEXT('E')] && numtok > 3)
 	{
-		auto mask = m_dEventMask;
-		const XSwitchFlags xpFlags(input.getnexttok());	// tok 3
-		const XSwitchFlags xnFlags(input.getnexttok());	// tok 4
+		//auto mask = m_dEventMask;
+		//const XSwitchFlags xpFlags(input.getnexttok());	// tok 3
+		//const XSwitchFlags xnFlags(input.getnexttok());	// tok 4
+		//
+		//if (!xpFlags[TEXT('+')] || !xnFlags[TEXT('-')])
+		//	throw DcxExceptions::dcxInvalidFlag();
+		//
+		//if (xpFlags[TEXT('c')])
+		//	mask |= DCX_EVENT_CLICK;
+		//if (xpFlags[TEXT('d')])
+		//	mask |= DCX_EVENT_DRAG;
+		//if (xpFlags[TEXT('e')])
+		//	mask |= DCX_EVENT_EDIT;
+		//if (xpFlags[TEXT('f')])
+		//	mask |= DCX_EVENT_FOCUS;
+		//if (xpFlags[TEXT('h')])
+		//	mask |= DCX_EVENT_HELP;
+		//if (xpFlags[TEXT('m')])
+		//	mask |= DCX_EVENT_MOUSE;
+		//if (xpFlags[TEXT('s')])
+		//	mask |= DCX_EVENT_SIZE;
+		//if (xpFlags[TEXT('t')])
+		//	mask |= DCX_EVENT_THEME;
+		//if (xpFlags[TEXT('C')])
+		//	mask |= DCX_EVENT_CLOSE;
+		//if (xpFlags[TEXT('M')])
+		//	mask |= DCX_EVENT_MOVE;
+		//
+		//if (xnFlags[TEXT('c')])
+		//	mask &= ~DCX_EVENT_CLICK;
+		//if (xnFlags[TEXT('d')])
+		//	mask &= ~DCX_EVENT_DRAG;
+		//if (xnFlags[TEXT('e')])
+		//	mask &= ~DCX_EVENT_EDIT;
+		//if (xnFlags[TEXT('f')])
+		//	mask &= ~DCX_EVENT_FOCUS;
+		//if (xnFlags[TEXT('h')])
+		//	mask &= ~DCX_EVENT_HELP;
+		//if (xnFlags[TEXT('m')])
+		//	mask &= ~DCX_EVENT_MOUSE;
+		//if (xnFlags[TEXT('s')])
+		//	mask &= ~DCX_EVENT_SIZE;
+		//if (xnFlags[TEXT('t')])
+		//	mask &= ~DCX_EVENT_THEME;
+		//if (xnFlags[TEXT('C')])
+		//	mask &= ~DCX_EVENT_CLOSE;
+		//if (xnFlags[TEXT('M')])
+		//	mask &= ~DCX_EVENT_MOVE;
+		//
+		//m_dEventMask = mask;
 
-		if (!xpFlags[TEXT('+')] || !xnFlags[TEXT('-')])
-			throw DcxExceptions::dcxInvalidFlag();
+		const TString tspFlags(input.getnexttok());	// tok 3
+		const TString tsnFlags(input.getnexttok());	// tok 4
 
-		if (xpFlags[TEXT('c')])
-			mask |= DCX_EVENT_CLICK;
-		if (xpFlags[TEXT('d')])
-			mask |= DCX_EVENT_DRAG;
-		if (xpFlags[TEXT('e')])
-			mask |= DCX_EVENT_EDIT;
-		if (xpFlags[TEXT('f')])
-			mask |= DCX_EVENT_FOCUS;
-		if (xpFlags[TEXT('h')])
-			mask |= DCX_EVENT_HELP;
-		if (xpFlags[TEXT('m')])
-			mask |= DCX_EVENT_MOUSE;
-		if (xpFlags[TEXT('s')])
-			mask |= DCX_EVENT_SIZE;
-		if (xpFlags[TEXT('t')])
-			mask |= DCX_EVENT_THEME;
-		if (xpFlags[TEXT('C')])
-			mask |= DCX_EVENT_CLOSE;
-		if (xpFlags[TEXT('M')])
-			mask |= DCX_EVENT_MOVE;
+		this->setEventMask(tspFlags, tsnFlags);
 
-		if (xnFlags[TEXT('c')])
-			mask &= ~DCX_EVENT_CLICK;
-		if (xnFlags[TEXT('d')])
-			mask &= ~DCX_EVENT_DRAG;
-		if (xnFlags[TEXT('e')])
-			mask &= ~DCX_EVENT_EDIT;
-		if (xnFlags[TEXT('f')])
-			mask &= ~DCX_EVENT_FOCUS;
-		if (xnFlags[TEXT('h')])
-			mask &= ~DCX_EVENT_HELP;
-		if (xnFlags[TEXT('m')])
-			mask &= ~DCX_EVENT_MOUSE;
-		if (xnFlags[TEXT('s')])
-			mask &= ~DCX_EVENT_SIZE;
-		if (xnFlags[TEXT('t')])
-			mask &= ~DCX_EVENT_THEME;
-		if (xnFlags[TEXT('C')])
-			mask &= ~DCX_EVENT_CLOSE;
-		if (xnFlags[TEXT('M')])
-			mask &= ~DCX_EVENT_MOVE;
-
-		m_dEventMask = mask;
+		// propergate event changes to all child controls. This mimics the begaviour of the previous version which only had a single event mask for the dialog.
+		for (auto a : m_vpControls)
+		{
+			if (a)
+				a->setEventMask(tspFlags, tsnFlags);
+		}
 	}
 	// xdialog -V [NAME] [SWITCH] [left] [right] [top] [bottom]
 	else if (flags[TEXT('V')] && numtok > 5)

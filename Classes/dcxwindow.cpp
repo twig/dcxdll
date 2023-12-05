@@ -341,6 +341,61 @@ void DcxWindow::HandleChildSizing(SizingTypes sz) const noexcept
  * blah
  */
 
+void DcxWindow::setEventMask(const TString& tspFlags, const TString& tsnFlags)
+{
+	const XSwitchFlags xpFlags(tspFlags);
+	const XSwitchFlags xnFlags(tsnFlags);
+
+	if (!xpFlags[TEXT('+')] || !xnFlags[TEXT('-')])
+		throw DcxExceptions::dcxInvalidFlag();
+
+	auto mask = m_dEventMask;
+
+	if (xpFlags[TEXT('c')])
+		mask |= DCX_EVENT_CLICK;
+	if (xpFlags[TEXT('d')])
+		mask |= DCX_EVENT_DRAG;
+	if (xpFlags[TEXT('e')])
+		mask |= DCX_EVENT_EDIT;
+	if (xpFlags[TEXT('f')])
+		mask |= DCX_EVENT_FOCUS;
+	if (xpFlags[TEXT('h')])
+		mask |= DCX_EVENT_HELP;
+	if (xpFlags[TEXT('m')])
+		mask |= DCX_EVENT_MOUSE;
+	if (xpFlags[TEXT('s')])
+		mask |= DCX_EVENT_SIZE;
+	if (xpFlags[TEXT('t')])
+		mask |= DCX_EVENT_THEME;
+	if (xpFlags[TEXT('C')])
+		mask |= DCX_EVENT_CLOSE;
+	if (xpFlags[TEXT('M')])
+		mask |= DCX_EVENT_MOVE;
+
+	if (xnFlags[TEXT('c')])
+		mask &= ~DCX_EVENT_CLICK;
+	if (xnFlags[TEXT('d')])
+		mask &= ~DCX_EVENT_DRAG;
+	if (xnFlags[TEXT('e')])
+		mask &= ~DCX_EVENT_EDIT;
+	if (xnFlags[TEXT('f')])
+		mask &= ~DCX_EVENT_FOCUS;
+	if (xnFlags[TEXT('h')])
+		mask &= ~DCX_EVENT_HELP;
+	if (xnFlags[TEXT('m')])
+		mask &= ~DCX_EVENT_MOUSE;
+	if (xnFlags[TEXT('s')])
+		mask &= ~DCX_EVENT_SIZE;
+	if (xnFlags[TEXT('t')])
+		mask &= ~DCX_EVENT_THEME;
+	if (xnFlags[TEXT('C')])
+		mask &= ~DCX_EVENT_CLOSE;
+	if (xnFlags[TEXT('M')])
+		mask &= ~DCX_EVENT_MOVE;
+
+	m_dEventMask = mask;
+}
+
 PTCHAR DcxWindow::parseCursorType(const TString& cursor)
 {
 	const static std::map<std::hash<TString>::result_type, PTCHAR> IDC_map{

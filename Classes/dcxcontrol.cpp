@@ -221,7 +221,7 @@ bool DcxControl::execAliasEx(_In_z_ _Printf_format_string_ const TCHAR* const sz
 /// General commands
 /// </summary>
 /// <param name="input"> - The input for the specified command.</param>
-/// <param name="flags"> - a supported command - b/C/e/f/F/h/J/M/p/x/U/R/s/T/z</param>
+/// <param name="flags"> - a supported command - b/C/e/E/f/F/h/J/M/p/x/U/R/s/T/z</param>
 void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFlags& flags)
 {
 	const auto numtok = input.numtok();
@@ -334,19 +334,6 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 	// xdid -J DNAME ID [+FLAGS] [CURSOR|FILENAME]
 	else if (flags[TEXT('J')])
 	{
-		//if (numtok < 5)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//const auto iFlags = this->parseCursorFlags(input.getfirsttok(4));
-		//auto filename(input.getlasttoks());
-		//const auto* const CursorType = this->parseCursorType(filename);
-		//
-		//// if previous cursor was the dialogs cursor, just set as blank
-		//if (m_hCursor.cursor == getParentDialog()->getCursor())
-		//	m_hCursor.cursor = nullptr;
-		//
-		//m_hCursor.cursor = Dcx::dcxLoadCursor(iFlags, CursorType, m_hCursor.enabled, m_hCursor.cursor, filename);
-
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -406,6 +393,14 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 	// xdid -e [NAME] [ID]
 	else if (flags[TEXT('e')])
 		EnableWindow(m_Hwnd, TRUE);
+	// xdid -E [NAME] [ID] [+FLAGS] [-FLAGS]
+	else if (flags[TEXT('E')])
+	{
+		const TString tspFlags(input.getfirsttok(4));
+		const TString tsnFlags(input.getnexttok());
+
+		this->setEventMask(tspFlags, tsnFlags);
+	}
 	// xdid -h [NAME] [ID] [SWITCH] (+FLAGS) (DURATION)
 	else if (flags[TEXT('h')])
 	{
@@ -491,137 +486,6 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 	// xdid -R [NAME] [ID] [SWITCH] [+FLAG] [ARGS]
 	else if (flags[TEXT('R')])
 	{
-		//		if (numtok < 4)
-		//			throw DcxExceptions::dcxInvalidArguments();
-		//
-		//		const XSwitchFlags xflags(input.getfirsttok(4));
-		//
-		//		if (!xflags[TEXT('+')])
-		//			throw DcxExceptions::dcxInvalidFlag();
-		//
-		//		HRGN hRegion = nullptr;
-		//		auto RegionMode = 0;
-		//		auto noRegion = false;
-		//
-		//#if DCX_USE_WRAPPERS
-		//		const Dcx::dcxWindowRect rc(m_Hwnd);
-		//#else
-		//		RECT rc = { 0 };
-		//		if (!GetWindowRect(m_Hwnd, &rc))
-		//			throw Dcx::dcxException("Unable to get window rect!");
-		//#endif
-		//
-		//		if (xflags[TEXT('o')])
-		//			RegionMode = RGN_OR;
-		//		else if (xflags[TEXT('a')])
-		//			RegionMode = RGN_AND;
-		//		else if (xflags[TEXT('i')])
-		//			RegionMode = RGN_DIFF;
-		//		else if (xflags[TEXT('x')])
-		//			RegionMode = RGN_XOR;
-		//
-		//		if (xflags[TEXT('f')]) // image file - [COLOR] [FILE]
-		//		{
-		//			if (numtok < 6)
-		//				throw DcxExceptions::dcxInvalidArguments();
-		//
-		//			const auto tCol = input.getnexttok().to_<COLORREF>();		// tok 5
-		//			auto filename(input.getlasttoks());							// tok 6, -1
-		//
-		//			auto bitmapRgn = dcxLoadBitmap(nullptr, filename);
-		//
-		//			if (!bitmapRgn)
-		//				throw Dcx::dcxException("Unable To Load Image file.");
-		//			Auto(DeleteObject(bitmapRgn));
-		//
-		//			if (xflags[TEXT('R')]) // now resize image to match control.
-		//				bitmapRgn = resizeBitmap(bitmapRgn, &rc);
-		//			hRegion = BitmapRegion(bitmapRgn, tCol, (tCol != CLR_INVALID));
-		//		}
-		//		else if (xflags[TEXT('r')]) // rounded rect - radius args (optional)
-		//		{
-		//			const auto radius = (numtok > 4) ? input.getnexttok().to_int() : 20;	// tok 5
-		//
-		//			hRegion = CreateRoundRectRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top, radius, radius);
-		//		}
-		//		else if (xflags[TEXT('c')]) // circle - radius arg (optional)
-		//		{
-		//			if (numtok > 4)
-		//			{
-		//				auto radius = input.getnexttok().to_int();	// tok 5
-		//				if (radius < 1)
-		//					radius = 100; // handle cases where arg isnt a number or is a negative.
-		//				const auto cx = ((rc.right - rc.left) / 2);
-		//				const auto cy = ((rc.bottom - rc.top) / 2);
-		//				hRegion = CreateEllipticRgn(cx - radius, cy - radius, cx + radius, cy + radius);
-		//			}
-		//			else
-		//				hRegion = CreateEllipticRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top);
-		//		}
-		//		else if (xflags[TEXT('p')]) // polygon
-		//		{
-		//			// u need at least 3 points for a shape
-		//			if (numtok < 7)
-		//				throw DcxExceptions::dcxInvalidArguments();
-		//
-		//			const auto strPoints(input.getlasttoks());	// tok 5, -1
-		//			const auto tPoints = strPoints.numtok();
-		//
-		//			if (tPoints < 3)
-		//				throw Dcx::dcxException("Invalid Points: At least 3 points required.");
-		//
-		//			auto pnts = std::make_unique<POINT[]>(tPoints);
-		//			UINT cnt = 0;
-		//
-		//			for (const auto& strPoint : strPoints)
-		//			{
-		//				gsl::at(pnts, cnt).x = strPoint.getfirsttok(1, TSCOMMACHAR).to_<LONG>();
-		//				gsl::at(pnts, cnt).y = strPoint.getnexttok(TSCOMMACHAR).to_<LONG>();	// tok 2
-		//				++cnt;
-		//			}
-		//
-		//			hRegion = CreatePolygonRgn(pnts.get(), gsl::narrow_cast<int>(tPoints), WINDING);
-		//		}
-		//		else if (xflags[TEXT('b')])
-		//		{ // alpha [1|0] [level]
-		//			noRegion = true;
-		//			if (numtok != 6)
-		//				throw DcxExceptions::dcxInvalidArguments();
-		//
-		//			m_bAlphaBlend = (input.getnexttok().to_int() > 0);	// tok 5
-		//
-		//			const auto alpha = gsl::narrow_cast<BYTE>(input.getnexttok().to_int() & 0xFF);	// tok 6
-		//
-		//			if (alpha == 255U)
-		//				m_bAlphaBlend = false;
-		//			m_iAlphaLevel = alpha;
-		//		}
-		//		else {
-		//			if (!xflags[TEXT('n')]) // none, no args
-		//				throw DcxExceptions::dcxInvalidFlag();
-		//
-		//			noRegion = true;
-		//			SetWindowRgn(m_Hwnd, nullptr, FALSE);	// redraw at end
-		//		}
-		//
-		//		if (!noRegion)
-		//		{
-		//			if (!hRegion)
-		//				throw Dcx::dcxException("Unable to create region.");
-		//
-		//			if (RegionMode != 0)
-		//			{
-		//				if (auto wrgn = CreateRectRgn(0, 0, 0, 0); wrgn)
-		//				{
-		//					Auto(DeleteRgn(wrgn));
-		//					if (GetWindowRgn(m_Hwnd, wrgn) != ERROR)
-		//						CombineRgn(hRegion, hRegion, wrgn, RegionMode);
-		//				}
-		//			}
-		//			SetWindowRgn(m_Hwnd, hRegion, FALSE);	// redraw at end
-		//		}
-		//		redrawWindow();
-
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
