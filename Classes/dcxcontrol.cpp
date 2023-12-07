@@ -643,6 +643,7 @@ DcxControlTypes DcxControl::TSTypeToControlType(const TString& t)
 		{ TEXT("treeview"_hash), DcxControlTypes::TREEVIEW },
 		{ TEXT("updown"_hash), DcxControlTypes::UPDOWN },
 		{ TEXT("webctrl"_hash), DcxControlTypes::WEBCTRL },
+		{ TEXT("web2ctrl"_hash), DcxControlTypes::WEB2CTRL },
 		{ TEXT("multibutton"_hash), DcxControlTypes::MULTIBUTTON },
 		{ TEXT("multicombo"_hash), DcxControlTypes::MULTICOMBO },
 		{ TEXT("grid"_hash), DcxControlTypes::GRID }
