@@ -309,11 +309,6 @@ void DcxmlParser::parseControl()
 				mystring = mystring.right(-1);
 
 			mystring -= TEXT('\t'); // remove all tabs from text.  Ook: can crash here for some reason, needs looked at
-			//if (nType == "richedit"_hash) {	// richedit
-			//	mystring -= TEXT("\\c");
-			//	mystring -= TEXT("\\b");
-			//	mystring -= TEXT("\\r");
-			//}
 			if (nType == "richedit"_hash)
 			{	// richedit, converts \c -> ctrl-k, \b -> ctrl-b, \r -> ctrl-r, \u -> ctrl-u, \i -> ctrl-i, \o -> ctrl-o
 				mystring.replace(TEXT("\\c"), TEXT('\x03'));	// mirc colours
