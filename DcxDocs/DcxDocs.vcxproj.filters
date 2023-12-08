@@ -19,6 +19,36 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />
+    <Text Include="..\docs_new\examples\box_styles.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\docs_new\examples\dcx_webbrowser.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\docs_new\examples\dcxmenus.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\docs_new\examples\dcxstatusbar.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\docs_new\examples\dcxtreebar.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\docs_new\examples\proxy_eg.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\docs_new\examples\setcursors.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\docs_new\examples\tags_eg.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\docs_new\examples\tb_ex.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\docs_new\examples\very_basic.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\docs_new\dcx_changes.php">

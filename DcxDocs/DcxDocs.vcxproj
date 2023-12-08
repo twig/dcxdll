@@ -109,6 +109,16 @@ $(PHPDir)\php -q dcx_gen.php
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Text Include="..\docs_new\examples\box_styles.txt" />
+    <Text Include="..\docs_new\examples\dcxmenus.txt" />
+    <Text Include="..\docs_new\examples\dcxstatusbar.txt" />
+    <Text Include="..\docs_new\examples\dcxtreebar.txt" />
+    <Text Include="..\docs_new\examples\dcx_webbrowser.txt" />
+    <Text Include="..\docs_new\examples\proxy_eg.txt" />
+    <Text Include="..\docs_new\examples\setcursors.txt" />
+    <Text Include="..\docs_new\examples\tags_eg.txt" />
+    <Text Include="..\docs_new\examples\tb_ex.txt" />
+    <Text Include="..\docs_new\examples\very_basic.txt" />
     <Text Include="readme.txt" />
   </ItemGroup>
   <ItemGroup>

@@ -616,6 +616,7 @@
     <None Include="cpp.hint">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="dcx_zip\dc.xml">
@@ -639,5 +640,6 @@
     <Natvis Include="GSL.natvis">
       <Filter>Resource Files</Filter>
     </Natvis>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>
