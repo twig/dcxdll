@@ -143,6 +143,8 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="packages\Microsoft.Windows.ImplementationLibrary.1.0.231028.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('packages\Microsoft.Windows.ImplementationLibrary.1.0.231028.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
+    <Import Project="packages\Microsoft.Web.WebView2.1.0.2151.40\build\native\Microsoft.Web.WebView2.targets" Condition="Exists('packages\Microsoft.Web.WebView2.1.0.2151.40\build\native\Microsoft.Web.WebView2.targets')" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -199,7 +201,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Debug;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
+    <LibraryPath>$(ProjectDir)packages\Microsoft.Web.WebView2.1.0.2151.40\build\native\x86;$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Debug;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
     <EnableCppCoreCheck>true</EnableCppCoreCheck>
     <EnableExperimentalCppCoreCheck>true</EnableExperimentalCppCoreCheck>
@@ -216,7 +218,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
+    <LibraryPath>$(ProjectDir)packages\Microsoft.Web.WebView2.1.0.2151.40\build\native\x86;$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
     <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
@@ -224,7 +226,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Dll|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
+    <LibraryPath>$(ProjectDir)packages\Microsoft.Web.WebView2.1.0.2151.40\build\native\x86;$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
     <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
@@ -232,7 +234,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Optimal|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
+    <LibraryPath>$(ProjectDir)packages\Microsoft.Web.WebView2.1.0.2151.40\build\native\x86;$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
     <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
@@ -240,14 +242,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
+    <LibraryPath>$(ProjectDir)packages\Microsoft.Web.WebView2.1.0.2151.40\build\native\x86;$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
     <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
     <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
+    <LibraryPath>$(ProjectDir)packages\Microsoft.Web.WebView2.1.0.2151.40\build\native\x86;$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <LinkIncremental>false</LinkIncremental>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
@@ -325,7 +327,7 @@
       <AdditionalDependencies>comctl32.lib;Msimg32.lib;Version.lib;shlwapi.lib;Crypt32.lib;detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
-      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <DelayLoadDLLs>gdiplus.dll;WebView2Loader.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -385,7 +387,7 @@
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>dll.def</ModuleDefinitionFile>
-      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <DelayLoadDLLs>gdiplus.dll;WebView2Loader.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -438,7 +440,7 @@
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>dll.def</ModuleDefinitionFile>
-      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <DelayLoadDLLs>gdiplus.dll;WebView2Loader.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -492,7 +494,7 @@
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>dll.def</ModuleDefinitionFile>
-      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <DelayLoadDLLs>gdiplus.dll;WebView2Loader.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>No</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -547,7 +549,7 @@
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>dll.def</ModuleDefinitionFile>
-      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <DelayLoadDLLs>gdiplus.dll;WebView2Loader.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>No</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -600,7 +602,7 @@
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>dll.def</ModuleDefinitionFile>
-      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <DelayLoadDLLs>gdiplus.dll;WebView2Loader.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -776,6 +778,7 @@
     <ClCompile Include="Classes\custom\multicombo.cpp" />
     <ClCompile Include="Classes\custom\SearchHelper.cpp" />
     <ClCompile Include="Classes\DcxMultiCombo.cpp" />
+    <ClCompile Include="Classes\DcxWebControl2.cpp" />
     <ClCompile Include="Classes\Directshow\video.cpp" />
     <ClCompile Include="Classes\tstring\hashString.cpp" />
     <ClCompile Include="Dcx.cpp" />
@@ -868,6 +871,7 @@
     <ClInclude Include="Classes\custom\multicombo.h" />
     <ClInclude Include="Classes\custom\SearchHelper.h" />
     <ClInclude Include="Classes\DcxMultiCombo.h" />
+    <ClInclude Include="Classes\DcxWebControl2.h" />
     <ClInclude Include="Classes\Directshow\dshowutil.h" />
     <ClInclude Include="Classes\Directshow\video.h" />
     <ClInclude Include="Classes\tstring\hashString.h" />
@@ -955,6 +959,7 @@
     <None Include="dcx_zip\dcx_demo.mrc" />
     <None Include="dcx_zip\dcx_tools.mrc" />
     <None Include="dll.def" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="dcx_zip\dc.xml" />
@@ -970,4 +975,11 @@
     <Natvis Include="GSL.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\Microsoft.Windows.ImplementationLibrary.1.0.231028.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Windows.ImplementationLibrary.1.0.231028.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
+    <Error Condition="!Exists('packages\Microsoft.Web.WebView2.1.0.2151.40\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Web.WebView2.1.0.2151.40\build\native\Microsoft.Web.WebView2.targets'))" />
+  </Target>
 </Project>

@@ -342,6 +342,9 @@
     <ClCompile Include="Classes\custom\SearchHelper.cpp">
       <Filter>Source Files\Controls\Custom</Filter>
     </ClCompile>
+    <ClCompile Include="Classes\DcxWebControl2.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dcx.h">
@@ -598,6 +601,9 @@
     </ClInclude>
     <ClInclude Include="Classes\custom\SearchHelper.h">
       <Filter>Header Files\Controls\Custom</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\DcxWebControl2.h">
+      <Filter>Header Files\Controls</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -55,6 +55,7 @@
  //#include "Classes/DcxGrid.h"
  //#include "Classes/DcxMultiButton.h"
 #include "Classes/DcxMultiCombo.h"
+#include "Classes/DcxWebControl2.h"
 
 #ifdef DCX_USE_DXSDK
 #include "Classes/dcxdirectshow.h"
@@ -433,8 +434,10 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 
 		if (RECT rc{}; GetClientRect(this->getParentDialog()->getHwnd(), &rc))
 		{
-			if (this->getParentDialog()->updateLayout(rc))
-				this->getParentDialog()->redrawWindow(); // why do we need the redraw?
+			this->getParentDialog()->updateLayout(rc);
+
+			//if (this->getParentDialog()->updateLayout(rc))
+			//	this->getParentDialog()->redrawWindow(); // why do we need the redraw?
 		}
 	}
 	// xdid -U [NAME] [ID]
@@ -1183,127 +1186,6 @@ DcxControl* DcxControl::controlFactory(gsl::strict_not_null<DcxDialog* const> p_
 	if (!hParent)
 		throw Dcx::dcxException("Unable to get Parent");
 
-	//	const auto dct = DcxControl::TSTypeToControlType(type);
-	//
-	//	if ((dct == DcxControlTypes::PROGRESSBAR) && (dcx_testflag(mask, DcxAllowControls::ALLOW_PBAR)))
-	//		return new DcxProgressBar(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::TRACKBAR) && (dcx_testflag(mask, DcxAllowControls::ALLOW_TRACKBAR)))
-	//		return new DcxTrackBar(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::COMBOEX) && (dcx_testflag(mask, DcxAllowControls::ALLOW_COMBOEX)))
-	//		return new DcxComboEx(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::COLORCOMBO) && (dcx_testflag(mask, DcxAllowControls::ALLOW_COLORCOMBO)))
-	//		return new DcxColorCombo(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::STATUSBAR) && (dcx_testflag(mask, DcxAllowControls::ALLOW_STATUSBAR)))
-	//		return new DcxStatusBar(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::TOOLBAR) && (dcx_testflag(mask, DcxAllowControls::ALLOW_TOOLBAR)))
-	//		return new DcxToolBar(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::TREEVIEW) && (dcx_testflag(mask, DcxAllowControls::ALLOW_TREEVIEW)))
-	//		return new DcxTreeView(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::LISTVIEW) && (dcx_testflag(mask, DcxAllowControls::ALLOW_LISTVIEW)))
-	//		return new DcxListView(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::REBAR) && (dcx_testflag(mask, DcxAllowControls::ALLOW_REBAR)))
-	//		return new DcxReBar(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::BUTTON) && (dcx_testflag(mask, DcxAllowControls::ALLOW_BUTTON)))
-	//		return new DcxButton(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::RICHEDIT) && (dcx_testflag(mask, DcxAllowControls::ALLOW_RICHEDIT)))
-	//		return new DcxRichEdit(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::UPDOWN) && (dcx_testflag(mask, DcxAllowControls::ALLOW_UPDOWN)))
-	//		return new DcxUpDown(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::IPADDRESS) && (dcx_testflag(mask, DcxAllowControls::ALLOW_IPADDRESS)))
-	//		return new DcxIpAddress(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::WEBCTRL) && (dcx_testflag(mask, DcxAllowControls::ALLOW_WEBCTRL)))
-	//		return new DcxWebControl(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::CALENDAR) && (dcx_testflag(mask, DcxAllowControls::ALLOW_CALANDER)))
-	//		return new DcxCalendar(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::DATETIME) && (dcx_testflag(mask, DcxAllowControls::ALLOW_CALANDER)))
-	//		return new DcxDateTime(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::DIVIDER) && (dcx_testflag(mask, DcxAllowControls::ALLOW_DIVIDER)))
-	//		return new DcxDivider(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::PANEL) && (dcx_testflag(mask, DcxAllowControls::ALLOW_PANEL)))
-	//		return new DcxPanel(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::TABB) && (dcx_testflag(mask, DcxAllowControls::ALLOW_TAB)))
-	//		return new DcxTab(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::LINE) && (dcx_testflag(mask, DcxAllowControls::ALLOW_LINE)))
-	//		return new DcxLine(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::BOX) && (dcx_testflag(mask, DcxAllowControls::ALLOW_BOX)))
-	//		return new DcxBox(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::RADIO) && (dcx_testflag(mask, DcxAllowControls::ALLOW_RADIO)))
-	//		return new DcxRadio(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::CHECK) && (dcx_testflag(mask, DcxAllowControls::ALLOW_CHECK)))
-	//		return new DcxCheck(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::TEXT) && (dcx_testflag(mask, DcxAllowControls::ALLOW_TEXT)))
-	//		return new DcxText(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::EDIT) && (dcx_testflag(mask, DcxAllowControls::ALLOW_EDIT)))
-	//		return new DcxEdit(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::SCROLL) && (dcx_testflag(mask, DcxAllowControls::ALLOW_SCROLL)))
-	//		return new DcxScroll(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::LIST) && (dcx_testflag(mask, DcxAllowControls::ALLOW_LIST)))
-	//		return new DcxList(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::LINK) && (dcx_testflag(mask, DcxAllowControls::ALLOW_LINK)))
-	//		return new DcxLink(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::IMAGE) && (dcx_testflag(mask, DcxAllowControls::ALLOW_IMAGE)))
-	//		return new DcxImage(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::PAGER) && (dcx_testflag(mask, DcxAllowControls::ALLOW_PAGER)))
-	//		return new DcxPager(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::STACKER) && (dcx_testflag(mask, DcxAllowControls::ALLOW_STACKER)))
-	//		return new DcxStacker(mID, p_Dialog, hParent, &rc, styles);
-	//#ifdef DCX_USE_DXSDK
-	//
-	//	else if ((dct == DcxControlTypes::DIRECTSHOW) && (dcx_testflag(mask, DcxAllowControls::ALLOW_DIRECTSHOW)))
-	//		return new DcxDirectshow(mID, p_Dialog, hParent, &rc, styles);
-	//
-	//#endif // DCX_USE_DXSDK
-	//
-	//	else if ((dct == DcxControlTypes::WINDOW) && (dcx_testflag(mask, DcxAllowControls::ALLOW_DOCK))) {
-	//		if (styles.empty())
-	//			throw Dcx::dcxException("No window name");
-	//
-	//		const auto tsWin(styles.getfirsttok(1));
-	//
-	//		// this helps stop '@' being passed as $window(@).hwnd == $window(-2).hwnd & usually causes a crash.
-	//		if (tsWin.len() < 2)
-	//			throw Dcx::dcxException(TEXT("No such window: %s"), tsWin);
-	//
-	//		auto winHwnd = (HWND)tsWin.to_num();
-	//		if (!IsWindow(winHwnd)) {
-	//			TCHAR windowHwnd[30];
-	//
-	//			mIRCLinker::evalex(windowHwnd, 30, TEXT("$window(%s).hwnd"), tsWin.to_chr());
-	//
-	//			winHwnd = (HWND)dcx_atoi(windowHwnd);
-	//		}
-	//
-	//		if (!IsWindow(winHwnd))
-	//			throw Dcx::dcxException(TEXT("No such window: %s"), tsWin);
-	//
-	//		if (p_Dialog->getControlByHWND(winHwnd) != nullptr)
-	//			throw Dcx::dcxException("Window already a DCX Control");
-	//
-	//		return new DcxMWindow(winHwnd, hParent, mID, p_Dialog, &rc, styles);
-	//	}
-	//	else if ((dct == DcxControlTypes::DIALOG) && (dcx_testflag(mask, DcxAllowControls::ALLOW_DOCK))) {
-	//		if (styles.empty())
-	//			throw Dcx::dcxException("No dialog name");
-	//
-	//		const auto tsDname(styles.getfirsttok(1));
-	//		auto winHwnd = GetHwndFromString(tsDname);
-	//
-	//		if (IsWindow(winHwnd))
-	//			throw Dcx::dcxException(TEXT("No such dialog: %"), tsDname);
-	//
-	//		if (p_Dialog->getControlByHWND(winHwnd) != nullptr)
-	//			Dcx::dcxException(TEXT("Control already exists : %"), tsDname);
-	//
-	//		auto newDialog = new DcxMDialog(winHwnd, hParent, mID, p_Dialog, &rc, styles);
-	//		auto dlg = Dcx::Dialogs.getDialogByHandle(winHwnd);
-	//
-	//		// if its a dcx marked dialog, mark the parent name
-	//		if (dlg != nullptr)
-	//			dlg->setParentName(p_Dialog->getName());
-	//
-	//		return newDialog;
-	//	}
-
 	switch (DcxControl::TSTypeToControlType(type))
 	{
 	case DcxControlTypes::PROGRESSBAR:
@@ -1373,6 +1255,26 @@ DcxControl* DcxControl::controlFactory(gsl::strict_not_null<DcxDialog* const> p_
 				DestroyWindow(ctrl_p->getHwnd());
 				//delete ctrl_p;
 				//throw Dcx::dcxException("Unable To Create Browser Window");
+				throw DcxExceptions::dcxUnableToCreateWindow();
+			}
+
+			return ctrl_p;
+		}
+	}
+	break;
+	case DcxControlTypes::WEB2CTRL:
+		//if (dcx_testflag(mask, DcxAllowControls::ALLOW_WEB2CTRL))
+		//	return new DcxWebControl2(mID, p_Dialog, hParent, &rc, styles);
+	{
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_WEB2CTRL))
+		{
+			auto ctrl_p = new DcxWebControl2(mID, p_Dialog, hParent, &rc, styles);
+
+			//ctrl_p->InitializeInterface();
+
+			if (!ctrl_p->InitializeInterface())
+			{
+				DestroyWindow(ctrl_p->getHwnd());
 				throw DcxExceptions::dcxUnableToCreateWindow();
 			}
 
@@ -3316,185 +3218,6 @@ void DcxControl::InitializeDcxControls()
 	if (m_bInitialized)
 		return;
 
-	//	WNDCLASSEX wc;
-	//	ZeroMemory((void*)&wc, sizeof(WNDCLASSEX));
-	//	wc.cbSize = sizeof(WNDCLASSEX);
-	//	
-	//#define dcxRegisterClass(szClass, szDcxClass, pClassObj) { \
-	//	if (GetClassInfoEx(nullptr, (TCHAR *)(szClass), &wc) != 0) { \
-	//		wc.lpszClassName = (TCHAR *)(szDcxClass); \
-	//		pClassObj::m_hDefaultClassProc = wc.lpfnWndProc; \
-	//		wc.lpfnWndProc = DcxControl::WindowProc; \
-	//		wc.hInstance = GetModuleHandle(nullptr); \
-	//		wc.style &= ~CS_GLOBALCLASS; \
-	//		RegisterClassEx(&wc); \
-	//	} \
-	//};
-	//
-		//// Custom ProgressBar
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering ProgressBar..."));
-		//dcxRegisterClass(PROGRESS_CLASS, DCX_PROGRESSBARCLASS, DcxProgressBar);
-		//
-		//// Custom TreeView
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering TreeView..."));
-		//dcxRegisterClass(WC_TREEVIEW, DCX_TREEVIEWCLASS, DcxTreeView);
-		//
-		//// Custom Toolbar
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering ToolBar..."));
-		//dcxRegisterClass(TOOLBARCLASSNAME, DCX_TOOLBARCLASS, DcxToolBar);
-		//
-		//// Custom StatusBar
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering StatusBar..."));
-		//dcxRegisterClass(STATUSCLASSNAME, DCX_STATUSBARCLASS, DcxStatusBar);
-		//
-		//// Custom ListView
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Listview..."));
-		//dcxRegisterClass(WC_LISTVIEW, DCX_LISTVIEWCLASS, DcxListView);
-		//
-		//// Custom ComboEx
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering ComboEx..."));
-		//dcxRegisterClass(WC_COMBOBOXEX, DCX_COMBOEXCLASS, DcxComboEx);
-		//
-		//// Custom TrackBar
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering TrackBar..."));
-		//dcxRegisterClass(TRACKBAR_CLASS, DCX_TRACKBARCLASS, DcxTrackBar);
-		//
-		//// Custom RichEdit
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering RichEdit..."));
-		//dcxRegisterClass(RICHEDIT_CLASS, DCX_RICHEDITCLASS, DcxRichEdit);
-		//
-		//// Custom RebarCtrl
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering ReBar..."));
-		//dcxRegisterClass(REBARCLASSNAME, DCX_REBARCTRLCLASS, DcxReBar);
-		//
-		//// Custom Color Combo
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering ComboBox..."));
-		//dcxRegisterClass(WC_COMBOBOX, DCX_COLORCOMBOCLASS, DcxColorCombo);
-		//
-		//// Custom TabCtrl
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Tab..."));
-		//dcxRegisterClass(WC_TABCONTROL, DCX_TABCTRLCLASS, DcxTab);
-		//
-		//// Custom UpDown
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering UpDown..."));
-		//dcxRegisterClass(UPDOWN_CLASS, DCX_UPDOWNCLASS, DcxUpDown);
-		//
-		//// Custom IpAddress
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering IpAddress..."));
-		//dcxRegisterClass(WC_IPADDRESS, DCX_IPADDRESSCLASS, DcxIpAddress);
-		//
-		//// Custom Button
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Button..."));
-		//dcxRegisterClass(WC_BUTTON, DCX_BUTTONCLASS, DcxButton);
-		//
-		//// Custom Check
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Check..."));
-		//dcxRegisterClass(WC_BUTTON, DCX_CHECKCLASS, DcxCheck);
-		//
-		//// Custom Radio
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Radio..."));
-		//dcxRegisterClass(WC_BUTTON, DCX_RADIOCLASS, DcxRadio);
-		//
-		//// Custom Calendar
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Calendar..."));
-		//dcxRegisterClass(MONTHCAL_CLASS, DCX_CALENDARCLASS, DcxCalendar);
-		//
-		//// Custom DateTime
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering DateTime..."));
-		//dcxRegisterClass(DATETIMEPICK_CLASS, DCX_DATETIMECLASS, DcxDateTime);
-		//
-		//// Custom Pager
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Pager..."));
-		//dcxRegisterClass(WC_PAGESCROLLER, DCX_PAGERCLASS, DcxPager);
-		//
-		//// Custom Image
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Image..."));
-		//dcxRegisterClass(WC_STATIC, DCX_IMAGECLASS, DcxImage);
-		//
-		//// Custom Edit
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Edit..."));
-		//dcxRegisterClass(WC_EDIT, DCX_EDITCLASS, DcxEdit);
-			//
-		//// Custom Divider
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Divider..."));
-		//wc.cbSize = sizeof(WNDCLASSEX);
-		//wc.style = 0;
-		//DcxDivider::m_hDefaultClassProc = DividerWndProc;
-		//wc.lpfnWndProc = DcxControl::WindowProc;
-		//wc.cbClsExtra = 0;
-		//wc.cbWndExtra = 0;
-		//wc.hInstance = GetModuleHandle(nullptr);
-		//wc.hIcon = nullptr;
-		//wc.hCursor = nullptr;
-		//wc.hbrBackground = (HBRUSH)(COLOR_3DFACE + 1);
-		//wc.lpszMenuName = 0;
-		//wc.lpszClassName = DCX_DIVIDERCLASS;
-		//wc.hIconSm = nullptr;
-		//RegisterClassEx(&wc);
-	//
-		//// Custom Panel
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Panel..."));
-		//wc.cbSize = sizeof(WNDCLASSEX);
-		//wc.style = CS_PARENTDC;
-		//DcxPanel::m_hDefaultClassProc = DefWindowProc;
-		//wc.lpfnWndProc = DcxControl::WindowProc;
-		//wc.cbClsExtra = 0;
-		//wc.cbWndExtra = 0;
-		//wc.hInstance = GetModuleHandle(nullptr);
-		//wc.hIcon = nullptr;
-		//wc.hCursor = LoadCursor(GetModuleHandle(nullptr), IDC_ARROW);
-		//wc.hbrBackground = nullptr; //(HBRUSH) (COLOR_3DFACE +1);
-		//wc.lpszMenuName = 0;
-		//wc.lpszClassName = DCX_PANELCLASS;
-		//wc.hIconSm = nullptr;
-		//RegisterClassEx(&wc);
-	//
-		//// Custom Box
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Box..."));
-		//wc.cbSize = sizeof(WNDCLASSEX);
-		//wc.style = CS_PARENTDC;
-		//DcxBox::m_hDefaultClassProc = DefWindowProc;
-		//wc.lpfnWndProc = DcxControl::WindowProc;
-		//wc.cbClsExtra = 0;
-		//wc.cbWndExtra = 0;
-		//wc.hInstance = GetModuleHandle(nullptr);
-		//wc.hIcon = nullptr;
-		//wc.hCursor = LoadCursor(GetModuleHandle(nullptr), IDC_ARROW);
-		//wc.hbrBackground = nullptr; //(HBRUSH) (COLOR_3DFACE +1);
-		//wc.lpszMenuName = 0;
-		//wc.lpszClassName = DCX_BOXCLASS;
-		//wc.hIconSm = nullptr;
-		//RegisterClassEx(&wc);
-	//
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Web..."));
-		//dcxRegisterClass(WC_STATIC, DCX_WEBCLASS, DcxWebControl);
-	//
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Line..."));
-		//dcxRegisterClass(WC_STATIC, DCX_LINECLASS, DcxLine);
-	//
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Link..."));
-		//dcxRegisterClass(WC_STATIC, DCX_LINKCLASS, DcxLink);
-		////dcxRegisterClass(WC_LINK, DCX_LINKCLASS, DcxLink);
-	//
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering List..."));
-		//dcxRegisterClass(WC_LISTBOX, DCX_LISTCLASS, DcxList);
-	//
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Scroll..."));
-		//dcxRegisterClass(WC_SCROLLBAR, DCX_SCROLLCLASS, DcxScroll);
-	//
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Text..."));
-		//dcxRegisterClass(WC_STATIC, DCX_TEXTCLASS, DcxText);
-	//
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering DirectShow..."));
-		//dcxRegisterClass(WC_STATIC, DCX_DIRECTSHOWCLASS, DcxDirectshow);
-	//
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Stacker..."));
-		//dcxRegisterClass(WC_LISTBOX, DCX_STACKERCLASS, DcxStacker);
-	//
-		//m_bInitialized = true;
-	//
-		//return;
-
 	// Custom ProgressBar
 	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering ProgressBar..."));
 	dcxRegisterClass<DcxProgressBar>(PROGRESS_CLASS, DCX_PROGRESSBARCLASS);
@@ -3642,6 +3365,9 @@ void DcxControl::InitializeDcxControls()
 
 	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering Stacker..."));
 	dcxRegisterClass<DcxStacker>(WC_LISTBOX, DCX_STACKERCLASS);
+
+	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering Web2..."));
+	dcxRegisterClass<DcxWebControl2>(WC_STATIC, DCX_WEB2CLASS);
 
 	m_bInitialized = true;
 
