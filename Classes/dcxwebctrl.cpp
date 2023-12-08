@@ -609,7 +609,8 @@ void DcxWebControl::toXml(TiXmlElement* const xml) const
 	// addressbar fullscreen
 	xml->SetAttribute("flags", tsFlags.c_str());
 	xml->SetAttribute("mask", tsMask.c_str());
-	xml->SetAttribute("statustext", this->getStatusText().c_str());
+	if (const TString tsText(this->getStatusText()); !tsText.empty())
+		xml->SetAttribute("statustext", tsText.c_str());
 }
 
 TiXmlElement* DcxWebControl::toXml() const
@@ -628,8 +629,8 @@ void DcxWebControl::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThi
 
 	{
 		const TString tsURL(queryAttribute(xThis, "url"));
-		const TString tsFlags(queryAttribute(xThis, "flags"));
-		const TString tsMask(queryAttribute(xThis, "mask"));
+		const TString tsFlags(queryAttribute(xThis, "flags", "+"));
+		const TString tsMask(queryAttribute(xThis, "mask", "+"));
 		this->setURL(tsURL, tsFlags, tsMask);
 	}
 }
@@ -669,7 +670,6 @@ LRESULT DcxWebControl::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 LRESULT DcxWebControl::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 #if DCX_DEBUG_OUTPUT
-	//mIRCLinker::signalex(true,TEXT("webctrl debug %lu"), uMsg);
 	//mIRCLinker::signal(TEXT("webctrl debug %"), uMsg);
 #endif
 	switch (uMsg)
