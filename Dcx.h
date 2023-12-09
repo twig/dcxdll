@@ -5,6 +5,8 @@
 #include "DcxGDIModule.h"
 #include "DcxDWMModule.h"
 #include "DcxDPIModule.h"
+#include "DcxWebView2Module.h"
+#include "DcxDCompModule.h"
 #include "Classes/xpopup/XPopupMenuManager.h"
 #include "Classes/xpopup/xmenubar.h"
 #include "Classes/DcxDialog.h"
@@ -47,6 +49,8 @@ namespace Dcx
 	extern DcxUXModule UXModule;
 	extern DcxDWMModule DwmModule;
 	extern DcxDPIModule DpiModule;
+	extern DcxWebView2Module WebViewModule;
+	extern DcxDCompModule DCompModule;
 
 	/* additions */
 	extern XPopupMenuManager XPopups;

@@ -11,6 +11,8 @@ namespace Dcx {
 	DcxUXModule UXModule;
 	DcxDWMModule DwmModule;
 	DcxDPIModule DpiModule;
+	DcxWebView2Module WebViewModule;
+	DcxDCompModule DCompModule;
 	DcxDialogCollection Dialogs;
 	XPopupMenuManager XPopups;
 	XMenuBar XMenubar;
@@ -65,6 +67,10 @@ namespace Dcx {
 		DwmModule.load();
 
 		DpiModule.load();
+
+		WebViewModule.load();
+
+		DCompModule.load();
 
 		// Load Control definitions
 		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Loading control classes"));

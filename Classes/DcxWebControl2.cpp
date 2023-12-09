@@ -315,51 +315,24 @@ void DcxWebControl2::InstallComplete(int return_code) noexcept
 	evalAliasEx(&szRes[0], std::size(szRes), L"install_complete,%u,%u", getUserID(), return_code);
 }
 
-// We have our own implementation of DCompositionCreateDevice2 that dynamically
-// loads dcomp.dll to create the device. Not having a static dependency on dcomp.dll
-// enables the sample app to run on versions of Windows that don't support dcomp.
-HRESULT DcxWebControl2::DCompositionCreateDevice2(IUnknown* renderingDevice, REFIID riid, void** ppv) noexcept
-{
-	static decltype(::DCompositionCreateDevice2)* fnCreateDCompDevice2 = nullptr;
-	if (fnCreateDCompDevice2 == nullptr)
-	{
-		if (HMODULE hmod = ::LoadLibraryEx(L"dcomp.dll", nullptr, 0); hmod != nullptr)
-		{
-			fnCreateDCompDevice2 = reinterpret_cast<decltype(::DCompositionCreateDevice2)*>(
-				::GetProcAddress(hmod, "DCompositionCreateDevice2"));
-		}
-	}
-
-	HRESULT hr = E_FAIL;
-	if (fnCreateDCompDevice2 != nullptr)
-	{
-		hr = fnCreateDCompDevice2(renderingDevice, riid, ppv);
-	}
-	return hr;
-}
-
 bool DcxWebControl2::InitializeInterface()
 {
 	wil::unique_cotaskmem_string version_info;
 
-	if (const HRESULT hr = GetAvailableCoreWebView2BrowserVersionString(nullptr, &version_info); (hr == S_OK) && (version_info != nullptr))
+	if (const HRESULT hr = Dcx::WebViewModule.dcxGetAvailableCoreWebView2BrowserVersionString(nullptr, &version_info); (hr == S_OK) && (version_info != nullptr))
 	{
 #if DCX_DEBUG_OUTPUT
 		mIRCLinker::signal(TEXT("web2ctrl webview2 installed: v%"), version_info.get());
 #endif
-		//TString tsUserData;
-		//_ts_sprintf(tsUserData, L"$mircdirWebView2Cache.%.%", getParentDialog()->getName(), getUserID());
+		if (DcxWebControl2::m_webviewEnvironment == nullptr)
+		{
+			TString tsUserData("$mircdirWebView2Cache");
+			mIRCLinker::eval(tsUserData, tsUserData);
 
-		TString tsUserData("$mircdirWebView2Cache");
-		mIRCLinker::eval(tsUserData, tsUserData);
-
-		//CreateCoreWebView2EnvironmentWithOptions(nullptr, tsUserData.to_wchr(), nullptr,
-		//	Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
-		//		[this](HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
-		//			return OnCreateCoreWebView2EnvironmentCompleted(result, env);
-		//		}).Get());
-
-		CreateCoreWebView2EnvironmentWithOptions(nullptr, tsUserData.to_wchr(), nullptr, Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(this, &DcxWebControl2::OnCreateCoreWebView2EnvironmentCompleted).Get());
+			Dcx::WebViewModule.dcxCreateCoreWebView2EnvironmentWithOptions(nullptr, tsUserData.to_wchr(), nullptr, Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(this, &DcxWebControl2::OnCreateCoreWebView2EnvironmentCompleted).Get());
+		}
+		else
+			OnCreateCoreWebView2EnvironmentCompleted(0, DcxWebControl2::m_webviewEnvironment.get());
 	}
 	else {
 		// no webview2 installed!
@@ -511,6 +484,14 @@ void DcxWebControl2::setStatusbarState(bool bEnable)
 	m_settings->put_IsStatusBarEnabled(bEnable);
 }
 
+void DcxWebControl2::setVisableState(bool bEnable)
+{
+	if (!m_webviewController)
+		return;
+
+	m_webviewController->put_IsVisible(bEnable);
+}
+
 void DcxWebControl2::setURL(const TString& tsURL, const TString& tsFlags, const TString& tsMask)
 {
 	if (!m_webview || !m_settings)
@@ -563,11 +544,13 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2EnvironmentCompleted(HRESULT result,
 {
 	if (!env)
 		return E_FAIL;
-	m_webviewEnvironment = env;
 
+	if (DcxWebControl2::m_webviewEnvironment == nullptr)
+		DcxWebControl2::m_webviewEnvironment = env;
+	
 	if (m_dcompDevice)
 	{
-		if (auto env3 = m_webviewEnvironment.try_query<ICoreWebView2Environment3>(); env3)
+		if (auto env3 = DcxWebControl2::m_webviewEnvironment.try_query<ICoreWebView2Environment3>(); env3)
 		{
 			env3->CreateCoreWebView2CompositionController(m_Hwnd, Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2CompositionControllerCompletedHandler>(
 				[this](HRESULT result, ICoreWebView2CompositionController* compositionController) -> HRESULT {
@@ -581,7 +564,7 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2EnvironmentCompleted(HRESULT result,
 	}
 
 	// Create a CoreWebView2Controller and get the associated CoreWebView2 whose parent is the main window hWnd
-	env->CreateCoreWebView2Controller(m_Hwnd, Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(this, &DcxWebControl2::OnCreateCoreWebView2ControllerCompleted).Get());
+	DcxWebControl2::m_webviewEnvironment->CreateCoreWebView2Controller(m_Hwnd, Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(this, &DcxWebControl2::OnCreateCoreWebView2ControllerCompleted).Get());
 
 	return S_OK;
 }
@@ -670,6 +653,8 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 	// Schedule an async task to navigate to Bing
 	//webview->Navigate(L"https://www.bing.com/");
 	//webview->Navigate(L"about:blank");
+
+	setVisableState(true);
 
 	return S_OK;
 }

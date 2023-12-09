@@ -327,7 +327,7 @@
       <AdditionalDependencies>comctl32.lib;Msimg32.lib;Version.lib;shlwapi.lib;Crypt32.lib;detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
-      <DelayLoadDLLs>gdiplus.dll;WebView2Loader.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -387,7 +387,7 @@
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>dll.def</ModuleDefinitionFile>
-      <DelayLoadDLLs>gdiplus.dll;WebView2Loader.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -440,7 +440,7 @@
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>dll.def</ModuleDefinitionFile>
-      <DelayLoadDLLs>gdiplus.dll;WebView2Loader.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -494,7 +494,7 @@
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>dll.def</ModuleDefinitionFile>
-      <DelayLoadDLLs>gdiplus.dll;WebView2Loader.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>No</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -549,7 +549,7 @@
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>dll.def</ModuleDefinitionFile>
-      <DelayLoadDLLs>gdiplus.dll;WebView2Loader.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>No</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -602,7 +602,7 @@
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>dll.def</ModuleDefinitionFile>
-      <DelayLoadDLLs>gdiplus.dll;WebView2Loader.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -782,7 +782,9 @@
     <ClCompile Include="Classes\Directshow\video.cpp" />
     <ClCompile Include="Classes\tstring\hashString.cpp" />
     <ClCompile Include="Dcx.cpp" />
+    <ClCompile Include="DcxDCompModule.cpp" />
     <ClCompile Include="DcxDPIModule.cpp" />
+    <ClCompile Include="DcxWebView2Module.cpp" />
     <ClCompile Include="Defines.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">Create</PrecompiledHeader>
@@ -880,8 +882,10 @@
     <ClInclude Include="ColourString.h" />
     <ClInclude Include="Dcx.h" />
     <ClInclude Include="DcxConcepts.h" />
+    <ClInclude Include="DcxDCompModule.h" />
     <ClInclude Include="DcxDPIModule.h" />
     <ClInclude Include="dcxExceptions.h" />
+    <ClInclude Include="DcxWebView2Module.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="dxerr_nov2015\dxerr.h" />
     <ClInclude Include="EnumConcepts.h" />

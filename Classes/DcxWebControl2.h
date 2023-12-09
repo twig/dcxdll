@@ -50,8 +50,6 @@ public:
 
 	void InstallComplete(int return_code) noexcept;
 
-	static HRESULT DCompositionCreateDevice2(IUnknown* renderingDevice, REFIID riid, void** ppv) noexcept;
-
 	bool InitializeInterface();
 
 	TString getURL() const;
@@ -64,6 +62,7 @@ public:
 	void setFullScreenState(bool bEnable) noexcept;
 	void setScriptingState(bool bEnable);
 	void setStatusbarState(bool bEnable);
+	void setVisableState(bool bEnable);
 	void setURL(const TString& tsURL, const TString& tsFlags, const TString& tsMask);
 	void CallScript(const TString& tsCmd);
 
@@ -75,7 +74,7 @@ private:
 	wil::com_ptr<ICoreWebView2> m_webview;
 
 	//
-   	wil::com_ptr<ICoreWebView2Environment> m_webviewEnvironment;
+   	static inline wil::com_ptr<ICoreWebView2Environment> m_webviewEnvironment;
 
 	// settings...
 	wil::com_ptr<ICoreWebView2Settings> m_settings;
