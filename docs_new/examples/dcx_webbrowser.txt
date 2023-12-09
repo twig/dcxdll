@@ -57,7 +57,9 @@ alias dcx_webbrowser_addtab {
   var %id = $+(Tab,%dcx_browser_tabcnt), %url = $iif($2 != $null,$2,about:blank)
   var %edit_id = $+(%id,_edit), %web_id = $+(%id,_web), %back_id = $+(%id,_back), %forward_id = $+(%id,_forward), %refresh_id = $+(%id,_refresh), %home_id = $+(%id,_home)
 
-  xdid -a $1 4 0 1 Tab %dcx_browser_tabcnt $chr(9) %id panel 0 0 400 300 notheme $chr(9) %url
+  if (!$istok(webctrl web2ctrl,%dcx_browser_type,32)) set %dcx_browser_type webctrl
+
+  xdid -a $1 4 0 $iif(%dcx_browser_type == webctrl,2,1) Tab %dcx_browser_tabcnt $chr(9) %id panel 0 0 400 300 notheme $chr(9) %url
   xdid -J $1 %id +r arrow
   xdid -E $1 %id + -cdefhmstCM
 
@@ -78,8 +80,6 @@ alias dcx_webbrowser_addtab {
   xdid -T $1 %home_id Go home...
 
   xdid -c $1 %id %edit_id edit 0 0 0 0 autohs
-
-  if (!$istok(webctrl web2ctrl,%dcx_browser_type,32)) set %dcx_browser_type webctrl
 
   xdid -c $1 %id %web_id %dcx_browser_type 0 0 0 0
 
@@ -122,6 +122,10 @@ on *:DIALOG:dcx_webbrowser:init:0:{
   xdid -C $dname 4 +bk $rgb(0,233,192)
   xdid -C $dname 4 +t $rgb(0,255,0)
   xdid -E $dname 4 + -es
+  var %d = C:\Program Files (x86)\Microsoft\EdgeWebView\Application\, %f = SmallLogo.png
+  if ($findfile(%d,%f,1)) xdid -w $dname 4 +P 0 $v1
+  var %f = C:\Program Files (x86)\Internet Explorer\iexplore.exe
+  if ($isfile(%f)) xdid -w $dname 4 + 1 %f
 
   xdid -J $dname 3,4 +r arrow
 

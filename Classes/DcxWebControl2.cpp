@@ -105,6 +105,18 @@ void DcxWebControl2::parseInfoRequest(const TString& input, const refString<TCHA
 		szReturnValue = this->getStatusText().to_chr();
 	}
 	break;
+	case L"version"_hash:
+	{
+		if (m_webviewEnvironment)
+		{
+			wil::unique_cotaskmem_string value;
+
+			m_webviewEnvironment->get_BrowserVersionString(&value);
+
+			szReturnValue = value.get();
+		}
+	}
+	break;
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 	}
@@ -667,10 +679,21 @@ HRESULT DcxWebControl2::OnNavigationStarting(ICoreWebView2* sender, ICoreWebView
 	wil::unique_cotaskmem_string uri;
 	args->get_Uri(&uri);
 
-	TCHAR szRes[64]{};
-	if (!evalAliasEx(&szRes[0], std::size(szRes), L"nav_begin,%u,%s", getUserID(), uri.get()))
-		args->put_Cancel(true);
+	//TCHAR szRes[64]{};
+	//if (!evalAliasEx(&szRes[0], std::size(szRes), L"nav_begin,%u,%s", getUserID(), uri.get()))
+	//	args->put_Cancel(true);
 
+	//TCHAR szRes[64]{};
+	//mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), uri.get());
+	//if (!evalAliasEx(&szRes[0], std::size(szRes), L"nav_begin,%u,%%dcx_text", getUserID()))
+	//	args->put_Cancel(true);
+
+	if (const auto pd = getParentDialog(); pd)
+	{
+		mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), uri.get());
+		if (!mIRCLinker::eval(nullptr, TEXT("$%(%,nav_begin,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID()))
+			args->put_Cancel(true);
+	}
 	return S_OK;
 }
 
@@ -682,8 +705,7 @@ HRESULT DcxWebControl2::OnNavigationCompleted(ICoreWebView2* sender, ICoreWebVie
 	BOOL bOK{};
 	args->get_IsSuccess(&bOK);
 
-	TCHAR szRes[64]{};
-	evalAliasEx(&szRes[0], std::size(szRes), L"nav_complete,%u,%u", getUserID(), bOK);
+	execAliasEx(L"nav_complete,%u,%u", getUserID(), bOK);
 
 	return S_OK;
 }
@@ -696,16 +718,26 @@ HRESULT DcxWebControl2::OnDocumentTitleChanged(ICoreWebView2* sender, IUnknown* 
 	wil::unique_cotaskmem_string title;
 	sender->get_DocumentTitle(&title);
 
-	TCHAR szRes[64]{};
-	evalAliasEx(&szRes[0], std::size(szRes), L"title,%u,%s", getUserID(), title.get());
+	//execAliasEx(L"title,%u,%s", getUserID(), title.get());
+
+	if (const auto pd = getParentDialog(); pd)
+	{
+		mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), title.get());
+		mIRCLinker::eval(nullptr, TEXT("$%(%,title,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
+	}
 
 	return S_OK;
 }
 
 HRESULT DcxWebControl2::OnExecuteScriptCompleted(HRESULT errorCode, LPCWSTR resultObjectAsJson)
 {
-	TCHAR szRes[64]{};
-	evalAliasEx(&szRes[0], std::size(szRes), L"script,%u,%s", getUserID(), resultObjectAsJson);
+	//execAliasEx(L"script,%u,%s", getUserID(), resultObjectAsJson);
+
+	if (const auto pd = getParentDialog(); pd)
+	{
+		mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), resultObjectAsJson);
+		mIRCLinker::eval(nullptr, TEXT("$%(%,script,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
+	}
 
 	return S_OK;
 }
@@ -720,9 +752,7 @@ HRESULT DcxWebControl2::OnContainsFullScreenElementChanged(ICoreWebView2* sender
 
 	TCHAR szRes[64]{};
 	if (evalAliasEx(&szRes[0], std::size(szRes), L"fullscreen,%u,%u", getUserID(), bFullScreen))
-	{
 		setFullScreenState(bFullScreen);
-	}
 
 	return S_OK;
 }
@@ -734,8 +764,13 @@ HRESULT DcxWebControl2::OnStatusBarTextChanged(ICoreWebView2* sender, IUnknown* 
 
 	auto tsText(getStatusText());
 
-	TCHAR szRes[64]{};
-	evalAliasEx(&szRes[0], std::size(szRes), L"status,%u,%s", getUserID(), tsText.to_chr());
+	//execAliasEx(L"status,%u,%s", getUserID(), tsText.to_chr());
+
+	if (const auto pd = getParentDialog(); pd)
+	{
+		mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), tsText);
+		mIRCLinker::eval(nullptr, TEXT("$%(%,status,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
+	}
 
 	return S_OK;
 }
@@ -750,8 +785,7 @@ HRESULT DcxWebControl2::OnHistoryChanged(ICoreWebView2* sender, IUnknown* args)
 	sender->get_CanGoBack(&canGoBack);
 	sender->get_CanGoForward(&canGoForward);
 
-	TCHAR szRes[64]{};
-	evalAliasEx(&szRes[0], std::size(szRes), L"history,%u,%u,%u", getUserID(), canGoBack, canGoForward);
+	execAliasEx(L"history,%u,%u,%u", getUserID(), canGoBack, canGoForward);
 
 	return S_OK;
 }
