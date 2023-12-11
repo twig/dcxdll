@@ -489,6 +489,7 @@ private:
 
 	// settings for drawing the dialogs menu bar.
 	XPMENUBAR m_CustomMenuBar;
+	HMENU m_hMenuBackup{};
 
 	void i_showError(const TCHAR* const cType, const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const err) const;
 	void PreloadData(void) noexcept;

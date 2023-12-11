@@ -88,10 +88,12 @@ private:
 	EventRegistrationToken m_fullscreenToken;
 	EventRegistrationToken m_statusbarToken;
 	EventRegistrationToken m_historyChangedToken;
+	EventRegistrationToken m_faviconChangedToken;
 
 	bool m_bFullScreen{};
 	RECT m_rcSize{};
 	TString m_tsHome;
+	wil::unique_hicon m_favicon;
 
 	HRESULT OnCreateCoreWebView2EnvironmentCompleted(HRESULT result, ICoreWebView2Environment* env);
 	HRESULT OnCreateCoreWebView2ControllerCompleted(HRESULT result, ICoreWebView2Controller* controller);
@@ -102,5 +104,6 @@ private:
 	HRESULT OnContainsFullScreenElementChanged(ICoreWebView2* sender, IUnknown* args);
 	HRESULT OnStatusBarTextChanged(ICoreWebView2* sender, IUnknown* args);
 	HRESULT OnHistoryChanged(ICoreWebView2* sender, IUnknown* args);
+	HRESULT OnFaviconChanged(ICoreWebView2* sender, IUnknown* args);
 };
 

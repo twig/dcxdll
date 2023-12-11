@@ -1270,13 +1270,13 @@ DcxControl* DcxControl::controlFactory(gsl::strict_not_null<DcxDialog* const> p_
 		{
 			auto ctrl_p = new DcxWebControl2(mID, p_Dialog, hParent, &rc, styles);
 
-			//ctrl_p->InitializeInterface();
+			ctrl_p->InitializeInterface();
 
-			if (!ctrl_p->InitializeInterface())
-			{
-				DestroyWindow(ctrl_p->getHwnd());
-				throw DcxExceptions::dcxUnableToCreateWindow();
-			}
+			//if (!ctrl_p->InitializeInterface())
+			//{
+			//	DestroyWindow(ctrl_p->getHwnd());
+			//	throw DcxExceptions::dcxUnableToCreateWindow();
+			//}
 
 			return ctrl_p;
 		}

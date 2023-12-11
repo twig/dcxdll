@@ -195,6 +195,45 @@ void DcxWebControl2::parseCommandRequest(const TString& input)
 	// xdid -t [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('t')])
 		m_webview->Stop();
+	// xdid -C [NAME] [ID] [SWITCH] [+FLAGS] (FILENAME)
+	else if (flags[TEXT('C')])
+	{
+		const XSwitchFlags xFlags(input.getnexttok());
+		auto tsFilename(input.getlasttoks().trim());	// tok 4, -1
+
+		if (!xFlags[TEXT('+')])
+			throw DcxExceptions::dcxInvalidFlag();
+
+		OPENFILENAME openFileName = {};
+		openFileName.lStructSize = sizeof(openFileName);
+		openFileName.hwndOwner = nullptr;
+		openFileName.hInstance = nullptr;
+		WCHAR fileName[MAX_PATH] = L"WebView2_Screenshot.png";
+		if (!tsFilename.empty())
+			_ts_strcpy(fileName, tsFilename.to_wchr());
+
+		openFileName.lpstrFile = fileName;
+		openFileName.lpstrFilter = L"PNG File\0*.png\0";
+		openFileName.nMaxFile = std::size(fileName);
+		openFileName.Flags = OFN_OVERWRITEPROMPT;
+
+		if (GetSaveFileName(&openFileName))
+		{
+			wil::com_ptr<IStream> stream;
+			if (SUCCEEDED(SHCreateStreamOnFileEx(fileName, STGM_READWRITE | STGM_CREATE, FILE_ATTRIBUTE_NORMAL, TRUE, nullptr, &stream)))
+			{
+				m_webview->CapturePreview(COREWEBVIEW2_CAPTURE_PREVIEW_IMAGE_FORMAT_PNG, stream.get(),
+					Microsoft::WRL::Callback<ICoreWebView2CapturePreviewCompletedHandler>(
+						[this](HRESULT error_code) noexcept -> HRESULT {
+							//CHECK_FAILURE(error_code);
+
+							MessageBox(m_Hwnd, L"Preview Captured", L"Preview Captured", MB_OK);
+							return S_OK;
+						})
+					.Get());
+			}
+		}
+	}
 	else
 		parseGlobalCommandRequest(input, flags);
 }
@@ -309,10 +348,10 @@ void DcxWebControl2::InstallComplete(int return_code) noexcept
 		//	InitializeWebView();
 		//	});
 
-		//try {
-		//	this->InitializeInterface();
-		//}
-		//catch (...) {}
+		try {
+			this->InitializeInterface();
+		}
+		catch (...) {}
 	}
 	else if (return_code == 1)
 	{
@@ -329,6 +368,12 @@ void DcxWebControl2::InstallComplete(int return_code) noexcept
 
 bool DcxWebControl2::InitializeInterface()
 {
+	if (!Dcx::WebViewModule.isUseable())
+	{
+		// cant load WebView2Loader.dll
+		MessageBox(m_Hwnd, L"Unable to load WebView2Loader.dll", L"Missing File!", MB_OK);
+		return false;
+	}
 	wil::unique_cotaskmem_string version_info;
 
 	if (const HRESULT hr = Dcx::WebViewModule.dcxGetAvailableCoreWebView2BrowserVersionString(nullptr, &version_info); (hr == S_OK) && (version_info != nullptr))
@@ -417,17 +462,6 @@ TString DcxWebControl2::getStatusText() const
 	TString tsRes;
 	if (!m_webview)
 		return tsRes;
-
-	//Microsoft::WRL::ComPtr<ICoreWebView2_12> wv;
-	//
-	//if (SUCCEEDED(webview->QueryInterface(IID_PPV_ARGS(&wv))))
-	//{
-	//	wil::unique_cotaskmem_string value;
-	//
-	//	if (SUCCEEDED(wv->get_StatusBarText(&value)))
-	//		tsRes = value.get();
-	//}
-	//return tsRes;
 
 	if (auto wv = m_webview.try_query<ICoreWebView2_12>(); wv)
 	{
@@ -628,45 +662,17 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 
 	m_webview->add_HistoryChanged(Microsoft::WRL::Callback<ICoreWebView2HistoryChangedEventHandler>(this, &DcxWebControl2::OnHistoryChanged).Get(), &m_historyChangedToken);
 
-	// <Scripting>
-	// Step 5 - Scripting
-	// Schedule an async task to add initialization script that freezes the Object object
-	//webview->AddScriptToExecuteOnDocumentCreated(L"Object.freeze(Object);", nullptr);
-	// Schedule an async task to get the document URL
-	//webview->ExecuteScript(L"window.document.URL;", Microsoft::WRL::Callback<ICoreWebView2ExecuteScriptCompletedHandler>(
-	//	[](HRESULT errorCode, LPCWSTR resultObjectAsJson) -> HRESULT {
-	//		LPCWSTR URL = resultObjectAsJson;
-	//		//doSomethingWithURL(URL);
-	//		return S_OK;
-	//	}).Get());
-	// </Scripting>
-
-	// <CommunicationHostWeb>
-	// Step 6 - Communication between host and web content
-	// Set an event handler for the host to return received message back to the web content
-	//webview->add_WebMessageReceived(Microsoft::WRL::Callback<ICoreWebView2WebMessageReceivedEventHandler>(
-	//	[](ICoreWebView2* webview, ICoreWebView2WebMessageReceivedEventArgs* args) -> HRESULT {
-	//		wil::unique_cotaskmem_string message;
-	//		args->TryGetWebMessageAsString(&message);
-	//		// processMessage(&message);
-	//		webview->PostWebMessageAsString(message.get());
-	//		return S_OK;
-	//	}).Get(), &token);
-
-	// Schedule an async task to add initialization script that
-	// 1) Add an listener to print message from the host
-	// 2) Post document URL to the host
-	//webview->AddScriptToExecuteOnDocumentCreated(
-	//	L"window.chrome.webview.addEventListener(\'message\', event => alert(event.data));" \
-	//	L"window.chrome.webview.postMessage(window.document.URL);",
-	//	nullptr);
-	// </CommunicationHostWeb>
-
+	{
+		auto webview15 = m_webview.try_query<ICoreWebView2_15>();
+		webview15->add_FaviconChanged(Microsoft::WRL::Callback<ICoreWebView2FaviconChangedEventHandler>(this, &DcxWebControl2::OnFaviconChanged).Get(), &m_faviconChangedToken);
+	}
 	// Schedule an async task to navigate to Bing
 	//webview->Navigate(L"https://www.bing.com/");
 	//webview->Navigate(L"about:blank");
 
 	setVisableState(true);
+
+	//execAliasEx(L"ready,%u,%u", getUserID());
 
 	return S_OK;
 }
@@ -788,4 +794,43 @@ HRESULT DcxWebControl2::OnHistoryChanged(ICoreWebView2* sender, IUnknown* args)
 	execAliasEx(L"history,%u,%u,%u", getUserID(), canGoBack, canGoForward);
 
 	return S_OK;
+}
+
+HRESULT DcxWebControl2::OnFaviconChanged(ICoreWebView2* sender, IUnknown* args)
+{
+#ifdef DCX_USE_GDIPLUS
+	wil::unique_cotaskmem_string url;
+
+	auto webview15 = m_webview.try_query<ICoreWebView2_15>();
+	if (!webview15)
+		return E_FAIL;
+
+	webview15->get_FaviconUri(&url);
+	const TString tsURL(url.get());
+
+	return webview15->GetFavicon(COREWEBVIEW2_FAVICON_IMAGE_FORMAT_PNG,
+		Microsoft::WRL::Callback<ICoreWebView2GetFaviconCompletedHandler>(
+			[this, tsURL](HRESULT errorCode, IStream* iconStream) -> HRESULT
+			{
+				//CHECK_FAILURE(errorCode);
+
+				if (errorCode == S_OK)
+				{
+					Gdiplus::Bitmap iconBitmap(iconStream);
+					wil::unique_hicon icon;
+					if (iconBitmap.GetHICON(&icon) == Gdiplus::Status::Ok)
+					{
+						m_favicon = std::move(icon);
+
+						execAliasEx(L"favicon,%u,%s", getUserID(), tsURL.to_wchr());
+
+						return S_OK;
+					}
+				}
+				return E_FAIL;
+			})
+		.Get());
+#else
+	return E_NOTIMPL;
+#endif
 }
