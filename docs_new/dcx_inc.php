@@ -87,6 +87,7 @@ $PAGES = array(
     'calendar' => "Calendar",
     'datetime' => "DateTime Picker",
     'webctrl' => "Web Control",
+    'web2ctrl' => "Web2 Control",
     'updown' => 'UpDown',
     'ipaddress' => "IP Address",
     'colorcombo' => "ColorCombo",

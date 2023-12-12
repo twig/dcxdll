@@ -219,5 +219,8 @@
     <None Include="..\docs_new\inc\howtocompile.php">
       <Filter>Source Files\inc</Filter>
     </None>
+    <None Include="..\docs_new\inc\web2ctrl.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
   </ItemGroup>
 </Project>

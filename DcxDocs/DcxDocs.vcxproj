@@ -168,6 +168,7 @@ $(PHPDir)\php -q dcx_gen.php
     <None Include="..\docs_new\inc\treeview.php" />
     <None Include="..\docs_new\inc\tutorials.php" />
     <None Include="..\docs_new\inc\updown.php" />
+    <None Include="..\docs_new\inc\web2ctrl.php" />
     <None Include="..\docs_new\inc\webctrl.php" />
     <None Include="..\docs_new\inc\window.php" />
     <None Include="..\docs_new\inc\xdialog.php" />

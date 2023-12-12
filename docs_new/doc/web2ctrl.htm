@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-<title>DCX Panel - Dialog Control Xtension DLL v3.1 by ClickHeRe, twig* &amp; Ook</title>
+<title>DCX Web2 Control - Dialog Control Xtension DLL v3.1 by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -64,219 +64,270 @@
 	</ul>
 	</td>
 <td><table class="description">
-	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>Panel</td></tr>
-	<tr><td>The panel control is like an empty borderless dialog which is used to host other controls.<br /><br />
+	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>Web2 Control</td></tr>
+	<tr><td>WebView2 HTML control.<br/>
+NB: This control requires WebView2Loader.dll to be present somewhere LoadLibrary() can find it.<br/>
+NB: The control also requires WebView2 installed & will try to install it if not found.<br /><br />
 <div style="text-align: center;">
-	<img src="images/panel.png" alt="" />
+	<img src="images/web2ctrl.png" alt="" />
 </div>
 </td></tr>
 </table>
-<table class="description">
-	<tr><td class="heading" style="border-color: #B49696; color: #B49696;"><a name="style"></a>Control Styles</td></tr>
-	<tr><td>These control styles are available when creating a Panel control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">hidden</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
-</table>
-<table class="styles">
-	<tr>
-		<td class="style"><a name="style.alpha" class="style">alpha</a></td>
-		<td>Control is alpha blended.</td>
-	</tr>
-	<tr>
-		<td class="style"><a name="style.hgradient" class="style">hgradient</a></td>
-		<td>Draws a horizontal gradient with the colors specified.</td>
-	</tr>
-	<tr>
-		<td class="style"><a name="style.vgradient" class="style">vgradient</a></td>
-		<td>Draws a vertical gradient with the colors specified.</td>
-	</tr>
-</table>
-<br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xdid"></a>/xdid flags</td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xdid.c"></a>/xdid -c	</td></tr>
-	<tr><td colspan="2">This command lets you add a child control to a panel control.</td></tr>
+			<a name="xdid.g"></a>/xdid -g	</td></tr>
+	<tr><td colspan="2">This command is like hitting the Home button in a browser.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -c [DNAME] [ID] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)</div></td>
+		<td><div class="syntax">/xdid -g [DNAME] [ID] </div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -c dcx 4 12 richedit 10 10 400 25 multi</div></td>
-	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">CID</td>
-		<td>Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b></td>
-	</tr>
-	<tr>
-		<td class="param">CONTROL</td>
-		<td>The type of DCX Control to create. Values can be:<br />
-<a class="value">button</a>, <a class="value">calendar</a>, <a class="value">colorcombo</a>, <a class="value">comboex</a>, <a class="value">datetime</a>, <a class="value">directshow</a>, <a class="value">ipaddress</a>, <a class="value">listview</a>, <a class="value">pbar</a>, <a class="value">richedit</a>, <a class="value">statusbar</a>, <a class="value">toolbar</a>, <a class="value">trackbar</a>, <a class="value">treeview</a>, <a class="value">updown</a>, <a class="value">webctrl</a><br />
-<a class="value">box</a>, <a class="value">check</a>, <a class="value">edit</a>, <a class="value">image</a>, <a class="value">line</a>, <a class="value">link</a>, <a class="value">list</a>, <a class="value">radio</a>, <a class="value">scroll</a>, <a class="value">text</a><br />
-<a class="value">divider</a>, <a class="value">pager</a>, <a class="value">panel</a>, <a class="value">rebar</a>, <a class="value">stacker</a>, <a class="value">tab</a><br />
-<a class="value">dialog</a> or <a class="value">window</a>.</td>
-	</tr>
-	<tr>
-		<td class="param">X</td>
-		<td>X position of control.</td>
-	</tr>
-	<tr>
-		<td class="param">Y</td>
-		<td>Y position of control.</td>
-	</tr>
-	<tr>
-		<td class="param">W</td>
-		<td>Width of control.</td>
-	</tr>
-	<tr>
-		<td class="param">H</td>
-		<td>Height of control.</td>
-	</tr>
-	<tr>
-		<td class="param">OPTIONS</td>
-		<td>Optional styles and options available on each individual controls.</td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If docking a mIRC @Window or mIRC Dialog, the first parameter in <a class="param">OPTIONS</a> must be the @window/dialog name.</td></tr></table>
-<br />
-<table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xdid.d"></a>/xdid -d	</td></tr>
-	<tr><td colspan="2">This command lets you delete a control added on the panel.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -d [DNAME] [ID] [CID]</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xdid -d dcx 4 6</div></td>
+		<td><div class="example">/xdid -g dcx 4</div></td>
 	</tr>
 </table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xdid.l"></a>/xdid -l	</td></tr>
-	<tr><td colspan="2">This command lets you add Cell Layout Algorithm rules to your dialog controls for automatic resizing of the child controls.</td></tr>
+			<a name="xdid.i"></a>/xdid -i	</td></tr>
+	<tr><td colspan="2">This command is like hitting the Forward button in a browser.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -l [DNAME] [ID] [COMMAND] [PATH] [TAB] [+FLAGS] [CID] [WEIGHT] [W] [H]</div></td>
+		<td><div class="syntax">/xdid -i [DNAME] [ID] </div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -l dcx 4 root $chr(9) +pv 0 1 0 0<br />/xdid -l dcx 4 root 1 2 $chr(9) +fi 7 1 200 300<br />/xdid -l dcx 4 space 1 $chr(9) + 5 5 5 5<br /></div></td>
+		<td><div class="example">/xdid -i dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.j"></a>/xdid -j	</td></tr>
+	<tr><td colspan="2">This command lets you execute some javascript code.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -j [DNAME] [ID] [JAVASCRIPT CODE]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -j dcx 4 alert('Hello')</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.k"></a>/xdid -k	</td></tr>
+	<tr><td colspan="2">This command is like hitting the Back button in a browser.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -k [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -k dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.m"></a>/xdid -m	</td></tr>
+	<tr><td colspan="2">This does the same as /xdid -n but allows setting some flags too.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -m [DNAME] [ID] [+FLAGS] [+MASK] (URL)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -m dcx 4 +bf +b http://dcx.scriptsdb.org</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
-		<td class="param">COMMAND</td>
-		<td>Layout command.</td>
-	</tr>
-	<tr>
-		<td class="value">clear</td>
-		<td>Clears all CLA rules.</td>
-	</tr>
-	<tr>
-		<td class="value">root</td>
-		<td>Sets the root cell element.</td>
-	</tr>
-	<tr>
-		<td class="value">cell</td>
-		<td>Adds a cell element as a child of another cell element.</td>
-	</tr>
-	<tr>
-		<td class="value">space</td>
-		<td>Sets the space padding around a cell element.</td>
-	</tr>
-	<tr>
-		<td class="value">update</td>
-		<td>Updates the cell layout (must be used after adding rules or changing padding settings to refresh display).</td>
-	</tr>
-	<tr>
-		<td class="param">PATH</td>
-		<td>Cell Path from <a class="value">root</a> element (can be root to point to root element).</td>
-	</tr>
-	<tr>
 		<td class="param">+FLAGS</td>
-		<td>Flags to manipulate Cell Layout Algorithm.</td>
+		<td>Can be any combination of</td>
 	</tr>
 	<tr>
 		<td class="value">f</td>
-		<td>Creates a fixed cell element.</td>
+		<td>toggle fullscreen on/off</td>
 	</tr>
 	<tr>
-		<td class="value">h</td>
-		<td>Creates a width fixed cell if used with <a class="value">+f</a> or a horizontal cell pane if used with <a class="value">+p.</a></td>
+		<td class="value">s</td>
+		<td>toggle statusbar on/off</td>
 	</tr>
 	<tr>
-		<td class="value">i</td>
-		<td>Indicates that the supplied control <a class="param">ID</a> is valid and is the child control when used with <a class="value">+f</a> or <a class="value">+l</a>.</td>
+		<td class="param">+MASK</td>
+		<td>is used to set the flags on or off /xdid -m dialog +bf +b will turn the address bar on, & disable fullscreen.</td>
 	</tr>
 	<tr>
-		<td class="value">l</td>
-		<td>Creates a fill cell element.</td>
+		<td class="param">URL</td>
+		<td>is optional, if not supplied then you can use the command to just set flags.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.n"></a>/xdid -n	</td></tr>
+	<tr><td colspan="2">This command lets you navigate to an url.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -n [DNAME] [ID] [URL]</div></td>
 	</tr>
 	<tr>
-		<td class="value">p</td>
-		<td>Creates a pane cell element.</td>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -n dcx 4 http://dcx.scriptsdb.org</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.r"></a>/xdid -r	</td></tr>
+	<tr><td colspan="2">This command is like hitting the Refresh button in a browser.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -r [DNAME] [ID] </div></td>
 	</tr>
 	<tr>
-		<td class="value">v</td>
-		<td>Creates a height fixed cell if used with <a class="value">+f</a> or a vertical cell pane if used with <a class="value">+p</a>.</td>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -r dcx 4</div></td>
 	</tr>
-	<tr>
-		<td class="value">w</td>
-		<td>When used, it means that the supplied <a class="param">W</a> and <a class="param">H</a> represent the fixed cell width in the applicable direction (if the fixed cell is fixed in width, height or both).</td>
-	</tr>
-	<tr>
-		<td class="param">CID</td>
-		<td>ID of the control (used with fixed or fill cells - use 0 if no control is to be linked to the cell).</td>
-	</tr>
-	<tr>
-		<td class="param">WEIGHT</td>
-		<td>Cell child weight. (used when adding a child cell to a pane cell)</td>
-	</tr>
-	<tr>
-		<td class="param">W</td>
-		<td>Fixed width of control (used with <a class="value">fixed</a> cell).</td>
-	</tr>
-	<tr>
-		<td class="param">H</td>
-		<td>Fixed height of control. (used with <a class="value">fixed</a> cell)</td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>See the <a class='value' href='layout.htm'>Cell Layout Algorithm</a> explanation for concrete examples.</li><li>If you use the <a class="value">update</a> command in the <a class="event">init</a> event of a dialog, you will have to use ".timer 1 0 xdialog -l dialog update" as a glitch with XP and themes disabled prevents windows from appearing. The timer corrects this problem.</li><li>When using the <a class="value">space</a> command, the <a class="param">ID</a> <a class="param">WEIGHT</a> <a class="param">W</a> <a class="param">H</a> are in fact the <a class="param">LEFT</a> <a class="param">TOP</a> <a class="param">RIGHT</a> <a class="param">BOTTOM</a> spacings</li><li>Use the value <a class="value">0</a> for the fields not used as the command expects them to be filled even though they aren't used.</li></ul></td></tr></table>
+</table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.t"></a>/xdid -t	</td></tr>
-	<tr><td colspan="2">This command lets you set the text for a panel control.</td></tr>
+	<tr><td colspan="2">This command is like hitting the Stop button in a browser.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -t [DNAME] [ID] [TEXT]</div></td>
+		<td><div class="syntax">/xdid -t [DNAME] [ID] </div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -t dcx 4 New Window Text</div></td>
+		<td><div class="example">/xdid -t dcx 4</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The panel text (and border) is only visible when used with /xdid -x DIALOG ID +bd</td></tr></table>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.C"></a>/xdid -C	</td></tr>
+	<tr><td colspan="2">Capture a preview of the current website.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -C [DNAME] [ID] [+FLAGS] [FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -C dcx 4 + sample.png</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Can be any combination of</td>
+	</tr>
+	<tr>
+		<td class="value">p</td>
+		<td>png format, flags mean nothing atm, its always png.</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>The filename to save the image as.</td>
+	</tr>
+</table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>Panel Events</td></tr>
-	<tr><td>These events are fired when activity occurs in the Panel control.</td></tr>
+	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
+	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
+</table>
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.statusbar"></a>$xdid().statusbar	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the enabled state of the statusbar. If it is <a class="value">$true</a> the statusbar is displayed, otherwise it's hidden.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).statusbar</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).statusbar</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.statustext"></a>$xdid().statustext	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the text displayed in the statusbar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).statustext</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).statustext</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.url"></a>$xdid().url	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the current loaded url.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).url</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).url</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.version"></a>$xdid().version	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the webview2 version.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).version</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).version</div></td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>Web2 Control Events</td></tr>
+	<tr><td>These events are fired when activity occurs in the Web2 Control control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
-			<a name="events.dclick"></a>dclick	</td></tr>
-	<tr><td colspan="2">When the left mouse button is double-clicked.</td></tr>
+			<a name="events.favicon"></a>favicon	</td></tr>
+	<tr><td colspan="2">When the favicon changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dclick ID </div></td>
+		<td><div class="syntax">/cb_alias DNAME favicon ID [changed|saved] [URL|FILE]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dclick 4</div></td>
+		<td><div class="example">/cb_alias dcx favicon 4 changed https://www.sample.com/favicon.ico</div></td>
 	</tr>
-</table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">save filename</a> return this value to save the favicon.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.fullscreen"></a>fullscreen	</td></tr>
+	<tr><td colspan="2">When the fullscreen state changes.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME fullscreen ID [fullscreen state]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx fullscreen 4 1</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">$false</a> return this value to stop the change.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -294,57 +345,71 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
-			<a name="events.lbdblclk"></a>lbdblclk	</td></tr>
-	<tr><td colspan="2">When the left mouse button is double-clicked.</td></tr>
+			<a name="events.nav_begin"></a>nav_begin	</td></tr>
+	<tr><td colspan="2">When the text is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME lbdblclk ID </div></td>
+		<td><div class="syntax">/cb_alias DNAME nav_begin ID URL</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx lbdblclk 4</div></td>
+		<td><div class="example">/cb_alias dcx nav_begin 4 http://dcx.scriptsdb.org/</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> return this value to block the navigation.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.nav_complete"></a>nav_complete	</td></tr>
+	<tr><td colspan="2">When the control is finished navigating to the URL.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME nav_complete ID URL</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx nav_complete 4 http://dcx.scriptsdb.org/</div></td>
 	</tr>
 </table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
-			<a name="events.lbdown"></a>lbdown	</td></tr>
-	<tr><td colspan="2">When the left mouse button is pressed.</td></tr>
+			<a name="events.script"></a>script	</td></tr>
+	<tr><td colspan="2">When the script command finishes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME lbdown ID </div></td>
+		<td><div class="syntax">/cb_alias DNAME script ID [Script result]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx lbdown 4</div></td>
+		<td><div class="example">/cb_alias dcx script 4 whatever the script returned</div></td>
 	</tr>
 </table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
-			<a name="events.lbup"></a>lbup	</td></tr>
-	<tr><td colspan="2">When the left mouse button is released.</td></tr>
+			<a name="events.status"></a>status	</td></tr>
+	<tr><td colspan="2">When the statusbar text changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME lbup ID </div></td>
+		<td><div class="syntax">/cb_alias DNAME status ID NEW_TEXT</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx lbup 4</div></td>
+		<td><div class="example">/cb_alias dcx status 4 New statusbar text</div></td>
 	</tr>
 </table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
-			<a name="events.sclick"></a>sclick	</td></tr>
-	<tr><td colspan="2">When the left mouse button is clicked.</td></tr>
+			<a name="events.title"></a>title	</td></tr>
+	<tr><td colspan="2">when the title changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME sclick ID </div></td>
+		<td><div class="syntax">/cb_alias DNAME title ID NEW_TEXT</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx sclick 4</div></td>
+		<td><div class="example">/cb_alias dcx title 4 The other page title</div></td>
 	</tr>
 </table>
 <br />
@@ -575,119 +640,36 @@
 	</tr>
 </table>
 <br />
-<table class="description">
-	<tr><td class="heading" style="border-color: #CCACC7; color: #CCACC7;"><a name="ctrldcxml"></a>Panel Specific &lt;dcxml&gt;</td></tr>
-	<tr><td>These dcxml tags are used to define the Panel control.</td></tr>
-</table>
-<table class="ctrldcxml">
-	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
-			<a name="ctrldcxml.control"></a>&lt;control&gt;	</td></tr>
-	<tr><td colspan="2">The tag which defines this control.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">&lt;control type="box"&gt;</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">&lt;control type="box" caption="this is a box"&gt;</div></td>
-	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">nocla</td>
-		<td>Disabled cla for child controls.</td>
-	</tr>
-	<tr>
-		<td class="param">caption</td>
-		<td>Title text of the box.</td>
-	</tr>
-	<tr>
-		<td class="param">cascade</td>
-		<td>The cla direction for the root pane</td>
-	</tr>
-	<tr>
-		<td class="value">v</td>
-		<td>Vertical</td>
-	</tr>
-	<tr>
-		<td class="value">h</td>
-		<td>Horizontal</td>
-	</tr>
-	<tr>
-		<td class="param">margin</td>
-		<td>The spacing to leave round the inside of the control.</td>
-	</tr>
-</table>
-<br />
-<table class="ctrldcxml">
-	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
-			<a name="ctrldcxml.pane"></a>&lt;pane&gt;	</td></tr>
-	<tr><td colspan="2">Defines a cla pane within the control.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">&lt;pane &gt;</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">&lt;pane cascade="v" margin="5 5 5 5"&gt;</div></td>
-	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">cascade</td>
-		<td>The cla direction for the pane</td>
-	</tr>
-	<tr>
-		<td class="value">v</td>
-		<td>Vertical</td>
-	</tr>
-	<tr>
-		<td class="value">h</td>
-		<td>Horizontal</td>
-	</tr>
-	<tr>
-		<td class="param">margin</td>
-		<td>The spacing to leave round the inside of the pane.</td>
-	</tr>
-	<tr>
-		<td class="param">width</td>
-		<td>create a fixed width pane of the specified size.</td>
-	</tr>
-	<tr>
-		<td class="param">height</td>
-		<td>create a fixed height pane of the specified size.</td>
-	</tr>
-	<tr>
-		<td class="param">weight</td>
-		<td>The weight to give this pane when calculating the layout.</td>
-	</tr>
-</table>
-<br />
 </td><td width="80%" valign="top" class="menuright">
-<div class='rightmenu' style='border:1px solid #B49696'>
-	<a class='header' href="#style"><div style='background:#B49696;'>Control Styles</div></a>
-		<a class='flag' href="#style.alpha"><div>alpha</div></a>
-		<a class='flag' href="#style.hgradient"><div>hgradient</div></a>
-		<a class='flag' href="#style.vgradient"><div>vgradient</div></a>
-	</div>
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
 	<a class='header' href="#xdid"><div style='background:#6A7CB0;'>/xdid Flags</div></a>
-		<a class='flag' href="#xdid.c"><div>-c</div></a>
-		<a class='flag' href="#xdid.d"><div>-d</div></a>
-		<a class='flag' href="#xdid.l"><div>-l</div></a>
+		<a class='flag' href="#xdid.g"><div>-g</div></a>
+		<a class='flag' href="#xdid.i"><div>-i</div></a>
+		<a class='flag' href="#xdid.j"><div>-j</div></a>
+		<a class='flag' href="#xdid.k"><div>-k</div></a>
+		<a class='flag' href="#xdid.m"><div>-m</div></a>
+		<a class='flag' href="#xdid.n"><div>-n</div></a>
+		<a class='flag' href="#xdid.r"><div>-r</div></a>
 		<a class='flag' href="#xdid.t"><div>-t</div></a>
+		<a class='flag' href="#xdid.big.C"><div>-C</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #A8B2D1'>
+	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a class='flag' href="#xdidprop.statusbar"><div>statusbar</div></a>
+		<a class='flag' href="#xdidprop.statustext"><div>statustext</div></a>
+		<a class='flag' href="#xdidprop.url"><div>url</div></a>
+		<a class='flag' href="#xdidprop.version"><div>version</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
 	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
-		<a class='flag' href="#events.dclick"><div>dclick</div></a>
+		<a class='flag' href="#events.favicon"><div>favicon</div></a>
+		<a class='flag' href="#events.fullscreen"><div>fullscreen</div></a>
 		<a class='flag' href="#events.help"><div>help</div></a>
-		<a class='flag' href="#events.lbdblclk"><div>lbdblclk</div></a>
-		<a class='flag' href="#events.lbdown"><div>lbdown</div></a>
-		<a class='flag' href="#events.lbup"><div>lbup</div></a>
-		<a class='flag' href="#events.sclick"><div>sclick</div></a>
-	</div>
-<div class='rightmenu' style='border:1px solid #CCACC7'>
-	<a class='header' href="#ctrldcxml"><div style='background:#CCACC7;'>dcxml tags</div></a>
-		<a class='flag' href="#ctrldcxml.control"><div>control</div></a>
-		<a class='flag' href="#ctrldcxml.pane"><div>pane</div></a>
+		<a class='flag' href="#events.nav_begin"><div>nav_begin</div></a>
+		<a class='flag' href="#events.nav_complete"><div>nav_complete</div></a>
+		<a class='flag' href="#events.script"><div>script</div></a>
+		<a class='flag' href="#events.status"><div>status</div></a>
+		<a class='flag' href="#events.title"><div>title</div></a>
 	</div>
 </td>
   </tr>
