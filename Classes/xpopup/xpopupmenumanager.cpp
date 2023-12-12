@@ -18,8 +18,6 @@
 #if DCX_CUSTOM_MENUS
 #include <thread>
 
-//std::vector<HWND> XPopupMenuManager::g_winlist;
-//std::vector<HMENU> XPopupMenuManager::g_menulist;
 namespace
 {
 	WNDPROC g_OldmIRCMenusWindowProc = nullptr;

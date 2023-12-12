@@ -483,6 +483,69 @@ namespace
 		return pow(Y, (1.0 / 3.0)) * 116.0 - 16.0;
 	}
 
+#ifdef DCX_USE_GDIPLUS
+	int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
+	{
+		//UINT  num = 0;          // number of image encoders
+		//UINT  size = 0;         // size of the image encoder array in bytes
+		//
+		//Gdiplus::GetImageEncodersSize(&num, &size);
+		//if (size == 0)
+		//	return -1;  // Failure
+		//
+		//Gdiplus::ImageCodecInfo* pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc(size));
+		//if (pImageCodecInfo == nullptr)
+		//	return -1;  // Failure
+		//
+		//GetImageEncoders(num, size, pImageCodecInfo);
+		//
+		//for (UINT j = 0; j < num; ++j)
+		//{
+		//	if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0)
+		//	{
+		//		*pClsid = pImageCodecInfo[j].Clsid;
+		//		free(pImageCodecInfo);
+		//		return j;  // Success
+		//	}
+		//}
+		//
+		//free(pImageCodecInfo);
+		//return -1;  // Failure
+
+		UINT  num = 0;          // number of image encoders
+		UINT  size = 0;         // size of the image encoder array in bytes
+
+		Gdiplus::GetImageEncodersSize(&num, &size);
+		if (size == 0)
+			return -1;  // Failure
+
+		std::vector<BYTE> codecdata;
+		codecdata.reserve(size);
+
+		Gdiplus::ImageCodecInfo* pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(codecdata.data());
+		if (pImageCodecInfo == nullptr)
+			return -1;  // Failure
+
+		GetImageEncoders(num, size, pImageCodecInfo);
+
+		for (UINT j = 0; j < num; ++j)
+		{
+			if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0)
+			{
+				*pClsid = pImageCodecInfo[j].Clsid;
+				return j;  // Success
+			}
+		}
+		return -1;  // Failure
+	}
+
+	void CreatePNGFile(const WCHAR* pszFile, Gdiplus::Image& img)
+	{
+		CLSID pngClsid;
+		if (GetEncoderClsid(L"image/png", &pngClsid) != -1)
+			img.Save(pszFile, &pngClsid);
+	}
+#endif
 }
 
 /*!
@@ -2874,3 +2937,13 @@ HICON Base64ToIcon(const wchar_t* hbmData, const wchar_t* maskData, long sz)
 	}
 	return nullptr;
 }
+
+#ifdef DCX_USE_GDIPLUS
+void SavePNGFile(TString tsFile, Gdiplus::Image& img)
+{
+	if (IsFile(tsFile))
+		throw DcxExceptions::dcxInvalidFilename();
+
+	CreatePNGFile(tsFile.to_wchr(), img);
+}
+#endif
