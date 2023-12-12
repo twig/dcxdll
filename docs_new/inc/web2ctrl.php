@@ -53,7 +53,7 @@ function get_xdid_web2ctrl(&$XDID) {
 		),
 		'C' => array(
 	        '__desc' => 'Capture a preview of the current website.',
-	        '__cmd' => '[+FLAGS] [FILENAME]',
+	        '__cmd' => '[+FLAGS] (FILENAME)',
 	        '__eg' => "+ sample.png",
 			'__params' => array(
 				'+FLAGS' => array(

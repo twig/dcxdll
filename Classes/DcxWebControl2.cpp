@@ -210,9 +210,9 @@ void DcxWebControl2::parseCommandRequest(const TString& input)
 		openFileName.hInstance = nullptr;
 		WCHAR fileName[MAX_PATH] = L"WebView2_Screenshot.png";
 		if (!tsFilename.empty())
-			_ts_strcpy(fileName, tsFilename.to_wchr());
+			_ts_strcpy(&fileName[0], tsFilename.to_wchr());
 
-		openFileName.lpstrFile = fileName;
+		openFileName.lpstrFile = &fileName[0];
 		openFileName.lpstrFilter = L"PNG File\0*.png\0";
 		openFileName.nMaxFile = std::size(fileName);
 		openFileName.Flags = OFN_OVERWRITEPROMPT;
@@ -220,7 +220,7 @@ void DcxWebControl2::parseCommandRequest(const TString& input)
 		if (GetSaveFileName(&openFileName))
 		{
 			wil::com_ptr<IStream> stream;
-			if (SUCCEEDED(SHCreateStreamOnFileEx(fileName, STGM_READWRITE | STGM_CREATE, FILE_ATTRIBUTE_NORMAL, TRUE, nullptr, &stream)))
+			if (SUCCEEDED(SHCreateStreamOnFileEx(&fileName[0], STGM_READWRITE | STGM_CREATE, FILE_ATTRIBUTE_NORMAL, TRUE, nullptr, &stream)))
 			{
 				m_webview->CapturePreview(COREWEBVIEW2_CAPTURE_PREVIEW_IMAGE_FORMAT_PNG, stream.get(),
 					Microsoft::WRL::Callback<ICoreWebView2CapturePreviewCompletedHandler>(
@@ -245,6 +245,9 @@ dcxWindowStyles DcxWebControl2::parseControlStyles(const TString& tsStyles)
 
 void DcxWebControl2::toXml(TiXmlElement* const xml) const
 {
+	if (!xml)
+		return;
+
 	__super::toXml(xml);
 
 	xml->SetAttribute("url", this->getURL().c_str());
@@ -696,8 +699,11 @@ HRESULT DcxWebControl2::OnNavigationStarting(ICoreWebView2* sender, ICoreWebView
 
 	if (const auto pd = getParentDialog(); pd)
 	{
+		TString tsBuf;
 		mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), uri.get());
-		if (!mIRCLinker::eval(nullptr, TEXT("$%(%,nav_begin,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID()))
+		mIRCLinker::eval(tsBuf, TEXT("$%(%,nav_begin,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
+
+		if (tsBuf == L"cancel")
 			args->put_Cancel(true);
 	}
 	return S_OK;
