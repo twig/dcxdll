@@ -33,19 +33,44 @@ dialog dcx_webbrowser {
   size -1 -1 500 400
 
   menu "&File", 60
-  item "&Load", 80, 60
+  item "&Load", 800, 60
   item break, 100
-  item "&Save", 150
-  item "&Save As...", 160
-  item "Capture", 170
+  item "&Save", 801
+  item "&Save As...", 802
+  item "Capture", 803
   item break, 180
   item "&Cancel", 200, cancel
 
   menu "Options", 61
   menu "Default Browser", 62, 61
-  item "IE", 63
-  item "WebView2", 64
-  item "Hide Menu", 66, 61
+  item "IE $chr(9) Set Internet Explorer as the default.", 311
+  item "WebView2 $chr(9) Set WebView2 as the default.", 312
+  menu "Menu Options", 68, 61
+  menu "Menu Styles", 67, 68
+  item "Normal $chr(9) Normal looking menu", 341, 67
+  item "Vertical $chr(9) Vertical Gradient", 342, 67
+  item "VerticalRev $chr(9) Reverse Vertical Gradient", 343, 67
+  item "Button $chr(9) Items are buttons", 344, 67
+  item "ButtonRev $chr(9) Items are sunken buttons", 345, 67
+  item "Gradient $chr(9) Gradient", 346, 67
+  item "GradientRev $chr(9) Reverse Gradient", 347, 67
+  item "Custom $chr(9) Each item is a custom bitmap", 348, 67
+  item "CustomBig $chr(9) Custom bitmap covers whole menu", 349, 67
+  item "OfficeXP $chr(9) OfficeXP style", 350, 67
+  item "Office2003 $chr(9) Office2003 style", 251, 67
+  item "Office2003rev $chr(9) Reverse Office2003 style", 352, 67
+  item "Icy $chr(9) Ice effect", 353, 67
+  item "IcyRev $chr(9) Reverse Ice effect", 354, 67
+
+  item "Rounded Selector $chr(9) Makes menu selection a rounded rect", 355, 68
+  item "Rounded Window $chr(9) Make menus rounded rects", 356, 68
+  item "Square Selector $chr(9) Makes menu selection a rounded rect", 357, 68
+  item "Square Window $chr(9) Make menus rects", 358, 68
+  item "Tooltips $chr(9) Enable tooltips like this one!", 359, 68
+  item "No Tooltips $chr(9) Disable tooltips like this one!", 360, 68
+  item "Alpha Blend $chr(9) Set the menus to be translucent", 361, 68
+  item "No Alpha Blend $chr(9) disable alpha blending", 362, 68
+  item "Hide Menu", 33, 61
 }
 
 ; this alias updates the CLA and drawing after the init event.
@@ -97,7 +122,7 @@ alias dcx_webbrowser_addtab {
 
   ; create the named id's for this tab
   var %id = $+(Tab,%dcx_browser_tabcnt), %url = $iif($2 != $null,$2,about:blank)
-  var %edit_id = $+(%id,_edit), %web_id = $+(%id,_web), %back_id = $+(%id,_back), %forward_id = $+(%id,_forward), %refresh_id = $+(%id,_refresh), %home_id = $+(%id,_home)
+  var %edit_id = $+(%id,_edit), %web_id = $+(%id,_web), %back_id = $+(%id,_back), %forward_id = $+(%id,_forward), %refresh_id = $+(%id,_refresh), %home_id = $+(%id,_home), %favicon_id = $+(%id,_favicon)
 
   ; make sure browser type is set.
   if (!$istok(webctrl web2ctrl,%dcx_browser_type,32)) set %dcx_browser_type webctrl
@@ -122,6 +147,8 @@ alias dcx_webbrowser_addtab {
   xdid -t $1 %home_id Home
   xdid -T $1 %home_id Go home...
 
+  xdid -c $1 %id %favicon_id image 0 0 0 0 transparent hidden
+
   xdid -c $1 %id %edit_id edit 0 0 0 0 autohs
 
   xdid -c $1 %id %web_id %dcx_browser_type 0 0 0 0
@@ -139,6 +166,7 @@ alias dcx_webbrowser_addtab {
   xdid -l $1 %id cell 1 $chr(9) +fiwvh %forward_id 1 20 20
   xdid -l $1 %id cell 1 $chr(9) +fiwvh %refresh_id 1 20 20
   xdid -l $1 %id cell 1 $chr(9) +fiwvh %home_id 1 20 20
+  xdid -l $1 %id cell 1 $chr(9) +fiwvh %favicon_id 1 20 20
   xdid -l $1 %id cell 1 $chr(9) +fiwv %edit_id 1 0 20
   xdid -l $1 %id cell root $chr(9) +li %web_id 10 0 0
 
@@ -146,19 +174,192 @@ alias dcx_webbrowser_addtab {
 
   dcx_webbrowser_newurl $1 %id %url
 }
-on *:DIALOG:dcx_webbrowser:menu:*:{
-  if ($did == 63) {
-    did -u $dname 64
-    did -c $dname 63
-    set %dcx_browser_default_type webctrl
+; $1 = type
+alias -l _setmenustyle {
+  var %m = _dcx_webbrowser, %d = dcx_webbrowser
+  if ($istok(normal vertical verticalrev button buttonrev grade graderev custom custombig officexp office2003 office2003rev icy icyrev,$1,32)) {
+    set %dcx_browser_menustyle $1
+    xpopup -l %m 1 default
+    xpopup -l %m 7 default
+    xpopup -l %m 8 default
+    xdialog -P %d -l 1 default
+    xdialog -P %d -l 7 default
+    xdialog -P %d -l 8 default
+    if ($1 == normal) {
+      xpopup -t %m normal
+      xpopup -l %m 1 $rgb(240,240,240)
+      xpopup -l %m 7 $color(83)
+      xpopup -l %m 8 $color(59)
+      xdialog -P %d -t normal
+      xdialog -P %d -l 1 $rgb(240,240,240)
+      xdialog -P %d -l 7 $color(83)
+      xdialog -P %d -l 8 $color(59)
+    }
+    elseif ($1 == vertical) {
+      xpopup -t %m vertical
+      xdialog -P %d -t vertical
+    }
+    elseif ($1 == verticalrev) {
+      xpopup -t %m verticalrev
+      xdialog -P %d -t verticalrev
+    }
+    elseif ($1 == button) {
+      xpopup -t %m button
+      xpopup -l %m 7 $rgb(13,180,242)
+
+      xdialog -P %d -t button
+      xdialog -P %d -l 7 $rgb(13,180,242)
+    }
+    elseif ($1 == buttonrev) {
+      xpopup -t %m buttonrev
+      xpopup -l %m 7 $rgb(13,180,242)
+
+      xdialog -P %d -t buttonrev
+      xdialog -P %d -l 7 $rgb(13,180,242)
+    }
+    elseif ($1 == grade) {
+      xpopup -t %m grade
+      xpopup -l %m 1 $rgb(255,192,34)
+
+      xdialog -P %d -t grade
+      xdialog -P %d -l 1 $rgb(255,192,34)
+    }
+    elseif ($1 == graderev) {
+      xpopup -t %m graderev
+      xdialog -P %d -t %m graderev
+    }
+    elseif ($1 == custom) {
+      xpopup -t %m custom
+      var %f = $mircdirtop_bg.jpg
+      if ($isfile(%f)) xpopup -b %m %f
+
+      xdialog -P %d -t custom
+      if ($isfile(%f)) xdialog -P %d -b %f
+    }
+    elseif ($1 == custombig) {
+      xpopup -t %m custombig
+      var %f = $mircdirtop_bg.jpg
+      if ($isfile(%f)) xpopup -b %m %f
+      ; NB: this colour is only seen when alpha draw code is enabled in DrawMenuBitmap() when compiling dll.
+      xpopup -l %m 1 $rgb(255,192,34)
+
+      xdialog -P %d -t custombig
+      if ($isfile(%f)) xdialog -P %d -b %f
+      ; NB: this colour is only seen when alpha draw code is enabled in DrawMenuBitmap() when compiling dll.
+      xdialog -P %d -l 1 $rgb(255,192,34)
+    }
+    elseif ($1 == officexp) {
+      xpopup -t %m officexp
+      xdialog -P %d -t officexp
+    }
+    elseif ($1 == office2003) {
+      xpopup -t %m office2003
+      xdialog -P %d -t office2003
+    }
+    elseif ($1 == office2003rev) {
+      xpopup -t %m office2003rev
+      xdialog -P %d -t office2003rev
+    }
+    elseif ($1 == icy) {
+      xpopup -t %m icy
+      xdialog -P %d -t icy
+    }
+    elseif ($1 == icyrev) {
+      xpopup -t %m icyrev
+      xdialog -P %d -t icyrev
+    }
   }
-  elseif ($did == 64) {
-    did -u $dname 63
-    did -c $dname 64
-    set %dcx_browser_default_type web2ctrl
+  elseif ($1 == roundsel) {
+    xpopup -R %m +r 1
+    xdialog -P %d -R +r 1
   }
-  elseif ($did == 66) xdialog -p $dname +v 0
+  elseif ($1 == roundwin) {
+    xpopup -R %m +R 1
+    xdialog -P %d -R +R 1
+  }
+  elseif ($1 == squaresel) {
+    xpopup -R %m +r 0
+    xdialog -P %d -R +r 0
+  }
+  elseif ($1 == squarewin) {
+    xpopup -R %m +R 0
+    xdialog -P %d -R +R 0
+  }
+  elseif ($1 == tooltips) {
+    xpopup -R %m +t 1
+    xdialog -P %d -R +t 1
+  }
+  elseif ($1 == notooltips) {
+    xpopup -R %m +t 0
+    xdialog -P %d -R +t 0
+  }
+  elseif ($1 == alpha) {
+    xpopup -R %m +a 192
+    xdialog -P %d -R +a 192
+  }
+  elseif ($1 == noalpha) {
+    xpopup -R %m +a 255
+    xdialog -P %d -R +a 255
+  }
 }
+alias -l _menuevent {
+  var %m = $+(_,$1)
+  if ($2 == 1) {
+    ; add ie tab
+    set %dcx_browser_type webctrl
+    dcx_webbrowser_addtab $1
+  }
+  elseif ($2 == 2) {
+    ;add webview2 tab
+    set %dcx_browser_type web2ctrl
+    dcx_webbrowser_addtab $1
+  }
+  elseif ($2 == 311) {
+    did -u $1 312
+    did -c $1 311
+    set %dcx_browser_default_type webctrl
+    xpop -s %m 3 1 1 $chr(9) +c
+    xpop -s %m 3 1 2 $chr(9) +
+  }
+  elseif ($2 == 312) {
+    did -u $1 311
+    did -c $1 312
+    set %dcx_browser_default_type web2ctrl
+    xpop -s %m 3 1 1 $chr(9) +
+    xpop -s %m 3 1 2 $chr(9) +c
+  }
+  elseif ($2 == 32) xdialog -p $1 +v 1
+  elseif ($2 == 33) xdialog -p $1 +v 0
+  elseif ($2 == 341) _setmenustyle normal
+  elseif ($2 == 342) _setmenustyle vertical
+  elseif ($2 == 343) _setmenustyle verticalrev
+  elseif ($2 == 344) _setmenustyle button
+  elseif ($2 == 345) _setmenustyle buttonrev
+  elseif ($2 == 346) _setmenustyle grade
+  elseif ($2 == 347) _setmenustyle graderev
+  elseif ($2 == 348) _setmenustyle custom
+  elseif ($2 == 349) _setmenustyle custombig
+  elseif ($2 == 350) _setmenustyle officexp
+  elseif ($2 == 351) _setmenustyle office2003
+  elseif ($2 == 352) _setmenustyle office2003rev
+  elseif ($2 == 353) _setmenustyle icy
+  elseif ($2 == 354) _setmenustyle icyrev
+  elseif ($2 == 355) _setmenustyle roundsel
+  elseif ($2 == 356) _setmenustyle roundwin
+  elseif ($2 == 357) _setmenustyle squaresel
+  elseif ($2 == 358) _setmenustyle squarewin
+  elseif ($2 == 359) _setmenustyle tooltips
+  elseif ($2 == 360) _setmenustyle notooltips
+  elseif ($2 == 361) _setmenustyle alpha
+  elseif ($2 == 362) _setmenustyle noalpha
+  elseif ($2 == 803) {
+    var %tabid = $xdialog($1,$xdid($1,4,$xdid($1,4).sel).childid).namedid
+    var %d = $mircdirImages
+    if ($isdir(%d)) xdid -C $1 $+(%tabid,_web) + $+(%d,\ScreenShot_,$ticks,.png)
+    else xdid -C $1 $+(%tabid,_web) + $+(ScreenShot_,$ticks,.png)
+  }
+}
+on *:DIALOG:dcx_webbrowser:menu:*: _menuevent $dname $did
 on *:DIALOG:dcx_webbrowser:init:0:{
   set %dcx_browser_tabcnt 0
 
@@ -166,6 +367,7 @@ on *:DIALOG:dcx_webbrowser:init:0:{
   var %d = C:\Program Files (x86)\Microsoft\EdgeWebView\Application\, %f = SmallLogo.png
   if ($findfile(%d,%f,1)) set %dcx_webbrowser_icon_webview $v1
   else set %dcx_webbrowser_icon_webview %dcx_webbrowser_icon_ie
+  if (!$istok(normal vertical verticalrev button buttonrev grade graderev custom custombig officexp office2003 office2003rev icy icyrev,%dcx_browser_menustyle,32)) set %dcx_browser_menustyle normal
 
   dcx Mark $dname dcx_webbrowser_work
   xdialog -b $dname +tyz
@@ -173,27 +375,63 @@ on *:DIALOG:dcx_webbrowser:init:0:{
   xdialog -T $dname +pb
   xdialog -E $dname + -dfhmtM
 
+  xdialog -P $dname
+  xdialog -P $dname -R +r 1
+  xdialog -P $dname -R +t 1
+  xdialog -P $dname -R +a 192
+  xdialog -P $dname -l 11 $rgb(255,0,0)
+  var %f = Canada.ico
+  if ($isfile(%f)) xdialog -P $dname -i + 0 %f
+  xdialog -P $dname -x +D
+
   if (!$istok(webctrl web2ctrl,%dcx_browser_default_type,32)) set %dcx_browser_default_type webctrl
 
-  did -c $dname $iif(%dcx_browser_default_type == webctrl,63,64)
+  did -c $dname $iif(%dcx_browser_default_type == webctrl,311,312)
 
   var %m = _dcx_webbrowser
-  xpopup -c %m office2003
+
+  xpopup -c %m normal
   if ($isfile(%dcx_webbrowser_icon_webview)) xpopup -i %m +P 0 %dcx_webbrowser_icon_webview
   if ($isfile(%dcx_webbrowser_icon_ie)) xpopup -i %m + 1 %dcx_webbrowser_icon_ie
-
   xpop -a %m -1 $chr(9) + 1 2 Add IE Tab $chr(9) Open new IE tab.
   xpop -a %m -1 $chr(9) + 2 1 Add WebView2 Tab $chr(9) Open new WebView2 tab.
-  xpop -a %m -1 $chr(9) +s 10 0 Options
-  xpop -a %m 3 -1 $chr(9) +s 20 0 Default Browser
-  xpop -a %m 3 1 -1 $chr(9) $iif(%dcx_browser_default_type == webctrl,+c,+) 3 0 IE $chr(9) Set Internet Explorer as the default.
-  xpop -a %m 3 1 -1 $chr(9) $iif(%dcx_browser_default_type == web2ctrl,+c,+) 3 0 WebView2 $chr(9) Set WebView2 as the default.
-  xpop -a %m 3 -1 $chr(9) + 3 0 Show Menubar $chr(9) Show windows menubar.
-  xpop -a %m 3 -1 $chr(9) + 4 0 Hide Menubar $chr(9) Hide windows menubar.
+  xpop -a %m -1 $chr(9) +s 30 0 Options
+  xpop -a %m 3 -1 $chr(9) +s 31 0 Default Browser
+  xpop -a %m 3 1 -1 $chr(9) $iif(%dcx_browser_default_type == webctrl,+c,+) 311 0 IE $chr(9) Set Internet Explorer as the default.
+  xpop -a %m 3 1 -1 $chr(9) $iif(%dcx_browser_default_type == web2ctrl,+c,+) 312 0 WebView2 $chr(9) Set WebView2 as the default.
+  xpop -a %m 3 -1 $chr(9) +s 34 0 Menu Options
+  xpop -a %m 3 2 -1 $chr(9) +s 35 0 Menu Styles
+  xpop -a %m 3 2 1 -1 $chr(9) + 341 0 Normal $chr(9) Normal looking menu
+  xpop -a %m 3 2 1 -1 $chr(9) + 342 0 Vertical $chr(9) Vertical Gradient
+  xpop -a %m 3 2 1 -1 $chr(9) + 343 0 VerticalRev $chr(9) Reverse Vertical Gradient
+  xpop -a %m 3 2 1 -1 $chr(9) + 344 0 Button $chr(9) Items are buttons
+  xpop -a %m 3 2 1 -1 $chr(9) + 345 0 ButtonRev $chr(9) Items are sunken buttons
+  xpop -a %m 3 2 1 -1 $chr(9) + 346 0 Gradient $chr(9) Gradient
+  xpop -a %m 3 2 1 -1 $chr(9) + 347 0 GradientRev $chr(9) Reverse Gradient
+  xpop -a %m 3 2 1 -1 $chr(9) + 348 0 Custom $chr(9) Each item is a custom bitmap
+  xpop -a %m 3 2 1 -1 $chr(9) + 349 0 CustomBig $chr(9) Custom bitmap covers whole menu
+  xpop -a %m 3 2 1 -1 $chr(9) + 350 0 OfficeXP $chr(9) OfficeXP style
+  xpop -a %m 3 2 1 -1 $chr(9) + 351 0 Office2003 $chr(9) Office2003 style
+  xpop -a %m 3 2 1 -1 $chr(9) + 352 0 Office2003rev $chr(9) Reverse Office2003 style
+  xpop -a %m 3 2 1 -1 $chr(9) + 353 0 Icy $chr(9) Ice effect
+  xpop -a %m 3 2 1 -1 $chr(9) + 354 0 IcyRev $chr(9) Reverse Ice effect
+  xpop -a %m 3 2 -1 $chr(9) + 355 0 Rounded Selector $chr(9) Makes menu selection a rounded rect
+  xpop -a %m 3 2 -1 $chr(9) + 356 0 Rounded Window $chr(9) Make menus rounded rects
+  xpop -a %m 3 2 -1 $chr(9) + 357 0 Square Selector $chr(9) Makes menu selection a rounded rect
+  xpop -a %m 3 2 -1 $chr(9) + 358 0 Square Window $chr(9) Make menus rects
+  xpop -a %m 3 2 -1 $chr(9) + 359 0 Tooltips $chr(9) Enable tooltips like this one!
+  xpop -a %m 3 2 -1 $chr(9) + 360 0 No Tooltips $chr(9) Disable tooltips like this one!
+  xpop -a %m 3 2 -1 $chr(9) + 361 0 Alpha Blend $chr(9) Set the menus to be translucent
+  xpop -a %m 3 2 -1 $chr(9) + 362 0 No Alpha Blend $chr(9) disable alpha blending
+
+  xpop -a %m 3 -1 $chr(9) + 32 0 Show Menubar $chr(9) Show windows menubar.
+  xpop -a %m 3 -1 $chr(9) + 33 0 Hide Menubar $chr(9) Hide windows menubar.
 
   xpopup -R %m +r 1
   xpopup -R %m +t 1
   xpopup -R %m +a 192
+
+  _setmenustyle %dcx_browser_menustyle
 
   xdialog -c $dname 1 divider 20 20 460 360 notheme vertical
   xdid -x $dname 1 +
@@ -252,6 +490,13 @@ on *:DIALOG:dcx_webbrowser:init:0:{
   dcx_webbrowser_addtab $dname
 
   .timer 1 0 dcx_webbrowser_postinit $dname
+}
+; $1 = dname, $2 = tab id, $3- filename
+alias -l _setfavicon {
+  if (!$isfile($3-)) return
+  var %id = $+($2,_favicon)
+  xdid -s $1 %id
+  xdid -i $1 %id +ghab $3-
 }
 alias dcx_webbrowser_work {
   !if ($2 == error) echo -s DCXError: $1 ID: $3 Type: $4 Prop: $5 Cmd: $6 Error: $7-
@@ -318,6 +563,8 @@ alias dcx_webbrowser_work {
     var %id = $xdialog($1,$3).namedid
     xdid -ra $1 $+($gettok(%id,1,95),_edit) $4-
     xdid -t $1 24 2 + 1 Downloading... $4- $chr(9) $4-
+    xdid -h $1 $+($gettok(%id,1,95),_favicon)
+    xdid -i $1 $+($gettok(%id,1,95),_favicon) + none
   }
   elseif ($2 == nav_complete) xdid -t $1 24 2 + 1 Download $iif($4,Complete,Failed) $chr(9) ...
   elseif ($2 == history) {
@@ -325,14 +572,24 @@ alias dcx_webbrowser_work {
     xdid $iif($4,-e,-b) $1 $+($gettok(%id,1,95),_back)
     xdid $iif($5,-e,-b) $1 $+($gettok(%id,1,95),_forward)
   }
+  elseif ($2 == favicon) {
+    var %id = $xdialog($1,$3).namedid
+    if ($4 == saved) .timer 1 0 _setfavicon $1 $gettok(%id,1,95) $5-
+    elseif ($4 == changed) {
+      var %d = $mircdirImages
+      if ($isdir(%d)) {
+        var %f = $+(%d,\favicon_,$md5($4-),.png)
+        if (!$isfile(%f)) return save %f
+        else .timer 1 0 _setfavicon $1 $gettok(%id,1,95) %f
+      }
+    }
+  }
   elseif (($2 == keyup) && ($4 == 13)) {
     var %id = $xdialog($1,$3).namedid
     if (Tab*_edit iswm %id) {
       var %url = $xdid($1,%id).text
       if (%url != $null) dcx_webbrowser_newurl $1 $gettok(%id,1,95) %url
     }
-  }
-  elseif (($2 == keyup) && ($4 == 13)) {
   }
   elseif ($2 == close) {
     xpopup -d _dcx_webbrowser
@@ -343,25 +600,5 @@ ON *:SIGNAL:XPopup-_dcx_webbrowser: {
   ;// nothing clicked
   if ($1 == 0) return
 
-  ;// get the menu name from Xpopup-[MENUNAME]
-  var %m = $gettok($signal, 2-, 45), %d = dcx_webbrowser
-
-  if ($1 == 1) {
-    ; add ie tab
-    set %dcx_browser_type webctrl
-    dcx_webbrowser_addtab %d
-  }
-  elseif ($1 == 2) {
-    ;add webview2 tab
-    set %dcx_browser_type web2ctrl
-    dcx_webbrowser_addtab %d
-  }
-  elseif ($1 == 3) {
-    ;enable menubar
-    xdialog -p %d +v 1
-  }
-  elseif ($1 == 4) {
-    ;disable menubar
-    xdialog -p %d +v 0
-  }
+  _menuevent dcx_webbrowser $1
 }

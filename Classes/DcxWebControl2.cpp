@@ -593,7 +593,7 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2EnvironmentCompleted(HRESULT result,
 
 	if (DcxWebControl2::m_webviewEnvironment == nullptr)
 		DcxWebControl2::m_webviewEnvironment = env;
-	
+
 	if (m_dcompDevice)
 	{
 		if (auto env3 = DcxWebControl2::m_webviewEnvironment.try_query<ICoreWebView2Environment3>(); env3)
@@ -624,7 +624,7 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 	m_webviewController->get_CoreWebView2(&m_webview);
 
 	auto dcomp = m_webviewController.try_query<ICoreWebView2CompositionController>();
-	
+
 	if (!m_webview)
 		return E_FAIL;
 
@@ -798,7 +798,6 @@ HRESULT DcxWebControl2::OnHistoryChanged(ICoreWebView2* sender, IUnknown* args)
 
 HRESULT DcxWebControl2::OnFaviconChanged(ICoreWebView2* sender, IUnknown* args)
 {
-#ifdef DCX_USE_GDIPLUS
 	wil::unique_cotaskmem_string url;
 
 	auto webview15 = m_webview.try_query<ICoreWebView2_15>();
@@ -808,29 +807,34 @@ HRESULT DcxWebControl2::OnFaviconChanged(ICoreWebView2* sender, IUnknown* args)
 	webview15->get_FaviconUri(&url);
 	const TString tsURL(url.get());
 
-	return webview15->GetFavicon(COREWEBVIEW2_FAVICON_IMAGE_FORMAT_PNG,
-		Microsoft::WRL::Callback<ICoreWebView2GetFaviconCompletedHandler>(
-			[this, tsURL](HRESULT errorCode, IStream* iconStream) -> HRESULT
-			{
-				//CHECK_FAILURE(errorCode);
-
-				if (errorCode == S_OK)
-				{
-					Gdiplus::Bitmap iconBitmap(iconStream);
-					wil::unique_hicon icon;
-					if (iconBitmap.GetHICON(&icon) == Gdiplus::Status::Ok)
+#ifdef DCX_USE_GDIPLUS
+	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"favicon,%u,changed,%s", getUserID(), tsURL.to_wchr());
+	if (!tsBuf.empty())
+	{
+		if (tsBuf.getfirsttok(1) == L"save")
+		{
+			TString tsFile(tsBuf.getlasttoks().trim());
+			return webview15->GetFavicon(COREWEBVIEW2_FAVICON_IMAGE_FORMAT_PNG,
+				Microsoft::WRL::Callback<ICoreWebView2GetFaviconCompletedHandler>(
+					[this, tsFile](HRESULT errorCode, IStream* iconStream) -> HRESULT
 					{
-						m_favicon = std::move(icon);
-
-						execAliasEx(L"favicon,%u,%s", getUserID(), tsURL.to_wchr());
-
-						return S_OK;
-					}
-				}
-				return E_FAIL;
-			})
-		.Get());
+						if (errorCode == S_OK)
+						{
+							Gdiplus::Bitmap iconBitmap(iconStream);
+							SavePNGFile(tsFile, iconBitmap);
+							execAliasEx(L"favicon,%u,saved,%s", getUserID(), tsFile.to_wchr());
+							return S_OK;
+						}
+						return E_FAIL;
+					})
+				.Get());
+		}
+	}
+	return S_OK;
 #else
-	return E_NOTIMPL;
+	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"favicon,%u,changed,%s", getUserID(), tsURL.to_wchr());
+	return S_OK;
 #endif
 }
