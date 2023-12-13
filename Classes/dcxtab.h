@@ -74,8 +74,7 @@ public:
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 	HIMAGELIST getImageList( ) const noexcept;
-	void setImageList( const HIMAGELIST himl ) noexcept;
-	//static HIMAGELIST createImageList( );
+	HIMAGELIST setImageList( const HIMAGELIST himl ) noexcept;
 
 	void deleteLParamInfo( const int nItem ) noexcept;
 	void activateSelectedTab( );

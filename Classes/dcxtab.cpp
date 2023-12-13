@@ -61,7 +61,7 @@ DcxTab::DcxTab(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, c
 
 DcxTab::~DcxTab() noexcept
 {
-	ImageList_Destroy(this->getImageList());
+	ImageList_Destroy(this->setImageList(nullptr));
 
 	const auto nItems = getTabCount();
 	for (auto n = decltype(nItems){0}; n < nItems; ++n)
@@ -341,82 +341,6 @@ void DcxTab::parseCommandRequest(const TString& input)
 	// xdid -a [NAME] [ID] [SWITCH] [N] [ICON] [TEXT][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB](TOOLTIP)
 	if (xflags[TEXT('a')])
 	{
-		//if (numtok < 5)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//TCITEM tci{};
-		//tci.mask = TCIF_IMAGE | TCIF_PARAM;
-		//
-		//const auto data(input.getfirsttok(1, TSTABCHAR).trim());
-		//
-		//TString control_data;
-		//TString tooltip;
-		//const auto nToks = input.numtok(TSTABCHAR);
-		//
-		//if (nToks > 1)
-		//{
-		//	control_data = input.getnexttok(TSTABCHAR).trim();	// tok 2
-		//
-		//	if (nToks > 2)
-		//		tooltip = input.getlasttoks().trim();	// tok 3, -1, TSTAB
-		//}
-		//
-		//auto nIndex = data.getfirsttok(4).to_int() - 1;
-		//
-		//if (nIndex < 0)
-		//	nIndex = getTabCount();
-		//
-		//tci.iImage = data.getnexttok().to_int() - 1;	// tok 5
-		//
-		//auto lpdtci = std::make_unique<DCXTCITEM>();
-		//
-		//lpdtci->tsTipText = tooltip;
-		//
-		//// Itemtext
-		//TString itemtext;
-		//if (data.numtok() > 5)
-		//{
-		//	itemtext = data.getlasttoks();	// tok 6, -1
-		//	tci.mask |= TCIF_TEXT;
-		//
-		//	//if (this->m_bClosable)
-		//	//{
-		//	//	//itemtext += TEXT("***");	// TEXT("   ");
-		//	//	RECT rc;
-		//	//	GetCloseButtonRect(this->m_rc, rc);
-		//	//	TabCtrl_SetPadding(m_Hwnd, 0, 0);
-		//	//}
-		//
-		//	tci.pszText = itemtext.to_chr();
-		//}
-		//
-		//if (control_data.numtok() > 5)
-		//{
-		//	const DcxControl* const p_Control = this->getParentDialog()->addControl(control_data, 1,
-		//		DcxAllowControls::ALLOW_TREEVIEW |
-		//		DcxAllowControls::ALLOW_LISTVIEW |
-		//		DcxAllowControls::ALLOW_RICHEDIT |
-		//		DcxAllowControls::ALLOW_DIVIDER |
-		//		DcxAllowControls::ALLOW_PANEL |
-		//		DcxAllowControls::ALLOW_TAB |
-		//		DcxAllowControls::ALLOW_REBAR |
-		//		DcxAllowControls::ALLOW_WEBCTRL |
-		//		DcxAllowControls::ALLOW_EDIT |
-		//		DcxAllowControls::ALLOW_IMAGE |
-		//		DcxAllowControls::ALLOW_LIST, m_Hwnd);
-		//
-		//	lpdtci->mChildHwnd = p_Control->getHwnd();
-		//}
-		//tci.lParam = reinterpret_cast<LPARAM>(lpdtci.release());
-		//
-		//TabCtrl_InsertItem(m_Hwnd, nIndex, &tci);
-		//
-		////this->activateSelectedTab();
-		//
-		//// Ook: this fixes the incorrectly positioned controls on additional tabs.
-		//this->activateTab(nIndex);
-		//this->activateSelectedTab();
-
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -664,10 +588,23 @@ void DcxTab::parseCommandRequest(const TString& input)
 
 		this->loadIcon(flag, tsIndex, filename);
 	}
-	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
+	// xdid -y [NAME] [ID] [SWITCH] ([+FLAGS] (args))
 	else if (xflags[TEXT('y')])
 	{
-		ImageList_Destroy(this->getImageList());
+		if (input.numtok() > 3)
+		{
+			const XSwitchFlags xFlags(input.getnexttok());
+
+			if (xFlags[TEXT('d')])
+			{
+				if (const auto i = input.getnexttokas<int>() - 1; i >= 0)
+					TabCtrl_RemoveImage(m_Hwnd, i);
+			}
+		}
+		else {
+			auto himl = setImageList(nullptr);
+			ImageList_Destroy(himl);
+		}
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [WIDTH]
 	// xdid -m -> [NAME] [ID] -m [+FLAGS] [WIDTH]
@@ -707,9 +644,9 @@ HIMAGELIST DcxTab::getImageList() const noexcept
  * blah
  */
 
-void DcxTab::setImageList(const HIMAGELIST himl) noexcept
+HIMAGELIST DcxTab::setImageList(const HIMAGELIST himl) noexcept
 {
-	TabCtrl_SetImageList(m_Hwnd, himl);
+	return TabCtrl_SetImageList(m_Hwnd, himl);
 }
 
 /*!
