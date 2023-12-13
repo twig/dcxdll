@@ -870,7 +870,7 @@ HICON Base64ToIcon(const char* hbmData, const char* maskData, long sz);
 HBITMAP Base64ToBitmap(const wchar_t* vData, long w, long h);
 HICON Base64ToIcon(const wchar_t* hbmData, const wchar_t* maskData, long sz);
 #ifdef DCX_USE_GDIPLUS
-void SavePNGFile(TString tsFile, Gdiplus::Image& img);
+bool SavePNGFile(TString& tsFile, Gdiplus::Image& img);
 #endif
 
 HMODULE getDllModule(HINSTANCE hMod = nullptr) noexcept;

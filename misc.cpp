@@ -539,11 +539,15 @@ namespace
 		return -1;  // Failure
 	}
 
-	void CreatePNGFile(const WCHAR* pszFile, Gdiplus::Image& img)
+	bool CreatePNGFile(const WCHAR* pszFile, Gdiplus::Image& img)
 	{
 		CLSID pngClsid;
 		if (GetEncoderClsid(L"image/png", &pngClsid) != -1)
-			img.Save(pszFile, &pngClsid);
+		{
+			if (img.Save(pszFile, &pngClsid) == Gdiplus::Status::Ok)
+				return true;
+		}
+		return false;
 	}
 #endif
 }
@@ -2939,11 +2943,11 @@ HICON Base64ToIcon(const wchar_t* hbmData, const wchar_t* maskData, long sz)
 }
 
 #ifdef DCX_USE_GDIPLUS
-void SavePNGFile(TString tsFile, Gdiplus::Image& img)
+bool SavePNGFile(TString& tsFile, Gdiplus::Image& img)
 {
 	if (IsFile(tsFile))
-		throw DcxExceptions::dcxInvalidFilename();
+		return false;
 
-	CreatePNGFile(tsFile.to_wchr(), img);
+	return CreatePNGFile(tsFile.to_wchr(), img);
 }
 #endif
