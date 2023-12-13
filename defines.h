@@ -873,6 +873,8 @@ HICON Base64ToIcon(const wchar_t* hbmData, const wchar_t* maskData, long sz);
 void SavePNGFile(TString tsFile, Gdiplus::Image& img);
 #endif
 
+HMODULE getDllModule(HINSTANCE hMod = nullptr) noexcept;
+
 extern SIGNALSWITCH dcxSignal;
 extern COLORREF staticPalette[mIRC_PALETTE_SIZE];
 

@@ -2,7 +2,8 @@
 function get_intro_web2ctrl() {
 	echo "WebView2 HTML control.<br/>
 NB: This control requires WebView2Loader.dll to be present somewhere LoadLibrary() can find it.<br/>
-NB: The control also requires WebView2 installed & will try to install it if not found.";
+NB: The control also requires WebView2 installed & will try to install it if not found.<br/>
+<a href='https://developer.microsoft.com/en-us/microsoft-edge/webview2/'>Download WebView2</a>";
 }
 
 
@@ -12,6 +13,9 @@ function get_xdid_web2ctrl(&$XDID) {
 	$XDID = array(
 	    'g' => array(
 	        '__desc' => 'This command is like hitting the Home button in a browser.',
+	        '__cmd' => '(URL)',
+	        '__eg' => "http://dcx.scriptsdb.org",
+			'__notes' => "If a url is supplied then it is set as the home url for all future calls.",
 		),
 		'i' => array(
 	        '__desc' => 'This command is like hitting the Forward button in a browser.',

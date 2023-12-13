@@ -67,6 +67,17 @@ namespace {
 		return hDcxMutex;
 	}
 }
+
+HMODULE getDllModule(HINSTANCE hMod) noexcept
+{
+	static HMODULE _hmod{};
+
+	if (!_hmod)
+		_hmod = hMod;
+
+	return _hmod;
+}
+
 /*! \brief DllMain function is used to ensure that only one copy of DCX is loaded at a time.
  *
  */

@@ -44,7 +44,9 @@ bool DcxDPIModule::load()
 		else {
 			unload();
 			// silently fail...
-			
+
+			DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Missing DPI Functions"));
+
 			//throw Dcx::dcxException("There was a problem loading User32 Library");
 		}
 	}

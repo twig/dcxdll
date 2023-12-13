@@ -15,10 +15,17 @@ bool DcxWebView2Module::load()
 	if (isUseable())
 		return false;
 
-	// DPIModule Loading
+	// WebView2Module Loading
 	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Loading WebView2Loader.dll..."));
 	m_hModule = LoadLibrary(TEXT("WebView2Loader.dll"));
-
+	if (!m_hModule)
+	{
+		TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+		GetModuleFileNameW(getDllModule(), tsBuf.to_wchr(), tsBuf.capacity_cch());
+		tsBuf.deltok(tsBuf.numtok(L'\\'), L'\\');
+		tsBuf.addtok(L"WebView2Loader.dll", L'\\');
+		m_hModule = LoadLibrary(tsBuf.to_wchr());
+	}
 	if (m_hModule)
 	{
 		// Get function pointers.
@@ -39,10 +46,15 @@ bool DcxWebView2Module::load()
 		}
 		else {
 			unload();
-			// silently fail...
+
+			DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Unable to find WebView2Loader.dll functions."));
 
 			//throw Dcx::dcxException("There was a problem loading WebView2Loader Library");
 		}
+	}
+	else {
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Failed to load WebView2 dll"));
+		Dcx::error(TEXT("LoadDLL"), TEXT("Warning Unable to Load WebView2Loader.dll, web2ctrl will not work."));
 	}
 	return isUseable();
 }
