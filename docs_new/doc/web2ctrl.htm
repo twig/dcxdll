@@ -67,7 +67,8 @@
 	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>Web2 Control</td></tr>
 	<tr><td>WebView2 HTML control.<br/>
 NB: This control requires WebView2Loader.dll to be present somewhere LoadLibrary() can find it.<br/>
-NB: The control also requires WebView2 installed & will try to install it if not found.<br /><br />
+NB: The control also requires WebView2 installed & will try to install it if not found.<br/>
+<a href='https://developer.microsoft.com/en-us/microsoft-edge/webview2/'>Download WebView2</a><br /><br />
 <div style="text-align: center;">
 	<img src="images/web2ctrl.png" alt="" />
 </div>
@@ -83,13 +84,13 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">This command is like hitting the Home button in a browser.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -g [DNAME] [ID] </div></td>
+		<td><div class="syntax">/xdid -g [DNAME] [ID] (URL)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -g dcx 4</div></td>
+		<td><div class="example">/xdid -g dcx 4 http://dcx.scriptsdb.org</div></td>
 	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If a url is supplied then it is set as the home url for all future calls.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -216,7 +217,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">Capture a preview of the current website.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -C [DNAME] [ID] [+FLAGS] [FILENAME]</div></td>
+		<td><div class="syntax">/xdid -C [DNAME] [ID] [+FLAGS] (FILENAME)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -679,7 +680,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 12th December, 23</td>
+		<td style="text-align: right;">Last Updated: 13th December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

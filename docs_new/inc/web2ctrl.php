@@ -114,7 +114,7 @@ function get_events_web2ctrl(&$EVENTS) {
 		),
 		"favicon" => array(
 			'__desc' => "When the favicon changes.",
-			'__cmd' => '[changed|saved] [URL|FILE]',
+			'__cmd' => '[changed|saved|failed] [URL|FILE]',
 			'__eg' => 'changed https://www.sample.com/favicon.ico',
 			'__return' => "[r]save filename[/r] return this value to save the favicon."
 		),
