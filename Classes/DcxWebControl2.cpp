@@ -195,6 +195,26 @@ void DcxWebControl2::parseCommandRequest(const TString& input)
 	// xdid -t [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('t')])
 		m_webview->Stop();
+	// xdid -c [NAME] [ID] [SWITCH] (type)
+	else if (flags[TEXT('c')])
+	{
+		// clear cache
+		switch (const TString tsType(input.getnexttok()); std::hash<TString>()(tsType))
+		{
+		case L"cookies"_hash:
+			this->ClearCacheKind(COREWEBVIEW2_BROWSING_DATA_KINDS_COOKIES);
+			break;
+		case L"downloads"_hash:
+			this->ClearCacheKind(COREWEBVIEW2_BROWSING_DATA_KINDS_DOWNLOAD_HISTORY);
+			break;
+		case L"browsing"_hash:
+			this->ClearCacheKind(COREWEBVIEW2_BROWSING_DATA_KINDS_BROWSING_HISTORY);
+			break;
+		default:
+			this->ClearCache();
+			break;
+		}
+	}
 	// xdid -C [NAME] [ID] [SWITCH] [+FLAGS] (FILENAME)
 	else if (flags[TEXT('C')])
 	{
@@ -399,8 +419,7 @@ void DcxWebControl2::InstallComplete(int return_code) noexcept
 		MessageBox(m_Hwnd, L"WebView Bootstrapper failed to download", L"WebView Bootstrapper Download status", MB_OK);
 	}
 
-	TCHAR szRes[64]{};
-	evalAliasEx(&szRes[0], std::size(szRes), L"install_complete,%u,%u", getUserID(), return_code);
+	execAliasEx(L"install_complete,%u,%u", getUserID(), return_code);
 }
 
 bool DcxWebControl2::InitializeInterface()
@@ -494,6 +513,16 @@ bool DcxWebControl2::IsScriptingEnabled() const
 	return bRes;
 }
 
+const bool& DcxWebControl2::IsDownloadingEnabled() const
+{
+	return m_bAllowDownloads;
+}
+
+const bool& DcxWebControl2::IsNewWindowsManaged() const
+{
+	return m_bManageNewWindows;
+}
+
 TString DcxWebControl2::getStatusText() const
 {
 	TString tsRes;
@@ -575,6 +604,16 @@ void DcxWebControl2::setVisableState(bool bEnable)
 	m_webviewController->put_IsVisible(bEnable);
 }
 
+void DcxWebControl2::setDownloadsState(bool bEnable)
+{
+	m_bAllowDownloads = bEnable;
+}
+
+void DcxWebControl2::setManageNewWindows(bool bEnable)
+{
+	m_bManageNewWindows = bEnable;
+}
+
 void DcxWebControl2::setURL(const TString& tsURL, const TString& tsFlags, const TString& tsMask)
 {
 	if (!m_webview || !m_settings)
@@ -593,10 +632,10 @@ void DcxWebControl2::setURL(const TString& tsURL, const TString& tsFlags, const 
 	//	V_I4(&vFlags) |= navAllowAutosearch;
 	//if (xflags['e'] && xmask['e']) // enforce restricted zone
 	//	V_I4(&vFlags) |= navEnforceRestricted;
-	//if (xflags['m'] && xmask['m']) // Manage popup windows.
-	//	V_I4(&vFlags) |= navNewWindowsManaged;
-	//if (xflags['u'] && xmask['u']) // dont allow downloads.
-	//	V_I4(&vFlags) |= navUntrustedForDownload;
+	if (xflags['m']) // Manage popup windows.
+		setManageNewWindows(xmask['m']);
+	if (xflags['u']) // allow downloads?
+		setDownloadsState(xmask['u']);
 	//if (xflags['x'] && xmask['x']) // allow active x install prompts (doesnt auto install, you still need to ok the prompt)
 	//	V_I4(&vFlags) |= navTrustedForActiveX;
 	if (xflags['f']) // fullscreen on/off
@@ -608,19 +647,68 @@ void DcxWebControl2::setURL(const TString& tsURL, const TString& tsFlags, const 
 		m_webview->Navigate(tsURL.to_wchr());
 }
 
+void DcxWebControl2::setDownloadDir(const TString& tsDir)
+{
+	if (auto webView2_13 = m_webview.try_query<ICoreWebView2_13>(); webView2_13)
+	{
+		wil::com_ptr<ICoreWebView2Profile> profile;
+		if (SUCCEEDED(webView2_13->get_Profile(&profile)))
+		{
+			profile->put_DefaultDownloadFolderPath(tsDir.to_wchr());
+		}
+	}
+}
+
+void DcxWebControl2::setPreferedColourScheme(COREWEBVIEW2_PREFERRED_COLOR_SCHEME value)
+{
+	if (auto webView2_13 = m_webview.try_query<ICoreWebView2_13>(); webView2_13)
+	{
+		wil::com_ptr<ICoreWebView2Profile> profile;
+		if (SUCCEEDED(webView2_13->get_Profile(&profile)))
+		{
+			profile->put_PreferredColorScheme(value);
+		}
+	}
+}
+
 void DcxWebControl2::CallScript(const TString& tsCmd)
 {
 	if (!m_webview)
 		return;
 
-	//webview->ExecuteScript(tsCmd.to_chr(), Microsoft::WRL::Callback<ICoreWebView2ExecuteScriptCompletedHandler>(
-	//		[this](HRESULT errorCode, LPCWSTR resultObjectAsJson) -> HRESULT {
-	//			return OnExecuteScriptCompleted(errorCode, resultObjectAsJson);
-	//		}).Get());
-
 	m_webview->ExecuteScript(tsCmd.to_chr(), Microsoft::WRL::Callback<ICoreWebView2ExecuteScriptCompletedHandler>(this, &DcxWebControl2::OnExecuteScriptCompleted).Get());
 
 	return;
+}
+
+void DcxWebControl2::ClearCache()
+{
+	if (auto webView2_13 = m_webview.try_query<ICoreWebView2_13>(); webView2_13)
+	{
+		wil::com_ptr<ICoreWebView2Profile> profile;
+		if (SUCCEEDED(webView2_13->get_Profile(&profile)))
+		{
+			if (auto profile2 = profile.try_query<ICoreWebView2Profile2>(); profile2)
+			{
+				profile2->ClearBrowsingDataAll(Microsoft::WRL::Callback<ICoreWebView2ClearBrowsingDataCompletedHandler>(this, &DcxWebControl2::OnClearBrowsingDataCompleted).Get());
+			}
+		}
+	}
+}
+
+void DcxWebControl2::ClearCacheKind(COREWEBVIEW2_BROWSING_DATA_KINDS kind)
+{
+	if (auto webView2_13 = m_webview.try_query<ICoreWebView2_13>(); webView2_13)
+	{
+		wil::com_ptr<ICoreWebView2Profile> profile;
+		if (SUCCEEDED(webView2_13->get_Profile(&profile)))
+		{
+			if (auto profile2 = profile.try_query<ICoreWebView2Profile2>(); profile2)
+			{
+				profile2->ClearBrowsingData(kind, Microsoft::WRL::Callback<ICoreWebView2ClearBrowsingDataCompletedHandler>(this, &DcxWebControl2::OnClearBrowsingDataCompleted).Get());
+			}
+		}
+	}
 }
 
 HRESULT DcxWebControl2::OnCreateCoreWebView2EnvironmentCompleted(HRESULT result, ICoreWebView2Environment* env)
@@ -704,6 +792,8 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 
 	if (auto webview4 = m_webview.try_query<ICoreWebView2_4>(); webview4)
 		webview4->add_DownloadStarting(Microsoft::WRL::Callback<ICoreWebView2DownloadStartingEventHandler>(this, &DcxWebControl2::OnDownloadStarting).Get(), &m_downloadStartingToken);
+
+	m_webview->add_NewWindowRequested(Microsoft::WRL::Callback<ICoreWebView2NewWindowRequestedEventHandler>(this, &DcxWebControl2::OnNewWindowRequested).Get(), &m_newWindowRequestedToken);
 
 	// Schedule an async task to navigate to Bing
 	//webview->Navigate(L"https://www.bing.com/");
@@ -840,11 +930,11 @@ HRESULT DcxWebControl2::OnHistoryChanged(ICoreWebView2* sender, IUnknown* args)
 
 HRESULT DcxWebControl2::OnFaviconChanged(ICoreWebView2* sender, IUnknown* args)
 {
-	wil::unique_cotaskmem_string url;
-
 	auto webview15 = m_webview.try_query<ICoreWebView2_15>();
 	if (!webview15)
 		return E_FAIL;
+
+	wil::unique_cotaskmem_string url;
 
 	webview15->get_FaviconUri(&url);
 	const TString tsURL(url.get());
@@ -929,17 +1019,15 @@ HRESULT DcxWebControl2::OnStateChanged(ICoreWebView2DownloadOperation* download,
 	break;
 	case COREWEBVIEW2_DOWNLOAD_STATE_INTERRUPTED:
 	{
-		// Here developer can take different actions based on `download->InterruptReason`.
-		// For example, show an error message to the end user.
 		COREWEBVIEW2_DOWNLOAD_INTERRUPT_REASON reason;
 		download->get_InterruptReason(&reason);
 
-		evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"dl_canceled,%u,%u,%s", getUserID(), reason, filename.get());
+		execAliasEx(L"dl_canceled,%u,%u,%s", getUserID(), reason, filename.get());
 	}
 	break;
 	case COREWEBVIEW2_DOWNLOAD_STATE_COMPLETED:
 	{
-		evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"dl_completed,%u,%s", getUserID(), filename.get());
+		execAliasEx(L"dl_completed,%u,%s", getUserID(), filename.get());
 	}
 	break;
 	}
@@ -950,6 +1038,12 @@ HRESULT DcxWebControl2::OnDownloadStarting(ICoreWebView2* sender, ICoreWebView2D
 {
 	if (!sender || !args)
 		return E_FAIL;
+
+	if (!this->IsDownloadingEnabled())
+	{
+		args->put_Cancel(TRUE);
+		return S_OK;
+	}
 
 	wil::com_ptr<ICoreWebView2DownloadOperation> download;
 	if (FAILED(args->get_DownloadOperation(&download)))
@@ -965,11 +1059,64 @@ HRESULT DcxWebControl2::OnDownloadStarting(ICoreWebView2* sender, ICoreWebView2D
 
 	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
 	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"dl_begin,%u,%lli,%s", getUserID(), iBytes, filename.get());
-	if (tsBuf == L"cancel")
+	switch (std::hash<TString>()(tsBuf.getfirsttok(1)))
+	{
+	case L"cancel"_hash:
+	{
 		args->put_Cancel(TRUE);
-	else {
+	}
+	break;
+	case L"change"_hash:
+	{
+		const TString tsFilename(tsBuf.getlasttoks());
+		args->put_ResultFilePath(tsFilename.to_wchr());
+	}
+	[[fallthrough]];
+	default:
+	{
 		download->add_BytesReceivedChanged(Microsoft::WRL::Callback<ICoreWebView2BytesReceivedChangedEventHandler>(this, &DcxWebControl2::OnBytesReceivedChanged).Get(), &m_bytesReceivedChangedToken);
 		download->add_StateChanged(Microsoft::WRL::Callback<ICoreWebView2StateChangedEventHandler>(this, &DcxWebControl2::OnStateChanged).Get(), &m_stateChangedToken);
 	}
+	break;
+	}
+	return S_OK;
+}
+
+HRESULT DcxWebControl2::OnClearBrowsingDataCompleted(HRESULT errorCode)
+{
+	execAliasEx(L"cache,%u,cleared,%u", getUserID(), errorCode);
+	return S_OK;
+}
+
+HRESULT DcxWebControl2::OnNewWindowRequested(ICoreWebView2* sender, ICoreWebView2NewWindowRequestedEventArgs* args)
+{
+	if (!sender || !args)
+		return E_FAIL;
+
+	if (this->IsNewWindowsManaged())
+	{
+		//wil::unique_cotaskmem_string uri;
+		//args->get_Uri(&uri);
+		//TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+		//evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"win_open,%u,%s", getUserID(), uri.get());
+		//if (tsBuf == L"cancel")
+		//	args->put_Handled(TRUE);
+
+		if (const auto pd = getParentDialog(); pd)
+		{
+			wil::unique_cotaskmem_string uri;
+			args->get_Uri(&uri);
+
+			TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+
+			mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), uri.get());
+			mIRCLinker::eval(tsBuf, TEXT("$%(%,win_open,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
+
+			if (tsBuf == L"cancel")
+				args->put_Handled(TRUE);
+		}
+	}
+	else
+		args->put_Handled(FALSE);
 	return S_OK;
 }

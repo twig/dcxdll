@@ -85,7 +85,7 @@ alias dcx_webbrowser_newurl {
   var %id = $2, %url = $3-, %edit_id = $+(%id,_edit), %web_id = $+(%id,_web)
 
   xdid -ra $1 %edit_id %url
-  xdid -m $1 %web_id + + %url
+  xdid -m $1 %web_id +usm +m %url
 }
 
 ; go home
@@ -578,11 +578,15 @@ alias dcx_webbrowser_work {
   elseif ($2 == nav_complete) xdid -t $1 24 2 + 1 Download $iif($4,Complete,Failed) $chr(9) ...
   elseif ($2 == dl_begin) {
     ; size filename
+    var %f = $+($file($5-).path,file.tmp)
+    if ($isfile(%f)) return cancel
     .timerresetprogress off
     xdid -v $1 25 0
     xdid -r $1 25 0 $4
-    xdid -i $1 25 $5- $+(%,d/,$4)
-    xdid -t $1 24 2 + 1 Downloading... $chr(9) $5-
+    xdid -i $1 25 %f $+(%,d/,$4)
+    xdid -t $1 24 2 + 1 Downloading... $chr(9) %f
+
+    return change %f
   }
   elseif ($2 == dl_progress) {
     ; bytes totalbytes filename
@@ -606,6 +610,10 @@ alias dcx_webbrowser_work {
     var %id = $xdialog($1,$3).namedid
     xdid $iif($4,-e,-b) $1 $+($gettok(%id,1,95),_back)
     xdid $iif($5,-e,-b) $1 $+($gettok(%id,1,95),_forward)
+  }
+  elseif ($2 == win_open) {
+    ; url
+    if (*bing.com* iswm $4-) return cancel
   }
   elseif ($2 == favicon) {
     var %id = $xdialog($1,$3).namedid

@@ -56,6 +56,8 @@ public:
 	bool IsStatusbarEnabled() const;
 	bool IsFullScreenEnabled() const;
 	bool IsScriptingEnabled() const;
+	const bool& IsDownloadingEnabled() const;
+	const bool& IsNewWindowsManaged() const;
 	TString getStatusText() const;
 	TString getReadyState() const;
 
@@ -63,8 +65,17 @@ public:
 	void setScriptingState(bool bEnable);
 	void setStatusbarState(bool bEnable);
 	void setVisableState(bool bEnable);
+	void setDownloadsState(bool bEnable);
+	void setManageNewWindows(bool bEnable);
+
 	void setURL(const TString& tsURL, const TString& tsFlags, const TString& tsMask);
+	void setDownloadDir(const TString& tsDir);
+	void setPreferedColourScheme(COREWEBVIEW2_PREFERRED_COLOR_SCHEME value);
+
 	void CallScript(const TString& tsCmd);
+
+	void ClearCache();
+	void ClearCacheKind(COREWEBVIEW2_BROWSING_DATA_KINDS kind);
 
 private:
 	// Pointer to WebViewController
@@ -92,8 +103,12 @@ private:
 	EventRegistrationToken m_bytesReceivedChangedToken;
 	EventRegistrationToken m_stateChangedToken;
 	EventRegistrationToken m_downloadStartingToken;
+	EventRegistrationToken m_newWindowRequestedToken;
 
 	bool m_bFullScreen{};
+	bool m_bAllowDownloads{ true };
+	bool m_bManageNewWindows{};
+
 	RECT m_rcSize{};
 	TString m_tsHome;
 
@@ -110,5 +125,7 @@ private:
 	HRESULT OnBytesReceivedChanged(ICoreWebView2DownloadOperation* download, IUnknown* args);
 	HRESULT OnStateChanged(ICoreWebView2DownloadOperation* download, IUnknown* args);
 	HRESULT OnDownloadStarting(ICoreWebView2* sender, ICoreWebView2DownloadStartingEventArgs* args);
+	HRESULT OnClearBrowsingDataCompleted(HRESULT errorCode);
+	HRESULT OnNewWindowRequested(ICoreWebView2* sender, ICoreWebView2NewWindowRequestedEventArgs* args);
 };
 

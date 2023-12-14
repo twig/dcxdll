@@ -66,7 +66,7 @@
 <td><table class="description">
 	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>Web2 Control</td></tr>
 	<tr><td>WebView2 HTML control.<br/>
-NB: This control requires WebView2Loader.dll to be present somewhere LoadLibrary() can find it.<br/>
+NB: This control requires WebView2Loader.dll to be present somewhere LoadLibrary() can find it, or in the same directory as dcx.dll.<br/>
 NB: The control also requires WebView2 installed & will try to install it if not found.<br/>
 <a href='https://developer.microsoft.com/en-us/microsoft-edge/webview2/'>Download WebView2</a><br /><br />
 <div style="text-align: center;">
@@ -304,6 +304,20 @@ NB: The control also requires WebView2 installed & will try to install it if not
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.cache"></a>cache	</td></tr>
+	<tr><td colspan="2">Sent when the cache has been cleared.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME cache ID ERRORCODE</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx cache 4 1</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.dl_begin"></a>dl_begin	</td></tr>
 	<tr><td colspan="2">When downloading is about to begin.</td></tr>
 	<tr>
@@ -314,7 +328,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx dl_begin 4 1000000 c:\downloads\file.zip</div></td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> return this value to block the download.</td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> - return this value to block the download.<br /><a class="returnevent">change [filename]</a> - return this value to change the filename.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -491,6 +505,20 @@ NB: The control also requires WebView2 installed & will try to install it if not
 		<td><div class="example">/cb_alias dcx title 4 The other page title</div></td>
 	</tr>
 </table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.win_open"></a>win_open	</td></tr>
+	<tr><td colspan="2">When a new window is attempting to open.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME win_open ID URL</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx win_open 4 https://www.sample.com/</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> Return this value to block the new window from opening.</td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #CCACC7; color: #CCACC7;"><a name="ctrldcxml"></a>Generic &lt;dcxml&gt;</td></tr>
@@ -741,6 +769,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
 	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
+		<a class='flag' href="#events.cache"><div>cache</div></a>
 		<a class='flag' href="#events.dl_begin"><div>dl_begin</div></a>
 		<a class='flag' href="#events.dl_canceled"><div>dl_canceled</div></a>
 		<a class='flag' href="#events.dl_complete"><div>dl_complete</div></a>
@@ -753,6 +782,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 		<a class='flag' href="#events.script"><div>script</div></a>
 		<a class='flag' href="#events.status"><div>status</div></a>
 		<a class='flag' href="#events.title"><div>title</div></a>
+		<a class='flag' href="#events.win_open"><div>win_open</div></a>
 	</div>
 </td>
   </tr>

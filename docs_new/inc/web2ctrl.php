@@ -1,7 +1,7 @@
 <?php
 function get_intro_web2ctrl() {
 	echo "WebView2 HTML control.<br/>
-NB: This control requires WebView2Loader.dll to be present somewhere LoadLibrary() can find it.<br/>
+NB: This control requires WebView2Loader.dll to be present somewhere LoadLibrary() can find it, or in the same directory as dcx.dll.<br/>
 NB: The control also requires WebView2 installed & will try to install it if not found.<br/>
 <a href='https://developer.microsoft.com/en-us/microsoft-edge/webview2/'>Download WebView2</a>";
 }
@@ -134,7 +134,10 @@ function get_events_web2ctrl(&$EVENTS) {
 			'__desc' => "When downloading is about to begin.",
 			'__cmd' => 'TOTALBYTES FILENAME',
 			'__eg' => '1000000 c:\downloads\file.zip',
-			'__return' => "[r]cancel[/r] return this value to block the download."
+			'__return' => array(
+				"cancel" => "- return this value to block the download.",
+				"change [filename]" => "- return this value to change the filename.",
+			),
 		),
 		"dl_progress" => array(
 			'__desc' => "Downloading progress update.",
@@ -163,6 +166,17 @@ function get_events_web2ctrl(&$EVENTS) {
 			'__desc' => "When the downloading is complete.",
 			'__cmd' => 'FILENAME',
 			'__eg' => 'c:\downloads\file.zip',
+		),
+		"cache" => array(
+			'__desc' => "Sent when the cache has been cleared.",
+			'__cmd' => 'ERRORCODE',
+			'__eg' => '1',
+		),
+		"win_open" => array(
+			'__desc' => "When a new window is attempting to open.",
+			'__cmd' => 'URL',
+			'__eg' => 'https://www.sample.com/',
+			'__return' => "[r]cancel[/r] Return this value to block the new window from opening.",
 		),
 	);
 }
