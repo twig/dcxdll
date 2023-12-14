@@ -466,7 +466,8 @@ on *:DIALOG:dcx_webbrowser:init:0:{
   if ($isfile(%f)) xdid -w $dname 24 + 0 %f
   xdid -t $dname 24 1 +c 0 25 pbar 0 0 100 20 tooltips gradient transparent shadow noformat
   xdid -c $dname 25 16776960
-  xdid -v $dname 25 50
+  xdid -v $dname 25 0
+  xdid -j $dname 25 a
   xdid -T $dname 25 ProgressBar ToolTip!
   xdid -t $dname 24 2 + 1 ... $chr(9) ...
   xdid -E $dname 24,25 + -es
@@ -485,6 +486,8 @@ on *:DIALOG:dcx_webbrowser:init:0:{
   xdid -a $dname 2 $tab(-1,+ec 1 2 1 1 0 $rgb(0,0,255) 0 %url, %url)
   var %url = https://www.bing.com/
   xdid -a $dname 2 $tab(-1,+ec 1 2 1 1 0 $rgb(0,0,255) 0 %url, %url)
+  var %url = https://aminet.net/
+  xdid -a $dname 2 $tab(-1,+ec 1 2 1 1 0 $rgb(0,0,255) 0 %url, %url)
 
   set %dcx_browser_type %dcx_browser_default_type
   dcx_webbrowser_addtab $dname
@@ -493,10 +496,16 @@ on *:DIALOG:dcx_webbrowser:init:0:{
 }
 ; $1 = dname, $2 = tab id, $3- filename
 alias -l _setfavicon {
+  if (!$dialog($1)) return
   if (!$isfile($3-)) return
   var %id = $+($2,_favicon)
   xdid -s $1 %id
   xdid -i $1 %id +ghab $3-
+}
+; $1 = dname
+alias -l _resetprogress {
+  if (!$dialog($1)) return
+  xdid -i $1 25 Waiting...
 }
 alias dcx_webbrowser_work {
   !if ($2 == error) echo -s DCXError: $1 ID: $3 Type: $4 Prop: $5 Cmd: $6 Error: $7-
@@ -567,6 +576,32 @@ alias dcx_webbrowser_work {
     xdid -i $1 $+($gettok(%id,1,95),_favicon) + none
   }
   elseif ($2 == nav_complete) xdid -t $1 24 2 + 1 Download $iif($4,Complete,Failed) $chr(9) ...
+  elseif ($2 == dl_begin) {
+    ; size filename
+    .timerresetprogress off
+    xdid -v $1 25 0
+    xdid -r $1 25 0 $4
+    xdid -i $1 25 $5- $+(%,d/,$4)
+    xdid -t $1 24 2 + 1 Downloading... $chr(9) $5-
+  }
+  elseif ($2 == dl_progress) {
+    ; bytes totalbytes filename
+    xdid -v $1 25 $4
+  }
+  elseif ($2 == dl_completed) {
+    ; filename
+    xdid -v $1 25 0
+    xdid -i $1 25 Completed: $4-
+    .timerresetprogress 1 5 _resetprogress $1
+    xdid -t $1 24 2 + 1 ... $chr(9) ...
+  }
+  elseif ($2 == dl_canceled) {
+    ; reason filename
+    xdid -v $1 25 0
+    xdid -i $1 25 Canceled: $5-
+    .timerresetprogress 1 5 _resetprogress $1
+    xdid -t $1 24 2 + 1 ... $chr(9) ...
+  }
   elseif ($2 == history) {
     var %id = $xdialog($1,$3).namedid
     xdid $iif($4,-e,-b) $1 $+($gettok(%id,1,95),_back)
