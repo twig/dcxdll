@@ -699,10 +699,12 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 
 	m_webview->add_HistoryChanged(Microsoft::WRL::Callback<ICoreWebView2HistoryChangedEventHandler>(this, &DcxWebControl2::OnHistoryChanged).Get(), &m_historyChangedToken);
 
-	{
-		auto webview15 = m_webview.try_query<ICoreWebView2_15>();
+	if (auto webview15 = m_webview.try_query<ICoreWebView2_15>(); webview15)
 		webview15->add_FaviconChanged(Microsoft::WRL::Callback<ICoreWebView2FaviconChangedEventHandler>(this, &DcxWebControl2::OnFaviconChanged).Get(), &m_faviconChangedToken);
-	}
+
+	if (auto webview4 = m_webview.try_query<ICoreWebView2_4>(); webview4)
+		webview4->add_DownloadStarting(Microsoft::WRL::Callback<ICoreWebView2DownloadStartingEventHandler>(this, &DcxWebControl2::OnDownloadStarting).Get(), &m_downloadStartingToken);
+
 	// Schedule an async task to navigate to Bing
 	//webview->Navigate(L"https://www.bing.com/");
 	//webview->Navigate(L"about:blank");
@@ -857,12 +859,13 @@ HRESULT DcxWebControl2::OnFaviconChanged(ICoreWebView2* sender, IUnknown* args)
 			TString tsFile(tsBuf.getlasttoks().trim());
 			return webview15->GetFavicon(COREWEBVIEW2_FAVICON_IMAGE_FORMAT_PNG,
 				Microsoft::WRL::Callback<ICoreWebView2GetFaviconCompletedHandler>(
-					[this, &tsFile](HRESULT errorCode, IStream* iconStream) -> HRESULT
+					[this, tsFile](HRESULT errorCode, IStream* iconStream) -> HRESULT
 					{
 						if (errorCode == S_OK)
 						{
 							Gdiplus::Bitmap iconBitmap(iconStream);
-							if (SavePNGFile(tsFile, iconBitmap))
+							TString tsLocalFile(tsFile);
+							if (SavePNGFile(tsLocalFile, iconBitmap))
 								execAliasEx(L"favicon,%u,saved,%s", getUserID(), tsFile.to_wchr());
 							else
 								execAliasEx(L"favicon,%u,failed,%s", getUserID(), tsFile.to_wchr());
@@ -879,4 +882,94 @@ HRESULT DcxWebControl2::OnFaviconChanged(ICoreWebView2* sender, IUnknown* args)
 	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"favicon,%u,changed,%s", getUserID(), tsURL.to_wchr());
 	return S_OK;
 #endif
+}
+
+HRESULT DcxWebControl2::OnBytesReceivedChanged(ICoreWebView2DownloadOperation* download, IUnknown* args)
+{
+	if (!download)
+		return E_FAIL;
+
+	INT64 iBytes{}, iTotalBytes{};
+	download->get_BytesReceived(&iBytes);
+	download->get_TotalBytesToReceive(&iTotalBytes);
+
+	wil::unique_cotaskmem_string filename;
+	download->get_ResultFilePath(&filename);
+	
+	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"dl_progress,%u,%lli,%lli,%s", getUserID(), iBytes, iTotalBytes, filename.get());
+	if (tsBuf == L"cancel")
+		download->Cancel();
+	return S_OK;
+}
+
+HRESULT DcxWebControl2::OnStateChanged(ICoreWebView2DownloadOperation* download, IUnknown* args)
+{
+	if (!download)
+		return E_FAIL;
+
+	COREWEBVIEW2_DOWNLOAD_STATE downloadState;
+	if (FAILED(download->get_State(&downloadState)))
+		return E_FAIL;
+
+	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+
+	wil::unique_cotaskmem_string filename;
+	download->get_ResultFilePath(&filename);
+
+	switch (downloadState)
+	{
+	case COREWEBVIEW2_DOWNLOAD_STATE_IN_PROGRESS:
+	{
+		//INT64 iBytes{};
+		//download->get_TotalBytesToReceive(&iBytes);
+
+		//evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"dl_begin,%u,%lli,%s", getUserID(), iBytes, filename.get());
+	}
+	break;
+	case COREWEBVIEW2_DOWNLOAD_STATE_INTERRUPTED:
+	{
+		// Here developer can take different actions based on `download->InterruptReason`.
+		// For example, show an error message to the end user.
+		COREWEBVIEW2_DOWNLOAD_INTERRUPT_REASON reason;
+		download->get_InterruptReason(&reason);
+
+		evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"dl_canceled,%u,%u,%s", getUserID(), reason, filename.get());
+	}
+	break;
+	case COREWEBVIEW2_DOWNLOAD_STATE_COMPLETED:
+	{
+		evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"dl_completed,%u,%s", getUserID(), filename.get());
+	}
+	break;
+	}
+	return S_OK;
+}
+
+HRESULT DcxWebControl2::OnDownloadStarting(ICoreWebView2* sender, ICoreWebView2DownloadStartingEventArgs* args)
+{
+	if (!sender || !args)
+		return E_FAIL;
+
+	wil::com_ptr<ICoreWebView2DownloadOperation> download;
+	if (FAILED(args->get_DownloadOperation(&download)))
+		return E_FAIL;
+
+	if (!download)
+		return E_FAIL;
+
+	INT64 iBytes{};
+	download->get_TotalBytesToReceive(&iBytes);
+	wil::unique_cotaskmem_string filename;
+	download->get_ResultFilePath(&filename);
+
+	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"dl_begin,%u,%lli,%s", getUserID(), iBytes, filename.get());
+	if (tsBuf == L"cancel")
+		args->put_Cancel(TRUE);
+	else {
+		download->add_BytesReceivedChanged(Microsoft::WRL::Callback<ICoreWebView2BytesReceivedChangedEventHandler>(this, &DcxWebControl2::OnBytesReceivedChanged).Get(), &m_bytesReceivedChangedToken);
+		download->add_StateChanged(Microsoft::WRL::Callback<ICoreWebView2StateChangedEventHandler>(this, &DcxWebControl2::OnStateChanged).Get(), &m_stateChangedToken);
+	}
+	return S_OK;
 }

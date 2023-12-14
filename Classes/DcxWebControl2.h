@@ -89,6 +89,9 @@ private:
 	EventRegistrationToken m_statusbarToken;
 	EventRegistrationToken m_historyChangedToken;
 	EventRegistrationToken m_faviconChangedToken;
+	EventRegistrationToken m_bytesReceivedChangedToken;
+	EventRegistrationToken m_stateChangedToken;
+	EventRegistrationToken m_downloadStartingToken;
 
 	bool m_bFullScreen{};
 	RECT m_rcSize{};
@@ -104,5 +107,8 @@ private:
 	HRESULT OnStatusBarTextChanged(ICoreWebView2* sender, IUnknown* args);
 	HRESULT OnHistoryChanged(ICoreWebView2* sender, IUnknown* args);
 	HRESULT OnFaviconChanged(ICoreWebView2* sender, IUnknown* args);
+	HRESULT OnBytesReceivedChanged(ICoreWebView2DownloadOperation* download, IUnknown* args);
+	HRESULT OnStateChanged(ICoreWebView2DownloadOperation* download, IUnknown* args);
+	HRESULT OnDownloadStarting(ICoreWebView2* sender, ICoreWebView2DownloadStartingEventArgs* args);
 };
 
