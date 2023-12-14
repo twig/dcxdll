@@ -130,6 +130,40 @@ function get_events_web2ctrl(&$EVENTS) {
 			'__eg' => 'whatever the script returned',
 		),
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"dl_begin" => array(
+			'__desc' => "When downloading is about to begin.",
+			'__cmd' => 'TOTALBYTES FILENAME',
+			'__eg' => '1000000 c:\downloads\file.zip',
+			'__return' => "[r]cancel[/r] return this value to block the download."
+		),
+		"dl_progress" => array(
+			'__desc' => "Downloading progress update.",
+			'__cmd' => 'CURRENT TOTAL FILENAME',
+			'__eg' => '259700 1000000 c:\downloads\file.zip',
+			'__params' => array(
+				'CURRENT' => 'Current dowload position.',
+				'TOTAL' => 'Maximum download position.',
+				'FILENAME' => 'The filename being downloaded too.',
+			),
+			'__notes' => array(
+				'[p]TOTAL[/p] can be [v]0[/v], so make sure to check this before performing any calculation with it.',
+			),
+			'__return' => "[r]cancel[/r] return this value to stop the download."
+		),
+		"dl_canceled" => array(
+			'__desc' => "Download has been canceled.",
+			'__cmd' => 'REASON FILENAME',
+			'__eg' => '1 c:\downloads\file.zip',
+			'__params' => array(
+				'REASON' => 'The reason WebView2 gave.',
+				'FILENAME' => 'The filename being downloaded too.',
+			),
+		),
+		"dl_complete" => array(
+			'__desc' => "When the downloading is complete.",
+			'__cmd' => 'FILENAME',
+			'__eg' => 'c:\downloads\file.zip',
+		),
 	);
 }
 ?>

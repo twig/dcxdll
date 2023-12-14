@@ -304,6 +304,84 @@ NB: The control also requires WebView2 installed & will try to install it if not
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.dl_begin"></a>dl_begin	</td></tr>
+	<tr><td colspan="2">When downloading is about to begin.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME dl_begin ID TOTALBYTES FILENAME</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx dl_begin 4 1000000 c:\downloads\file.zip</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> return this value to block the download.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.dl_canceled"></a>dl_canceled	</td></tr>
+	<tr><td colspan="2">Download has been canceled.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME dl_canceled ID REASON FILENAME</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx dl_canceled 4 1 c:\downloads\file.zip</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">REASON</td>
+		<td>The reason WebView2 gave.</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>The filename being downloaded too.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.dl_complete"></a>dl_complete	</td></tr>
+	<tr><td colspan="2">When the downloading is complete.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME dl_complete ID FILENAME</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx dl_complete 4 c:\downloads\file.zip</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.dl_progress"></a>dl_progress	</td></tr>
+	<tr><td colspan="2">Downloading progress update.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME dl_progress ID CURRENT TOTAL FILENAME</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx dl_progress 4 259700 1000000 c:\downloads\file.zip</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">CURRENT</td>
+		<td>Current dowload position.</td>
+	</tr>
+	<tr>
+		<td class="param">TOTAL</td>
+		<td>Maximum download position.</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>The filename being downloaded too.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> return this value to stop the download.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">TOTAL</a> can be <a class="value">0</a>, so make sure to check this before performing any calculation with it.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.favicon"></a>favicon	</td></tr>
 	<tr><td colspan="2">When the favicon changes.</td></tr>
 	<tr>
@@ -663,6 +741,10 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
 	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
+		<a class='flag' href="#events.dl_begin"><div>dl_begin</div></a>
+		<a class='flag' href="#events.dl_canceled"><div>dl_canceled</div></a>
+		<a class='flag' href="#events.dl_complete"><div>dl_complete</div></a>
+		<a class='flag' href="#events.dl_progress"><div>dl_progress</div></a>
 		<a class='flag' href="#events.favicon"><div>favicon</div></a>
 		<a class='flag' href="#events.fullscreen"><div>fullscreen</div></a>
 		<a class='flag' href="#events.help"><div>help</div></a>
@@ -680,7 +762,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 13th December, 23</td>
+		<td style="text-align: right;">Last Updated: 14th December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">
