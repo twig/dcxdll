@@ -912,7 +912,7 @@ alias dcx_webbrowser_newurl {
   var %id = $2, %url = $3-, %edit_id = $+(%id,_edit), %web_id = $+(%id,_web)
 
   xdid -ra $1 %edit_id %url
-  xdid -m $1 %web_id +usm +m %url
+  xdid -m $1 %web_id +usm +us %url
 }
 
 ; go home
@@ -1378,6 +1378,7 @@ alias dcx_webbrowser_work {
   }
   elseif ($2 == closetab) dcx_webbrowser_remtab $1 $4
   elseif ($2 == title) {
+    ; title text
     var %id = $gettok($xdialog($1,$3).namedid,1,95), %cnt = 1, %total = $xdid($1,4).num
     while (%cnt &lt; %total) {
       if (%id == $xdialog($1,$xdid($1,4,%cnt).childid).namedid) break
@@ -1396,6 +1397,7 @@ alias dcx_webbrowser_work {
   elseif ($2 == status) xdid -t $1 24 2 + 1 $4- $chr(9) $4-
   elseif ($2 == doc_complete) xdid -t $1 24 2 + 1 Done $chr(9) ...
   elseif ($2 == nav_begin) {
+    ; url
     var %id = $xdialog($1,$3).namedid
     xdid -ra $1 $+($gettok(%id,1,95),_edit) $4-
     xdid -t $1 24 2 + 1 Downloading... $4- $chr(9) $4-
@@ -1405,12 +1407,13 @@ alias dcx_webbrowser_work {
   elseif ($2 == nav_complete) xdid -t $1 24 2 + 1 Download $iif($4,Complete,Failed) $chr(9) ...
   elseif ($2 == dl_begin) {
     ; size filename
-    var %f = $+($file($5-).path,file.tmp)
+    ; NB: can't use $file($5-).path as this doesnt work when the file doesnt exist.
+    var %f = $+($nofile($5-),file.tmp)
     if ($isfile(%f)) return cancel
     .timerresetprogress off
     xdid -v $1 25 0
     xdid -r $1 25 0 $4
-    xdid -i $1 25 %f $+(%,d/,$4)
+    xdid -i $1 25 $nopath(%f) $+(%,d/,$4)
     xdid -t $1 24 2 + 1 Downloading... $chr(9) %f
 
     return change %f
@@ -1434,6 +1437,7 @@ alias dcx_webbrowser_work {
     xdid -t $1 24 2 + 1 ... $chr(9) ...
   }
   elseif ($2 == history) {
+    ; cangoback cangoforwards
     var %id = $xdialog($1,$3).namedid
     xdid $iif($4,-e,-b) $1 $+($gettok(%id,1,95),_back)
     xdid $iif($5,-e,-b) $1 $+($gettok(%id,1,95),_forward)
@@ -1443,12 +1447,14 @@ alias dcx_webbrowser_work {
     if (*bing.com* iswm $4-) return cancel
   }
   elseif ($2 == favicon) {
+    ; changed url
+    ; saved filename
     var %id = $xdialog($1,$3).namedid
     if ($4 == saved) .timer 1 0 _setfavicon $1 $gettok(%id,1,95) $5-
     elseif ($4 == changed) {
       var %d = $mircdirImages
       if ($isdir(%d)) {
-        var %f = $+(%d,\favicon_,$md5($4-),.png)
+        var %f = $+(%d,\favicon_,$md5($5-),.png)
         if (!$isfile(%f)) return save %f
         else .timer 1 0 _setfavicon $1 $gettok(%id,1,95) %f
       }
@@ -1481,7 +1487,7 @@ ON *:SIGNAL:XPopup-_dcx_webbrowser: {
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 14th December, 23</td>
+		<td style="text-align: right;">Last Updated: 15th December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

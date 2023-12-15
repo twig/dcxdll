@@ -513,14 +513,19 @@ bool DcxWebControl2::IsScriptingEnabled() const
 	return bRes;
 }
 
-const bool& DcxWebControl2::IsDownloadingEnabled() const
+const bool& DcxWebControl2::IsDownloadingEnabled() const noexcept
 {
 	return m_bAllowDownloads;
 }
 
-const bool& DcxWebControl2::IsNewWindowsManaged() const
+const bool& DcxWebControl2::IsNewWindowsManaged() const noexcept
 {
 	return m_bManageNewWindows;
+}
+
+const bool& DcxWebControl2::IsDownloadsDialogEnabled() const noexcept
+{
+	return m_bDownloadsDialogEnabled;
 }
 
 TString DcxWebControl2::getStatusText() const
@@ -604,14 +609,19 @@ void DcxWebControl2::setVisableState(bool bEnable)
 	m_webviewController->put_IsVisible(bEnable);
 }
 
-void DcxWebControl2::setDownloadsState(bool bEnable)
+void DcxWebControl2::setDownloadsState(bool bEnable) noexcept
 {
 	m_bAllowDownloads = bEnable;
 }
 
-void DcxWebControl2::setManageNewWindows(bool bEnable)
+void DcxWebControl2::setManageNewWindows(bool bEnable) noexcept
 {
 	m_bManageNewWindows = bEnable;
+}
+
+void DcxWebControl2::setDownloadsDialogState(bool bEnable) noexcept
+{
+	m_bDownloadsDialogEnabled = bEnable;
 }
 
 void DcxWebControl2::setURL(const TString& tsURL, const TString& tsFlags, const TString& tsMask)
@@ -636,6 +646,8 @@ void DcxWebControl2::setURL(const TString& tsURL, const TString& tsFlags, const 
 		setManageNewWindows(xmask['m']);
 	if (xflags['u']) // allow downloads?
 		setDownloadsState(xmask['u']);
+	if (xflags['U']) // allow downloads?
+		setDownloadsDialogState(xmask['U']);
 	//if (xflags['x'] && xmask['x']) // allow active x install prompts (doesnt auto install, you still need to ok the prompt)
 	//	V_I4(&vFlags) |= navTrustedForActiveX;
 	if (xflags['f']) // fullscreen on/off
@@ -1044,6 +1056,8 @@ HRESULT DcxWebControl2::OnDownloadStarting(ICoreWebView2* sender, ICoreWebView2D
 		args->put_Cancel(TRUE);
 		return S_OK;
 	}
+	if (!this->IsDownloadsDialogEnabled())
+		args->put_Handled(TRUE);
 
 	wil::com_ptr<ICoreWebView2DownloadOperation> download;
 	if (FAILED(args->get_DownloadOperation(&download)))
@@ -1055,7 +1069,7 @@ HRESULT DcxWebControl2::OnDownloadStarting(ICoreWebView2* sender, ICoreWebView2D
 	INT64 iBytes{};
 	download->get_TotalBytesToReceive(&iBytes);
 	wil::unique_cotaskmem_string filename;
-	download->get_ResultFilePath(&filename);
+	args->get_ResultFilePath(&filename);
 
 	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
 	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"dl_begin,%u,%lli,%s", getUserID(), iBytes, filename.get());

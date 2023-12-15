@@ -36,6 +36,9 @@ function get_xdid_web2ctrl(&$XDID) {
 				'+FLAGS' => array(
 					'__desc' => 'Can be any combination of',
 					'__values' => array(
+						'm' => 'toggle Managing new windows.',
+						'u' => 'toggle downloads.',
+						'U' => 'toggle downloads dialog.',
 						'f' => 'toggle fullscreen on/off',
 						's' => 'toggle statusbar on/off',
 					),
@@ -136,7 +139,7 @@ function get_events_web2ctrl(&$EVENTS) {
 			'__eg' => '1000000 c:\downloads\file.zip',
 			'__return' => array(
 				"cancel" => "- return this value to block the download.",
-				"change [filename]" => "- return this value to change the filename.",
+				"change [filename]" => "- return this value to change the filename. (MUST be the full filepath)",
 			),
 		),
 		"dl_progress" => array(

@@ -56,8 +56,10 @@ public:
 	bool IsStatusbarEnabled() const;
 	bool IsFullScreenEnabled() const;
 	bool IsScriptingEnabled() const;
-	const bool& IsDownloadingEnabled() const;
-	const bool& IsNewWindowsManaged() const;
+	const bool& IsDownloadingEnabled() const noexcept;
+	const bool& IsNewWindowsManaged() const noexcept;
+	const bool& IsDownloadsDialogEnabled() const noexcept;
+
 	TString getStatusText() const;
 	TString getReadyState() const;
 
@@ -65,8 +67,9 @@ public:
 	void setScriptingState(bool bEnable);
 	void setStatusbarState(bool bEnable);
 	void setVisableState(bool bEnable);
-	void setDownloadsState(bool bEnable);
-	void setManageNewWindows(bool bEnable);
+	void setDownloadsState(bool bEnable) noexcept;
+	void setManageNewWindows(bool bEnable) noexcept;
+	void setDownloadsDialogState(bool bEnable) noexcept;
 
 	void setURL(const TString& tsURL, const TString& tsFlags, const TString& tsMask);
 	void setDownloadDir(const TString& tsDir);
@@ -108,6 +111,7 @@ private:
 	bool m_bFullScreen{};
 	bool m_bAllowDownloads{ true };
 	bool m_bManageNewWindows{};
+	bool m_bDownloadsDialogEnabled{ true };
 
 	RECT m_rcSize{};
 	TString m_tsHome;
