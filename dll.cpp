@@ -91,6 +91,8 @@ BOOL WINAPI DllMain(
 	{
 	case DLL_PROCESS_ATTACH:
 	{
+		getDllModule(hinstDLL);
+
 		// Initialize once for each new process.
 		// Return FALSE to fail DLL load.
 		DisableThreadLibraryCalls(hinstDLL);
