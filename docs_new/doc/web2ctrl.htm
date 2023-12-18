@@ -80,6 +80,41 @@ NB: The control also requires WebView2 installed & will try to install it if not
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.c"></a>/xdid -c	</td></tr>
+	<tr><td colspan="2">Clear the cache.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -c [DNAME] [ID] (TYPE)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -c dcx 4 cookies</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">TYPE</td>
+		<td>Can be any of</td>
+	</tr>
+	<tr>
+		<td class="value">empty</td>
+		<td>If no argument supplied all caches are cleared.</td>
+	</tr>
+	<tr>
+		<td class="value">downloads</td>
+		<td>Only clear the downloads history.</td>
+	</tr>
+	<tr>
+		<td class="value">browsing</td>
+		<td>Only clear the browsing history.</td>
+	</tr>
+	<tr>
+		<td class="value">cookies</td>
+		<td>Only clear the cookies.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.g"></a>/xdid -g	</td></tr>
 	<tr><td colspan="2">This command is like hitting the Home button in a browser.</td></tr>
 	<tr>
@@ -762,6 +797,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 </td><td width="80%" valign="top" class="menuright">
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
 	<a class='header' href="#xdid"><div style='background:#6A7CB0;'>/xdid Flags</div></a>
+		<a class='flag' href="#xdid.c"><div>-c</div></a>
 		<a class='flag' href="#xdid.g"><div>-g</div></a>
 		<a class='flag' href="#xdid.i"><div>-i</div></a>
 		<a class='flag' href="#xdid.j"><div>-j</div></a>
@@ -804,7 +840,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 15th December, 23</td>
+		<td style="text-align: right;">Last Updated: 18th December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

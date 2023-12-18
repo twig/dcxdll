@@ -58,6 +58,22 @@ function get_xdid_web2ctrl(&$XDID) {
 		't' => array(
 	        '__desc' => 'This command is like hitting the Stop button in a browser.',
 		),
+		'c' => array(
+	        '__desc' => 'Clear the cache.',
+	        '__cmd' => '(TYPE)',
+	        '__eg' => "cookies",
+			'__params' => array(
+				'TYPE' => array(
+					'__desc' => 'Can be any of',
+					'__values' => array(
+						'empty' => 'If no argument supplied all caches are cleared.',
+						'downloads' => 'Only clear the downloads history.',
+						'browsing' => 'Only clear the browsing history.',
+						'cookies' => 'Only clear the cookies.',
+					),
+				),
+			),
+		),
 		'C' => array(
 	        '__desc' => 'Capture a preview of the current website.',
 	        '__cmd' => '[+FLAGS] (FILENAME)',

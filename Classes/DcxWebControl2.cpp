@@ -782,12 +782,7 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 	GetClientRect(m_Hwnd, &bounds);
 	m_webviewController->put_Bounds(bounds);
 
-	//// Schedule an async task to navigate to Bing
-	////webview->Navigate(L"https://www.bing.com/");
-	//webview->Navigate(L"about:blank");
-
 	// <NavigationEvents>
-	// Step 4 - Navigation events
 	// register an ICoreWebView2NavigationStartingEventHandler
 	m_webview->add_NavigationStarting(Microsoft::WRL::Callback<ICoreWebView2NavigationStartingEventHandler>(this, &DcxWebControl2::OnNavigationStarting).Get(), &m_navStartToken);
 	m_webview->add_NavigationCompleted(Microsoft::WRL::Callback<ICoreWebView2NavigationCompletedEventHandler>(this, &DcxWebControl2::OnNavigationCompleted).Get(), &m_navEndToken);
