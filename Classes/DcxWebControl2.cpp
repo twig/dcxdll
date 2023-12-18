@@ -305,7 +305,7 @@ void DcxWebControl2::toXml(TiXmlElement* const xml) const
 	__super::toXml(xml);
 
 	xml->SetAttribute("url", this->getURL().c_str());
-	const TString tsFlags(L"+Sbf");
+	const TString tsFlags(L"+sSfuU");
 	TString tsMask(L"+");
 
 	if (this->IsStatusbarEnabled())
@@ -314,11 +314,13 @@ void DcxWebControl2::toXml(TiXmlElement* const xml) const
 		tsMask += L'S';
 	if (this->IsFullScreenEnabled())
 		tsMask += L'f';
+	if (this->IsDownloadingEnabled())
+		tsMask += L'u';
+	if (this->IsDownloadsDialogEnabled())
+		tsMask += L'U';
 
 	xml->SetAttribute("flags", tsFlags.c_str());
 	xml->SetAttribute("mask", tsMask.c_str());
-	if (const TString tsText(this->getStatusText()); !tsText.empty())
-		xml->SetAttribute("statustext", tsText.c_str());
 }
 
 TiXmlElement* DcxWebControl2::toXml() const
@@ -793,27 +795,24 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 
 	m_webview->add_DocumentTitleChanged(Microsoft::WRL::Callback<ICoreWebView2DocumentTitleChangedEventHandler>(this, &DcxWebControl2::OnDocumentTitleChanged).Get(), &m_titleToken);
 	m_webview->add_ContainsFullScreenElementChanged(Microsoft::WRL::Callback<ICoreWebView2ContainsFullScreenElementChangedEventHandler>(this, &DcxWebControl2::OnContainsFullScreenElementChanged).Get(), &m_fullscreenToken);
-
-	if (auto wv = m_webview.try_query<ICoreWebView2_12>(); wv)
-		wv->add_StatusBarTextChanged(Microsoft::WRL::Callback<ICoreWebView2StatusBarTextChangedEventHandler>(this, &DcxWebControl2::OnStatusBarTextChanged).Get(), &m_statusbarToken);
-
 	m_webview->add_HistoryChanged(Microsoft::WRL::Callback<ICoreWebView2HistoryChangedEventHandler>(this, &DcxWebControl2::OnHistoryChanged).Get(), &m_historyChangedToken);
+	m_webview->add_NewWindowRequested(Microsoft::WRL::Callback<ICoreWebView2NewWindowRequestedEventHandler>(this, &DcxWebControl2::OnNewWindowRequested).Get(), &m_newWindowRequestedToken);
 
-	if (auto webview15 = m_webview.try_query<ICoreWebView2_15>(); webview15)
-		webview15->add_FaviconChanged(Microsoft::WRL::Callback<ICoreWebView2FaviconChangedEventHandler>(this, &DcxWebControl2::OnFaviconChanged).Get(), &m_faviconChangedToken);
-
+	// these can silently fail as an unsupported feature.
 	if (auto webview4 = m_webview.try_query<ICoreWebView2_4>(); webview4)
 		webview4->add_DownloadStarting(Microsoft::WRL::Callback<ICoreWebView2DownloadStartingEventHandler>(this, &DcxWebControl2::OnDownloadStarting).Get(), &m_downloadStartingToken);
 
-	m_webview->add_NewWindowRequested(Microsoft::WRL::Callback<ICoreWebView2NewWindowRequestedEventHandler>(this, &DcxWebControl2::OnNewWindowRequested).Get(), &m_newWindowRequestedToken);
+	if (auto webview12 = m_webview.try_query<ICoreWebView2_12>(); webview12)
+		webview12->add_StatusBarTextChanged(Microsoft::WRL::Callback<ICoreWebView2StatusBarTextChangedEventHandler>(this, &DcxWebControl2::OnStatusBarTextChanged).Get(), &m_statusbarToken);
+
+	if (auto webview15 = m_webview.try_query<ICoreWebView2_15>(); webview15)
+		webview15->add_FaviconChanged(Microsoft::WRL::Callback<ICoreWebView2FaviconChangedEventHandler>(this, &DcxWebControl2::OnFaviconChanged).Get(), &m_faviconChangedToken);
 
 	// Schedule an async task to navigate to Bing
 	//webview->Navigate(L"https://www.bing.com/");
 	//webview->Navigate(L"about:blank");
 
 	setVisableState(true);
-
-	//execAliasEx(L"ready,%u,%u", getUserID());
 
 	return S_OK;
 }
@@ -828,11 +827,6 @@ HRESULT DcxWebControl2::OnNavigationStarting(ICoreWebView2* sender, ICoreWebView
 
 	//TCHAR szRes[64]{};
 	//if (!evalAliasEx(&szRes[0], std::size(szRes), L"nav_begin,%u,%s", getUserID(), uri.get()))
-	//	args->put_Cancel(true);
-
-	//TCHAR szRes[64]{};
-	//mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), uri.get());
-	//if (!evalAliasEx(&szRes[0], std::size(szRes), L"nav_begin,%u,%%dcx_text", getUserID()))
 	//	args->put_Cancel(true);
 
 	if (const auto pd = getParentDialog(); pd)
@@ -1022,13 +1016,7 @@ HRESULT DcxWebControl2::OnStateChanged(ICoreWebView2DownloadOperation* download,
 	switch (downloadState)
 	{
 	case COREWEBVIEW2_DOWNLOAD_STATE_IN_PROGRESS:
-	{
-		//INT64 iBytes{};
-		//download->get_TotalBytesToReceive(&iBytes);
-
-		//evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"dl_begin,%u,%lli,%s", getUserID(), iBytes, filename.get());
-	}
-	break;
+		break;
 	case COREWEBVIEW2_DOWNLOAD_STATE_INTERRUPTED:
 	{
 		COREWEBVIEW2_DOWNLOAD_INTERRUPT_REASON reason;
