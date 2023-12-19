@@ -94,17 +94,46 @@ void DcxWebControl2::parseInfoRequest(const TString& input, const refString<TCHA
 	// [NAME] [ID] [PROP]
 	case L"statusbar"_hash:
 	{
-		if (this->IsStatusbarEnabled())
-			szReturnValue = TEXT("$true");
-		else
-			szReturnValue = TEXT("$false");
+		szReturnValue = dcx_truefalse(this->IsStatusbarEnabled());
 	}
 	break;
+	// [NAME] [ID] [PROP]
+	case L"fullscreen"_hash:
+	{
+		szReturnValue = dcx_truefalse(this->IsFullScreenEnabled());
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"scripts"_hash:
+	{
+		szReturnValue = dcx_truefalse(this->IsScriptingEnabled());
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"downloads"_hash:
+	{
+		szReturnValue = dcx_truefalse(this->IsDownloadingEnabled());
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"downloaddialog"_hash:
+	{
+		szReturnValue = dcx_truefalse(this->IsDownloadsDialogEnabled());
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"managed"_hash:
+	{
+		szReturnValue = dcx_truefalse(this->IsNewWindowsManaged());
+	}
+	break;
+	// [NAME] [ID] [PROP]
 	case L"statustext"_hash:
 	{
 		szReturnValue = this->getStatusText().to_chr();
 	}
 	break;
+	// [NAME] [ID] [PROP]
 	case L"version"_hash:
 	{
 		if (m_webviewEnvironment)
@@ -356,9 +385,20 @@ LRESULT DcxWebControl2::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPA
 // Run Download and Install in another thread so we don't block the UI thread
 DWORD WINAPI DcxWebControl2::DownloadAndInstallWV2RT(_In_ LPVOID lpParameter) noexcept
 {
-	DcxWebControl2* p_this = (DcxWebControl2*)lpParameter;
+	DcxWebControl2* p_this = static_cast<DcxWebControl2*>(lpParameter);
+	if (!p_this)
+		return 4;
 
-	int returnCode = 2; // Download failed
+	int returnCode = MessageBoxW(p_this->getHwnd(), L"Download WebView2 Package?", L"WebView2 Downloader", MB_YESNO);
+	if (returnCode != IDYES)
+	{
+		p_this->InstallComplete(3);
+		p_this->decRef();
+
+		return returnCode;
+	}
+	returnCode = 2;
+
 	// Use fwlink to download WebView2 Bootstrapper at runtime and invoke installation
 	// Broken/Invalid Https Certificate will fail to download
 	// Use of the download link below is governed by the below terms. You may acquire the link for your use at https://developer.microsoft.com/microsoft-edge/webview2/.
@@ -368,12 +408,11 @@ DWORD WINAPI DcxWebControl2::DownloadAndInstallWV2RT(_In_ LPVOID lpParameter) no
 	// code, including any code obtained from a Microsoft URL, under a separate
 	// license directly from Microsoft, including a Microsoft download site
 	// (e.g., https://developer.microsoft.com/microsoft-edge/webview2/).
-	const HRESULT hr = URLDownloadToFile(nullptr, L"https://go.microsoft.com/fwlink/p/?LinkId=2124703", L".\\MicrosoftEdgeWebview2Setup.exe", 0, nullptr);
-	if (hr == S_OK)
+	if (const HRESULT hr = URLDownloadToFile(nullptr, L"https://go.microsoft.com/fwlink/p/?LinkId=2124703", L".\\MicrosoftEdgeWebview2Setup.exe", 0, nullptr); hr == S_OK)
 	{
 		// Either Package the WebView2 Bootstrapper with your app or download it using fwlink
 		// Then invoke install at Runtime.
-		SHELLEXECUTEINFO shExInfo = { 0 };
+		SHELLEXECUTEINFO shExInfo{};
 		shExInfo.cbSize = sizeof(shExInfo);
 		shExInfo.fMask = SEE_MASK_NOASYNC;
 		shExInfo.hwnd = nullptr;
