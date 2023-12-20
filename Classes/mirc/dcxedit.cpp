@@ -210,6 +210,17 @@ const TString DcxEdit::getStyles(void) const
 		styles.addtok(TEXT("showlinenumbers"));
 	if (m_bLockGutter)
 		styles.addtok(TEXT("unlockgutter"));
+
+	const auto dStyles = Edit_GetExtendedStyle(m_Hwnd);
+	if (dcx_testflag(dStyles, ES_EX_ZOOMABLE))
+		styles.addtok(TEXT("zoomable"));
+	if (dcx_testflag(dStyles, ES_EX_ALLOWEOL_LF))
+		styles.addtok(TEXT("eollf"));
+	if (dcx_testflag(dStyles, ES_EX_ALLOWEOL_CR))
+		styles.addtok(TEXT("eolcr"));
+	if (dcx_testflag(dStyles, ES_EX_CONVERT_EOL_ON_PASTE))
+		styles.addtok(TEXT("convert"));
+
 	return styles;
 }
 
