@@ -951,7 +951,7 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 	{
 		const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 
-		if (!mHwnd)
+		if (!mHwnd || !lpmcdata)
 			return -1L;
 
 		switch (lpmcdata->m_Styles)
