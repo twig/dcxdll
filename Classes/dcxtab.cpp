@@ -800,6 +800,7 @@ DcxControl* DcxTab::addTab(int nIndex, int iIcon, const TString& tsText, const T
 				DcxAllowControls::ALLOW_TAB |
 				DcxAllowControls::ALLOW_REBAR |
 				DcxAllowControls::ALLOW_WEBCTRL |
+				DcxAllowControls::ALLOW_WEB2CTRL |
 				DcxAllowControls::ALLOW_EDIT |
 				DcxAllowControls::ALLOW_IMAGE |
 				DcxAllowControls::ALLOW_LIST, m_Hwnd);

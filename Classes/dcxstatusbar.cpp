@@ -827,7 +827,7 @@ void DcxStatusBar::setPartContents(int nPos, const TString& tsFlags, int nIcon, 
 			constexpr auto eAllowedControls2 = DcxAllowControls::ALLOW_TREEVIEW | DcxAllowControls::ALLOW_LISTVIEW | DcxAllowControls::ALLOW_REBAR | DcxAllowControls::ALLOW_BUTTON | DcxAllowControls::ALLOW_EDIT;
 			constexpr auto eAllowedControls3 = DcxAllowControls::ALLOW_UPDOWN | DcxAllowControls::ALLOW_IPADDRESS | DcxAllowControls::ALLOW_WEBCTRL | DcxAllowControls::ALLOW_CALANDER | DcxAllowControls::ALLOW_DIVIDER | DcxAllowControls::ALLOW_PANEL;
 			constexpr auto eAllowedControls4 = DcxAllowControls::ALLOW_TAB | DcxAllowControls::ALLOW_LINE | DcxAllowControls::ALLOW_BOX | DcxAllowControls::ALLOW_RADIO | DcxAllowControls::ALLOW_CHECK | DcxAllowControls::ALLOW_TEXT | DcxAllowControls::ALLOW_SCROLL | DcxAllowControls::ALLOW_LIST;
-			constexpr auto eAllowedControls5 = DcxAllowControls::ALLOW_LINK | DcxAllowControls::ALLOW_IMAGE | DcxAllowControls::ALLOW_PAGER | DcxAllowControls::ALLOW_DATETIME | DcxAllowControls::ALLOW_STACKER | DcxAllowControls::ALLOW_DIRECTSHOW;
+			constexpr auto eAllowedControls5 = DcxAllowControls::ALLOW_LINK | DcxAllowControls::ALLOW_IMAGE | DcxAllowControls::ALLOW_PAGER | DcxAllowControls::ALLOW_DATETIME | DcxAllowControls::ALLOW_STACKER | DcxAllowControls::ALLOW_DIRECTSHOW | DcxAllowControls::ALLOW_WEB2CTRL;
 			constexpr auto eAllowedControls = eAllowedControls1 | eAllowedControls2 | eAllowedControls3 | eAllowedControls4 | eAllowedControls5;
 
 			auto p_Control = getParentDialog()->addControl(tsText, 1,
