@@ -22,9 +22,8 @@ function get_xdid_divider(&$XDID) {
 			    'IDEAL' => 'Not used yet. Use [v]0[/v], required but ignored.',
 			    'CID' => "Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b>",
 				'CONTROL' => 'The type of DCX Control to create. Values can be:<br />
-[v]button[/v], [v]calendar[/v], [v]colorcombo[/v], [v]comboex[/v], [v]datetime[/v], [v]directshow[/v], [v]ipaddress[/v], [v]listview[/v], [v]pbar[/v], [v]richedit[/v], [v]statusbar[/v], [v]toolbar[/v], [v]trackbar[/v], [v]treeview[/v], [v]updown[/v], [v]webctrl[/v]<br />
-[v]box[/v], [v]check[/v], [v]edit[/v], [v]image[/v], [v]line[/v], [v]link[/v], [v]list[/v], [v]radio[/v], [v]scroll[/v], [v]text[/v]<br />
-[v]divider[/v], [v]pager[/v], [v]panel[/v], [v]rebar[/v], [v]stacker[/v] or [v]tab[/v].',
+[v]button[/v], [v]calendar[/v], [v]colorcombo[/v], [v]comboex[/v], [v]multicombo[/v], [v]datetime[/v], [v]directshow[/v], [v]ipaddress[/v], [v]listview[/v], [v]pbar[/v], [v]richedit[/v], [v]statusbar[/v], [v]toolbar[/v], [v]trackbar[/v], [v]treeview[/v], [v]updown[/v], [v]webctrl[/v], [v]web2ctrl[/v]<br />
+[v]box[/v], [v]check[/v], [v]edit[/v], [v]image[/v], [v]line[/v], [v]link[/v], [v]list[/v], [v]radio[/v], [v]scroll[/v], [v]text[/v], [v]divider[/v], [v]pager[/v], [v]panel[/v], [v]rebar[/v], [v]stacker[/v] or [v]tab[/v].',
 				'X' => "X position of control. Use [v]0[/v], required but ignored.",
 				'Y' => "Y position of control. Use [v]0[/v], required but ignored.",
 				'W' => "Width of control.",

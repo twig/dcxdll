@@ -66,8 +66,23 @@ function get_xdid_comboex(&$XDID) {
 		),
 		'd' => array(
 	        '__desc' => 'This command lets you delete the Nth comboex item.',
-	        '__cmd' => '[N]',
-	        '__eg' => "6",
+	        '__cmd' => '[N](,[N2],[N3]-N4],...) or [N] [+FLAGS] [MATCH]',
+	        '__eg' => array(
+				"6",
+				"6 +w *pattern*",
+			),
+            '__params' => array(
+                'N' => "Item to delete or to start the search at.",
+                '+FLAGS' => array(
+                    '__desc' => "Pattern flags.",
+                    '__values' => array(
+						'e' => 'Exact match between [p]MATCH[/p] and item text. (default)',
+						'w' => 'Wildcard match between [p]MATCH[/p] and item text.',
+						'r' => 'Regex match between [p]MATCH[/p] and item text.',
+					),
+				),
+				'MATCH' => 'The pattern to match for deleting.',
+			),
 		),
 		'l' => array(
 	        '__desc' => 'This command lets you set the controls read only state.',
@@ -78,15 +93,18 @@ function get_xdid_comboex(&$XDID) {
 	        '__desc' => 'This command makes the currently selected comboex item unselected.',
 		),
 		'w' => array(
-	        '__desc' => 'This command lets you add an icon to the comboex image list.',
-	        '__cmd' => "[+FLAGS] [INDEX] [FILENAME]",
-	        '__eg' => "+ 113 shell32.dll",
-            '__params' => array(
-            	// +FLAGS
-				'INDEX' => "Icon index in icon archive",
-				'FILENAME' => "Icon archive filename",
+	        '__desc' => 'This command lets you add an icon to the image list.',
+	        '__cmd' => '[+FLAGS] [N,N2,N3-N4...] [FILENAME]',
+	        '__eg' => '+g 113 shell32.dll',
+	        '__params' => array(
+	        	// +FLAGS
+	            'N' => 'Icon index in icon archive',
+				'FILENAME' => 'Icon archive filename',
 			),
-	        '__notes' => "Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
+	        '__notes' => array(
+				"Use [v]0[/v] for [p]N[/p] if the file is a single icon file.",
+				"Use [v]-1[/v] for [p]N[/p] to load all icons in the file.",
+			),
 		),
 		'y' => 'This command lets you clear the comboex image list.',
 		'r' => array(

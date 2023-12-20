@@ -46,7 +46,7 @@ function get_xdid_directshow(&$XDID) {
 						'pause' => "Pauses the playback.",
 						'stop' => "Stops the playback.",
 						'close' => "Close the playback and unload it.",
-                                                'seek' => 'Seeks to the millisecond of the clip specified.',
+                        'seek' => 'Seeks to the millisecond of the clip specified.',
 					),
 				),
                 '__args' => array(
@@ -54,7 +54,7 @@ function get_xdid_directshow(&$XDID) {
                     'seek' => array(
                         '__cmd' => '[TIME]',
                         '__params' => array(
-                                'TIME' => 'The time to seek to, specified in milliseconds.',
+                            'TIME' => 'The time to seek to, specified in milliseconds.',
                         ),
                     ),
                 ),
@@ -163,12 +163,12 @@ function get_xdidprops_directshow(&$XDIDPROPS) {
         'state' => array(
             '__desc' => 'This property returns the state of the media file, if any.',
             '__return' => array(
-                    'nofile' => 'No file has been specified.',
-                    'stopped' => 'Stopped state.',
-                    'paused' => 'Paused state.',
-                    'playing' => 'Currently playing state.',
-                    'unknown' => 'Unknown media state.',
-                    'D_ERROR Message' => 'Error in determining state of control.',
+                'nofile' => 'No file has been specified.',
+                'stopped' => 'Stopped state.',
+                'paused' => 'Paused state.',
+                'playing' => 'Currently playing state.',
+                'unknown' => 'Unknown media state.',
+                'D_ERROR Message' => 'Error in determining state of control.',
             ),
         ),
         'video' => array(
@@ -188,15 +188,15 @@ function get_xdidprops_directshow(&$XDIDPROPS) {
         'author' => array(
             '__desc' => 'This property returns the author of the media. Not all media types support this.',
             '__return' => array(
-                    'authors name' => 'Name of the author.',
-                    'D_ERROR Message' => 'Error in determining state of control.',
+                'authors name' => 'Name of the author.',
+                'D_ERROR Message' => 'Error in determining state of control.',
             ),
         ),
         'title' => array(
             '__desc' => 'This property returns the title of the media. Not all media types support this.',
             '__return' => array(
-                    'title' => 'Title of the media.',
-                    'D_ERROR Message' => 'Error in determining state of control.',
+                'title' => 'Title of the media.',
+                'D_ERROR Message' => 'Error in determining state of control.',
             ),
         ),
 	);

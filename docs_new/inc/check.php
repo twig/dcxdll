@@ -6,17 +6,17 @@ function get_intro_check() {
 
 function get_styles_check(&$STYLES) {
 	$STYLES = array(
-                "right" => 'Check control box is at the right of text.',
-                'center' => 'Control text is centered.',
-                'vcenter' => 'Control text is vertically centered.',
-                'rjustify' => 'Control text is right justified.',
-                'pushlike' => 'Makes the check act and look like a push button.',
-                '3state' => 'Creates a 3 state checkbox.',
-                'tooltips' => 'The checkbox will have a tooltip.',
-                'alpha' => 'Control is alpha blended.',
-                'hgradient' => 'Draws a horizontal gradient with the colors specified.',
-                'vgradient' => 'Draws a vertical gradient with the colors specified.',
-                'custom' => 'Control is custom drawn.',
+		"right" => 'Check control box is at the right of text.',
+		'center' => 'Control text is centered.',
+		'vcenter' => 'Control text is vertically centered.',
+		'rjustify' => 'Control text is right justified.',
+		'pushlike' => 'Makes the check act and look like a push button.',
+		'3state' => 'Creates a 3 state checkbox.',
+		'tooltips' => 'The checkbox will have a tooltip.',
+		'alpha' => 'Control is alpha blended.',
+		'hgradient' => 'Draws a horizontal gradient with the colors specified.',
+		'vgradient' => 'Draws a vertical gradient with the colors specified.',
+		'custom' => 'Control is custom drawn.',
 	);
 }
 
@@ -43,22 +43,22 @@ function get_xdid_check(&$XDID) {
 			'__eg' => '+hc $rgb(0,0,255)',
 			'__params' => array(
 				'+FLAGS' => array(
-                                        '__desc' => "Color Flags.",
-                                        '__values' => array(
-                                                'b' => "Background color.",
-                                                'g' => 'Sets the start gradient color.',
-                                                'G' => 'Sets the end gradient color.',
-                                                'k' => "Text background Color.",
-                                                'r' => "Border color.",
-                                                't' => "Text color.",
-                                                'c' => "Checkbox background color.",
-                                                'C' => "Checkbox Tick color.",
-                                                'f' => "Checkbox Frame color.",
-                                                'h' => "Hot color.<br/>Use in conjunction with other flags",
-                                                'd' => "Disabled color.<br/>Use in conjunction with other flags",
-                                        ),
-                                ),
-                        ),
+                    '__desc' => "Color Flags.",
+                    '__values' => array(
+                            'b' => "Background color.",
+                            'g' => 'Sets the start gradient color.',
+                            'G' => 'Sets the end gradient color.',
+                            'k' => "Text background Color.",
+                            'r' => "Border color.",
+                            't' => "Text color.",
+                            'c' => "Checkbox background color.",
+                            'C' => "Checkbox Tick color.",
+                            'f' => "Checkbox Frame color.",
+                            'h' => "Hot color.<br/>Use in conjunction with other flags",
+                            'd' => "Disabled color.<br/>Use in conjunction with other flags",
+                    ),
+                ),
+            ),
 			'__notes' => 'The h & d flags only work when combined with the checkbox specific flags.',
 		),
 	);

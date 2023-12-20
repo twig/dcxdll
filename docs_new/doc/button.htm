@@ -250,7 +250,7 @@
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.w"></a>/xdid -w	</td></tr>
-	<tr><td colspan="2">This command lets you add an icon to the button image list.</td></tr>
+	<tr><td colspan="2">This command lets you add an icon to the image list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [INDEX] [FILENAME]</div></td>
@@ -310,6 +310,20 @@
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.note"></a>$xdid().note	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the button note text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).note</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).note</div></td>
+	</tr>
+</table>
+<br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
@@ -662,6 +676,7 @@
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a class='flag' href="#xdidprop.note"><div>note</div></a>
 		<a class='flag' href="#xdidprop.text"><div>text</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
@@ -681,7 +696,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 18th December, 23</td>
+		<td style="text-align: right;">Last Updated: 20th December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

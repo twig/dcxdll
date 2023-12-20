@@ -199,8 +199,8 @@ function get_xdidprops_datetime(&$XDIDPROPS) {
 
 function get_events_datetime(&$EVENTS) {
 	$EVENTS = array(
-                'closed' => 'The dropdown calendar was closed.',
-                'open' => 'The dropdown calendar was opened.',
+		'closed' => 'The dropdown calendar was closed.',
+		'open' => 'The dropdown calendar was opened.',
 		'change' => array(
 			'__desc' => 'When the date/time selection has changed.',
 			'__cmd' => 'SELECTION',

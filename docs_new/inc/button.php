@@ -52,8 +52,9 @@ function get_xdid_button(&$XDID) {
 			'__eg' => "Button text",
 		),
 		"w" => array(
-			'__desc' => "This command lets you add an icon to the button image list.",
-			'__cmd' => "[+FLAGS] [INDEX] [FILENAME]",
+			'__desc' => "This command lets you add an icon to the image list.",
+			// does NOT support ranges
+	        '__cmd' => '[+FLAGS] [INDEX] [FILENAME]',
 			'__eg' => "+ng 113 shell32.dll",
 			'__params' => array(
 				'+FLAGS' => array(
@@ -102,6 +103,9 @@ function get_xdidprops_button(&$XDIDPROPS) {
 	$XDIDPROPS = array(
 	    "text" => array(
 			'__desc' => "This property lets you retreive the button caption text.",
+		),
+	    "note" => array(
+			'__desc' => "This property lets you retreive the button note text.",
 		),
 	);
 }

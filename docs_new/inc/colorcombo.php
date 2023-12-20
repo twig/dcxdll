@@ -16,8 +16,7 @@ function get_xdid_colorcombo(&$XDID) {
 	        '__cmd' => '[N] [RGB] (TEXT)',
 	        '__eg' => '2 $rgb(0,0,255) Blue',
 	        '__notes' => array(
-	            "If N is 0, inserts color at the end of the list.<br/>Text supports mirc ctrl codes but will have a start colour auto set to contrast with
-the item's colour (black or white)"
+	            "If N is 0, inserts color at the end of the list.<br/>Text supports mirc ctrl codes but will have a start colour auto set to contrast with the item's colour (black or white)"
 			),
 		),
 		'c' => array(

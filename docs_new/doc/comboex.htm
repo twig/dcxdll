@@ -189,11 +189,36 @@
 	<tr><td colspan="2">This command lets you delete the Nth comboex item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -d [DNAME] [ID] [N]</div></td>
+		<td><div class="syntax">/xdid -d [DNAME] [ID] [N](,[N2],[N3]-N4],...) or [N] [+FLAGS] [MATCH]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -d dcx 4 6</div></td>
+		<td><div class="example">/xdid -d dcx 4 6<br />/xdid -d dcx 4 6 +w *pattern*<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Item to delete or to start the search at.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Pattern flags.</td>
+	</tr>
+	<tr>
+		<td class="value">e</td>
+		<td>Exact match between <a class="param">MATCH</a> and item text. (default)</td>
+	</tr>
+	<tr>
+		<td class="value">w</td>
+		<td>Wildcard match between <a class="param">MATCH</a> and item text.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Regex match between <a class="param">MATCH</a> and item text.</td>
+	</tr>
+	<tr>
+		<td class="param">MATCH</td>
+		<td>The pattern to match for deleting.</td>
 	</tr>
 </table>
 <br />
@@ -242,14 +267,14 @@
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.w"></a>/xdid -w	</td></tr>
-	<tr><td colspan="2">This command lets you add an icon to the comboex image list.</td></tr>
+	<tr><td colspan="2">This command lets you add an icon to the image list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [INDEX] [FILENAME]</div></td>
+		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [N,N2,N3-N4...] [FILENAME]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -w dcx 4 + 113 shell32.dll</div></td>
+		<td><div class="example">/xdid -w dcx 4 +g 113 shell32.dll</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -273,14 +298,14 @@
 		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
 	</tr>
 	<tr>
-		<td class="param">INDEX</td>
+		<td class="param">N</td>
 		<td>Icon index in icon archive</td>
 	</tr>
 	<tr>
 		<td class="param">FILENAME</td>
 		<td>Icon archive filename</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">N</a> if the file is a single icon file.</li><li>Use <a class="value">-1</a> for <a class="param">N</a> to load all icons in the file.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -828,7 +853,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 18th December, 23</td>
+		<td style="text-align: right;">Last Updated: 20th December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

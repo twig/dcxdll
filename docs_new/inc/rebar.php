@@ -130,7 +130,7 @@ function get_xdid_rebar(&$XDID) {
 	        '__eg' => '3 1',
 		),
 		'w' => array(
-	        '__desc' => 'This command lets you add an icon to the tab image list.',
+	        '__desc' => 'This command lets you add an icon to the image list.',
 	        '__cmd' => '[+FLAGS] [N,N2,N3-N4...] [FILENAME]',
 	        '__eg' => '+g 113 shell32.dll',
 	        '__params' => array(
