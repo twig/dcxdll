@@ -84,11 +84,8 @@ DcxButton::~DcxButton()
 	//		DeleteObject(x);
 	//}
 
-	for (const auto& x : m_aBitmaps)
-	{
-		if (x.m_hBitmap)
-			DeleteObject(x.m_hBitmap);
-	}
+	for (auto& x : m_aBitmaps)
+		x.reset();
 }
 
 dcxWindowStyles DcxButton::parseControlStyles(const TString& tsStyles)
@@ -281,9 +278,9 @@ void DcxButton::parseCommandRequest(const TString& input)
 
 		m_iIconSize = NumToIconSize(input.getnexttok().to_<int>());	// tok 4
 
-		if (getImageList())
+		if (auto himl = getImageList(); himl)
 		{
-			ImageList_Destroy(getImageList());
+			ImageList_Destroy(himl);
 			setImageList(nullptr);
 			m_bHasIcons = false;
 		}
@@ -303,55 +300,6 @@ void DcxButton::parseCommandRequest(const TString& input)
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')])
 	{
-		//		if (numtok < 6)
-		//			throw DcxExceptions::dcxInvalidArguments();
-		//
-		//		const auto tflags(input.getnexttok());		// tok 4
-		//		const auto index = input.getnexttok().to_int();	// tok 5
-		//		const auto flag = parseColorFlags(tflags);
-		//		auto filename(input.getlasttoks());			// tok 6, -1
-		//
-		//		// load the icon
-		//
-		//#if DCX_USE_WRAPPERS
-		//		const Dcx::dcxIconResource icon(index, filename, (m_iIconSize != DcxIconSizes::SmallIcon), tflags);
-		//#else
-		//		const auto icon = dcxLoadIcon(index, filename, (m_iIconSize != DcxIconSizes::SmallIcon), tflags);
-		//
-		//		if (!icon)
-		//			throw Dcx::dcxException("Unable to load icon");
-		//
-		//		Auto(DestroyIcon(icon));
-		//#endif
-		//
-		//		// prepare the image list
-		//		if (auto himl = getImageList(); !himl)
-		//		{
-		//			himl = createImageList();
-		//
-		//			if (himl)
-		//			{
-		//				setImageList(himl);
-		//
-		//				ImageList_AddIcon(himl, icon);
-		//				ImageList_AddIcon(himl, icon);
-		//				ImageList_AddIcon(himl, icon);
-		//				ImageList_AddIcon(himl, icon);
-		//
-		//				m_bHasIcons = true;
-		//			}
-		//		}
-		//		else {
-		//			if (dcx_testflag(flag, BTNCS_DISABLED))
-		//				ImageList_ReplaceIcon(himl, 3, icon);
-		//			if (dcx_testflag(flag, BTNCS_SELECTED))
-		//				ImageList_ReplaceIcon(himl, 2, icon);
-		//			if (dcx_testflag(flag, BTNCS_HOVER))
-		//				ImageList_ReplaceIcon(himl, 1, icon);
-		//			if (dcx_testflag(flag, BTNCS_NORMAL))
-		//				ImageList_ReplaceIcon(himl, 0, icon);
-		//		}
-
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
