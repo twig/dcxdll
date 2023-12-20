@@ -210,7 +210,7 @@
 	<tr>
 		<td class="param">CONTROL</td>
 		<td>The type of DCX Control to create. Values can be:<br />
-<a class="value">button</a>, <a class="value">colorcombo</a>, <a class="value">comboex</a>, <a class="value">listview</a>, <a class="value">pbar</a>, <a class="value">richedit</a>, <a class="value">statusbar</a>, <a class="value">toolbar</a>, <a class="value">trackbar</a>, <a class="value">treeview</a><br />
+<a class="value">button</a>, <a class="value">colorcombo</a>, <a class="value">comboex</a>, <a class="value">multicombo</a>, <a class="value">listview</a>, <a class="value">pbar</a>, <a class="value">richedit</a>, <a class="value">statusbar</a>, <a class="value">toolbar</a>, <a class="value">trackbar</a>, <a class="value">treeview</a><br />
 <a class="value">divider</a>, <a class="value">panel</a> or <a class="value">tab</a></td>
 	</tr>
 	<tr>
@@ -245,7 +245,7 @@
 	<tr><td colspan="2">This command lets you delete the Nth rebar band.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -d [DNAME] [ID] [N]</div></td>
+		<td><div class="syntax">/xdid -d [DNAME] [ID] [N,N2,N3-N4...]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -259,7 +259,7 @@
 	<tr><td colspan="2">This command lets you hide the Nth rebar band.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -i [DNAME] [ID] [N]</div></td>
+		<td><div class="syntax">/xdid -i [DNAME] [ID] [N,N2,N3-N4...]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -273,7 +273,7 @@
 	<tr><td colspan="2">This command lets you show the Nth rebar band.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -j [DNAME] [ID] [N]</div></td>
+		<td><div class="syntax">/xdid -j [DNAME] [ID] [N,N2,N3-N4...]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -287,7 +287,7 @@
 	<tr><td colspan="2">This command lets you change the icon on a rebar band.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -k [DNAME] [ID] [N] [ICON]</div></td>
+		<td><div class="syntax">/xdid -k [DNAME] [ID] [N,N2,N3-N4...] [ICON]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -310,7 +310,7 @@
 	<tr><td colspan="2">This command lets you lock the Nth rebar band or all the bands.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -l [DNAME] [ID] [N|all]</div></td>
+		<td><div class="syntax">/xdid -l [DNAME] [ID] [N,N2,N3-N4...|all]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -348,11 +348,25 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.q"></a>/xdid -q	</td></tr>
+	<tr><td colspan="2">This command lets you set the rows limit of the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -q [DNAME] [ID] [N]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -q dcx 4 5</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.t"></a>/xdid -t	</td></tr>
 	<tr><td colspan="2">This command lets you change the text on a rebar band.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -t [DNAME] [ID] [N] (Itemtext)</div></td>
+		<td><div class="syntax">/xdid -t [DNAME] [ID] [N,N1-N2,N3....] (Itemtext)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -366,7 +380,7 @@
 	<tr><td colspan="2">This command lets you unlock the Nth rebar band or all the bands.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -u [DNAME] [ID] [N|all]</div></td>
+		<td><div class="syntax">/xdid -u [DNAME] [ID] [N,N2,N3-N4...|all]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -394,7 +408,7 @@
 	<tr><td colspan="2">This command lets you add an icon to the tab image list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [INDEX] [FILENAME]</div></td>
+		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [N,N2,N3-N4...] [FILENAME]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -422,14 +436,14 @@
 		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
 	</tr>
 	<tr>
-		<td class="param">INDEX</td>
+		<td class="param">N</td>
 		<td>Icon index in icon archive</td>
 	</tr>
 	<tr>
 		<td class="param">FILENAME</td>
 		<td>Icon archive filename</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">N</a> if the file is a single icon file.<br/>Use <a class="value">-1</a> for <a class="param">N</a> to load all icons in the file.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -442,6 +456,20 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -y dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.A"></a>/xdid -A	</td></tr>
+	<tr><td colspan="2">This command lets you change the mark text on a rebar band.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -A [DNAME] [ID] [N,N1-N2,N3....] (Itemtext)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -A dcx 4 2 New Text</div></td>
 	</tr>
 </table>
 <br />
@@ -823,11 +851,13 @@
 		<a class='flag' href="#xdid.l"><div>-l</div></a>
 		<a class='flag' href="#xdid.m"><div>-m</div></a>
 		<a class='flag' href="#xdid.n"><div>-n</div></a>
+		<a class='flag' href="#xdid.q"><div>-q</div></a>
 		<a class='flag' href="#xdid.t"><div>-t</div></a>
 		<a class='flag' href="#xdid.u"><div>-u</div></a>
 		<a class='flag' href="#xdid.v"><div>-v</div></a>
 		<a class='flag' href="#xdid.w"><div>-w</div></a>
 		<a class='flag' href="#xdid.y"><div>-y</div></a>
+		<a class='flag' href="#xdid.big.A"><div>-A</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
@@ -850,7 +880,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 18th December, 23</td>
+		<td style="text-align: right;">Last Updated: 20th December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

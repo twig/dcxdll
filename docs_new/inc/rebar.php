@@ -54,7 +54,7 @@ function get_xdid_rebar(&$XDID) {
 			    'TEXT' => 'Band text.',
 			    'CID' => "Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b>",
 				'CONTROL' => 'The type of DCX Control to create. Values can be:<br />
-[v]button[/v], [v]colorcombo[/v], [v]comboex[/v], [v]listview[/v], [v]pbar[/v], [v]richedit[/v], [v]statusbar[/v], [v]toolbar[/v], [v]trackbar[/v], [v]treeview[/v]<br />
+[v]button[/v], [v]colorcombo[/v], [v]comboex[/v], [v]multicombo[/v], [v]listview[/v], [v]pbar[/v], [v]richedit[/v], [v]statusbar[/v], [v]toolbar[/v], [v]trackbar[/v], [v]treeview[/v]<br />
 [v]divider[/v], [v]panel[/v] or [v]tab[/v]',
 				'X' => "X position of control.",
 				'Y' => "Y position of control.",
@@ -72,22 +72,22 @@ function get_xdid_rebar(&$XDID) {
 		),
 		'd' => array(
 	        '__desc' => "This command lets you delete the Nth rebar band.",
-	        '__cmd' => '[N]',
+	        '__cmd' => '[N,N2,N3-N4...]',
 	        '__eg' => '2',
 		),
 		'i' => array(
 	        '__desc' => "This command lets you hide the Nth rebar band.",
-	        '__cmd' => '[N]',
+	        '__cmd' => '[N,N2,N3-N4...]',
 	        '__eg' => '2',
 		),
 		'j' => array(
 	        '__desc' => "This command lets you show the Nth rebar band.",
-	        '__cmd' => '[N]',
+	        '__cmd' => '[N,N2,N3-N4...]',
 	        '__eg' => '2',
 		),
 		'k' => array(
 	        '__desc' => "This command lets you change the icon on a rebar band.",
-	        '__cmd' => '[N] [ICON]',
+	        '__cmd' => '[N,N2,N3-N4...] [ICON]',
 	        '__eg' => '2 0',
 	        '__params' => array(
 	            'N' => 'Band position index number.',
@@ -96,7 +96,7 @@ function get_xdid_rebar(&$XDID) {
 		),
 		'l' => array(
 	        '__desc' => "This command lets you lock the Nth rebar band or all the bands.",
-	        '__cmd' => '[N|all]',
+	        '__cmd' => '[N,N2,N3-N4...|all]',
 	        '__eg' => 'all',
 		),
 		'm' => array(
@@ -109,14 +109,19 @@ function get_xdid_rebar(&$XDID) {
 	        '__cmd' => '[N]',
 	        '__eg' => '2',
 		),
+		'q' => array(
+	        '__desc' => "This command lets you set the rows limit of the control.",
+	        '__cmd' => '[N]',
+	        '__eg' => '5',
+		),
 		't' => array(
 	        '__desc' => "This command lets you change the text on a rebar band.",
-	        '__cmd' => '[N] (Itemtext)',
+	        '__cmd' => '[N,N1-N2,N3....] (Itemtext)',
 	        '__eg' => '2 New Text',
 		),
 		'u' => array(
 	        '__desc' => "This command lets you unlock the Nth rebar band or all the bands.",
-	        '__cmd' => '[N|all]',
+	        '__cmd' => '[N,N2,N3-N4...|all]',
 	        '__eg' => 'all',
 		),
 		'v' => array(
@@ -126,16 +131,22 @@ function get_xdid_rebar(&$XDID) {
 		),
 		'w' => array(
 	        '__desc' => 'This command lets you add an icon to the tab image list.',
-	        '__cmd' => '[+FLAGS] [INDEX] [FILENAME]',
+	        '__cmd' => '[+FLAGS] [N,N2,N3-N4...] [FILENAME]',
 	        '__eg' => '+g 113 shell32.dll',
 	        '__params' => array(
 	        	// +FLAGS
-	            'INDEX' => 'Icon index in icon archive',
+	            'N' => 'Icon index in icon archive',
 				'FILENAME' => 'Icon archive filename',
 			),
-	        '__notes' => "Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
+	        '__notes' => "Use [v]0[/v] for [p]N[/p] if the file is a single icon file.<br/>Use [v]-1[/v] for [p]N[/p] to load all icons in the file.",
 		),
 		'y' => 'This command lets you clear the rebar image list.',
+		'A' => array(
+	        '__desc' => "This command lets you change the mark text on a rebar band.",
+	        '__cmd' => '[N,N1-N2,N3....] (Itemtext)',
+	        '__eg' => '2 New Text',
+		),
+
 	);
 	
 	writeDcxLoadIcon($XDID, 'w', '+FLAGS', 1);
