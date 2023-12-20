@@ -12,7 +12,7 @@ function get_styles_radio(&$STYLES) {
 		'pushlike' => 'Makes the radio act and look like a push button.',
 		'tooltips' => 'The radio will have a tooltip.',
 		'alpha' => 'Control is alpha blended.',
-	        'hgradient' => 'Draws a horizontal gradient with the colors specified.',
+		'hgradient' => 'Draws a horizontal gradient with the colors specified.',
 		'vgradient' => 'Draws a vertical gradient with the colors specified.',
 	);
 }

@@ -150,6 +150,22 @@ function get_xdidprops_multicombo(&$XDIDPROPS) {
 				"This only affects the control when in listbox or colourgrid mode.",
 			),
 		),
+		"style" => array(
+		    '__desc' => "This property lets you retreive the controls current style.",
+	        '__return' => array(
+				'0' => 'Custom',
+				'1' => 'Colour grid',
+				'2' => 'Listbox',
+			),
+		),
+		"dropstate" => array(
+		    '__desc' => "This property lets you retreive the current drop state.",
+	        '__return' => array(
+				'-1' => "- error.",
+				'0' => "- not dropped.",
+				'1' => "- dropped.",
+			),
+		),
 	);
 }
 

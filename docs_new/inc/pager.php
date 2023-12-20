@@ -23,12 +23,7 @@ function get_xdid_pager(&$XDID) {
 			'__eg' => '12 rebar 10 10 400 25 tabstop',
 			'__params' => array(
 			    'CID' => 'Unique control ID for the DCX Control.',
-				'CONTROL' => 'The type of DCX Control to create. Values can be:<br />
-[v]toolbar[/v]<br />
-[v]box[/v], [v]image[/v]<br />
-[v]pager[/v], [v]panel[/v], [v]rebar[/v], [v]tab[/v]<br />
-[v]dialog[/v] or [v]window[/v].
-				',
+				'CONTROL' => 'The type of DCX Control to create. Values can be:<br />[v]toolbar[/v], [v]box[/v], [v]image[/v], [v]pager[/v], [v]panel[/v], [v]rebar[/v], [v]tab[/v], [v]dialog[/v] or [v]window[/v].',
 				'X' => 'X position of control.',
 				'Y' => 'Y position of control.',
 				'W' => 'Width of control.',

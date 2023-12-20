@@ -287,6 +287,20 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.dropstate"></a>$xdid().dropstate	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the current drop state.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).dropstate</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).dropstate</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">-1</a> - error.<br /><a class="returnevent">0</a> - not dropped.<br /><a class="returnevent">1</a> - dropped.</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.num"></a>$xdid().num	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the total number of items.</td></tr>
 	<tr>
@@ -326,6 +340,20 @@
 		<td><div class="example">$xdid(dcx, 4).seltext</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This only affects the control when in listbox or colourgrid mode.</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.style"></a>$xdid().style	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the controls current style.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).style</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).style</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">0</a> Custom<br /><a class="returnevent">1</a> Colour grid<br /><a class="returnevent">2</a> Listbox</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -690,9 +718,11 @@
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
 		<a class='flag' href="#xdidprop.colour"><div>colour</div></a>
+		<a class='flag' href="#xdidprop.dropstate"><div>dropstate</div></a>
 		<a class='flag' href="#xdidprop.num"><div>num</div></a>
 		<a class='flag' href="#xdidprop.sel"><div>sel</div></a>
 		<a class='flag' href="#xdidprop.seltext"><div>seltext</div></a>
+		<a class='flag' href="#xdidprop.style"><div>style</div></a>
 		<a class='flag' href="#xdidprop.text"><div>text</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
