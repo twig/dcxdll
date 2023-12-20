@@ -146,6 +146,11 @@ function get_xdid_rebar(&$XDID) {
 	        '__cmd' => '[N,N1-N2,N3....] (Itemtext)',
 	        '__eg' => '2 New Text',
 		),
+		'W' => array(
+	        '__desc' => "This command lets you set a bands width.",
+	        '__cmd' => '[N,N1-N2,N3....] [WIDTH]',
+	        '__eg' => '2 30',
+		),
 
 	);
 	
@@ -163,6 +168,22 @@ function get_xdidprops_rebar(&$XDIDPROPS) {
 		'num' => 'This property lets you retreive the number of bands of a rebar.',
 		"childid" => array(
 		    '__desc' => 'This property lets you retreive Nth rebar band child control ID ($null if no child control on the band).',
+	        '__cmd' => 'N',
+	        '__eg' => '2',
+		),
+		"markeditem" => array(
+		    '__desc' => 'This property lets you retreive Nth rebar bands marked text.',
+	        '__cmd' => 'N',
+	        '__eg' => '2',
+		),
+		"width" => array(
+		    '__desc' => 'This property lets you retreive Nth rebar bands width in pixels.',
+	        '__cmd' => 'N',
+	        '__eg' => '2',
+		),
+		"rows" => 'This property lets you retreive the number of rows in the control.',
+		"rowheight" => array(
+		    '__desc' => 'This property lets you retreive the height of the row that the Nth rebar band is in.',
 	        '__cmd' => 'N',
 	        '__eg' => '2',
 		),

@@ -473,6 +473,20 @@
 	</tr>
 </table>
 <br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.W"></a>/xdid -W	</td></tr>
+	<tr><td colspan="2">This command lets you set a bands width.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -W [DNAME] [ID] [N,N1-N2,N3....] [WIDTH]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -W dcx 4 2 30</div></td>
+	</tr>
+</table>
+<br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
@@ -493,6 +507,20 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.markeditem"></a>$xdid().markeditem	</td></tr>
+	<tr><td colspan="2">This property lets you retreive Nth rebar bands marked text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, N).markeditem</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 2).markeditem</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.num"></a>$xdid().num	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the number of bands of a rebar.</td></tr>
 	<tr>
@@ -507,6 +535,34 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.rowheight"></a>$xdid().rowheight	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the height of the row that the Nth rebar band is in.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, N).rowheight</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 2).rowheight</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.rows"></a>$xdid().rows	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the number of rows in the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).rows</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).rows</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
 	<tr><td colspan="2">This property lets you retreive a Nth rebar band text.</td></tr>
 	<tr>
@@ -516,6 +572,20 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4, 1).text</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.width"></a>$xdid().width	</td></tr>
+	<tr><td colspan="2">This property lets you retreive Nth rebar bands width in pixels.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, N).width</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 2).width</div></td>
 	</tr>
 </table>
 <br />
@@ -858,12 +928,17 @@
 		<a class='flag' href="#xdid.w"><div>-w</div></a>
 		<a class='flag' href="#xdid.y"><div>-y</div></a>
 		<a class='flag' href="#xdid.big.A"><div>-A</div></a>
+		<a class='flag' href="#xdid.big.W"><div>-W</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
 		<a class='flag' href="#xdidprop.childid"><div>childid</div></a>
+		<a class='flag' href="#xdidprop.markeditem"><div>markeditem</div></a>
 		<a class='flag' href="#xdidprop.num"><div>num</div></a>
+		<a class='flag' href="#xdidprop.rowheight"><div>rowheight</div></a>
+		<a class='flag' href="#xdidprop.rows"><div>rows</div></a>
 		<a class='flag' href="#xdidprop.text"><div>text</div></a>
+		<a class='flag' href="#xdidprop.width"><div>width</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
 	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>

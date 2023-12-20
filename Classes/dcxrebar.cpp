@@ -861,6 +861,51 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		if (himl)
 			ImageList_Destroy(himl);
 	}
+	// xdid -W [NAME] [ID] [SWITCH] [N|ALL] [WIDTH]
+	// xdid -W [NAME] [ID] [SWITCH] [N,N2,N3-N4...] [WIDTH]
+	else if (flags[TEXT('W')])
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		REBARBANDINFO rbBand{};
+		rbBand.cbSize = sizeof(REBARBANDINFO);
+		rbBand.fMask = RBBIM_SIZE;
+
+		const auto nItems = this->getBandCount();
+		const auto tsItem(input.getnexttok());	// tok 4
+		rbBand.cx = input.getnexttokas<UINT>();
+
+		if (tsItem == TEXT("all"))
+		{
+			for (auto i = decltype(nItems){0}; i < nItems; ++i)
+			{
+				if (this->getBandInfo(i, &rbBand) != 0)
+					this->setBandInfo(i, &rbBand);
+			}
+		}
+		else {
+			const auto itEnd = tsItem.end();
+
+			for (auto itStart = tsItem.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			{
+				const auto tsLine(*itStart);
+
+				const auto r = getItemRange2(tsLine, nItems);
+
+				if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+
+				for (auto nIndex : r)
+				{
+					if (nIndex < 0 || nIndex >= nItems || this->getBandInfo(nIndex, &rbBand) == 0)
+						throw DcxExceptions::dcxInvalidItem();
+
+					this->setBandInfo(nIndex, &rbBand);
+				}
+			}
+		}
+	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
 }
