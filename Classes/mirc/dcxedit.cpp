@@ -137,6 +137,9 @@ DcxEdit::DcxEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog,
 	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
+	if (const auto dStyle = parseExEditStyles(styles); dStyle)
+		Edit_SetExtendedStyle(m_Hwnd, dStyle, dStyle);
+
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
@@ -546,9 +549,9 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		//Supported in Windows 10 1809 and later. The edit control needs to have the ES_EX_ZOOMABLE extended style set, for this message to have an effect
 		//(the zoom ratio is always between 1/64 and 64) NOT inclusive, 1.0 = no zoom
 		if (int nNumerator{}, nDenominator{}; Dcx::dcxEdit_GetZoom(m_Hwnd, &nNumerator, &nDenominator))
-			_ts_snprintf(szReturnValue, TEXT("%d %d"), nNumerator, nDenominator);
+			_ts_snprintf(szReturnValue, TEXT("%d.%d"), nNumerator, nDenominator);
 		else
-			szReturnValue = TEXT("0");
+			szReturnValue = TEXT("1.0");
 	}
 	break;
 
@@ -666,19 +669,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 			for (auto itStart = tsLines.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 			{
 				const TString tsLineRange(*itStart);
-
-				//UINT nStartLine{}, nEndLine{};
-				//if (tsLineRange.numtok(TEXT('-')) == 2)
-				//{
-				//	nStartLine = tsLineRange.getfirsttok(1, TEXT('-')).to_<UINT>();
-				//	nEndLine = tsLineRange.getnexttok(TEXT('-')).to_<UINT>();
-				//}
-				//else {
-				//	nStartLine = nEndLine = tsLineRange.to_<UINT>();
-				//}
-				//// delete lines from the back of the text so it doesnt change the position of other lines.
-				//for (auto nLine = nEndLine; nLine >= nStartLine; --nLine)
-				//	this->m_tsText.deltok(nLine, TEXT("\r\n"));
 
 				const auto r = Dcx::make_range(tsLineRange, this->m_tsText.numtok(sepChars.to_chr()));
 
@@ -932,38 +922,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
-
-		//auto tsClr(input.getnexttok());
-		//if (tsClr != TEXT('-'))
-		//	this->m_clrGutter_selbkg = tsClr.to_<COLORREF>();
-		//
-		//if (numtok > 4)
-		//{
-		//	tsClr = input.getnexttok();
-		//	if (tsClr != TEXT('-'))
-		//		this->m_clrGutter_bkg = tsClr.to_<COLORREF>();
-		//
-		//	if (numtok > 5)
-		//	{
-		//		tsClr = input.getnexttok();
-		//		if (tsClr != TEXT('-'))
-		//			this->m_clrGutter_seltxt = tsClr.to_<COLORREF>();
-		//
-		//		if (numtok > 6)
-		//		{
-		//			tsClr = input.getnexttok();
-		//			if (tsClr != TEXT('-'))
-		//				this->m_clrGutter_txt = tsClr.to_<COLORREF>();
-		//
-		//			if (numtok > 7)
-		//			{
-		//				tsClr = input.getnexttok();
-		//				if (tsClr != TEXT('-'))
-		//					this->m_clrGutter_border = tsClr.to_<COLORREF>();
-		//			}
-		//		}
-		//	}
-		//}
 
 		int argcnt{ 4 };
 		const TString tsArgs(input.getlasttoks());
@@ -1571,6 +1529,34 @@ TString DcxEdit::getLine(int nLine) const
 	//return szBuf;
 
 	GSL_SUPPRESS(lifetime.1) return m_tsText.gettok(nLine, Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd).to_chr());
+}
+
+DWORD DcxEdit::parseExEditStyles(const TString& tsStyles)
+{
+	DWORD dStyles{};
+
+	for (const auto& tsStyle : tsStyles)
+	{
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case L"zoomable"_hash:
+			dStyles |= ES_EX_ZOOMABLE;
+			break;
+		case L"eollf"_hash:
+			dStyles |= ES_EX_ALLOWEOL_LF;
+			break;
+		case L"eolcr"_hash:
+			dStyles |= ES_EX_ALLOWEOL_CR;
+			break;
+		case L"convert"_hash:
+			dStyles |= ES_EX_CONVERT_EOL_ON_PASTE;
+			break;
+		default:
+			break;
+		}
+	}
+
+	return dStyles;
 }
 
 Dcx::range_t<DWORD> DcxEdit::GetVisibleRange() const noexcept

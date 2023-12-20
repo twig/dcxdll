@@ -93,6 +93,8 @@ public:
 
 	TString getLine(int nLine) const;
 
+	DWORD parseExEditStyles(const TString& tsStyles);
+
 private:
 	TString m_tsText; // Edit Text
 	TString m_tsCue; // Cue Text
