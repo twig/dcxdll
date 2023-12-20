@@ -24,9 +24,13 @@ function get_styles_edit(&$STYLES) {
 		'alpha' => 'Control is alpha blended.',
 		'showlinenumbers' => 'Show line numbers in a multi line control',
 		'unlockgutter' => 'Allow resizing the gutter area.',
+		'zoomable' => 'Control is zoomable. (win10+)',
+		'eollf' => 'Allow line feeds to end lines. (win10+)',
+		'eolcr' => 'Allow carriage returns to end lines. (win10+)',
 		'__notes' => array(
 			'Even with [s]number[/s] style, it is still possible to paste non-digits into the edit control.',
 			'[s]password[/s] does not work with [s]multi[/s] style.',
+			'By default the edit control defines the end of line as crlf',
 		),
 	);
 }
@@ -35,9 +39,9 @@ function get_styles_edit(&$STYLES) {
 function get_xdid_edit(&$XDID) {
 	$XDID = array(
 		'a' => array(
-		        '__desc' => 'This command lets you add text to the end of the edit.',
-		        '__cmd' => '[TEXT]',
-		        '__eg' => 'New Text',
+			'__desc' => 'This command lets you add text to the end of the edit.',
+			'__cmd' => '[TEXT]',
+			'__eg' => 'New Text',
 		),
 		'c' => "This command will copy the text in the edit to the clipboard.",
 		//'C' => array(
@@ -70,10 +74,10 @@ function get_xdid_edit(&$XDID) {
 		        '__notes' => "The text is inserted at the [s]Nth[/s] character no matter what mode the control is in. If the control has less that N characters the text is added to the end."
 		),
 		'j' => array(
-		        '__desc' => 'This command lets you trigger the password style of the edit control on the fly.',
-		        '__cmd' => '[1|0] (CHAR)',
-		        '__eg' => "1 *",
-		        '__notes' => 'Sets the password obscuring char to (CHAR) if supplied, or the default for your system.'
+		    '__desc' => 'This command lets you trigger the password style of the edit control on the fly.',
+		    '__cmd' => '[1|0] (CHAR)',
+		    '__eg' => "1 *",
+		    '__notes' => 'Sets the password obscuring char to (CHAR) if supplied, or the default for your system.'
 		),
 		'o' => array(
 			'__desc' => 'This command lets you overwrite the Nth line in the edit.',
@@ -90,37 +94,50 @@ function get_xdid_edit(&$XDID) {
 		),
 		'P' => array(
 			'__desc' => 'This command lets you paste the contents of the clipboard into the edit control.',
-		        '__notes' => 'The text will be pasted directly into the current caret position. See [f]/xdid -S[/f].',
+		    '__notes' => 'The text will be pasted directly into the current caret position. See [f]/xdid -S[/f].',
 		),
 		'q' => array(
-		        '__desc' => 'This command lets you set a char length limit on the edit.',
-		        '__cmd' => '[LIMIT]',
-		        '__eg' => '8',
+		    '__desc' => 'This command lets you set a char length limit on the edit.',
+		    '__cmd' => '[LIMIT]',
+		    '__eg' => '8',
 		),
 		'r' => "This command lets you clear the contents of the edit.",
+		'V' => "This command lets you scroll the contents to make the caret visible.",
 		't' => array(
-		        '__desc' => 'This command lets you load the contents of a file directly in the edit.',
-		        '__cmd' => '[FILENAME]',
-		        '__eg' => 'C:/mIRC/blah.txt',
+		    '__desc' => 'This command lets you load the contents of a file directly in the edit.',
+		    '__cmd' => '[FILENAME]',
+		    '__eg' => 'C:/mIRC/blah.txt',
 		),
 		'u' => array(
-		        '__desc' => 'This command lets you save the contents of the edit directly in a file.',
-		        '__cmd' => '[FILENAME]',
-		        '__eg' => 'C:/mIRC/blah.txt',
+		    '__desc' => 'This command lets you save the contents of the edit directly to a file.',
+		    '__cmd' => '[FILENAME]',
+		    '__eg' => 'C:/mIRC/blah.txt',
 		),
 		'E' => array(
-		        '__desc' => 'This command lets you set the cue text. It behaves like a ghostly value when the edit control is empty.',
-		        '__cmd' => '[TEXT]',
-		        '__eg' => 'Username',
+		    '__desc' => 'This command lets you set the cue text. It behaves like a ghostly value when the edit control is empty.',
+		    '__cmd' => '[TEXT] or [+FLAGS] [TEXT]',
+		    '__eg' => array(
+				'Username',
+				'+f Username',
+			),
+			'__params' => array(
+                '+FLAGS' => array(
+                    '__desc' => 'Cue flags.',
+                    '__values' => array(
+                        'f' => 'Cue text stays visible when control has focus.',
+                    ),
+                ),
+				'TEXT' => 'Cue text to use.',
+			),
 		),
 		'S' => array(
-		        '__desc' => 'This command lets you set the selection range (and/or caret position) in the edit control.',
-		        '__cmd' => '[START] (END)',
-		        '__eg' => array(
-			        '1 3',
-					'5',
-				),
-		        '__notes' => 'When the [p]END[/p] parameter is not specified, then this command will set the caret position to [p]START[/p].',
+		    '__desc' => 'This command lets you set the selection range (and/or caret position) in the edit control.',
+		    '__cmd' => '[START] (END)',
+		    '__eg' => array(
+			    '1 3',
+				'5',
+			),
+		    '__notes' => 'When the [p]END[/p] parameter is not specified, then this command will set the caret position to [p]START[/p].',
 		),
 		'y' => array(
 			'__desc' => 'This command lets you ignore callbacks for repeated keydown events when the user holds a button. This command also allows you to enable/disable line numbers',
@@ -150,7 +167,7 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 		    '__cmd' => '[N]',
 		    '__eg' => '2',
             '__params' => array(
-                    'N' => 'The line index to get.',
+				'N' => 'The line index to get.',
             ),
 		    '__notes' => 'If the [s]multi[/s] style is not used, you can ignore [p]N[/p] when retrieving the edit text.'
 		),
@@ -248,6 +265,16 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 		//	EC_ENDOFLINE_CRLF	one		The end - of - line character used for new linebreaks is carriage return followed by linefeed(CRLF).
 		//	EC_ENDOFLINE_CR		two		The end - of - line character used for new linebreaks is carriage return (CR).
 		//	EC_ENDOFLINE_LF		three	The end - of - line character used for new linebreaks is linefeed(LF).
+			),
+		),
+		"zoom" => array(
+		    '__desc' => 'This property returns the zoom level. (win10+)',
+			'__return' => array(
+				"ZOOM" => "- Level of zoom",
+			),
+		    '__notes' => array(
+				'Only works on controls that have the [s]zoomable[/s] style.',
+				"The zoom ratio is always between 1/64 and 64 NOT inclusive, 1.0 = no zoom",
 			),
 		),
 	);
