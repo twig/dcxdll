@@ -353,75 +353,6 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 		const auto tsArgs(input.getlasttoks());			// tok 9, -1 or 10, -1
 
 		addItems(nPos, icon, state, indent, tsIndent, tsArgs);
-
-		//if (numtok < 8)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//const auto nPos = input.getnexttokas<int>() - 1;	// tok 4
-		//const auto tsIndent = input.getnexttok();			// tok 5
-		//const auto indent = (tsIndent[0] != TEXT('+') ? tsIndent.to_<int>() : input.getnexttokas<int>()); // tok 6
-		//const auto icon = input.getnexttokas<int>() - 1;	// tok 6 or 7
-		//const auto state = input.getnexttokas<int>() - 1;	// tok 7 or 8
-		//const auto overlay = input.getnexttokas<int>();		// tok 8 or 9		(never used, here for spacing only atm)
-		//const XSwitchFlags xFlags(tsIndent);
-		//const auto itemtext(input.getlasttoks());			// tok 9, -1 or 10, -1
-		//if (nPos < -1)	// pos was given as -1.
-		//{
-		//	setEditboxContents(itemtext, icon, state, overlay, indent);
-		//}
-		//else {
-		//	if (xFlags[TEXT('T')])
-		//	{
-		//		// token list [C] Text[C]Text....
-		//		const TCHAR tok[2]{ gsl::narrow_cast<TCHAR>(itemtext.getfirsttok(1).to_<int>()), 0 };
-		//		const TString tsTokList(itemtext.getlasttoks());
-		//
-		//		AddTokList(nPos, icon, state, indent, 1, -1, &tok[0], tsTokList);
-		//
-		//		// Now update the horizontal scroller
-		//		UpdateHorizExtent();
-		//	}
-		//	else if (xFlags[TEXT('F')])
-		//	{
-		//		// load file [Start] [End] [filename]
-		//		// [Start] == 1+
-		//		// [End] == -1 (end of file) or 1+
-		//		// a zero is an error
-		//
-		//		const auto iStart = itemtext.getfirsttok(1).to_<int>();
-		//		const auto iEnd = itemtext.getnexttokas<int>();
-		//		const TString tsFilename(itemtext.getlasttoks());
-		//
-		//		if ((iEnd == 0) || (iStart < 1) || (iEnd < -1))
-		//			throw DcxExceptions::dcxInvalidArguments();
-		//		if ((iEnd > -1) && (iEnd < iStart))
-		//			throw DcxExceptions::dcxInvalidArguments();
-		//
-		//		const auto tsTokList(readTextFile(tsFilename));
-		//
-		//		const TCHAR tok[] = TEXT("\r\n");
-		//
-		//		// check if start count is within scope of files data.
-		//		// Ook: should we just silently exit here?
-		//		if (iStart > gsl::narrow_cast<int>(tsTokList.numtok(&tok[0])))
-		//			throw DcxExceptions::dcxOutOfRange();
-		//
-		//		AddTokList(nPos, icon, state, indent, iStart, iEnd, &tok[0], tsTokList);
-		//
-		//		// Now update the horizontal scroller
-		//		UpdateHorizExtent();
-		//	}
-		//	else {
-		//		// standard item text [TEXT]
-		//		if (COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE | CBEIF_LPARAM),nPos,const_cast<TCHAR*>(itemtext.to_chr()),0,icon,state,overlay,indent, reinterpret_cast<LPARAM>(new DCXCBITEM) }; this->insertItem(&cbi) < 0)
-		//		{
-		//			delete reinterpret_cast<DCXCBITEM*>(cbi.lParam);
-		//			throw Dcx::dcxException("Unable to add item.");
-		//		}
-		//		// Now update the horizontal scroller
-		//		UpdateHorizExtent(itemtext);
-		//	}
-		//}
 	}
 	// xdid -A [NAME] [ID] [ROW] [+FLAGS] [INFO]
 	// [NAME] [ID] -A [ROW] [+FLAGS] [INFO]
@@ -468,8 +399,8 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 			this->setCurSel(nItem);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	//xdid -d -> [NAME] [ID] -d [N](,[N],[N1]-N2],...)
-	//xdid -d -> [NAME] [ID] -d [N] [+flags] [match text]
+	// xdid -d -> [NAME] [ID] -d [N](,[N],[N1]-N2],...)
+	// xdid -d -> [NAME] [ID] -d [N] [+flags] [match text]
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
@@ -531,62 +462,9 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	{
 		this->setCurSel(-1);
 	}
-	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
+	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [N](,[N],[N1]-N2],...) [FILENAME]
 	else if (flags[TEXT('w')])
 	{
-		//		if (numtok < 6)
-		//			throw DcxExceptions::dcxInvalidArguments();
-		//
-		//		auto himl = this->getImageList();
-		//
-		//		if (!himl)
-		//		{
-		//			himl = this->createImageList();
-		//
-		//			if (himl)
-		//				this->setImageList(himl);
-		//		}
-		//
-		//		if (himl)
-		//		{
-		//			const auto flag(input.getnexttok());				// tok 4
-		//			const auto index = input.getnexttok().to_<int>();	// tok 5
-		//			auto filename(input.getlasttoks());					// tok 6, -1
-		//#if DCX_USE_WRAPPERS
-		//			const Dcx::dcxIconResource icon(index, filename, false, flag);
-		//
-		//			ImageList_AddIcon(himl, icon.get());
-		//#else
-		//			if (auto icon = dcxLoadIcon(index, filename, false, flag); icon)
-		//			{
-		//				ImageList_AddIcon(himl, icon);
-		//				DestroyIcon(icon);
-		//			}
-		//#endif
-		//		}
-
-		//if (numtok < 6)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//auto himl = this->getImageList();
-		//
-		//if (!himl)
-		//{
-		//	himl = this->createImageList();
-		//
-		//	if (himl)
-		//		this->setImageList(himl);
-		//}
-		//
-		//if (!himl)
-		//	throw Dcx::dcxException("Unable to get imagelist");
-		//
-		//const auto flag(input.getnexttok());		// tok 4
-		//const auto tsRanges(input.getnexttok());	// tok 5
-		//auto filename(input.getlasttoks());			// tok 6, -1
-		//
-		//Dcx::dcxLoadIconRange(himl, filename, false, flag, tsRanges);
-
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
