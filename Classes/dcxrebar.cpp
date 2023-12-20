@@ -72,7 +72,12 @@ DcxReBar::~DcxReBar() noexcept
 {
 	this->resetContents();
 
-	ImageList_Destroy(this->getImageList());
+	//ImageList_Destroy(this->getImageList());
+
+	auto himl = this->getImageList();
+	setImageList(nullptr);
+	if (himl)
+		ImageList_Destroy(himl);
 }
 
 const TString DcxReBar::getStyles(void) const
@@ -136,7 +141,7 @@ void DcxReBar::toXml(TiXmlElement* const xml) const
 
 			this->getBandInfo(i, &rbbi);
 
-			auto lpdrbb = reinterpret_cast<DCXRBBAND *>(rbbi.lParam);
+			auto lpdrbb = reinterpret_cast<DCXRBBAND*>(rbbi.lParam);
 
 			TiXmlElement xItem("item");
 			{
@@ -216,7 +221,7 @@ void DcxReBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 			const auto tsTooltip(queryAttribute(xItem, "tooltip"));
 
 			TString control_data;
-			auto xCtrl = xItem->FirstChildElement("control"); 
+			auto xCtrl = xItem->FirstChildElement("control");
 			if (xCtrl)
 			{
 				const auto iX = queryIntAttribute(xCtrl, "x");
@@ -369,7 +374,7 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 	case L"num"_hash:
 		_ts_snprintf(szReturnValue, TEXT("%d"), this->getBandCount());
 		break;
-		// [NAME] [ID] [PROP] [N]
+	// [NAME] [ID] [PROP] [N]
 	case L"text"_hash:
 	{
 		if (numtok < 4)
@@ -389,6 +394,7 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 		getBandInfo(gsl::narrow_cast<UINT>(nIndex), &rbBand);
 	}
 	break;
+	// [NAME] [ID] [PROP] [N]
 	case L"childid"_hash:
 	{
 		if (numtok < 4)
@@ -417,9 +423,43 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 
 		getBandInfo(gsl::narrow_cast<UINT>(n), &rbi);
 
-		auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(rbi.lParam);
+		if (auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(rbi.lParam); pdcxrbb)
+			szReturnValue = pdcxrbb->tsMarkText.to_chr();
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"width"_hash:
+	{
+		const auto n = input.getnexttok().to_int() - 1;	// tok 4
 
-		szReturnValue = pdcxrbb->tsMarkText.to_chr();
+		if (n < 0 || n >= this->getBandCount())
+			throw DcxExceptions::dcxInvalidItem();
+
+		REBARBANDINFO rbi{};
+		rbi.cbSize = sizeof(REBARBANDINFO);
+		rbi.fMask = RBBIM_SIZE;
+
+		getBandInfo(gsl::narrow_cast<UINT>(n), &rbi);
+
+		_ts_snprintf(szReturnValue, TEXT("%u"), rbi.cx);
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"rows"_hash:
+	{
+		_ts_snprintf(szReturnValue, TEXT("%u"), getRowCount());
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"rowheight"_hash:
+	{
+		// NB: n is a band number, not a row number. returns the height of the row containing the specified band.
+		const auto n = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (n < 0 || n >= this->getBandCount())
+			throw DcxExceptions::dcxInvalidItem();
+
+		_ts_snprintf(szReturnValue, TEXT("%u"), SendMessage(m_Hwnd, RB_GETROWHEIGHT, n, 0));
 	}
 	break;
 	default:
@@ -437,113 +477,9 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
 
-	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [CX] [CY] [WIDTH] [ICON] [COLOR] [Item Text][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB]Tooltip
+	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [CX] [CY] [WIDTH] [ICON] [COLOR] (Item Text)[TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB]Tooltip
 	if (flags[TEXT('a')])
 	{
-		//if (numtok < 10)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//REBARBANDINFO rbBand{};
-		//if (Dcx::DwmModule.isUseable()) // NB: when rbBand.cbSize is set to the Vista size on XP the insertband will FAIL!! fucking MS!
-		//	rbBand.cbSize = sizeof(REBARBANDINFO);
-		//else
-		//	GSL_SUPPRESS(es.47) rbBand.cbSize = REBARBANDINFO_V6_SIZE;
-		//
-		//rbBand.fMask = RBBIM_STYLE | RBBIM_LPARAM;
-		//
-		//const auto data(input.getfirsttok(1, TSTABCHAR).trim());
-		//TString control_data, tooltip;
-		//const auto nToks = input.numtok(TSTABCHAR);
-		//
-		//if (nToks > 1)
-		//{
-		//	control_data = input.getnexttok(TSTABCHAR).trim();		// tok 2
-		//
-		//	if (nToks > 2)
-		//		tooltip = input.getnexttok(TSTABCHAR).trim();		// tok 3
-		//}
-		//auto nIndex = data.getfirsttok(4).to_<int>() - 1;
-		//rbBand.fStyle = parseBandStyleFlags(data.getnexttok());	// tok 5
-		//const auto cx = data.getnexttok().to_<UINT>();					// tok 6
-		//const auto cy = data.getnexttok().to_<UINT>();					// tok 7
-		//const auto width = data.getnexttok().to_<UINT>();				// tok 8
-		//const auto nIcon = data.getnexttok().to_<int>() - 1;			// tok 9
-		//const auto clrText = data.getnexttok().to_<COLORREF>();			// tok 10
-		//
-		//if (nIndex < -1)
-		//	nIndex = -1;
-		//
-		//rbBand.cxMinChild = cx;
-		//rbBand.cyMinChild = cy;
-		//rbBand.cx = width;
-		//rbBand.cyIntegral = 1;
-		//rbBand.cyChild = cy;
-		//
-		//TString itemtext;
-		//if (data.numtok() > 10)
-		//{
-		//	itemtext = data.getlasttoks().trim();	// tok 11, -1
-		//	rbBand.fMask |= RBBIM_TEXT;
-		//	rbBand.lpText = itemtext.to_chr();
-		//	//rbBand.cch = itemtext.len();
-		//}
-		//
-		//// Tooltip Handling
-		//auto lpdcxrbb = std::make_unique<DCXRBBAND>();
-		//
-		//lpdcxrbb->bUline = dcx_testflag(rbBand.fStyle, RBBS_UNDERLINE);
-		//
-		//lpdcxrbb->bBold = dcx_testflag(rbBand.fStyle, RBBS_BOLD);
-		//
-		//if (dcx_testflag(rbBand.fStyle, RBBS_COLOR))
-		//	lpdcxrbb->clrText = clrText;
-		//else
-		//	lpdcxrbb->clrText = CLR_INVALID;
-		//
-		//if (nIcon > -1)
-		//{
-		//	rbBand.iImage = nIcon;
-		//	rbBand.fMask |= RBBIM_IMAGE;
-		//}
-		//
-		//rbBand.lParam = reinterpret_cast<LPARAM>(lpdcxrbb.get());
-		//
-		//DcxControl* p_Control{ nullptr };
-		//if (control_data.numtok() > 5)
-		//{
-		//	p_Control = this->getParentDialog()->addControl(control_data, 1,
-		//		DcxAllowControls::ALLOW_TRACKBAR |
-		//		DcxAllowControls::ALLOW_PBAR |
-		//		DcxAllowControls::ALLOW_COMBOEX |
-		//		DcxAllowControls::ALLOW_TOOLBAR |
-		//		DcxAllowControls::ALLOW_STATUSBAR |
-		//		DcxAllowControls::ALLOW_TREEVIEW |
-		//		DcxAllowControls::ALLOW_LISTVIEW |
-		//		DcxAllowControls::ALLOW_COLORCOMBO |
-		//		DcxAllowControls::ALLOW_BUTTON |
-		//		DcxAllowControls::ALLOW_RICHEDIT |
-		//		DcxAllowControls::ALLOW_DIVIDER |
-		//		DcxAllowControls::ALLOW_PANEL |
-		//		DcxAllowControls::ALLOW_TAB, m_Hwnd);
-		//
-		//	if (const auto dct = p_Control->getControlType(); ((dct == DcxControlTypes::STATUSBAR) || (dct == DcxControlTypes::TOOLBAR)))
-		//		p_Control->addStyle(WindowStyle::CCS_NoParentAlign | CCS_NORESIZE);
-		//
-		//	rbBand.fMask |= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE | RBBIM_ID;
-		//	rbBand.hwndChild = p_Control->getHwnd();
-		//	rbBand.wID = p_Control->getID();
-		//}
-		//
-		//if (this->insertBand(nIndex, &rbBand) == 0L)
-		//{ // 0L means failed.
-		//	this->getParentDialog()->deleteControl(p_Control);
-		//	if (rbBand.hwndChild)
-		//		DestroyWindow(rbBand.hwndChild);
-		//
-		//	throw Dcx::dcxException("Unable To Add Band");
-		//}
-		//lpdcxrbb.release();
-
 		if (numtok < 10)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -575,22 +511,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	// xdid -A [NAME] [ID] [SWITCH] [N,N2,N3-N4...] (TEXT)
 	else if (flags[TEXT('A')])
 	{
-		//if (numtok < 4)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//const auto n = input.getnexttok().to_int() - 1;	// tok 4
-		//
-		//if (n < 0 || n >= getBandCount())
-		//	throw DcxExceptions::dcxInvalidItem();
-		//
-		//REBARBANDINFO rbi{};
-		//rbi.cbSize = sizeof(REBARBANDINFO);
-		//rbi.fMask = RBBIM_LPARAM;
-		//
-		//this->getBandInfo(gsl::narrow_cast<UINT>(n), &rbi);
-		//if (auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(rbi.lParam); pdcxrbb)
-		//	pdcxrbb->tsMarkText = (numtok > 4 ? input.getlasttoks() : TEXT(""));	// tok 5, -1
-
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -625,16 +545,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	// xdid -d [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('d')])
 	{
-		//if (numtok < 4)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
-		//
-		//if (nIndex < 0 || nIndex >= this->getBandCount())
-		//	throw DcxExceptions::dcxInvalidItem();
-		//
-		//this->deleteBand(gsl::narrow_cast<UINT>(nIndex));
-
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -669,16 +579,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	// xdid -i [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('i')])
 	{
-		//if (numtok < 4)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
-		//
-		//if (nIndex < 0 || nIndex >= this->getBandCount())
-		//	throw DcxExceptions::dcxInvalidItem();
-		//
-		//this->showBand(gsl::narrow_cast<UINT>(nIndex), FALSE);
-
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -704,16 +604,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	// xdid -j [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('j')])
 	{
-		//if (numtok < 4)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
-		//
-		//if (nIndex < 0 || nIndex >= this->getBandCount())
-		//	throw DcxExceptions::dcxInvalidItem();
-		//
-		//this->showBand(gsl::narrow_cast<UINT>(nIndex), TRUE);
-
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -739,23 +629,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	// xdid -k [NAME] [ID] [SWITCH] [N,N2,N3-N4...] [ICON]
 	else if (flags[TEXT('k')])
 	{
-		//if (numtok < 5)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//REBARBANDINFO rbBand{};
-		//rbBand.cbSize = sizeof(REBARBANDINFO);
-		//rbBand.fMask = RBBIM_IMAGE;
-		//
-		//const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
-		//const auto nIcon = input.getnexttok().to_int() - 1;	// tok 5
-		//
-		//if (nIndex < 0 || nIcon < -1 || nIndex >= this->getBandCount())
-		//	throw DcxExceptions::dcxInvalidItem();
-		//
-		//// Ook: TODO add check for nIcon being valid
-		//rbBand.iImage = nIcon;
-		//this->setBandInfo(nIndex, &rbBand);
-
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -787,37 +660,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	// xdid -l -> [NAME] [ID] -l [N,N2,N3-N4...]
 	else if (flags[TEXT('l')])
 	{
-		//if (numtok < 4)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//REBARBANDINFO rbBand{};
-		//rbBand.cbSize = sizeof(REBARBANDINFO);
-		//rbBand.fMask = RBBIM_STYLE;
-		//
-		//const auto nItems = this->getBandCount();
-		//const auto tsItem(input.getnexttok());	// tok 4
-		//
-		//if (tsItem == TEXT("all"))
-		//{
-		//	for (auto i = decltype(nItems){0}; i < nItems; ++i)
-		//	{
-		//		if (this->getBandInfo(i, &rbBand) != 0)
-		//		{
-		//			rbBand.fStyle |= RBBS_NOGRIPPER;
-		//			this->setBandInfo(i, &rbBand);
-		//		}
-		//	}
-		//}
-		//else {
-		//	const auto nIndex = tsItem.to_int() - 1;
-		//
-		//	if (nIndex < 0 || nIndex >= nItems || this->getBandInfo(nIndex, &rbBand) == 0)
-		//		throw DcxExceptions::dcxInvalidItem();
-		//
-		//	rbBand.fStyle |= RBBS_NOGRIPPER;
-		//	this->setBandInfo(nIndex, &rbBand);
-		//}
-
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -899,28 +741,10 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		if (nRows > -1)
 			this->m_iRowLimit = nRows;
 	}
-	// xdid -t [NAME] [ID] [SWITCH] [N] [TEXT]
-	// xdid -t [NAME] [ID] [SWITCH] [N,N2,N3-N4...] [TEXT]
+	// xdid -t [NAME] [ID] [SWITCH] [N] (TEXT)
+	// xdid -t [NAME] [ID] [SWITCH] [N,N2,N3-N4...] (TEXT)
 	else if (flags[TEXT('t')])
 	{
-		//if (numtok < 4)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//REBARBANDINFO rbBand{};
-		//rbBand.cbSize = sizeof(REBARBANDINFO);
-		//rbBand.fMask = RBBIM_TEXT;
-		//
-		//const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
-		//if (nIndex < 0 || nIndex >= this->getBandCount())
-		//	throw DcxExceptions::dcxInvalidItem();
-		//
-		//TString itemtext;
-		//if (numtok > 4)
-		//	itemtext = input.getlasttoks().trim();	// tok 5, -1
-		//
-		//rbBand.lpText = itemtext.to_chr();
-		//this->setBandInfo(nIndex, &rbBand);
-
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -954,37 +778,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	// xdid -u [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('u')])
 	{
-		//if (numtok < 4)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//REBARBANDINFO rbBand{};
-		//rbBand.cbSize = sizeof(REBARBANDINFO);
-		//rbBand.fMask = RBBIM_STYLE;
-		//
-		//const auto nItems = this->getBandCount();
-		//const auto tsItem(input.getnexttok());	// tok 4
-		//
-		//if (tsItem == TEXT("all"))
-		//{
-		//	for (auto i = decltype(nItems){0}; i < nItems; ++i)
-		//	{
-		//		if (this->getBandInfo(gsl::narrow_cast<UINT>(i), &rbBand) != 0)
-		//		{
-		//			rbBand.fStyle &= ~RBBS_NOGRIPPER;
-		//			this->setBandInfo(gsl::narrow_cast<UINT>(i), &rbBand);
-		//		}
-		//	}
-		//}
-		//else {
-		//	const auto nIndex = tsItem.to_int() - 1;
-		//
-		//	if (nIndex < 0 || nIndex >= nItems || this->getBandInfo(gsl::narrow_cast<UINT>(nIndex), &rbBand) == 0)
-		//		throw DcxExceptions::dcxInvalidItem();
-		//
-		//	rbBand.fStyle &= ~RBBS_NOGRIPPER;
-		//	this->setBandInfo(gsl::narrow_cast<UINT>(nIndex), &rbBand);
-		//}
-
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -1051,59 +844,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [N,N2,N3-N4...] [FILENAME] (TODO: allows loading a range of icons into the control)
 	else if (flags[TEXT('w')])
 	{
-		//		if (numtok < 6)
-		//			throw DcxExceptions::dcxInvalidArguments();
-		//
-		//		const auto flag(input.getnexttok());		// tok 4
-		//		const auto index = input.getnexttok().to_int();	// tok 5
-		//		auto filename(input.getlasttoks());			// tok 6, -1
-		//
-		//		auto himl = this->getImageList();
-		//
-		//		if (!himl)
-		//		{
-		//			himl = this->createImageList();
-		//
-		//			if (himl)
-		//				this->setImageList(himl);
-		//		}
-		//
-		//		if (!himl)
-		//			throw Dcx::dcxException("Unable to get imagelist");
-		//
-		//#if DCX_USE_WRAPPERS
-		//		const Dcx::dcxIconResource icon(index, filename, false, flag);
-		//		ImageList_AddIcon(himl, icon.get());
-		//#else
-		//		if (const HICON icon = dcxLoadIcon(index, filename, false, flag); icon)
-		//		{
-		//			ImageList_AddIcon(himl, icon);
-		//			DestroyIcon(icon);
-		//		}
-		//#endif
-
-		//if (numtok < 6)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//auto himl = this->getImageList();
-		//
-		//if (!himl)
-		//{
-		//	himl = this->createImageList();
-		//
-		//	if (himl)
-		//		this->setImageList(himl);
-		//}
-		//
-		//if (!himl)
-		//	throw Dcx::dcxException("Unable to get imagelist");
-		//
-		//const auto flag(input.getnexttok());		// tok 4
-		//const auto tsRanges(input.getnexttok());	// tok 5
-		//auto filename(input.getlasttoks());			// tok 6, -1
-		//
-		//Dcx::dcxLoadIconRange(himl, filename, false, flag, tsRanges);
-
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -1116,7 +856,10 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('y')])
 	{
-		ImageList_Destroy(this->getImageList());
+		auto himl = this->getImageList();
+		setImageList(nullptr);
+		if (himl)
+			ImageList_Destroy(himl);
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
