@@ -1518,6 +1518,20 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.emptytext"></a>$xdid().emptytext	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the text displayed when the listview is empty.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).emptytext</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).emptytext</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.find"></a>$xdid().find	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the listview item index and column index of the Nth found listview item matching the input search patern.</td></tr>
 	<tr>
@@ -1575,6 +1589,20 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.gid"></a>$xdid().gid	</td></tr>
+	<tr><td colspan="2">This property lets you retreive an items GID.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [N]).gid</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 3).gid</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Group id can be -2 (Not In group), -1 (groupcallback, should never be), or 0+ a valid groupid</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.gnum"></a>$xdid().gnum	</td></tr>
 	<tr><td colspan="2">This property retreives the number of groups.</td></tr>
 	<tr>
@@ -1589,11 +1617,39 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.gstate"></a>$xdid().gstate	</td></tr>
+	<tr><td colspan="2">This property lets you retreive a groups current state.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [GID]).gstate</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 3).gstate</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">+C</a> - Group is collapsible<br /><a class="returnevent">+H</a> - Group is hidden<br /><a class="returnevent">+N</a> - Group has no header<br /><a class="returnevent">+O</a> - Group is collapsed<br /><a class="returnevent">+S</a> - Group is selected</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The returned flags can be combined. eg +CO</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.gtext"></a>$xdid().gtext	</td></tr>
+	<tr><td colspan="2">This property lets you retreive a groups title text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [GID]).gtext</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 3).gtext</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.hicon"></a>$xdid().hicon	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the Nth listview header icon index.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdid(dialog, ID, N).hicon</div></td>
+		<td><div class="syntax">$xdid(dialog, ID, [N]).hicon</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -1654,6 +1710,34 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4, 1, 2).icon</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.icons"></a>$xdid().icons	</td></tr>
+	<tr><td colspan="2">This property returns a count of the icons loaded.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).icons</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).icons</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.margin"></a>$xdid().margin	</td></tr>
+	<tr><td colspan="2">This property return the current view margin.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).margin</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).margin</div></td>
 	</tr>
 </table>
 <br />
@@ -2458,14 +2542,20 @@
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
 		<a class='flag' href="#xdidprop.columnorder"><div>columnorder</div></a>
 		<a class='flag' href="#xdidprop.columns"><div>columns</div></a>
+		<a class='flag' href="#xdidprop.emptytext"><div>emptytext</div></a>
 		<a class='flag' href="#xdidprop.find"><div>find</div></a>
 		<a class='flag' href="#xdidprop.genabled"><div>genabled</div></a>
+		<a class='flag' href="#xdidprop.gid"><div>gid</div></a>
 		<a class='flag' href="#xdidprop.gnum"><div>gnum</div></a>
+		<a class='flag' href="#xdidprop.gstate"><div>gstate</div></a>
+		<a class='flag' href="#xdidprop.gtext"><div>gtext</div></a>
 		<a class='flag' href="#xdidprop.hicon"><div>hicon</div></a>
 		<a class='flag' href="#xdidprop.hstate"><div>hstate</div></a>
 		<a class='flag' href="#xdidprop.htext"><div>htext</div></a>
 		<a class='flag' href="#xdidprop.hwidth"><div>hwidth</div></a>
 		<a class='flag' href="#xdidprop.icon"><div>icon</div></a>
+		<a class='flag' href="#xdidprop.icons"><div>icons</div></a>
+		<a class='flag' href="#xdidprop.margin"><div>margin</div></a>
 		<a class='flag' href="#xdidprop.markeditem"><div>markeditem</div></a>
 		<a class='flag' href="#xdidprop.mouseitem"><div>mouseitem</div></a>
 		<a class='flag' href="#xdidprop.num"><div>num</div></a>

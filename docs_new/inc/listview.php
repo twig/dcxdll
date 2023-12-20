@@ -677,6 +677,7 @@ function get_xdidprops_listview(&$XDIDPROPS) {
 			'__eg' => '1, 2',
 			'__notes' => 'If [p]NSUB[/p] is not specified, it will return the first column.',
 		),
+		"emptytext" => "This property lets you retreive the text displayed when the listview is empty.",
 		"selected" => array(
 			'__desc' => 'This property lets you determine if the specified item is selected or not.',
 			'__cmd' => '[N]',
@@ -765,11 +766,35 @@ function get_xdidprops_listview(&$XDIDPROPS) {
 		),
         "hicon" => array(
 		    '__desc' => "This property lets you retreive the Nth listview header icon index.",
-			'__cmd' => 'N',
+			'__cmd' => '[N]',
 	        '__eg' => '2',
 		),
 		'genabled' => 'This property lets you retreive whether groups are enabled or not.',
 		'gnum' => 'This property retreives the number of groups.',
+		'gid' => array(
+			'__desc' => "This property lets you retreive an items GID.",
+			'__cmd' => '[N]',
+			'__eg' => '3',
+			'__notes' => 'Group id can be -2 (Not In group), -1 (groupcallback, should never be), or 0+ a valid groupid',
+		),
+		'gtext' => array(
+			'__desc' => "This property lets you retreive a groups title text.",
+			'__cmd' => '[GID]',
+			'__eg' => '3',
+		),
+		'gstate' => array(
+			'__desc' => "This property lets you retreive a groups current state.",
+			'__cmd' => '[GID]',
+			'__eg' => '3',
+			'__return' => array(
+				'+C' => '- Group is collapsible',
+				'+H' => '- Group is hidden',
+				'+N' => '- Group has no header',
+				'+O' => '- Group is collapsed',
+				'+S' => '- Group is selected',
+			),
+			'__notes' => 'The returned flags can be combined. eg +CO',
+		),
 		'pbar' => array(
 			'__desc' => "This property lets you retreive ProgressBar properties from a specific cell.",
 			'__cmd' => 'N, NSUB, PBARPROP',
@@ -780,6 +805,8 @@ function get_xdidprops_listview(&$XDIDPROPS) {
 			'__cmd' => '[ROW] [COLUMN]',
 	        '__eg' => '3, 1',
 		),
+		'icons' => 'This property returns a count of the icons loaded.',
+		'margin' => 'This property return the current view margin.',
 	);
 }
 

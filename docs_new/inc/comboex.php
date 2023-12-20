@@ -185,7 +185,7 @@ function get_events_comboex(&$EVENTS) {
         "sclick" => array(
 			'__desc' => "When an item is selected in the comboex.",
 			'__cmd' => 'ITEM',
-                        '__eg' => '6',
+            '__eg' => '6',
 			'__params' => array(
 				'ITEM' => 'Item number where the event was triggered.',
 			),
@@ -193,7 +193,7 @@ function get_events_comboex(&$EVENTS) {
 		"dclick" => array(
 			'__desc' => "When an item is double-clicked in a simple comboex.",
 			'__cmd' => 'ITEM',
-                        '__eg' => '6',
+            '__eg' => '6',
 			'__params' => array(
 				'ITEM' => 'Item number where the event was triggered.',
 			),

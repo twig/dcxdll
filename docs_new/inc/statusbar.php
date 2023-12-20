@@ -111,18 +111,18 @@ function get_xdidprops_statusbar(&$XDIDPROPS) {
 
 function get_events_statusbar(&$EVENTS) {
 	$EVENTS = array(
-                "sclick" => array(
+        "sclick" => array(
 			'__desc' => "Single left click over a status bar cell.",
 			'__cmd' => 'CELL',
-                        '__eg' => '3',
+            '__eg' => '3',
 			'__params' => array(
 				'CELL' => 'Cell number where the event was triggered.'
 			),
 		),
-                "dclick" => array(
+        "dclick" => array(
 			'__desc' => "Double-click over a status bar cell.",
 			'__cmd' => 'CELL',
-                        '__eg' => '2',
+            '__eg' => '2',
 			'__params' => array(
 				'CELL' => 'Cell number where the event was triggered.'
 			),
@@ -130,7 +130,7 @@ function get_events_statusbar(&$EVENTS) {
 		"rclick" => array(
 			'__desc' => "Right-click over a status bar cell.",
 			'__cmd' => 'CELL',
-                        '__eg' => '5',
+            '__eg' => '5',
 			'__params' => array(
 				'CELL' => 'Cell number where the event was triggered.'
 			),
