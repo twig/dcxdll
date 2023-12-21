@@ -385,7 +385,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="value">b</td>
-		<td>Background color.<br />Affects: Edit, Radio, Check, Box, Scroll, Text, List, Panel, Image, Trackbar</td>
+		<td>Background color.<br />Affects: <a href='edit.htm'>Edit</a>, <a href='radio.htm'>Radio</a>, <a href='check.htm'>Check</a>, <a href='box.htm'>Box</a>, <a href='scroll.htm'>Scroll</a>, <a href='text.htm'>Text</a>, <a href='list.htm'>List</a>, <a href='panel.htm'>Panel</a>, <a href='image.htm'>Image</a>, <a href='trackbar.htm'>Trackbar</a></td>
 	</tr>
 	<tr>
 		<td class="value">g</td>
@@ -397,17 +397,17 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="value">k</td>
-		<td>Text background Color.<br />Affects: Text, Edit, List</td>
+		<td>Text background Color.<br />Affects: <a href='text.htm'>Text</a>, <a href='edit.htm'>Edit</a>, <a href='list.htm'>List</a></td>
 	</tr>
 	<tr>
 		<td class="value">r</td>
-		<td>Border color.<br />Affects: Box (only with <a class="style">rounded</a> style)</td>
+		<td>Border color.<br />Affects: <a href='box.htm'>Box</a> (only with <a class='style' href='box.htm#style.rounded'>rounded</a> style)</td>
 	</tr>
 	<tr>
 		<td class="value">t</td>
-		<td>Text color.<br />Affects: Text, Edit, List, Box</td>
+		<td>Text color.<br />Affects: <a href='text.htm'>Text</a>, <a href='edit.htm'>Edit</a>, <a href='list.htm'>List</a>, <a href='box.htm'>Box</a></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When using <a class="value">+b</a> on the trackbar, call /xdid -U on the control to force a redraw. /xdialog -j will not work. This is an API bug.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When using <a class="value">+b</a> on the <a href="trackbar.htm">trackbar</a>, call /xdid -U on the control to force a redraw. <a class='value' href='xdialog.htm#xdialog.j'>/xdialog -j</a> will not work. This is an API bug.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -691,7 +691,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -T dcx 4 This is the tooltip text</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You must call <a class="value">/xdialog -T</a> to create the tooltip before you can use tooltips with any control. (Except controls which naturally have their own tooltips, such as treeview, listview, toolbar, etc)</li><li>The listview has its own <a class="value">/xdid -T</a> command.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You must call <a class='value' href='xdialog.htm#xdialog.big.T'>/xdialog -T</a> to create the tooltip before you can use tooltips with any control. (Except controls which naturally have their own tooltips, such as <a href="treeview.htm">treeview</a>, <a href="listview.htm">listview</a>, <a href="toolbar.htm">toolbar</a>, etc)</li><li>The <a href="listview.htm">listview</a> has its own <a class='value' href='listview.htm#xdid.big.T'>/xdid -T</a> command.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -719,7 +719,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -Z dcx 4 50</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This behaviour only affects the listview control in <a class="style">report</a> mode. We are working on a fix for the other modes.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This behaviour only affects the <a href="listview.htm">listview</a> control in <a class="style" href="listview.htm#style.report">report</a> mode. We are working on a fix for the other modes.</td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
@@ -793,7 +793,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).font</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The return value is in the format <a class="value">+flags</a> <a class="value">charset</a> <a class="value">size</a> <a class="value">fontname</a>, where <a class="value">+flags</a> is specfied in /xdid -f</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The return value is in the format <a class="value">+flags</a> <a class="value">charset</a> <a class="value">size</a> <a class="value">fontname</a>, where <a class="value">+flags</a> is specfied in <a class="xdid" href="xdid.htm#xdid.f">/xdid -f</a></td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -812,7 +812,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.mark"></a>$xdid().mark	</td></tr>
-	<tr><td colspan="2">This property retrieves the additional info given to a control with /xdid -M.</td></tr>
+	<tr><td colspan="2">This property retrieves the additional info given to a control with <a class='xdid' href='xdid.htm#xdid.big.M'>/xdid -M</a>.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdid(dialog, ID).mark</div></td>

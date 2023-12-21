@@ -85,9 +85,9 @@ function get_xdid_xdid(&$XDID) {
 			'__desc' => "This command lets you hide the control.",
 			'__cmd' => "(+FLAGS) (DELAY)",
 			'__eg' => array(
-                                '+c 1000',
-                                '+ov 300',
-                        ),
+				'+c 1000',
+				'+ov 300',
+            ),
 			'__params' => array(
 				'+FLAGS' => array(
 					'__desc' => "Animation style flags.",
@@ -105,7 +105,7 @@ function get_xdid_xdid(&$XDID) {
 			),
 			'__notes' => array(
 			    "The default effect is a roll animation.",
-                            'Animation on region clipped controls will fail on operating systems prior to XP.',
+                'Animation on region clipped controls will fail on operating systems prior to XP.',
 			),
 		),
 		"p" => array(
@@ -164,9 +164,9 @@ function get_xdid_xdid(&$XDID) {
 			'__desc' => "This command lets you show the control.",
 			'__cmd' => "(+FLAGS) (DELAY)",
 			'__eg' => array(
-                                '+c 1000',
-                                '+nu 300'
-                        ),
+				'+c 1000',
+				'+nu 300'
+            ),
 			'__params' => array(
 				'+FLAGS' => array(
 					'__desc' => "Animation style flags.",
@@ -184,7 +184,7 @@ function get_xdid_xdid(&$XDID) {
 			),
 			'__notes' => array(
 			    "The default effect is a roll animation.",
-                            'Animation on region clipped controls will fail on operating systems prior to XP.',
+                'Animation on region clipped controls will fail on operating systems prior to XP.',
 			),
 		),
 		"x" => array(
@@ -211,18 +211,18 @@ function get_xdid_xdid(&$XDID) {
 			'__eg' => '+bk $rgb(0,0,255)',
 			'__params' => array(
 				'+FLAGS' => array(
-                                        '__desc' => "Color Flags.",
-                                        '__values' => array(
-                                                'b' => "Background color.<br />Affects: Edit, Radio, Check, Box, Scroll, Text, List, Panel, Image, Trackbar",
-                                                'g' => 'Sets the start gradient color.',
-                                                'G' => 'Sets the end gradient color.',
-                                                'k' => "Text background Color.<br />Affects: Text, Edit, List",
-                                                'r' => "Border color.<br />Affects: Box (only with [s]rounded[/s] style)",
-                                                't' => "Text color.<br />Affects: Text, Edit, List, Box",
-                                        ),
-                                ),
-                        ),
-			'__notes' => 'When using [v]+b[/v] on the trackbar, call /xdid -U on the control to force a redraw. /xdialog -j will not work. This is an API bug.',
+					'__desc' => "Color Flags.",
+					'__values' => array(
+						'b' => "Background color.<br />Affects: <a href='edit.htm'>Edit</a>, <a href='radio.htm'>Radio</a>, <a href='check.htm'>Check</a>, <a href='box.htm'>Box</a>, <a href='scroll.htm'>Scroll</a>, <a href='text.htm'>Text</a>, <a href='list.htm'>List</a>, <a href='panel.htm'>Panel</a>, <a href='image.htm'>Image</a>, <a href='trackbar.htm'>Trackbar</a>",
+						'g' => 'Sets the start gradient color.',
+						'G' => 'Sets the end gradient color.',
+						'k' => "Text background Color.<br />Affects: <a href='text.htm'>Text</a>, <a href='edit.htm'>Edit</a>, <a href='list.htm'>List</a>",
+						'r' => "Border color.<br />Affects: <a href='box.htm'>Box</a> (only with <a class='style' href='box.htm#style.rounded'>rounded</a> style)",
+						't' => "Text color.<br />Affects: <a href='text.htm'>Text</a>, <a href='edit.htm'>Edit</a>, <a href='list.htm'>List</a>, <a href='box.htm'>Box</a>",
+					),
+                ),
+            ),
+			'__notes' => 'When using [v]+b[/v] on the <a href="trackbar.htm">trackbar</a>, call /xdid -U on the control to force a redraw. [link page="xdialog" section="xdialog" flag="j"]/xdialog -j[/link] will not work. This is an API bug.',
 		),
 		"F" => array(
 			'__desc' => "This command lets you set the focus on the control.",
@@ -253,8 +253,7 @@ function get_xdid_xdid(&$XDID) {
                         'p' => 'Sets a polygon region.',
                         'r' => "Sets a rounded rectangle region.",
                         'n' => 'Resets the region.',
-
-			'b' => 'Sets the alpha blending state of the control.',
+						'b' => 'Sets the alpha blending state of the control.',
                     ),
                 ),
                 '__args' => array(
@@ -267,9 +266,9 @@ function get_xdid_xdid(&$XDID) {
                     'f' => array(
                         '__cmd' => "[TRANSPARENT_COLOR] [FILENAME]",
                         '__params' => array(
-                                'TRANSPARENT_COLOR' => 'The color in the image which is made transparent. Use [v]-1[/v] to have no transparent color.',
+							'TRANSPARENT_COLOR' => 'The color in the image which is made transparent. Use [v]-1[/v] to have no transparent color.',
                         ),
-                ),
+					),
                     'p' => array(
                         '__cmd' => 'x1,y1 x2,y2 x3,y3 ... x12,y12',
                         '__params' => array(
@@ -285,21 +284,21 @@ function get_xdid_xdid(&$XDID) {
                 ),
             ),
         ),
-                "T" => array(
-                        '__desc' => "This command lets you set the tooltip information for controls that support tooltips.",
-                        '__cmd' => "[TEXT]",
-                        '__eg' => "This is the tooltip text",
-                        '__notes' => array(
-                                'You must call [f]/xdialog -T[/f] to create the tooltip before you can use tooltips with any control. (Except controls which naturally have their own tooltips, such as treeview, listview, toolbar, etc)',
-                                'The listview has its own [f]/xdid -T[/f] command.',
-                        ),
-                ),
+        "T" => array(
+            '__desc' => "This command lets you set the tooltip information for controls that support tooltips.",
+            '__cmd' => "[TEXT]",
+            '__eg' => "This is the tooltip text",
+            '__notes' => array(
+				'You must call [link page="xdialog" section="xdialog" flag="T"]/xdialog -T[/link] to create the tooltip before you can use tooltips with any control. (Except controls which naturally have their own tooltips, such as <a href="treeview.htm">treeview</a>, <a href="listview.htm">listview</a>, <a href="toolbar.htm">toolbar</a>, etc)',
+				'The <a href="listview.htm">listview</a> has its own [link page="listview" section="xdid" flag="T"]/xdid -T[/link] command.',
+            ),
+        ),
 		"U" => 'This command lets you remove focus from the control.',
 		"Z" => array(
 			'__desc' => "This command lets you scroll a control in the vertical direction where [p]POS[/p] is a percentage expressing the area to scroll (0 being top and 100 being bottom).",
 			'__cmd' => "[POS]",
 			'__eg' => "50",
-			'__notes' => 'This behaviour only affects the listview control in [s]report[/s] mode. We are working on a fix for the other modes.',
+			'__notes' => 'This behaviour only affects the <a href="listview.htm">listview</a> control in <a class="style" href="listview.htm#style.report">report</a> mode. We are working on a fix for the other modes.',
 		),
 	);
 }
@@ -313,14 +312,14 @@ function get_xdidprops_xdid(&$XDIDPROPS) {
 		"visible" => "This property retrieves if a control is visible or hidden.",
 		"pos" => "This property retrieves the position and size of a control in the format [X] [Y] [W] [H] relative to the parent (which can be the dialog).",
 		"dpos" => "This property retrieves the position and size of a control in the format [X] [Y] [W] [H] relative to the dialog.",
-		"mark" => "This property retrieves the additional info given to a control with /xdid -M.",
+		"mark" => "This property retrieves the additional info given to a control with <a class='xdid' href='xdid.htm#xdid.big.M'>/xdid -M</a>.",
 		"hwnd" => "This property retrieves the window handle (HWND) of a control.",
 		"mouse" => "This property retrieves the mouse position from the control viewpoint.",
 		"pid" => "This property retrieves the control ID of the parent of a control (0 if a dialog is the parent).",
 		"type" => "This property retrieves the control type.",
 		"font" => array(
 			'__desc' => "This property returns the font used for writing on the control.",
-			'__notes' => 'The return value is in the format [v]+flags[/v] [v]charset[/v] [v]size[/v] [v]fontname[/v], where [v]+flags[/v] is specfied in /xdid -f',
+			'__notes' => 'The return value is in the format [v]+flags[/v] [v]charset[/v] [v]size[/v] [v]fontname[/v], where [v]+flags[/v] is specfied in <a class="xdid" href="xdid.htm#xdid.f">/xdid -f</a>',
 		),
 		"tooltipbgcolor" => "This property retrieves the tooltip background color.",
 		"tooltiptextcolor" => "This property retrieves the tooltip text color.",
