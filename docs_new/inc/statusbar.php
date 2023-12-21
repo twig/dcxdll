@@ -53,9 +53,15 @@ function get_xdid_statusbar(&$XDID) {
 						'__cmd' => '[N] [+c] [#ICON] [CID] [CONTROL] [X] [Y] [W] [H] (STYLES)',
 						'__params' => array(
 							'CONTROL' => 'The type of DCX Control to create. Values can be:<br />
-[v]button[/v], [v]calendar[/v], [v]comboex[/v], [v]multicombo[/v], [v]datetime[/v], [v]directshow[/v], [v]ipaddress[/v], [v]listview[/v], [v]pbar[/v], [v]richedit[/v], [v]statusbar[/v], [v]toolbar[/v], [v]trackbar[/v], [v]treeview[/v], [v]updown[/v], [v]webctrl[/v], [v]web2ctrl[/v]<br />
-[v]box[/v], [v]check[/v], [v]edit[/v], [v]image[/v], [v]line[/v], [v]link[/v], [v]list[/v], [v]radio[/v], [v]scroll[/v], [v]text[/v]<br />
-[v]divider[/v], [v]pager[/v], [v]panel[/v], [v]rebar[/v], [v]stacker[/v] or [v]tab[/v].',
+[link page="button"]button[/link], [link page="calendar"]calendar[/link], [link page="comboex"]comboex[/link], [link page="multicombo"]multicombo[/link],
+[link page="datetime"]datetime[/link], [link page="directshow"]directshow[/link], [link page="ipaddress"]ipaddress[/link], [link page="listview"]listview[/link],
+[link page="pbar"]pbar[/link], [link page="richedit"]richedit[/link], [link page="statusbar"]statusbar[/link], [link page="toolbar"]toolbar[/link],
+[link page="trackbar"]trackbar[/link], [link page="treeview"]treeview[/link], [link page="updown"]updown[/link], [link page="webctrl"]webctrl[/link],
+[link page="web2ctrl"]web2ctrl[/link]<br />
+[link page="box"]box[/link], [link page="check"]check[/link], [link page="edit"]edit[/link], [link page="image"]image[/link], [link page="line"]line[/link],
+[link page="link"]link[/link], [link page="list"]list[/link], [link page="radio"]radio[/link], [link page="scroll"]scroll[/link], [link page="text"]text[/link],
+[link page="divider"]divider[/link], [link page="pager"]pager[/link], [link page="panel"]panel[/link], [link page="rebar"]rebar[/link], [link page="stacker"]stacker[/link], or
+[link page="tab"]tab[/link].',
                             'X' => 'The X-offset of the control is ignored but required.',
                             'Y' => 'The Y-offset of the control is ignored but required.',
 							'W' => 'The width of the control is ignored but required.',

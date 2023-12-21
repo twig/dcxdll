@@ -135,7 +135,10 @@ function get_events_web2ctrl(&$EVENTS) {
 			'__desc' => "When the favicon changes.",
 			'__cmd' => '[changed|saved|failed] [URL|FILE]',
 			'__eg' => 'changed https://www.sample.com/favicon.ico',
-			'__return' => "[r]save filename[/r] return this value to save the favicon."
+			'__return' => array(
+				"save filename" => "- return this value to save the favicon. (filename must be the full path to the file)"
+			),
+			'__notes' => 'The [r]save[/r] return value is only valid for [e]changed[/e] events',
 		),
 		"fullscreen" => array(
 			'__desc' => "When the fullscreen state changes.",

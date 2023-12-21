@@ -53,7 +53,10 @@ function get_xdid_rebar(&$XDID) {
 			    'COLOR' => 'Rebar band text color (Only works with XP themes disabled).',
 			    'TEXT' => 'Band text.',
 			    'CID' => "Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b>",
-				'CONTROL' => 'The type of DCX Control to create. Values can be: [v]button[/v], [v]colorcombo[/v], [v]comboex[/v], [v]multicombo[/v], [v]listview[/v], [v]pbar[/v], [v]richedit[/v], [v]statusbar[/v], [v]toolbar[/v], [v]trackbar[/v], [v]treeview[/v], [v]divider[/v], [v]panel[/v] or [v]tab[/v]',
+				'CONTROL' => 'The type of DCX Control to create. Values can be:<br />
+[link page="button"]button[/link], [link page="colorcombo"]colorcombo[/link], [link page="comboex"]comboex[/link], [link page="multicombo"]multicombo[/link],
+[link page="listview"]listview[/link], [link page="pbar"]pbar[/link], [link page="richedit"]richedit[/link], [link page="statusbar"]statusbar[/link],
+[link page="toolbar"]toolbar[/link], [link page="trackbar"]trackbar[/link], [link page="treeview"]treeview[/link], [link page="divider"]divider[/link], [link page="panel"]panel[/link], or [link page="tab"]tab[/link].',
 				'X' => "X position of control.",
 				'Y' => "Y position of control.",
 				'W' => "Width of control.",

@@ -19,63 +19,28 @@ function get_styles_stacker(&$STYLES) {
 
 function get_xdid_stacker(&$XDID) {
 	$XDID = array(
-                'a' => array(
-                        '__desc' => 'This command lets you add a new item to the stacker.',
-                        '__cmd' => '[N] [+FLAGS] [IMAGE] [SIMAGE] [COLOR] [BGCOLOR] Item Text [TAB] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)',
-                        '__eg' => '0 + 1 2 $rgb(255,0,0) $rgb(0,0,255) New Item $chr(9) 5 button 0 0 150 25 default',
-                        '__params' => array(
-                                'N' => 'The Nth position to insert the new item.',
-                                '+FLAGS' => 'There are currently no flags.',
-                                'IMAGE' => 'The image to use.',
-                                'SIMAGE' => 'The selected image to use.',
-                                'COLOR' => 'Foreground color for the item header.',
-                                'BGCOLOR' => 'Background color for the item header.',
-                                'CID' => "Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b>",
-                                'CONTROL' => array(
-                                        '__desc' => "The type of DCX Control to be created.",
-                                        '__values' => array(
-                                                'pbar' => "Creates a Progressbar control.",
-						'treeview' => "Creates a TreeView control.",
-						'toolbar' => "Creates a Toolbar control.",
-						'statusbar' => "Creates a Statusbar control.",
-						'comboex' => "Creates a ComboEx control.",
-						'listview' => "Creates a Listview control.",
-						'trackbar' => "Creates a Trackbar control.",
-						'rebar' => "Creates a Rebar control.",
-						'colorcombo' => "Creates a ColorCombo control.",
-						'button' => "Creates a Button control.",
-						'richedit' => "Creates a RichEdit control.",
-						'ipaddress' => "Creates a IpAddress control.",
-						'updown' => "Creates an UpDown control.",
-						'webctrl' => "Creates a WebCtrl.",
-						'pager' => "Creates a Pager control.",
-						'&nbsp;' => '&nbsp;',
-						'line' => "Creates a Line control.",
-						'box' => "Creates a Box control.",
-						'radio' => "Creates a Radio control.",
-						'check' => "Creates a Check control.",
-						'edit' => "Creates a Edit control.",
-						'scroll' => "Creates a Scroll control.",
-						'image' => "Creates a Image control.",
-						'list' => "Creates a List control.",
-						'link' => "Creates a Link control.",
-						'text' => "Creates a Text control.",
-						'&nbsp;&nbsp;' => '&nbsp;',
-						'divider' => "Creates a Divider control.",
-						'panel' => "Creates a Panel control.",
-						'tab' => "Creates a Tab control.",
-						'&nbsp;&nbsp;' => '&nbsp;',
-						'window' => "Docks a mIRC @window. The first parameter in [p]OPTIONS[/p] must be the @window name.",
-						'dialog' => "Docks a mIRC dialog. The first parameter in [p]OPTIONS[/p] must be the dialog name.",
-					),
-				),
+		'a' => array(
+            '__desc' => 'This command lets you add a new item to the stacker.',
+            '__cmd' => '[N] [+FLAGS] [IMAGE] [SIMAGE] [COLOR] [BGCOLOR] Item Text [TAB] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)',
+            '__eg' => '0 + 1 2 $rgb(255,0,0) $rgb(0,0,255) New Item $chr(9) 5 button 0 0 150 25 default',
+            '__params' => array(
+				'N' => 'The Nth position to insert the new item.',
+				'+FLAGS' => 'There are currently no flags.',
+				'IMAGE' => 'The image to use.',
+				'SIMAGE' => 'The selected image to use.',
+				'COLOR' => 'Foreground color for the item header.',
+				'BGCOLOR' => 'Background color for the item header.',
+				'CID' => "Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b>",
+				'CONTROL' => 'The type of DCX Control to create. Values can be:<br />
+[link page="button"]button[/link], [link page="calendar"]calendar[/link], [link page="colorcombo"]colorcombo[/link], [link page="comboex"]comboex[/link], [link page="multicombo"]multicombo[/link], [link page="datetime"]datetime[/link], [link page="directshow"]directshow[/link], [link page="ipaddress"]ipaddress[/link], [link page="listview"]listview[/link], [link page="pbar"]pbar[/link], [link page="richedit"]richedit[/link], [link page="statusbar"]statusbar[/link], [link page="toolbar"]toolbar[/link], [link page="trackbar"]trackbar[/link], [link page="treeview"]treeview[/link], [link page="updown"]updown[/link], [link page="webctrl"]webctrl[/link], [link page="web2ctrl"]web2ctrl[/link]<br />
+[link page="box"]box[/link], [link page="check"]check[/link], [link page="edit"]edit[/link], [link page="image"]image[/link], [link page="line"]line[/link], [link page="link"]link[/link], [link page="list"]list[/link], [link page="radio"]radio[/link], [link page="scroll"]scroll[/link], [link page="text"]text[/link], [link page="divider"]divider[/link], [link page="pager"]pager[/link], [link page="panel"]panel[/link], [link page="rebar"]rebar[/link], [link page="stacker"]stacker[/link], [link page="tab"]tab[/link], [link page="dialog"]dialog[/link], or [link page="window"]window[/link].',
 				'X' => "X position of control.",
 				'Y' => "Y position of control.",
 				'W' => "Width of control.",
 				'H' => "Height of control.",
 				'OPTIONS' => "Optional styles and options available on each individual controls.",
 			),
-                        '__notes' => array(
+            '__notes' => array(
 				"You can use [v]0[/v] for [p]N[/p] to insert at the end of the stacker.",
 				'Most of the time parameters [p]X[/p], [p]Y[/p], [p]W[/p], and [p]H[/p] are ignored.',
 				'You can use [v]0[/v] or [v]-1[/v] for [p]IMAGE[/p] and [p]SIMAGE[/p] to use no image.',
@@ -134,18 +99,18 @@ function get_xdidprops_stacker(&$XDIDPROPS) {
 
 function get_events_stacker(&$EVENTS) {
 	$EVENTS = array(
-        	    "sclick" => array(
+		"sclick" => array(
 			'__desc' => "When an item is selected in the stacker.",
 			'__cmd' => 'ITEM',
-                        '__eg' => '6',
+            '__eg' => '6',
 			'__params' => array(
 				'ITEM' => 'Item number where the event was triggered.'
 			),
 		),
-                "dclick" => array(
+        "dclick" => array(
 			'__desc' => "When an item is double-clicked in the stacker.",
 			'__cmd' => 'ITEM',
-                        '__eg' => '2',
+            '__eg' => '2',
 			'__params' => array(
 				'ITEM' => 'Item number where the event was triggered.'
 			),
@@ -153,7 +118,7 @@ function get_events_stacker(&$EVENTS) {
 		"rclick" => array(
 			'__desc' => "When you right-click on the stacker.",
 			'__cmd' => 'ITEM',
-                        '__eg' => '3',
+            '__eg' => '3',
 			'__params' => array(
 				'ITEM' => 'Item number where the event was triggered.'
 			),
@@ -161,7 +126,7 @@ function get_events_stacker(&$EVENTS) {
 		"lbdown" => array(
 			'__desc' => 'When the left mouse button is clicked down.',
 			'__cmd' => 'ITEM',
-                        '__eg' => '6',
+            '__eg' => '6',
 			'__params' => array(
 				'ITEM' => 'Item number where the event was triggered.'
 			),
@@ -169,7 +134,7 @@ function get_events_stacker(&$EVENTS) {
 		"lbup" => array(
 			'__desc' => 'When the left mouse button is released.',
 			'__cmd' => 'ITEM',
-                        '__eg' => '4',
+            '__eg' => '4',
 			'__params' => array(
 				'ITEM' => 'Item number where the event was triggered.'
 			),

@@ -47,6 +47,7 @@ function get_styles_treeview(&$STYLES) {
 		'fadebuttons' => 'Fade expand buttons in or out when the mouse moves away or into a state of hovering over the control. [o]Vista[/o]',
 		'noident' => 'Does not indent the tree view for the expand buttons. [o]Vista[/o]',
 		'richtooltip' => 'Allow rich tooltips in the tree view (custom drawn with icon and text). [o]Vista[/o]',
+		'dimmedchecks' => 'Adds a checkbox on the leftmost side of a given item that contains an icon of a dimmed check mark, that can indicate that a node is selected because its parent is selected. This includes a dimmed checkbox state in addition to 2 normal checkbox states. Do NOT use at the same time as the [s]checkbox[/s] style',
 
 		'custom' => 'Enable custom drawing code. (this allows mirc ctrl codes in text)',
 
@@ -91,10 +92,10 @@ function get_xdid_treeview(&$XDID) {
 						'E' => '[EICON] is valid.',
 					),
 				),
-				'ICON' => "Icon index number from the normal icon list.",
-				'SICON' => "Selected Icon index number from the normal icon list.",
-				'EICON' => "Expanded Icon index number from the normal icon list.",
-				'OVERLAY' => 'Icon index number from the normal icon list that was marked as an overlay icon.',
+				'ICON' => "Icon, Index number from the normal icon list.",
+				'SICON' => "Selected Icon, Index number from the normal icon list.",
+				'EICON' => "Expanded Icon, Index number from the normal icon list.",
+				'OVERLAY' => 'Overlay Icon, Index number from the normal icon list that was marked as an overlay icon.',
 				'STATE' => array(
 					'__desc' => 'Icon index number from the state icon list.',
 					'__values' => array(
@@ -479,6 +480,12 @@ function get_xdidprops_treeview(&$XDIDPROPS) {
 		    '__desc' => "This property lets you retreive the check item state of an item.",
 			'__cmd' => '[ITEMPATH]',
 	        '__eg' => '1 2',
+			'__return' => array(
+				'0' => 'no check',
+				'1' => 'unchecked',
+				'2' => 'checked',
+				'#' => 'state icon value',
+			),
 	        '__notes' => 'If you are not using the [s]checkbox[/s] style, the value returned is the state icon value. Otherwise, returns [v]2[/v] (checked), [v]1[/v] (unchecked), or [v]0[/v] (no check).'
 		),
 		"expand" => array(

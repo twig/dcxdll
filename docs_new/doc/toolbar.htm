@@ -227,11 +227,11 @@
 	<tr><td colspan="2">This command lets you change the Nth toolbar button (or tooltip) colors and text styles.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -c [DNAME] [ID] [N] [+FLAGS] [COLOR]</div></td>
+		<td><div class="syntax">/xdid -c [DNAME] [ID] [N] [+FLAGS] [COLOR] (+REMOVEFLAGS)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -c dcx 4 3 +bc $rgb(0,0,255)</div></td>
+		<td><div class="example">/xdid -c dcx 4 3 +bc $rgb(0,0,255) +</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -274,7 +274,39 @@
 		<td class="param">COLOR</td>
 		<td>The color to assign the button (or tooltip)</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When using flags +x and +z, you MUST use <a class="param">N</a> to be <a class="value">0</a>.</td></tr></table>
+	<tr>
+		<td class="param">+REMOVEFLAGS</td>
+		<td>Properties to remove from the button.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>The text is bold.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>The text is in a color defined by <a class="param">COLOR</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>The buttons highlight colour.</td>
+	</tr>
+	<tr>
+		<td class="value">j</td>
+		<td>The text highlight colour.</td>
+	</tr>
+	<tr>
+		<td class="value">u</td>
+		<td>The text is underlined.</td>
+	</tr>
+	<tr>
+		<td class="value">X</td>
+		<td>The background color of the toolbar tooltip.</td>
+	</tr>
+	<tr>
+		<td class="value">z</td>
+		<td>The text color of the toolbar tooltip.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When using flags +X and +z, you MUST use <a class="param">N</a> to be <a class="value">0</a>.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -282,7 +314,7 @@
 	<tr><td colspan="2">This command lets you delete the Nth toolbar button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -d [DNAME] [ID] [N]</div></td>
+		<td><div class="syntax">/xdid -d [DNAME] [ID] [N,N2-N3,N4...]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -296,7 +328,7 @@
 	<tr><td colspan="2">This command lets you change the Nth toolbar button icon.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -i [DNAME] [ID] [N] [ICON]</div></td>
+		<td><div class="syntax">/xdid -i [DNAME] [ID] [N,N2-N3,N4...] [ICON]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -397,7 +429,7 @@
 	<tr><td colspan="2">This command lets you change the state of a toolbar button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -t [DNAME] [ID] [N] [+FLAGS]</div></td>
+		<td><div class="syntax">/xdid -t [DNAME] [ID] [N,N2-N3,N4...] [+FLAGS]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -469,10 +501,10 @@
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.w"></a>/xdid -w	</td></tr>
-	<tr><td colspan="2">This command lets you add an icon to the toolbar image lists.</td></tr>
+	<tr><td colspan="2">This command lets you add an icon to the image lists.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [INDEX] [FILENAME]</div></td>
+		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [N,N2-N3,N4...] [FILENAME]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -512,14 +544,14 @@
 		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
 	</tr>
 	<tr>
-		<td class="param">INDEX</td>
+		<td class="param">N</td>
 		<td>Icon index in icon archive</td>
 	</tr>
 	<tr>
 		<td class="param">FILENAME</td>
 		<td>Icon archive filename</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">N</a> if the file is a single icon file.</li><li>Use <a class="value">-1</a> for <a class="param">N</a> to load all icons in the file.</li></ul></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
@@ -1202,7 +1234,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 20th December, 23</td>
+		<td style="text-align: right;">Last Updated: 21st December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

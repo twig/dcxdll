@@ -42,23 +42,10 @@ function get_xdid_tab(&$XDID) {
 			    'ICON' => 'Icon index to be displayed (Use [v]0[/v] for no icon).',
 			    'TEXT' => 'Tab item text.',
 			    'CID' => "Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b>",
-				'CONTROL' => array(
-					'__desc' => "The type of DCX Control to be created.",
-					'__values' => array(
-						'treeview' => "Creates a TreeView control.",
-						'listview' => "Creates a Listview control.",
-						'rebar' => "Creates a Rebar control.",
-						'webctrl' => "Creates a WebCtrl.",
-						'&nbsp;' => '&nbsp;',
-						'edit' => "Creates a Edit control.",
-						'image' => "Creates a Image control.",
-						'list' => "Creates a List control.",
-						'&nbsp;&nbsp;' => '&nbsp;',
-						'divider' => "Creates a Divider control.",
-						'panel' => "Creates a Panel control.",
-						'tab' => "Creates a Tab control.",
-					),
-				),
+				'CONTROL' => 'The type of DCX Control to create. Values can be:<br />
+[link page="listview"]listview[/link], [link page="treeview"]treeview[/link], [link page="webctrl"]webctrl[/link], [link page="web2ctrl"]web2ctrl[/link],
+[link page="edit"]edit[/link], [link page="image"]image[/link], [link page="list"]list[/link], [link page="divider"]divider[/link], [link page="panel"]panel[/link],
+[link page="rebar"]rebar[/link], or [link page="tab"]tab[/link].',
 				'X' => "X position of control.",
 				'Y' => "Y position of control.",
 				'W' => "Width of control.",
@@ -105,17 +92,41 @@ function get_xdid_tab(&$XDID) {
 	        '__eg' => '2 New Text',
 		),
 		'w' => array(
-	        '__desc' => 'This command lets you add an icon to the tab image list.',
-	        '__cmd' => '[+FLAGS] [INDEX] [FILENAME]',
+	        '__desc' => 'This command lets you add an icon to the image list.',
+	        '__cmd' => '[+FLAGS] [N,N2,N3-N4...] [FILENAME]',
 	        '__eg' => '+g 113 shell32.dll',
 	        '__params' => array(
 	        	// +FLAGS
-	            'INDEX' => 'Icon index in icon archive',
+	            'N' => 'Icon index in icon archive',
 				'FILENAME' => 'Icon archive filename',
 			),
-	        '__notes' => "Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
+	        '__notes' => array(
+				"Use [v]0[/v] for [p]N[/p] if the file is a single icon file.",
+				"Use [v]-1[/v] for [p]N[/p] to load all icons in the file.",
+			),
 		),
-		'y' => 'This command lets you clear the tab image list.',
+		'y' => array(
+	        '__desc' => 'This command lets you clear the tab image list or delete a specific image from the list.',
+	        '__cmd' => '([+FLAGS] (args))',
+	        '__eg' => '+',
+	        '__params' => array(
+	        	'+FLAGS' => array(
+                    '__desc' => 'Delete image flags.',
+                    '__values' => array(
+                        'd' => 'Delete a single image.',
+                    ),
+				),
+				'__args' => array(
+					'd' => array(
+						'__cmd' => '+d [N]',
+						'__params' => array(
+                            'N' => 'The index of the image to delete.',
+						),
+					),
+				),
+			),
+			'__notes' => 'If no args are supplied then all images are deleted.',
+		),
 	);
 	
 	writeDcxLoadIcon($XDID, 'w', '+FLAGS', 1);
@@ -146,6 +157,12 @@ function get_xdidprops_tab(&$XDIDPROPS) {
 			'__desc' => 'This property lets you retreive the tab item which the mouse is currently over.',
 			'__notes' => 'Returns [v]-1[/v] if mouse is not over any item.',
 		),
+		"tabrect" => array(
+		    '__desc' => "This property lets you retreive Nth tabs header rect.",
+	        '__cmd' => 'N',
+	        '__eg' => '2',
+		),
+		"tabsrect" => "This property lets you retreive the rect containing all tab headers.",
 	);
 }
 

@@ -97,6 +97,10 @@
 		<td>Enable custom drawing code. (this allows mirc ctrl codes in text)</td>
 	</tr>
 	<tr>
+		<td class="style"><a name="style.dimmedchecks" class="style">dimmedchecks</a></td>
+		<td>Adds a checkbox on the leftmost side of a given item that contains an icon of a dimmed check mark, that can indicate that a node is selected because its parent is selected. This includes a dimmed checkbox state in addition to 2 normal checkbox states. Do NOT use at the same time as the <a class="style">checkbox</a> style</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.doublebuffer" class="style">doublebuffer</a></td>
 		<td>Specifies how the background is erased or filled. <a class="os">(Vista)</a></td>
 	</tr>
@@ -253,19 +257,19 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="param">ICON</td>
-		<td>Icon index number from the normal icon list.</td>
+		<td>Icon, Index number from the normal icon list.</td>
 	</tr>
 	<tr>
 		<td class="param">SICON</td>
-		<td>Selected Icon index number from the normal icon list.</td>
+		<td>Selected Icon, Index number from the normal icon list.</td>
 	</tr>
 	<tr>
 		<td class="param">EICON</td>
-		<td>Expanded Icon index number from the normal icon list.</td>
+		<td>Expanded Icon, Index number from the normal icon list.</td>
 	</tr>
 	<tr>
 		<td class="param">OVERLAY</td>
-		<td>Icon index number from the normal icon list that was marked as an overlay icon.</td>
+		<td>Overlay Icon, Index number from the normal icon list that was marked as an overlay icon.</td>
 	</tr>
 	<tr>
 		<td class="param">STATE</td>
@@ -1043,7 +1047,7 @@ This would add the item at the end of the last branch in the first column of bra
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4, 1 2).state</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If you are not using the <a class="style">checkbox</a> style, the value returned is the state icon value. Otherwise, returns <a class="value">2</a> (checked), <a class="value">1</a> (unchecked), or <a class="value">0</a> (no check).</td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">0</a> no check<br /><a class="returnevent">1</a> unchecked<br /><a class="returnevent">2</a> checked<br /><a class="returnevent">#</a> state icon value</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If you are not using the <a class="style">checkbox</a> style, the value returned is the state icon value. Otherwise, returns <a class="value">2</a> (checked), <a class="value">1</a> (unchecked), or <a class="value">0</a> (no check).</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -1302,6 +1306,7 @@ This would add the item at the end of the last branch in the first column of bra
 		<a class='flag' href="#style.balloon"><div>balloon</div></a>
 		<a class='flag' href="#style.checkbox"><div>checkbox</div></a>
 		<a class='flag' href="#style.custom"><div>custom</div></a>
+		<a class='flag' href="#style.dimmedchecks"><div>dimmedchecks</div></a>
 		<a class='flag' href="#style.doublebuffer"><div>doublebuffer</div></a>
 		<a class='flag' href="#style.editlabel"><div>editlabel</div></a>
 		<a class='flag' href="#style.fadebuttons"><div>fadebuttons</div></a>
@@ -1380,7 +1385,7 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 20th December, 23</td>
+		<td style="text-align: right;">Last Updated: 21st December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

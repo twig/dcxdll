@@ -109,6 +109,10 @@
 		<td>No tic marks appear on track bar.</td>
 	</tr>
 	<tr>
+		<td class="style"><a name="style.reversed" class="style">reversed</a></td>
+		<td>Marks the control as being reversed, has no functional effect.</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.right" class="style">right</a></td>
 		<td>Tic marks appear on the right of the trackbar. (<a class="style">vertical</a> only)</td>
 	</tr>
@@ -123,6 +127,10 @@
 	<tr>
 		<td class="style"><a name="style.top" class="style">top</a></td>
 		<td>Tic marks appear on the top of the trackbar. (<a class="style">horizontal</a> only)</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.transparentbkg" class="style">transparentbkg</a></td>
+		<td>Background is painted transparent.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.vertical" class="style">vertical</a></td>
@@ -181,7 +189,7 @@
 		<td class="value">t</td>
 		<td>Trackbar normal thumb.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Currently only supports BMP files.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You must check that GDI+ is useable before trying to load anything other than BMP files.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -343,6 +351,37 @@
 		<td><div class="example">/xdid -v dcx 4 50</div></td>
 	</tr>
 </table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.B"></a>/xdid -B	</td></tr>
+	<tr><td colspan="2">This command lets you set one of two buddy controls for the trackbar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -B [DNAME] [ID] [BUDDYID] [LEFT/RIGHT]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -B dcx 4 50 left</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">BUDDYID</td>
+		<td>The ID of the control to use.</td>
+	</tr>
+	<tr>
+		<td class="param">LEFT/RIGHT</td>
+		<td>Buddy position</td>
+	</tr>
+	<tr>
+		<td class="value">left</td>
+		<td>Buddy control appears left of the tracker.</td>
+	</tr>
+	<tr>
+		<td class="value">right</td>
+		<td>Buddy control appears right of the tracker.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only <a class='value' href='text.htm'>text</a> and <a class='value' href='edit.htm'>edit</a> controls are allowed as buddy controls.</td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
@@ -826,10 +865,12 @@
 		<a class='flag' href="#style.left"><div>left</div></a>
 		<a class='flag' href="#style.nothumb"><div>nothumb</div></a>
 		<a class='flag' href="#style.noticks"><div>noticks</div></a>
+		<a class='flag' href="#style.reversed"><div>reversed</div></a>
 		<a class='flag' href="#style.right"><div>right</div></a>
 		<a class='flag' href="#style.select"><div>select</div></a>
 		<a class='flag' href="#style.tooltips"><div>tooltips</div></a>
 		<a class='flag' href="#style.top"><div>top</div></a>
+		<a class='flag' href="#style.transparentbkg"><div>transparentbkg</div></a>
 		<a class='flag' href="#style.vertical"><div>vertical</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
@@ -846,6 +887,7 @@
 		<a class='flag' href="#xdid.t"><div>-t</div></a>
 		<a class='flag' href="#xdid.u"><div>-u</div></a>
 		<a class='flag' href="#xdid.v"><div>-v</div></a>
+		<a class='flag' href="#xdid.big.B"><div>-B</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
@@ -875,7 +917,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 20th December, 23</td>
+		<td style="text-align: right;">Last Updated: 21st December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

@@ -19,7 +19,9 @@ function get_styles_trackbar(&$STYLES) {
 		"downisleft" => "By default, the trackbar control uses down equal to right and up equal to left. Use this style to reverse the default, making down equal left and up equal right.",
 		'tooltips' => 'Tooltip thumb movement displays a tooltip.',
 		'select' => 'Enable selection points for a trackbar.',
-		
+		'reversed' => 'Marks the control as being reversed, has no functional effect.',
+		'transparentbkg' => 'Background is painted transparent.',
+
 		'__notes' => 'You must specify [s]notheme[/s] when using [s]select[/s]. Otherwise it will not display the selected range on themed desktops. [o]XP+[/o].',
 	);
 }
@@ -47,7 +49,7 @@ function get_xdid_trackbar(&$XDID) {
 					),
 				),
 			),
-			'__notes' => 'Currently only supports BMP files.',
+			'__notes' => 'You must check that GDI+ is useable before trying to load anything other than BMP files.',
 		),
 		'j' => array(
 	        '__desc' => 'This command lets you set the trackbar selection.',
@@ -117,6 +119,22 @@ function get_xdid_trackbar(&$XDID) {
 	        '__desc' => 'This command lets you set the tracker position.',
 	        '__cmd' => '[POS]',
 	        '__eg' => '50',
+		),
+		'B' => array(
+	        '__desc' => 'This command lets you set one of two buddy controls for the trackbar.',
+	        '__cmd' => '[BUDDYID] [LEFT/RIGHT]',
+	        '__eg' => '50 left',
+	        '__params' => array(
+				'BUDDYID' => 'The ID of the control to use.',
+	            "LEFT/RIGHT" => array(
+	                '__desc' => "Buddy position",
+	                '__values' => array(
+						"left" => "Buddy control appears left of the tracker.",
+						"right" => "Buddy control appears right of the tracker.",
+					),
+				),
+			),
+			'__notes' => 'Only [link page="text"]text[/link] and [link page="edit"]edit[/link] controls are allowed as buddy controls.',
 		),
 	);
 }

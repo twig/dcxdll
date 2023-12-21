@@ -91,6 +91,14 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 		<td>Text is centered.</td>
 	</tr>
 	<tr>
+		<td class="style"><a name="style.eolcr" class="style">eolcr</a></td>
+		<td>Allow carriage returns to end lines. (win10+)</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.eollf" class="style">eollf</a></td>
+		<td>Allow line feeds to end lines. (win10+)</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.hsbar" class="style">hsbar</a></td>
 		<td>Displays a horizontal scrollbar.</td>
 	</tr>
@@ -121,6 +129,10 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 	<tr>
 		<td class="style"><a name="style.vsbar" class="style">vsbar</a></td>
 		<td>Displays a vertical scrollbar.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.zoomable" class="style">zoomable</a></td>
+		<td>Control is zoomable. (win10+)</td>
 	</tr>
 </table>
 <br />
@@ -529,6 +541,20 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class="style">multi</a> style is not used, you can ignore the <a class="param">N</a> parameter to retrieve the richedit text.</td></tr></table>
 <br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.zoom"></a>$xdid().zoom	</td></tr>
+	<tr><td colspan="2">This property returns the zoom level. (win10+)</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).zoom</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).zoom</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">ZOOM</a> - Level of zoom</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Only works on controls that have the <a class="style">zoomable</a> style.</li><li>The zoom ratio is always between 1/64 and 64 NOT inclusive, 1.0 = no zoom</li></ul></td></tr></table>
+<br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>RichEdit Events</td></tr>
 	<tr><td>These events are fired when activity occurs in the RichEdit control.</td></tr>
@@ -926,6 +952,8 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 		<a class='flag' href="#style.autohs"><div>autohs</div></a>
 		<a class='flag' href="#style.autovs"><div>autovs</div></a>
 		<a class='flag' href="#style.center"><div>center</div></a>
+		<a class='flag' href="#style.eolcr"><div>eolcr</div></a>
+		<a class='flag' href="#style.eollf"><div>eollf</div></a>
 		<a class='flag' href="#style.hsbar"><div>hsbar</div></a>
 		<a class='flag' href="#style.multi"><div>multi</div></a>
 		<a class='flag' href="#style.readonly"><div>readonly</div></a>
@@ -934,6 +962,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 		<a class='flag' href="#style.tooltips"><div>tooltips</div></a>
 		<a class='flag' href="#style.unlockgutter"><div>unlockgutter</div></a>
 		<a class='flag' href="#style.vsbar"><div>vsbar</div></a>
+		<a class='flag' href="#style.zoomable"><div>zoomable</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
 	<a class='header' href="#xdid"><div style='background:#6A7CB0;'>/xdid Flags</div></a>
@@ -968,6 +997,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 		<a class='flag' href="#xdidprop.selstart"><div>selstart</div></a>
 		<a class='flag' href="#xdidprop.seltext"><div>seltext</div></a>
 		<a class='flag' href="#xdidprop.text"><div>text</div></a>
+		<a class='flag' href="#xdidprop.zoom"><div>zoom</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
 	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
@@ -989,7 +1019,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 20th December, 23</td>
+		<td style="text-align: right;">Last Updated: 21st December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

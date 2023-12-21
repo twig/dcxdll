@@ -63,8 +63,8 @@ function get_xdid_toolbar(&$XDID) {
 		),
 		'c' => array(
 	        '__desc' => "This command lets you change the Nth toolbar button (or tooltip) colors and text styles.",
-	        '__cmd' => '[N] [+FLAGS] [COLOR]',
-	        '__eg' => '3 +bc $rgb(0,0,255)',
+	        '__cmd' => '[N] [+FLAGS] [COLOR] (+REMOVEFLAGS)',
+	        '__eg' => '3 +bc $rgb(0,0,255) +',
 	        '__params' => array(
 	            'N' => 'The index of the button to modify.',
 				'+FLAGS' => array(
@@ -79,18 +79,30 @@ function get_xdid_toolbar(&$XDID) {
 						'z' => 'The text color of the toolbar tooltip.',
 					),
 				),
-				'COLOR' => 'The color to assign the button (or tooltip)'
+				'COLOR' => 'The color to assign the button (or tooltip)',
+				'+REMOVEFLAGS' => array(
+	           		'__desc' => 'Properties to remove from the button.',
+	                '__values' => array(
+		                'b' => 'The text is bold.',
+						'c' => 'The text is in a color defined by [p]COLOR[/p].',
+						'H' => 'The buttons highlight colour.',
+						'j' => 'The text highlight colour.',
+						'u' => 'The text is underlined.',
+						'X' => 'The background color of the toolbar tooltip.',
+						'z' => 'The text color of the toolbar tooltip.',
+					),
+				),
 			),
-	        '__notes' => 'When using flags +x and +z, you MUST use [p]N[/p] to be [v]0[/v].'
+	        '__notes' => 'When using flags +X and +z, you MUST use [p]N[/p] to be [v]0[/v].'
 		),
 		'd' => array(
 	        '__desc' => 'This command lets you delete the Nth toolbar button.',
-	        '__cmd' => '[N]',
+	        '__cmd' => '[N,N2-N3,N4...]',
 	        '__eg' => '6',
 		),
 		'i' => array(
 	        '__desc' => 'This command lets you change the Nth toolbar button icon.',
-	        '__cmd' => '[N] [ICON]',
+	        '__cmd' => '[N,N2-N3,N4...] [ICON]',
 	        '__eg' => "7 2",
 	        '__notes' => "Use 0 for no icon.",
 		),
@@ -134,7 +146,7 @@ function get_xdid_toolbar(&$XDID) {
 		'r' => 'This command lets you clear all the toolbar items.',
 		't' => array(
 	        '__desc' => 'This command lets you change the state of a toolbar button.',
-	        '__cmd' => '[N] [+FLAGS]',
+	        '__cmd' => '[N,N2-N3,N4...] [+FLAGS]',
 	        '__eg' => array(
 				'2 +d',
 				'2-7 +d',
@@ -170,8 +182,8 @@ function get_xdid_toolbar(&$XDID) {
 	        '__eg' => '2 New Text',
 		),
 		'w' => array(
-	        '__desc' => 'This command lets you add an icon to the toolbar image lists.',
-	        '__cmd' => '[+FLAGS] [INDEX] [FILENAME]',
+	        '__desc' => 'This command lets you add an icon to the image lists.',
+	        '__cmd' => '[+FLAGS] [N,N2-N3,N4...] [FILENAME]',
 	        '__eg' => '+n 113 shell32.dll',
 	        '__params' => array(
 	            '+FLAGS' => array(
@@ -183,10 +195,13 @@ function get_xdid_toolbar(&$XDID) {
 						'h' => 'Hottrack icon list.',
 					),
 				),
-	            'INDEX' => 'Icon index in icon archive',
+	            'N' => 'Icon index in icon archive',
 				'FILENAME' => 'Icon archive filename',
 			),
-	        '__notes' => "Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
+	        '__notes' => array(
+				"Use [v]0[/v] for [p]N[/p] if the file is a single icon file.",
+				"Use [v]-1[/v] for [p]N[/p] to load all icons in the file.",
+			),
 		),
 	);
 	
