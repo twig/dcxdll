@@ -73,7 +73,7 @@
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #B49696; color: #B49696;"><a name="style"></a>Control Styles</td></tr>
-	<tr><td>These control styles are available when creating a Edit control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">hidden</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
+	<tr><td>These control styles are available when creating a Edit control. Remember that the general styles <a class='style' href='edit.htm#style.disabled'>disabled</a>, <a class='style' href='edit.htm#style.group'>group</a>, <a class='style' href='edit.htm#style.hidden'>hidden</a>, <a class='style' href='edit.htm#style.notheme'>notheme</a>, <a class='style' href='edit.htm#style.tabstop'>tabstop</a> and <a class='style' href='edit.htm#style.transparent'>transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
@@ -160,7 +160,7 @@
 		<td class="style"><a name="style.zoomable" class="style">zoomable</a></td>
 		<td>Control is zoomable. (win10+)</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Even with <a class="style">number</a> style, it is still possible to paste non-digits into the edit control.</li><li><a class="style">password</a> does not work with <a class="style">multi</a> style.</li><li>By default the edit control defines the end of line as crlf</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Even with <a class='style' href='edit.htm#style.number'>number</a> style, it is still possible to paste non-digits into the edit control.</li><li><a class='style' href='edit.htm#style.password'>password</a> does not work with <a class='style' href='edit.htm#style.multi'>multi</a> style.</li><li>By default the edit control defines the end of line as crlf</li></ul></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xdid"></a>/xdid flags</td></tr>
@@ -206,7 +206,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -d dcx 4 2,40-55</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only works with <a class="style">multi</a>.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only works with <a class='style' href='edit.htm#style.multi'>multi</a>.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -234,7 +234,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -i dcx 4 5 New Text</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class="style">multi</a> style is not used, will overwrite the whole text.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class='style' href='edit.htm#style.multi'>multi</a> style is not used, will overwrite the whole text.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -253,7 +253,7 @@
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.l"></a>/xdid -l	</td></tr>
-	<tr><td colspan="2">This command lets you change the <a class="style">readonly</a> style.</td></tr>
+	<tr><td colspan="2">This command lets you change the <a class='style' href='edit.htm#style.readonly'>readonly</a> style.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xdid -l [DNAME] [ID] [1|0]</div></td>
@@ -276,7 +276,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -o dcx 4 5 New multi line Text<br />/xdid -o dcx 4 0 New single line Text<br /></div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the <a class="style">multi</a> style is not used, will overwrite the whole text.</li><li>[N] must be supplied even if the control is single line</li><li>For a multi line control [N] must be > zero</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the <a class='style' href='edit.htm#style.multi'>multi</a> style is not used, will overwrite the whole text.</li><li>[N] must be supplied even if the control is single line</li><li>For a multi line control [N] must be > zero</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -387,7 +387,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -I dcx 4 5 Inserted Text</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The text is inserted at the <a class="style">Nth</a> character no matter what mode the control is in. If the control has less that N characters the text is added to the end.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The text is inserted at the <a class='style' href='edit.htm#style.Nth'>Nth</a> character no matter what mode the control is in. If the control has less that N characters the text is added to the end.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -555,7 +555,7 @@
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.ispass"></a>$xdid().ispass	</td></tr>
-	<tr><td colspan="2">Is the edit control using the <a class="style">password</a> style?</td></tr>
+	<tr><td colspan="2">Is the edit control using the <a class='style' href='edit.htm#style.password'>password</a> style?</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdid(dialog, ID).ispass</div></td>
@@ -569,7 +569,7 @@
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.isreadonly"></a>$xdid().isreadonly	</td></tr>
-	<tr><td colspan="2">Is the edit control using the <a class="style">readonly</a> style?</td></tr>
+	<tr><td colspan="2">Is the edit control using the <a class='style' href='edit.htm#style.readonly'>readonly</a> style?</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdid(dialog, ID).isreadonly</div></td>
@@ -597,7 +597,7 @@
 		<td class="param">N</td>
 		<td>The line index to get the length of.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class="style">multi</a> style is not used, then <a class="param">N</a> is ignored and the length of all the text is returned.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class='style' href='edit.htm#style.multi'>multi</a> style is not used, then <a class="param">N</a> is ignored and the length of all the text is returned.</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -639,7 +639,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).passchar</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class="style">password</a> style is not used then this will return zero.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class='style' href='edit.htm#style.password'>password</a> style is not used then this will return zero.</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -714,7 +714,7 @@
 		<td class="param">N</td>
 		<td>The line index to get.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class="style">multi</a> style is not used, you can ignore <a class="param">N</a> when retrieving the edit text.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class='style' href='edit.htm#style.multi'>multi</a> style is not used, you can ignore <a class="param">N</a> when retrieving the edit text.</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -728,7 +728,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).zoom</div></td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">ZOOM</a> - Level of zoom</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Only works on controls that have the <a class="style">zoomable</a> style.</li><li>The zoom ratio is always between 1/64 and 64 NOT inclusive, 1.0 = no zoom</li></ul></td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">ZOOM</a> - Level of zoom</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Only works on controls that have the <a class='style' href='edit.htm#style.zoomable'>zoomable</a> style.</li><li>The zoom ratio is always between 1/64 and 64 NOT inclusive, 1.0 = no zoom</li></ul></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>Edit Events</td></tr>
@@ -826,7 +826,7 @@
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.help"></a>help	</td></tr>
-	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
+	<tr><td colspan="2">Launched when you click on a control using the <a class='style' href='edit.htm#style.?'>?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME help ID </div></td>

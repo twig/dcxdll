@@ -519,7 +519,7 @@ function get_xdialog_xdialog(&$XDIALOG) {
 					'__values' => array(
 						'a' => "Tooltip will always be displayed, even if mIRC is not the active application.",
 						'b' => 'Tooltip uses the balloon shape.',
-//						'c' => 'UNKNOWN FLAG',
+						//'c' => 'UNKNOWN FLAG',
 						'f' => 'No fade-in effect.',
 						'p' => 'Allows the ampersand character (&amp;) to be displayed',
 						's' => 'No slide-in effect.',

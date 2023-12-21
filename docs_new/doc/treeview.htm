@@ -73,7 +73,7 @@
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #B49696; color: #B49696;"><a name="style"></a>Control Styles</td></tr>
-	<tr><td>These control styles are available when creating a Treeview control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">hidden</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
+	<tr><td>These control styles are available when creating a Treeview control. Remember that the general styles <a class='style' href='treeview.htm#style.disabled'>disabled</a>, <a class='style' href='treeview.htm#style.group'>group</a>, <a class='style' href='treeview.htm#style.hidden'>hidden</a>, <a class='style' href='treeview.htm#style.notheme'>notheme</a>, <a class='style' href='treeview.htm#style.tabstop'>tabstop</a> and <a class='style' href='treeview.htm#style.transparent'>transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
@@ -98,7 +98,7 @@
 	</tr>
 	<tr>
 		<td class="style"><a name="style.dimmedchecks" class="style">dimmedchecks</a></td>
-		<td>Adds a checkbox on the leftmost side of a given item that contains an icon of a dimmed check mark, that can indicate that a node is selected because its parent is selected. This includes a dimmed checkbox state in addition to 2 normal checkbox states. Do NOT use at the same time as the <a class="style">checkbox</a> style</td>
+		<td>Adds a checkbox on the leftmost side of a given item that contains an icon of a dimmed check mark, that can indicate that a node is selected because its parent is selected. This includes a dimmed checkbox state in addition to 2 normal checkbox states. Do NOT use at the same time as the <a class='style' href='treeview.htm#style.checkbox'>checkbox</a> style</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.doublebuffer" class="style">doublebuffer</a></td>
@@ -114,7 +114,7 @@
 	</tr>
 	<tr>
 		<td class="style"><a name="style.fullrow" class="style">fullrow</a></td>
-		<td>Selection highlight is the full row of the item. Cannot be used with <a class="style">haslines</a>.</td>
+		<td>Selection highlight is the full row of the item. Cannot be used with <a class='style' href='treeview.htm#style.haslines'>haslines</a>.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.hasbuttons" class="style">hasbuttons</a></td>
@@ -126,7 +126,7 @@
 	</tr>
 	<tr>
 		<td class="style"><a name="style.linesatroot" class="style">linesatroot</a></td>
-		<td>Enables lines to be connected to the root item (needs the <a class="style">haslines</a> style to work).</td>
+		<td>Enables lines to be connected to the root item (needs the <a class='style' href='treeview.htm#style.haslines'>haslines</a> style to work).</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.nohscroll" class="style">nohscroll</a></td>
@@ -304,7 +304,7 @@ This would add the item at the end of the last branch in the first column of bra
 		<td>The text to display on the item.<br />
 					If used with <a class="value">+h</a> or <a class="value">+n</a> <a class="param">+FLAGS</a>, then this is either <a class="value">HASHTABLE</a> <a class="value">ITEM</a> or <a class="value">HASHTABLE</a> <a class="value">INDEX</a> respectively.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> to insert an item at the very top of the branch.</li><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, <a class="param">#SICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class="style">checkbox</a> style in order to use checkboxes in the treeview.</li><li><a class="param">INTEGRAL</a> is calculated in this manner.<br />
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> to insert an item at the very top of the branch.</li><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, <a class="param">#SICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class='style' href='treeview.htm#style.checkbox'>checkbox</a> style in order to use checkboxes in the treeview.</li><li><a class="param">INTEGRAL</a> is calculated in this manner.<br />
 				<a class="value">0</a> = normal height,<br />
 				<a class="value">1</a> = twice the height,<br />
 				<a class="value">2</a> = 3X height, etc.</li></ul></td></tr></table>
@@ -437,7 +437,7 @@ This would add the item at the end of the last branch in the first column of bra
 		<td class="param">COLOR</td>
 		<td>Color in $rgb() format.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If you are not using the <a class="style">checkbox</a> style, this function can also change the state icon of an item. Be sure to insert the state icons before you use them.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If you are not using the <a class='style' href='treeview.htm#style.checkbox'>checkbox</a> style, this function can also change the state icon of an item. Be sure to insert the state icons before you use them.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -1047,7 +1047,7 @@ This would add the item at the end of the last branch in the first column of bra
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4, 1 2).state</div></td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">0</a> no check<br /><a class="returnevent">1</a> unchecked<br /><a class="returnevent">2</a> checked<br /><a class="returnevent">#</a> state icon value</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If you are not using the <a class="style">checkbox</a> style, the value returned is the state icon value. Otherwise, returns <a class="value">2</a> (checked), <a class="value">1</a> (unchecked), or <a class="value">0</a> (no check).</td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">0</a> no check<br /><a class="returnevent">1</a> unchecked<br /><a class="returnevent">2</a> checked<br /><a class="returnevent">#</a> state icon value</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If you are not using the <a class='style' href='treeview.htm#style.checkbox'>checkbox</a> style, the value returned is the state icon value. Otherwise, returns <a class="value">2</a> (checked), <a class="value">1</a> (unchecked), or <a class="value">0</a> (no check).</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -1160,7 +1160,7 @@ This would add the item at the end of the last branch in the first column of bra
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.help"></a>help	</td></tr>
-	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
+	<tr><td colspan="2">Launched when you click on a control using the <a class='style' href='treeview.htm#style.?'>?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
@@ -1290,7 +1290,7 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">STATE</td>
-		<td>New item check state (<a class="style">checkbox</a> style) or state icon value.</td>
+		<td>New item check state (<a class='style' href='treeview.htm#style.checkbox'>checkbox</a> style) or state icon value.</td>
 	</tr>
 	<tr>
 		<td class="param">PATH</td>

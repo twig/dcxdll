@@ -125,7 +125,7 @@
 	</tr>
 	<tr>
 		<td class="value">advanced</td>
-		<td>A combination of <a class="style">newstyle</a> and <a class="style">edit</a>. Do not use with <a class="style">computers</a>.</td>
+		<td>A combination of <a class='style' href='dcx.htm#style.newstyle'>newstyle</a> and <a class='style' href='dcx.htm#style.edit'>edit</a>. Do not use with <a class='style' href='dcx.htm#style.computers'>computers</a>.</td>
 	</tr>
 	<tr>
 		<td class="value">edit</td>
@@ -137,7 +137,7 @@
 	</tr>
 	<tr>
 		<td class="value">nonew</td>
-		<td>Removes the New Folder button. Only used with <a class="style">newstyle</a>.</td>
+		<td>Removes the New Folder button. Only used with <a class='style' href='dcx.htm#style.newstyle'>newstyle</a>.</td>
 	</tr>
 	<tr>
 		<td class="value">files</td>
@@ -153,7 +153,7 @@
 	</tr>
 	<tr>
 		<td class="value">computers</td>
-		<td>Browses for a computer within the network rather than files or folders. Do not use with <a class="style">advanced</a>.</td>
+		<td>Browses for a computer within the network rather than files or folders. Do not use with <a class='style' href='dcx.htm#style.advanced'>advanced</a>.</td>
 	</tr>
 	<tr>
 		<td class="value">nonetwork</td>
@@ -169,13 +169,13 @@
 	</tr>
 	<tr>
 		<td class="param">INITIAL_FOLDER</td>
-		<td>If you specify this parameter and <a class="style">initfolder</a>, this will be the initial selected folder when the dialog opens.</td>
+		<td>If you specify this parameter and <a class='style' href='dcx.htm#style.initfolder'>initfolder</a>, this will be the initial selected folder when the dialog opens.</td>
 	</tr>
 	<tr>
 		<td class="param">TITLE_TEXT</td>
-		<td>If you specify this parameter and <a class="style">title</a>, this will set the title text for the dialog.</td>
+		<td>If you specify this parameter and <a class='style' href='dcx.htm#style.title'>title</a>, this will set the title text for the dialog.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li>When using <a class="style">computers</a>, this will return a computer name. (eg. <a class="value">//localhost</a>)</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li>When using <a class='style' href='dcx.htm#style.computers'>computers</a>, this will return a computer name. (eg. <a class="value">//localhost</a>)</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class='style' href='dcx.htm#style.owner'>owner</a> style.<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
@@ -222,7 +222,7 @@
 		<td class="value">owner</td>
 		<td>Allows you to specify the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> By default, the main mIRC window is the parent. Dialog name OR a hwnd MUST follow after the <a class="style">owner</a> style<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> By default, the main mIRC window is the parent. Dialog name OR a hwnd MUST follow after the <a class='style' href='dcx.htm#style.owner'>owner</a> style<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</td></tr></table>
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
@@ -401,7 +401,7 @@
 		<td class="param">owner</td>
 		<td>Allows you to specify the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
 	</tr>
-<tr><td class="syntax">Return</td><td>The information returned is in the following format: <a class="value">RGB</a> <a class="value">+FLAGS</a> <a class="value">CHARSET</a> <a class="value">SIZE</a> <a class="value">FONTNAME</a></td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li>You do not have to specify all parameters, only the ones you wish to change.</li><li>The parameter <a class="param">minmaxsize</a> is limited to a range of 8-72. Any sizes other than that will be ignored.</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />
+<tr><td class="syntax">Return</td><td>The information returned is in the following format: <a class="value">RGB</a> <a class="value">+FLAGS</a> <a class="value">CHARSET</a> <a class="value">SIZE</a> <a class="value">FONTNAME</a></td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li>You do not have to specify all parameters, only the ones you wish to change.</li><li>The parameter <a class="param">minmaxsize</a> is limited to a range of 8-72. Any sizes other than that will be ignored.</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class='style' href='dcx.htm#style.owner'>owner</a> style.<br />
 To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
 <br />
 <table class="general">
@@ -766,11 +766,11 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="value">sysmodal</td>
-		<td>Same as <a class="style">modal</a>, but will take focus.</td>
+		<td>Same as <a class='style' href='dcx.htm#style.modal'>modal</a>, but will take focus.</td>
 	</tr>
 	<tr>
 		<td class="value">taskmodal</td>
-		<td>Same as <a class="style">modal</a>, but this will halt mIRC and prevent access to any windows until the messagebox is cleared.</td>
+		<td>Same as <a class='style' href='dcx.htm#style.modal'>modal</a>, but this will halt mIRC and prevent access to any windows until the messagebox is cleared.</td>
 	</tr>
 	<tr>
 		<td class="value">right</td>
@@ -800,7 +800,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<td class="param">MESSAGE</td>
 		<td>The message displayed in the messagebox.</td>
 	</tr>
-<tr><td class="syntax">Return</td><td>The return value can be one of the following: <a class="value">abort</a> <a class="value">cancel</a> <a class="value">continue</a> <a class="value">ignore</a> <a class="value">no</a> <a class="value">ok</a> <a class="value">retry</a> <a class="value">tryagain</a> <a class="value">yes</a></td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>While it is possible to use this command during events, avoid using MsgBox in events as it will block some scripts from executing.</li><li>MsgBox can be used as an identifier or as a direct call. (eg. as <a class="value">$dcx(MsgBox)</a> or <a class="value">/dcx MsgBox</a>)</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />
+<tr><td class="syntax">Return</td><td>The return value can be one of the following: <a class="value">abort</a> <a class="value">cancel</a> <a class="value">continue</a> <a class="value">ignore</a> <a class="value">no</a> <a class="value">ok</a> <a class="value">retry</a> <a class="value">tryagain</a> <a class="value">yes</a></td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>While it is possible to use this command during events, avoid using MsgBox in events as it will block some scripts from executing.</li><li>MsgBox can be used as an identifier or as a direct call. (eg. as <a class="value">$dcx(MsgBox)</a> or <a class="value">/dcx MsgBox</a>)</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class='style' href='dcx.htm#style.owner'>owner</a> style.<br />
 To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
 <br />
 <table class="general">
@@ -884,7 +884,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<td class="param">FILTER</td>
 		<td>The FILTER parameter is the type of files the user can select, it should be formatted like "Description|Type|Description|Type"</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li><a class="value">filemustexist</a> automatically applies <a class="value">pathmustexist</a> when style used.</li><li><a class="value">multisel</a> returns files in this format [PATH]|[FILE1]|[FILE2]|..., where the first token will be the path, and the files are seperated by the | (pipe) character.</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li><a class="value">filemustexist</a> automatically applies <a class="value">pathmustexist</a> when style used.</li><li><a class="value">multisel</a> returns files in this format [PATH]|[FILE1]|[FILE2]|..., where the first token will be the path, and the files are seperated by the | (pipe) character.</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class='style' href='dcx.htm#style.owner'>owner</a> style.<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">

@@ -73,7 +73,7 @@
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #B49696; color: #B49696;"><a name="style"></a>Control Styles</td></tr>
-	<tr><td>These control styles are available when creating a Button control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">hidden</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
+	<tr><td>These control styles are available when creating a Button control. Remember that the general styles <a class='style' href='button.htm#style.disabled'>disabled</a>, <a class='style' href='button.htm#style.group'>group</a>, <a class='style' href='button.htm#style.hidden'>hidden</a>, <a class='style' href='button.htm#style.notheme'>notheme</a>, <a class='style' href='button.htm#style.tabstop'>tabstop</a> and <a class='style' href='button.htm#style.transparent'>transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
@@ -108,7 +108,7 @@
 		<td class="style"><a name="style.vgradient" class="style">vgradient</a></td>
 		<td>Draws a vertical gradient with the colors specified.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="style">shadow</a> will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_BTNTEXT) respectively). Change it by using <a class="value">xdid -C</a></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class='style' href='button.htm#style.shadow'>shadow</a> will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_BTNTEXT) respectively). Change it by using <a class='value' href='xdid.htm#xdid.big.C'>/xdid -C</a></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xdid"></a>/xdid flags</td></tr>
@@ -184,18 +184,18 @@
 	</tr>
 	<tr>
 		<td class="param">COLOR</td>
-		<td>Transparency color of the <a class="style">bitmap</a> styled button.</td>
+		<td>Transparency color of the <a class='style' href='button.htm#style.bitmap'>bitmap</a> styled button.</td>
 	</tr>
 	<tr>
 		<td class="param">FILENAME</td>
 		<td>Bitmap filename.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> As from DCX v1.3.4, this no longer defines the caption color for the button control. This functionality was moved to /xdid -c</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> As from DCX v1.3.4, this no longer defines the caption color for the button control. This functionality was moved to <a class='value' href='button.htm#xdid.c'>/xdid -c</a></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.l"></a>/xdid -l	</td></tr>
-	<tr><td colspan="2">This command lets you set the icon size of the button and clear the image list. SIZE can be 16, 24 or 32. (Not used for <a class="style">bitmap</a> button)</td></tr>
+	<tr><td colspan="2">This command lets you set the icon size of the button and clear the image list. SIZE can be 16, 24 or 32. (Not used for <a class='style' href='button.htm#style.bitmap'>bitmap</a> button)</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xdid -l [DNAME] [ID] [SIZE]</div></td>
@@ -236,7 +236,7 @@
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.t"></a>/xdid -t	</td></tr>
-	<tr><td colspan="2">This command lets you set the button caption text. (Not used for <a class="style">bitmap</a> button)</td></tr>
+	<tr><td colspan="2">This command lets you set the button caption text. (Not used for <a class='style' href='button.htm#style.bitmap'>bitmap</a> button)</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xdid -t [DNAME] [ID] (TEXT)</div></td>
@@ -359,7 +359,7 @@
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.help"></a>help	</td></tr>
-	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
+	<tr><td colspan="2">Launched when you click on a control using the <a class='style' href='button.htm#style.?'>?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME help ID </div></td>

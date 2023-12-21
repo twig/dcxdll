@@ -5,12 +5,15 @@ function wikiData(&$value, $userdata = "") {
 	// new code
 	$str = $value;
 
+    global $CURRENTPAGE;
+
 	// TODO: links for tags
 	$simple_search = array(
 		'/\[v\](.*?)\[\/v\]/is', // value
 		'/\[e\](.*?)\[\/e\]/is', // event
 		'/\[r\](.*?)\[\/r\]/is', // returnevent
 		'/\[s\](.*?)\[\/s\]/is', // style
+		'/\[s\s([^\]]+)\](.*?)\[\/s\]/is', // style
 		'/\[p\](.*?)\[\/p\]/is', // param
 //		'/\[i\](.*?)\[\/i\]/is', // property - unused
 		'/\[o\](.*?)\[\/o\]/is', // operating system
@@ -24,7 +27,9 @@ function wikiData(&$value, $userdata = "") {
 		'<a class="value">$1</a>',
 		'<a class="event">$1</a>',
 		'<a class="returnevent">$1</a>',
-		'<a class="style">$1</a>',
+		//"<a class='style'>$1</a>",
+		"<a class='style' href='$CURRENTPAGE.htm#style.$1'>$1</a>",
+		"<a class='style' href='$1.htm#style.$2'>$2</a>",
 		'<a class="param">$1</a>',
 //		'<a class="property">$1</a>',
 		'<a class="os">($1)</a>',

@@ -73,7 +73,7 @@
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #B49696; color: #B49696;"><a name="style"></a>Control Styles</td></tr>
-	<tr><td>These control styles are available when creating a ToolBar control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">hidden</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
+	<tr><td>These control styles are available when creating a ToolBar control. Remember that the general styles <a class='style' href='toolbar.htm#style.disabled'>disabled</a>, <a class='style' href='toolbar.htm#style.group'>group</a>, <a class='style' href='toolbar.htm#style.hidden'>hidden</a>, <a class='style' href='toolbar.htm#style.notheme'>notheme</a>, <a class='style' href='toolbar.htm#style.tabstop'>tabstop</a> and <a class='style' href='toolbar.htm#style.transparent'>transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
@@ -90,7 +90,7 @@
 	</tr>
 	<tr>
 		<td class="style"><a name="style.flat" class="style">flat</a></td>
-		<td>Toolbar style is flat with buttons having a hot mode (hover). This style also includes the <a class="style">transparent</a> style.</td>
+		<td>Toolbar style is flat with buttons having a hot mode (hover). This style also includes the <a class='style' href='toolbar.htm#style.transparent'>transparent</a> style.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.left" class="style">left</a></td>
@@ -197,7 +197,7 @@
 	</tr>
 	<tr>
 		<td class="value">v</td>
-		<td>The button acts like a dropdown button. (If the <a class="style">arrows</a> style is specified, a dropdown arrow will be drawn beside the button)</td>
+		<td>The button acts like a dropdown button. (If the <a class='style' href='toolbar.htm#style.arrows'>arrows</a> style is specified, a dropdown arrow will be drawn beside the button)</td>
 	</tr>
 	<tr>
 		<td class="value">w</td>
@@ -219,7 +219,7 @@
 		<td class="param">COLOR</td>
 		<td>Toolbar button text color (Only works with XP themes disabled).</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="param">Button Text</a> and <a class="param">Tooltip Text</a> parameters are optional.</li><li>If <a class="param">Button Text</a> is '<a class="value">-</a>' the button will be a separator item.</li><li>If the button is a separator item, the value used for <a class="param">ICON</a> will be the separator width in pixels.</li><li>Icons must be added before it can be used in the toolbar. (see <a>/xdid -l</a>)</li><li>Colors will only work if the computer has no visual styles applied (XP themes). To use this on machines with visual styles enabled, apply the <a class="style">notheme</a> style.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="param">Button Text</a> and <a class="param">Tooltip Text</a> parameters are optional.</li><li>If <a class="param">Button Text</a> is '<a class="value">-</a>' the button will be a separator item.</li><li>If the button is a separator item, the value used for <a class="param">ICON</a> will be the separator width in pixels.</li><li>Icons must be added before it can be used in the toolbar. (see <a>/xdid -l</a>)</li><li>Colors will only work if the computer has no visual styles applied (XP themes). To use this on machines with visual styles enabled, apply the <a class='style' href='toolbar.htm#style.notheme'>notheme</a> style.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -348,7 +348,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -j dcx 4 50 100</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only applies on toolbars with the <a class="style">list</a> style set.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only applies on toolbars with the <a class='style' href='toolbar.htm#style.list'>list</a> style set.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -690,7 +690,7 @@
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.dropdown"></a>dropdown	</td></tr>
-	<tr><td colspan="2">When a dropdown button (or arrow if <a class="style">arrow</a> style is set) event is fired on a button.</td></tr>
+	<tr><td colspan="2">When a dropdown button (or arrow if <a class='style' href='toolbar.htm#style.arrow'>arrow</a> style is set) event is fired on a button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME dropdown ID BTN_ID Bottom_X Bottom_Y Top_X Top_Y</div></td>
@@ -725,7 +725,7 @@
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.help"></a>help	</td></tr>
-	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
+	<tr><td colspan="2">Launched when you click on a control using the <a class='style' href='toolbar.htm#style.?'>?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
@@ -1102,7 +1102,7 @@
 	</tr>
 	<tr>
 		<td class="value">v</td>
-		<td>The button acts like a dropdown button. (If the <a class="style">arrows</a> style is specified, a dropdown arrow will be drawn beside the button)</td>
+		<td>The button acts like a dropdown button. (If the <a class='style' href='toolbar.htm#style.arrows'>arrows</a> style is specified, a dropdown arrow will be drawn beside the button)</td>
 	</tr>
 	<tr>
 		<td class="value">w</td>

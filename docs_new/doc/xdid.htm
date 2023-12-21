@@ -83,7 +83,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="style"><a name="style.group" class="style">group</a></td>
-		<td>Specifies the first control of a group of controls. The group consists of this first control and all controls defined after it, up to the next control with the <a class="style">group</a> style. The first control in each group usually has the tabstop style so that the user can move from group to group. The user can subsequently change the keyboard focus from one control in the group to the next control in the group by using the direction keys.</td>
+		<td>Specifies the first control of a group of controls. The group consists of this first control and all controls defined after it, up to the next control with the <a class='style' href='xdid.htm#style.group'>group</a> style. The first control in each group usually has the tabstop style so that the user can move from group to group. The user can subsequently change the keyboard focus from one control in the group to the next control in the group by using the direction keys.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.hidden" class="style">hidden</a></td>
@@ -95,7 +95,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="style"><a name="style.tabstop" class="style">tabstop</a></td>
-		<td>Specifies a control that can receive the keyboard focus when the user presses the TAB key. Pressing the TAB key changes the keyboard focus to the next control with the <a class="style">tabstop</a> style.</td>
+		<td>Specifies a control that can receive the keyboard focus when the user presses the TAB key. Pressing the TAB key changes the keyboard focus to the next control with the <a class='style' href='xdid.htm#style.tabstop'>tabstop</a> style.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.transparent" class="style">transparent</a></td>
@@ -407,7 +407,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 		<td class="value">t</td>
 		<td>Text color.<br />Affects: <a href='text.htm'>Text</a>, <a href='edit.htm'>Edit</a>, <a href='list.htm'>List</a>, <a href='box.htm'>Box</a></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When using <a class="value">+b</a> on the <a href="trackbar.htm">trackbar</a>, call /xdid -U on the control to force a redraw. <a class='value' href='xdialog.htm#xdialog.j'>/xdialog -j</a> will not work. This is an API bug.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When using <a class="value">+b</a> on the <a href="trackbar.htm">trackbar</a>, call <a class='value' href='xdid.htm#xdid.big.U'>/xdid -U</a> on the control to force a redraw. <a class='value' href='xdialog.htm#xdialog.j'>/xdialog -j</a> will not work. This is an API bug.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -691,7 +691,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -T dcx 4 This is the tooltip text</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You must call <a class='value' href='xdialog.htm#xdialog.big.T'>/xdialog -T</a> to create the tooltip before you can use tooltips with any control. (Except controls which naturally have their own tooltips, such as <a href="treeview.htm">treeview</a>, <a href="listview.htm">listview</a>, <a href="toolbar.htm">toolbar</a>, etc)</li><li>The <a href="listview.htm">listview</a> has its own <a class='value' href='listview.htm#xdid.big.T'>/xdid -T</a> command.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You must call <a class='value' href='xdialog.htm#xdialog.big.T'>/xdialog -T</a> to create the tooltip before you can use tooltips with any control. (Except controls which naturally have their own tooltips, such as <a class='value' href='treeview.htm'>treeview</a>, <a class='value' href='listview.htm'>listview</a>, <a class='value' href='toolbar.htm'>toolbar</a>, etc)</li><li>The <a class='value' href='listview.htm'>listview</a> has its own <a class='value' href='listview.htm#xdid.big.T'>/xdid -T</a> command.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -728,7 +728,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.alpha"></a>$xdid().alpha	</td></tr>
-	<tr><td colspan="2">This property returns <a class="value">$true</a> if the control is using the <a class="style">alpha</a> style.</td></tr>
+	<tr><td colspan="2">This property returns <a class="value">$true</a> if the control is using the <a class='style' href='xdid.htm#style.alpha'>alpha</a> style.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdid(dialog, ID).alpha</div></td>
