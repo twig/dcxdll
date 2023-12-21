@@ -486,7 +486,6 @@ void DcxTab::parseCommandRequest(const TString& input)
 
 		const auto nItem = input.getnexttok().to_int() - 1;		// tok 4
 		const auto pos = input.getnexttok().to_int() - 1;	// tok 5
-		//bool adjustDelete = false;
 
 		if (nItem < 0 || nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -496,10 +495,6 @@ void DcxTab::parseCommandRequest(const TString& input)
 
 		if (nItem == pos)
 			return;
-
-		// does the nItem index get shifted after we insert
-		//if (nItem > pos)
-		//	adjustDelete = true;
 
 		auto curSel = TabCtrl_GetCurSel(m_Hwnd); // make zero based
 		if (curSel == nItem)
@@ -511,17 +506,6 @@ void DcxTab::parseCommandRequest(const TString& input)
 		auto text = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 
 		TCITEM tci{ (TCIF_IMAGE | TCIF_PARAM | TCIF_TEXT | TCIF_STATE), 0,0,text.get(), MIRC_BUFFER_SIZE_CCH, 0, 0 };
-
-		//if (!TabCtrl_GetItem(m_Hwnd, nItem, &tci))
-		//	throw DcxExceptions::dcxInvalidItem();
-		//
-		//// insert it into the new position
-		//if (TabCtrl_InsertItem(m_Hwnd, pos, &tci) == -1)
-		//	throw DcxExceptions::dcxInvalidItem();
-		//
-		//// remove the old tab item
-		//if (!TabCtrl_DeleteItem(m_Hwnd, (adjustDelete ? nItem + 1 : nItem)))
-		//	throw DcxExceptions::dcxInvalidItem();
 
 		if (!getTab(nItem, &tci))
 			throw DcxExceptions::dcxInvalidItem();
@@ -539,46 +523,12 @@ void DcxTab::parseCommandRequest(const TString& input)
 		{
 			TabCtrl_SetCurSel(m_Hwnd, curSel);
 
-			//if (TabCtrl_SetCurSel(m_Hwnd, curSel) == -1)
-			//	throw DcxExceptions::dcxInvalidItem();
-
 			this->activateSelectedTab();
 		}
 	}
-	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
+	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [N,N2-N3,N4...] [FILENAME]
 	else if (xflags[TEXT('w')])
 	{
-		//		if (numtok < 6)
-		//			throw DcxExceptions::dcxInvalidArguments();
-		//
-		//		const auto flag(input.getnexttok());		// tok 4
-		//		const auto index = input.getnexttok().to_int();	// tok 5
-		//		auto filename(input.getlasttoks());			// tok 6, -1
-		//
-		//		auto himl = this->getImageList();
-		//
-		//		if (!himl)
-		//		{
-		//			himl = this->createImageList();
-		//
-		//			if (himl)
-		//				this->setImageList(himl);
-		//		}
-		//		if (!himl)
-		//			throw Dcx::dcxException("Unable to get Image List");
-		//
-		//#if DCX_USE_WRAPPERS
-		//		const Dcx::dcxIconResource icon(index, filename, false, flag);
-		//
-		//		ImageList_AddIcon(himl, icon.get());
-		//#else
-		//		if (const HICON icon = dcxLoadIcon(index, filename, false, flag); icon)
-		//		{
-		//			ImageList_AddIcon(himl, icon);
-		//			DestroyIcon(icon);
-		//		}
-		//#endif
-
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -602,8 +552,8 @@ void DcxTab::parseCommandRequest(const TString& input)
 			}
 		}
 		else {
-			auto himl = setImageList(nullptr);
-			ImageList_Destroy(himl);
+			if (auto himl = setImageList(nullptr); himl)
+				ImageList_Destroy(himl);
 		}
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [WIDTH]

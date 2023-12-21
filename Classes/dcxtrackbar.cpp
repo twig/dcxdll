@@ -66,11 +66,8 @@ DcxTrackBar::DcxTrackBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 
 DcxTrackBar::~DcxTrackBar() noexcept
 {
-	for (const auto& x : m_hbmp)
-	{
-		if (x.m_hBitmap)
-			DeleteBitmap(x.m_hBitmap);
-	}
+	for (auto& x : m_hbmp)
+		x.reset();
 }
 
 /*!
@@ -193,7 +190,7 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		const auto lPosition = input.getnexttok().to_<long>();	// tok 4
 		this->setTic(lPosition);
 	}
-	// xdid -g [NAME] [ID] [SWITCH] [FLAGS] [FILE]
+	// xdid -g [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
 	else if (flags[TEXT('g')])
 	{
 		static_assert(CheckFreeCommand(TEXT('g')), "Command in use!");

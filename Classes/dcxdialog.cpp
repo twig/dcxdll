@@ -386,6 +386,8 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			throw Dcx::dcxException(TEXT("Unknown control with ID %(%) (dialog %)"), tsID, ID - mIRC_ID_OFFSET, this->m_tsName);
 
 		auto cHwnd = p_Control->getHwnd();
+		if (!cHwnd)
+			throw Dcx::dcxException(TEXT("Unknown control with ID %(%) (dialog %)"), tsID, ID - mIRC_ID_OFFSET, this->m_tsName);
 
 		// fix up focus id
 		if (const auto cid = p_Control->getUserID(); cid == m_FocusID)
@@ -565,7 +567,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		// O = enable/disable drawing borders, [ARGS] = 1 or 0
 		// f = load background image (bmp format only atm), [ARGS] = path/filename.bmp or [ARGS] = [ITEM INDEX] path/filename.bmp
 		// s = enable/disable shadow text, [ARGS] = 1 or 0
-		// v = visable/invisable menubar (works with custom or standard menubars)
+		// v = visible/invisible menubar (works with custom or standard menubars)
 		// 
 		// i = item specific. combines with other flags +it = set item text colour.
 		// R = redraw menubar. (can be combined with any flags, or used by its self)

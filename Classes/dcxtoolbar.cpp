@@ -376,7 +376,9 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 
 		addButton(nPos, tsFlags, width, icon, clrText, tsText, tsTooltip);
 	}
-	// xdid -c [NAME] [ID] [SWITCH] [N] [+FLAGS] [RGB] [+REMOVEFLAGS]
+	// xdid -c [NAME] [ID] [SWITCH] [N] [+FLAGS] [RGB] (+REMOVEFLAGS)
+	// xdid -c [NAME] [ID] [SWITCH] 0 +X [RGB]
+	// xdid -c [NAME] [ID] [SWITCH] 0 +z [RGB]
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 7)
@@ -452,7 +454,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 			redrawWindow();
 		}
 	}
-	// xdid -d [NAME] [ID] [SWITCH] [N]
+	// xdid -d [NAME] [ID] [SWITCH] [N,N2-N3,N4...]
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
@@ -490,7 +492,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 			HandleButton(tsButton);
 		}
 	}
-	// xdid -i [NAME] [ID] [SWITCH] [N] [IMAGE]
+	// xdid -i [NAME] [ID] [SWITCH] [N,N2-N3,N4...] [IMAGE]
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 5)
@@ -597,19 +599,11 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('r')])
 	{
 	}
-	// xdid -t [NAME] [ID] [SWITCH] [N] [+FLAGS]
+	// xdid -t [NAME] [ID] [SWITCH] [N,N2-N3,N4...] [+FLAGS]
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
-
-		//const auto nButton = input.getnexttok().to_int() - 1;				// tok 4
-		//const auto fStates = parseButtonStateFlags(input.getnexttok());	// tok 5
-		//
-		//const auto idButton = this->getIndexToCommand(nButton);
-		//
-		//if (idButton > 0)
-		//	this->setButtonState(idButton, fStates);
 
 		const auto tsButton = input.getnexttok();						// tok 4
 		const auto fStates = parseButtonStateFlags(input.getnexttok());	// tok 5
@@ -692,80 +686,9 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 			this->setButtonInfo(nIndex, &tbbi);
 		}
 	}
-	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
+	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [N,N2-N3,N4...] [FILENAME]
 	else if (flags[TEXT('w')])
 	{
-		//		if (numtok < 6)
-		//			throw DcxExceptions::dcxInvalidArguments();
-		//
-		//		const auto tsFlags(input.getnexttok());	// tok 4
-		//		const auto iFlags = this->parseImageListFlags(tsFlags);
-		//
-		//		if (tsFlags[0] != TEXT('+'))
-		//			throw DcxExceptions::dcxInvalidFlag();
-		//
-		//		const auto index = input.getnexttok().to_int();	// tok 5
-		//		auto filename(input.getlasttoks());			// tok 6, -1
-		//
-		//		int cx = 0, cy = 0;
-		//		if (!ImageList_GetIconSize(this->getImageList(dcxToolBar_ImageLists::TB_IML_NORMAL), &cx, &cy))
-		//			throw Dcx::dcxException("Unable to get Icon Size");
-		//
-		//		// load the icon
-		//#if DCX_USE_WRAPPERS
-		//		const Dcx::dcxIconResource icon(index, filename, (NumToIconSize(cx) > DcxIconSizes::SmallIcon), tsFlags);
-		//
-		//		// NORMAL IML
-		//		if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_NORMAL))
-		//		{
-		//			if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_NORMAL); himl)
-		//				ImageList_AddIcon(himl, icon.get());
-		//		}
-		//
-		//		// DISABLED IML
-		//		if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_DISABLE))
-		//		{
-		//			if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_DISABLE); himl)
-		//				ImageList_AddIcon(himl, icon.get());
-		//		}
-		//
-		//		// HOT IML
-		//		if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_HOT))
-		//		{
-		//			if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_HOT); himl)
-		//				ImageList_AddIcon(himl, icon.get());
-		//		}
-		//#else
-		//		const auto icon = dcxLoadIcon(index, filename, (NumToIconSize(cx) > DcxIconSizes::SmallIcon), tsFlags);
-		//
-		//		// if there is an icon to process
-		//		if (!icon)
-		//			throw Dcx::dcxException(TEXT("Icon Failed To Load: %"), filename);
-		//
-		//		Auto(DestroyIcon(icon));
-		//
-		//		// NORMAL IML
-		//		if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_NORMAL))
-		//		{
-		//			if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_NORMAL); himl)
-		//				ImageList_AddIcon(himl, icon);
-		//		}
-		//
-		//		// DISABLED IML
-		//		if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_DISABLE))
-		//		{
-		//			if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_DISABLE); himl)
-		//				ImageList_AddIcon(himl, icon);
-		//		}
-		//
-		//		// HOT IML
-		//		if (dcx_testflag(iFlags, dcxToolBar_ImageLists::TB_IML_HOT))
-		//		{
-		//			if (auto himl = this->getImageList(dcxToolBar_ImageLists::TB_IML_HOT); himl)
-		//				ImageList_AddIcon(himl, icon);
-		//		}
-		//#endif
-
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 

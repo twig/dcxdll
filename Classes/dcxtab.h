@@ -88,7 +88,6 @@ public:
 #endif
 
 protected:
-	//static void GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton);
 	static RECT GetCloseButtonRect(const RECT& rcItem) noexcept;
 	int HitTestOnItem() const noexcept;
 	bool CloseButtonHitTest(const int iTab) const noexcept;
