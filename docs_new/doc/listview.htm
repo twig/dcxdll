@@ -252,7 +252,7 @@
 		<td class="style"><a name="style.underlinehot" class="style">underlinehot</a></td>
 		<td>Causes those hot items that may be activated to be displayed with underlined text. (<a class='style' href='listview.htm#style.oneclick'>oneclick</a> or <a class='style' href='listview.htm#style.twoclick'>twoclick</a> needed)</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class='style' href='listview.htm#style.grid'>grid</a> does not work with groups. See <a>/xdid -q</a>.</li><li><a class='style' href='listview.htm#style.sortasc'>sortasc</a> and <a class='style' href='listview.htm#style.sortdesc'>sortdesc</a> only work with <a class='style' href='listview.htm#style.report'>report</a> or <a class='style' href='listview.htm#style.list'>list</a> views.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class='style' href='listview.htm#style.grid'>grid</a> does not work with groups. See <a class='value' href='#xdid.q'>/xdid -q</a>.</li><li><a class='style' href='listview.htm#style.sortasc'>sortasc</a> and <a class='style' href='listview.htm#style.sortdesc'>sortdesc</a> only work with <a class='style' href='listview.htm#style.report'>report</a> or <a class='style' href='listview.htm#style.list'>list</a> views.</li></ul></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xdid"></a>/xdid flags</td></tr>
@@ -337,7 +337,7 @@
 	</tr>
 	<tr>
 		<td class="value">p</td>
-		<td>The item is a DCX ProgressBar control. (This flag is changing its args etc... expect errors)</td>
+		<td>The item is a <a class='value' href='pbar.htm'>DCX ProgressBar control</a>. (This flag is changing its args etc... expect errors)</td>
 	</tr>
 	<tr>
 		<td class="value">t</td>
@@ -399,7 +399,7 @@
 		<td class="param">TEXT</td>
 		<td>The text to display in the cell.<br />If used with <a class="value">+p</a> <a class="param">+FLAGS</a>, then this is the DCX ProgressBar <a class='style' href='listview.htm#style.style'>style</a>.<br />If used with <a class="value">+H</a> or <a class="value">+n</a> <a class="param">+FLAGS</a>, then this is either <a class="value">HASHTABLE</a> <a class="value">ITEM</a> or <a class="value">HASHTABLE</a> <a class="value">INDEX</a> respectively.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Icons must be added prior to be used in the listview using <a class="value">/xdid -w</a></li><li>The <a class="param">INDENT</a> parameter only works if you are using normal icons in the listview.</li><li>Even if there are icons in the icon lists and <a class="value">0</a> is used for no icon, there will be the an icon indent space in front of the item text. (normal and state icon lists)</li><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class='style' href='listview.htm#style.checkbox'>checkbox</a> style in order to use checkboxes in the listview.</li><li>[+IFLAGS] is a combination of</li><li> +   No Flags specified. [N] provided, add a single item as text only.</li><li> +a  item(s) contain all the flags & icon info etc.. for the item(s) to be added from [INDENT] onwards.</li><li> +A  add all items starting at N</li><li> +n  [N1-N2] numeric range supplied. Add all items in range. (can't be used with +A)</li><li>- N1 must be > 0</li><li>- N2 can't be 0, but can be a negative.</li><li> +i  [name] single named item to be added. (can't be used with +n or +A)</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Icons must be added prior to be used in the listview using <a class='value' href='#xdid.w'>/xdid -w</a></li><li>The <a class="param">INDENT</a> parameter only works if you are using normal icons in the listview.</li><li>Even if there are icons in the icon lists and <a class="value">0</a> is used for no icon, there will be the an icon indent space in front of the item text. (normal and state icon lists)</li><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class='style' href='listview.htm#style.checkbox'>checkbox</a> style in order to use checkboxes in the listview.</li><li><a class="param">+IFLAGS</a> is a combination of</li><li> <a class="value">+</a>   No Flags specified. <a class="param">N</a> provided, add a single item as text only.</li><li> <a class="value">+a</a>  item(s) contain all the flags & icon info etc.. for the item(s) to be added from <a class="param">INDENT</a> onwards.</li><li> <a class="value">+A</a>  add all items starting at <a class="param">N</a></li><li> <a class="value">+n</a>  <a class="param">N1-N2</a> numeric range supplied. Add all items in range. (can't be used with <a class='value' href='#xdid.big.A'>+A</a>)</li><li>- <a class="param">N1</a> must be > 0</li><li>- <a class="param">N2</a> can't be 0, but can be a negative.</li><li> <a class="value">+i</a>  <a class="param">name</a> single named item to be added. (can't be used with <a class='value' href='#xdid.n'>+n</a> or <a class='value' href='#xdid.big.A'>+A</a>)</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -430,7 +430,7 @@
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">N(,N,N-N,...)</td>
-		<td>If <a class="value">+FLAGS</a> is not specified, this is the item(s) to delete. If <a class="value">+FLAGS</a> is specified this is the item to start searching from.</td>
+		<td>If <a class="param">+FLAGS</a> is not specified, this is the item(s) to delete. If <a class="param">+FLAGS</a> is specified this is the item to start searching from.</td>
 	</tr>
 	<tr>
 		<td class="param">+FLAGS</td>
@@ -538,7 +538,7 @@
 		<td class="param">COLOR</td>
 		<td>Color in $rgb() format.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="param">COLOR</a> can be <a class="value">none</a> for no colors, for both background and text background flags.</li><li>If <a class="param">COLOR</a> is <a class="value">none</a> for text background, the text background parameter of <a>/xdid -a</a> wont work anymore.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="param">COLOR</a> can be <a class="value">none</a> for no colors, for both background and text background flags.</li><li>If <a class="param">COLOR</a> is <a class="value">none</a> for text background, the text background parameter of <a class='value' href='#xdid.a'>/xdid -a</a> wont work anymore.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -783,7 +783,7 @@
 	</tr>
 	<tr>
 		<td class="param">GROUPID</td>
-		<td>ID that identifies the group when adding items in <a>/xdid -a</a>.</td>
+		<td>ID that identifies the group when adding items in <a class='value' href='#xdid.a'>/xdid -a</a>.</td>
 	</tr>
 	<tr>
 		<td class="param">GROUPTEXT</td>
@@ -907,12 +907,12 @@
 		<td class="param">TEXT</td>
 		<td>Item Text, or command to send to control.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="param">TEXT</a> as <a class="value">-v 80</a> to set the value of a progress bar.</li><li>If N == -1 then sets the empty listview text which is displayed when the listview contains no items.</li><li>If NSUB == 2 when N == -1 then redraw after setting empty text.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="param">TEXT</a> as <a class="value">-v 80</a> to set the value of a progress bar.</li><li>If <a class="param">N</a> == -1 then sets the empty listview text which is displayed when the listview contains no items.</li><li>If <a class="param">NSUB</a> == 2 when <a class="param">N</a> == -1 then redraw after setting empty text.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.w"></a>/xdid -w	</td></tr>
-	<tr><td colspan="2">This command lets you add an icon to the listview image lists.</td></tr>
+	<tr><td colspan="2">This command lets you add an icon to the image lists.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [INDEX] [FILENAME]</div></td>
@@ -962,7 +962,7 @@
 		<td class="param">FILENAME</td>
 		<td>Icon archive filename</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</li><li>For readability and ease of indexing, it is suggested you declare your overlay icons AFTER the normal icons. Overlay icons are also added to the normal icon list, so it will mess up your existing icon indexes.</li><li>There is a limit of 15 overlay icons you may use, indexes from <a class="value">1</a> to <a class="value">15</a>.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</li><li>Use <a class="value">-1</a> for <a class="param">INDEX</a> to load every icon in the file.</li><li>For readability and ease of indexing, it is suggested you declare your overlay icons AFTER the normal icons. Overlay icons are also added to the normal icon list, so it will mess up your existing icon indexes.</li><li>There is a limit of 15 overlay icons you may use, indexes from <a class="value">1</a> to <a class="value">15</a>.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -1304,7 +1304,7 @@
 		<td class="param">M</td>
 		<td>Position to move to.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>To move an item to the end of the list set <a class="value">[M]</a> to minus one.</li><li>Also don't try to move an item range to within its self eg: + 1-4 2</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>To move an item to the end of the list set <a class="param">M</a> to minus one.</li><li>Also don't try to move an item range to within its self eg: <a class="value">+ 1-4 2</a></li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -1341,7 +1341,7 @@
 	</tr>
 	<tr>
 		<td class="param">GID</td>
-		<td>ID that identifies the group when adding items in <a>/xdid -a</a>.</td>
+		<td>ID that identifies the group when adding items in <a class='value' href='#xdid.a'>/xdid -a</a>.</td>
 	</tr>
 	<tr>
 		<td class="param">GROUPTEXT</td>
@@ -1455,7 +1455,7 @@
 	<tr><td colspan="2">This command lets you change the viewing mode.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -W [DNAME] [ID] [MODE]</div></td>
+		<td><div class="syntax">/xdid -W [DNAME] [ID] [STYLE|nochange] (EXTENDED STYLES)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -1463,24 +1463,128 @@
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
-		<td class="param">MODE</td>
+		<td class="param">STYLE</td>
 		<td>The mode to change to.</td>
 	</tr>
 	<tr>
 		<td class="value">icon</td>
-		<td>Changes the listview to icon view.</td>
+		<td>Changes the listview to <a class='style' href='listview.htm#style.icon'>icon</a> view.</td>
 	</tr>
 	<tr>
 		<td class="value">list</td>
-		<td>Changes the listview to item list view.</td>
+		<td>Changes the listview to item <a class='style' href='listview.htm#style.list'>list</a> view.</td>
 	</tr>
 	<tr>
 		<td class="value">report</td>
-		<td>Changes the listview to report view.</td>
+		<td>Changes the listview to <a class='style' href='listview.htm#style.report'>report</a> view.</td>
 	</tr>
 	<tr>
 		<td class="value">smallicon</td>
-		<td>Changes the listview to smallicon view.</td>
+		<td>Changes the listview to <a class='style' href='listview.htm#style.smallicon'>smallicon</a> view.</td>
+	</tr>
+	<tr>
+		<td class="value">tile</td>
+		<td>Changes the listview to <a class='style' href='listview.htm#style.tile'>tile</a> view.</td>
+	</tr>
+	<tr>
+		<td class="value">nochange</td>
+		<td>placeholder for when you just want to change the extended styles.</td>
+	</tr>
+	<tr>
+		<td class="param">EXTENDED STYLES</td>
+		<td>The extended styles to change (these styles will be toggled, on to off or off to on).</td>
+	</tr>
+	<tr>
+		<td class="value">headerdrag</td>
+		<td>Enables the possibility to drag listview headers to another position. (<a class='style' href='listview.htm#style.report'>report</a> view)</td>
+	</tr>
+	<tr>
+		<td class="value">subitemimage</td>
+		<td>Subitems have images. (<a class='style' href='listview.htm#style.report'>report</a> view)</td>
+	</tr>
+	<tr>
+		<td class="value">checkbox</td>
+		<td>Enables checkbox support in the list view. (<a class='style' href='listview.htm#style.report'>report</a> view)</td>
+	</tr>
+	<tr>
+		<td class="value">flatsb</td>
+		<td>Enables flat scroll bars on the listview.</td>
+	</tr>
+	<tr>
+		<td class="value">borderselect</td>
+		<td>When an item is selected a special border is drawn arround it instead of it being highlighted.</td>
+	</tr>
+	<tr>
+		<td class="value">grid</td>
+		<td>Displays grid lines between item cells. (<a class='style' href='listview.htm#style.report'>report</a> view)</td>
+	</tr>
+	<tr>
+		<td class="value">hottrack</td>
+		<td>Enables hot-track selection in a listview control. Hot track selection means that an item is automatically selected when the cursor remains over the item for a certain period of time.</td>
+	</tr>
+	<tr>
+		<td class="value">tooltip</td>
+		<td>If a partially hidden label in any view lacks tooltip text, the control will unfold the label. If this style is not set, the control will unfold partly hidden labels only for the <a class='style' href='listview.htm#style.icon'>icon</a> view.</td>
+	</tr>
+	<tr>
+		<td class="value">oneclick</td>
+		<td>Activates an item on single click. This style also enables hot tracking in the list-view control. Hot tracking means that when the cursor moves over an item, it is highlighted but not selected. (Not to be used with <a class='style' href='listview.htm#style.twoclick'>twoclick</a>)</td>
+	</tr>
+	<tr>
+		<td class="value">twoclick</td>
+		<td>Activates an item on double click. This style also enables hot tracking in the list-view control. Hot tracking means that when the cursor moves over an item, it is highlighted but not selected. (Not to be used with <a class='style' href='listview.htm#style.oneclick'>oneclick</a>)</td>
+	</tr>
+	<tr>
+		<td class="value">underlinehot</td>
+		<td>Causes those hot items that may be activated to be displayed with underlined text. (<a class='style' href='listview.htm#style.oneclick'>oneclick</a> or <a class='style' href='listview.htm#style.twoclick'>twoclick</a> needed)</td>
+	</tr>
+	<tr>
+		<td class="value">underlinecold</td>
+		<td>Causes those non-hot items that may be activated to be displayed with underlined text. (<a class='style' href='listview.htm#style.twoclick'>twoclick</a> needed)</td>
+	</tr>
+	<tr>
+		<td class="value">transparentbkg</td>
+		<td>Background is painted by the parent.</td>
+	</tr>
+	<tr>
+		<td class="value">shadowtext</td>
+		<td>Enable shadow text on transparent backgrounds only. (<a class='style' href='listview.htm#style.transparentbkg'>transparentbkg</a> needed)</td>
+	</tr>
+	<tr>
+		<td class="value">hidelabels</td>
+		<td>Hides the labels in icon and small icon view. (<a class='style' href='listview.htm#style.icon'>icon</a> & <a class='style' href='listview.htm#style.smallicon'>smallicon</a> view)</td>
+	</tr>
+	<tr>
+		<td class="value">headeralways</td>
+		<td>Show column headers in all view modes.</td>
+	</tr>
+	<tr>
+		<td class="value">autocheck</td>
+		<td>Automatically select check boxes on single click. (<a class='style' href='listview.htm#style.checkbox'>checkbox</a> needed)</td>
+	</tr>
+	<tr>
+		<td class="value">columnsnap</td>
+		<td>Snap to minimum column width when the user resizes a column.</td>
+	</tr>
+	<tr>
+		<td class="value">columnjustify</td>
+		<td>Icons are lined up in columns that use up the whole view. (<a class='style' href='listview.htm#style.icon'>icon</a> & <a class='style' href='listview.htm#style.smallicon'>smallicon</a> view)</td>
+	</tr>
+	<tr>
+		<td class="value">columnoverflow</td>
+		<td>Indicates that an overflow button should be displayed in icon/tile view if there is not enough client width to display the complete set of header items. (<a class='style' href='listview.htm#style.headeralways'>headeralways</a> needed) (<a class='style' href='listview.htm#style.icon'>icon</a> & <a class='style' href='listview.htm#style.smallicon'>smallicon</a> view)</td>
+	</tr>
+	<tr>
+		<td class="value">autosize</td>
+		<td>Automatically size listview columns. (<a class='style' href='listview.htm#style.report'>report</a> view)</td>
+	</tr>
+	<tr>
+		<td class="value">snaptogrid</td>
+		<td>In icon view, icons automatically snap into a grid. (<a class='style' href='listview.htm#style.icon'>icon</a> & <a class='style' href='listview.htm#style.smallicon'>smallicon</a> view)</td>
+	</tr>
+	<tr>
+		<td class="value">autoautoarrange</td>
+		<td>Automatically arrange icons if no icon positions have been set (Similar to <a class='style' href='listview.htm#style.autoarrange'>autoarrange</a>) (<a class='style' href='listview.htm#style.icon'>icon</a> & <a class='style' href='listview.htm#style.smallicon'>smallicon</a> view).</td>
 	</tr>
 </table>
 <br />

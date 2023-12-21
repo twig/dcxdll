@@ -57,7 +57,7 @@ function get_styles_listview(&$STYLES) {
 		'groups' => 'Enabled custom drawn groups.',
 
 		'__notes' => array(
-		     '[s]grid[/s] does not work with groups. See <a>/xdid -q</a>.',
+		     '[s]grid[/s] does not work with groups. See [link section="xdid" flag="q"]/xdid -q[/link].',
 		     '[s]sortasc[/s] and [s]sortdesc[/s] only work with [s]report[/s] or [s]list[/s] views.'
 		),
 	);
@@ -91,7 +91,7 @@ function get_xdid_listview(&$XDID) {
 						'n' => 'Allows you to load an item from a hash table by index. Cannot be used with [v]+H[/v]',
 						's' => 'The item is selected.',
 						//'S' => "The item's column is auto sized to max width allowed.",
-						'p' => 'The item is a DCX ProgressBar control. (This flag is changing its args etc... expect errors)',
+						'p' => 'The item is a [link page="pbar"]DCX ProgressBar control[/link]. (This flag is changing its args etc... expect errors)',
 						//'P' => "The item's column is auto sized to a percentage of the total width.",
 						't' => 'The item icon appears as 50% opaque, looks like it has a "ghost" effect.',
 						'u' => 'The item is underlined.',
@@ -116,19 +116,19 @@ function get_xdid_listview(&$XDID) {
 				'TEXT' => 'The text to display in the cell.<br />If used with [v]+p[/v] [p]+FLAGS[/p], then this is the DCX ProgressBar [s]style[/s].<br />If used with [v]+H[/v] or [v]+n[/v] [p]+FLAGS[/p], then this is either [v]HASHTABLE[/v] [v]ITEM[/v] or [v]HASHTABLE[/v] [v]INDEX[/v] respectively.',
 			),
 			'__notes' => array(
-				'Icons must be added prior to be used in the listview using [f]/xdid -w[/f]',
+				'Icons must be added prior to be used in the listview using [link section="xdid" flag="w"]/xdid -w[/link]',
 				'The [p]INDENT[/p] parameter only works if you are using normal icons in the listview.',
 				'Even if there are icons in the icon lists and [v]0[/v] is used for no icon, there will be the an icon indent space in front of the item text. (normal and state icon lists)',
 				"You can use [v]0[/v] for the [p]#ICON[/p], and [p]#OVERLAY[/p] values if you wish to use no icon.",
 				"You need to use [s]checkbox[/s] style in order to use checkboxes in the listview.",
-				'[+IFLAGS] is a combination of',
-				' +   No Flags specified. [N] provided, add a single item as text only.',
-				' +a  item(s) contain all the flags & icon info etc.. for the item(s) to be added from [INDENT] onwards.',
-				' +A  add all items starting at N',
-				' +n  [N1-N2] numeric range supplied. Add all items in range. (can\'t be used with +A)',
-				'- N1 must be > 0',
-				'- N2 can\'t be 0, but can be a negative.',
-				' +i  [name] single named item to be added. (can\'t be used with +n or +A)',
+				'[p]+IFLAGS[/p] is a combination of',
+				' [v]+[/v]   No Flags specified. [p]N[/p] provided, add a single item as text only.',
+				' [v]+a[/v]  item(s) contain all the flags & icon info etc.. for the item(s) to be added from [p]INDENT[/p] onwards.',
+				' [v]+A[/v]  add all items starting at [p]N[/p]',
+				' [v]+n[/v]  [p]N1-N2[/p] numeric range supplied. Add all items in range. (can\'t be used with [link section="xdid" flag="A"]+A[/link])',
+				'- [p]N1[/p] must be > 0',
+				'- [p]N2[/p] can\'t be 0, but can be a negative.',
+				' [v]+i[/v]  [p]name[/p] single named item to be added. (can\'t be used with [link section="xdid" flag="n"]+n[/link] or [link section="xdid" flag="A"]+A[/link])',
 			),
 		),
 		'A' => array(
@@ -161,7 +161,7 @@ function get_xdid_listview(&$XDID) {
 	        '__cmd' => '[N(,N,N-N,...)] ([+FLAGS] [SUBITEM] [MATCH])',
 	        '__eg' => '1,3,5,10-30',
             '__params' => array(
-				'N(,N,N-N,...)' => 'If [v]+FLAGS[/v] is not specified, this is the item(s) to delete. If [v]+FLAGS[/v] is specified this is the item to start searching from.',
+				'N(,N,N-N,...)' => 'If [p]+FLAGS[/p] is not specified, this is the item(s) to delete. If [p]+FLAGS[/p] is specified this is the item to start searching from.',
                 '+FLAGS' => array(
                     '__desc' => "Search flags.",
                     '__values' => array(
@@ -267,7 +267,7 @@ function get_xdid_listview(&$XDID) {
 			),
 	        '__notes' => array(
 				'[p]COLOR[/p] can be [v]none[/v] for no colors, for both background and text background flags.',
-				'If [p]COLOR[/p] is [v]none[/v] for text background, the text background parameter of <a>/xdid -a</a> wont work anymore.',
+				'If [p]COLOR[/p] is [v]none[/v] for text background, the text background parameter of [link section="xdid" flag="a"]/xdid -a[/link] wont work anymore.',
 			),
 		),
 		'j' => array(
@@ -431,8 +431,8 @@ function get_xdid_listview(&$XDID) {
                 'M' => 'Position to move to.'
 			),
 			'__notes' => array(
-				'To move an item to the end of the list set [v][M][/v] to minus one.',
-				"Also don't try to move an item range to within its self eg: + 1-4 2",
+				'To move an item to the end of the list set [p]M[/p] to minus one.',
+				"Also don't try to move an item range to within its self eg: [v]+ 1-4 2[/v]",
 			),
 		),
 		'q' => array(
@@ -449,7 +449,7 @@ function get_xdid_listview(&$XDID) {
 						'r' => 'Group text is right aligned.',
 					),
 				),
-                'GROUPID' => 'ID that identifies the group when adding items in <a>/xdid -a</a>.',
+                'GROUPID' => 'ID that identifies the group when adding items in [link section="xdid" flag="a"]/xdid -a[/link].',
                 'GROUPTEXT' => 'Label for the group.'
 			),
 		),
@@ -471,7 +471,7 @@ function get_xdid_listview(&$XDID) {
 						'r' => 'Group text is right aligned.',
 					),
 				),
-                'GID' => 'ID that identifies the group when adding items in <a>/xdid -a</a>.',
+                'GID' => 'ID that identifies the group when adding items in [link section="xdid" flag="a"]/xdid -a[/link].',
                 'GROUPTEXT' => 'Label for the group.'
 			),
 		),
@@ -521,8 +521,8 @@ function get_xdid_listview(&$XDID) {
 			),
 			'__notes' => array(
 				'Use [p]TEXT[/p] as [v]-v 80[/v] to set the value of a progress bar.',
-				'If N == -1 then sets the empty listview text which is displayed when the listview contains no items.',
-				'If NSUB == 2 when N == -1 then redraw after setting empty text.'
+				'If [p]N[/p] == -1 then sets the empty listview text which is displayed when the listview contains no items.',
+				'If [p]NSUB[/p] == 2 when [p]N[/p] == -1 then redraw after setting empty text.'
 			),
 		),
 		'V' => array(
@@ -538,7 +538,7 @@ function get_xdid_listview(&$XDID) {
 			),
 		),
 		'w' => array(
-			'__desc' => 'This command lets you add an icon to the listview image lists.',
+			'__desc' => 'This command lets you add an icon to the image lists.',
 			'__cmd' => '[+FLAGS] [INDEX] [FILENAME]',
 			'__eg' => array(
 				'+n 113 shell32.dll',
@@ -559,22 +559,53 @@ function get_xdid_listview(&$XDID) {
 			),
 			'__notes' => array(
 			    'Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.',
+			    'Use [v]-1[/v] for [p]INDEX[/p] to load every icon in the file.',
 			    'For readability and ease of indexing, it is suggested you declare your overlay icons AFTER the normal icons. Overlay icons are also added to the normal icon list, so it will mess up your existing icon indexes.',
 			    'There is a limit of 15 overlay icons you may use, indexes from [v]1[/v] to [v]15[/v].',
 			),
 		),
 		'W' => array(
 			'__desc' => 'This command lets you change the viewing mode.',
-			'__cmd' => '[MODE]',
+			'__cmd' => '[STYLE|nochange] (EXTENDED STYLES)',
 			'__eg' => 'icon',
 			'__params' => array(
-				'MODE' => array(
+				'STYLE' => array(
 					'__desc' => 'The mode to change to.',
 					'__values' => array(
-						'icon' => 'Changes the listview to icon view.',
-						'list' => 'Changes the listview to item list view.',
-						'report' => 'Changes the listview to report view.',
-						'smallicon' => 'Changes the listview to smallicon view.',
+						'icon' => 'Changes the listview to [s]icon[/s] view.',
+						'list' => 'Changes the listview to item [s]list[/s] view.',
+						'report' => 'Changes the listview to [s]report[/s] view.',
+						'smallicon' => 'Changes the listview to [s]smallicon[/s] view.',
+						'tile' => 'Changes the listview to [s]tile[/s] view.',
+						'nochange' => 'placeholder for when you just want to change the extended styles.',
+					),
+				),
+				'EXTENDED STYLES' => array(
+					'__desc' => 'The extended styles to change (these styles will be toggled, on to off or off to on).',
+					'__values' => array(
+						'headerdrag' => 'Enables the possibility to drag listview headers to another position. ([s]report[/s] view)',
+						'subitemimage' => 'Subitems have images. ([s]report[/s] view)',
+						'checkbox' => 'Enables checkbox support in the list view. ([s]report[/s] view)',
+						'flatsb' => 'Enables flat scroll bars on the listview.',
+						'borderselect' => 'When an item is selected a special border is drawn arround it instead of it being highlighted.',
+						'grid' => 'Displays grid lines between item cells. ([s]report[/s] view)',
+						'hottrack' => 'Enables hot-track selection in a listview control. Hot track selection means that an item is automatically selected when the cursor remains over the item for a certain period of time.',
+						'tooltip' => 'If a partially hidden label in any view lacks tooltip text, the control will unfold the label. If this style is not set, the control will unfold partly hidden labels only for the [s]icon[/s] view.',
+						'oneclick' => 'Activates an item on single click. This style also enables hot tracking in the list-view control. Hot tracking means that when the cursor moves over an item, it is highlighted but not selected. (Not to be used with [s]twoclick[/s])',
+						'twoclick' => 'Activates an item on double click. This style also enables hot tracking in the list-view control. Hot tracking means that when the cursor moves over an item, it is highlighted but not selected. (Not to be used with [s]oneclick[/s])',
+						'underlinehot' => 'Causes those hot items that may be activated to be displayed with underlined text. ([s]oneclick[/s] or [s]twoclick[/s] needed)',
+						'underlinecold' => 'Causes those non-hot items that may be activated to be displayed with underlined text. ([s]twoclick[/s] needed)',
+						'transparentbkg' => 'Background is painted by the parent.',
+						'shadowtext' => 'Enable shadow text on transparent backgrounds only. ([s]transparentbkg[/s] needed)',
+						'hidelabels' => 'Hides the labels in icon and small icon view. ([s]icon[/s] & [s]smallicon[/s] view)',
+						'headeralways' => 'Show column headers in all view modes.',
+						'autocheck' => 'Automatically select check boxes on single click. ([s]checkbox[/s] needed)',
+						'columnsnap' => 'Snap to minimum column width when the user resizes a column.',
+						'columnjustify' => 'Icons are lined up in columns that use up the whole view. ([s]icon[/s] & [s]smallicon[/s] view)',
+						'columnoverflow' => 'Indicates that an overflow button should be displayed in icon/tile view if there is not enough client width to display the complete set of header items. ([s]headeralways[/s] needed) ([s]icon[/s] & [s]smallicon[/s] view)',
+						'autosize' => 'Automatically size listview columns. ([s]report[/s] view)',
+						'snaptogrid' => 'In icon view, icons automatically snap into a grid. ([s]icon[/s] & [s]smallicon[/s] view)',
+						'autoautoarrange' => 'Automatically arrange icons if no icon positions have been set (Similar to [s]autoarrange[/s]) ([s]icon[/s] & [s]smallicon[/s] view).',
 					),
 				),
 			),

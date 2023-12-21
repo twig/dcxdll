@@ -133,7 +133,7 @@ function get_events_button(&$EVENTS) {
 		"lbup" => "When the left mouse button is released.",
 		"rclick" => "When you right-click on the button.",
 		"dclick" => "When you double-click on the button.",
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 

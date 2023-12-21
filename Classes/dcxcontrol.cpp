@@ -1263,8 +1263,6 @@ DcxControl* DcxControl::controlFactory(gsl::strict_not_null<DcxDialog* const> p_
 	}
 	break;
 	case DcxControlTypes::WEB2CTRL:
-		//if (dcx_testflag(mask, DcxAllowControls::ALLOW_WEB2CTRL))
-		//	return new DcxWebControl2(mID, p_Dialog, hParent, &rc, styles);
 	{
 		if (dcx_testflag(mask, DcxAllowControls::ALLOW_WEB2CTRL))
 		{
