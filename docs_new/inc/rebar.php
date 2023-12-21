@@ -149,7 +149,7 @@ function get_xdid_rebar(&$XDID) {
 		),
 		'W' => array(
 	        '__desc' => "This command lets you set a bands width.",
-	        '__cmd' => '[N,N1-N2,N3....] [WIDTH]',
+	        '__cmd' => '[N,N1-N2,N3....|all] [WIDTH]',
 	        '__eg' => '2 30',
 		),
 

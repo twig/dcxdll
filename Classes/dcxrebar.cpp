@@ -862,7 +862,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 			ImageList_Destroy(himl);
 	}
 	// xdid -W [NAME] [ID] [SWITCH] [N|ALL] [WIDTH]
-	// xdid -W [NAME] [ID] [SWITCH] [N,N2,N3-N4...] [WIDTH]
+	// xdid -W [NAME] [ID] [SWITCH] [N,N2,N3-N4...|all] [WIDTH]
 	else if (flags[TEXT('W')])
 	{
 		if (numtok < 4)
