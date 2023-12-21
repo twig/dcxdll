@@ -699,8 +699,8 @@ private:
 	bool xmlLoadListview(const int nPos, const TString& dataset, TString& filename);
 	bool xmlLoadListview(const int nPos, const TiXmlElement* xElm);
 
-	bool xmlSaveListview(const int nPos, const TString& dataset, TString& filename) const;
-	bool xmlSaveListview(const int nPos, TiXmlElement* xElm) const;
+	bool xmlSaveListview(const int nPosStart, int iPosEnd, const TString& dataset, TString& filename) const;
+	bool xmlSaveListview(const int nPosStart, int iPosEnd, TiXmlElement* xElm) const;
 
 	bool ctrlLoadListview(const int nPos, const TString& tsData) noexcept;
 	bool xLoadListview(const int nPos, const TString& tsData, const TCHAR* sTest, const TCHAR* sCount, const TCHAR* sGet, const TCHAR* sGetNamed);

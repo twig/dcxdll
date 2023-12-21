@@ -2087,8 +2087,13 @@ void DcxListView::parseCommandRequest(const TString& input)
 			xSaveListview(iN1, iN2, tsArgs, TEXT("$hget(%)"), TEXT("/hadd % %"));
 			break;
 		case TEXT('x'):
+		{
 			//xSaveListview(iN1, iN2, tsArgs, TEXT("$window(%)"), TEXT("echo % %"));
-			break;
+			const TString tsDataset(tsArgs.getfirsttok(1));
+			TString tsFilename(tsArgs.getlasttoks());
+			xmlSaveListview(iN1, iN2, tsDataset, tsFilename);
+		}
+		break;
 		default:
 			throw DcxExceptions::dcxInvalidFlag();
 		}
@@ -2937,8 +2942,8 @@ void DcxListView::loadIcon(const TString& tsFlags, const TString& tsIndex, const
 
 			DestroyIcon(icon);
 #endif
-		}
 	}
+}
 
 	// footer icons
 	if (dcx_testflag(iFlags, LVSIL_FOOTER))
@@ -2962,7 +2967,7 @@ void DcxListView::loadIcon(const TString& tsFlags, const TString& tsIndex, const
 
 			DestroyIcon(icon);
 #endif
-		}
+	}
 	}
 
 	// group header icons
@@ -2987,7 +2992,7 @@ void DcxListView::loadIcon(const TString& tsFlags, const TString& tsIndex, const
 
 			DestroyIcon(icon);
 #endif
-		}
+	}
 	}
 }
 
@@ -4519,7 +4524,7 @@ bool DcxListView::xmlLoadListview(const int nPos, const TiXmlElement* xElm)
 	return true;
 }
 
-bool DcxListView::xmlSaveListview(const int nPos, const TString& dataset, TString& filename) const
+bool DcxListView::xmlSaveListview(const int nPosStart, int iPosEnd, const TString& dataset, TString& filename) const
 {
 	TiXmlDocument doc(filename.c_str());
 	doc.SetCondenseWhiteSpace(false);
@@ -4557,13 +4562,13 @@ bool DcxListView::xmlSaveListview(const int nPos, const TString& dataset, TStrin
 	xDataset->Clear();
 
 	// save current setup
-	xmlSaveListview(nPos, xDataset);
+	xmlSaveListview(nPosStart, iPosEnd, xDataset);
 
 	// save to file.
 	return doc.SaveFile();
 }
 
-bool DcxListView::xmlSaveListview(const int nPos, TiXmlElement* xElm) const
+bool DcxListView::xmlSaveListview(const int nPosStart, int iPosEnd, TiXmlElement* xElm) const
 {
 	if (!m_Hwnd || !xElm)
 		return false;
@@ -4571,9 +4576,18 @@ bool DcxListView::xmlSaveListview(const int nPos, TiXmlElement* xElm) const
 	xElm->SetAttribute("version", DCXML_DIALOG_VERSION);
 
 	const auto nTotal = Dcx::dcxListView_GetItemCount(m_Hwnd);
+	if (nTotal == 0)
+		return true;
+
 	const auto nCols = this->getColumnCount();
 
-	for (int n = nPos; n < nTotal; ++n)
+	if ((iPosEnd >= 0) && (iPosEnd < nPosStart))
+		iPosEnd = nPosStart;
+
+	if ((iPosEnd < 0) || (iPosEnd > nTotal))
+		iPosEnd = nTotal;
+
+	for (int n = nPosStart; n < iPosEnd; ++n)
 	{
 		if (auto xml = ItemToXml(n, nCols); xml)
 			xElm->LinkEndChild(xml);
@@ -6350,7 +6364,7 @@ void DcxListView::toXml(TiXmlElement* const xml) const
 		}
 	}
 
-	xmlSaveListview(0, xml);
+	xmlSaveListview(0, -1, xml);
 }
 
 TiXmlElement* DcxListView::toXml() const

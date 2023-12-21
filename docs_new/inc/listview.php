@@ -618,16 +618,16 @@ function get_xdid_listview(&$XDID) {
 				'+FLAGS' => array(
 					'__desc' => "Type of save to do...",
 					'__values' => array(
-						'c' => 'Save to a custom window.',
+						'c' => 'Save to a custom window. (Data is appended to the bottom of the window, window must exist)',
 						'f' => 'Save to a file. (Data is appended to an existing file or a new file is created)',
 						'h' => 'Save to a hashtable. (Table must exist)',
-						'x' => 'Save to an xml file. (Data is appended to the bottom of the window, window must exist)',
+						'x' => 'Save to an xml file. (Data replaces an existing dataset in an existing file or a new file is created)',
 					),
 				),
 				'N1' => 'Start of the item range to save.',
 				'N2' => 'End of the item range to save.',
 				'ARGS' => array(
-					'__desc' => 'Arguments dependant on +FLAGS',
+					'__desc' => 'Arguments dependant on [p]+FLAGS[/p]',
 					'__values' => array(
 						'c' => '@window',
 						'f' => 'filename',
@@ -635,9 +635,6 @@ function get_xdid_listview(&$XDID) {
 						'x' => 'dataset_name filename',
 					),
 				),
-			),
-			'__notes' => array(
-				'This command is incomplete. +x does not work at this time.',
 			),
 		),
 		'y' => array(
