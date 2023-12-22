@@ -14,7 +14,7 @@ function get_styles_divider(&$STYLES) {
 function get_xdid_divider(&$XDID) {
 	$XDID = array(
 		"l|-r" => array(
-			'__desc' => "This command lets you add a child control to a divider pane. The -l switch is for the left/top pane, and -r for the right/bottom pane.",
+			'__desc' => "This command lets you add a child control to a divider pane. The [f]-l[/f] switch is for the left/top pane, and [f]-r[/f] for the right/bottom pane.",
 			'__cmd' => "[MIN] [IDEAL] [TAB] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)",
 			'__eg' => '100 0 $chr(9) 12 richedit 10 10 400 25 multi',
 			'__params' => array(
@@ -22,8 +22,8 @@ function get_xdid_divider(&$XDID) {
 			    'IDEAL' => 'Not used yet. Use [v]0[/v], required but ignored.',
 			    'CID' => "Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b>",
 				'CONTROL' => 'The type of DCX Control to create. Values can be:<br />
-[v]button[/v], [v]calendar[/v], [v]colorcombo[/v], [v]comboex[/v], [v]multicombo[/v], [v]datetime[/v], [v]directshow[/v], [v]ipaddress[/v], [v]listview[/v], [v]pbar[/v], [v]richedit[/v], [v]statusbar[/v], [v]toolbar[/v], [v]trackbar[/v], [v]treeview[/v], [v]updown[/v], [v]webctrl[/v], [v]web2ctrl[/v]<br />
-[v]box[/v], [v]check[/v], [v]edit[/v], [v]image[/v], [v]line[/v], [v]link[/v], [v]list[/v], [v]radio[/v], [v]scroll[/v], [v]text[/v], [v]divider[/v], [v]pager[/v], [v]panel[/v], [v]rebar[/v], [v]stacker[/v] or [v]tab[/v].',
+[link page="button"]button[/link], [link page="calendar"]calendar[/link], [link page="colorcombo"]colorcombo[/link], [link page="comboex"]comboex[/link], [link page="multicombo"]multicombo[/link], [link page="datetime"]datetime[/link], [link page="directshow"]directshow[/link], [link page="ipaddress"]ipaddress[/link], [link page="listview"]listview[/link], [link page="pbar"]pbar[/link], [link page="richedit"]richedit[/link], [link page="statusbar"]statusbar[/link], [link page="toolbar"]toolbar[/link], [link page="trackbar"]trackbar[/link], [link page="treeview"]treeview[/link], [link page="updown"]updown[/link], [link page="webctrl"]webctrl[/link], [link page="web2ctrl"]web2ctrl[/link]<br />
+[link page="box"]box[/link], [link page="check"]check[/link], [link page="edit"]edit[/link], [link page="image"]image[/link], [link page="line"]line[/link], [link page="link"]link[/link], [link page="list"]list[/link], [link page="radio"]radio[/link], [link page="scroll"]scroll[/link], [link page="text"]text[/link], [link page="divider"]divider[/link], [link page="pager"]pager[/link], [link page="panel"]panel[/link], [link page="rebar"]rebar[/link], [link page="stacker"]stacker[/link], or [link page="tab"]tab[/link].',
 				'X' => "X position of control. Use [v]0[/v], required but ignored.",
 				'Y' => "Y position of control. Use [v]0[/v], required but ignored.",
 				'W' => "Width of control.",
@@ -63,19 +63,19 @@ function get_xdidprops_divider(&$XDIDPROPS) {
 
 function get_events_divider(&$EVENTS) {
 	$EVENTS = array(
-	    "help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+	    "help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 		"dragbegin" => array(
-			'__desc' => "When the user starts dragging the divier.",
+			'__desc' => "When the user starts dragging the divider.",
 			'__cmd' => 'X Y',
 			'__eg' => '220 300',
 		),
 		"drag" => array(
-			'__desc' => "When the user is dragging the divier.",
+			'__desc' => "When the user is dragging the divider.",
 			'__cmd' => 'X Y',
 			'__eg' => '220 354',
 		),
 		"dragfinish" => array(
-			'__desc' => "When the user has finished dragging the divier.",
+			'__desc' => "When the user has finished dragging the divider.",
 			'__cmd' => 'X Y',
 			'__eg' => '220 403',
 		),

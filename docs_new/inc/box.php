@@ -18,7 +18,7 @@ function get_styles_box(&$STYLES) {
                 'hgradient' => 'Draws a horizontal gradient with the colors specified.',
 		'vgradient' => 'Draws a vertical gradient with the colors specified.',
 		'__notes' => array(
-			'Applying the border [s]regular[/s]+[s]dialog frame[/s] border styles on the box will give it a titlebar. (eg. [link page="xdid" section="xdid" flag="x"]/xdid -x DNAME BOX_ID +bd[/link])',
+			'Applying the border [v]regular[/v]+[v]dialog frame[/v] border styles on the box will give it a titlebar. (eg. [link page="xdid" section="xdid" flag="x"]/xdid -x DNAME BOX_ID +bd[/link])',
 			'[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or [link page="dcx" section="general" flag="GetSystemColor"]$dcx(GetSystemColor, COLOR_WINDOWTEXT)[/link] respectively). Change it by using [link page="xdid" section="xdid" flag="C"]xdid -C[/link]',
 		),
 	);
@@ -73,7 +73,7 @@ function get_xdidprops_box(&$XDIDPROPS) {
 
 function get_events_box(&$EVENTS) {
 	$EVENTS = array(
-                "help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+        "help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
                 'lbdown' => 'When the left mouse button is clicked down.',
                 'sclick' => 'When the left mouse button is clicked and released.',
                 'lbup' => 'When the left mouse button is released.',

@@ -125,7 +125,7 @@ function get_xdid_comboex(&$XDID) {
 				'+FLAGS' => "M - Mark info",
 				'INFO' => "Info",
 			),
-	        '__notes' => "Only +M flag is supported atm.",
+	        '__notes' => "Only [f]+M[/f] flag is supported atm.",
 		),
 	);
 	
@@ -200,7 +200,7 @@ function get_events_comboex(&$EVENTS) {
 		),
 	    "edit" => "When the text is edited in a comboex with editbox.",
 	    "return" => "When the <b>Enter</b> key is pressed in the editbox of a comboex.",
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 		'dragbegin' => array(
 		    '__desc' => "Triggers when one or more files are dropped onto the control.",
 		    '__cmd' => 'COUNT',

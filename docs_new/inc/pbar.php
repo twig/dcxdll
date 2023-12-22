@@ -15,7 +15,7 @@ function get_xdid_pbar(&$XDID) {
 			),
 		),
 		"i" => array(
-			'__desc' => 'This command lets you set the progress bar text. Text is optional and if omited, no text will be displayed. If you put the characters [v]%d[/v] in the text, it will be replaced by the position value of the progressbar as defined by the <a>-j</a> switch. Putting two [v]%%[/v] signs together in the text produces a single [v]%[/v] symbol in the displayed text. Default text is [v]%d %%[/v].',
+			'__desc' => 'This command lets you set the progress bar text. Text is optional and if omited, no text will be displayed. If you put the characters [v]%d[/v] in the text, it will be replaced by the position value of the progressbar as defined by the [cmd]xdid -j[/cmd] command. Putting two [v]%%[/v] signs together in the text produces a single [v]%[/v] symbol in the displayed text. Default text is [v]%d %%[/v].',
 			'__cmd' => "(Text)",
 			'__eg' => 'Completed % $+ d % $+ %',
 			'__notes' => array(
@@ -60,10 +60,10 @@ function get_xdid_pbar(&$XDID) {
 			'__eg' => "0 50",
 		),
 		"t" => array(
-			'__desc' => "This command lets you increase the progressbar by a step defined by the <a>-u</a> flag. When the position exceeds the maximum range value, the progress bar resets the current position so that the progress indicator starts over again from the beginning.",
+			'__desc' => "This command lets you increase the progressbar by a step defined by the [cmd]xdid -u[/cmd] command. When the position exceeds the maximum range value, the progress bar resets the current position so that the progress indicator starts over again from the beginning.",
 		),
 		"u" => array(
-			'__desc' => "TThis command lets you set the progressbar step increase when using the <a>-t</a> switch (default value is 10).",
+			'__desc' => "TThis command lets you set the progressbar step increase when using the [cmd]xdid -t[/cmd] command (default value is 10).",
 			'__cmd' => "[N]",
 			'__eg' => "20",
 		),
@@ -148,7 +148,7 @@ function get_events_pbar(&$EVENTS) {
 				'VALUE' => "Current value of progress bar",
 			),
 		),
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 ?>

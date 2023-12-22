@@ -7,7 +7,7 @@ function get_intro_trackbar() {
 function get_styles_trackbar(&$STYLES) {
 	$STYLES = array(
 		'alpha' => 'The control is alpha blended.',
-		"autoticks" => "Trackbar ticks are displayed at every N intervals (set by <a>/xdid -n</a>)",
+		"autoticks" => "Trackbar ticks are displayed at every N intervals (set by [cmd]/xdid -n[/cmd])",
 		"both" => "Tic marks are displayed on both side of the bar.",
 		"top" => "Tic marks appear on the top of the trackbar. ([s]horizontal[/s] only)",
 		'bottom' => 'Tic marks appear on the bottom of the trackbar. ([s]horizontal[/s] only)',
@@ -216,7 +216,7 @@ function get_events_trackbar(&$EVENTS) {
 			),
 			'__return' => '[r]TEXT[/r] to change the tooltip text.',
 		),
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 ?>

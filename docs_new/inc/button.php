@@ -39,7 +39,7 @@ function get_xdid_button(&$XDID) {
 				'COLOR' => "Transparency color of the [s]bitmap[/s] styled button.",
 				'FILENAME' => "Bitmap filename.",
 			),
-			'__notes' => 'As from DCX v1.3.4, this no longer defines the caption color for the button control. This functionality was moved to [link page="button" section="xdid" flag="c"]/xdid -c[/link]',
+			'__notes' => 'As from DCX v1.3.4, this no longer defines the caption color for the button control. This functionality was moved to [cmd]/xdid -c[/cmd]',
 		),
 		"l" => array(
 			'__desc' => "This command lets you set the icon size of the button and clear the image list. SIZE can be 16, 24 or 32. (Not used for [s]bitmap[/s] button)",
@@ -121,7 +121,7 @@ function get_styles_button(&$STYLES) {
 		'noformat' => 'Disables support for mIRC codes in control (faster).',
 		'hgradient' => 'Draws a horizontal gradient with the colors specified.',
 		'vgradient' => 'Draws a vertical gradient with the colors specified.',
-		'__notes' => '[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_BTNTEXT) respectively). Change it by using [link page="xdid" section="xdid" flag="C"]/xdid -C[/link]',
+		'__notes' => '[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or <a class="value" href="dcx.htm#general.GetSystemColor">$dcx(GetSystemColor, COLOR_WINDOWTEXT)</a> respectively). Change it by using [link page="xdid" section="xdid" flag="C"]/xdid -C[/link]',
 	);
 }
 

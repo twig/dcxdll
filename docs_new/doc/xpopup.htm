@@ -275,11 +275,11 @@ ON *:SIGNAL:Xpopup-*: {
 	</tr>
 	<tr>
 		<td class="value">custom</td>
-		<td>Lets you apply a custom background item image (see /xpopup -b).</td>
+		<td>Lets you apply a custom background item image (see <a class='value' href='xpopup.htm#xpopup.b'>/xpopup -b</a>).</td>
 	</tr>
 	<tr>
 		<td class="value">custombig</td>
-		<td>Lets you apply a custom background image (see /xpopup -b).</td>
+		<td>Lets you apply a custom background image (see <a class='value' href='xpopup.htm#xpopup.b'>/xpopup -b</a>).</td>
 	</tr>
 	<tr>
 		<td class="value">button</td>
@@ -289,7 +289,7 @@ ON *:SIGNAL:Xpopup-*: {
 		<td class="value">buttonrev</td>
 		<td>Items look like buttons (sunken).</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>This command will fail if the menu already exists, use $xpopup().ismenu to check if the menu exists.</li><li>Some colors are not used in certain menu styles.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>This command will fail if the menu already exists, use <a class='value' href='xpopup.htm#xpopupprop.ismenu'>$xpopup().ismenu</a> to check if the menu exists.</li><li>Some colors are not used in certain menu styles.</li></ul></td></tr></table>
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
@@ -365,7 +365,7 @@ ON *:SIGNAL:Xpopup-*: {
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
 			<a name="xpopup.l"></a>/xpopup -l	</td></tr>
-	<tr><td colspan="2">This command lets you set the Nth color in the menu as given by the order listed in <a class="value">/xpopup -p</a>.</td></tr>
+	<tr><td colspan="2">This command lets you set the Nth color in the menu as given by the order listed in <a class='value' href='xpopup.htm#xpopup.p'>/xpopup -p</a>.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xpopup -l [MENU] [N] [COLOR]</div></td>
@@ -656,7 +656,7 @@ ON *:SIGNAL:Xpopup-*: {
 <table class="xpopupprop">
 	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
 			<a name="xpopupprop.color"></a>$xpopup().color	</td></tr>
-	<tr><td colspan="2">This property retrieves Nth menu color (see /xpopup -p for the list).</td></tr>
+	<tr><td colspan="2">This property retrieves Nth menu color (see <a class='value' href='xpopup.htm#xpopup.p'>xpopup -p</a> for the list).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xpopup(MENU, N).color</div></td>
@@ -670,7 +670,7 @@ ON *:SIGNAL:Xpopup-*: {
 <table class="xpopupprop">
 	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
 			<a name="xpopupprop.colors"></a>$xpopup().colors	</td></tr>
-	<tr><td colspan="2">This property retrieves the menu colors as one line (see /xpopup -p for the list).</td></tr>
+	<tr><td colspan="2">This property retrieves the menu colors as one line (see <a class='value' href='xpopup.htm#xpopup.p'>xpopup -p</a> for the list).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xpopup(MENU).colors</div></td>
@@ -740,7 +740,7 @@ ON *:SIGNAL:Xpopup-*: {
 <table class="xpopupprop">
 	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
 			<a name="xpopupprop.isroundedmenu"></a>$xpopup().isroundedmenu	</td></tr>
-	<tr><td colspan="2">Returns wether the rounded menu style is enabled (see xpopup -R)</td></tr>
+	<tr><td colspan="2">Returns wether the rounded menu style is enabled (see <a class='value' href='xpopup.htm#xpopup.big.R'>xpopup -R</a>)</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xpopup(MENU).isroundedmenu</div></td>
@@ -754,7 +754,7 @@ ON *:SIGNAL:Xpopup-*: {
 <table class="xpopupprop">
 	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
 			<a name="xpopupprop.istooltips"></a>$xpopup().istooltips	</td></tr>
-	<tr><td colspan="2">Returns wether tooltips are enabled (see xpopup -R)</td></tr>
+	<tr><td colspan="2">Returns wether tooltips are enabled (see <a class='value' href='xpopup.htm#xpopup.big.R'>xpopup -R</a>)</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xpopup(MENU).istooltips</div></td>
@@ -856,7 +856,7 @@ ON *:SIGNAL:Xpopup-*: {
 		<td class="param">TOOLTIP</td>
 		<td>Menu items tooltip.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the item text is meant to be dynamic, you will need to reset the text using /xpop -t</li><li><a class="param">ID</a> must be unique.</li><li>A menu item that has a checkmark AND an icon, it displays the icon instead of the checkmark.</li><li>Remember to use mIRCs $eval($idents, 0) or $!idents to prevent the mIRC evaluation of the $idents that your text contains.</li><li>The [TOOLTIP] is only displayed if enabled for this menu via /xpopup -R</li><li>Tooltips are only displayed for menu items, NOT submenus</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the item text is meant to be dynamic, you will need to reset the text using <a class='value' href='xpopup.htm#xpop.t'>/xpop -t</a></li><li><a class="param">ID</a> must be unique.</li><li>A menu item that has a checkmark AND an icon, it displays the icon instead of the checkmark.</li><li>Remember to use mIRCs $eval($idents, 0) or $!idents to prevent the mIRC evaluation of the $idents that your text contains.</li><li>The [TOOLTIP] is only displayed if enabled for this menu via <a class='value' href='xpopup.htm#xpopup.big.R'>/xpopup -R</a></li><li>Tooltips are only displayed for menu items, NOT submenus</li></ul></td></tr></table>
 <br />
 <table class="xpop">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -917,7 +917,7 @@ ON *:SIGNAL:Xpopup-*: {
 <table class="xpop">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xpop.s"></a>/xpop -s	</td></tr>
-	<tr><td colspan="2">This command lets you change the state flags on an item (see /xpop -a for the switches)</td></tr>
+	<tr><td colspan="2">This command lets you change the state flags on an item (see <a class='value' href='xpopup.htm#xpop.a'>/xpop -a</a> for the switches)</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xpop -s [MENU] [PATH] [TAB] [+FLAGS]</div></td>
@@ -1468,7 +1468,7 @@ The only difference is that you can load multiple icons by seperating the indexe
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 21st December, 23</td>
+		<td style="text-align: right;">Last Updated: 22nd December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

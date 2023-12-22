@@ -29,7 +29,7 @@ function get_xdid_web2ctrl(&$XDID) {
 	        '__desc' => 'This command is like hitting the Back button in a browser.',
 		),
 		'm' => array(
-	        '__desc' => 'This does the same as /xdid -n but allows setting some flags too.',
+	        '__desc' => 'This does the same as [cmd]/xdid -n[/cmd] but allows setting some flags too.',
 	        '__cmd' => '[+FLAGS] [+MASK] (URL)',
 	        '__eg' => "+bf +b http://dcx.scriptsdb.org",
 			'__params' => array(
@@ -43,7 +43,7 @@ function get_xdid_web2ctrl(&$XDID) {
 						's' => 'toggle statusbar on/off',
 					),
 				),
-				'+MASK' => 'is used to set the flags on or off /xdid -m dialog +bf +b will turn the address bar on, & disable fullscreen.',
+				'+MASK' => 'is used to set the flags on or off [v]/xdid -m dname +bf +b[/v] will turn the address bar on, & disable fullscreen.',
 				'URL' => 'is optional, if not supplied then you can use the command to just set flags.',
 			),
 		),
@@ -80,9 +80,10 @@ function get_xdid_web2ctrl(&$XDID) {
 	        '__eg' => "+ sample.png",
 			'__params' => array(
 				'+FLAGS' => array(
-					'__desc' => 'Can be any combination of',
+					'__desc' => 'Can be any one of',
 					'__values' => array(
-						'p' => 'png format, flags mean nothing atm, its always png.',
+						'p' => 'png format.',
+						'j' => 'jpeg format.',
 					),
 				),
 				'FILENAME' => 'The filename to save the image as.',
@@ -151,7 +152,7 @@ function get_events_web2ctrl(&$EVENTS) {
 			'__cmd' => '[Script result]',
 			'__eg' => 'whatever the script returned',
 		),
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 		"dl_begin" => array(
 			'__desc' => "When downloading is about to begin.",
 			'__cmd' => 'TOTALBYTES FILENAME',

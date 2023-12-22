@@ -91,7 +91,7 @@ function get_xstatusbar(&$XSTATUSBAR) {
             ),
             '__notes' => array(
                 "Font names are limited to 31 chars (system definition).",
-                'When using [v]+d[/v], [p]CHARSET[/p] [p]SIZE[/p] and [p]FONTNAME[/p] can be omitted.'
+                'When using [f]+d[/f], [p]CHARSET[/p] [p]SIZE[/p] and [p]FONTNAME[/p] can be omitted.'
             ),
         ),
         'k' => array(
@@ -123,8 +123,8 @@ function get_xstatusbar(&$XSTATUSBAR) {
                     ),
                 ),
                 '#ICON' => 'Icon number for the statusbar cell (0 for no icon)',
-                'BKGCOLOR' => 'The background colour (requires +f)',
-                'TXTCOLOR' => 'The text colour (requires +f)',
+                'BKGCOLOR' => 'The background colour (requires [f]+f[/f])',
+                'TXTCOLOR' => 'The text colour (requires [f]+f[/f])',
             ),
             '__notes' => 'Tooltip is only displayed if cell text is absent or cell text is too long to fit in cell.',
         ),
@@ -150,16 +150,16 @@ function get_xstatusbar(&$XSTATUSBAR) {
 
 function get_xstatusbarprops(&$XDIDPROPS) {
     $XDIDPROPS = array(
-	'visible' => 'Returns whether or not the mIRC StatusBar is visible.',
+	    'visible' => 'Returns whether or not the mIRC StatusBar is visible.',
         'parts' => 'Returns the number of parts in the mIRC StatusBar.',
-	'text' => array(
-	    '__desc' => 'Returns the text on the mIRC StatusBar part.',
-	    '__cmd' => 'N',
+	    'text' => array(
+	        '__desc' => 'Returns the text on the mIRC StatusBar part.',
+	        '__cmd' => 'N',
             '__eg' => '5',
-    	),
-    	'tooltip' => array(
-	    '__desc' => 'Returns the tooltip for the mIRC StatusBar part.',
-	    '__cmd' => 'N',
+        ),
+        'tooltip' => array(
+	        '__desc' => 'Returns the tooltip for the mIRC StatusBar part.',
+	        '__cmd' => 'N',
             '__eg' => '2',
         ),
     );

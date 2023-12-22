@@ -88,7 +88,7 @@ function get_xdialog_xdialog(&$XDIALOG) {
 			),
 			'__notes' => array(
 			    'The default effect is a roll animation.',
-                            'Animation on region clipped dialogs will fail on operating systems prior to XP.',
+                'Animation on region clipped dialogs will fail on operating systems prior to [o]XP[/o].',
 			),
 		),
 		"b" => array(
@@ -190,16 +190,16 @@ function get_xdialog_xdialog(&$XDIALOG) {
 				'FLAGS' => array(
 					'__desc' => "Flags for events.",
 					'__values' => array(
-						'c' => "Click events (eg. sclick, dclick, rclick, ...).",
-						'd' => "Drag events (eg. dragbegin, ect..).",
-						'e' => "Edit events (eg. edit, keydown, keyup, ...).",
-						'f' => "Focus events (eg. focus and focusout).",
+						'c' => "Click events (eg. [e]sclick[/e], [e]dclick[/e], [e]rclick[/e], ...).",
+						'd' => "Drag events (eg. [e]dragbegin[/e], ect..).",
+						'e' => "Edit events (eg. [e]edit[/e], [e]keydown[/e], [e]keyup[/e], ...).",
+						'f' => "Focus events (eg. [e]focus[/e] and [e]focusout[/e]).",
 						'h' => "Help event.",
-						'm' => "Mouse events (eg. mouseleave, mouseenter, mouse, ...).",
-						's' => "Sizing events (eg. sizing, min, max, ...).",
-						't' => "Theme event (eg. themechanged).",
+						'm' => "Mouse events (eg. [e]mouseleave[/e], [e]mouseenter[/e], [e]mouse[/e], ...).",
+						's' => "Sizing events (eg. [e]sizing[/e], [e]min[/e], [e]max[/e], ...).",
+						't' => "Theme event (eg. [e]themechanged[/e]).",
 						'C' => "Close event.",
-						'M' => "Move events (eg. beginmove, endmove, ...).",
+						'M' => "Move events (eg. [e]beginmove[/e], [e]endmove[/e], ...).",
 					),
 				),
 			),
@@ -630,12 +630,12 @@ function get_xdialogprops_xdialog(&$XDIALOGPROPS) {
 			),
 			'__notes' => array(
 			    "The return value is binary, which means that you have to use the following code fragment to know if the key identified by the listed number below is currently selected :<br />
-<pre>if (\$xdialog(dname).key &amp; KEY_NUM) {
+<pre class='code'>if (\$xdialog(dname).key &amp; KEY_NUM) {
   ; do action here
 }</pre>",
 			),
 		),
-		"parent" => "This property retrieves the name of the parent dialog (only if this dialog is docked using [f]/xdialog -c[/f] or [f]/xdid -c[/f] and if it has been marked).",
+		"parent" => "This property retrieves the name of the parent dialog (only if this dialog is docked using [cmd]/xdialog -c[/cmd] or [f]/xdid -c[/f] and if it has been marked).",
         "zlayer" => array(
             '__desc' => "This property retrieves the control ID found at the Nth internal list index.",
             '__cmd' => "N",
@@ -652,9 +652,9 @@ function get_events_xdialog(&$EVENTS) {
                 "close" => array(
                         '__desc' => 'When the dialog is closed (including by pressing escape).',
                         '__notes' => array(
-                                "You will have to use [f]/xdialog -x[/f] to close the dialog instead of mIRC's /dialog -x if you return [r]noclose[/r] on this event.",
+				"You will have to use [cmd]/xdialog -x[/cmd] to close the dialog instead of mIRC's /dialog -x if you return [r]noclose[/r] on this event.",
                                 'Should only be used with non-modal dialogs (modal dialogs are created using $dialog). If you are using a modal dialog, refer to [e]scclose[/e]. Returning [r]noclose[/r] here will cause the modal dialog to be unclosable.',
-                                'If you wish to close docked dialogs within this event, you must use a timer with /xdialog -x to close the docked dialog.',
+				'If you wish to close docked dialogs within this event, you must use a timer with [cmd]/xdialog -x[/cmd] to close the docked dialog.',
 			),
                         '__isdialog' => true,
 			'__return' => '[r]noclose[/r] Return this value to block the window closing.',
@@ -870,7 +870,7 @@ function get_events_xdialog(&$EVENTS) {
                         '__isdialog' => true,
 		),
                 'zlayershow' => array(
-                        '__desc' => 'Event triggered when a control is about to be displayed by calling [f]/xdialog -z[/f] with the [f]+s[/f] flag.',
+			'__desc' => 'Event triggered when a control is about to be displayed by calling [cmd]/xdialog -z[/cmd] with the [f]+s[/f] flag.',
                         '__cmd' => 'ZINDEX CID',
                         '__eg' => '1 4',
                         '__params' => array(

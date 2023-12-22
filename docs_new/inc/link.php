@@ -12,7 +12,7 @@ function get_styles_link(&$STYLES) {
 		'hgradient' => 'Draws a horizontal gradient with the colors specified.',
 		'vgradient' => 'Draws a vertical gradient with the colors specified.',
 		'nounderline' => 'Link text is not underlined.',
-		'__notes' => '[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using [f]xdid -C[/f]',
+		'__notes' => '[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using <a class="value" href="xdid.htm#xdid.big.C">xdid -C</a>',
 	);
 }
 
@@ -24,17 +24,17 @@ function get_xdid_link(&$XDID) {
 	        '__cmd' => '[N] [COLOR]',
 	        '__eg' => '2 $rgb(255,0,255)',
 	        '__params' => array(
-                "N" => "Palette color number 1-4 (see <a>-q</a> for color order).",
+                "N" => "Palette color number 1-4 (see [cmd]/xdid -q[/cmd] for color order).",
  			)
 		),
 		'q' => array(
-                        '__desc' => 'This command lets you load a custom palette into the link control.',
-                        '__cmd' => '[NORMAL] [HIGHLIGHT] [VISITED] [DISABLED]',
-                        '__eg' => array(
-                                '$rgb(255,0,0) $rgb(0,0,0) $rgb(255, 0, 255) $rgb(150, 150, 150)',
-                                '$rgb(255,0,0) $rgb(0,0,0)',
-                        ),
-                        '__notes' => 'You can give the command a number of colors inferior to 4, it will then only add thoses colors in order to the palette starting at 1.',
+            '__desc' => 'This command lets you load a custom palette into the link control.',
+            '__cmd' => '[NORMAL] [HIGHLIGHT] [VISITED] [DISABLED]',
+            '__eg' => array(
+				'$rgb(255,0,0) $rgb(0,0,0) $rgb(255, 0, 255) $rgb(150, 150, 150)',
+				'$rgb(255,0,0) $rgb(0,0,0)',
+            ),
+            '__notes' => 'You can give the command a number of colors inferior to 4, it will then only add thoses colors in order to the palette starting at 1.',
 		),
 		't' => array(
 	        '__desc' => 'This command lets you set the link text.',
@@ -70,7 +70,7 @@ function get_events_link(&$EVENTS) {
 	    "sclick" => "When the text is clicked.",
 	    "dclick" => "When the text is double-clicked.",
 	    "rclick" => "When you right-click on the text.",
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 ?>

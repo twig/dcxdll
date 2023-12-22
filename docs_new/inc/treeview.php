@@ -559,7 +559,7 @@ function get_events_treeview(&$EVENTS) {
 			'__params' => array(
 				'PATH' => 'Path leading to the item that triggered the event.',
 			),
-			'__notes' => 'You cant use $xdid().tvseltext to get item text, you need to use $xdid().tvtext with item path given.'
+			'__notes' => 'You cant use [prop]$xdid().seltext[/prop] to get item text, you need to use [prop]$xdid().text[/prop] with item path given.'
 		),
 		"dclick" => array(
 			'__desc' => "When an item is double clicked.",
@@ -568,7 +568,7 @@ function get_events_treeview(&$EVENTS) {
 			'__params' => array(
 				'PATH' => 'Path leading to the item that triggered the event.',
 			),
-			'__notes' => 'You cant use $xdid().tvseltext to get item text, you need to use $xdid().tvtext with item path given.'
+			'__notes' => 'You cant use [prop]$xdid().seltext[/prop] to get item text, you need to use [prop]$xdid().text[/prop] with item path given.'
 		),
 		"rclick" => array(
 			'__desc' => "When the treeview is right clicked.",
@@ -578,7 +578,7 @@ function get_events_treeview(&$EVENTS) {
 				'PATH' => 'Path leading to the item that triggered the event.',
 			),
 			'__notes' => array(
-				'You cant use $xdid().tvseltext to get item text, you need to use $xdid().tvtext with item path given.',
+				'You cant use [prop]$xdid().seltext[/prop] to get item text, you need to use [prop]$xdid().text[/prop] with item path given.',
 				'This event does not require an item to be clicked on to be triggered. If no item was right clicked, no path is returned.'
 			),
 		),
@@ -610,7 +610,7 @@ function get_events_treeview(&$EVENTS) {
 		"labelbegin" => array(
 			'__desc' => "When item text label editing begins.",
             '__return' => '[r]noedit[/r] to block label editing.',
-            '__notes' => 'Use $xdid().selpath to determine which path is being edited.',
+            '__notes' => 'Use [prop]$xdid().selpath[/prop] to determine which path is being edited.',
 		),
 		"labelend" => array(
 			'__desc' => "When the user clicks elsewhere or presses RETURN while editing or clicks somewhere else but edited the text.",
@@ -620,7 +620,7 @@ function get_events_treeview(&$EVENTS) {
 				'VALUE' => 'Edited text label.',
 			),
             '__return' => '[r]noedit[/r] to cancel label editing (for example if string is NULL or invalid to your application).',
-            '__notes' => 'Use $xdid().selpath to determine which path is being edited.',
+            '__notes' => 'Use [prop]$xdid().selpath[/prop] to determine which path is being edited.',
 		),
 		"labelcancel" => "When the user presses ESC while editing or clicks somewhere else without editing the text.",
 		"expand" => array(
@@ -639,7 +639,7 @@ function get_events_treeview(&$EVENTS) {
 				'PATH' => 'Path leading to the item that was collapsed.',
 			),
 		),
-	    "help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+	    "help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 ?>

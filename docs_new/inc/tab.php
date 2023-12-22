@@ -23,7 +23,7 @@ function get_styles_tab(&$STYLES) {
 
 		'__notes' => array(
 			'Vertical and bottom tabs are not supported correctly in XP Themes. The control works, but the tabs are not drawn properly. There is no easy fix for this at the moment. It is a bug in the windows theme system, not in the API.',
-			'When using the [s]gradient[/s] style, the gradient color can be changed by applying the text background color with [f]xdid -C[/f]',
+			'When using the [s]gradient[/s] style, the gradient color can be changed by applying the text background color with <a class="value" href="xdid.htm#xdid.big.C">xdid -C</a>',
 		),
 	);
 }
@@ -169,7 +169,7 @@ function get_xdidprops_tab(&$XDIDPROPS) {
 function get_events_tab(&$EVENTS) {
 	$EVENTS = array(
 	        "closetab" => "When the close button on a [s]closeable[/s] tab is clicked.",
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 		'sclick' => array(
 			'__desc' => 'When a tab item is selected.',
 			'__cmd' => 'ITEM',

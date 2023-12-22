@@ -274,20 +274,6 @@ void DcxLink::parseCommandRequest(const TString& input)
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')])
 	{
-		//if (numtok < 6)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//const auto flag(input.getnexttok());		// tok 4
-		//const auto index = input.getnexttok().to_int();	// tok 5
-		//auto filename(input.getlasttoks());			// tok 6, -1
-		//
-		//if (this->m_hIcon)
-		//	DestroyIcon(this->m_hIcon);
-		//
-		//this->m_hIcon = dcxLoadIcon(index, filename, false, flag);
-		//
-		//this->redrawWindow();
-
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 

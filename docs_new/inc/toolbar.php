@@ -34,8 +34,8 @@ function get_xdid_toolbar(&$XDID) {
 	                '__desc' => 'Item flags.',
 	                '__values' => array(
 		                'a' => 'The button is auto-sized to fit in the icon and text.',
-						'b' => 'The button text is bold. (Only works with XP themes disabled)',
-						'c' => 'The button text is colored, defined by [p]COLOR[/p]. (Only works with XP themes disabled)',
+						'b' => 'The button text is bold. (Only works with [o]XP[/o] themes disabled)',
+						'c' => 'The button text is colored, defined by [p]COLOR[/p]. (Only works with [o]XP[/o] themes disabled)',
 						'd' => 'The button is disabled.',
 						'g' => 'The button is part of a checkgroup (radio checks) (used with [f]-k[/f] flag).',
 						'h' => 'The button is hidden (but still part of the toolbar).',
@@ -43,7 +43,7 @@ function get_xdid_toolbar(&$XDID) {
 						'k' => 'The button acts like a checkbox.',
 						'l' => 'Specifies that [p]WIDTH[/p] is the button width.',
 						'p' => 'The button appears like pressed.',
-						'u' => 'Item text is underlined. (Only works with XP themes disabled)',
+						'u' => 'Item text is underlined. (Only works with [o]XP[/o] themes disabled)',
 						'v' => 'The button acts like a dropdown button. (If the [s]arrows[/s] style is specified, a dropdown arrow will be drawn beside the button)',
 						'w' => 'The button after (and all other buttons following) a button with this style will be forced to the next line.',
 						'x' => 'The button is checked.',
@@ -51,14 +51,14 @@ function get_xdid_toolbar(&$XDID) {
 				),
 				'WIDTH' => 'Button width (Use 0 if not used).',
 				'ICON' => 'Icon displayed when item is not selected.',
-				'COLOR' => 'Toolbar button text color (Only works with XP themes disabled).',
+				'COLOR' => 'Toolbar button text color (Only works with [o]XP[/o] themes disabled).',
 			),
 	        '__notes' => array(
 				"[p]Button Text[/p] and [p]Tooltip Text[/p] parameters are optional.",
                 "If [p]Button Text[/p] is '[v]-[/v]' the button will be a separator item.",
 				"If the button is a separator item, the value used for [p]ICON[/p] will be the separator width in pixels.",
-				"Icons must be added before it can be used in the toolbar. (see <a>/xdid -l</a>)",
-				'Colors will only work if the computer has no visual styles applied (XP themes). To use this on machines with visual styles enabled, apply the [s]notheme[/s] style.',
+				"Icons must be added before it can be used in the toolbar. (see [cmd]/xdid -l[/cmd])",
+				'Colors will only work if the computer has no visual styles applied [o]XP themes[/o]. To use this on machines with visual styles enabled, apply the [s]notheme[/s] style.',
 			),
 		),
 		'c' => array(
@@ -93,7 +93,7 @@ function get_xdid_toolbar(&$XDID) {
 					),
 				),
 			),
-	        '__notes' => 'When using flags +X and +z, you MUST use [p]N[/p] to be [v]0[/v].'
+	        '__notes' => 'When using flags [f]+X[/f] and [f]+z[/f], you MUST use [p]N[/p] to be [v]0[/v].'
 		),
 		'd' => array(
 	        '__desc' => 'This command lets you delete the Nth toolbar button.',
@@ -167,14 +167,14 @@ function get_xdid_toolbar(&$XDID) {
 			),
 	        '__notes' => array(
 				"A flags value of [v]+[/v] resets the button to it's normal state.",
-				'[N] can be a single button or a range of buttons eg: 1,2,8-12',
+				'[N] can be a single button or a range of buttons eg: [v]1,2,8-12[/v]',
 			),
 		),
 		'u' => array(
 	        '__desc' => 'This command lets change the toolbar default button size.',
 	        '__cmd' => '[WIDTH] [HEIGHT]',
 	        '__eg' => '20 15',
-	        '__notes' => 'If a button has been added with the +a flag this command will not change the width.'
+	        '__notes' => 'If a button has been added with the [f]+a[/f] flag this command will not change the width.'
 		),
 		'v' => array(
 	        '__desc' => 'This command lets you change the Nth button text (text is optional).',
@@ -222,7 +222,7 @@ function get_xdidprops_toolbar(&$XDIDPROPS) {
 		    '__eg' => '1',
 		),
 		"state" => array(
-		    '__desc' => 'This property lets you retreive the state of the Nth toolbar button. The flags returned are in the same format specified in <a>/xdid -t</a>.',
+		    '__desc' => 'This property lets you retreive the state of the Nth toolbar button. The flags returned are in the same format specified in [cmd]/xdid -t[/cmd].',
 		    '__cmd' => 'N',
 		    '__eg' => '6',
 		),
@@ -265,7 +265,7 @@ function get_events_toolbar(&$EVENTS) {
 			),
 		),
 		"dropdown" => array(
-			'__desc' => "When a dropdown button (or arrow if [s]arrow[/s] style is set) event is fired on a button.",
+			'__desc' => "When a dropdown button (or arrow if [s]arrows[/s] style is set) event is fired on a button.",
 			'__cmd' => 'BTN_ID Bottom_X Bottom_Y Top_X Top_Y',
 			'__eg' => '10 586 73 586 27',
 			'__params' => array(
@@ -276,7 +276,7 @@ function get_events_toolbar(&$EVENTS) {
 				'Top_Y' => 'Coordinates of a possible popup menu aligned over the button where the dropdown was fired.',
 			),
 		),
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 

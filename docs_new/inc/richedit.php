@@ -58,7 +58,7 @@ function get_xdid_richedit(&$XDID) {
 		        '__cmd' => '[N] [TEXT]',
 		        '__eg' => "5 Inserted Text",
 			    '__notes' => array(
-					"The text is inserted at the [s]Nth[/s] character no matter what mode the control is in.",
+					"The text is inserted at the [v]Nth[/v] character no matter what mode the control is in.",
 					" If the control has less that N characters the text is added to the end."
 				),
 		),
@@ -95,15 +95,15 @@ function get_xdid_richedit(&$XDID) {
 			),
 			'__notes' => array(
 				"If the [s]multi[/s] style is not used, will overwrite the whole text.",
-				"[N] must be supplied even if the control is single line",
-				"For a multi line control [N] must be > zero",
+				"[p]N[/p] must be supplied even if the control is single line",
+				"For a multi line control [p]N[/p] must be > zero",
 			),
 		),
 		'P' => array(
 		  '__desc' => 'This command lets you paste the contents of the clipboard into the richedit control.',
 		  '__notes' => array(
 			'Formatting in the text is kept when using this command.',
-			'The text will be pasted directly into the current caret position. See [f]/xdid -S[/f].',
+			'The text will be pasted directly into the current caret position. See [cmd]/xdid -S[/cmd].',
 			),
 		),
 		'q' => array(
@@ -242,7 +242,7 @@ function get_events_richedit(&$EVENTS) {
 		),
 		'sclick' => 'When the left mouse button is clicked.',
 		'lbup' => 'When the left mouse button is released.',
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 ?>

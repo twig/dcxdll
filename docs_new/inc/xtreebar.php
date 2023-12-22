@@ -74,7 +74,7 @@ function get_xtreebar(&$XTREEBAR) {
                 ),
                 'COLOR' => 'The color in $rgb() format.',
             ),
-            '__notes' => 'This requires [v]/xtreebar -T[/v] to be activated.',
+            '__notes' => 'This requires [cmd]/xtreebar -T[/cmd] to be activated.',
         ),
         'f' => array(
             '__desc' => 'This command allows you to change the mIRC Treebar font.',
@@ -121,20 +121,20 @@ function get_xtreebar(&$XTREEBAR) {
                 'showsel' => 'Selections will be shown when mIRC Treebar loses focus.',
                 'noshowsel' => 'Selections will not be shown when mIRC Treebar loses focus.',
 
-		'autohscroll' => 'Remove the horizontal scrollbar and auto-scroll depending on mouse position. [o]Vista[/o]',
+                'autohscroll' => 'Remove the horizontal scrollbar and auto-scroll depending on mouse position. [o]Vista[/o]',
                 'noautohscroll' => 'Enables the horizontal scrollbar and auto-scroll depending on mouse position. [o]Vista[/o]',
-		'doublebuffer' => 'Specifies how the background is erased or filled. [o]Vista[/o]',
+                'doublebuffer' => 'Specifies how the background is erased or filled. [o]Vista[/o]',
                 'nodoublebuffer' => 'Specifies how the background is erased or filled. [o]Vista[/o]',
-		'fadebuttons' => 'Fade expand buttons in or out when the mouse moves away or into a state of hovering over the control. [o]Vista[/o]',
+                'fadebuttons' => 'Fade expand buttons in or out when the mouse moves away or into a state of hovering over the control. [o]Vista[/o]',
                 'nofadebuttons' => 'Does not fade expand buttons in or out when the mouse moves away or into a state of hovering over the control. [o]Vista[/o]',
                 'indent' => 'Indents the tree view for the expand buttons. [o]Vista[/o]',
-		'noindent' => 'Does not indent the tree view for the expand buttons. [o]Vista[/o]',
-		'richtooltip' => 'Allow rich tooltips in the tree view (custom drawn with icon and text). [o]Vista[/o]',
+                'noindent' => 'Does not indent the tree view for the expand buttons. [o]Vista[/o]',
+                'richtooltip' => 'Allow rich tooltips in the tree view (custom drawn with icon and text). [o]Vista[/o]',
                 'norichtooltip' => 'Disables rich tooltips in the tree view (custom drawn with icon and text). [o]Vista[/o]',
             ),
             '__notes' => array(
                 'Using [s]noscroll[/s] while the scrollbar is visible may lead to graphical glitches.',
-                'When using [s]infotip[/s], the alias [v]$xtreeview_callback(gettooltip, [TYPE], [TEXT])[/v] is called. Use [v]return [NEW_TIP_TEXT][/v] to change the tooltip text, and return nothing to prevent the tip from being displayed.',
+                'When using [s]infotip[/s], the alias [v]$xtreeview_callback(gettooltip, [TYPE], [TEXT])[/v] is called. Use return [r]NEW_TIP_TEXT[/r] to change the tooltip text, and return nothing to prevent the tip from being displayed.',
                 '[s]balloon[/s] can only be used AFTER [s]tooltips[/s] has been enabled, in a seperate [v]/xtreebar[/v] command.',
             ),
         ),
@@ -152,17 +152,17 @@ function get_xtreebar(&$XTREEBAR) {
             '__desc' => 'This command allows you to change the mIRC Treebar images.',
             '__cmd' => '[POS] [+FLAGS] [INDEX] [FILE]',
             '__eg' => array(
-		'0 + 1 icons.icl',
-		'clear',
-		'default',
-	    ),
+		        '0 + 1 icons.icl',
+		        'clear',
+		        'default',
+	        ),
             '__params' => array(
                 'clear' => 'Clears the icon list.',
                 'default' => 'Reverts the icon list to the default icons.',
                 'POS' => 'The position to add the new icon. Use [v]0[/v] to add to the end.',
                 // + dcxLoadIcon flags for +FLAGS
             ),
-            '__notes' => 'This requires [v]/xtreebar -T[/v] to be activated.',
+            '__notes' => 'This requires [cmd]/xtreebar -T[/cmd] to be activated.',
         ),
     );
     

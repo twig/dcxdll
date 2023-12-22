@@ -132,7 +132,7 @@ function get_xdid_list(&$XDID) {
             ),
 			'__notes' => array(
 				'You can use [v]0[/v] for [p]N[/p] to insert at the end of the listbox.',
-				'If no [p]FLAG[/p] is specified, this behaves exactly like [f]/xdid -a[/f].',
+				'If no [p]FLAG[/p] is specified, this behaves exactly like [cmd]/xdid -a[/cmd].',
 			),
 		),
 	);
@@ -208,7 +208,7 @@ function get_events_list(&$EVENTS) {
 		"rclick" => array(
 			'__desc' => "When you right-click on the list.",
 		),
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 		'dragbegin' => array(
 			'__desc' => "Triggers when one or more files are dropped onto the control.",
 			'__cmd' => 'COUNT',

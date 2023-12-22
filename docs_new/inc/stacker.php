@@ -12,7 +12,7 @@ function get_styles_stacker(&$STYLES) {
 		'tooltips' => 'The stacker will have a tooltip.',
 		'gradient' => 'Show items with a gradient background.',
 		'noformat' => 'Disables support for mIRC codes in control (faster).',
-		'__notes' => '[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using [f]xdid -C[/f]',
+		'__notes' => '[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or <a class="value" href="dcx.htm#general.GetSystemColor">$dcx(GetSystemColor, COLOR_WINDOWTEXT)</a> respectively). Change it by using <a class="value" href="xdid.htm#xdid.big.C">xdid -C</a>',
 	);
 }
 
@@ -139,7 +139,7 @@ function get_events_stacker(&$EVENTS) {
 				'ITEM' => 'Item number where the event was triggered.'
 			),
 		),
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 ?>

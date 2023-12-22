@@ -5,7 +5,7 @@ function get_intro_dialog() {
 You can dock any number of dialogs as long as each is a separate entity.<br />
 <br />
 [n]The docked dialogs are ejected when the main dialog is closed, or the control is deleted.[/n]<br />
-[n]Within the [e]close[/e] event of the main dialog, you must use a timer with /xdialog -x to close the docked dialog.[/n]
+[n]Within the [e]close[/e] event of the main dialog, you must use a timer with [link page="xdialog" section="xdialog" flag="x"]/xdialog -x[/link] to close the docked dialog.[/n]
 <?php
 }
 
@@ -19,7 +19,7 @@ function get_xdidprops_dialog(&$XDIDPROPS) {
 
 function get_events_dialog(&$EVENTS) {
 	$EVENTS = array(
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 ?>

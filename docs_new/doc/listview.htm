@@ -150,7 +150,7 @@
 	</tr>
 	<tr>
 		<td class="style"><a name="style.editlabel" class="style">editlabel</a></td>
-		<td>Enables the possibility to edit listview item labels. (To make a a column editable, see <a class="value">/xdid -o</a>)</td>
+		<td>Enables the possibility to edit listview item labels. (To make a a column editable, see <a class='value' href='listview.htm#xdid.o'>/xdid -o</a>)</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.flatsb" class="style">flatsb</a></td>
@@ -252,7 +252,7 @@
 		<td class="style"><a name="style.underlinehot" class="style">underlinehot</a></td>
 		<td>Causes those hot items that may be activated to be displayed with underlined text. (<a class='style' href='listview.htm#style.oneclick'>oneclick</a> or <a class='style' href='listview.htm#style.twoclick'>twoclick</a> needed)</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class='style' href='listview.htm#style.grid'>grid</a> does not work with groups. See <a class='value' href='#xdid.q'>/xdid -q</a>.</li><li><a class='style' href='listview.htm#style.sortasc'>sortasc</a> and <a class='style' href='listview.htm#style.sortdesc'>sortdesc</a> only work with <a class='style' href='listview.htm#style.report'>report</a> or <a class='style' href='listview.htm#style.list'>list</a> views.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class='style' href='listview.htm#style.grid'>grid</a> does not work with groups. See <a class='value' href='listview.htm#xdid.q'>/xdid -q</a>.</li><li><a class='style' href='listview.htm#style.sortasc'>sortasc</a> and <a class='style' href='listview.htm#style.sortdesc'>sortdesc</a> only work with <a class='style' href='listview.htm#style.report'>report</a> or <a class='style' href='listview.htm#style.list'>list</a> views.</li></ul></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xdid"></a>/xdid flags</td></tr>
@@ -399,7 +399,7 @@
 		<td class="param">TEXT</td>
 		<td>The text to display in the cell.<br />If used with <a class="value">+p</a> <a class="param">+FLAGS</a>, then this is the DCX ProgressBar <a class='style' href='listview.htm#style.style'>style</a>.<br />If used with <a class="value">+H</a> or <a class="value">+n</a> <a class="param">+FLAGS</a>, then this is either <a class="value">HASHTABLE</a> <a class="value">ITEM</a> or <a class="value">HASHTABLE</a> <a class="value">INDEX</a> respectively.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Icons must be added prior to be used in the listview using <a class='value' href='#xdid.w'>/xdid -w</a></li><li>The <a class="param">INDENT</a> parameter only works if you are using normal icons in the listview.</li><li>Even if there are icons in the icon lists and <a class="value">0</a> is used for no icon, there will be the an icon indent space in front of the item text. (normal and state icon lists)</li><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class='style' href='listview.htm#style.checkbox'>checkbox</a> style in order to use checkboxes in the listview.</li><li><a class="param">+IFLAGS</a> is a combination of</li><li> <a class="value">+</a>   No Flags specified. <a class="param">N</a> provided, add a single item as text only.</li><li> <a class="value">+a</a>  item(s) contain all the flags & icon info etc.. for the item(s) to be added from <a class="param">INDENT</a> onwards.</li><li> <a class="value">+A</a>  add all items starting at <a class="param">N</a></li><li> <a class="value">+n</a>  <a class="param">N1-N2</a> numeric range supplied. Add all items in range. (can't be used with <a class='value' href='#xdid.big.A'>+A</a>)</li><li>- <a class="param">N1</a> must be > 0</li><li>- <a class="param">N2</a> can't be 0, but can be a negative.</li><li> <a class="value">+i</a>  <a class="param">name</a> single named item to be added. (can't be used with <a class='value' href='#xdid.n'>+n</a> or <a class='value' href='#xdid.big.A'>+A</a>)</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Icons must be added prior to be used in the listview using <a class='value' href='listview.htm#xdid.w'>/xdid -w</a></li><li>The <a class="param">INDENT</a> parameter only works if you are using normal icons in the listview.</li><li>Even if there are icons in the icon lists and <a class="value">0</a> is used for no icon, there will be the an icon indent space in front of the item text. (normal and state icon lists)</li><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class='style' href='listview.htm#style.checkbox'>checkbox</a> style in order to use checkboxes in the listview.</li><li><a class="param">+IFLAGS</a> is a combination of</li><li> <a class="value">+</a>   No Flags specified. <a class="param">N</a> provided, add a single item as text only.</li><li> <a class="value">+a</a>  item(s) contain all the flags & icon info etc.. for the item(s) to be added from <a class="param">INDENT</a> onwards.</li><li> <a class="value">+A</a>  add all items starting at <a class="param">N</a></li><li> <a class="value">+n</a>  <a class="param">N1-N2</a> numeric range supplied. Add all items in range. (can't be used with <a class="value">+A</a>)</li><li>- <a class="param">N1</a> must be > 0</li><li>- <a class="param">N2</a> can't be 0, but can be a negative.</li><li> <a class="value">+i</a>  <a class="param">name</a> single named item to be added. (can't be used with <a class="value">+n</a> or <a class="value">+A</a>)</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -538,7 +538,7 @@
 		<td class="param">COLOR</td>
 		<td>Color in $rgb() format.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="param">COLOR</a> can be <a class="value">none</a> for no colors, for both background and text background flags.</li><li>If <a class="param">COLOR</a> is <a class="value">none</a> for text background, the text background parameter of <a class='value' href='#xdid.a'>/xdid -a</a> wont work anymore.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="param">COLOR</a> can be <a class="value">none</a> for no colors, for both background and text background flags.</li><li>If <a class="param">COLOR</a> is <a class="value">none</a> for text background, the text background parameter of <a class='value' href='listview.htm#xdid.a'>/xdid -a</a> wont work anymore.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -783,7 +783,7 @@
 	</tr>
 	<tr>
 		<td class="param">GROUPID</td>
-		<td>ID that identifies the group when adding items in <a class='value' href='#xdid.a'>/xdid -a</a>.</td>
+		<td>ID that identifies the group when adding items in <a class='value' href='listview.htm#xdid.a'>/xdid -a</a>.</td>
 	</tr>
 	<tr>
 		<td class="param">GROUPTEXT</td>
@@ -1341,7 +1341,7 @@
 	</tr>
 	<tr>
 		<td class="param">GID</td>
-		<td>ID that identifies the group when adding items in <a class='value' href='#xdid.a'>/xdid -a</a>.</td>
+		<td>ID that identifies the group when adding items in <a class='value' href='listview.htm#xdid.a'>/xdid -a</a>.</td>
 	</tr>
 	<tr>
 		<td class="param">GROUPTEXT</td>
@@ -1731,7 +1731,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4, 3).gstate</div></td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">+C</a> - Group is collapsible<br /><a class="returnevent">+H</a> - Group is hidden<br /><a class="returnevent">+N</a> - Group has no header<br /><a class="returnevent">+O</a> - Group is collapsed<br /><a class="returnevent">+S</a> - Group is selected</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The returned flags can be combined. eg +CO</td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">+C</a> - Group is collapsible<br /><a class="returnevent">+H</a> - Group is hidden<br /><a class="returnevent">+N</a> - Group has no header<br /><a class="returnevent">+O</a> - Group is collapsed<br /><a class="returnevent">+S</a> - Group is selected</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The returned flags can be combined. eg <a class="value">+CO</a></td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -1918,7 +1918,7 @@
 		<td class="param">N</td>
 		<td>Optional parameter allowing you to obtain the Nth selected index.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the listview is <a class='style' href='listview.htm#style.multiline'>multiline</a>, and <a class="param">N</a> is not supplied, then this command will return a comma-separated list of the selected indexes.</li><li>If <a class="param">N</a> is <a class="value">0</a>, then this will return the number of lines selected. (Same as <a class="value">$xdid().selnum</a>)</li><li>When using this property without <a class="param">N</a>, the result is limited to 900 characters. This is due to an implementation that mIRC has imposed on DLL communication, so it is advised to use the <a class="param">N</a> parameter to prevent inaccurate results.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the listview is <a class='style' href='listview.htm#style.multiline'>multiline</a>, and <a class="param">N</a> is not supplied, then this command will return a comma-separated list of the selected indexes.</li><li>If <a class="param">N</a> is <a class="value">0</a>, then this will return the number of lines selected. (Same as <a class='value' href='listview.htm#xdidprop.selnum'>$xdid().selnum</a>)</li><li>When using this property without <a class="param">N</a>, the result is limited to 4100 characters. This is due to an implementation that mIRC has imposed on DLL communication, so it is advised to use the <a class="param">N</a> parameter to prevent inaccurate results.</li></ul></td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -2076,7 +2076,7 @@
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.help"></a>help	</td></tr>
-	<tr><td colspan="2">Launched when you click on a control using the <a class='style' href='listview.htm#style.?'>?</a> contexthelp button.</td></tr>
+	<tr><td colspan="2">Launched when you click on a control using the <a class="value">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
@@ -2700,7 +2700,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 21st December, 23</td>
+		<td style="text-align: right;">Last Updated: 22nd December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

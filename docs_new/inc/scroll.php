@@ -50,26 +50,26 @@ function get_xdidprops_scroll(&$XDIDPROPS) {
 
 function get_events_scroll(&$EVENTS) {
 	$EVENTS = array(
-                "trackend" => array(
+		"trackend" => array(
 			'__desc' => "When the user releases the left mouse button after dragging the thumb.",
 			'__cmd' => 'POS',
-                        '__eg' => '73',
+			'__eg' => '73',
 			'__params' => array(
 				'POS' => 'Scroll bar position.'
 			),
 		),
-        	"top" => array(
+        "top" => array(
 			'__desc' => "When the user presses the home key.",
 			'__cmd' => 'POS',
-                        '__eg' => '0',
+            '__eg' => '0',
 			'__params' => array(
 				'POS' => 'Scroll bar position.'
 			),
 		),
-                "bottom" => array(
+        "bottom" => array(
 			'__desc' => "When the user presses the end key.",
 			'__cmd' => 'POS',
-                        '__eg' => '100',
+            '__eg' => '100',
 			'__params' => array(
 				'POS' => 'Scroll bar position.'
 			),
@@ -77,7 +77,7 @@ function get_events_scroll(&$EVENTS) {
 		"lineup" => array(
 			'__desc' => "When the user increases the value by using the arrow keys.",
 			'__cmd' => 'POS',
-                        '__eg' => '89',
+            '__eg' => '89',
 			'__params' => array(
 				'POS' => 'Scroll bar position.'
 			),
@@ -91,7 +91,7 @@ function get_events_scroll(&$EVENTS) {
 			),
 		),
 		"pageup" => array(
-                        '__desc' => "When the user increases the value in large increments by clicking on the scrollbar thumb track.",
+            '__desc' => "When the user increases the value in large increments by clicking on the scrollbar thumb track.",
 			'__cmd' => 'POS',
 			'__eg' => '90',
 			'__params' => array(
@@ -99,14 +99,14 @@ function get_events_scroll(&$EVENTS) {
 			),
 		),
 		"pagedown" => array(
-                        '__desc' => "When the user decreases the value in large increments by clicking on the scrollbar thumb track.",
+            '__desc' => "When the user decreases the value in large increments by clicking on the scrollbar thumb track.",
 			'__cmd' => 'POS',
-                        '__eg' => '80',
+            '__eg' => '80',
 			'__params' => array(
 				'POS' => 'Scroll bar position.'
 			),
 		),
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 ?>

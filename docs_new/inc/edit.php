@@ -24,9 +24,9 @@ function get_styles_edit(&$STYLES) {
 		'alpha' => 'Control is alpha blended.',
 		'showlinenumbers' => 'Show line numbers in a multi line control',
 		'unlockgutter' => 'Allow resizing the gutter area.',
-		'zoomable' => 'Control is zoomable. (win10+)',
-		'eollf' => 'Allow line feeds to end lines. (win10+)',
-		'eolcr' => 'Allow carriage returns to end lines. (win10+)',
+		'zoomable' => 'Control is zoomable. [o]win10+[/o]',
+		'eollf' => 'Allow line feeds to end lines. [o]win10+[/o]',
+		'eolcr' => 'Allow carriage returns to end lines. [o]win10+[/o]',
 		'__notes' => array(
 			'Even with [s]number[/s] style, it is still possible to paste non-digits into the edit control.',
 			'[s]password[/s] does not work with [s]multi[/s] style.',
@@ -71,7 +71,7 @@ function get_xdid_edit(&$XDID) {
 			'__desc' => 'This command lets you insert a line at the Nth position in the edit.',
 		        '__cmd' => '[N] [TEXT]',
 		        '__eg' => "5 Inserted Text",
-		        '__notes' => "The text is inserted at the [s]Nth[/s] character no matter what mode the control is in. If the control has less that N characters the text is added to the end."
+		        '__notes' => "The text is inserted at the [v]Nth[/v] character no matter what mode the control is in. If the control has less that N characters the text is added to the end."
 		),
 		'j' => array(
 		    '__desc' => 'This command lets you trigger the password style of the edit control on the fly.',
@@ -94,7 +94,7 @@ function get_xdid_edit(&$XDID) {
 		),
 		'P' => array(
 			'__desc' => 'This command lets you paste the contents of the clipboard into the edit control.',
-		    '__notes' => 'The text will be pasted directly into the current caret position. See [f]/xdid -S[/f].',
+		    '__notes' => 'The text will be pasted directly into the current caret position. See [cmd]/xdid -S[/cmd].',
 		),
 		'q' => array(
 		    '__desc' => 'This command lets you set a char length limit on the edit.',
@@ -256,7 +256,7 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 		    '__notes' => 'If the [s]multi[/s] style is not used, then [p]N[/p] is ignored and the length of all the text is returned.',
 		),
 		"endofline" => array(
-		    '__desc' => 'This property returns the character used to mark the end of lines. (Win10+)',
+		    '__desc' => 'This property returns the character used to mark the end of lines. [o]win10+[/o]',
 			'__return' => array(
 				'0' => "- No end of line character",
 				'1' => "- EC_ENDOFLINE_CRLF - end of line is a CRLF pair.",
@@ -268,7 +268,7 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 			),
 		),
 		"zoom" => array(
-		    '__desc' => 'This property returns the zoom level. (win10+)',
+		    '__desc' => 'This property returns the zoom level. [o]win10+[/o]',
 			'__return' => array(
 				"ZOOM" => "- Level of zoom",
 			),
@@ -306,7 +306,7 @@ function get_events_edit(&$EVENTS) {
 			'__desc' => "When the user pastes text into the edit control.",
 			'__return' => '[r]nopaste[/r] - To block the paste operation.'
 		),
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 		'dragbegin' => array(
 			'__desc' => "Triggers when one or more files are dropped onto the control.",
 			'__cmd' => 'COUNT',

@@ -129,7 +129,7 @@
 		<td class="param">DELAY</td>
 		<td>Delay in <b>millseconds</b> of the animation. (typical system value is 200)</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>The default effect is a roll animation.</li><li>Animation on region clipped dialogs will fail on operating systems prior to XP.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>The default effect is a roll animation.</li><li>Animation on region clipped dialogs will fail on operating systems prior to <a class="os">(XP)</a>.</li></ul></td></tr></table>
 <br />
 <table class="xdialog">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
@@ -1137,19 +1137,19 @@
 	</tr>
 	<tr>
 		<td class="value">c</td>
-		<td>Click events (eg. sclick, dclick, rclick, ...).</td>
+		<td>Click events (eg. <a class="event">sclick</a>, <a class="event">dclick</a>, <a class="event">rclick</a>, ...).</td>
 	</tr>
 	<tr>
 		<td class="value">d</td>
-		<td>Drag events (eg. dragbegin, ect..).</td>
+		<td>Drag events (eg. <a class="event">dragbegin</a>, ect..).</td>
 	</tr>
 	<tr>
 		<td class="value">e</td>
-		<td>Edit events (eg. edit, keydown, keyup, ...).</td>
+		<td>Edit events (eg. <a class="event">edit</a>, <a class="event">keydown</a>, <a class="event">keyup</a>, ...).</td>
 	</tr>
 	<tr>
 		<td class="value">f</td>
-		<td>Focus events (eg. focus and focusout).</td>
+		<td>Focus events (eg. <a class="event">focus</a> and <a class="event">focusout</a>).</td>
 	</tr>
 	<tr>
 		<td class="value">h</td>
@@ -1157,15 +1157,15 @@
 	</tr>
 	<tr>
 		<td class="value">m</td>
-		<td>Mouse events (eg. mouseleave, mouseenter, mouse, ...).</td>
+		<td>Mouse events (eg. <a class="event">mouseleave</a>, <a class="event">mouseenter</a>, <a class="event">mouse</a>, ...).</td>
 	</tr>
 	<tr>
 		<td class="value">s</td>
-		<td>Sizing events (eg. sizing, min, max, ...).</td>
+		<td>Sizing events (eg. <a class="event">sizing</a>, <a class="event">min</a>, <a class="event">max</a>, ...).</td>
 	</tr>
 	<tr>
 		<td class="value">t</td>
-		<td>Theme event (eg. themechanged).</td>
+		<td>Theme event (eg. <a class="event">themechanged</a>).</td>
 	</tr>
 	<tr>
 		<td class="value">C</td>
@@ -1173,7 +1173,7 @@
 	</tr>
 	<tr>
 		<td class="value">M</td>
-		<td>Move events (eg. beginmove, endmove, ...).</td>
+		<td>Move events (eg. <a class="event">beginmove</a>, <a class="event">endmove</a>, ...).</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>The first parameter <a class="param">+FLAGS</a> allows the you to specify which events should be enabled. The second flag parameter specifies which events to disable.</li><li>If you use the same event flag to <a class="value">+</a> and <a class="value">-</a> flags then the events is disabled.</li></ul></td></tr></table>
 <br />
@@ -1580,7 +1580,7 @@
 		<td>Caps Lock</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The return value is binary, which means that you have to use the following code fragment to know if the key identified by the listed number below is currently selected :<br />
-<pre>if ($xdialog(dname).key &amp; KEY_NUM) {
+<pre class='code'>if ($xdialog(dname).key &amp; KEY_NUM) {
   ; do action here
 }</pre></td></tr></table>
 <br />
@@ -1643,7 +1643,7 @@
 <table class="xdialogprop">
 	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
 			<a name="xdialogprop.parent"></a>$xdialog().parent	</td></tr>
-	<tr><td colspan="2">This property retrieves the name of the parent dialog (only if this dialog is docked using <a class="value">/xdialog -c</a> or <a class="value">/xdid -c</a> and if it has been marked).</td></tr>
+	<tr><td colspan="2">This property retrieves the name of the parent dialog (only if this dialog is docked using <a class='value' href='xdialog.htm#xdialog.c'>/xdialog -c</a> or <a class="value">/xdid -c</a> and if it has been marked).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdialog(dialog).parent</div></td>
@@ -1785,7 +1785,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx close 0</div></td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">noclose</a> Return this value to block the window closing.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You will have to use <a class="value">/xdialog -x</a> to close the dialog instead of mIRC's /dialog -x if you return <a class="returnevent">noclose</a> on this event.</li><li>Should only be used with non-modal dialogs (modal dialogs are created using $dialog). If you are using a modal dialog, refer to <a class="event">scclose</a>. Returning <a class="returnevent">noclose</a> here will cause the modal dialog to be unclosable.</li><li>If you wish to close docked dialogs within this event, you must use a timer with /xdialog -x to close the docked dialog.</li></ul></td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">noclose</a> Return this value to block the window closing.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You will have to use <a class='value' href='xdialog.htm#xdialog.x'>/xdialog -x</a> to close the dialog instead of mIRC's /dialog -x if you return <a class="returnevent">noclose</a> on this event.</li><li>Should only be used with non-modal dialogs (modal dialogs are created using $dialog). If you are using a modal dialog, refer to <a class="event">scclose</a>. Returning <a class="returnevent">noclose</a> here will cause the modal dialog to be unclosable.</li><li>If you wish to close docked dialogs within this event, you must use a timer with <a class='value' href='xdialog.htm#xdialog.x'>/xdialog -x</a> to close the docked dialog.</li></ul></td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -2308,7 +2308,7 @@
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.zlayershow"></a>zlayershow	</td></tr>
-	<tr><td colspan="2">Event triggered when a control is about to be displayed by calling <a class="value">/xdialog -z</a> with the <a class="value">+s</a> flag.</td></tr>
+	<tr><td colspan="2">Event triggered when a control is about to be displayed by calling <a class='value' href='xdialog.htm#xdialog.z'>/xdialog -z</a> with the <a class="value">+s</a> flag.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME zlayershow ID ZINDEX CID</div></td>
@@ -3046,7 +3046,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 21st December, 23</td>
+		<td style="text-align: right;">Last Updated: 22nd December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

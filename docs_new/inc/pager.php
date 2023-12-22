@@ -67,7 +67,7 @@ function get_xdidprops_pager(&$XDIDPROPS) {
 
 function get_events_pager(&$EVENTS) {
 	$EVENTS = array(
-	    "help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+	    "help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 ?>

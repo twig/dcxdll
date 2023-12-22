@@ -21,6 +21,9 @@ function wikiData(&$value, $userdata = "") {
 		'/\[n\](.*?)\[\/n\]/is', // note
 		'/\[f\](.*?)\[\/f\]/is', // flag
 		'/\[code\](.*?)\[\/code\]/is', // code
+		'/\[prop\]\$(.*?)\(\)\.(.*?)\[\/prop\]/is', // prop
+		'/\[cmd\](\/)?(.*?)\s-([a-z])\[\/cmd\]/s', // cmd
+		'/\[cmd\](\/)?(.*?)\s-([A-Z])\[\/cmd\]/s', // cmd
 	);
 
 	$simple_replace = array(
@@ -28,8 +31,8 @@ function wikiData(&$value, $userdata = "") {
 		'<a class="event">$1</a>',
 		'<a class="returnevent">$1</a>',
 		//"<a class='style'>$1</a>",
-		"<a class='style' href='$CURRENTPAGE.htm#style.$1'>$1</a>",
-		"<a class='style' href='$1.htm#style.$2'>$2</a>",
+		"<a class='style' href='$CURRENTPAGE.htm#style.$1'>$1</a>", // style
+		"<a class='style' href='$1.htm#style.$2'>$2</a>", // style
 		'<a class="param">$1</a>',
 //		'<a class="property">$1</a>',
 		'<a class="os">($1)</a>',
@@ -37,6 +40,9 @@ function wikiData(&$value, $userdata = "") {
 		'<a class="note">Note:</a> $1',
 		'<a class="value">$1</a>', // flag
 		'<pre class="code">$1</pre>', // code
+		"<a class='value' href='$CURRENTPAGE.htm#$1prop.$2'>$$1().$2</a>", // prop
+		"<a class='value' href='$CURRENTPAGE.htm#$2.$3'>$1$2 -$3</a>", // cmd
+		"<a class='value' href='$CURRENTPAGE.htm#$2.big.$3'>$1$2 -$3</a>", // cmd
 	);
 
     // Ook: passing null is depricated, needs looked at more.

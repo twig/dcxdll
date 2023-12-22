@@ -79,7 +79,7 @@ function get_events_colorcombo(&$EVENTS) {
 				'ITEM' => "The item number that was selected",
 			),
 		),
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 ?>

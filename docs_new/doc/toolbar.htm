@@ -157,11 +157,11 @@
 	</tr>
 	<tr>
 		<td class="value">b</td>
-		<td>The button text is bold. (Only works with XP themes disabled)</td>
+		<td>The button text is bold. (Only works with <a class="os">(XP)</a> themes disabled)</td>
 	</tr>
 	<tr>
 		<td class="value">c</td>
-		<td>The button text is colored, defined by <a class="param">COLOR</a>. (Only works with XP themes disabled)</td>
+		<td>The button text is colored, defined by <a class="param">COLOR</a>. (Only works with <a class="os">(XP)</a> themes disabled)</td>
 	</tr>
 	<tr>
 		<td class="value">d</td>
@@ -193,7 +193,7 @@
 	</tr>
 	<tr>
 		<td class="value">u</td>
-		<td>Item text is underlined. (Only works with XP themes disabled)</td>
+		<td>Item text is underlined. (Only works with <a class="os">(XP)</a> themes disabled)</td>
 	</tr>
 	<tr>
 		<td class="value">v</td>
@@ -217,9 +217,9 @@
 	</tr>
 	<tr>
 		<td class="param">COLOR</td>
-		<td>Toolbar button text color (Only works with XP themes disabled).</td>
+		<td>Toolbar button text color (Only works with <a class="os">(XP)</a> themes disabled).</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="param">Button Text</a> and <a class="param">Tooltip Text</a> parameters are optional.</li><li>If <a class="param">Button Text</a> is '<a class="value">-</a>' the button will be a separator item.</li><li>If the button is a separator item, the value used for <a class="param">ICON</a> will be the separator width in pixels.</li><li>Icons must be added before it can be used in the toolbar. (see <a>/xdid -l</a>)</li><li>Colors will only work if the computer has no visual styles applied (XP themes). To use this on machines with visual styles enabled, apply the <a class='style' href='toolbar.htm#style.notheme'>notheme</a> style.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="param">Button Text</a> and <a class="param">Tooltip Text</a> parameters are optional.</li><li>If <a class="param">Button Text</a> is '<a class="value">-</a>' the button will be a separator item.</li><li>If the button is a separator item, the value used for <a class="param">ICON</a> will be the separator width in pixels.</li><li>Icons must be added before it can be used in the toolbar. (see <a class='value' href='toolbar.htm#xdid.l'>/xdid -l</a>)</li><li>Colors will only work if the computer has no visual styles applied <a class="os">(XP themes)</a>. To use this on machines with visual styles enabled, apply the <a class='style' href='toolbar.htm#style.notheme'>notheme</a> style.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -306,7 +306,7 @@
 		<td class="value">z</td>
 		<td>The text color of the toolbar tooltip.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When using flags +X and +z, you MUST use <a class="param">N</a> to be <a class="value">0</a>.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When using flags <a class="value">+X</a> and <a class="value">+z</a>, you MUST use <a class="param">N</a> to be <a class="value">0</a>.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -468,7 +468,7 @@
 		<td class="value">x</td>
 		<td>The button is checked.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>A flags value of <a class="value">+</a> resets the button to it's normal state.</li><li>[N] can be a single button or a range of buttons eg: 1,2,8-12</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>A flags value of <a class="value">+</a> resets the button to it's normal state.</li><li>[N] can be a single button or a range of buttons eg: <a class="value">1,2,8-12</a></li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -482,7 +482,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -u dcx 4 20 15</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If a button has been added with the +a flag this command will not change the width.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If a button has been added with the <a class="value">+a</a> flag this command will not change the width.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -616,7 +616,7 @@
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.state"></a>$xdid().state	</td></tr>
-	<tr><td colspan="2">This property lets you retreive the state of the Nth toolbar button. The flags returned are in the same format specified in <a>/xdid -t</a>.</td></tr>
+	<tr><td colspan="2">This property lets you retreive the state of the Nth toolbar button. The flags returned are in the same format specified in <a class='value' href='toolbar.htm#xdid.t'>/xdid -t</a>.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdid(dialog, ID, N).state</div></td>
@@ -690,7 +690,7 @@
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.dropdown"></a>dropdown	</td></tr>
-	<tr><td colspan="2">When a dropdown button (or arrow if <a class='style' href='toolbar.htm#style.arrow'>arrow</a> style is set) event is fired on a button.</td></tr>
+	<tr><td colspan="2">When a dropdown button (or arrow if <a class='style' href='toolbar.htm#style.arrows'>arrows</a> style is set) event is fired on a button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME dropdown ID BTN_ID Bottom_X Bottom_Y Top_X Top_Y</div></td>
@@ -725,7 +725,7 @@
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.help"></a>help	</td></tr>
-	<tr><td colspan="2">Launched when you click on a control using the <a class='style' href='toolbar.htm#style.?'>?</a> contexthelp button.</td></tr>
+	<tr><td colspan="2">Launched when you click on a control using the <a class="value">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
@@ -1234,7 +1234,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 21st December, 23</td>
+		<td style="text-align: right;">Last Updated: 22nd December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

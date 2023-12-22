@@ -207,7 +207,7 @@ function get_events_directshow(&$EVENTS) {
 		'rbdown' => 'right mouse button is down',
 		'rbup' => 'right mouse button is up',
 		'rclick' => 'right mouse button was clicked',
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 		'rclick' => 'When the right mouse button is clicked.',
 		'rbdown' => 'When the right mouse button is pressed.',
 		'rbup' => 'When the right mouse button is released.',

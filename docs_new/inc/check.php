@@ -26,7 +26,7 @@ function get_xdid_check(&$XDID) {
 	    'c' => array(
 	        '__desc' => 'This command lets you check the checkbox.',
 	        '__notes' => array(
-                "You can set the indeterminate state when using a [s]3state[/s] check by using the <a>-cu</a> switches.",
+                "You can set the indeterminate state when using a [s]3state[/s] check by using the <f>-cu</f> switches.",
  			)
 		),
 		't' => array(
@@ -38,7 +38,7 @@ function get_xdid_check(&$XDID) {
 	        '__desc' => 'This command lets you uncheck the check control.',
 		),
 		"C" => array(
-			'__desc' => "This command is an overload of the general -C command for colours.",
+			'__desc' => "This command is an overload of the general [f]-C[/f] command for colours.",
 			'__cmd' => "[+FLAGS] [COLOR]",
 			'__eg' => '+hc $rgb(0,0,255)',
 			'__params' => array(
@@ -81,7 +81,7 @@ function get_events_check(&$EVENTS) {
 	$EVENTS = array(
 	    "sclick" => "When the text is clicked.",
 	    "rclick" => "When you right-click on the text.",
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 ?>

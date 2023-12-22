@@ -193,7 +193,7 @@ function get_xdidprops_rebar(&$XDIDPROPS) {
 
 function get_events_rebar(&$EVENTS) {
 	$EVENTS = array(
-	    "help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+	    "help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 		'sclick' => array(
 		    '__desc' => 'When a sclick event is fired over a rebar band (excluding the area occupied by a child control).',
 	        '__cmd' => 'BAND',

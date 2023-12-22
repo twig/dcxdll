@@ -353,10 +353,9 @@ alias -l _menuevent {
   elseif ($2 == 361) _setmenustyle alpha
   elseif ($2 == 362) _setmenustyle noalpha
   elseif ($2 == 803) {
-    var %tabid = $xdialog($1,$xdid($1,4,$xdid($1,4).sel).childid).namedid
-    var %d = $mircdirImages
+    var %tabid = $xdialog($1,$xdid($1,4,$xdid($1,4).sel).childid).namedid, %d = $mircdirImages
     if ($isdir(%d)) xdid -C $1 $+(%tabid,_web) + $+(%d,\ScreenShot_,$ticks,.png)
-    else xdid -C $1 $+(%tabid,_web) + $+(ScreenShot_,$ticks,.png)
+    else xdid -C $1 $+(%tabid,_web) +
   }
 }
 on *:DIALOG:dcx_webbrowser:menu:*: _menuevent $dname $did

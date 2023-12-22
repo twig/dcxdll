@@ -92,11 +92,11 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 	</tr>
 	<tr>
 		<td class="style"><a name="style.eolcr" class="style">eolcr</a></td>
-		<td>Allow carriage returns to end lines. (win10+)</td>
+		<td>Allow carriage returns to end lines. <a class="os">(win10+)</a></td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.eollf" class="style">eollf</a></td>
-		<td>Allow line feeds to end lines. (win10+)</td>
+		<td>Allow line feeds to end lines. <a class="os">(win10+)</a></td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.hsbar" class="style">hsbar</a></td>
@@ -132,7 +132,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 	</tr>
 	<tr>
 		<td class="style"><a name="style.zoomable" class="style">zoomable</a></td>
-		<td>Control is zoomable. (win10+)</td>
+		<td>Control is zoomable. <a class="os">(win10+)</a></td>
 	</tr>
 </table>
 <br />
@@ -283,7 +283,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -o dcx 4 5 New multi line Text<br />/xdid -o dcx 4 0 New single line Text<br /></div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the <a class='style' href='richedit.htm#style.multi'>multi</a> style is not used, will overwrite the whole text.</li><li>[N] must be supplied even if the control is single line</li><li>For a multi line control [N] must be > zero</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the <a class='style' href='richedit.htm#style.multi'>multi</a> style is not used, will overwrite the whole text.</li><li><a class="param">N</a> must be supplied even if the control is single line</li><li>For a multi line control <a class="param">N</a> must be > zero</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -367,7 +367,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -I dcx 4 5 Inserted Text</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>The text is inserted at the <a class='style' href='richedit.htm#style.Nth'>Nth</a> character no matter what mode the control is in.</li><li> If the control has less that N characters the text is added to the end.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>The text is inserted at the <a class="value">Nth</a> character no matter what mode the control is in.</li><li> If the control has less that N characters the text is added to the end.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -381,7 +381,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -P dcx 4</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Formatting in the text is kept when using this command.</li><li>The text will be pasted directly into the current caret position. See <a class="value">/xdid -S</a>.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Formatting in the text is kept when using this command.</li><li>The text will be pasted directly into the current caret position. See <a class='value' href='richedit.htm#xdid.big.S'>/xdid -S</a>.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -544,7 +544,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.zoom"></a>$xdid().zoom	</td></tr>
-	<tr><td colspan="2">This property returns the zoom level. (win10+)</td></tr>
+	<tr><td colspan="2">This property returns the zoom level. <a class="os">(win10+)</a></td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdid(dialog, ID).zoom</div></td>
@@ -562,7 +562,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.help"></a>help	</td></tr>
-	<tr><td colspan="2">Launched when you click on a control using the <a class='style' href='richedit.htm#style.?'>?</a> contexthelp button.</td></tr>
+	<tr><td colspan="2">Launched when you click on a control using the <a class="value">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
@@ -1019,7 +1019,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 21st December, 23</td>
+		<td style="text-align: right;">Last Updated: 22nd December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

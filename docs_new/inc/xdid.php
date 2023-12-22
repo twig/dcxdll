@@ -222,7 +222,7 @@ function get_xdid_xdid(&$XDID) {
 					),
                 ),
             ),
-			'__notes' => 'When using [v]+b[/v] on the <a href="trackbar.htm">trackbar</a>, call [link page="xdid" section="xdid" flag="U"]/xdid -U[/link] on the control to force a redraw. [link page="xdialog" section="xdialog" flag="j"]/xdialog -j[/link] will not work. This is an API bug.',
+			'__notes' => 'When using [v]+b[/v] on the <a href="trackbar.htm">trackbar</a>, call [cmd]/xdid -U[/cmd] on the control to force a redraw. [link page="xdialog" section="xdialog" flag="j"]/xdialog -j[/link] will not work. This is an API bug.',
 		),
 		"F" => array(
 			'__desc' => "This command lets you set the focus on the control.",

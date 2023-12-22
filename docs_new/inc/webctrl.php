@@ -23,7 +23,7 @@ function get_xdid_webctrl(&$XDID) {
 	        '__desc' => 'This command is like hitting the Back button in IE.',
 		),
 		'm' => array(
-	        '__desc' => 'This does the same as /xdid -n but allows setting some flags too.',
+	        '__desc' => 'This does the same as [cmd]/xdid -n[/cmd] but allows setting some flags too.',
 	        '__cmd' => '[+FLAGS] [+MASK] (URL)',
 	        '__eg' => "+bf +b http://dcx.scriptsdb.org",
 			'__params' => array(
@@ -43,7 +43,7 @@ function get_xdid_webctrl(&$XDID) {
 						's' => 'toggle statusbar on/off',
 					),
 				),
-				'+MASK' => 'is used to set the flags on or off /xdid -m dialog +bf +b will turn the address bar on, & disable fullscreen.',
+				'+MASK' => 'is used to set the flags on or off [v]/xdid -m dname +bf +b[/v] will turn the address bar on, & disable fullscreen.',
 				'URL' => 'is optional, if not supplied then you can use the command to just set flags.',
 			),
 		),
@@ -143,7 +143,7 @@ function get_events_webctrl(&$EVENTS) {
 			'__eg' => '$true',
 			'__notes' => '[p]ENABLED[/p] can be either [v]$true[/v] or [v]$false[/v] to indicate the enabled state of the back button.',
 		),
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 ?>

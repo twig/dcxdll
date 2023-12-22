@@ -24,7 +24,7 @@ function get_styles_listview(&$STYLES) {
 		'showsel' => 'When the control loses focus, the selection is still displayed.',
 		'nolabelwrap' => 'The text is displayed on a single line. ([s]icon[/s] & [s]smallicon[/s] views)',
 		'checkbox' => 'Enables checkbox support in the list view. ([s]report[/s] view)',
-		'editlabel' => 'Enables the possibility to edit listview item labels. (To make a a column editable, see [f]/xdid -o[/f])',
+		'editlabel' => 'Enables the possibility to edit listview item labels. (To make a a column editable, see [cmd]/xdid -o[/cmd])',
 		'headerdrag' => 'Enables the possibility to drag listview headers to another position. ([s]report[/s] view)',
 		'sortasc' => 'Items are sorted based on item text in ascending order.',
 		'sortdesc' => 'Items are sorted based on item text in descending order.',
@@ -57,7 +57,7 @@ function get_styles_listview(&$STYLES) {
 		'groups' => 'Enabled custom drawn groups.',
 
 		'__notes' => array(
-		     '[s]grid[/s] does not work with groups. See [link section="xdid" flag="q"]/xdid -q[/link].',
+		     '[s]grid[/s] does not work with groups. See [cmd]/xdid -q[/cmd].',
 		     '[s]sortasc[/s] and [s]sortdesc[/s] only work with [s]report[/s] or [s]list[/s] views.'
 		),
 	);
@@ -113,10 +113,10 @@ function get_xdid_listview(&$XDID) {
 				'GROUPID' => 'Group ID. (Use [v]0[/v] for no value) [o]XP+[/o]',
 				'COLOR' => 'Item text color.',
 				'BGCOLOR' => 'Item background color.',
-				'TEXT' => 'The text to display in the cell.<br />If used with [v]+p[/v] [p]+FLAGS[/p], then this is the DCX ProgressBar [s]style[/s].<br />If used with [v]+H[/v] or [v]+n[/v] [p]+FLAGS[/p], then this is either [v]HASHTABLE[/v] [v]ITEM[/v] or [v]HASHTABLE[/v] [v]INDEX[/v] respectively.',
+				'TEXT' => 'The text to display in the cell.<br />If used with [f]+p[/f] [p]+FLAGS[/p], then this is the DCX ProgressBar [s]style[/s].<br />If used with [f]+H[/f] or [f]+n[/f] [p]+FLAGS[/p], then this is either [v]HASHTABLE[/v] [v]ITEM[/v] or [v]HASHTABLE[/v] [v]INDEX[/v] respectively.',
 			),
 			'__notes' => array(
-				'Icons must be added prior to be used in the listview using [link section="xdid" flag="w"]/xdid -w[/link]',
+				'Icons must be added prior to be used in the listview using [cmd]/xdid -w[/cmd]',
 				'The [p]INDENT[/p] parameter only works if you are using normal icons in the listview.',
 				'Even if there are icons in the icon lists and [v]0[/v] is used for no icon, there will be the an icon indent space in front of the item text. (normal and state icon lists)',
 				"You can use [v]0[/v] for the [p]#ICON[/p], and [p]#OVERLAY[/p] values if you wish to use no icon.",
@@ -125,10 +125,10 @@ function get_xdid_listview(&$XDID) {
 				' [v]+[/v]   No Flags specified. [p]N[/p] provided, add a single item as text only.',
 				' [v]+a[/v]  item(s) contain all the flags & icon info etc.. for the item(s) to be added from [p]INDENT[/p] onwards.',
 				' [v]+A[/v]  add all items starting at [p]N[/p]',
-				' [v]+n[/v]  [p]N1-N2[/p] numeric range supplied. Add all items in range. (can\'t be used with [link section="xdid" flag="A"]+A[/link])',
+				' [v]+n[/v]  [p]N1-N2[/p] numeric range supplied. Add all items in range. (can\'t be used with [f]+A[/f])',
 				'- [p]N1[/p] must be > 0',
 				'- [p]N2[/p] can\'t be 0, but can be a negative.',
-				' [v]+i[/v]  [p]name[/p] single named item to be added. (can\'t be used with [link section="xdid" flag="n"]+n[/link] or [link section="xdid" flag="A"]+A[/link])',
+				' [v]+i[/v]  [p]name[/p] single named item to be added. (can\'t be used with [f]+n[/f] or [f]+A[/f])',
 			),
 		),
 		'A' => array(
@@ -267,7 +267,7 @@ function get_xdid_listview(&$XDID) {
 			),
 	        '__notes' => array(
 				'[p]COLOR[/p] can be [v]none[/v] for no colors, for both background and text background flags.',
-				'If [p]COLOR[/p] is [v]none[/v] for text background, the text background parameter of [link section="xdid" flag="a"]/xdid -a[/link] wont work anymore.',
+				'If [p]COLOR[/p] is [v]none[/v] for text background, the text background parameter of [cmd]/xdid -a[/cmd] wont work anymore.',
 			),
 		),
 		'j' => array(
@@ -449,7 +449,7 @@ function get_xdid_listview(&$XDID) {
 						'r' => 'Group text is right aligned.',
 					),
 				),
-                'GROUPID' => 'ID that identifies the group when adding items in [link section="xdid" flag="a"]/xdid -a[/link].',
+                'GROUPID' => 'ID that identifies the group when adding items in [cmd]/xdid -a[/cmd].',
                 'GROUPTEXT' => 'Label for the group.'
 			),
 		),
@@ -471,7 +471,7 @@ function get_xdid_listview(&$XDID) {
 						'r' => 'Group text is right aligned.',
 					),
 				),
-                'GID' => 'ID that identifies the group when adding items in [link section="xdid" flag="a"]/xdid -a[/link].',
+                'GID' => 'ID that identifies the group when adding items in [cmd]/xdid -a[/cmd].',
                 'GROUPTEXT' => 'Label for the group.'
 			),
 		),
@@ -726,8 +726,8 @@ function get_xdidprops_listview(&$XDIDPROPS) {
 			),
 			'__notes' => array(
 				'If the listview is [s]multiline[/s], and [p]N[/p] is not supplied, then this command will return a comma-separated list of the selected indexes.',
-				'If [p]N[/p] is [v]0[/v], then this will return the number of lines selected. (Same as [f]$xdid().selnum[/f])',
-				'When using this property without [p]N[/p], the result is limited to 900 characters. This is due to an implementation that mIRC has imposed on DLL communication, so it is advised to use the [p]N[/p] parameter to prevent inaccurate results.',
+				'If [p]N[/p] is [v]0[/v], then this will return the number of lines selected. (Same as [prop]$xdid().selnum[/prop])',
+				'When using this property without [p]N[/p], the result is limited to 4100 characters. This is due to an implementation that mIRC has imposed on DLL communication, so it is advised to use the [p]N[/p] parameter to prevent inaccurate results.',
 			),
 		),
 		"selnum" => 'This property lets you retreive the number of selected items in the listview.',
@@ -821,7 +821,7 @@ function get_xdidprops_listview(&$XDIDPROPS) {
 				'+O' => '- Group is collapsed',
 				'+S' => '- Group is selected',
 			),
-			'__notes' => 'The returned flags can be combined. eg +CO',
+			'__notes' => 'The returned flags can be combined. eg [f]+CO[/f]',
 		),
 		'pbar' => array(
 			'__desc' => "This property lets you retreive ProgressBar properties from a specific cell.",
@@ -948,7 +948,7 @@ function get_events_listview(&$EVENTS) {
 			'__return' => '[r]notrack[/r] to cancel resizing.'
 		),
 		'scrollend' => 'When the user has finished scrolling the vertical scrollbar in the listview.',
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 		"selected" => array(
 			'__desc' => 'Triggered when you select an item.',
 			'__cmd' => 'LINE COLUMN',

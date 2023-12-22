@@ -42,7 +42,7 @@ function get_xdid_panel(&$XDID) {
 		    '__desc' => "This command lets you set the text for a panel control.",
 		    '__cmd' => '[TEXT]',
 		    '__eg' => 'New Window Text',
-		    '__notes' => 'The panel text (and border) is only visible when used with /xdid -x DIALOG ID +bd',
+		    '__notes' => 'The panel text (and border) is only visible when used with <a class="value" href="xdid.htm#xdid.x">/xdid -x DIALOG ID +bd</a>',
 		),
 	);
 }
@@ -50,7 +50,7 @@ function get_xdid_panel(&$XDID) {
 
 function get_events_panel(&$EVENTS) {
 	$EVENTS = array(
-	    "help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+	    "help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 		'sclick' => 'When the left mouse button is clicked.',
 		'dclick' => 'When the left mouse button is double-clicked.',
 		'lbdown' => 'When the left mouse button is pressed.',

@@ -253,46 +253,27 @@ void DcxWebControl2::parseCommandRequest(const TString& input)
 		if (!xFlags[TEXT('+')])
 			throw DcxExceptions::dcxInvalidFlag();
 
-		//OPENFILENAME openFileName = {};
-		//openFileName.lStructSize = sizeof(openFileName);
-		//openFileName.hwndOwner = nullptr;
-		//openFileName.hInstance = nullptr;
-		//WCHAR fileName[MAX_PATH] = L"WebView2_Screenshot.png";
-		//if (!tsFilename.empty())
-		//	_ts_strcpy(&fileName[0], tsFilename.to_wchr());
-		//
-		//openFileName.lpstrFile = &fileName[0];
-		//openFileName.lpstrFilter = L"PNG File\0*.png\0";
-		//openFileName.nMaxFile = std::size(fileName);
-		//openFileName.Flags = OFN_OVERWRITEPROMPT;
-		//
-		//if (GetSaveFileName(&openFileName))
-		//{
-		//	wil::com_ptr<IStream> stream;
-		//	if (SUCCEEDED(SHCreateStreamOnFileEx(&fileName[0], STGM_READWRITE | STGM_CREATE, FILE_ATTRIBUTE_NORMAL, TRUE, nullptr, &stream)))
-		//	{
-		//		m_webview->CapturePreview(COREWEBVIEW2_CAPTURE_PREVIEW_IMAGE_FORMAT_PNG, stream.get(),
-		//			Microsoft::WRL::Callback<ICoreWebView2CapturePreviewCompletedHandler>(
-		//				[this](HRESULT error_code) noexcept -> HRESULT {
-		//					//CHECK_FAILURE(error_code);
-		//
-		//					MessageBox(m_Hwnd, L"Preview Captured", L"Preview Captured", MB_OK);
-		//					return S_OK;
-		//				})
-		//			.Get());
-		//	}
-		//}
+		COREWEBVIEW2_CAPTURE_PREVIEW_IMAGE_FORMAT fmt = COREWEBVIEW2_CAPTURE_PREVIEW_IMAGE_FORMAT_PNG;
+		if (xFlags[L'j'])
+			fmt = COREWEBVIEW2_CAPTURE_PREVIEW_IMAGE_FORMAT_JPEG;
 
 		if (tsFilename.empty())
 		{
-			OPENFILENAME openFileName = {};
+			WCHAR fileName[MAX_PATH] = L"WebView2_Screenshot.";
+			if (xFlags[L'j'])
+				_ts_strcat(&fileName[0], L"jpg");
+			else
+				_ts_strcat(&fileName[0], L"png");
+
+			OPENFILENAME openFileName{};
 			openFileName.lStructSize = sizeof(openFileName);
 			openFileName.hwndOwner = nullptr;
 			openFileName.hInstance = nullptr;
-			WCHAR fileName[MAX_PATH] = L"WebView2_Screenshot.png";
-
 			openFileName.lpstrFile = &fileName[0];
-			openFileName.lpstrFilter = L"PNG File\0*.png\0";
+			if (xFlags[L'j'])
+				openFileName.lpstrFilter = L"Jpeg Files\0.jpeg;.jpg\0";
+			else
+				openFileName.lpstrFilter = L"PNG Files\0.png\0";
 			openFileName.nMaxFile = std::size(fileName);
 			openFileName.Flags = OFN_OVERWRITEPROMPT;
 
@@ -305,7 +286,7 @@ void DcxWebControl2::parseCommandRequest(const TString& input)
 			wil::com_ptr<IStream> stream;
 			if (SUCCEEDED(SHCreateStreamOnFileEx(tsFilename.to_wchr(), STGM_READWRITE | STGM_CREATE, FILE_ATTRIBUTE_NORMAL, TRUE, nullptr, &stream)))
 			{
-				m_webview->CapturePreview(COREWEBVIEW2_CAPTURE_PREVIEW_IMAGE_FORMAT_PNG, stream.get(),
+				m_webview->CapturePreview(fmt, stream.get(),
 					Microsoft::WRL::Callback<ICoreWebView2CapturePreviewCompletedHandler>(
 						[this](HRESULT error_code) noexcept -> HRESULT {
 							//CHECK_FAILURE(error_code);

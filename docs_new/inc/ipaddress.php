@@ -45,7 +45,7 @@ function get_events_ipaddress(&$EVENTS) {
 	    "sclick" => "When you left-click on the IpAddress control.",
 	    "edit" => "When a field in the control changes.",
 	    "rclick" => "When you right-click on the IP Address control.",
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 ?>

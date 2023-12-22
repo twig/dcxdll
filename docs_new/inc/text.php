@@ -19,7 +19,7 @@ function get_styles_text(&$STYLES) {
 		'vgradient' => 'Draws a vertical gradient with the colors specified.',
 		'doublebuffer' => 'Buffers the drawing. May help with flicker in some cases.',
 		'__notes' => array(
-			'[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using [f]xdid -C[/f]'
+			'[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or <a class="value" href="dcx.htm#general.GetSystemColor">$dcx(GetSystemColor, COLOR_WINDOWTEXT)</a> respectively). Change it by using <a class="value" href="xdid.htm#xdid.big.C">xdid -C</a>'
 		),
 	);
 }
@@ -58,7 +58,7 @@ function get_events_text(&$EVENTS) {
 	    "sclick" => "When the text is clicked.",
 	    "dclick" => "When the text is double-clicked.",
 	    "rclick" => "When you right-click on the text.",
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 ?>

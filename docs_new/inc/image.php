@@ -1,6 +1,6 @@
 <?php
 function get_intro_image() {
-	echo 'Image control that lets you display BMP, GIF, JPEG, Exif, PNG, TIFF, ICON, WMF and EMF images. However, if GDI+ is not loaded, DCX can only support native BMP format files. See [f]$dcx(IsUsingGDI)[/f].';
+	echo 'Image control that lets you display BMP, GIF, JPEG, Exif, PNG, TIFF, ICON, WMF and EMF images. However, if GDI+ is not loaded, DCX can only support native BMP format files. See <a class="value" href="dcx.htm#general.IsUsingGDI">$dcx(IsUsingGDI)</a>.';
 }
 
 function get_styles_image(&$STYLES) {
@@ -9,8 +9,8 @@ function get_styles_image(&$STYLES) {
 		'tooltips' => 'The image will have a tooltip.',
         'hgradient' => 'Draws a horizontal gradient with the colors specified.',
 		'vgradient' => 'Draws a vertical gradient with the colors specified.',
-		'vcenter' => 'Draws the image centered vertically in the control. (only affects images loaded with [s]+k[/s])',
-		'hcenter' => 'Draws the image centered horizontally in the control. (only affects images loaded with [s]+k[/s])',
+		'vcenter' => 'Draws the image centered vertically in the control. (only affects images loaded with [f]+k[/f])',
+		'hcenter' => 'Draws the image centered horizontally in the control. (only affects images loaded with [f]+k[/f])',
 	);
 }
 
@@ -88,7 +88,7 @@ function get_xdid_image(&$XDID) {
 					'__values' => array(
 						'a' => 'Start/Pause an animation.<br/>[ARGS] is [1|0].',
 						'd' => 'Set the delay between frames.<br/>[ARGS] is [DELAY].<br/>A delay of zero causes the images built in delay to be used.',
-						'f' => 'Set the current frame.<br/>[ARGS] is [FRAME].<br/>[FRAME] must be >=0 & <= $xdid(dname,id).frames',
+						'f' => 'Set the current frame.<br/>[ARGS] is [FRAME].<br/>[FRAME] must be >=0 & <= [prop]$xdid().frames[/prop]',
 					),
 				),
 				'ARGS' => 'This is dependent on which flag is used.',
@@ -120,7 +120,7 @@ function get_events_image(&$EVENTS) {
 	    "dclick" => "When the image is double-clicked.",
 	    "rclick" => "When you right-click on the image.",
 	    "lbup" => "When you release the left mouse button.",
-		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 	);
 }
 ?>
