@@ -423,10 +423,6 @@ void DcxWebControl2::InstallComplete(int return_code) noexcept
 {
 	if (return_code == 0)
 	{
-		//RunAsync([this] {
-		//	InitializeWebView();
-		//	});
-
 		try {
 			this->InitializeInterface();
 		}

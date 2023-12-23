@@ -309,6 +309,7 @@ void DcxMultiCombo::parseInfoRequest(const TString& input, const refString<TCHAR
 
 	// [NAME] [ID] [PROP]
 	case L"style"_hash:
+		// -1 = error, 1 = dropped, 0 = not dropped.
 		_ts_snprintf(szReturnValue, TEXT("%u"), getCurStyle());
 		break;
 
