@@ -207,6 +207,10 @@ NB: The control also requires WebView2 installed & will try to install it if not
 		<td>toggle statusbar on/off</td>
 	</tr>
 	<tr>
+		<td class="value">A</td>
+		<td>toggle Mute on/off</td>
+	</tr>
+	<tr>
 		<td class="param">+MASK</td>
 		<td>is used to set the flags on or off <a class="value">/xdid -m dname +bf +b</a> will turn the address bar on, & disable fullscreen.</td>
 	</tr>
@@ -293,6 +297,20 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.mute"></a>$xdid().mute	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the audio mute state. <a class="value">$true</a> if the audio is muted.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).mute</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).mute</div></td>
+	</tr>
+</table>
+<br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.statusbar"></a>$xdid().statusbar	</td></tr>
@@ -814,6 +832,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a class='flag' href="#xdidprop.mute"><div>mute</div></a>
 		<a class='flag' href="#xdidprop.statusbar"><div>statusbar</div></a>
 		<a class='flag' href="#xdidprop.statustext"><div>statustext</div></a>
 		<a class='flag' href="#xdidprop.url"><div>url</div></a>
@@ -844,7 +863,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 22nd December, 23</td>
+		<td style="text-align: right;">Last Updated: 28th December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">

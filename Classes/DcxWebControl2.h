@@ -56,6 +56,8 @@ public:
 	bool IsStatusbarEnabled() const;
 	bool IsFullScreenEnabled() const;
 	bool IsScriptingEnabled() const;
+	bool IsAudioMuted() const;
+	bool IsAudioPlaying() const;
 	const bool& IsDownloadingEnabled() const noexcept;
 	const bool& IsNewWindowsManaged() const noexcept;
 	const bool& IsDownloadsDialogEnabled() const noexcept;
@@ -70,6 +72,7 @@ public:
 	void setDownloadsState(bool bEnable) noexcept;
 	void setManageNewWindows(bool bEnable) noexcept;
 	void setDownloadsDialogState(bool bEnable) noexcept;
+	void setAudioMuteState(bool bEnable);
 
 	void setURL(const TString& tsURL, const TString& tsFlags, const TString& tsMask);
 	void setDownloadDir(const TString& tsDir);
@@ -107,6 +110,9 @@ private:
 	EventRegistrationToken m_stateChangedToken;
 	EventRegistrationToken m_downloadStartingToken;
 	EventRegistrationToken m_newWindowRequestedToken;
+	EventRegistrationToken m_contextmenuToken;
+	EventRegistrationToken m_documentplayingaudioToken;
+	EventRegistrationToken m_mutedToken;
 
 	bool m_bFullScreen{};
 	bool m_bAllowDownloads{ true };
@@ -131,5 +137,8 @@ private:
 	HRESULT OnDownloadStarting(ICoreWebView2* sender, ICoreWebView2DownloadStartingEventArgs* args);
 	HRESULT OnClearBrowsingDataCompleted(HRESULT errorCode);
 	HRESULT OnNewWindowRequested(ICoreWebView2* sender, ICoreWebView2NewWindowRequestedEventArgs* args);
-};
+	HRESULT OnContextMenu(ICoreWebView2* sender, ICoreWebView2ContextMenuRequestedEventArgs* eventArgs);
+	HRESULT OnDocumentPlayingAudioChanged(ICoreWebView2* sender, IUnknown* eventArgs);
+	HRESULT OnMutedChanged(ICoreWebView2* sender, IUnknown* eventArgs);
+ };
 

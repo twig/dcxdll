@@ -79,7 +79,7 @@ void DcxWebControl2::parseInfoRequest(const TString& input, const refString<TCHA
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
-		// [NAME] [ID] [PROP]
+	// [NAME] [ID] [PROP]
 	case L"url"_hash:
 	{
 		szReturnValue = this->getURL().to_chr();
@@ -131,6 +131,12 @@ void DcxWebControl2::parseInfoRequest(const TString& input, const refString<TCHA
 	case L"statustext"_hash:
 	{
 		szReturnValue = this->getStatusText().to_chr();
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"mute"_hash:
+	{
+		szReturnValue = dcx_truefalse(this->IsAudioMuted());
 	}
 	break;
 	// [NAME] [ID] [PROP]
@@ -328,6 +334,8 @@ void DcxWebControl2::toXml(TiXmlElement* const xml) const
 		tsMask += L'u';
 	if (this->IsDownloadsDialogEnabled())
 		tsMask += L'U';
+	if (this->IsAudioMuted())
+		tsMask += L'A';
 
 	xml->SetAttribute("flags", tsFlags.c_str());
 	xml->SetAttribute("mask", tsMask.c_str());
@@ -531,6 +539,24 @@ bool DcxWebControl2::IsScriptingEnabled() const
 	return bRes;
 }
 
+bool DcxWebControl2::IsAudioMuted() const
+{
+	BOOL isMute{};
+	if (auto webview2_8 = m_webview.try_query<ICoreWebView2_8>(); webview2_8)
+		webview2_8->get_IsMuted(&isMute);
+
+	return isMute;
+}
+
+bool DcxWebControl2::IsAudioPlaying() const
+{
+	BOOL isDocumentPlayingAudio{};
+	if (auto webview2_8 = m_webview.try_query<ICoreWebView2_8>(); webview2_8)
+		webview2_8->get_IsDocumentPlayingAudio(&isDocumentPlayingAudio);
+
+	return isDocumentPlayingAudio;
+}
+
 const bool& DcxWebControl2::IsDownloadingEnabled() const noexcept
 {
 	return m_bAllowDownloads;
@@ -642,6 +668,12 @@ void DcxWebControl2::setDownloadsDialogState(bool bEnable) noexcept
 	m_bDownloadsDialogEnabled = bEnable;
 }
 
+void DcxWebControl2::setAudioMuteState(bool bEnable)
+{
+	if (auto webview2_8 = m_webview.try_query<ICoreWebView2_8>(); webview2_8)
+		webview2_8->put_IsMuted(bEnable);
+}
+
 void DcxWebControl2::setURL(const TString& tsURL, const TString& tsFlags, const TString& tsMask)
 {
 	if (!m_webview || !m_settings)
@@ -672,6 +704,8 @@ void DcxWebControl2::setURL(const TString& tsURL, const TString& tsFlags, const 
 		setFullScreenState(xmask['f']);
 	if (xflags['s']) // statusbar on/off
 		this->setStatusbarState(xmask['s']);
+	if (xflags['A']) // Mute Audio on/off
+		this->setAudioMuteState(xmask['A']);
 
 	if (!tsURL.empty())
 		m_webview->Navigate(tsURL.to_wchr());
@@ -812,6 +846,15 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 	// these can silently fail as an unsupported feature.
 	if (auto webview4 = m_webview.try_query<ICoreWebView2_4>(); webview4)
 		webview4->add_DownloadStarting(Microsoft::WRL::Callback<ICoreWebView2DownloadStartingEventHandler>(this, &DcxWebControl2::OnDownloadStarting).Get(), &m_downloadStartingToken);
+
+	if (auto webview8 = m_webview.try_query<ICoreWebView2_8>(); webview8)
+	{
+		webview8->add_IsDocumentPlayingAudioChanged(Microsoft::WRL::Callback<ICoreWebView2IsDocumentPlayingAudioChangedEventHandler>(this, &DcxWebControl2::OnDocumentPlayingAudioChanged).Get(), &m_documentplayingaudioToken);
+		webview8->add_IsMutedChanged(Microsoft::WRL::Callback<ICoreWebView2IsMutedChangedEventHandler>(this, &DcxWebControl2::OnMutedChanged).Get(), &m_mutedToken);
+	}
+
+	if (auto webview11 = m_webview.try_query<ICoreWebView2_11>(); webview11)
+		webview11->add_ContextMenuRequested(Microsoft::WRL::Callback<ICoreWebView2ContextMenuRequestedEventHandler>(this, &DcxWebControl2::OnContextMenu).Get(), &m_contextmenuToken);
 
 	if (auto webview12 = m_webview.try_query<ICoreWebView2_12>(); webview12)
 		webview12->add_StatusBarTextChanged(Microsoft::WRL::Callback<ICoreWebView2StatusBarTextChangedEventHandler>(this, &DcxWebControl2::OnStatusBarTextChanged).Get(), &m_statusbarToken);
@@ -1131,5 +1174,66 @@ HRESULT DcxWebControl2::OnNewWindowRequested(ICoreWebView2* sender, ICoreWebView
 	}
 	else
 		args->put_Handled(FALSE);
+	return S_OK;
+}
+
+HRESULT DcxWebControl2::OnContextMenu(ICoreWebView2* sender, ICoreWebView2ContextMenuRequestedEventArgs* eventArgs)
+{
+	wil::com_ptr<ICoreWebView2ContextMenuTarget> target;
+	if (FAILED(eventArgs->get_ContextMenuTarget(&target)))
+		return E_FAIL;
+
+	COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND targetKind;
+	if (FAILED(target->get_Kind(&targetKind)))
+		return E_FAIL;
+
+	auto getKind = [](COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND targetKind) noexcept {
+#define __SWITCH_KIND(x) L##x
+#define _SWITCH_KIND(x) __SWITCH_KIND(#x)
+#define SWITCH_KIND(x) case x: return _SWITCH_KIND(x)
+		switch (targetKind)
+		{
+			SWITCH_KIND(COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND_PAGE);
+			SWITCH_KIND(COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND_SELECTED_TEXT);
+			SWITCH_KIND(COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND_IMAGE);
+			SWITCH_KIND(COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND_AUDIO);
+			SWITCH_KIND(COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND_VIDEO);
+		default:
+			break;
+		}
+		return L"COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND_PAGE";
+	};
+
+	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"contextmenu,%u,%s", getUserID(), getKind(targetKind));
+
+	return S_OK;
+}
+
+HRESULT DcxWebControl2::OnDocumentPlayingAudioChanged(ICoreWebView2* sender, IUnknown* eventArgs)
+{
+	if (auto webview2_8 = m_webview.try_query<ICoreWebView2_8>(); webview2_8)
+	{
+		BOOL isDocumentPlayingAudio;
+		webview2_8->get_IsDocumentPlayingAudio(&isDocumentPlayingAudio);
+
+		TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+		evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"audio,%u,%s", getUserID(), (isDocumentPlayingAudio ? L"playing" : L"stopped"));
+	}
+
+	return S_OK;
+}
+
+HRESULT DcxWebControl2::OnMutedChanged(ICoreWebView2* sender, IUnknown* eventArgs)
+{
+	if (auto webview2_8 = m_webview.try_query<ICoreWebView2_8>(); webview2_8)
+	{
+		BOOL isMuted;
+		webview2_8->get_IsMuted(&isMuted);
+
+		TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+		evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"audio,%u,%s", getUserID(), (isMuted ? L"mute" : L"unmute"));
+	}
+
 	return S_OK;
 }

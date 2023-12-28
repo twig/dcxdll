@@ -41,6 +41,7 @@ function get_xdid_web2ctrl(&$XDID) {
 						'U' => 'toggle downloads dialog.',
 						'f' => 'toggle fullscreen on/off',
 						's' => 'toggle statusbar on/off',
+						'A' => 'toggle Mute on/off',
 					),
 				),
 				'+MASK' => 'is used to set the flags on or off [v]/xdid -m dname +bf +b[/v] will turn the address bar on, & disable fullscreen.',
@@ -105,6 +106,9 @@ function get_xdidprops_web2ctrl(&$XDIDPROPS) {
 		),
 		"version" => array(
 		    '__desc' => 'This property lets you retrieve the webview2 version.',
+		),
+		"mute" => array(
+		    '__desc' => 'This property lets you retrieve the audio mute state. [v]$true[/v] if the audio is muted.',
 		),
 	);
 }

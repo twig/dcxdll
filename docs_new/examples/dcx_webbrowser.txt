@@ -85,7 +85,7 @@ alias dcx_webbrowser_newurl {
   var %id = $2, %url = $3-, %edit_id = $+(%id,_edit), %web_id = $+(%id,_web)
 
   xdid -ra $1 %edit_id %url
-  xdid -m $1 %web_id +usm +us %url
+  xdid -m $1 %web_id +usm +u %url
 }
 
 ; go home
@@ -352,7 +352,14 @@ alias -l _menuevent {
   elseif ($2 == 360) _setmenustyle notooltips
   elseif ($2 == 361) _setmenustyle alpha
   elseif ($2 == 362) _setmenustyle noalpha
+  elseif ($2 == 800) {
+    ; load
+    var %tabid = $xdialog($1,$xdid($1,4,$xdid($1,4).sel).childid).namedid
+    var %url = $sfile($mircdir,.Select a file,Load)
+    if (%url != $null) dcx_webbrowser_newurl $1 %tabid %url
+  }
   elseif ($2 == 803) {
+    ; capture
     var %tabid = $xdialog($1,$xdid($1,4,$xdid($1,4).sel).childid).namedid, %d = $mircdirImages
     if ($isdir(%d)) xdid -C $1 $+(%tabid,_web) + $+(%d,\ScreenShot_,$ticks,.png)
     else xdid -C $1 $+(%tabid,_web) +
