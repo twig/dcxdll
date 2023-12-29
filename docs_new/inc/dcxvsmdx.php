@@ -117,7 +117,7 @@ function dcx_vs_mdx() {
 	<tr><td colspan="3"></td></tr>
 
 	<tr>
-		<td class="section_title section_bg">Calendar</td>
+		<td class="section_title section_bg">[link page="calendar"]Calendar[/link]</td>
 		<td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
@@ -126,7 +126,7 @@ function dcx_vs_mdx() {
 	<tr><td colspan="3"></td></tr>
 
 	<tr>
-		<td class="section_title section_bg">Directshow</td>
+		<td class="section_title section_bg">[link page="directshow"]Directshow[/link]</td>
 		<td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
@@ -134,7 +134,7 @@ function dcx_vs_mdx() {
     <tr><td colspan="3"></td></tr>
 
 	<tr>
-		<td class="section_title section_bg">Stacker</td>
+		<td class="section_title section_bg">[link page="stacker"]Stacker[/link]</td>
 		<td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
@@ -142,7 +142,7 @@ function dcx_vs_mdx() {
     <tr><td colspan="3"></td></tr>
 
 	<tr>
-		<td class="section_title section_bg">WebCtrl</td>
+		<td class="section_title section_bg">[link page="webctrl"]WebCtrl[/link]</td>
         <td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
@@ -150,7 +150,7 @@ function dcx_vs_mdx() {
     <tr><td colspan="3"></td></tr>
 
 	<tr>
-		<td class="section_title section_bg">Rebar</td>
+		<td class="section_title section_bg">[link page="rebar"]Rebar[/link]</td>
         <td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
@@ -158,7 +158,7 @@ function dcx_vs_mdx() {
     <tr><td colspan="3"></td></tr>
 
 	<tr>
-		<td class="section_title section_bg">Panel</td>
+		<td class="section_title section_bg">[link page="panel"]Panel[/link]</td>
         <td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
@@ -166,7 +166,7 @@ function dcx_vs_mdx() {
     <tr><td colspan="3"></td></tr>
 
 	<tr>
-		<td class="section_title section_bg">Pager</td>
+		<td class="section_title section_bg">[link page="pager"]Pager[/link]</td>
         <td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
@@ -174,14 +174,14 @@ function dcx_vs_mdx() {
     <tr><td colspan="3"></td></tr>
 
 	<tr>
-		<td class="section_title section_bg">DateTime Picker</td>
+		<td class="section_title section_bg">[link page="datetime"]DateTime Picker[/link]</td>
         <td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
 
     <tr><td colspan="3"></td></tr>
 	<tr>
-		<td class="section_title section_bg">Tab</td>
+		<td class="section_title section_bg">[link page="tab"]Tab[/link]</td>
     	<td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
 	    <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
@@ -189,7 +189,7 @@ function dcx_vs_mdx() {
     <tr><td colspan="3"></td></tr>
 
 	<tr>
-		<td class="section_title section_bg">RichEdit</td>
+		<td class="section_title section_bg">[link page="richedit"]RichEdit[/link]</td>
     	<td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
     	<td class="section_bg"><img src="images/ok.gif" alt="Has feature" /> Undocumented</td>
 	</tr>
@@ -197,7 +197,7 @@ function dcx_vs_mdx() {
     <tr><td colspan="3"></td></tr>
 
 	<tr>
-		<td class="section_title section_bg">ColorCombo</td>
+		<td class="section_title section_bg">[link page="colorcombo"]ColorCombo[/link]</td>
         <td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
@@ -205,7 +205,7 @@ function dcx_vs_mdx() {
     <tr><td colspan="3"></td></tr>
 
 	<tr>
-		<td class="section_title section_bg">Button</td>
+		<td class="section_title section_bg">[link page="button"]Button[/link]</td>
         <td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
@@ -213,7 +213,7 @@ function dcx_vs_mdx() {
     <tr><td colspan="3"></td></tr>
 
 	<tr>
-		<td class="section_title section_bg">MultiCombo</td>
+		<td class="section_title section_bg">[link page="multicombo"]MultiCombo[/link]</td>
         <td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
@@ -221,14 +221,14 @@ function dcx_vs_mdx() {
     <tr><td colspan="3"></td></tr>
 
 	<tr>
-		<td class="section_title section_bg">Stacker</td>
+		<td class="section_title section_bg">[link page="stacker"]Stacker[/link]</td>
         <td class="section_bg"><img src="images/ok.gif" alt="Has feature" /> Incomplete</td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
 
     <tr><td colspan="3"></td></tr>
 
-	<tr><td class="section_title section_bg" colspan="3">TreeView</td></tr>
+	<tr><td class="section_title section_bg" colspan="3">[link page="treeview"]TreeView[/link]</td></tr>
 
 	<tr>
 		<td class="comparison">Events:</td>
@@ -256,7 +256,7 @@ function dcx_vs_mdx() {
 
 	<tr><td colspan="3"></td></tr>
 
-	<tr><td class="section_title section_bg" colspan="3">Listview</td></tr>
+	<tr><td class="section_title section_bg" colspan="3">[link page="listview"]Listview[/link]</td></tr>
 
 	<tr>
 		<td class="comparison">Control Styles:</td>
@@ -300,7 +300,7 @@ function dcx_vs_mdx() {
 
 	<tr><td colspan="3"></td></tr>
 
-	<tr><td class="section_title section_bg" colspan="3">Toolbar</td></tr>
+	<tr><td class="section_title section_bg" colspan="3">[link page="toolbar"]Toolbar[/link]</td></tr>
 
 	<tr>
 		<td class="comparison">Events:</td>
@@ -328,7 +328,7 @@ function dcx_vs_mdx() {
 
 	<tr><td colspan="3"></td></tr>
 
-	<tr><td class="section_title section_bg" colspan="3">Progressbar</td></tr>
+	<tr><td class="section_title section_bg" colspan="3">[link page="pbar"]Progressbar[/link]</td></tr>
 
 	<tr>
 		<td class="comparison">Events:</td>
@@ -350,7 +350,7 @@ function dcx_vs_mdx() {
 
 	<tr><td colspan="3"></td></tr>
 
-	<tr><td class="section_title section_bg" colspan="3">ComboEx</td></tr>
+	<tr><td class="section_title section_bg" colspan="3">[link page="comboex"]ComboEx[/link]</td></tr>
 
 	<tr>
 		<td class="comparison">Events:</td>
@@ -360,7 +360,7 @@ function dcx_vs_mdx() {
 
 	<tr><td colspan="3"></td></tr>
 
-	<tr><td class="section_title section_bg" colspan="3">Trackbar:</td></tr>
+	<tr><td class="section_title section_bg" colspan="3">[link page="trackbar"]Trackbar[/link]:</td></tr>
 
 	<tr>
 		<td class="comparison">Events:</td>
@@ -376,7 +376,7 @@ function dcx_vs_mdx() {
 
 	<tr><td colspan="3"></td></tr>
 
-	<tr><td class="section_title section_bg" colspan="3">UpDown</td></tr>
+	<tr><td class="section_title section_bg" colspan="3">[link page="updown"]UpDown[/link]</td></tr>
 
 	<tr>
 		<td class="comparison">Events:</td>
@@ -398,7 +398,7 @@ function dcx_vs_mdx() {
 
 	<tr><td colspan="3"></td></tr>
 
-	<tr><td class="section_title section_bg" colspan="3">IpAddress</td></tr>
+	<tr><td class="section_title section_bg" colspan="3">[link page="ipaddress"]IpAddress[/link]</td></tr>
 
 	<tr>
 		<td class="comparison">Set individual field ranges:</td>
@@ -414,7 +414,7 @@ function dcx_vs_mdx() {
 
 	<tr><td colspan="3"></td></tr>
 
-	<tr><td class="section_title section_bg" colspan="3">Docked @windows</td></tr>
+	<tr><td class="section_title section_bg" colspan="3">[link page="window"]Docked @windows[/link]</td></tr>
 
 	<tr>
 		<td class="comparison">Events:</td>
@@ -436,7 +436,7 @@ function dcx_vs_mdx() {
 
 	<tr><td colspan="3"></td></tr>
 
-	<tr><td class="section_title section_bg" colspan="3">Divider</td></tr>
+	<tr><td class="section_title section_bg" colspan="3">[link page="divider"]Divider[/link]</td></tr>
 
 	<tr>
 		<td class="comparison">Different Controls</td>

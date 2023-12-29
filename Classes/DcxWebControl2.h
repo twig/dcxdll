@@ -113,6 +113,7 @@ private:
 	EventRegistrationToken m_contextmenuToken;
 	EventRegistrationToken m_documentplayingaudioToken;
 	EventRegistrationToken m_mutedToken;
+	EventRegistrationToken m_externaluriToken;
 
 	bool m_bFullScreen{};
 	bool m_bAllowDownloads{ true };
@@ -140,5 +141,6 @@ private:
 	HRESULT OnContextMenu(ICoreWebView2* sender, ICoreWebView2ContextMenuRequestedEventArgs* eventArgs);
 	HRESULT OnDocumentPlayingAudioChanged(ICoreWebView2* sender, IUnknown* eventArgs);
 	HRESULT OnMutedChanged(ICoreWebView2* sender, IUnknown* eventArgs);
+	HRESULT OnExternalURI(ICoreWebView2* sender, ICoreWebView2LaunchingExternalUriSchemeEventArgs* eventArgs);
  };
 

@@ -205,6 +205,12 @@ function get_events_web2ctrl(&$EVENTS) {
 			'__eg' => 'https://www.sample.com/',
 			'__return' => "[r]cancel[/r] Return this value to block the new window from opening.",
 		),
+		"externaluri" => array(
+			'__desc' => "When an external uri scheme is clicked.",
+			'__cmd' => 'URL',
+			'__eg' => 'irc://irc.sample.com/',
+			'__return' => "[r]cancel[/r] Return this value to block the new window from opening.",
+		),
 	);
 }
 ?>

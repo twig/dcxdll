@@ -862,6 +862,9 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 	if (auto webview15 = m_webview.try_query<ICoreWebView2_15>(); webview15)
 		webview15->add_FaviconChanged(Microsoft::WRL::Callback<ICoreWebView2FaviconChangedEventHandler>(this, &DcxWebControl2::OnFaviconChanged).Get(), &m_faviconChangedToken);
 
+	if (auto webview18 = m_webview.try_query<ICoreWebView2_18>(); webview18)
+		webview18->add_LaunchingExternalUriScheme(Microsoft::WRL::Callback<ICoreWebView2LaunchingExternalUriSchemeEventHandler>(this, &DcxWebControl2::OnExternalURI).Get(), &m_externaluriToken);
+
 	// Schedule an async task to navigate to Bing
 	//webview->Navigate(L"https://www.bing.com/");
 	//webview->Navigate(L"about:blank");
@@ -1235,5 +1238,25 @@ HRESULT DcxWebControl2::OnMutedChanged(ICoreWebView2* sender, IUnknown* eventArg
 		evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"audio,%u,%s", getUserID(), (isMuted ? L"mute" : L"unmute"));
 	}
 
+	return S_OK;
+}
+
+HRESULT DcxWebControl2::OnExternalURI(ICoreWebView2* sender, ICoreWebView2LaunchingExternalUriSchemeEventArgs* eventArgs)
+{
+	if (!eventArgs)
+		return E_FAIL;
+
+	if (const auto pd = getParentDialog(); pd)
+	{
+		wil::unique_cotaskmem_string uri;
+		eventArgs->get_Uri(&uri);
+
+		TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+		mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), uri.get());
+		mIRCLinker::eval(tsBuf, TEXT("$%(%,externaluri,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
+
+		if (tsBuf == L"cancel")
+			eventArgs->put_Cancel(TRUE);
+	}
 	return S_OK;
 }
