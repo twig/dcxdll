@@ -9,6 +9,7 @@
     <GSLDir>F:\CSource\GSL-Master\GSL\include</GSLDir>
     <PCRE2Dir>$(SolutionDir)pcre2\</PCRE2Dir>
     <DirectXTKDir>F:\CSource\DirectXTK\</DirectXTKDir>
+	<WebView2Dir>$(SolutionDir)packages\Microsoft.Web.WebView2.1.0.2210.55\</WebView2Dir>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
@@ -46,6 +47,9 @@
     </BuildMacro>
     <BuildMacro Include="DirectXTKDir">
       <Value>$(DirectXTKDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="WebView2Dir">
+      <Value>$(WebView2Dir)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
