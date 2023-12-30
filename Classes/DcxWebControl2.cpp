@@ -828,16 +828,11 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 	m_settings->put_IsWebMessageEnabled(FALSE);	// TRUE
 
 	// Resize WebView to fit the bounds of the parent window
-	RECT bounds;
-	GetClientRect(m_Hwnd, &bounds);
-	m_webviewController->put_Bounds(bounds);
+	if (RECT bounds; GetClientRect(m_Hwnd, &bounds))
+		m_webviewController->put_Bounds(bounds);
 
-	// <NavigationEvents>
-	// register an ICoreWebView2NavigationStartingEventHandler
 	m_webview->add_NavigationStarting(Microsoft::WRL::Callback<ICoreWebView2NavigationStartingEventHandler>(this, &DcxWebControl2::OnNavigationStarting).Get(), &m_navStartToken);
 	m_webview->add_NavigationCompleted(Microsoft::WRL::Callback<ICoreWebView2NavigationCompletedEventHandler>(this, &DcxWebControl2::OnNavigationCompleted).Get(), &m_navEndToken);
-	// </NavigationEvents>
-
 	m_webview->add_DocumentTitleChanged(Microsoft::WRL::Callback<ICoreWebView2DocumentTitleChangedEventHandler>(this, &DcxWebControl2::OnDocumentTitleChanged).Get(), &m_titleToken);
 	m_webview->add_ContainsFullScreenElementChanged(Microsoft::WRL::Callback<ICoreWebView2ContainsFullScreenElementChangedEventHandler>(this, &DcxWebControl2::OnContainsFullScreenElementChanged).Get(), &m_fullscreenToken);
 	m_webview->add_HistoryChanged(Microsoft::WRL::Callback<ICoreWebView2HistoryChangedEventHandler>(this, &DcxWebControl2::OnHistoryChanged).Get(), &m_historyChangedToken);
@@ -866,10 +861,7 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 	if (auto webview18 = m_webview.try_query<ICoreWebView2_18>(); webview18)
 		webview18->add_LaunchingExternalUriScheme(Microsoft::WRL::Callback<ICoreWebView2LaunchingExternalUriSchemeEventHandler>(this, &DcxWebControl2::OnExternalURI).Get(), &m_externaluriToken);
 
-	// Schedule an async task to navigate to Bing
-	//webview->Navigate(L"https://www.bing.com/");
-	//webview->Navigate(L"about:blank");
-
+	// fix not being visible when multiple controls are used.
 	setVisableState(true);
 
 	return S_OK;
@@ -883,10 +875,6 @@ HRESULT DcxWebControl2::OnNavigationStarting(ICoreWebView2* sender, ICoreWebView
 	wil::unique_cotaskmem_string uri;
 	args->get_Uri(&uri);
 
-	//TCHAR szRes[64]{};
-	//if (!evalAliasEx(&szRes[0], std::size(szRes), L"nav_begin,%u,%s", getUserID(), uri.get()))
-	//	args->put_Cancel(true);
-
 	if (const auto pd = getParentDialog(); pd)
 	{
 		TString tsBuf;
@@ -894,7 +882,7 @@ HRESULT DcxWebControl2::OnNavigationStarting(ICoreWebView2* sender, ICoreWebView
 		mIRCLinker::eval(tsBuf, TEXT("$%(%,nav_begin,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
 
 		if (tsBuf == L"cancel")
-			args->put_Cancel(true);
+			args->put_Cancel(TRUE);
 	}
 	return S_OK;
 }

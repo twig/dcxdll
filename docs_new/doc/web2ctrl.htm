@@ -563,6 +563,20 @@ NB: The control also requires WebView2 installed & will try to install it if not
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.source_changed"></a>source_changed	</td></tr>
+	<tr><td colspan="2">When a source page changes.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME source_changed ID URL</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx source_changed 4 https://www.sample.com/</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.status"></a>status	</td></tr>
 	<tr><td colspan="2">When the statusbar text changes.</td></tr>
 	<tr>
@@ -866,6 +880,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 		<a class='flag' href="#events.nav_begin"><div>nav_begin</div></a>
 		<a class='flag' href="#events.nav_complete"><div>nav_complete</div></a>
 		<a class='flag' href="#events.script"><div>script</div></a>
+		<a class='flag' href="#events.source_changed"><div>source_changed</div></a>
 		<a class='flag' href="#events.status"><div>status</div></a>
 		<a class='flag' href="#events.title"><div>title</div></a>
 		<a class='flag' href="#events.win_open"><div>win_open</div></a>

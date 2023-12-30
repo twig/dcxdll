@@ -575,13 +575,16 @@ alias dcx_webbrowser_work {
   elseif ($2 == dleave) xdid -t $1 24 2 + 1 - $chr(9) -
   elseif ($2 == status) xdid -t $1 24 2 + 1 $4- $chr(9) $4-
   elseif ($2 == doc_complete) xdid -t $1 24 2 + 1 Done $chr(9) ...
-  elseif ($2 == nav_begin) {
+  elseif ($2 == source_changed) {
     ; url
     var %id = $xdialog($1,$3).namedid
     xdid -ra $1 $+($gettok(%id,1,95),_edit) $4-
     xdid -t $1 24 2 + 1 Downloading... $4- $chr(9) $4-
     xdid -h $1 $+($gettok(%id,1,95),_favicon)
     xdid -i $1 $+($gettok(%id,1,95),_favicon) + none
+  }
+  elseif ($2 == nav_begin) {
+    ; url
   }
   elseif ($2 == nav_complete) xdid -t $1 24 2 + 1 Download $iif($4,Complete,Failed) $chr(9) ...
   elseif ($2 == dl_begin) {

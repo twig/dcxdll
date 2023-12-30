@@ -211,6 +211,11 @@ function get_events_web2ctrl(&$EVENTS) {
 			'__eg' => 'irc://irc.sample.com/',
 			'__return' => "[r]cancel[/r] Return this value to block navigation.",
 		),
+		"source_changed" => array(
+			'__desc' => "When a source page changes.",
+			'__cmd' => 'URL',
+			'__eg' => 'https://www.sample.com/',
+		),
 	);
 }
 ?>
