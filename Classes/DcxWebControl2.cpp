@@ -842,6 +842,7 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 	m_webview->add_ContainsFullScreenElementChanged(Microsoft::WRL::Callback<ICoreWebView2ContainsFullScreenElementChangedEventHandler>(this, &DcxWebControl2::OnContainsFullScreenElementChanged).Get(), &m_fullscreenToken);
 	m_webview->add_HistoryChanged(Microsoft::WRL::Callback<ICoreWebView2HistoryChangedEventHandler>(this, &DcxWebControl2::OnHistoryChanged).Get(), &m_historyChangedToken);
 	m_webview->add_NewWindowRequested(Microsoft::WRL::Callback<ICoreWebView2NewWindowRequestedEventHandler>(this, &DcxWebControl2::OnNewWindowRequested).Get(), &m_newWindowRequestedToken);
+	m_webview->add_SourceChanged(Microsoft::WRL::Callback<ICoreWebView2SourceChangedEventHandler>(this, &DcxWebControl2::OnSourceChanged).Get(), &m_sourceChangedToken);
 
 	// these can silently fail as an unsupported feature.
 	if (auto webview4 = m_webview.try_query<ICoreWebView2_4>(); webview4)
@@ -903,10 +904,19 @@ HRESULT DcxWebControl2::OnNavigationCompleted(ICoreWebView2* sender, ICoreWebVie
 	if (!sender || !args)
 		return E_FAIL;
 
-	BOOL bOK{};
-	args->get_IsSuccess(&bOK);
+	wil::unique_cotaskmem_string uri;
+	sender->get_Source(&uri);
 
-	execAliasEx(L"nav_complete,%u,%u", getUserID(), bOK);
+	//BOOL bOK{};
+	//args->get_IsSuccess(&bOK);
+	//execAliasEx(L"nav_complete,%u,%u,%s", getUserID(), bOK, uri.get());
+
+	if (const auto pd = getParentDialog(); pd)
+	{
+		TString tsBuf;
+		mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), uri.get());
+		mIRCLinker::eval(tsBuf, TEXT("$%(%,nav_complete,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
+	}
 
 	return S_OK;
 }
@@ -1177,6 +1187,24 @@ HRESULT DcxWebControl2::OnNewWindowRequested(ICoreWebView2* sender, ICoreWebView
 	}
 	else
 		args->put_Handled(FALSE);
+	return S_OK;
+}
+
+HRESULT DcxWebControl2::OnSourceChanged(ICoreWebView2* sender, ICoreWebView2SourceChangedEventArgs* args)
+{
+	if (!sender || !args)
+		return E_FAIL;
+
+	wil::unique_cotaskmem_string uri;
+	sender->get_Source(&uri);
+
+	if (const auto pd = getParentDialog(); pd)
+	{
+		TString tsBuf;
+		mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), uri.get());
+		mIRCLinker::eval(tsBuf, TEXT("$%(%,source_changed,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
+	}
+
 	return S_OK;
 }
 
