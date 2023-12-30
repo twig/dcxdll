@@ -304,6 +304,20 @@ void DcxWebControl2::parseCommandRequest(const TString& input)
 			}
 		}
 	}
+	// Print
+	// xdid -P [NAME] [ID] [SWITCH] [+FLAGS]
+	else if (flags[TEXT('P')])
+	{
+		const XSwitchFlags xFlags(input.getnexttok());
+		if (!xFlags[L'+'])
+			throw DcxExceptions::dcxInvalidFlag();
+		COREWEBVIEW2_PRINT_DIALOG_KIND printDialogKind = COREWEBVIEW2_PRINT_DIALOG_KIND_SYSTEM;
+		if (!xFlags[L'b'])
+			printDialogKind = COREWEBVIEW2_PRINT_DIALOG_KIND_BROWSER;
+
+		if (auto webview16 = m_webview.try_query<ICoreWebView2_16>(); webview16)
+			webview16->ShowPrintUI(printDialogKind);
+	}
 	else
 		parseGlobalCommandRequest(input, flags);
 }
@@ -838,6 +852,7 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 	m_webview->add_HistoryChanged(Microsoft::WRL::Callback<ICoreWebView2HistoryChangedEventHandler>(this, &DcxWebControl2::OnHistoryChanged).Get(), &m_historyChangedToken);
 	m_webview->add_NewWindowRequested(Microsoft::WRL::Callback<ICoreWebView2NewWindowRequestedEventHandler>(this, &DcxWebControl2::OnNewWindowRequested).Get(), &m_newWindowRequestedToken);
 	m_webview->add_SourceChanged(Microsoft::WRL::Callback<ICoreWebView2SourceChangedEventHandler>(this, &DcxWebControl2::OnSourceChanged).Get(), &m_sourceChangedToken);
+	m_webview->add_ProcessFailed(Microsoft::WRL::Callback<ICoreWebView2ProcessFailedEventHandler>(this, &DcxWebControl2::OnProcessFailed).Get(), &m_processFailedToken);
 
 	// these can silently fail as an unsupported feature.
 	if (auto webview4 = m_webview.try_query<ICoreWebView2_4>(); webview4)
@@ -1196,8 +1211,50 @@ HRESULT DcxWebControl2::OnSourceChanged(ICoreWebView2* sender, ICoreWebView2Sour
 	return S_OK;
 }
 
+HRESULT DcxWebControl2::OnProcessFailed(ICoreWebView2* sender, ICoreWebView2ProcessFailedEventArgs* args)
+{
+	if (!sender || !args)
+		return E_FAIL;
+
+	COREWEBVIEW2_PROCESS_FAILED_KIND kind;
+	args->get_ProcessFailedKind(&kind);
+
+	auto getKind = [](COREWEBVIEW2_PROCESS_FAILED_KIND kind) noexcept {
+#define __SWITCH_KIND(x) L##x
+#define _SWITCH_KIND(x) __SWITCH_KIND(#x)
+#define SWITCH_KIND(x) case x: return _SWITCH_KIND(x)
+		switch (kind)
+		{
+			SWITCH_KIND(COREWEBVIEW2_PROCESS_FAILED_KIND_BROWSER_PROCESS_EXITED);
+			SWITCH_KIND(COREWEBVIEW2_PROCESS_FAILED_KIND_RENDER_PROCESS_EXITED);
+			SWITCH_KIND(COREWEBVIEW2_PROCESS_FAILED_KIND_RENDER_PROCESS_UNRESPONSIVE);
+			SWITCH_KIND(COREWEBVIEW2_PROCESS_FAILED_KIND_FRAME_RENDER_PROCESS_EXITED);
+			SWITCH_KIND(COREWEBVIEW2_PROCESS_FAILED_KIND_UTILITY_PROCESS_EXITED);
+			SWITCH_KIND(COREWEBVIEW2_PROCESS_FAILED_KIND_SANDBOX_HELPER_PROCESS_EXITED);
+			SWITCH_KIND(COREWEBVIEW2_PROCESS_FAILED_KIND_GPU_PROCESS_EXITED);
+			SWITCH_KIND(COREWEBVIEW2_PROCESS_FAILED_KIND_PPAPI_PLUGIN_PROCESS_EXITED);
+			SWITCH_KIND(COREWEBVIEW2_PROCESS_FAILED_KIND_PPAPI_BROKER_PROCESS_EXITED);
+			SWITCH_KIND(COREWEBVIEW2_PROCESS_FAILED_KIND_UNKNOWN_PROCESS_EXITED);
+		default:
+			break;
+		}
+		return L"COREWEBVIEW2_PROCESS_FAILED_KIND_UNKNOWN";
+	};
+
+	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"proc_error,%u,%s", getUserID(), getKind(kind));
+
+	if (tsBuf == L"reload")
+		sender->Reload();
+
+	return S_OK;
+}
+
 HRESULT DcxWebControl2::OnContextMenu(ICoreWebView2* sender, ICoreWebView2ContextMenuRequestedEventArgs* eventArgs)
 {
+	if (!sender || !eventArgs)
+		return E_FAIL;
+
 	wil::com_ptr<ICoreWebView2ContextMenuTarget> target;
 	if (FAILED(eventArgs->get_ContextMenuTarget(&target)))
 		return E_FAIL;

@@ -111,6 +111,7 @@ private:
 	EventRegistrationToken m_downloadStartingToken;
 	EventRegistrationToken m_newWindowRequestedToken;
 	EventRegistrationToken m_sourceChangedToken;
+	EventRegistrationToken m_processFailedToken;
 	EventRegistrationToken m_contextmenuToken;
 	EventRegistrationToken m_documentplayingaudioToken;
 	EventRegistrationToken m_mutedToken;
@@ -140,6 +141,7 @@ private:
 	HRESULT OnClearBrowsingDataCompleted(HRESULT errorCode);
 	HRESULT OnNewWindowRequested(ICoreWebView2* sender, ICoreWebView2NewWindowRequestedEventArgs* args);
 	HRESULT OnSourceChanged(ICoreWebView2* sender, ICoreWebView2SourceChangedEventArgs* args);
+	HRESULT OnProcessFailed(ICoreWebView2* sender, ICoreWebView2ProcessFailedEventArgs* args);
 	HRESULT OnContextMenu(ICoreWebView2* sender, ICoreWebView2ContextMenuRequestedEventArgs* eventArgs);
 	HRESULT OnDocumentPlayingAudioChanged(ICoreWebView2* sender, IUnknown* eventArgs);
 	HRESULT OnMutedChanged(ICoreWebView2* sender, IUnknown* eventArgs);

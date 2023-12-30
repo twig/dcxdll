@@ -90,6 +90,20 @@ function get_xdid_web2ctrl(&$XDID) {
 				'FILENAME' => 'The filename to save the image as.',
 			),
 		),
+		'P' => array(
+	        '__desc' => 'Open the print dialog for the current website.',
+	        '__cmd' => '[+FLAGS]',
+	        '__eg' => "+b",
+			'__params' => array(
+				'+FLAGS' => array(
+					'__desc' => 'Can be any one of',
+					'__values' => array(
+						'b' => 'Browser dialog.',
+						's' => 'System dialog (default).',
+					),
+				),
+			),
+		),
 	);
 }
 
@@ -215,6 +229,12 @@ function get_events_web2ctrl(&$EVENTS) {
 			'__desc' => "When a source page changes.",
 			'__cmd' => 'URL',
 			'__eg' => 'https://www.sample.com/',
+		),
+		"proc_error" => array(
+			'__desc' => "When an error occurs in the browser process.",
+			'__cmd' => 'KIND',
+			'__eg' => 'COREWEBVIEW2_PROCESS_FAILED_KIND_BROWSER_PROCESS_EXITED',
+			'__return' => "[r]reload[/r] Return this value to attempt to fix the issue and display the page.",
 		),
 	);
 }

@@ -293,6 +293,33 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 </table>
 <br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.P"></a>/xdid -P	</td></tr>
+	<tr><td colspan="2">Open the print dialog for the current website.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -P [DNAME] [ID] [+FLAGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -P dcx 4 +b</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Can be any one of</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Browser dialog.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>System dialog (default).</td>
+	</tr>
+</table>
+<br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
@@ -546,6 +573,20 @@ NB: The control also requires WebView2 installed & will try to install it if not
 		<td><div class="example">/cb_alias dcx nav_complete 4 http://dcx.scriptsdb.org/</div></td>
 	</tr>
 </table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.proc_error"></a>proc_error	</td></tr>
+	<tr><td colspan="2">When an error occurs in the browser process.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME proc_error ID KIND</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx proc_error 4 COREWEBVIEW2_PROCESS_FAILED_KIND_BROWSER_PROCESS_EXITED</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">reload</a> Return this value to attempt to fix the issue and display the page.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -857,6 +898,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 		<a class='flag' href="#xdid.r"><div>-r</div></a>
 		<a class='flag' href="#xdid.t"><div>-t</div></a>
 		<a class='flag' href="#xdid.big.C"><div>-C</div></a>
+		<a class='flag' href="#xdid.big.P"><div>-P</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
@@ -879,6 +921,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 		<a class='flag' href="#events.help"><div>help</div></a>
 		<a class='flag' href="#events.nav_begin"><div>nav_begin</div></a>
 		<a class='flag' href="#events.nav_complete"><div>nav_complete</div></a>
+		<a class='flag' href="#events.proc_error"><div>proc_error</div></a>
 		<a class='flag' href="#events.script"><div>script</div></a>
 		<a class='flag' href="#events.source_changed"><div>source_changed</div></a>
 		<a class='flag' href="#events.status"><div>status</div></a>
