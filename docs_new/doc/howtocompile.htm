@@ -117,14 +117,18 @@ Near the top you will see <code>&lt;PropertyGroup Label="UserMacros"&gt;</code> 
 	  <td class="tag"><code>&lt;DirectXTKDir&gt;F:\CSource\DirectXTK\&lt;/DirectXTKDir&gt;</code></td>
 	  <td class="desc">Path to DirectXTK files. (not used atm)</td>
 	</tr>
+    <tr>
+	  <td class="tag"><code>&lt;WebView2Dir&gt;$(SolutionDir)packages\Microsoft.Web.WebView2.1.0.2210.55\&lt;/WebView2Dir&gt;</code></td>
+	  <td class="desc">Path to WebView2 files. (Needed for web2ctrl)<br/>These files should be downloaded by VisualStudios NuGet Package Manager</td>
+	</tr>
 </table>
 <br />
-These entries must be changed to match the system you are using.<br />
-Before compiling DCX you must first have Detours compiled, You will need the 32bit debug & 32bit release builds.
-After these have been edited you can load the solution file and compile.<br />
-When compiling you should see the "SourceControl" project run before the DCX project, this creates gitBuild.h<br />
-You should also see the project "DxErr" run before DCX, this creates the DxErr.lib file needed by DCX.<br />
-
+<li/>These entries must be changed to match the system you are using.<br />
+<li/>Before compiling DCX you must first have Detours compiled, You will need the 32bit debug & 32bit release builds.
+<li/>After these have been edited you can load the solution file and compile.<br />
+<li/>When first compiling you should see NuGet Package Manager download the Microsoft.Web.WebView2 & Microsoft.Windows.ImplementationLibrary packages, You may need to adjust the WebView2Dir after these install if the version is different.<br />
+<li/>When compiling you should see the "SourceControl" project run before the DCX project, this creates gitBuild.h<br />
+<li/>You should also see the project "DxErr" run before DCX, this creates the DxErr.lib file needed by DCX.<br />
 <br />
 </td></tr>
 </table>
@@ -137,7 +141,7 @@ You should also see the project "DxErr" run before DCX, this creates the DxErr.l
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2023</td>
-		<td style="text-align: right;">Last Updated: 22nd December, 23</td>
+		<td style="text-align: right;">Last Updated: 31st December, 23</td>
 	</tr>
 </table>
 <div style="text-align: center;">
