@@ -4,7 +4,7 @@
 
 #include "dcxmodule.h"
 
-#include "WebView2.h"
+#include <WebView2.h>
 
 class DcxWebView2Module final
 	: public DcxModule

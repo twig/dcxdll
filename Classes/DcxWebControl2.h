@@ -6,10 +6,7 @@
 
 #include <wrl.h>
 #include <wil/com.h>
-// <IncludeHeader>
-// include WebView2 header
-#include "WebView2.h"
-// </IncludeHeader>
+#include <WebView2.h>
 
 #include <dcomp.h>
 

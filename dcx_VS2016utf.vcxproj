@@ -200,7 +200,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(WebView2Dir)build\native\include;$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(WebView2Dir)build\native\x86;$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Debug;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
     <EnableCppCoreCheck>true</EnableCppCoreCheck>
@@ -217,7 +217,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(WebView2Dir)build\native\include;$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(WebView2Dir)build\native\x86;$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
@@ -225,7 +225,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Dll|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(WebView2Dir)build\native\include;$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(WebView2Dir)build\native\x86;$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
@@ -233,7 +233,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Optimal|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(WebView2Dir)build\native\include;$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(WebView2Dir)build\native\x86;$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
@@ -241,14 +241,14 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(WebView2Dir)build\native\include;$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(WebView2Dir)build\native\x86;$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
     <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
-    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(WebView2Dir)build\native\include;$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(WebView2Dir)build\native\x86;$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <LinkIncremental>false</LinkIncremental>
