@@ -483,23 +483,23 @@ enum class mIRC_SendMessage_ErrorCodes
 #define mIRC_MAX_CONTROLS	10000U	//!< Max number of controls allowed per dialog.
 constexpr auto mIRC_PALETTE_SIZE = 100U;	// Number of colours in mIRC's palette (mIRC v7.51.212+ support 100 colours, 0 - 15 same as old mirc, 16-99 new colour palette)
 
-#define DCX_LISTVIEWCLASS    TEXT("DCXListViewClass")     //!< DCX Listview Class Name
-#define DCX_PROGRESSBARCLASS TEXT("DCXProgressBarClass")  //!< DCX ProgressBar Class Name
-#define DCX_TREEVIEWCLASS    TEXT("DCXTreeViewClass")     //!< DCX TreeView Class Name
-#define DCX_TOOLBARCLASS     TEXT("DCXToolBarClass")      //!< DCX ToolBar Class Name
-#define DCX_RICHEDITCLASS    TEXT("DCXRichEditClass")     //!< DCX RichEdit Class Name
-#define DCX_TABCTRLCLASS     TEXT("DCXTabCtrlClass")      //!< DCX Tab Class Name
-#define DCX_REBARCTRLCLASS   TEXT("DCXRebarCtrlClass")    //!< DCX Rebar Class Name
-#define DCX_COMBOEXCLASS     TEXT("DCXComboExClass")      //!< DCX ComboEx Class Name
-#define DCX_BUTTONCLASS      TEXT("DCXButtonClass")       //!< DCX Button Class Name
-#define DCX_STATUSBARCLASS   TEXT("DCXStatusBarClass")    //!< DCX StatusBar Class Name
-#define DCX_COLORCOMBOCLASS  TEXT("DCXColorComboClass")   //!< DCX ColorCombo Class Name
-#define DCX_TRACKBARCLASS    TEXT("DCXTrackBarClass")     //!< DCX TrackBar Class Name
-#define DCX_UPDOWNCLASS      TEXT("DCXUpDownClass")       //!< DCX Updown Class Name
-#define DCX_IPADDRESSCLASS   TEXT("DCXIpAddressClass")    //!< DCX IP Address Class Name
-#define DCX_DIVIDERCLASS     TEXT("DCXDividerClass")      //!< DCX Divider Class Name
-#define DCX_PANELCLASS       TEXT("DCXPanelClass")        //!< DCX Panel Class Name
-#define DCX_CALENDARCLASS    TEXT("DCXCalendarClass")     //!< DCX Panel Class Name
+#define DCX_LISTVIEWCLASS       TEXT("DCXListViewClass")     //!< DCX Listview Class Name
+#define DCX_PROGRESSBARCLASS    TEXT("DCXProgressBarClass")  //!< DCX ProgressBar Class Name
+#define DCX_TREEVIEWCLASS       TEXT("DCXTreeViewClass")     //!< DCX TreeView Class Name
+#define DCX_TOOLBARCLASS        TEXT("DCXToolBarClass")      //!< DCX ToolBar Class Name
+#define DCX_RICHEDITCLASS       TEXT("DCXRichEditClass")     //!< DCX RichEdit Class Name
+#define DCX_TABCTRLCLASS        TEXT("DCXTabCtrlClass")      //!< DCX Tab Class Name
+#define DCX_REBARCTRLCLASS      TEXT("DCXRebarCtrlClass")    //!< DCX Rebar Class Name
+#define DCX_COMBOEXCLASS        TEXT("DCXComboExClass")      //!< DCX ComboEx Class Name
+#define DCX_BUTTONCLASS         TEXT("DCXButtonClass")       //!< DCX Button Class Name
+#define DCX_STATUSBARCLASS      TEXT("DCXStatusBarClass")    //!< DCX StatusBar Class Name
+#define DCX_COLORCOMBOCLASS     TEXT("DCXColorComboClass")   //!< DCX ColorCombo Class Name
+#define DCX_TRACKBARCLASS       TEXT("DCXTrackBarClass")     //!< DCX TrackBar Class Name
+#define DCX_UPDOWNCLASS         TEXT("DCXUpDownClass")       //!< DCX Updown Class Name
+#define DCX_IPADDRESSCLASS      TEXT("DCXIpAddressClass")    //!< DCX IP Address Class Name
+#define DCX_DIVIDERCLASS        TEXT("DCXDividerClass")      //!< DCX Divider Class Name
+#define DCX_PANELCLASS          TEXT("DCXPanelClass")        //!< DCX Panel Class Name
+#define DCX_CALENDARCLASS       TEXT("DCXCalendarClass")     //!< DCX Panel Class Name
 #define DCX_DATETIMECLASS		TEXT("DCXDateTimeClass")     //!< DCX DateTime Class Name
 #define DCX_PAGERCLASS			TEXT("DCXPagerClass")        //!< DCX Panel Class Name
 #define DCX_BOXCLASS			TEXT("DCXBoxClass")          //!< DCX Box Class Name
@@ -507,21 +507,21 @@ constexpr auto mIRC_PALETTE_SIZE = 100U;	// Number of colours in mIRC's palette 
 #define DCX_CHECKCLASS			TEXT("DCXCheckClass")        //!< DCX Check Class Name
 #define DCX_SCROLLBARCLASS		TEXT("DCXScrollBarClass")    //!< DCX ScrollBar Class Name
 //#define DCX_SHADOWCLASS				TEXT("DCXShadowClass")			//!< DCX Shadow Class Name
-#define DCX_VISTACLASS			TEXT("DCXVistaClass")     //!< DCX Vista Dialog Class Name
-#define DCX_STACKERCLASS		TEXT("DCXStackerClass")   //!< DCX Stacker Class Name
-#define DCX_IMAGECLASS			TEXT("DCXImageClass")     //!< DCX Image Class Name
-#define DCX_EDITCLASS			TEXT("DCXEditClass")      //!< DCX Edit Class Name
-#define DCX_WEBCLASS			TEXT("DCXWebClass")       //!< DCX Web Class Name
-#define DCX_WEB2CLASS			TEXT("DCXWeb2Class")       //!< DCX Web2 Class Name
-#define DCX_LINECLASS			TEXT("DCXLineClass")      //!< DCX Line Class Name
-#define DCX_LINKCLASS			TEXT("DCXLinkClass")      //!< DCX Link Class Name
-#define DCX_LISTCLASS			TEXT("DCXListClass")      //!< DCX List Class Name
+#define DCX_VISTACLASS			TEXT("DCXVistaClass")        //!< DCX Vista Dialog Class Name
+#define DCX_STACKERCLASS		TEXT("DCXStackerClass")      //!< DCX Stacker Class Name
+#define DCX_IMAGECLASS			TEXT("DCXImageClass")        //!< DCX Image Class Name
+#define DCX_EDITCLASS			TEXT("DCXEditClass")         //!< DCX Edit Class Name
+#define DCX_WEBCLASS			TEXT("DCXWebClass")          //!< DCX Web Class Name
+#define DCX_WEB2CLASS			TEXT("DCXWeb2Class")         //!< DCX Web2 Class Name
+#define DCX_LINECLASS			TEXT("DCXLineClass")         //!< DCX Line Class Name
+#define DCX_LINKCLASS			TEXT("DCXLinkClass")         //!< DCX Link Class Name
+#define DCX_LISTCLASS			TEXT("DCXListClass")         //!< DCX List Class Name
 //#define DCX_SCROLLCLASS			TEXT("DCXScrollClass")    //!< DCX Text Class Name
-#define DCX_TEXTCLASS			TEXT("DCXTextClass")      //!< DCX Text Class Name
-#define DCX_DIRECTSHOWCLASS		TEXT("DCXDirectShowClass") //!< DCX Text Class Name
-#define DCX_MULTIBUTTONCLASS    TEXT("DCXMultiButtonClass")       //!< DCX MultiButton Class Name
-#define DCX_MULTICOMBOCLASS    TEXT("DCXMultiComboClass")       //!< DCX MultiCombo Class Name
-#define DCX_GRIDCLASS			TEXT("DCXGridClass")       //!< DCX Grid Class Name
+#define DCX_TEXTCLASS			TEXT("DCXTextClass")         //!< DCX Text Class Name
+#define DCX_DIRECTSHOWCLASS		TEXT("DCXDirectShowClass")   //!< DCX Text Class Name
+#define DCX_MULTIBUTTONCLASS    TEXT("DCXMultiButtonClass")  //!< DCX MultiButton Class Name
+#define DCX_MULTICOMBOCLASS		TEXT("DCXMultiComboClass")   //!< DCX MultiCombo Class Name
+#define DCX_GRIDCLASS			TEXT("DCXGridClass")         //!< DCX Grid Class Name
 
 using mIRCResultString = refString<TCHAR, MIRC_BUFFER_SIZE_CCH>;
 

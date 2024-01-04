@@ -45,6 +45,14 @@ LRESULT DcxWebControl2::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	}
 	break;
 
+	case WM_SETFOCUS:
+	{
+		this->getParentDialog()->setFocusControl(this->getUserID());
+		if (m_webviewController)
+			m_webviewController->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_NEXT);
+	}
+	break;
+
 	// original version
 //case WM_DESTROY:
 //{
@@ -107,6 +115,18 @@ void DcxWebControl2::parseInfoRequest(const TString& input, const refString<TCHA
 	case L"scripts"_hash:
 	{
 		szReturnValue = dcx_truefalse(this->IsScriptingEnabled());
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"scriptdialog"_hash:
+	{
+		szReturnValue = dcx_truefalse(this->IsScriptingDialogEnabled());
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"webmessage"_hash:
+	{
+		szReturnValue = dcx_truefalse(this->IsWebMessageEnabled());
 	}
 	break;
 	// [NAME] [ID] [PROP]
@@ -441,6 +461,7 @@ DWORD WINAPI DcxWebControl2::DownloadAndInstallWV2RT(_In_ LPVOID lpParameter) no
 
 	return returnCode;
 }
+
 void DcxWebControl2::InstallComplete(int return_code) noexcept
 {
 	if (return_code == 0)
@@ -553,6 +574,17 @@ bool DcxWebControl2::IsScriptingEnabled() const
 	return bRes;
 }
 
+bool DcxWebControl2::IsScriptingDialogEnabled() const
+{
+	if (!m_settings)
+		return false;
+
+	BOOL bRes{};
+	m_settings->get_AreDefaultScriptDialogsEnabled(&bRes);
+
+	return bRes;
+}
+
 bool DcxWebControl2::IsAudioMuted() const
 {
 	BOOL isMute{};
@@ -569,6 +601,17 @@ bool DcxWebControl2::IsAudioPlaying() const
 		webview2_8->get_IsDocumentPlayingAudio(&isDocumentPlayingAudio);
 
 	return isDocumentPlayingAudio;
+}
+
+bool DcxWebControl2::IsWebMessageEnabled() const
+{
+	if (!m_settings)
+		return false;
+
+	BOOL bRes{};
+	m_settings->get_IsWebMessageEnabled(&bRes);
+
+	return bRes;
 }
 
 const bool& DcxWebControl2::IsDownloadingEnabled() const noexcept
@@ -651,6 +694,14 @@ void DcxWebControl2::setScriptingState(bool bEnable)
 	m_settings->put_IsScriptEnabled(bEnable);
 }
 
+void DcxWebControl2::setScriptingDialogState(bool bEnable)
+{
+	if (!m_settings)
+		return;
+
+	m_settings->put_AreDefaultScriptDialogsEnabled(bEnable);
+}
+
 void DcxWebControl2::setStatusbarState(bool bEnable)
 {
 	if (!m_settings)
@@ -688,6 +739,14 @@ void DcxWebControl2::setAudioMuteState(bool bEnable)
 		webview2_8->put_IsMuted(bEnable);
 }
 
+void DcxWebControl2::setWebMessageState(bool bEnable)
+{
+	if (!m_settings)
+		return;
+
+	m_settings->put_IsWebMessageEnabled(bEnable);
+}
+
 void DcxWebControl2::setURL(const TString& tsURL, const TString& tsFlags, const TString& tsMask)
 {
 	if (!m_webview || !m_settings)
@@ -720,6 +779,12 @@ void DcxWebControl2::setURL(const TString& tsURL, const TString& tsFlags, const 
 		this->setStatusbarState(xmask['s']);
 	if (xflags['A']) // Mute Audio on/off
 		this->setAudioMuteState(xmask['A']);
+	if (xflags['D']) // scripting dialog on/off
+		this->setScriptingDialogState(xmask['D']);
+	if (xflags['S']) // scripting on/off
+		this->setScriptingState(xmask['S']);
+	if (xflags['W']) // webmessage on/off
+		this->setWebMessageState(xmask['W']);
 
 	if (!tsURL.empty())
 		m_webview->Navigate(tsURL.to_wchr());
@@ -761,6 +826,9 @@ void DcxWebControl2::CallScript(const TString& tsCmd)
 
 void DcxWebControl2::ClearCache()
 {
+	if (!m_webview)
+		return;
+
 	if (auto webView2_13 = m_webview.try_query<ICoreWebView2_13>(); webView2_13)
 	{
 		wil::com_ptr<ICoreWebView2Profile> profile;
@@ -776,6 +844,9 @@ void DcxWebControl2::ClearCache()
 
 void DcxWebControl2::ClearCacheKind(COREWEBVIEW2_BROWSING_DATA_KINDS kind)
 {
+	if (!m_webview)
+		return;
+
 	if (auto webView2_13 = m_webview.try_query<ICoreWebView2_13>(); webView2_13)
 	{
 		wil::com_ptr<ICoreWebView2Profile> profile;
@@ -844,6 +915,9 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 	// Resize WebView to fit the bounds of the parent window
 	if (RECT bounds; GetClientRect(m_Hwnd, &bounds))
 		m_webviewController->put_Bounds(bounds);
+
+	m_webviewController->add_GotFocus(Microsoft::WRL::Callback<ICoreWebView2FocusChangedEventHandler>(this, &DcxWebControl2::OnGotFocus).Get(), &m_gotFocusToken);
+	m_webviewController->add_LostFocus(Microsoft::WRL::Callback<ICoreWebView2FocusChangedEventHandler>(this, &DcxWebControl2::OnLostFocus).Get(), &m_lostFocusToken);
 
 	m_webview->add_NavigationStarting(Microsoft::WRL::Callback<ICoreWebView2NavigationStartingEventHandler>(this, &DcxWebControl2::OnNavigationStarting).Get(), &m_navStartToken);
 	m_webview->add_NavigationCompleted(Microsoft::WRL::Callback<ICoreWebView2NavigationCompletedEventHandler>(this, &DcxWebControl2::OnNavigationCompleted).Get(), &m_navEndToken);
@@ -1238,10 +1312,13 @@ HRESULT DcxWebControl2::OnProcessFailed(ICoreWebView2* sender, ICoreWebView2Proc
 		default:
 			break;
 		}
+#undef SWITCH_KIND
+#undef _SWITCH_KIND
+#undef __SWITCH_KIND
 		return L"COREWEBVIEW2_PROCESS_FAILED_KIND_UNKNOWN";
 	};
 
-	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+	TString tsBuf((UINT)mIRCLinker::m_dwCharacters);
 	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"proc_error,%u,%s", getUserID(), getKind(kind));
 
 	if (tsBuf == L"reload")
@@ -1277,7 +1354,10 @@ HRESULT DcxWebControl2::OnContextMenu(ICoreWebView2* sender, ICoreWebView2Contex
 		default:
 			break;
 		}
-		return L"COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND_PAGE";
+#undef SWITCH_KIND
+#undef _SWITCH_KIND
+#undef __SWITCH_KIND
+		return L"COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND_UNKNOWN";
 	};
 
 	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
@@ -1331,5 +1411,17 @@ HRESULT DcxWebControl2::OnExternalURI(ICoreWebView2* sender, ICoreWebView2Launch
 		if (tsBuf == L"cancel")
 			eventArgs->put_Cancel(TRUE);
 	}
+	return S_OK;
+}
+
+HRESULT DcxWebControl2::OnGotFocus(ICoreWebView2Controller* sender, IUnknown* eventArgs)
+{
+	getParentDialog()->setFocusControl(getUserID());
+	return S_OK;
+}
+
+HRESULT DcxWebControl2::OnLostFocus(ICoreWebView2Controller* sender, IUnknown* eventArgs)
+{
+	execAliasEx(L"focusout,%u", getUserID());
 	return S_OK;
 }

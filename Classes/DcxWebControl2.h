@@ -53,8 +53,10 @@ public:
 	bool IsStatusbarEnabled() const;
 	bool IsFullScreenEnabled() const;
 	bool IsScriptingEnabled() const;
+	bool IsScriptingDialogEnabled() const;
 	bool IsAudioMuted() const;
 	bool IsAudioPlaying() const;
+	bool IsWebMessageEnabled() const;
 	const bool& IsDownloadingEnabled() const noexcept;
 	const bool& IsNewWindowsManaged() const noexcept;
 	const bool& IsDownloadsDialogEnabled() const noexcept;
@@ -64,12 +66,14 @@ public:
 
 	void setFullScreenState(bool bEnable) noexcept;
 	void setScriptingState(bool bEnable);
+	void setScriptingDialogState(bool bEnable);
 	void setStatusbarState(bool bEnable);
 	void setVisableState(bool bEnable);
 	void setDownloadsState(bool bEnable) noexcept;
 	void setManageNewWindows(bool bEnable) noexcept;
 	void setDownloadsDialogState(bool bEnable) noexcept;
 	void setAudioMuteState(bool bEnable);
+	void setWebMessageState(bool bEnable);
 
 	void setURL(const TString& tsURL, const TString& tsFlags, const TString& tsMask);
 	void setDownloadDir(const TString& tsDir);
@@ -113,6 +117,8 @@ private:
 	EventRegistrationToken m_documentplayingaudioToken;
 	EventRegistrationToken m_mutedToken;
 	EventRegistrationToken m_externaluriToken;
+	EventRegistrationToken m_gotFocusToken;
+	EventRegistrationToken m_lostFocusToken;
 
 	bool m_bFullScreen{};
 	bool m_bAllowDownloads{ true };
@@ -143,5 +149,7 @@ private:
 	HRESULT OnDocumentPlayingAudioChanged(ICoreWebView2* sender, IUnknown* eventArgs);
 	HRESULT OnMutedChanged(ICoreWebView2* sender, IUnknown* eventArgs);
 	HRESULT OnExternalURI(ICoreWebView2* sender, ICoreWebView2LaunchingExternalUriSchemeEventArgs* eventArgs);
+	HRESULT OnGotFocus(ICoreWebView2Controller* sender, IUnknown* eventArgs);
+	HRESULT OnLostFocus(ICoreWebView2Controller* sender, IUnknown* eventArgs);
  };
 

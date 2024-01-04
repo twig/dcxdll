@@ -27,6 +27,12 @@ public:
 	AutoOutOfScope(AutoOutOfScope &&) = delete;
 	AutoOutOfScope &operator =(AutoOutOfScope &&) = delete;
 
+	bool operator==(const AutoOutOfScope& other) const = default;
+	AutoOutOfScope(const T&& m_destructor)
+		: m_destructor(m_destructor)
+	{
+	}
+
 private:
 	T& m_destructor;
 };

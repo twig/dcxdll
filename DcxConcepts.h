@@ -120,4 +120,10 @@ namespace DcxConcepts
 
 	template<typename T>
 	concept IsContainer = ImplementsBeginFunction<T> && ImplementsEndFunction<T> /*&& ImplementsEraseFunction<T>*/;
+
+	template<typename T>
+	concept ImplementsReleaseFunction = std::is_member_function_pointer_v<decltype(&T::Release)>;
+
+	template<class T, class U>
+	concept IsDerivedFrom = std::is_base_of<U, T>::value;
 };
