@@ -19,342 +19,328 @@
 
 #ifdef DCX_USE_DXSDK
 #include "Classes/dcxcontrol.h"
- //#include <dshow.h>
- //#include <initguid.h>
- //#include <qnetwork.h>
- //#include <d3d9.h>
- //#include <vmr9.h>
- //#include <evr.h>
- //#include <DXGIDebug.h> // win8 only
+
+#include <wil/com.h>
 
 class DcxDialog;
 
-//constexpr long RangeTable[] = {
-//	-(10000 - (100 * 00)), -(10000 - (100 * 01)), -(10000 - (100 * 02)), -(10000 - (100 * 03)), -(10000 - (100 * 04)), -(10000 - (100 * 05)), -(10000 - (100 * 06)), -(10000 - (100 * 07)), -(10000 - (100 * 8)), -(10000 - (100 * 9)),
-//	-(10000 - (100 * 10)), -(10000 - (100 * 11)), -(10000 - (100 * 12)), -(10000 - (100 * 13)), -(10000 - (100 * 14)), -(10000 - (100 * 15)), -(10000 - (100 * 16)), -(10000 - (100 * 17)), -(10000 - (100 * 18)), -(10000 - (100 * 19)),
-//	-(10000 - (100 * 20)), -(10000 - (100 * 21)), -(10000 - (100 * 22)), -(10000 - (100 * 23)), -(10000 - (100 * 24)), -(10000 - (100 * 25)), -(10000 - (100 * 26)), -(10000 - (100 * 27)), -(10000 - (100 * 28)), -(10000 - (100 * 29)),
-//	-(10000 - (100 * 30)), -(10000 - (100 * 31)), -(10000 - (100 * 32)), -(10000 - (100 * 33)), -(10000 - (100 * 34)), -(10000 - (100 * 35)), -(10000 - (100 * 36)), -(10000 - (100 * 37)), -(10000 - (100 * 38)), -(10000 - (100 * 39)),
-//	-(10000 - (100 * 40)), -(10000 - (100 * 41)), -(10000 - (100 * 42)), -(10000 - (100 * 43)), -(10000 - (100 * 44)), -(10000 - (100 * 45)), -(10000 - (100 * 46)), -(10000 - (100 * 47)), -(10000 - (100 * 48)), -(10000 - (100 * 49)),
-//	-(10000 - (100 * 50)), -(10000 - (100 * 51)), -(10000 - (100 * 52)), -(10000 - (100 * 53)), -(10000 - (100 * 54)), -(10000 - (100 * 55)), -(10000 - (100 * 56)), -(10000 - (100 * 57)), -(10000 - (100 * 58)), -(10000 - (100 * 59)),
-//	-(10000 - (100 * 60)), -(10000 - (100 * 61)), -(10000 - (100 * 62)), -(10000 - (100 * 63)), -(10000 - (100 * 64)), -(10000 - (100 * 65)), -(10000 - (100 * 66)), -(10000 - (100 * 67)), -(10000 - (100 * 68)), -(10000 - (100 * 69)),
-//	-(10000 - (100 * 70)), -(10000 - (100 * 71)), -(10000 - (100 * 72)), -(10000 - (100 * 73)), -(10000 - (100 * 74)), -(10000 - (100 * 75)), -(10000 - (100 * 76)), -(10000 - (100 * 77)), -(10000 - (100 * 78)), -(10000 - (100 * 79)),
-//	-(10000 - (100 * 80)), -(10000 - (100 * 81)), -(10000 - (100 * 82)), -(10000 - (100 * 83)), -(10000 - (100 * 84)), -(10000 - (100 * 85)), -(10000 - (100 * 86)), -(10000 - (100 * 87)), -(10000 - (100 * 88)), -(10000 - (100 * 89)),
-//	-(10000 - (100 * 90)), -(10000 - (100 * 91)), -(10000 - (100 * 92)), -(10000 - (100 * 93)), -(10000 - (100 * 94)), -(10000 - (100 * 95)), -(10000 - (100 * 96)), -(10000 - (100 * 97)), -(10000 - (100 * 98)), -(10000 - (100 * 99)),
-//	-(10000 - (100 * 100))
-//};
-
-// find the percentage of 0 to -10000 range
-constexpr inline long PercentageToRange(float perc) noexcept
+namespace
 {
-	return gsl::narrow_cast<long>(-(10000.0 - (100.0 * perc)));
-
-	//if ((perc < 0.0) || (perc > 100.0))
-	//	return RangeTable[0];
-	//return gsl::at(RangeTable, perc);
-}
-
-// find the percentage of 0 to -10000 range
-constexpr inline float RangeToPercentage(long range) noexcept
-{
-	return gsl::narrow_cast<float>((gsl::narrow_cast<double>(-(range)) / 10000.0) * 100.0);
-}
-
-/// <summary>
-/// Safely relase a COM object and set the pointer to nullptr
-/// </summary>
-/// <typeparam name="T">Some COM type.</typeparam>
-/// <param name="ptr">- Pointer to the COM object to release.</param>
-/// <returns></returns>
-template <typename T>
-void dcxSafeRelease(__maybenull T** ptr) noexcept
-{
-	if (!ptr)
-		return;
-
-	try {
-		if (*ptr)
-			(*ptr)->Release();
+	// find the range value of a percentage (0 to -10000 range)
+	constexpr inline long PercentageToRange(float perc) noexcept
+	{
+		return gsl::narrow_cast<long>(-(10000.0 - (100.0 * perc)));
 	}
-	catch (...) {}
 
-	*ptr = nullptr;
+	// find the percentage of 0 to -10000 range
+	constexpr inline float RangeToPercentage(long range) noexcept
+	{
+		return gsl::narrow_cast<float>((gsl::narrow_cast<double>(-(range)) / 10000.0) * 100.0);
+	}
+
+	/// <summary>
+	/// Safely release a COM object and set the pointer to nullptr
+	/// </summary>
+	/// <typeparam name="T">Some COM type.</typeparam>
+	/// <param name="ptr">- Pointer to the COM object to release.</param>
+	/// <returns></returns>
+	//template <DcxConcepts::ImplementsReleaseFunction T>
+	//void dcxSafeRelease(__maybenull T** ptr) noexcept
+	//{
+	//	if (!ptr)
+	//		return;
+	//
+	//	try {
+	//		if (*ptr)
+	//			(*ptr)->Release();
+	//	}
+	//	catch (...) {}
+	//
+	//	*ptr = nullptr;
+	//}
+
+	/// <summary>
+	/// Normalized range, Min is always zero and Min LE Value LE Max
+	/// </summary>
+	struct NormalizedRange
+	{
+		UINT Value{};
+		UINT MaxValue{};
+	};
 }
 
+///// <summary>
+///// Base class for our com objects.
+///// </summary>
+///// <typeparam name="T"></typeparam>
 //template <class T>
-//struct MyCOMClass {
-//	using value_type = T *;
-//	using parent_type = IUnknown *;
+//struct MyBaseCOMClass
+//{
+//	using value_type = T*;
 //
-//	MyCOMClass(parent_type obj, const IID &riid)
-//	{
-//		mHR = obj->QueryInterface(riid, (void**)& mData);
-//	}
-//	explicit MyCOMClass(parent_type obj)
-//	{
-//		if constexpr (std::is_same_v<IBasicAudio, T>)
-//			mHR = obj->QueryInterface(IID_IBasicAudio, (void**)& mData);
-//		else if constexpr (std::is_same_v<IBasicVideo, T>)
-//			mHR = obj->QueryInterface(IID_IBasicVideo, (void**)& mData);
-//	}
-//	~MyCOMClass() noexcept { if (mData) mData->Release(); };
+//	MyBaseCOMClass() noexcept = default;
+//	MyBaseCOMClass(const MyBaseCOMClass&) noexcept = delete;
+//	MyBaseCOMClass(MyBaseCOMClass&&) noexcept = default;
+//	MyBaseCOMClass& operator =(const MyBaseCOMClass&) noexcept = delete;
+//	MyBaseCOMClass& operator =(MyBaseCOMClass&&) noexcept = default;
 //
-//	operator bool() const noexcept
+//	MyBaseCOMClass(DWORD dwContext, const IID& clsid, const IID& riid) noexcept
+//	{
+//		try {
+//			mHR = CoCreateInstance(clsid, nullptr, dwContext, riid, reinterpret_cast<void**>(&mData));
+//		}
+//		catch (...)
+//		{
+//			mHR = 0;
+//		}
+//	}
+//	MyBaseCOMClass(IUnknown* obj, const IID& riid) noexcept
+//	{
+//		try {
+//			if (obj)
+//				mHR = obj->QueryInterface(riid, reinterpret_cast<void**>(&mData));
+//			else
+//				mHR = E_FAIL;
+//		}
+//		catch (...)
+//		{
+//			mHR = 0;
+//		}
+//	}
+//	MyBaseCOMClass(IGraphBuilder* obj, const WCHAR* pName) noexcept requires DcxConcepts::IsDerivedFrom<IBaseFilter, T>
+//	{
+//		try {
+//			if (obj && pName)
+//				mHR = obj->FindFilterByName(pName, &mData);
+//			else
+//				mHR = E_FAIL;
+//		}
+//		catch (...)
+//		{
+//			mHR = 0;
+//		}
+//	}
+//	virtual ~MyBaseCOMClass() noexcept
+//	{
+//		release();
+//	}
+//
+//	explicit operator bool() const noexcept
 //	{
 //		return (SUCCEEDED(mHR) && mData);
+//	}
+//	value_type operator->() const noexcept
+//	{
+//		return mData;
+//	}
+//	value_type* operator&() noexcept
+//	{
+//		return &mData;
+//	}
+//	operator value_type() noexcept
+//	{
+//		return mData;
+//	}
+//	// NB: reset does NOT release object.
+//	void reset() noexcept
+//	{
+//		mData = nullptr;
+//		mHR = 0;
+//	}
+//	void release() noexcept
+//	{
+//		dcxSafeRelease<T>(&mData);
+//		mHR = 0;
 //	}
 //	value_type mData{ nullptr };
 //	HRESULT mHR{};
 //};
-
-template <class T>
-struct MyBaseCOMClass
-{
-	using value_type = T*;
-
-	MyBaseCOMClass() noexcept = default;
-	MyBaseCOMClass(const MyBaseCOMClass&) noexcept = delete;
-	MyBaseCOMClass(MyBaseCOMClass&&) noexcept = default;
-	MyBaseCOMClass& operator =(const MyBaseCOMClass&) noexcept = delete;
-	MyBaseCOMClass& operator =(MyBaseCOMClass&&) noexcept = default;
-
-	MyBaseCOMClass(IUnknown* obj, const IID& riid) noexcept
-	{
-		try {
-			mHR = obj->QueryInterface(riid, reinterpret_cast<void**>(&mData));
-		}
-		catch (...)
-		{
-			mHR = 0;
-		}
-	}
-	MyBaseCOMClass(IGraphBuilder* obj, const WCHAR* pName) noexcept
-	{
-		try {
-			mHR = obj->FindFilterByName(pName, &mData);
-		}
-		catch (...)
-		{
-			mHR = 0;
-		}
-	}
-	virtual ~MyBaseCOMClass() noexcept
-	{
-		//try {
-		//	if (mData)
-		//		mData->Release();
-		//}
-		//catch (...)
-		//{
-		//}
-		//mData = nullptr;
-
-		dcxSafeRelease<T>(&mData);
-	}
-
-	explicit operator bool() const noexcept
-	{
-		return (SUCCEEDED(mHR) && mData);
-	}
-	value_type operator->() const noexcept
-	{
-		return mData;
-	}
-	// NB: reset does NOT release object.
-	void reset() noexcept
-	{
-		mData = nullptr;
-		mHR = 0;
-	}
-	value_type mData{ nullptr };
-	HRESULT mHR{};
-};
-
-//template <class T, class IValue>
-//struct MyCOMMClass final
-//	: MyBaseCOMClass<T>
+//
+//template <class T>
+//struct MyCOMClass {};
+//
+//// for VMR-7 Display
+//template <>
+//struct MyCOMClass<IVMRWindowlessControl> final
+//	: MyBaseCOMClass<IVMRWindowlessControl>
 //{
-//	explicit MyCOMMClass(IUnknown* obj) noexcept
-//		: MyBaseCOMClass(obj, IValue)
+//	MyCOMClass() noexcept = default;
+//	explicit MyCOMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IID_IVMRWindowlessControl)
 //	{
 //	}
 //};
-
-template <class T>
-struct MyCOMClass {};
-
-// for VMR-7 Display
-template <>
-struct MyCOMClass<IVMRWindowlessControl> final
-	: MyBaseCOMClass<IVMRWindowlessControl>
-{
-	explicit MyCOMClass(IUnknown* obj) noexcept
-		: MyBaseCOMClass(obj, IID_IVMRWindowlessControl)
-	{
-	}
-};
-
-// basic audio
-template <>
-struct MyCOMClass<IBasicAudio> final
-	: MyBaseCOMClass<IBasicAudio>
-{
-	explicit MyCOMClass(IUnknown* obj) noexcept
-		: MyBaseCOMClass(obj, IID_IBasicAudio)
-	{
-	}
-};
-
-template <>
-struct MyCOMClass<IBasicVideo> final
-	: MyBaseCOMClass<IBasicVideo>
-{
-	explicit MyCOMClass(IUnknown* obj) noexcept
-		: MyBaseCOMClass(obj, IID_IBasicVideo)
-	{
-	}
-};
-
-// for VMR-9 Display
-template <>
-struct MyCOMClass<IVMRMixerControl9> final
-	: MyBaseCOMClass<IVMRMixerControl9>
-{
-	explicit MyCOMClass(IUnknown* obj) noexcept
-		: MyBaseCOMClass(obj, IID_IVMRMixerControl9)
-	{
-	}
-};
-
-template <>
-struct MyCOMClass<IVMRMixerBitmap9> final
-	: MyBaseCOMClass<IVMRMixerBitmap9>
-{
-	explicit MyCOMClass(IUnknown* obj) noexcept
-		: MyBaseCOMClass(obj, IID_IVMRMixerBitmap9)
-	{
-	}
-};
-
-template <>
-struct MyCOMClass<IAMMediaContent> final
-	: MyBaseCOMClass<IAMMediaContent>
-{
-	explicit MyCOMClass(IUnknown* obj) noexcept
-		: MyBaseCOMClass(obj, IID_IAMMediaContent)
-	{
-	}
-};
-template <>
-struct MyCOMClass<IVMRWindowlessControl9> final
-	: MyBaseCOMClass<IVMRWindowlessControl9>
-{
-	explicit MyCOMClass(IUnknown* obj) noexcept
-		: MyBaseCOMClass(obj, IID_IVMRWindowlessControl9)
-	{
-	}
-};
-template <>
-struct MyCOMClass<IVMRFilterConfig9> final
-	: MyBaseCOMClass<IVMRFilterConfig9>
-{
-	explicit MyCOMClass(IUnknown* obj) noexcept
-		: MyBaseCOMClass(obj, IID_IVMRFilterConfig9)
-	{
-	}
-};
-template <>
-struct MyCOMClass<IVideoWindow> final
-	: MyBaseCOMClass<IVideoWindow>
-{
-	explicit MyCOMClass(IUnknown* obj) noexcept
-		: MyBaseCOMClass(obj, IID_IVideoWindow)
-	{
-	}
-};
-template <>
-struct MyCOMClass<IDispatch> final
-	: MyBaseCOMClass<IDispatch>
-{
-	explicit MyCOMClass(IUnknown* obj) noexcept
-		: MyBaseCOMClass(obj, IID_IDispatch)
-	{
-	}
-};
-
-// for EVR display
-template <>
-struct MyCOMClass<IMFVideoDisplayControl> final
-	: MyBaseCOMClass<IMFVideoDisplayControl>
-{
-	explicit MyCOMClass(IUnknown* obj) noexcept
-		: MyBaseCOMClass(obj, IID_IMFVideoDisplayControl)
-	{
-	}
-};
-
+//
+//// basic audio
 //template <>
-//struct MyCOMClass<IHTMLDocument2> final
-//	: MyBaseCOMClass<IHTMLDocument2>
+//struct MyCOMClass<IBasicAudio> final
+//	: MyBaseCOMClass<IBasicAudio>
 //{
+//	MyCOMClass() noexcept = default;
 //	explicit MyCOMClass(IUnknown* obj) noexcept
-//		: MyBaseCOMClass(obj, IID_IHTMLDocument2)
+//		: MyBaseCOMClass(obj, IID_IBasicAudio)
+//	{
+//	}
+//};
+//
+//template <>
+//struct MyCOMClass<IBasicVideo> final
+//	: MyBaseCOMClass<IBasicVideo>
+//{
+//	MyCOMClass() noexcept = default;
+//	explicit MyCOMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IID_IBasicVideo)
+//	{
+//	}
+//};
+//
+//// for VMR-9 Display
+//template <>
+//struct MyCOMClass<IVMRMixerControl9> final
+//	: MyBaseCOMClass<IVMRMixerControl9>
+//{
+//	MyCOMClass() noexcept = default;
+//	explicit MyCOMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IID_IVMRMixerControl9)
+//	{
+//	}
+//};
+//
+//template <>
+//struct MyCOMClass<IVMRMixerBitmap9> final
+//	: MyBaseCOMClass<IVMRMixerBitmap9>
+//{
+//	MyCOMClass() noexcept = default;
+//	explicit MyCOMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IID_IVMRMixerBitmap9)
+//	{
+//	}
+//};
+//
+//template <>
+//struct MyCOMClass<IAMMediaContent> final
+//	: MyBaseCOMClass<IAMMediaContent>
+//{
+//	MyCOMClass() noexcept = default;
+//	explicit MyCOMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IID_IAMMediaContent)
 //	{
 //	}
 //};
 //template <>
-//struct MyCOMClass<IWebBrowser2> final
-//	: MyBaseCOMClass<IWebBrowser2>
+//struct MyCOMClass<IMediaControl> final
+//	: MyBaseCOMClass<IMediaControl>
 //{
+//	MyCOMClass() noexcept = default;
 //	explicit MyCOMClass(IUnknown* obj) noexcept
-//		: MyBaseCOMClass(obj, IID_IWebBrowser2)
+//		: MyBaseCOMClass(obj, IID_IMediaControl)
 //	{
 //	}
 //};
 //template <>
-//struct MyCOMClass<IOleInPlaceObject> final
-//	: MyBaseCOMClass<IOleInPlaceObject>
+//struct MyCOMClass<IMediaEventEx> final
+//	: MyBaseCOMClass<IMediaEventEx>
 //{
+//	MyCOMClass() noexcept = default;
 //	explicit MyCOMClass(IUnknown* obj) noexcept
-//		: MyBaseCOMClass(obj, IID_IOleInPlaceObject)
+//		: MyBaseCOMClass(obj, IID_IMediaEventEx)
 //	{
 //	}
 //};
 //template <>
-//struct MyCOMClass<IOleObject> final
-//	: MyBaseCOMClass<IOleObject>
+//struct MyCOMClass<IMediaSeeking> final
+//	: MyBaseCOMClass<IMediaSeeking>
 //{
+//	MyCOMClass() noexcept = default;
 //	explicit MyCOMClass(IUnknown* obj) noexcept
-//		: MyBaseCOMClass(obj, IID_IOleObject)
+//		: MyBaseCOMClass(obj, IID_IMediaSeeking)
 //	{
 //	}
 //};
 //template <>
-//struct MyCOMClass<IConnectionPointContainer> final
-//	: MyBaseCOMClass<IConnectionPointContainer>
+//struct MyCOMClass<IVMRWindowlessControl9> final
+//	: MyBaseCOMClass<IVMRWindowlessControl9>
 //{
+//	MyCOMClass() noexcept = default;
 //	explicit MyCOMClass(IUnknown* obj) noexcept
-//		: MyBaseCOMClass(obj, IID_IConnectionPointContainer)
+//		: MyBaseCOMClass(obj, IID_IVMRWindowlessControl9)
 //	{
 //	}
 //};
 //template <>
-//struct MyCOMClass<IConnectionPoint> final
-//	: MyBaseCOMClass<IConnectionPoint>
+//struct MyCOMClass<IVMRFilterConfig9> final
+//	: MyBaseCOMClass<IVMRFilterConfig9>
 //{
+//	MyCOMClass() noexcept = default;
 //	explicit MyCOMClass(IUnknown* obj) noexcept
-//		: MyBaseCOMClass(obj, IID_IConnectionPoint)
+//		: MyBaseCOMClass(obj, IID_IVMRFilterConfig9)
 //	{
 //	}
 //};
-
-/// <summary>
-/// Normalized range, Min is always zero and Min LE Value LE Max
-/// </summary>
-struct NormalizedRange
-{
-	UINT Value{};
-	UINT MaxValue{};
-};
+//template <>
+//struct MyCOMClass<IVideoWindow> final
+//	: MyBaseCOMClass<IVideoWindow>
+//{
+//	MyCOMClass() noexcept = default;
+//	explicit MyCOMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IID_IVideoWindow)
+//	{
+//	}
+//};
+//template <>
+//struct MyCOMClass<IDispatch> final
+//	: MyBaseCOMClass<IDispatch>
+//{
+//	MyCOMClass() noexcept = default;
+//	explicit MyCOMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IID_IDispatch)
+//	{
+//	}
+//};
+//template <>
+//struct MyCOMClass<IGraphBuilder> final
+//	: MyBaseCOMClass<IGraphBuilder>
+//{
+//	MyCOMClass() noexcept = default;
+//	explicit MyCOMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IID_IGraphBuilder)
+//	{
+//	}
+//	MyCOMClass(DWORD dwContext, const IID& clsid) noexcept
+//		: MyBaseCOMClass(dwContext, clsid, IID_IGraphBuilder)
+//	{
+//	}
+//};
+//template <>
+//struct MyCOMClass<IBaseFilter> final
+//	: MyBaseCOMClass<IBaseFilter>
+//{
+//	MyCOMClass() noexcept = default;
+//	explicit MyCOMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IID_IBaseFilter)
+//	{
+//	}
+//	MyCOMClass(DWORD dwContext, const IID& clsid) noexcept
+//		: MyBaseCOMClass(dwContext, clsid, IID_IBaseFilter)
+//	{
+//	}
+//	MyCOMClass(const MyCOMClass<IGraphBuilder>& obj, const WCHAR* pName) noexcept
+//		: MyBaseCOMClass(obj.mData, pName)
+//	{
+//	}
+//};
+//
+//// for EVR display
+//template <>
+//struct MyCOMClass<IMFVideoDisplayControl> final
+//	: MyBaseCOMClass<IMFVideoDisplayControl>
+//{
+//	MyCOMClass() noexcept = default;
+//	explicit MyCOMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IID_IMFVideoDisplayControl)
+//	{
+//	}
+//};
 
 /*!
  * \brief blah
@@ -395,7 +381,8 @@ public:
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:
-	IVMRWindowlessControl9* InitWindowlessVMR(const HWND hwndApp, IGraphBuilder* pGraph);
+	//IVMRWindowlessControl9* InitWindowlessVMR(const HWND hwndApp, IGraphBuilder* pGraph);
+	wil::com_ptr<IVMRWindowlessControl9> InitWindowlessVMR(const HWND hwndApp, const wil::com_ptr<IGraphBuilder>& pGraph);
 	HRESULT SetVideoPos(void);
 	void ReleaseAll(void) noexcept;
 
@@ -424,11 +411,23 @@ protected:
 #define WM_GRAPHNOTIFY  WM_APP + 1
 
 private:
-	IGraphBuilder* m_pGraph{ nullptr };
-	IMediaControl* m_pControl{ nullptr };
-	IMediaEventEx* m_pEvent{ nullptr };
-	IMediaSeeking* m_pSeek{ nullptr };
-	IVMRWindowlessControl9* m_pWc{ nullptr };
+	//IGraphBuilder* m_pGraph{ nullptr };
+	//IMediaControl* m_pControl{ nullptr };
+	//IMediaEventEx* m_pEvent{ nullptr };
+	//IMediaSeeking* m_pSeek{ nullptr };
+	//IVMRWindowlessControl9* m_pWc{ nullptr };
+
+	//MyCOMClass<IGraphBuilder> m_pGraph;
+	//MyCOMClass<IMediaControl> m_pControl;
+	//MyCOMClass<IMediaEventEx> m_pEvent;
+	//MyCOMClass<IMediaSeeking> m_pSeek;
+	//MyCOMClass<IVMRWindowlessControl9> m_pWc;
+
+	wil::com_ptr<IGraphBuilder> m_pGraph;
+	wil::com_ptr<IMediaControl> m_pControl;
+	wil::com_ptr<IMediaEventEx> m_pEvent;
+	wil::com_ptr<IMediaSeeking> m_pSeek;
+	wil::com_ptr<IVMRWindowlessControl9> m_pWc;
 
 	TString					m_tsFilename;
 

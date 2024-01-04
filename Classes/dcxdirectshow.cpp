@@ -598,37 +598,100 @@ LRESULT DcxDirectshow::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 	return lRes;
 }
 
-GSL_SUPPRESS(type.4)
-IVMRWindowlessControl9* DcxDirectshow::InitWindowlessVMR(const HWND hwndApp, IGraphBuilder* pGraph)
+//GSL_SUPPRESS(type.4)
+//IVMRWindowlessControl9* DcxDirectshow::InitWindowlessVMR(const HWND hwndApp, IGraphBuilder* pGraph)
+//{
+//	if (!pGraph || !hwndApp)
+//		throw Dcx::dcxException("InitWindowlessVMR() - Invalid Filter Graph Manager");
+//
+//	HRESULT hr = S_OK;
+//
+//	try {
+//		wil::com_ptr< IBaseFilter> pVmr;
+//		hr = CoCreateInstance(CLSID_VideoMixingRenderer9, nullptr, CLSCTX_INPROC, IID_IBaseFilter, reinterpret_cast<void**>(&pVmr));
+//
+//		//MyCOMClass<IBaseFilter> pVmr(CLSCTX_INPROC, CLSID_VideoMixingRenderer9);
+//
+//		if (!pVmr)
+//			throw Dcx::dcxException("InitWindowlessVMR() - Unable to Create Video Mixing Renderer9");
+//
+//		// Add the VMR to the filter graph.
+//		hr = pGraph->AddFilter(pVmr.get(), L"Video Mixing Renderer");	// dont use TEXT() here.
+//		if (FAILED(hr))
+//			throw Dcx::dcxException("InitWindowlessVMR() - Unable to Add Filter: Video Mixing Renderer");
+//
+//		// Set the rendering mode.
+//		{
+//			auto pConfig = pVmr.try_query<IVMRFilterConfig9>();
+//			if (!pConfig)
+//			{
+//				hr = E_FAIL;
+//				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Get Filter Config9");
+//			}
+//
+//			hr = pConfig->SetRenderingMode(VMR9Mode_Windowless);
+//			if (dcx_testflag(dcxGetWindowExStyle(hwndApp), WS_EX_TRANSPARENT))
+//				hr = pConfig->SetRenderingPrefs(RenderPrefs9_DoNotRenderBorder);
+//
+//			if (FAILED(hr))
+//				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Set Rendering Options");
+//		}
+//		// Set the window.
+//		IVMRWindowlessControl9* pRes{ nullptr };
+//		{
+//			auto pWc = pVmr.try_query<IVMRWindowlessControl9>();
+//			if (!pWc)
+//			{
+//				hr = E_FAIL;
+//				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Get Windowless Control9");
+//			}
+//
+//			hr = pWc->SetVideoClippingWindow(hwndApp);
+//			if (FAILED(hr))
+//			{
+//				// An error occurred, so release the interface.
+//				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Set Clipping Window");
+//			}
+//
+//			//if (MyCOMClass<IVMRMixerControl9> pMixer(pVmr); pMixer)
+//			//{
+//			//	pMixer->SetAlpha(0,0.5);
+//			//}
+//
+//			pRes = pWc.detach(); // Return this as an AddRef'd pointer.
+//		}
+//		return pRes;
+//	}
+//	catch (const std::exception)
+//	{
+//		DX_ERR(nullptr, TEXT("InitWindowlessVMR"), hr);
+//		throw;
+//	}
+//}
+
+wil::com_ptr<IVMRWindowlessControl9> DcxDirectshow::InitWindowlessVMR(const HWND hwndApp, const wil::com_ptr<IGraphBuilder>& pGraph)
 {
-	if (!pGraph)
+	if (!pGraph || !hwndApp)
 		throw Dcx::dcxException("InitWindowlessVMR() - Invalid Filter Graph Manager");
 
 	HRESULT hr = S_OK;
 
 	try {
-		IBaseFilter* pVmr{ nullptr };
-
-		// Create the VMR.
-		hr = CoCreateInstance(CLSID_VideoMixingRenderer9, nullptr, CLSCTX_INPROC, IID_IBaseFilter, reinterpret_cast<void**>(&pVmr));
-
-		if (FAILED(hr))
+		auto pVmr = wil::CoCreateInstance<IBaseFilter>(CLSID_VideoMixingRenderer9, CLSCTX_INPROC);
+		if (!pVmr)
 			throw Dcx::dcxException("InitWindowlessVMR() - Unable to Create Video Mixing Renderer9");
 
-		//Auto(pVmr->Release());
-		Auto(dcxSafeRelease(&pVmr));
-
 		// Add the VMR to the filter graph.
-		hr = pGraph->AddFilter(pVmr, L"Video Mixing Renderer");	// dont use TEXT() here.
+		hr = pGraph->AddFilter(pVmr.get(), L"Video Mixing Renderer");	// dont use TEXT() here.
 		if (FAILED(hr))
 			throw Dcx::dcxException("InitWindowlessVMR() - Unable to Add Filter: Video Mixing Renderer");
 
 		// Set the rendering mode.
 		{
-			MyCOMClass<IVMRFilterConfig9> pConfig(pVmr);
+			auto pConfig = pVmr.try_query<IVMRFilterConfig9>();
 			if (!pConfig)
 			{
-				hr = pConfig.mHR;
+				hr = E_FAIL;
 				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Get Filter Config9");
 			}
 
@@ -640,12 +703,12 @@ IVMRWindowlessControl9* DcxDirectshow::InitWindowlessVMR(const HWND hwndApp, IGr
 				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Set Rendering Options");
 		}
 		// Set the window.
-		IVMRWindowlessControl9* pRes{ nullptr };
+		wil::com_ptr<IVMRWindowlessControl9> pRes;
 		{
-			MyCOMClass<IVMRWindowlessControl9> pWc(pVmr);
+			auto pWc = pVmr.try_query<IVMRWindowlessControl9>();
 			if (!pWc)
 			{
-				hr = pWc.mHR;
+				hr = E_FAIL;
 				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Get Windowless Control9");
 			}
 
@@ -656,13 +719,7 @@ IVMRWindowlessControl9* DcxDirectshow::InitWindowlessVMR(const HWND hwndApp, IGr
 				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Set Clipping Window");
 			}
 
-			//if (MyCOMClass<IVMRMixerControl9> pMixer(pVmr); pMixer)
-			//{
-			//	pMixer->SetAlpha(0,0.5);
-			//}
-
-			pRes = pWc.mData; // Return this as an AddRef'd pointer.
-			pWc.reset();	// stop release
+			pRes = pWc; // Return this as an AddRef'd pointer.
 		}
 		return pRes;
 	}
@@ -702,36 +759,67 @@ HRESULT DcxDirectshow::SetVideoPos(void)
 
 void DcxDirectshow::ReleaseAll() noexcept
 {
+	//try {
+	//	if (this->m_pControl)
+	//		this->m_pControl->Release();
+	//	if (this->m_pEvent)
+	//	{
+	//		this->m_pEvent->SetNotifyWindow(0, 0, 0);
+	//		this->m_pEvent->Release();
+	//	}
+	//	if (this->m_pSeek)
+	//		this->m_pSeek->Release();
+	//	if (this->m_pWc)
+	//		this->m_pWc->Release();
+	//	if (this->m_pGraph)
+	//		this->m_pGraph->Release();
+	//}
+	//catch (...) {}
+	//this->m_pControl = nullptr;
+	//this->m_pEvent = nullptr;
+	//this->m_pGraph = nullptr;
+	//this->m_pWc = nullptr;
+	//this->m_pSeek = nullptr;
+	//this->m_tsFilename.clear();	// = TEXT("");
+
+	//try {
+	//	if (this->m_pEvent)
+	//		this->m_pEvent->SetNotifyWindow(0, 0, 0);
+	//	this->m_pControl.release();
+	//	this->m_pEvent.release();
+	//	this->m_pSeek.release();
+	//	this->m_pWc.release();
+	//	this->m_pGraph.release();
+	//}
+	//catch (...) {}
+	//this->m_tsFilename.clear();	// = TEXT("");
+
 	try {
-		if (this->m_pControl)
-			this->m_pControl->Release();
 		if (this->m_pEvent)
-		{
 			this->m_pEvent->SetNotifyWindow(0, 0, 0);
-			this->m_pEvent->Release();
-		}
-		if (this->m_pSeek)
-			this->m_pSeek->Release();
-		if (this->m_pWc)
-			this->m_pWc->Release();
-		if (this->m_pGraph)
-			this->m_pGraph->Release();
+		this->m_pControl.reset();
+		this->m_pEvent.reset();
+		this->m_pSeek.reset();
+		this->m_pWc.reset();
+		this->m_pGraph.reset();
 	}
 	catch (...) {}
-	this->m_pControl = nullptr;
-	this->m_pEvent = nullptr;
-	this->m_pGraph = nullptr;
-	this->m_pWc = nullptr;
-	this->m_pSeek = nullptr;
 	this->m_tsFilename.clear();	// = TEXT("");
 }
 
 GSL_SUPPRESS(type.4)
 HRESULT DcxDirectshow::getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& prop, const Properties type) const noexcept
 {
+	if (!this->m_pGraph)
+		return E_POINTER;
+
 	HRESULT hr{ E_FAIL };
 
-	if (MyCOMClass<IAMMediaContent> iam(this->m_pGraph); iam)
+	// Ook: for some reason try_query fails here.
+	wil::com_ptr<IAMMediaContent> iam;
+	this->m_pGraph->QueryInterface(IID_IAMMediaContent, reinterpret_cast<void**>(&iam));
+	//if (auto iam = this->m_pGraph.try_query<IAMMediaContent>(); iam)
+	if (iam)
 	{
 		BSTR com_prop = nullptr;
 		switch (type)
@@ -774,7 +862,7 @@ HRESULT DcxDirectshow::getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>&
 GSL_SUPPRESS(type.4)
 HRESULT DcxDirectshow::setAlpha(float alpha)
 {
-	if (!m_Hwnd)
+	if (!m_Hwnd || !this->m_pGraph)
 		return E_POINTER;
 
 	if ((alpha < 0) || (alpha > 1.0))
@@ -785,12 +873,11 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 	if ((!GetClientRect(m_Hwnd, &rcClient)) || (!GetWindowRect(m_Hwnd, &rcWin)))
 		return E_FAIL;
 
-	MyBaseCOMClass<IBaseFilter> pVmr(this->m_pGraph, L"Video Mixing Renderer");
+	wil::com_ptr<IBaseFilter> pVmr;
+	if (const auto hr = this->m_pGraph->FindFilterByName(L"Video Mixing Renderer", &pVmr); !pVmr)
+		return hr;
 
-	if (!pVmr)
-		return pVmr.mHR;
-
-	if (MyCOMClass<IVMRMixerControl9> pMixer(pVmr.mData); pMixer)
+	if (auto pMixer = pVmr.try_query<IVMRMixerControl9>(); pMixer)
 	{
 		// this works BUT only gives u alpha over other streams in the mixer, not the dialog/controls bg.
 		//hr = pMixer->SetAlpha(0,alpha);
@@ -810,7 +897,7 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 		}
 	}
 
-	if (MyCOMClass<IVMRMixerBitmap9> pBm(pVmr.mData); pBm)
+	if (auto pBm = pVmr.try_query<IVMRMixerBitmap9>(); pBm)
 	{
 		if (auto hdc = GetDC(m_Hwnd); hdc)
 		{ // make duplicate hdc;
@@ -871,15 +958,16 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 
 float DcxDirectshow::getAlpha() const
 {
-	if (!m_Hwnd)
+	if (!m_Hwnd || !this->m_pGraph)
 		return 1.0f;
 
-	MyBaseCOMClass<IBaseFilter> pVmr(this->m_pGraph, L"Video Mixing Renderer");
+	wil::com_ptr<IBaseFilter> pVmr;
+	this->m_pGraph->FindFilterByName(L"Video Mixing Renderer", &pVmr);
 
 	if (!pVmr)
 		return 1.0f;
 
-	if (MyCOMClass<IVMRMixerBitmap9> pBm(pVmr.mData); pBm)
+	if (auto pBm = pVmr.try_query<IVMRMixerBitmap9>(); pBm)
 	{
 		VMR9AlphaBitmap bmpInfo{};
 
@@ -892,22 +980,22 @@ float DcxDirectshow::getAlpha() const
 GSL_SUPPRESS(type.4)
 HRESULT DcxDirectshow::setVideo(const TString& flags, const float brightness, const float contrast, const float hue, const float saturation, const float alpha)
 {
-	MyBaseCOMClass<IBaseFilter> Vmr(this->m_pGraph, L"Video Mixing Renderer");
-	if (!Vmr)
-		return Vmr.mHR;
+	if (!this->m_pGraph)
+		return E_POINTER;
 
-	MyCOMClass<IVMRMixerControl9> Mixer(Vmr.mData);
+	wil::com_ptr<IBaseFilter> pVmr;
+	if (const auto hr = this->m_pGraph->FindFilterByName(L"Video Mixing Renderer", &pVmr); !pVmr)
+		return hr;
+
+	auto Mixer = pVmr.try_query<IVMRMixerControl9>();
 	if (!Mixer)
-		return Mixer.mHR;
+		return E_FAIL;
 
 	const XSwitchFlags xflags(flags);
 	DWORD dwflags{};
 
-	if (xflags[TEXT('a')])
-	{
-		// set video alpha value.
+	if (xflags[TEXT('a')])	// set video alpha value.
 		setAlpha(alpha);
-	}
 	if (xflags[TEXT('b')])
 		dwflags |= ProcAmpControl9_Brightness;
 	if (xflags[TEXT('c')])
@@ -938,22 +1026,22 @@ HRESULT DcxDirectshow::setVideo(const TString& flags, const float brightness, co
 
 		return Mixer->SetProcAmpControl(0, std::addressof(amc));
 	}
-	return Mixer.mHR;
+	return S_OK;
 }
 
 GSL_SUPPRESS(type.4)
 HRESULT DcxDirectshow::getVideo(VMR9ProcAmpControl* amc) const
 {
-	if (!amc)
+	if (!amc || !this->m_pGraph)
 		return E_POINTER;
 
-	MyBaseCOMClass<IBaseFilter> Vmr(this->m_pGraph, L"Video Mixing Renderer");
-	if (!Vmr)
-		return Vmr.mHR;
+	wil::com_ptr<IBaseFilter> pVmr;
+	if (const auto hr = this->m_pGraph->FindFilterByName(L"Video Mixing Renderer", &pVmr); !pVmr)
+		return hr;
 
-	MyCOMClass<IVMRMixerControl9> Mixer(Vmr.mData);
+	auto Mixer = pVmr.try_query<IVMRMixerControl9>();
 	if (!Mixer)
-		return Mixer.mHR;
+		return E_FAIL;
 
 	ZeroMemory(amc, sizeof(VMR9ProcAmpControl));
 	amc->dwSize = sizeof(VMR9ProcAmpControl);
@@ -965,13 +1053,16 @@ HRESULT DcxDirectshow::getVideo(VMR9ProcAmpControl* amc) const
 GSL_SUPPRESS(type.4)
 HRESULT DcxDirectshow::getVideoRange(VMR9ProcAmpControlFlags prop, VMR9ProcAmpControlRange* acr) const
 {
-	MyBaseCOMClass<IBaseFilter> Vmr(this->m_pGraph, L"Video Mixing Renderer");
-	if (!Vmr)
-		return Vmr.mHR;
+	if (!this->m_pGraph)
+		return E_POINTER;
 
-	MyCOMClass<IVMRMixerControl9> Mixer(Vmr.mData);
+	wil::com_ptr<IBaseFilter> pVmr;
+	if (const auto hr = this->m_pGraph->FindFilterByName(L"Video Mixing Renderer", &pVmr); !pVmr)
+		return hr;
+
+	auto Mixer = pVmr.try_query<IVMRMixerControl9>();
 	if (!Mixer)
-		return Mixer.mHR;
+		return E_FAIL;
 
 	ZeroMemory(acr, sizeof(VMR9ProcAmpControlRange));
 	acr->dwSize = sizeof(VMR9ProcAmpControlRange);
@@ -982,9 +1073,15 @@ HRESULT DcxDirectshow::getVideoRange(VMR9ProcAmpControlFlags prop, VMR9ProcAmpCo
 GSL_SUPPRESS(type.4)
 std::optional<VMR9ProcAmpControlRange> DcxDirectshow::getVideoRange(VMR9ProcAmpControlFlags prop) const
 {
-	if (MyBaseCOMClass<IBaseFilter> pVmr(this->m_pGraph, L"Video Mixing Renderer"); pVmr)
+	if (!this->m_pGraph)
+		return {};
+
+	wil::com_ptr<IBaseFilter> pVmr;
+	this->m_pGraph->FindFilterByName(L"Video Mixing Renderer", &pVmr);
+
+	if (pVmr)
 	{
-		if (MyCOMClass<IVMRMixerControl9> pMixer(pVmr.mData); pMixer)
+		if (auto pMixer = pVmr.try_query<IVMRMixerControl9>(); pMixer)
 		{
 			if (VMR9ProcAmpControlRange acr{ sizeof(VMR9ProcAmpControlRange), prop }; SUCCEEDED(pMixer->GetProcAmpControlRange(0, std::addressof(acr))))
 				return acr;
@@ -1021,7 +1118,6 @@ HRESULT DcxDirectshow::setPosition(const UINT64 pos)
 		return E_POINTER;
 
 	UINT64 mpos = pos * 10000; // convert to 100-nano secs units.
-	//DWORD dwCaps = AM_SEEKING_CanSeekAbsolute;
 	HRESULT hr = E_FAIL;
 
 	if (dcx_testflag(this->CheckSeekCapabilities(AM_SEEKING_CanSeekAbsolute), AM_SEEKING_CanSeekAbsolute))
@@ -1036,7 +1132,6 @@ UINT64 DcxDirectshow::getDuration() const
 	if (!this->m_pSeek)
 		return 0;
 
-	//const DWORD dwCaps = AM_SEEKING_CanGetDuration;
 	if (dcx_testflag(this->CheckSeekCapabilities(AM_SEEKING_CanGetDuration), AM_SEEKING_CanGetDuration))
 	{ // can get current pos
 		if (UINT64 pos{}; SUCCEEDED(this->m_pSeek->GetDuration((INT64*)&pos)))
@@ -1062,7 +1157,10 @@ HRESULT DcxDirectshow::setVolume(const float vol)
 	if ((vol < 0.0) || (vol > 100.0))
 		return E_FAIL;
 
-	if (MyCOMClass<IBasicAudio> myCom(this->m_pGraph); myCom)
+	if (!this->m_pGraph)
+		return E_POINTER;
+
+	if (auto myCom = this->m_pGraph.try_query<IBasicAudio>(); myCom)
 		return myCom->put_Volume(PercentageToRange(vol));
 
 	return E_FAIL;
@@ -1073,7 +1171,10 @@ float DcxDirectshow::getVolume() const
 {
 	float vol{};
 
-	if (MyCOMClass<IBasicAudio> myCom(this->m_pGraph); myCom)
+	if (!this->m_pGraph)
+		return vol;
+
+	if (auto myCom = this->m_pGraph.try_query<IBasicAudio>(); myCom)
 	{
 #pragma warning(push,3)
 #pragma warning(disable:4244)
@@ -1090,7 +1191,10 @@ HRESULT DcxDirectshow::setBalance(const long vol)
 	if ((vol < -10000) || (vol > 10000))
 		return E_FAIL;
 
-	if (MyCOMClass<IBasicAudio> myCom(this->m_pGraph); myCom)
+	if (!this->m_pGraph)
+		return E_POINTER;
+
+	if (auto myCom = this->m_pGraph.try_query<IBasicAudio>(); myCom)
 		return myCom->put_Balance(vol);
 
 	return E_FAIL;
@@ -1101,7 +1205,10 @@ long DcxDirectshow::getBalance(void) const
 {
 	long vol{};
 
-	if (MyCOMClass<IBasicAudio> myCom(this->m_pGraph); myCom)
+	if (!this->m_pGraph)
+		return vol;
+
+	if (auto myCom = this->m_pGraph.try_query<IBasicAudio>(); myCom)
 	{
 #pragma warning(push,3)
 #pragma warning(disable:4244)
@@ -1135,21 +1242,42 @@ void DcxDirectshow::loadFile(const TString& tsFlags, const TString& tsFilename)
 
 	try {
 		// Create the Filter Graph Manager and query for interfaces.
-		hr = CoCreateInstance(CLSID_FilterGraph, nullptr, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, reinterpret_cast<void**>(&this->m_pGraph));
+		//hr = CoCreateInstance(CLSID_FilterGraph, nullptr, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, reinterpret_cast<void**>(&this->m_pGraph));
+		//
+		//if (FAILED(hr) || !this->m_pGraph)
+		//	throw Dcx::dcxException("Unable to Create FilterGraph");
+		//
+		//hr = this->m_pGraph->QueryInterface(IID_IMediaControl, reinterpret_cast<void**>(&this->m_pControl));
+		//if (FAILED(hr) || !this->m_pControl)
+		//	throw Dcx::dcxException("Unable to Get IMediaControl");
+		//
+		//hr = this->m_pGraph->QueryInterface(IID_IMediaEventEx, reinterpret_cast<void**>(&this->m_pEvent));
+		//if (FAILED(hr) || !this->m_pEvent)
+		//	throw Dcx::dcxException("Unable to Get IMediaEventEx");
+		//
+		//hr = this->m_pGraph->QueryInterface(IID_IMediaSeeking, reinterpret_cast<void**>(&this->m_pSeek));
+		//if (FAILED(hr) || !this->m_pSeek)
+		//	throw Dcx::dcxException("Unable to Get IMediaSeeking");
+		//
+		//hr = this->m_pEvent->SetNotifyWindow(reinterpret_cast<OAHWND>(m_Hwnd), WM_GRAPHNOTIFY, 0);
+		//if (FAILED(hr))
+		//	throw Dcx::dcxException("Unable to Set Window Notify");
 
-		if (FAILED(hr) || !this->m_pGraph)
+		//hr = CoCreateInstance(CLSID_FilterGraph, nullptr, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, reinterpret_cast<void**>(&this->m_pGraph));
+		this->m_pGraph = wil::CoCreateInstance<IGraphBuilder>(CLSID_FilterGraph, CLSCTX_INPROC_SERVER);
+		if (!this->m_pGraph)
 			throw Dcx::dcxException("Unable to Create FilterGraph");
 
-		hr = this->m_pGraph->QueryInterface(IID_IMediaControl, reinterpret_cast<void**>(&this->m_pControl));
-		if (FAILED(hr) || !this->m_pControl)
+		this->m_pControl = this->m_pGraph.try_query<IMediaControl>();
+		if (!this->m_pControl)
 			throw Dcx::dcxException("Unable to Get IMediaControl");
 
-		hr = this->m_pGraph->QueryInterface(IID_IMediaEventEx, reinterpret_cast<void**>(&this->m_pEvent));
-		if (FAILED(hr) || !this->m_pEvent)
+		this->m_pEvent = this->m_pGraph.try_query<IMediaEventEx>();
+		if (!this->m_pEvent)
 			throw Dcx::dcxException("Unable to Get IMediaEventEx");
 
-		hr = this->m_pGraph->QueryInterface(IID_IMediaSeeking, reinterpret_cast<void**>(&this->m_pSeek));
-		if (FAILED(hr) || !this->m_pSeek)
+		this->m_pSeek = this->m_pGraph.try_query<IMediaSeeking>();
+		if (!this->m_pSeek)
 			throw Dcx::dcxException("Unable to Get IMediaSeeking");
 
 		hr = this->m_pEvent->SetNotifyWindow(reinterpret_cast<OAHWND>(m_Hwnd), WM_GRAPHNOTIFY, 0);
@@ -1205,14 +1333,8 @@ void DcxDirectshow::loadFile(const TString& tsFlags, const TString& tsFilename)
 		}
 		else {
 			// if VMR == nullptr then disable video.
-			//IVideoWindow* p_Video{};
-			//hr = this->m_pGraph->QueryInterface(IID_IVideoWindow, reinterpret_cast<void**>(&p_Video));
-			//if (FAILED(hr))
-			//	throw Dcx::dcxException("Unable to get video window");
-			//
-			//Auto(p_Video->Release());
 
-			MyCOMClass<IVideoWindow> p_Video(this->m_pGraph);
+			auto p_Video = this->m_pGraph.try_query<IVideoWindow>();
 			if (!p_Video)
 				throw Dcx::dcxException("Unable to get video window");
 
