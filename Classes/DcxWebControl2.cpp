@@ -26,6 +26,25 @@ DcxWebControl2::DcxWebControl2(const UINT ID, gsl::strict_not_null<DcxDialog* co
 
 DcxWebControl2::~DcxWebControl2() noexcept
 {
+	if (m_webviewCompositionController)
+		m_webviewCompositionController->put_RootVisualTarget(nullptr);
+	if (m_dcompWebViewVisual)
+	{
+		m_dcompWebViewVisual->RemoveAllVisuals();
+		m_dcompWebViewVisual.reset();
+	}
+	if (m_dcompRootVisual)
+	{
+		m_dcompRootVisual->RemoveAllVisuals();
+		m_dcompRootVisual.reset();
+	}
+	if (m_dcompHwndTarget)
+	{
+		m_dcompHwndTarget->SetRoot(nullptr);
+		m_dcompHwndTarget.reset();
+	}
+	if (m_dcompDevice)
+		m_dcompDevice->Commit();
 }
 
 LRESULT DcxWebControl2::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
@@ -47,9 +66,19 @@ LRESULT DcxWebControl2::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 	case WM_SETFOCUS:
 	{
-		this->getParentDialog()->setFocusControl(this->getUserID());
+		//HWND hPrev = reinterpret_cast<HWND>(wParam);
+
+		if (const auto pd = this->getParentDialog(); pd)
+			pd->setFocusControl(this->getUserID());
+
 		if (m_webviewController)
-			m_webviewController->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_NEXT);
+		{
+			auto reason = COREWEBVIEW2_MOVE_FOCUS_REASON_NEXT;
+			if (GetKeyState(VK_SHIFT) & 0xFF00)
+				reason = COREWEBVIEW2_MOVE_FOCUS_REASON_PREVIOUS;
+
+			m_webviewController->MoveFocus(reason);
+		}
 	}
 	break;
 
@@ -337,6 +366,62 @@ void DcxWebControl2::parseCommandRequest(const TString& input)
 
 		if (auto webview16 = m_webview.try_query<ICoreWebView2_16>(); webview16)
 			webview16->ShowPrintUI(printDialogKind);
+	}
+	// set colour scheme or bkg
+	// xdid -S [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
+	else if (flags[TEXT('S')])
+	{
+		const XSwitchFlags xFlags(input.getnexttok());
+		const TString tsArgs(input.getlasttoks());
+
+		if (!xFlags[L'+'])
+			throw DcxExceptions::dcxInvalidFlag();
+
+		if (xFlags[L's'])
+		{
+			// set scheme
+			// +s [SCHEME]
+			// +s [light|dark|auto]
+			COREWEBVIEW2_PREFERRED_COLOR_SCHEME eScheme{ COREWEBVIEW2_PREFERRED_COLOR_SCHEME_AUTO };
+			switch (std::hash<TString>()(tsArgs))
+			{
+			case L"dark"_hash:
+				eScheme = COREWEBVIEW2_PREFERRED_COLOR_SCHEME_DARK;
+				break;
+			case L"light"_hash:
+				eScheme = COREWEBVIEW2_PREFERRED_COLOR_SCHEME_LIGHT;
+				break;
+			case L"auto"_hash:
+				eScheme = COREWEBVIEW2_PREFERRED_COLOR_SCHEME_AUTO;
+				break;
+			default:
+				throw DcxExceptions::dcxInvalidArguments();
+				break;
+			}
+			if (auto webView2_13 = m_webview.try_query<ICoreWebView2_13>(); webView2_13)
+			{
+				wil::com_ptr<ICoreWebView2Profile> profile;
+				webView2_13->get_Profile(&profile);
+				if (profile)
+					profile->put_PreferredColorScheme(eScheme);
+			}
+		}
+		else if(xFlags[L'c'])
+		{
+			// set bkg colour
+			// +c [COLOUR] [ALPHA]
+			const COLORREF clr = tsArgs.getfirsttok(1).to_<COLORREF>();
+			const BYTE alpha = gsl::narrow_cast<BYTE>(tsArgs.getnexttokas<UINT>());
+
+			COREWEBVIEW2_COLOR webclr{};
+			webclr.R = GetRValue(clr);
+			webclr.G = GetGValue(clr);
+			webclr.B = GetBValue(clr);
+			webclr.A = alpha;
+
+			if (auto controller2 = m_webviewController.query<ICoreWebView2Controller2>(); controller2)
+				controller2->put_DefaultBackgroundColor(webclr);
+		}
 	}
 	else
 		parseGlobalCommandRequest(input, flags);
@@ -860,6 +945,33 @@ void DcxWebControl2::ClearCacheKind(COREWEBVIEW2_BROWSING_DATA_KINDS kind)
 	}
 }
 
+void DcxWebControl2::DLProgressReport(ICoreWebView2DownloadOperation* download)
+{
+	if (!download)
+		return;
+
+	INT64 iBytes{}, iTotalBytes{};
+	download->get_BytesReceived(&iBytes);
+	download->get_TotalBytesToReceive(&iTotalBytes);
+
+	wil::unique_cotaskmem_string filename;
+	download->get_ResultFilePath(&filename);
+
+	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"dl_progress,%u,%lli,%lli,%s", getUserID(), iBytes, iTotalBytes, filename.get());
+	switch (std::hash<TString>()(tsBuf))
+	{
+	case L"cancel"_hash:
+		download->Cancel();
+		break;
+	case L"pause"_hash:
+		download->Pause();
+		break;
+	default:
+		break;
+	}
+}
+
 HRESULT DcxWebControl2::OnCreateCoreWebView2EnvironmentCompleted(HRESULT result, ICoreWebView2Environment* env)
 {
 	if (!env)
@@ -874,7 +986,30 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2EnvironmentCompleted(HRESULT result,
 		{
 			env3->CreateCoreWebView2CompositionController(m_Hwnd, Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2CompositionControllerCompletedHandler>(
 				[this](HRESULT result, ICoreWebView2CompositionController* compositionController) -> HRESULT {
-					auto controller = wil::com_ptr<ICoreWebView2CompositionController>(compositionController).query<ICoreWebView2Controller>();
+					m_webviewCompositionController = compositionController;
+					//auto controller = wil::com_ptr<ICoreWebView2CompositionController>(compositionController).query<ICoreWebView2Controller>();
+					auto controller = m_webviewCompositionController.query<ICoreWebView2Controller>();
+
+					if (!m_dcompWebViewVisual)
+					{
+						if (SUCCEEDED(m_dcompDevice->CreateTargetForHwnd(this->m_Hwnd, TRUE, &m_dcompHwndTarget)))
+						{
+							if (SUCCEEDED(m_dcompDevice->CreateVisual(&m_dcompRootVisual)))
+							{
+								if (SUCCEEDED(m_dcompHwndTarget->SetRoot(m_dcompRootVisual.get())))
+								{
+									if (SUCCEEDED(m_dcompDevice->CreateVisual(&m_dcompWebViewVisual)))
+									{
+										m_dcompRootVisual->AddVisual(m_dcompWebViewVisual.get(), TRUE, nullptr);
+									}
+								}
+							}
+						}
+					}
+
+					if (m_dcompWebViewVisual && m_dcompHwndTarget && m_dcompRootVisual)
+						m_webviewCompositionController->put_RootVisualTarget(m_dcompWebViewVisual.get());
+
 					return OnCreateCoreWebView2ControllerCompleted(result, controller.get());
 				})
 				.Get());
@@ -917,7 +1052,7 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 		m_webviewController->put_Bounds(bounds);
 
 	m_webviewController->add_GotFocus(Microsoft::WRL::Callback<ICoreWebView2FocusChangedEventHandler>(this, &DcxWebControl2::OnGotFocus).Get(), &m_gotFocusToken);
-	m_webviewController->add_LostFocus(Microsoft::WRL::Callback<ICoreWebView2FocusChangedEventHandler>(this, &DcxWebControl2::OnLostFocus).Get(), &m_lostFocusToken);
+	//m_webviewController->add_LostFocus(Microsoft::WRL::Callback<ICoreWebView2FocusChangedEventHandler>(this, &DcxWebControl2::OnLostFocus).Get(), &m_lostFocusToken);
 
 	m_webview->add_NavigationStarting(Microsoft::WRL::Callback<ICoreWebView2NavigationStartingEventHandler>(this, &DcxWebControl2::OnNavigationStarting).Get(), &m_navStartToken);
 	m_webview->add_NavigationCompleted(Microsoft::WRL::Callback<ICoreWebView2NavigationCompletedEventHandler>(this, &DcxWebControl2::OnNavigationCompleted).Get(), &m_navEndToken);
@@ -1129,17 +1264,8 @@ HRESULT DcxWebControl2::OnBytesReceivedChanged(ICoreWebView2DownloadOperation* d
 	if (!download)
 		return E_FAIL;
 
-	INT64 iBytes{}, iTotalBytes{};
-	download->get_BytesReceived(&iBytes);
-	download->get_TotalBytesToReceive(&iTotalBytes);
+	DLProgressReport(download);
 
-	wil::unique_cotaskmem_string filename;
-	download->get_ResultFilePath(&filename);
-	
-	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
-	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"dl_progress,%u,%lli,%lli,%s", getUserID(), iBytes, iTotalBytes, filename.get());
-	if (tsBuf == L"cancel")
-		download->Cancel();
 	return S_OK;
 }
 
@@ -1160,10 +1286,13 @@ HRESULT DcxWebControl2::OnStateChanged(ICoreWebView2DownloadOperation* download,
 	switch (downloadState)
 	{
 	case COREWEBVIEW2_DOWNLOAD_STATE_IN_PROGRESS:
-		break;
+	{
+		DLProgressReport(download);
+	}
+	break;
 	case COREWEBVIEW2_DOWNLOAD_STATE_INTERRUPTED:
 	{
-		COREWEBVIEW2_DOWNLOAD_INTERRUPT_REASON reason;
+		COREWEBVIEW2_DOWNLOAD_INTERRUPT_REASON reason{ COREWEBVIEW2_DOWNLOAD_INTERRUPT_REASON_NONE };
 		download->get_InterruptReason(&reason);
 
 		execAliasEx(L"dl_canceled,%u,%u,%s", getUserID(), reason, filename.get());

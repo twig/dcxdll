@@ -84,6 +84,8 @@ public:
 	void ClearCache();
 	void ClearCacheKind(COREWEBVIEW2_BROWSING_DATA_KINDS kind);
 
+	void DLProgressReport(ICoreWebView2DownloadOperation* download);
+
 private:
 	// Pointer to WebViewController
 	wil::com_ptr<ICoreWebView2Controller> m_webviewController;
@@ -98,7 +100,11 @@ private:
 	wil::com_ptr<ICoreWebView2Settings> m_settings;
 
 	//
+	wil::com_ptr<ICoreWebView2CompositionController> m_webviewCompositionController;
 	wil::com_ptr<IDCompositionDevice> m_dcompDevice;
+	wil::com_ptr<IDCompositionTarget> m_dcompHwndTarget;
+	wil::com_ptr<IDCompositionVisual> m_dcompRootVisual;
+	wil::com_ptr<IDCompositionVisual> m_dcompWebViewVisual;
 
 	EventRegistrationToken m_navStartToken;
 	EventRegistrationToken m_navEndToken;
