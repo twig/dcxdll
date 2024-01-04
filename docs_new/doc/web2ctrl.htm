@@ -211,6 +211,18 @@ NB: The control also requires WebView2 installed & will try to install it if not
 		<td>toggle Mute on/off</td>
 	</tr>
 	<tr>
+		<td class="value">D</td>
+		<td>toggle Scripting Dialog on/off</td>
+	</tr>
+	<tr>
+		<td class="value">S</td>
+		<td>toggle Scripting on/off</td>
+	</tr>
+	<tr>
+		<td class="value">W</td>
+		<td>toggle Web Messages on/off</td>
+	</tr>
+	<tr>
 		<td class="param">+MASK</td>
 		<td>is used to set the flags on or off <a class="value">/xdid -m dname +bf +b</a> will turn the address bar on, & disable fullscreen.</td>
 	</tr>
@@ -326,6 +338,62 @@ NB: The control also requires WebView2 installed & will try to install it if not
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.downloaddialog"></a>$xdid().downloaddialog	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the web message state. <a class="value">$true</a> if the dialog is enabled.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).downloaddialog</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).downloaddialog</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.downloads"></a>$xdid().downloads	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the downloads state. <a class="value">$true</a> if downloads are enabled.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).downloads</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).downloads</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.fullscreen"></a>$xdid().fullscreen	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the fullscreen state of the webview. <a class="value">$true</a> if fullscreen is enabled.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).fullscreen</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).fullscreen</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.managed"></a>$xdid().managed	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the managed window state. <a class="value">$true</a> if opeing new windows is managed.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).managed</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).managed</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.mute"></a>$xdid().mute	</td></tr>
 	<tr><td colspan="2">This property lets you retrieve the audio mute state. <a class="value">$true</a> if the audio is muted.</td></tr>
 	<tr>
@@ -335,6 +403,48 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).mute</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.ready"></a>$xdid().ready	</td></tr>
+	<tr><td colspan="2">This property lets does nothing atm.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).ready</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).ready</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.scriptdialog"></a>$xdid().scriptdialog	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the scripting dialog state. <a class="value">$true</a> if the dialog is enabled.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).scriptdialog</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).scriptdialog</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.scripts"></a>$xdid().scripts	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the scripting state. <a class="value">$true</a> if scripting enabled.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).scripts</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).scripts</div></td>
 	</tr>
 </table>
 <br />
@@ -391,6 +501,20 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).version</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.webmessage"></a>$xdid().webmessage	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the web message state. <a class="value">$true</a> if web messages are enabled.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).webmessage</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).webmessage</div></td>
 	</tr>
 </table>
 <br />
@@ -902,11 +1026,19 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a class='flag' href="#xdidprop.downloaddialog"><div>downloaddialog</div></a>
+		<a class='flag' href="#xdidprop.downloads"><div>downloads</div></a>
+		<a class='flag' href="#xdidprop.fullscreen"><div>fullscreen</div></a>
+		<a class='flag' href="#xdidprop.managed"><div>managed</div></a>
 		<a class='flag' href="#xdidprop.mute"><div>mute</div></a>
+		<a class='flag' href="#xdidprop.ready"><div>ready</div></a>
+		<a class='flag' href="#xdidprop.scriptdialog"><div>scriptdialog</div></a>
+		<a class='flag' href="#xdidprop.scripts"><div>scripts</div></a>
 		<a class='flag' href="#xdidprop.statusbar"><div>statusbar</div></a>
 		<a class='flag' href="#xdidprop.statustext"><div>statustext</div></a>
 		<a class='flag' href="#xdidprop.url"><div>url</div></a>
 		<a class='flag' href="#xdidprop.version"><div>version</div></a>
+		<a class='flag' href="#xdidprop.webmessage"><div>webmessage</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
 	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
@@ -936,7 +1068,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2024</td>
-		<td style="text-align: right;">Last Updated: 1st January, 24</td>
+		<td style="text-align: right;">Last Updated: 4th January, 24</td>
 	</tr>
 </table>
 <div style="text-align: center;">

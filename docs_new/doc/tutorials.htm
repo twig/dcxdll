@@ -958,27 +958,27 @@ alias dcx_webbrowser_addtab {
   xdid -J $1 %id +r arrow
   xdid -E $1 %id + -cdefhmstCM
 
-  xdid -c $1 %id %back_id button 0 0 0 0 noformat tooltips disabled
+  xdid -c $1 %id %back_id button 0 0 0 0 noformat tooltips disabled tabstop
   xdid -t $1 %back_id Back
   xdid -T $1 %back_id Go backwards...
 
-  xdid -c $1 %id %forward_id button 0 0 0 0 noformat tooltips disabled
+  xdid -c $1 %id %forward_id button 0 0 0 0 noformat tooltips disabled tabstop
   xdid -t $1 %forward_id Forward
   xdid -T $1 %forward_id Go forwards...
 
-  xdid -c $1 %id %refresh_id button 0 0 0 0 noformat tooltips
+  xdid -c $1 %id %refresh_id button 0 0 0 0 noformat tooltips tabstop
   xdid -t $1 %refresh_id Refresh
   xdid -T $1 %refresh_id Refresh page...
 
-  xdid -c $1 %id %home_id button 0 0 0 0 noformat tooltips
+  xdid -c $1 %id %home_id button 0 0 0 0 noformat tooltips tabstop
   xdid -t $1 %home_id Home
   xdid -T $1 %home_id Go home...
 
   xdid -c $1 %id %favicon_id image 0 0 0 0 transparent hidden
 
-  xdid -c $1 %id %edit_id edit 0 0 0 0 autohs
+  xdid -c $1 %id %edit_id edit 0 0 0 0 autohs tabstop
 
-  xdid -c $1 %id %web_id %dcx_browser_type 0 0 0 0
+  xdid -c $1 %id %web_id %dcx_browser_type 0 0 0 0 tabstop
 
   if (%dcx_browser_type == webctrl) {
     xdid -e $1 %back_id
@@ -1272,7 +1272,7 @@ on *:DIALOG:dcx_webbrowser:init:0:{
   xdid -Q $dname 1 $rgb(20,20,25) $rgb(255,150,0)
   xdid -C $dname 1 +b $rgb(0,255,0)
 
-  xdid -l $dname 1 50 0 $chr(9) 2 treeview 0 0 0 0 notheme showsel
+  xdid -l $dname 1 50 0 $chr(9) 2 treeview 0 0 0 0 notheme showsel tabstop
   xdid -r $dname 1 100 0 $chr(9) 3 panel 0 0 0 0 notheme
   xdid -C $dname 3 +b $rgb(255,25,25)
   xdid -E $dname 1,3 + -ces
@@ -1496,7 +1496,7 @@ ON *:SIGNAL:XPopup-_dcx_webbrowser: {
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2024</td>
-		<td style="text-align: right;">Last Updated: 1st January, 24</td>
+		<td style="text-align: right;">Last Updated: 4th January, 24</td>
 	</tr>
 </table>
 <div style="text-align: center;">

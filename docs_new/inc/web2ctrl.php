@@ -42,6 +42,9 @@ function get_xdid_web2ctrl(&$XDID) {
 						'f' => 'toggle fullscreen on/off',
 						's' => 'toggle statusbar on/off',
 						'A' => 'toggle Mute on/off',
+						'D' => 'toggle Scripting Dialog on/off',
+						'S' => 'toggle Scripting on/off',
+						'W' => 'toggle Web Messages on/off',
 					),
 				),
 				'+MASK' => 'is used to set the flags on or off [v]/xdid -m dname +bf +b[/v] will turn the address bar on, & disable fullscreen.',
@@ -112,17 +115,41 @@ function get_xdidprops_web2ctrl(&$XDIDPROPS) {
 		"url" => array(
 		    '__desc' => "This property lets you retrieve the current loaded url.",
 		),
+		"ready" => array(
+		    '__desc' => "This property lets does nothing atm.",
+		),
 		"statusbar" => array(
 		    '__desc' => 'This property lets you retrieve the enabled state of the statusbar. If it is [v]$true[/v] the statusbar is displayed, otherwise it\'s hidden.',
+		),
+		"fullscreen" => array(
+		    '__desc' => 'This property lets you retrieve the fullscreen state of the webview. [v]$true[/v] if fullscreen is enabled.',
+		),
+		"scripts" => array(
+		    '__desc' => 'This property lets you retrieve the scripting state. [v]$true[/v] if scripting enabled.',
+		),
+		"scriptdialog" => array(
+		    '__desc' => 'This property lets you retrieve the scripting dialog state. [v]$true[/v] if the dialog is enabled.',
+		),
+		"webmessage" => array(
+		    '__desc' => 'This property lets you retrieve the web message state. [v]$true[/v] if web messages are enabled.',
+		),
+		"downloads" => array(
+		    '__desc' => 'This property lets you retrieve the downloads state. [v]$true[/v] if downloads are enabled.',
+		),
+		"downloaddialog" => array(
+		    '__desc' => 'This property lets you retrieve the web message state. [v]$true[/v] if the dialog is enabled.',
+		),
+		"managed" => array(
+		    '__desc' => 'This property lets you retrieve the managed window state. [v]$true[/v] if opeing new windows is managed.',
 		),
 		"statustext" => array(
 		    '__desc' => 'This property lets you retrieve the text displayed in the statusbar.',
 		),
-		"version" => array(
-		    '__desc' => 'This property lets you retrieve the webview2 version.',
-		),
 		"mute" => array(
 		    '__desc' => 'This property lets you retrieve the audio mute state. [v]$true[/v] if the audio is muted.',
+		),
+		"version" => array(
+		    '__desc' => 'This property lets you retrieve the webview2 version.',
 		),
 	);
 }

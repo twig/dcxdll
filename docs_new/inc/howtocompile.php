@@ -16,8 +16,8 @@ function get_intro_howtocompile() {
 	<tr style="text-indent: 40px"><td>Full latest windows desktop SDK installed.</td></tr>
     <tr style="text-indent: 40px"><td>DCX Source. <a href='https://github.com/twig/dcxdll'>https://github.com/twig/dcxdll</a></td></tr>
     <tr style="text-indent: 40px"><td>GSL installed. <a href='https://github.com/microsoft/GSL.git'>https://github.com/microsoft/GSL.git</a></td></tr>
-	<tr style="text-indent: 40px"><td>Microsoft Windows Implementation Library. (Downloaded by VisualStudios NuGet Package Manager)</td></tr>
-	<tr style="text-indent: 40px"><td>Microsoft Windows WebView2. (Downloaded by VisualStudios NuGet Package Manager)</td></tr>
+	<tr style="text-indent: 40px"><td>Microsoft Windows Implementation Library. (Downloaded by VisualStudios NuGet Package Manager) <a href="https://github.com/microsoft/wil">https://github.com/microsoft/wil</a></td></tr>
+	<tr style="text-indent: 40px"><td>Microsoft Windows WebView2. (Downloaded by VisualStudios NuGet Package Manager) <a href="https://developer.microsoft.com/en-us/microsoft-edge/webview2/">https://developer.microsoft.com/en-us/microsoft-edge/webview2/</a></td></tr>
 	<tr style="text-indent: 40px"><td>PHP v7+ installed, recommended PHP nts 8.2.11+ (only for the docs) <a href='https://www.php.net'>https://www.php.net/</a></td></tr>
 	<tr style="text-indent: 40px"><td>Git for windows installed. (This is needed to auto create gitBuild.h)</td></tr>
 	<tr style="text-indent: 40px"><td>mIRC v7+ installed, recommended v7.75+. (only for debugging) <a href='https://www.mirc.co.uk/'>https://www.mirc.co.uk/</a></td></tr>
