@@ -1417,11 +1417,13 @@ HRESULT DcxWebControl2::OnExternalURI(ICoreWebView2* sender, ICoreWebView2Launch
 HRESULT DcxWebControl2::OnGotFocus(ICoreWebView2Controller* sender, IUnknown* eventArgs)
 {
 	getParentDialog()->setFocusControl(getUserID());
+	//getParentDialog()->setMouseControl(getUserID());
 	return S_OK;
 }
 
 HRESULT DcxWebControl2::OnLostFocus(ICoreWebView2Controller* sender, IUnknown* eventArgs)
 {
-	execAliasEx(L"focusout,%u", getUserID());
+	if (dcx_testflag(getEventMask(), DCX_EVENT_MOUSE))
+		execAliasEx(L"focusout,%u", getUserID());
 	return S_OK;
 }
