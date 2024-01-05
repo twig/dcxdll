@@ -398,13 +398,7 @@ void DcxWebControl2::parseCommandRequest(const TString& input)
 				throw DcxExceptions::dcxInvalidArguments();
 				break;
 			}
-			if (auto webView2_13 = m_webview.try_query<ICoreWebView2_13>(); webView2_13)
-			{
-				wil::com_ptr<ICoreWebView2Profile> profile;
-				webView2_13->get_Profile(&profile);
-				if (profile)
-					profile->put_PreferredColorScheme(eScheme);
-			}
+			setPreferedColourScheme(eScheme);
 		}
 		else if(xFlags[L'c'])
 		{
@@ -429,7 +423,14 @@ void DcxWebControl2::parseCommandRequest(const TString& input)
 
 dcxWindowStyles DcxWebControl2::parseControlStyles(const TString& tsStyles)
 {
-	return parseGeneralControlStyles(tsStyles);
+	dcxWindowStyles ws;
+
+	if (tsStyles.istok(TEXT("dcomp")))
+		m_bDCompRender = true;
+
+	return parseGeneralControlStyles(tsStyles, ws);
+
+	//return parseGeneralControlStyles(tsStyles);
 }
 
 void DcxWebControl2::toXml(TiXmlElement* const xml) const
@@ -578,11 +579,14 @@ bool DcxWebControl2::InitializeInterface()
 	}
 	wil::unique_cotaskmem_string version_info;
 
-	if (const HRESULT hr = Dcx::WebViewModule.dcxGetAvailableCoreWebView2BrowserVersionString(nullptr, &version_info); (hr == S_OK) && (version_info != nullptr))
+	if (HRESULT hr = Dcx::WebViewModule.dcxGetAvailableCoreWebView2BrowserVersionString(nullptr, &version_info); (hr == S_OK) && (version_info != nullptr))
 	{
 #if DCX_DEBUG_OUTPUT
 		mIRCLinker::signal(TEXT("web2ctrl webview2 installed: v%"), version_info.get());
 #endif
+		if (m_bDCompRender)
+			hr = Dcx::DCompModule.dcxDCompositionCreateDevice2(nullptr, IID_PPV_ARGS(&m_dcompDevice));
+
 		if (DcxWebControl2::m_webviewEnvironment == nullptr)
 		{
 			TString tsUserData("$mircdirWebView2Cache");
@@ -1009,6 +1013,8 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2EnvironmentCompleted(HRESULT result,
 
 					if (m_dcompWebViewVisual && m_dcompHwndTarget && m_dcompRootVisual)
 						m_webviewCompositionController->put_RootVisualTarget(m_dcompWebViewVisual.get());
+
+					m_dcompDevice->Commit();
 
 					return OnCreateCoreWebView2ControllerCompleted(result, controller.get());
 				})

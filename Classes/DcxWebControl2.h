@@ -130,6 +130,7 @@ private:
 	bool m_bAllowDownloads{ true };
 	bool m_bManageNewWindows{};
 	bool m_bDownloadsDialogEnabled{ true };
+	bool m_bDCompRender{};
 
 	RECT m_rcSize{};
 	TString m_tsHome;
