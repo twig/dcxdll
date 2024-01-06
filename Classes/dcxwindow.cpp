@@ -396,6 +396,13 @@ void DcxWindow::setEventMask(const TString& tspFlags, const TString& tsnFlags)
 	m_dEventMask = mask;
 }
 
+bool DcxWindow::TrackMouseEvents(DWORD events) noexcept
+{
+	TRACKMOUSEEVENT tme{ sizeof(TRACKMOUSEEVENT),events,m_Hwnd,HOVER_DEFAULT };
+
+	return _TrackMouseEvent(&tme) != FALSE;
+}
+
 PTCHAR DcxWindow::parseCursorType(const TString& cursor)
 {
 	const static std::map<std::hash<TString>::result_type, PTCHAR> IDC_map{

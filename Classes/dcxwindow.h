@@ -207,6 +207,8 @@ public:
 	inline const DWORD &getEventMask() const noexcept { return m_dEventMask; }
 	void setEventMask(const TString& tspFlags, const TString& tsnFlags);
 
+	bool TrackMouseEvents(DWORD events) noexcept;
+
 	[[nodiscard]] static PTCHAR parseCursorType(const TString& cursor);
 	[[nodiscard]] static DcxResourceFlags parseCursorFlags(const TString& flags) noexcept;
 	[[nodiscard]] static UINT parseCursorArea(const TString& flags) noexcept;
