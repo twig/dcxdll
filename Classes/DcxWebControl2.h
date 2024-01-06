@@ -124,14 +124,17 @@ private:
 	EventRegistrationToken m_mutedToken;
 	EventRegistrationToken m_externaluriToken;
 	EventRegistrationToken m_gotFocusToken;
-	EventRegistrationToken m_lostFocusToken;
+	//EventRegistrationToken m_lostFocusToken;
+	EventRegistrationToken m_webMessageReceivedToken;
 
 	bool m_bFullScreen{};
 	bool m_bAllowDownloads{ true };
 	bool m_bManageNewWindows{};
 	bool m_bDownloadsDialogEnabled{ true };
 	bool m_bDCompRender{};
+	bool m_isCapturingMouse{};
 
+	RECT m_webViewBounds{};
 	RECT m_rcSize{};
 	TString m_tsHome;
 
@@ -157,6 +160,9 @@ private:
 	HRESULT OnMutedChanged(ICoreWebView2* sender, IUnknown* eventArgs);
 	HRESULT OnExternalURI(ICoreWebView2* sender, ICoreWebView2LaunchingExternalUriSchemeEventArgs* eventArgs);
 	HRESULT OnGotFocus(ICoreWebView2Controller* sender, IUnknown* eventArgs);
-	HRESULT OnLostFocus(ICoreWebView2Controller* sender, IUnknown* eventArgs);
+	//HRESULT OnLostFocus(ICoreWebView2Controller* sender, IUnknown* eventArgs);
+	HRESULT OnWebMessageReceived(ICoreWebView2* sender, ICoreWebView2WebMessageReceivedEventArgs* eventArgs);
+
+	bool OnMouseMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
  };
 

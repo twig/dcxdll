@@ -52,22 +52,42 @@ LRESULT DcxWebControl2::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 #if DCX_DEBUG_OUTPUT
 	//mIRCLinker::signal(TEXT("web2ctrl debug %"), uMsg);
 #endif
+
+	if ((uMsg >= WM_MOUSEFIRST && uMsg <= WM_MOUSELAST) || uMsg == WM_MOUSELEAVE)
+	{
+		if (OnMouseMessage(uMsg, wParam, lParam))
+		{
+			bParsed = TRUE;
+			return 0;
+		}
+	}
+
 	switch (uMsg)
 	{
 	case WM_SIZE:
 	{
-		if (!m_webviewController)
-			break;
+		if (GetClientRect(m_Hwnd, &m_webViewBounds))
+		{
+			if (m_webviewController)
+			{
+				m_webviewController->put_Bounds(m_webViewBounds);
 
-		if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
-			m_webviewController->put_Bounds(rc);
+				if (m_dcompDevice && m_dcompRootVisual)
+				{
+					SIZE webViewSize{};
+					webViewSize.cx = (m_webViewBounds.right - m_webViewBounds.left);
+					webViewSize.cy = (m_webViewBounds.bottom - m_webViewBounds.top);
+
+					m_dcompRootVisual->SetClip({ 0, 0, gsl::narrow_cast<float>(webViewSize.cx), gsl::narrow_cast<float>(webViewSize.cy) });
+					m_dcompDevice->Commit();
+				}
+			}
+		}
 	}
 	break;
 
 	case WM_SETFOCUS:
 	{
-		//HWND hPrev = reinterpret_cast<HWND>(wParam);
-
 		if (const auto pd = this->getParentDialog(); pd)
 			pd->setFocusControl(this->getUserID());
 
@@ -109,6 +129,15 @@ LRESULT DcxWebControl2::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 LRESULT DcxWebControl2::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
 {
+	//if ((uMsg >= WM_MOUSEFIRST && uMsg <= WM_MOUSELAST) || uMsg == WM_MOUSELEAVE)
+	//{
+	//	if (OnMouseMessage(uMsg, wParam, lParam))
+	//	{
+	//		bParsed = TRUE;
+	//		return 0;
+	//	}
+	//}
+
 	return LRESULT();
 }
 
@@ -116,7 +145,7 @@ void DcxWebControl2::parseInfoRequest(const TString& input, const refString<TCHA
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
-	// [NAME] [ID] [PROP]
+		// [NAME] [ID] [PROP]
 	case L"url"_hash:
 	{
 		szReturnValue = this->getURL().to_chr();
@@ -400,7 +429,7 @@ void DcxWebControl2::parseCommandRequest(const TString& input)
 			}
 			setPreferedColourScheme(eScheme);
 		}
-		else if(xFlags[L'c'])
+		else if (xFlags[L'c'])
 		{
 			// set bkg colour
 			// +c [COLOUR] [ALPHA]
@@ -1068,6 +1097,7 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 	m_webview->add_NewWindowRequested(Microsoft::WRL::Callback<ICoreWebView2NewWindowRequestedEventHandler>(this, &DcxWebControl2::OnNewWindowRequested).Get(), &m_newWindowRequestedToken);
 	m_webview->add_SourceChanged(Microsoft::WRL::Callback<ICoreWebView2SourceChangedEventHandler>(this, &DcxWebControl2::OnSourceChanged).Get(), &m_sourceChangedToken);
 	m_webview->add_ProcessFailed(Microsoft::WRL::Callback<ICoreWebView2ProcessFailedEventHandler>(this, &DcxWebControl2::OnProcessFailed).Get(), &m_processFailedToken);
+	m_webview->add_WebMessageReceived(Microsoft::WRL::Callback<ICoreWebView2WebMessageReceivedEventHandler>(this, &DcxWebControl2::OnWebMessageReceived).Get(), &m_webMessageReceivedToken);
 
 	// these can silently fail as an unsupported feature.
 	if (auto webview4 = m_webview.try_query<ICoreWebView2_4>(); webview4)
@@ -1556,9 +1586,133 @@ HRESULT DcxWebControl2::OnGotFocus(ICoreWebView2Controller* sender, IUnknown* ev
 	return S_OK;
 }
 
-HRESULT DcxWebControl2::OnLostFocus(ICoreWebView2Controller* sender, IUnknown* eventArgs)
+//HRESULT DcxWebControl2::OnLostFocus(ICoreWebView2Controller* sender, IUnknown* eventArgs)
+//{
+//	if (dcx_testflag(getEventMask(), DCX_EVENT_MOUSE))
+//		execAliasEx(L"focusout,%u", getUserID());
+//	return S_OK;
+//}
+
+HRESULT DcxWebControl2::OnWebMessageReceived(ICoreWebView2* sender, ICoreWebView2WebMessageReceivedEventArgs* eventArgs)
 {
-	if (dcx_testflag(getEventMask(), DCX_EVENT_MOUSE))
-		execAliasEx(L"focusout,%u", getUserID());
+	if (!sender || !eventArgs)
+		return E_FAIL;
+
+	//auto args2 = wil::com_ptr<ICoreWebView2WebMessageReceivedEventArgs>(eventArgs).query<ICoreWebView2WebMessageReceivedEventArgs2>();
+	//wil::com_ptr<ICoreWebView2ObjectCollectionView> objectsCollection;
+	//args2->get_AdditionalObjects(&objectsCollection);
+	//unsigned int length;
+	//objectsCollection->get_Count(&length);
+
+	if (const auto pd = getParentDialog(); pd)
+	{
+		wil::unique_cotaskmem_string messageRaw;
+		if (SUCCEEDED(eventArgs->TryGetWebMessageAsString(&messageRaw)))
+		{
+			TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+			mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), messageRaw.get());
+			mIRCLinker::eval(tsBuf, TEXT("$%(%,webmessage,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
+		}
+	}
+
 	return S_OK;
+}
+
+bool DcxWebControl2::OnMouseMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	// Only applies to dcomp display
+	if (!m_dcompDevice || !m_webviewCompositionController || !m_Hwnd)
+		return false;
+
+	POINT point{};
+	POINTSTOPOINT(point, lParam);
+	if (uMsg == WM_MOUSEWHEEL || uMsg == WM_MOUSEHWHEEL)
+	{
+		// Mouse wheel messages are delivered in screen coordinates.
+		// SendMouseInput expects client coordinates for the WebView, so convert
+		// the point from screen to client.
+		::ScreenToClient(m_Hwnd, &point);
+	}
+	// Send the message to the WebView if the mouse location is inside the
+	// bounds of the WebView, if the message is telling the WebView the
+	// mouse has left the client area, or if we are currently capturing
+	// mouse events.
+	if (const bool isMouseInWebView = PtInRect(&m_webViewBounds, point); isMouseInWebView || uMsg == WM_MOUSELEAVE || m_isCapturingMouse)
+	{
+		DWORD mouseData = 0;
+
+		switch (uMsg)
+		{
+		case WM_MOUSEWHEEL:
+		case WM_MOUSEHWHEEL:
+			mouseData = GET_WHEEL_DELTA_WPARAM(wParam);
+			break;
+		case WM_XBUTTONDBLCLK:
+		case WM_XBUTTONDOWN:
+		case WM_XBUTTONUP:
+			mouseData = GET_XBUTTON_WPARAM(wParam);
+			break;
+		//case WM_MOUSEMOVE:
+		//	if (!m_isTrackingMouse)
+		//	{
+		//		// WebView needs to know when the mouse leaves the client area
+		//		// so that it can dismiss hover popups. TrackMouseEvent will
+		//		// provide a notification when the mouse leaves the client area.
+		//		TrackMouseEvents(TME_LEAVE);
+		//		m_isTrackingMouse = true;
+		//	}
+		//	break;
+		//case WM_MOUSELEAVE:
+		//	m_isTrackingMouse = false;
+		//	break;
+		default:
+			break;
+		}
+
+		// We need to capture the mouse in case the user drags the
+		// mouse outside of the window bounds and we still need to send
+		// mouse messages to the WebView process. This is useful for
+		// scenarios like dragging the scroll bar or panning a map.
+		// This is very similar to the Pointer Message case where a
+		// press started inside of the WebView.
+		if (uMsg == WM_LBUTTONDOWN || uMsg == WM_MBUTTONDOWN || uMsg == WM_RBUTTONDOWN || uMsg == WM_XBUTTONDOWN)
+		{
+			if (isMouseInWebView && ::GetCapture() != m_Hwnd)
+			{
+				m_isCapturingMouse = true;
+				::SetCapture(m_Hwnd);
+			}
+		}
+		else if (uMsg == WM_LBUTTONUP || uMsg == WM_MBUTTONUP || uMsg == WM_RBUTTONUP || uMsg == WM_XBUTTONUP)
+		{
+			if (::GetCapture() == m_Hwnd)
+			{
+				m_isCapturingMouse = false;
+				::ReleaseCapture();
+			}
+		}
+
+		// Adjust the point from app client coordinates to webview client coordinates.
+		// WM_MOUSELEAVE messages don't have a point, so don't adjust the point.
+		if (uMsg != WM_MOUSELEAVE)
+		{
+			point.x -= m_webViewBounds.left;
+			point.y -= m_webViewBounds.top;
+		}
+
+		m_webviewCompositionController->SendMouseInput(
+			static_cast<COREWEBVIEW2_MOUSE_EVENT_KIND>(uMsg),
+			static_cast<COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS>(GET_KEYSTATE_WPARAM(wParam)),
+			mouseData, point);
+		return true;
+	}
+	//else if (uMsg == WM_MOUSEMOVE && m_isTrackingMouse)
+	//{
+	//	// When the mouse moves outside of the WebView, but still inside the app
+	//	// turn off mouse tracking and send the WebView a leave event.
+	//	m_isTrackingMouse = false;
+	//	TrackMouseEvents(TME_LEAVE | TME_CANCEL);
+	//	OnMouseMessage(WM_MOUSELEAVE, 0, 0);
+	//}
+	return false;
 }
