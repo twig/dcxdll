@@ -464,8 +464,8 @@ private:
 
 	std::byte m_iAlphaLevel{ 255 };
 	std::byte m_uGhostDragAlpha{ 255 };
-	BOOL m_bTracking{ FALSE };
 
+	bool m_bTracking{ false };
 	bool m_bInSizing{ false }; //!< In Moving Motion
 	bool m_bInMoving{ false }; //!< In Sizing Motion
 	bool m_bDoDrag{ false };

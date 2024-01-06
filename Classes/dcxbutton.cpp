@@ -759,12 +759,8 @@ LRESULT DcxButton::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 		if (const auto pDialog = getParentDialog(); pDialog)
 			pDialog->setMouseControl(getUserID());
 
-		if (m_bTracking == FALSE)
-		{
-			TRACKMOUSEEVENT tme{ sizeof(TRACKMOUSEEVENT),(TME_LEAVE | TME_HOVER),m_Hwnd,HOVER_DEFAULT };
-
-			m_bTracking = _TrackMouseEvent(&tme);
-		}
+		if (!m_bTracking)
+			m_bTracking = TrackMouseEvents(TME_LEAVE | TME_HOVER);
 
 		if (!m_bTouched)
 		{
@@ -783,10 +779,10 @@ LRESULT DcxButton::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 
 	case WM_MOUSELEAVE:
 	{
-		if (m_bTracking != FALSE)
+		if (m_bTracking)
 		{
 			m_bHover = false;
-			m_bTracking = FALSE;
+			m_bTracking = false;
 			m_bTouched = false;
 			m_bSelected = false;
 			InvalidateRect(m_Hwnd, nullptr, FALSE);

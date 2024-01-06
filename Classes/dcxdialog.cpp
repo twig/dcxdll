@@ -1914,20 +1914,33 @@ const bool DcxDialog::updateLayout(RECT& rc)
 /// <summary>
 /// Set the control that has the mouse.
 /// </summary>
-/// <param name="mUID"></param>
+/// <param name="mUID">- The controls UserID</param>
 void DcxDialog::setMouseControl(const UINT mUID)
 {
-	if (mUID != m_MouseID)
+	//if (mUID != m_MouseID)
+	//{
+	//	if (dcx_testflag(m_dEventMask, DCX_EVENT_MOUSE))
+	//	{
+	//		execAliasEx(TEXT("mouseleave,%u"), m_MouseID);
+	//		execAliasEx(TEXT("mouseenter,%u"), mUID);
+	//	}
+	//	m_MouseID = mUID;
+	//}
+	//else if (dcx_testflag(m_dEventMask, DCX_EVENT_MOUSE))
+	//	execAliasEx(TEXT("mouse,%u"), mUID);
+
+	if (dcx_testflag(m_dEventMask, DCX_EVENT_MOUSE))
 	{
-		if (dcx_testflag(m_dEventMask, DCX_EVENT_MOUSE))
+		if (mUID != m_MouseID)
 		{
 			execAliasEx(TEXT("mouseleave,%u"), m_MouseID);
 			execAliasEx(TEXT("mouseenter,%u"), mUID);
 		}
-		m_MouseID = mUID;
+		else
+			execAliasEx(TEXT("mouse,%u"), mUID);
 	}
-	else if (dcx_testflag(m_dEventMask, DCX_EVENT_MOUSE))
-		execAliasEx(TEXT("mouse,%u"), mUID);
+
+	m_MouseID = mUID;
 }
 
 /// <summary>
@@ -2666,19 +2679,11 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			p_this->m_bDrag = false;
 #endif
 		}
-		if (p_this->m_bTracking == FALSE)
+		if (!p_this->m_bTracking)
 		{
-			//TRACKMOUSEEVENT tme;
-			//tme.cbSize = sizeof(TRACKMOUSEEVENT);
-			//tme.dwFlags = TME_LEAVE;
-			//tme.hwndTrack = p_this->m_Hwnd;
-			//tme.dwHoverTime = HOVER_DEFAULT;
-
-			TRACKMOUSEEVENT tme{ sizeof(TRACKMOUSEEVENT), TME_LEAVE, p_this->m_Hwnd, HOVER_DEFAULT };
-
-			p_this->m_bTracking = _TrackMouseEvent(&tme);
+			p_this->m_bTracking = p_this->TrackMouseEvents(TME_LEAVE);
 			if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_MOUSE))
-				p_this->execAlias(TEXT("denter,0")); // this tells you when the mouse enters or
+				p_this->execAlias(TEXT("denter,0")); // this tells you when the mouse enters
 			p_this->UpdateVistaStyle();
 		}
 		break;
@@ -2688,7 +2693,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	{
 		if (p_this->m_bTracking)
 		{
-			p_this->m_bTracking = FALSE;
+			p_this->m_bTracking = false;
 			if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_MOUSE))
 				p_this->execAlias(TEXT("dleave,0")); // leaves a dialogs client area.
 		}

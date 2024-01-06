@@ -86,7 +86,7 @@ private:
 
 	TString m_tsCaption; //!< Button Caption Text
 
-	BOOL m_bTracking{ FALSE }; //!< Button Tracking Mouse Event State
+	bool m_bTracking{ false }; //!< Button Tracking Mouse Event State
 	bool m_bHover{ false };    //!< Button Hovering State
 	bool m_bTouched{ false };  //!< Button Touched by Mouse State
 	bool m_bSelected{ false }; //!< Button Selected State
