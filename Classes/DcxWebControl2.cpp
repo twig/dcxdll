@@ -64,6 +64,23 @@ LRESULT DcxWebControl2::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 	switch (uMsg)
 	{
+	case WM_NCHITTEST:
+	{
+		if (m_dcompDevice && m_dcompRootVisual)
+		{
+			POINT point{};
+			POINTSTOPOINT(point, lParam);
+			MapWindowPoints(nullptr, m_Hwnd, &point, 1);
+
+			if (PtInRect(&m_webViewBounds, point))
+			{
+				bParsed = TRUE;
+				return HTCLIENT;
+			}
+		}
+	}
+	break;
+
 	case WM_SIZE:
 	{
 		if (GetClientRect(m_Hwnd, &m_webViewBounds))
@@ -83,6 +100,14 @@ LRESULT DcxWebControl2::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				}
 			}
 		}
+	}
+	break;
+
+	case WM_MOVE:
+	case WM_MOVING:
+	{
+		if (m_webviewController)
+			m_webviewController->NotifyParentWindowPositionChanged();
 	}
 	break;
 
@@ -1652,19 +1677,18 @@ bool DcxWebControl2::OnMouseMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_XBUTTONUP:
 			mouseData = GET_XBUTTON_WPARAM(wParam);
 			break;
-		//case WM_MOUSEMOVE:
-		//	if (!m_isTrackingMouse)
-		//	{
-		//		// WebView needs to know when the mouse leaves the client area
-		//		// so that it can dismiss hover popups. TrackMouseEvent will
-		//		// provide a notification when the mouse leaves the client area.
-		//		TrackMouseEvents(TME_LEAVE);
-		//		m_isTrackingMouse = true;
-		//	}
-		//	break;
-		//case WM_MOUSELEAVE:
-		//	m_isTrackingMouse = false;
-		//	break;
+		case WM_MOUSEMOVE:
+		{
+			if (const auto pDialog = getParentDialog(); pDialog)
+				pDialog->setMouseControl(getUserID());
+
+			if (!m_bTracking)
+				m_bTracking = TrackMouseEvents(TME_LEAVE);
+		}
+		break;
+		case WM_MOUSELEAVE:
+			m_bTracking = false;
+			break;
 		default:
 			break;
 		}

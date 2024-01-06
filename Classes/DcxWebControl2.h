@@ -133,6 +133,7 @@ private:
 	bool m_bDownloadsDialogEnabled{ true };
 	bool m_bDCompRender{};
 	bool m_isCapturingMouse{};
+	bool m_bTracking{};
 
 	RECT m_webViewBounds{};
 	RECT m_rcSize{};
