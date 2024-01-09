@@ -1065,6 +1065,11 @@ void DcxReBar::addBand(int nIndex, UINT cx, UINT cy, UINT width, int nIcon, COLO
 			DcxAllowControls::ALLOW_DIVIDER |
 			DcxAllowControls::ALLOW_PANEL |
 			DcxAllowControls::ALLOW_TAB |
+			DcxAllowControls::ALLOW_IMAGE |
+			DcxAllowControls::ALLOW_EDIT |
+			DcxAllowControls::ALLOW_CHECK |
+			DcxAllowControls::ALLOW_RADIO |
+			DcxAllowControls::ALLOW_TEXT |
 			DcxAllowControls::ALLOW_MULTICOMBO, m_Hwnd);
 
 		if (const auto dct = p_Control->getControlType(); ((dct == DcxControlTypes::STATUSBAR) || (dct == DcxControlTypes::TOOLBAR)))
