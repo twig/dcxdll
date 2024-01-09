@@ -74,6 +74,43 @@ namespace
 				});
 		}
 
+		void start(int interval, std::function<void(HWND)> func, HWND arg)
+		{
+			if (_execute.load(std::memory_order_acquire))
+			{
+				stop();
+			};
+			_execute.store(true, std::memory_order_release);
+			_thd = std::thread([this, interval, func, arg]()
+				{
+					while (_execute.load(std::memory_order_acquire))
+					{
+						func(arg);
+						std::this_thread::sleep_for(
+							std::chrono::milliseconds(interval));
+					}
+				});
+		}
+
+		//template <typename T>
+		//void start(int interval, std::function<void(T)> func, T arg)
+		//{
+		//	if (_execute.load(std::memory_order_acquire))
+		//	{
+		//		stop();
+		//	};
+		//	_execute.store(true, std::memory_order_release);
+		//	_thd = std::thread([this, interval, func, arg]()
+		//		{
+		//			while (_execute.load(std::memory_order_acquire))
+		//			{
+		//				func(arg);
+		//				std::this_thread::sleep_for(
+		//					std::chrono::milliseconds(interval));
+		//			}
+		//		});
+		//}
+
 		bool is_running() const noexcept
 		{
 			return (_execute.load(std::memory_order_acquire) &&
@@ -1284,26 +1321,59 @@ const TString XPopupMenuManager::GetMenuAttributeFromXML(const char* const attri
 #if DCX_CUSTOM_MENUS
 void XPopupMenuManager::dcxCheckMenuHover() noexcept
 {
+	//static POINT savedpt{};
+	//
+	//// make a copy of list to avoid it being modified elsewhere.
+	//std::vector<HWND> v = getGlobalMenuWindowList();
+	//
+	//if (v.empty())
+	//	return;
+	//
+	//if (Dcx::dcxCursorPos pt; pt)
+	//{
+	//	if (HWND win = v.back(); win)
+	//	{
+	//		if (Dcx::dcxWindowRect rc(win); rc)
+	//		{
+	//			if (PtInRect(&rc, pt))
+	//			{
+	//				// over window...
+	//
+	//				if ((savedpt.x == pt.x) && (savedpt.y == pt.y))
+	//				{
+	//					// hover!
+	//					PostMessage(win, WM_NCMOUSEHOVER, HTMENU, Dcx::dcxMAKELPARAM(pt.x,pt.y));
+	//				}
+	//			}
+	//		}
+	//	}
+	//	savedpt = pt;
+	//}
+
+	// make a copy of list to avoid it being modified elsewhere.
+	if (std::vector<HWND> v(getGlobalMenuWindowList()); !v.empty())
+		dcxCheckMenuHover2(v.back());
+}
+
+void XPopupMenuManager::dcxCheckMenuHover2(HWND win) noexcept
+{
 	static POINT savedpt{};
 
-	if (getGlobalMenuWindowList().empty())
+	if (!win)
 		return;
 
 	if (Dcx::dcxCursorPos pt; pt)
 	{
-		if (HWND win = getGlobalMenuWindowList().back(); win)
+		if (Dcx::dcxWindowRect rc(win); rc)
 		{
-			if (Dcx::dcxWindowRect rc(win); rc)
+			if (PtInRect(&rc, pt))
 			{
-				if (PtInRect(&rc, pt))
-				{
-					// over window...
+				// over window...
 
-					if ((savedpt.x == pt.x) && (savedpt.y == pt.y))
-					{
-						// hover!
-						PostMessage(win, WM_NCMOUSEHOVER, HTMENU, Dcx::dcxMAKELPARAM(pt.x,pt.y));
-					}
+				if ((savedpt.x == pt.x) && (savedpt.y == pt.y))
+				{
+					// hover!
+					PostMessage(win, WM_NCMOUSEHOVER, HTMENU, Dcx::dcxMAKELPARAM(pt.x, pt.y));
 				}
 			}
 		}
@@ -1420,6 +1490,9 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			// start thread to check for hover...
 			if (!getGlobalMenuList().empty() && !getGlobalMenuWindowList().empty() && PtInRect(&rc, pt))
 				dcxHoverTimer.start(600, XPopupMenuManager::dcxCheckMenuHover);
+
+			//if (!getGlobalMenuList().empty() && !getGlobalMenuWindowList().empty() && PtInRect(&rc, pt))
+			//	dcxHoverTimer.start(600, XPopupMenuManager::dcxCheckMenuHover2, mHwnd);
 		}
 
 		// if cursor NOT over menu, make all menus solid.
@@ -1505,7 +1578,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 						if (!p_Item->getItemTooltipText().empty())
 						{
 							Dcx::dcxToolTip_TrackActivate(g_toolTipWin, TRUE, &g_toolItem);
-							Dcx::dcxToolTip_TrackPosition(g_toolTipWin, GET_X_LPARAM(lParam) + 10, GET_Y_LPARAM(lParam) - 20);
+							Dcx::dcxToolTip_TrackPosition(g_toolTipWin, pt.x + 10, pt.y - 20);
 						}
 					}
 				}
