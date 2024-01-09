@@ -245,6 +245,9 @@ function get_events_web2ctrl(&$EVENTS) {
 			'__cmd' => 'URL',
 			'__eg' => 'https://www.sample.com/',
 			'__return' => "[r]cancel[/r] Return this value to block the new window from opening.",
+			'__notes' => array(
+				'This event ONLY triggers if new window managment is enabled via [v]xdid -m dname id +m +m[/v].',
+			),
 		),
 		"externaluri" => array(
 			'__desc' => "When an external uri scheme is clicked.",
