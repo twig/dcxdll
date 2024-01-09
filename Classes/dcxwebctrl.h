@@ -22,12 +22,9 @@
 #include <exdispid.h>
 #include <objbase.h>
 #include <mshtml.h>
+#include <MsHtmdid.h>
 
-// WebView2 replace iexplorer embeded control with msft edge one.
-//https://go.microsoft.com/fwlink/p/?LinkId=2124703
-// https://www.codeproject.com/Tips/5287858/WebView2-Edge-Browser-in-MFC-Cplusplus-Application
-//Microsoft.Windows.ImplementationLibrary
-//https://github.com/Microsoft/wil
+#include <wil/com.h>
 
 class DcxDialog;
 
@@ -63,7 +60,7 @@ public:
 	HRESULT STDMETHODCALLTYPE GetTypeInfoCount(UINT __RPC_FAR* pctinfo) noexcept override { *pctinfo = 0; return S_OK; }
 	HRESULT STDMETHODCALLTYPE GetTypeInfo(UINT, LCID, ITypeInfo __RPC_FAR* __RPC_FAR*) noexcept override { return E_NOTIMPL; }
 	HRESULT STDMETHODCALLTYPE GetIDsOfNames(REFIID, LPOLESTR __RPC_FAR*, UINT, LCID, DISPID __RPC_FAR*) noexcept override { return E_NOTIMPL; }
-	HRESULT STDMETHODCALLTYPE Invoke(DISPID, REFIID, LCID, WORD, DISPPARAMS __RPC_FAR*, VARIANT __RPC_FAR*, EXCEPINFO __RPC_FAR*, UINT __RPC_FAR*) override;
+	HRESULT STDMETHODCALLTYPE Invoke(DISPID dispIdMember, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS __RPC_FAR* pDispParams, VARIANT __RPC_FAR* pVarResult, EXCEPINFO __RPC_FAR* pExcepInfo, UINT __RPC_FAR* puArgErr) override;
 
 	// IOleClientSite Interface
 	HRESULT STDMETHODCALLTYPE SaveObject() noexcept override { return S_OK; }
@@ -101,8 +98,6 @@ public:
 	TiXmlElement* toXml() const final;
 	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) final;
 
-	//const TString getStyles(void) const final;
-
 	TString getURL() const;
 	bool IsStatusbarEnabled() const;
 	bool IsFullScreenEnabled() const;
@@ -113,7 +108,7 @@ public:
 	void setAddressbarState(bool bEnable);
 	void setStatusbarState(bool bEnable);
 	void setStatusText(const TString& tsText);
-	void setURL(const TString& tsURL, const TString &sFlags, const TString &tsMask);
+	void setURL(const TString& tsURL, const TString& sFlags, const TString& tsMask);
 
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
@@ -122,27 +117,33 @@ private:
 	void SafeRelease() noexcept;
 	TString CallScript(const TString& tsCmd) const;
 
-	template <typename T>
-	void SafeReleaseCom(T* face) const noexcept
-	{
-		T tmp = *face;
-		*face = nullptr;
-		try {
-			if (tmp)
-				tmp->Release();
-		}
-		catch (...)
-		{
-		}
-	}
+	//template <typename T>
+	//void SafeReleaseCom(T* face) const noexcept
+	//{
+	//	T tmp = *face;
+	//	*face = nullptr;
+	//	try {
+	//		if (tmp)
+	//			tmp->Release();
+	//	}
+	//	catch (...)
+	//	{
+	//	}
+	//}
 
 	//protected:
 
-	IOleInPlaceObject* m_pOleInPlaceObject{ nullptr };
-	IWebBrowser2* m_pWebBrowser2{ nullptr };
-	IOleObject* m_pOleObject{ nullptr };
-	IConnectionPointContainer* m_pCPC{ nullptr };
-	IConnectionPoint* m_pCP{ nullptr };
+	//IOleInPlaceObject* m_pOleInPlaceObject{ nullptr };
+	//IWebBrowser2* m_pWebBrowser2{ nullptr };
+	//IOleObject* m_pOleObject{ nullptr };
+	//IConnectionPointContainer* m_pCPC{ nullptr };
+	//IConnectionPoint* m_pCP{ nullptr };
+
+	wil::com_ptr<IOleInPlaceObject> m_pOleInPlaceObject;
+	wil::com_ptr<IWebBrowser2> m_pWebBrowser2;
+	wil::com_ptr<IOleObject> m_pOleObject;
+	wil::com_ptr<IConnectionPointContainer> m_pCPC;
+	wil::com_ptr<IConnectionPoint> m_pCP;
 
 	DWORD m_dwCookie{};
 	bool m_bHideEvents{ true };

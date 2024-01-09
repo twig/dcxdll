@@ -102,41 +102,6 @@ DcxWebControl::~DcxWebControl() noexcept
 
 void DcxWebControl::SafeRelease() noexcept
 {
-	////Release all Web Control pointers
-	//if (m_pCP != nullptr)
-	//{
-	//	if (m_dwCookie != 0UL)
-	//	{
-	//		m_pCP->Unadvise(m_dwCookie);
-	//
-	//		m_dwCookie = 0UL;
-	//	}
-	//
-	//	m_pCP->Release();
-	//	m_pCP = nullptr;
-	//}
-	//if (m_pCPC != nullptr)
-	//{
-	//	m_pCPC->Release();
-	//	m_pCPC = nullptr;
-	//}
-	//if (m_pOleInPlaceObject != nullptr)
-	//{
-	//	m_pOleInPlaceObject->Release();
-	//	m_pOleInPlaceObject = nullptr;
-	//}
-	//if (m_pOleObject != nullptr) {
-	//	m_pOleObject->Close(OLECLOSE_NOSAVE);
-	//	m_pOleObject->Release();
-	//	m_pOleObject = nullptr;
-	//}
-	//
-	//if (m_pWebBrowser2 != nullptr) {
-	//	m_pWebBrowser2->Quit();
-	//	m_pWebBrowser2->Release();
-	//	m_pWebBrowser2 = nullptr;
-	//}
-
 	try {
 		//Release all Web Control pointers
 		if (m_pCP)
@@ -148,26 +113,31 @@ void DcxWebControl::SafeRelease() noexcept
 				m_dwCookie = 0UL;
 			}
 
-			SafeReleaseCom(&m_pCP);
+			//SafeReleaseCom(&m_pCP);
+			m_pCP.reset();
 		}
 		if (m_pCPC)
 		{
-			SafeReleaseCom(&m_pCPC);
+			//SafeReleaseCom(&m_pCPC);
+			m_pCPC.reset();
 		}
 		if (m_pOleInPlaceObject)
 		{
-			SafeReleaseCom(&m_pOleInPlaceObject);
+			//SafeReleaseCom(&m_pOleInPlaceObject);
+			m_pOleInPlaceObject.reset();
 		}
 		if (m_pOleObject)
 		{
 			m_pOleObject->Close(OLECLOSE_NOSAVE);
-			SafeReleaseCom(&m_pOleObject);
+			//SafeReleaseCom(&m_pOleObject);
+			m_pOleObject.reset();
 		}
 
 		if (m_pWebBrowser2)
 		{
 			m_pWebBrowser2->Quit();
-			SafeReleaseCom(&m_pWebBrowser2);
+			//SafeReleaseCom(&m_pWebBrowser2);
+			m_pWebBrowser2.reset();
 		}
 	}
 	catch (...)
@@ -206,31 +176,31 @@ bool DcxWebControl::InitializeInterface() noexcept
 			//const auto cFact = Dcx::getClassFactory();
 			//if (!cFact)
 			//	throw "fail: ClassFactory";
-
+			//
 			//if (!SUCCEEDED(cFact->CreateInstance(nullptr, IID_IWebBrowser2, (void**)&m_pWebBrowser2)) || !m_pWebBrowser2)
 			//	throw "fail: WebBrowser2";
-
+			//
 			//if (!SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IOleObject, (LPVOID*)&m_pOleObject)) || !m_pOleObject)
 			//	throw "fail: OleObject";
-
+			//
 			//if (!SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IOleInPlaceObject, (LPVOID*)&m_pOleInPlaceObject)) || !m_pOleInPlaceObject)
 			//	throw "fail: OleObject";
-
+			//
 			//if (!SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IConnectionPointContainer, (LPVOID*)&m_pCPC)) || !m_pCPC)
 			//	throw "fail: OleObject";
-
+			//
 			//if (!SUCCEEDED(m_pOleObject->SetClientSite((IOleClientSite*)this)))
 			//	throw "fail: OleObject";
-
+			//
 			//if (!SUCCEEDED(m_pCPC->FindConnectionPoint(DIID_DWebBrowserEvents2, &m_pCP)) || !m_pCP)
 			//	throw "fail: OleObject";
-
+			//
 			//if (!SUCCEEDED(m_pCP->Advise((IUnknown*)(IOleClientSite*)this, &m_dwCookie)))
 			//	throw "fail: OleObject";
-
+			//
 			//if (!SUCCEEDED(m_pOleObject->DoVerb(OLEIVERB_INPLACEACTIVATE, nullptr, (IOleClientSite*)this, 0, m_Hwnd, &rc)))
 			//	throw "fail: OleObject";
-
+			//
 			//if (m_pWebBrowser2 && m_pOleObject && m_pOleInPlaceObject && m_pCPC && m_pCP)
 		{
 #if DCX_USE_WRAPPERS
@@ -323,6 +293,47 @@ void DcxWebControl::parseInfoRequest(const TString& input, const refString<TCHAR
 			szReturnValue = tsRes.to_chr();
 	}
 	break;
+	//case L"donottrack"_hash:
+	//{
+	//	if (auto com = m_pWebBrowser2.try_query<INavigatorDoNotTrack>(); com)
+	//	{
+	//		wil::unique_bstr arg;
+	//		com->get_msDoNotTrack(&arg);
+	//		szReturnValue = arg.get();
+	//	}
+	//}
+	//break;
+
+	case L"zoom"_hash:
+	{
+		Dcx::dcxVariant args;
+		m_pWebBrowser2->ExecWB(OLECMDID_ZOOM, OLECMDEXECOPT_DONTPROMPTUSER, nullptr, &args);
+		_ts_snprintf(szReturnValue, L"%d", args.intVal);
+	}
+	break;
+	case L"zoomrange"_hash:
+	{
+		Dcx::dcxVariant args;
+		m_pWebBrowser2->ExecWB(OLECMDID_GETZOOMRANGE, OLECMDEXECOPT_DONTPROMPTUSER, nullptr, &args);
+		_ts_snprintf(szReturnValue, L"%d %d", Dcx::dcxLOWORD(args.ulVal), Dcx::dcxHIWORD(args.ulVal));
+	}
+	break;
+
+	case L"opticalzoom"_hash:
+	{
+		Dcx::dcxVariant args;
+		m_pWebBrowser2->ExecWB(OLECMDID_OPTICAL_ZOOM, OLECMDEXECOPT_DONTPROMPTUSER, nullptr, &args);
+		_ts_snprintf(szReturnValue, L"%d", args.intVal);
+	}
+	break;
+	case L"opticalzoomrange"_hash:
+	{
+		Dcx::dcxVariant args;
+		m_pWebBrowser2->ExecWB(OLECMDID_OPTICAL_GETZOOMRANGE, OLECMDEXECOPT_DONTPROMPTUSER, nullptr, &args);
+		_ts_snprintf(szReturnValue, L"%d %d", Dcx::dcxLOWORD(args.intVal), Dcx::dcxHIWORD(args.intVal));
+	}
+	break;
+
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 	}
@@ -392,6 +403,112 @@ void DcxWebControl::parseCommandRequest(const TString& input)
 	// xdid -t [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('t')])
 		m_pWebBrowser2->Stop();
+	// xdid -c [NAME] [ID] [SWITCH] [+FLAGS] [cmd] (args)
+	else if (flags[TEXT('c')])
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const XSwitchFlags xFlags(input.getnexttok());
+		if (!xFlags[L'+'])
+			throw DcxExceptions::dcxInvalidFlag();
+
+		switch (std::hash<TString>()(input.getnexttok()))
+		{
+		case L"save"_hash:
+		{
+			m_pWebBrowser2->ExecWB(OLECMDID_SAVE, OLECMDEXECOPT_DODEFAULT, nullptr, nullptr);
+		}
+		break;
+		case L"saveas"_hash:
+		{
+			m_pWebBrowser2->ExecWB(OLECMDID_SAVEAS, OLECMDEXECOPT_DODEFAULT, nullptr, nullptr);
+		}
+		break;
+		case L"print"_hash:
+		{
+			m_pWebBrowser2->ExecWB(OLECMDID_PRINT, OLECMDEXECOPT_DODEFAULT, nullptr, nullptr);
+		}
+		break;
+		case L"printpreview"_hash:
+		{
+			m_pWebBrowser2->ExecWB(OLECMDID_PRINTPREVIEW, OLECMDEXECOPT_DODEFAULT, nullptr, nullptr);
+		}
+		break;
+		case L"pagesetup"_hash:
+		{
+			m_pWebBrowser2->ExecWB(OLECMDID_PAGESETUP, OLECMDEXECOPT_DODEFAULT, nullptr, nullptr);
+		}
+		break;
+		case L"find"_hash:
+		{
+			//Dcx::dcxVariant args(input.getlasttoks().to_chr());
+			//m_pWebBrowser2->ExecWB(OLECMDID_FIND, OLECMDEXECOPT_DODEFAULT, &args, nullptr);
+			m_pWebBrowser2->ExecWB(OLECMDID_FIND, OLECMDEXECOPT_DODEFAULT, nullptr, nullptr);
+		}
+		break;
+		case L"cut"_hash:
+		{
+			m_pWebBrowser2->ExecWB(OLECMDID_CUT, OLECMDEXECOPT_DONTPROMPTUSER, nullptr, nullptr);
+		}
+		break;
+		case L"copy"_hash:
+		{
+			m_pWebBrowser2->ExecWB(OLECMDID_COPY, OLECMDEXECOPT_DONTPROMPTUSER, nullptr, nullptr);
+		}
+		break;
+		case L"paste"_hash:
+		{
+			m_pWebBrowser2->ExecWB(OLECMDID_PASTE, OLECMDEXECOPT_DONTPROMPTUSER, nullptr, nullptr);
+		}
+		break;
+		case L"undo"_hash:
+		{
+			m_pWebBrowser2->ExecWB(OLECMDID_UNDO, OLECMDEXECOPT_DONTPROMPTUSER, nullptr, nullptr);
+		}
+		break;
+		case L"redo"_hash:
+		{
+			m_pWebBrowser2->ExecWB(OLECMDID_REDO, OLECMDEXECOPT_DONTPROMPTUSER, nullptr, nullptr);
+		}
+		break;
+		case L"selectall"_hash:
+		{
+			m_pWebBrowser2->ExecWB(OLECMDID_SELECTALL, OLECMDEXECOPT_DONTPROMPTUSER, nullptr, nullptr);
+		}
+		break;
+		case L"clearselection"_hash:
+		{
+			m_pWebBrowser2->ExecWB(OLECMDID_CLEARSELECTION, OLECMDEXECOPT_DONTPROMPTUSER, nullptr, nullptr);
+		}
+		break;
+		case L"stopdownload"_hash:
+		{
+			m_pWebBrowser2->ExecWB(OLECMDID_STOPDOWNLOAD, OLECMDEXECOPT_DONTPROMPTUSER, nullptr, nullptr);
+		}
+		break;
+		case L"zoom"_hash:
+		{
+			Dcx::dcxVariant args(input.getnexttokas<int>());
+			if (xFlags[L's'])	// set value (control normalizes value to allowed range)
+				m_pWebBrowser2->ExecWB(OLECMDID_ZOOM, OLECMDEXECOPT_DONTPROMPTUSER, &args, &args);
+			else if (xFlags[L'd'])	// open zoom dialog (if any?)
+				m_pWebBrowser2->ExecWB(OLECMDID_ZOOM, OLECMDEXECOPT_PROMPTUSER, nullptr, &args);
+		}
+		break;
+		case L"opticalzoom"_hash:
+		{
+			Dcx::dcxVariant args(std::clamp(input.getnexttokas<int>(), 10, 1000));
+			if (xFlags[L's'])	// set value
+				m_pWebBrowser2->ExecWB(OLECMDID_OPTICAL_ZOOM, OLECMDEXECOPT_DONTPROMPTUSER, &args, &args);
+			else if (xFlags[L'd'])	// open zoom dialog (if any?)
+				m_pWebBrowser2->ExecWB(OLECMDID_OPTICAL_ZOOM, OLECMDEXECOPT_PROMPTUSER, nullptr, &args);
+		}
+		break;
+		default:
+			break;
+		}
+	}
 	else
 		parseGlobalCommandRequest(input, flags);
 }
@@ -402,7 +519,7 @@ void DcxWebControl::parseCommandRequest(const TString& input)
  * blah
  */
 
-HRESULT DcxWebControl::Invoke(DISPID dispIdMember,
+HRESULT STDMETHODCALLTYPE DcxWebControl::Invoke(DISPID dispIdMember,
 	REFIID riid,
 	LCID lcid,
 	WORD wFlags,
@@ -430,10 +547,24 @@ HRESULT DcxWebControl::Invoke(DISPID dispIdMember,
 	try {
 		if (!m_bHideEvents)
 		{
+			// NB: DispGetParam() inverts the arg count
+			// so if a disp has 2 args, the second arg will be 0 & the first 1
 			switch (dispIdMember)
 			{
 			case DISPID_NAVIGATECOMPLETE2:
 			{
+				///////////////////////////////////////////////////////////
+				// The parameters for this DISPID:
+				// [0]: URL navigated to - VT_BYREF|VT_VARIANT
+				// [1]: An object that evaluates to the top-level or frame
+				//      WebBrowser object corresponding to the event. 
+				//
+				// Fires after a navigation to a link is completed on either 
+				// a window or frameSet element.
+				//
+				if (!pDispParams)
+					return E_POINTER;
+
 				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
 				if (FAILED(hRes))
 					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_NAVIGATECOMPLETE2) -> Unable to get Params: %"), err);
@@ -444,6 +575,22 @@ HRESULT DcxWebControl::Invoke(DISPID dispIdMember,
 
 			case DISPID_BEFORENAVIGATE2:
 			{
+				///////////////////////////////////////////////////////////
+				// The parameters for this DISPID are as follows:
+				// [0]: Cancel flag  - VT_BYREF|VT_BOOL
+				// [1]: HTTP headers - VT_BYREF|VT_VARIANT
+				// [2]: Address of HTTP POST data  - VT_BYREF|VT_VARIANT 
+				// [3]: Target frame name - VT_BYREF|VT_VARIANT 
+				// [4]: Option flags - VT_BYREF|VT_VARIANT
+				// [5]: URL to navigate to - VT_BYREF|VT_VARIANT
+				// [6]: An object that evaluates to the top-level or frame
+				//      WebBrowser object corresponding to the event. 
+				// 
+				// User clicked a link or launched the browser.
+				//
+				if (!pDispParams)
+					return E_POINTER;
+
 				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
 				if (FAILED(hRes))
 					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_BEFORENAVIGATE2) -> Unable to get Params: %"), err);
@@ -460,6 +607,22 @@ HRESULT DcxWebControl::Invoke(DISPID dispIdMember,
 
 			case DISPID_DOCUMENTCOMPLETE:
 			{
+				///////////////////////////////////////////////////////////
+				// The parameters for this DISPID:
+				// [0]: URL navigated to - VT_BYREF|VT_VARIANT
+				// [1]: An object that evaluates to the top-level or frame
+				//      WebBrowser object corresponding to the event. 
+				//
+				// Fires when a document has been completely loaded and initialized.
+				// Unreliable -- currently, the DWebBrowserEvents2::DocumentComplete 
+				// does not fire when the IWebBrowser2::Visible property of the 
+				// WebBrowser Control is set to false (see Q259935).  Also, multiple 
+				// DISPID_DOCUMENTCOMPLETE events can be fired before the final 
+				// READYSTATE_COMPLETE (see Q180366).
+				//
+				if (!pDispParams)
+					return E_POINTER;
+
 				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
 				if (FAILED(hRes))
 					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_DOCUMENTCOMPLETE) -> Unable to get Params: %"), err);
@@ -469,15 +632,37 @@ HRESULT DcxWebControl::Invoke(DISPID dispIdMember,
 			break;
 
 			case DISPID_DOWNLOADBEGIN:
+				///////////////////////////////////////////////////////////
+				// No parameters
+				//
+				// Fires when a navigation operation is beginning.
+				//
 				execAliasEx(TEXT("dl_begin,%u"), getUserID());
 				break;
 
 			case DISPID_DOWNLOADCOMPLETE:
+				///////////////////////////////////////////////////////////
+				// No parameters
+				//
+				// Fires when a navigation operation finishes, is halted, or fails.
+				//
 				execAliasEx(TEXT("dl_complete,%u"), getUserID());
 				break;
 
 			case DISPID_NEWWINDOW2:
 			{
+				/////////////////////////////////////////////////////////
+				// The parameters for this DISPID are as follows:
+				// [0]: Cancel flag  - VT_BYREF|VT_BOOL
+				// [1]: IDispatch* - Pointer to an IDispatch interface. 
+				//		You can set this parameter to the IDispatch of 
+				//		a WebBrowser Control that you've created. When 
+				//		you pass back an IDispatch like this, MSHTML will 
+				//		use the control you've given it to open the link.
+				//
+				if (!pDispParams)
+					return E_POINTER;
+
 				const stString<256> sRet;
 				evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("win_open,%u"), getUserID());
 
@@ -490,6 +675,13 @@ HRESULT DcxWebControl::Invoke(DISPID dispIdMember,
 
 			case DISPID_STATUSTEXTCHANGE:
 			{
+				///////////////////////////////////////////////////////////
+				// The parameters for this DISPID:
+				// [0]: New status bar text - VT_BSTR
+				//
+				if (!pDispParams)
+					return E_POINTER;
+
 				hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
 				if (FAILED(hRes))
 					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_STATUSTEXTCHANGE) -> Unable to get Params: %"), err);
@@ -500,6 +692,15 @@ HRESULT DcxWebControl::Invoke(DISPID dispIdMember,
 
 			case DISPID_TITLECHANGE:
 			{
+				///////////////////////////////////////////////////////////
+				// The parameters for this DISPID:
+				// [0]: Document title - VT_BSTR
+				// [1]: An object that evaluates to the top-level or frame
+				//      WebBrowser object corresponding to the event.
+				//
+				if (!pDispParams)
+					return E_POINTER;
+
 				hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
 				if (FAILED(hRes))
 					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_TITLECHANGE) -> Unable to get Params: %"), err);
@@ -510,6 +711,14 @@ HRESULT DcxWebControl::Invoke(DISPID dispIdMember,
 
 			case DISPID_PROGRESSCHANGE:
 			{
+				///////////////////////////////////////////////////////////
+				// The parameters for this DISPID:
+				// [0]: Maximum progress - VT_I4
+				// [1]: Amount of total progress - VT_I4
+				//
+				if (!pDispParams)
+					return E_POINTER;
+
 				hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
 				if (FAILED(hRes))
 					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_PROGRESSCHANGE) -> Unable to get arg1: %"), err);
@@ -524,31 +733,148 @@ HRESULT DcxWebControl::Invoke(DISPID dispIdMember,
 
 			case DISPID_COMMANDSTATECHANGE:
 			{
-				hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
+				///////////////////////////////////////////////////////////
+				// The parameters for this DISPID:
+				// [0]: Enabled state - VT_BOOL
+				// [1]: Command identifier - VT_I4
+				//
+				if (!pDispParams)
+					return E_POINTER;
+
+				hRes = DispGetParam(pDispParams, 0, VT_I4, &arg1, &err);
 				if (FAILED(hRes))
 					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_COMMANDSTATECHANGE) -> Unable to get Params: %"), err);
 
-				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
+				hRes = DispGetParam(pDispParams, 1, VT_BOOL, &arg2, &err);
 				if (FAILED(hRes))
 					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_COMMANDSTATECHANGE) -> Unable to get Params: %"), err);
 
-				constexpr TCHAR szTrue[] = TEXT("$true");
-				constexpr TCHAR szFalse[] = TEXT("$false");
+				//constexpr TCHAR szTrue[] = TEXT("$true");
+				//constexpr TCHAR szFalse[] = TEXT("$false");
+				//
+				//switch (arg1.bstrVal[0])
+				//{
+				//case L'1':
+				//	execAliasEx(TEXT("forward,%u,%s"), getUserID(), arg2.boolVal ? &szTrue[0] : &szFalse[0]);
+				//	break;
+				//
+				//case L'2':
+				//	execAliasEx(TEXT("back,%u,%s"), getUserID(), arg2.boolVal ? &szTrue[0] : &szFalse[0]);
+				//	break;
+				//default:
+				//	break;
+				//}
 
-				switch (arg1.bstrVal[0])
+				switch (arg1.intVal)
 				{
-				case L'1':
-					execAliasEx(TEXT("forward,%u,%s"), getUserID(), arg2.boolVal ? &szTrue[0] : &szFalse[0]);
+				case CSC_NAVIGATEFORWARD:
+					execAliasEx(TEXT("forward,%u,%s"), getUserID(), dcx_truefalse(arg2.boolVal));
 					break;
 
-				case L'2':
-					execAliasEx(TEXT("back,%u,%s"), getUserID(), arg2.boolVal ? &szTrue[0] : &szFalse[0]);
+				case CSC_NAVIGATEBACK:
+					execAliasEx(TEXT("back,%u,%s"), getUserID(), dcx_truefalse(arg2.boolVal));
 					break;
 				default:
 					break;
 				}
 			}
 			break;
+			case DISPID_PROPERTYCHANGE:
+				///////////////////////////////////////////////////////////
+				// The parameters for this DISPID:
+				// [0]: Name of property that changed - VT_BSTR
+				//
+				break;
+			case DISPID_WINDOWCLOSING:
+			{
+				///////////////////////////////////////////////////////////
+				// The parameters for this DISPID:
+				// [0]: Cancel flag  - VT_BYREF|VT_BOOL
+				// [1]: Child Window (created from script) - VT_BOOL
+				//      
+				//
+				if (!pDispParams)
+					return E_POINTER;
+
+				hRes = DispGetParam(pDispParams, 0, VT_BOOL, &arg1, &err);
+				if (FAILED(hRes))
+					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_COMMANDSTATECHANGE) -> Unable to get Params: %"), err);
+
+				const stString<256> sRet;
+				evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("win_close,%u,%s"), getUserID(), (arg1.boolVal ? L"child" : L"main"));
+
+				if (sRet == TEXT("cancel"))
+					*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
+				else
+					*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
+			}
+			break;
+			case DISPID_FILEDOWNLOAD:
+				///////////////////////////////////////////////////////////
+				// The parameters for this DISPID:
+				// [0]: Cancel flag  - VT_BYREF|VT_BOOL
+				//      
+				//
+				break;
+			case DISPID_NAVIGATEERROR:
+			{
+				///////////////////////////////////////////////////////////
+				// The parameters for this DISPID are as follows:
+				// [0]: Cancel flag			- VT_BYREF|VT_BOOL
+				// [1]: Error status code	- VT_BYREF|VT_VARIANT  
+				// [2]: Target frame name	- VT_BYREF|VT_VARIANT 
+				// [3]: URL where navigate failed - VT_BYREF|VT_VARIANT
+				// [4]: An object that evaluates to the top-level or frame
+				//      WebBrowser object corresponding to the event. 
+				// 
+				//
+				if (!pDispParams)
+					return E_POINTER;
+
+				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg1, &err);
+				if (FAILED(hRes))
+					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_NAVIGATEERROR) -> Unable to get arg1: %"), err);
+
+				hRes = DispGetParam(pDispParams, 3, VT_BSTR, &arg2, &err);
+				if (FAILED(hRes))
+					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_NAVIGATEERROR) -> Unable to get arg2: %"), err);
+
+				const stString<256> sRet;
+				evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("nav_error,%u,%ws,%ws"), getUserID(), arg2.bstrVal, arg1.bstrVal);
+
+				if (sRet == TEXT("cancel"))
+					*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
+				else
+					*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
+			}
+			break;
+			case DISPID_ONVISIBLE:
+				///////////////////////////////////////////////////////////
+				// The parameters for this DISPID:
+				// [0]: Visible  - VT_BOOL
+				//
+				break;
+			case DISPID_ONQUIT:
+				///////////////////////////////////////////////////////////
+				// No parameters
+				//
+				// The BHO docs in MSDN say to use DISPID_QUIT, but this is an error.
+				// The BHO never gets a DISPID_QUIT and thus the browser connection
+				// never gets unadvised and so the BHO never gets the FinalRelease().
+				// This is bad.  So use DISPID_ONQUIT instead and everything is cool --
+				// EXCEPT when you exit the browser when viewing a page that launches
+				// a popup in the onunload event!  In that case the BHO is already
+				// unadvised so it does not intercept the popup.  So the trick is to
+				// navigate to a known page (I used the about:blank page) that does 
+				// not have a popup in the onunload event before unadvising.
+				//
+				break;
+			//case DISPID_AMBIENT_DLCONTROL:
+			//{
+			//	const stString<256> sRet;
+			//	evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("dl_control,%u"), getUserID());
+			//}
+			//break;
 			default:
 				break;
 			}
@@ -763,6 +1089,121 @@ LRESULT DcxWebControl::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 TString DcxWebControl::CallScript(const TString& tsCmd) const
 {
+	//	if (!m_pWebBrowser2)
+	//		throw Dcx::dcxException("Browser NOT Loaded");
+	//
+	//	if (READYSTATE ready_state{ READYSTATE_UNINITIALIZED }; FAILED(m_pWebBrowser2->get_ReadyState(&ready_state)) || ready_state != READYSTATE_COMPLETE)
+	//		throw Dcx::dcxException("Browser NOT in Ready State");
+	//
+	//	TString tsRes;
+	//
+	//	IDispatch* htmlDisp{};
+	//
+	//	if (SUCCEEDED(m_pWebBrowser2->get_Document(&htmlDisp)))
+	//	{
+	//		Auto(SafeReleaseCom(&htmlDisp));
+	//
+	//		IHTMLDocument2* doc{};
+	//		if (SUCCEEDED(htmlDisp->QueryInterface(IID_IHTMLDocument2, (void**)&doc)))
+	//		{
+	//			Auto(SafeReleaseCom(&doc));
+	//
+	//#if DCX_USE_WRAPPERS
+	//			IDispatch* idisp{};
+	//
+	//			if (SUCCEEDED(doc->get_Script(&idisp)))
+	//			{
+	//				Auto(SafeReleaseCom(&idisp));
+	//
+	//				DISPID dispid = DISPID_UNKNOWN;
+	//				DISPPARAMS params{};
+	//
+	//				Dcx::dcxVariant vArg(tsCmd.to_wchr());
+	//
+	//				params.cArgs = 1;
+	//				params.rgvarg = &vArg;
+	//
+	//				{
+	//					const Dcx::dcxBSTRResource strEval(L"eval");
+	//
+	//					if (BSTR hm = strEval.get(); FAILED(idisp->GetIDsOfNames(IID_NULL, &hm, 1, LOCALE_SYSTEM_DEFAULT, &dispid)))
+	//						throw Dcx::dcxException("GetIDsOfNames: failed.");
+	//				}
+	//
+	//				if (dispid == DISPID_UNKNOWN)
+	//					throw Dcx::dcxException("GetIDsOfNames: Unable to find eval()");
+	//
+	//				Dcx::dcxVariant v;
+	//
+	//				if (FAILED(idisp->Invoke(dispid, IID_NULL, 0, DISPATCH_METHOD, &params, &v, nullptr, nullptr)))
+	//					throw Dcx::dcxException("Invoke: failed.");
+	//
+	//				switch (v.vt)
+	//				{
+	//				case VT_BSTR:
+	//					tsRes.tsprintf(TEXT("%ws"), v.bstrVal);
+	//					break;
+	//					// TODO: handle other return types...
+	//				default:
+	//					break;
+	//				}
+	//			}
+	//#else
+	//			IDispatch* idisp = nullptr;
+	//
+	//			if (SUCCEEDED(doc->get_Script(&idisp)))
+	//			{
+	//				Auto(idisp->Release());
+	//
+	//				DISPID dispid = -1;
+	//				DISPPARAMS params{};
+	//
+	//				VARIANT vArg;
+	//				VariantInit(&vArg);
+	//				Auto(VariantClear(&vArg));
+	//
+	//				vArg.vt = VT_BSTR;
+	//				vArg.bstrVal = SysAllocString(tsCmd.to_wchr());
+	//
+	//				if (!vArg.bstrVal)
+	//					throw Dcx::dcxException("Unable to allocate BSTR");
+	//
+	//				params.cArgs = 1;
+	//				params.rgvarg = &vArg;
+	//
+	//
+	//				BSTR hm = SysAllocString(L"eval");
+	//				if (!hm)
+	//					throw Dcx::dcxException("Unable to allocate BSTR");
+	//				Auto(SysFreeString(hm));
+	//
+	//				if (FAILED(idisp->GetIDsOfNames(IID_NULL, &hm, 1, LOCALE_SYSTEM_DEFAULT, &dispid)))
+	//					throw Dcx::dcxException("GetIDsOfNames: failed.");
+	//
+	//				if (dispid == DISPID_UNKNOWN)
+	//					throw Dcx::dcxException("GetIDsOfNames: Unable to find eval()");
+	//
+	//				VARIANT v;
+	//				VariantInit(&v);
+	//				Auto(VariantClear(&v));
+	//
+	//				if (FAILED(idisp->Invoke(dispid, IID_NULL, 0, DISPATCH_METHOD, &params, &v, nullptr, nullptr)))
+	//					throw Dcx::dcxException("Invoke: failed.");
+	//
+	//				switch (v.vt)
+	//				{
+	//				case VT_BSTR:
+	//					tsRes.tsprintf(TEXT("%ws"), v.bstrVal);
+	//					break;
+	//				default:
+	//					break;
+	//				}
+	//			}
+	//#endif
+	//		}
+	//	}
+	//	return tsRes;
+
 	if (!m_pWebBrowser2)
 		throw Dcx::dcxException("Browser NOT Loaded");
 
@@ -771,24 +1212,12 @@ TString DcxWebControl::CallScript(const TString& tsCmd) const
 
 	TString tsRes;
 
-	IDispatch* htmlDisp{};
-
-	if (SUCCEEDED(m_pWebBrowser2->get_Document(&htmlDisp)))
+	if (wil::com_ptr<IDispatch> htmlDisp; SUCCEEDED(m_pWebBrowser2->get_Document(&htmlDisp)))
 	{
-		Auto(SafeReleaseCom(&htmlDisp));
-
-		IHTMLDocument2* doc{};
-		if (SUCCEEDED(htmlDisp->QueryInterface(IID_IHTMLDocument2, (void**)&doc)))
+		if (auto doc = htmlDisp.try_query<IHTMLDocument2>(); doc)
 		{
-			Auto(SafeReleaseCom(&doc));
-
-#if DCX_USE_WRAPPERS
-			IDispatch* idisp{};
-
-			if (SUCCEEDED(doc->get_Script(&idisp)))
+			if (wil::com_ptr<IDispatch> idisp; SUCCEEDED(doc->get_Script(&idisp)))
 			{
-				Auto(SafeReleaseCom(&idisp));
-
 				DISPID dispid = DISPID_UNKNOWN;
 				DISPPARAMS params{};
 
@@ -822,58 +1251,6 @@ TString DcxWebControl::CallScript(const TString& tsCmd) const
 					break;
 				}
 			}
-#else
-			IDispatch* idisp = nullptr;
-
-			if (SUCCEEDED(doc->get_Script(&idisp)))
-			{
-				Auto(idisp->Release());
-
-				DISPID dispid = -1;
-				DISPPARAMS params{};
-
-				VARIANT vArg;
-				VariantInit(&vArg);
-				Auto(VariantClear(&vArg));
-
-				vArg.vt = VT_BSTR;
-				vArg.bstrVal = SysAllocString(tsCmd.to_wchr());
-
-				if (!vArg.bstrVal)
-					throw Dcx::dcxException("Unable to allocate BSTR");
-
-				params.cArgs = 1;
-				params.rgvarg = &vArg;
-
-
-				BSTR hm = SysAllocString(L"eval");
-				if (!hm)
-					throw Dcx::dcxException("Unable to allocate BSTR");
-				Auto(SysFreeString(hm));
-
-				if (FAILED(idisp->GetIDsOfNames(IID_NULL, &hm, 1, LOCALE_SYSTEM_DEFAULT, &dispid)))
-					throw Dcx::dcxException("GetIDsOfNames: failed.");
-
-				if (dispid == DISPID_UNKNOWN)
-					throw Dcx::dcxException("GetIDsOfNames: Unable to find eval()");
-
-				VARIANT v;
-				VariantInit(&v);
-				Auto(VariantClear(&v));
-
-				if (FAILED(idisp->Invoke(dispid, IID_NULL, 0, DISPATCH_METHOD, &params, &v, nullptr, nullptr)))
-					throw Dcx::dcxException("Invoke: failed.");
-
-				switch (v.vt)
-				{
-				case VT_BSTR:
-					tsRes.tsprintf(TEXT("%ws"), v.bstrVal);
-					break;
-				default:
-					break;
-				}
-			}
-#endif
 		}
 	}
 	return tsRes;
@@ -1047,6 +1424,16 @@ void DcxWebControl::setURL(const TString& tsURL, const TString& tsFlags, const T
 	}
 	if (xflags['s']) // statusbar on/off
 		this->setStatusbarState(xmask['s']);
+	//if (xflags['t']) {
+	//	if (xmask['t'])
+	//		bEnabled = VARIANT_TRUE;
+	//	else
+	//		bEnabled = VARIANT_FALSE;
+	//	if (auto com = wil::com_ptr<IWebBrowser2>(m_pWebBrowser2).try_query<INavigatorDoNotTrack>())
+	//	{
+	//		//com->get_msDoNotTrack();
+	//	}
+	//}
 
 	// only open url if one supplied.
 	if (!tsURL.empty())

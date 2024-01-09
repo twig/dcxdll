@@ -671,6 +671,20 @@ namespace Dcx
 			VariantInit(this);
 		}
 
+		explicit dcxVariant(bool val) noexcept
+			: dcxVariant()
+		{
+			vt = VT_BOOL;
+			boolVal = gsl::narrow_cast<VARIANT_BOOL>(val);
+		}
+
+		explicit dcxVariant(int val) noexcept
+			: dcxVariant()
+		{
+			vt = VT_I4;
+			intVal = gsl::narrow_cast<INT>(val);
+		}
+
 		explicit dcxVariant(const BSTR bStr) noexcept
 			: dcxVariant()
 		{
