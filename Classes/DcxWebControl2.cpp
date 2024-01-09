@@ -154,15 +154,6 @@ LRESULT DcxWebControl2::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 LRESULT DcxWebControl2::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
 {
-	//if ((uMsg >= WM_MOUSEFIRST && uMsg <= WM_MOUSELAST) || uMsg == WM_MOUSELEAVE)
-	//{
-	//	if (OnMouseMessage(uMsg, wParam, lParam))
-	//	{
-	//		bParsed = TRUE;
-	//		return 0;
-	//	}
-	//}
-
 	return LRESULT();
 }
 
