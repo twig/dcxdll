@@ -77,6 +77,105 @@
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.c"></a>/xdid -c	</td></tr>
+	<tr><td colspan="2">Send commands to the browser.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -c [DNAME] [ID] [+FLAGS] [CMD] (ARGS)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -c dcx 4 +s opticalzoom 120</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Can be any of</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Set the value.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Display the dialog for setting this value. (may not exist on the version you have)</td>
+	</tr>
+	<tr>
+		<td class="param">CMD</td>
+		<td>The command to execute.</td>
+	</tr>
+	<tr>
+		<td class="value">zoom [N]</td>
+		<td>Set the zoom factor. (limited to 0 to 4)</td>
+	</tr>
+	<tr>
+		<td class="value">opticalzoom [N]</td>
+		<td>Set the optical zoom percentage. (limited to 10 to 1000)</td>
+	</tr>
+	<tr>
+		<td class="value">save</td>
+		<td>Save the current webpage.</td>
+	</tr>
+	<tr>
+		<td class="value">saveas</td>
+		<td>Save the current webpage via a save dialog.</td>
+	</tr>
+	<tr>
+		<td class="value">print</td>
+		<td>Print the current webpage.</td>
+	</tr>
+	<tr>
+		<td class="value">printpreview</td>
+		<td>View a preview of the current webpage being printed.</td>
+	</tr>
+	<tr>
+		<td class="value">pagesetup</td>
+		<td>Open the print setup dialog.</td>
+	</tr>
+	<tr>
+		<td class="value">find</td>
+		<td>Opens the browsers find dialog.</td>
+	</tr>
+	<tr>
+		<td class="value">cut</td>
+		<td>Cut selected content to clipboard.</td>
+	</tr>
+	<tr>
+		<td class="value">copy</td>
+		<td>Copy selected content to clipboard.</td>
+	</tr>
+	<tr>
+		<td class="value">paste</td>
+		<td>Paste clipboard to carets location in browser.</td>
+	</tr>
+	<tr>
+		<td class="value">undo</td>
+		<td>Undo last action.</td>
+	</tr>
+	<tr>
+		<td class="value">redo</td>
+		<td>Redo action that was previously undone.</td>
+	</tr>
+	<tr>
+		<td class="value">selectall</td>
+		<td>Select all the browsers content.</td>
+	</tr>
+	<tr>
+		<td class="value">clearselection</td>
+		<td>Clear the current selection.</td>
+	</tr>
+	<tr>
+		<td class="value">stopdownload</td>
+		<td>Stop the current download.</td>
+	</tr>
+	<tr>
+		<td class="param">ARGS</td>
+		<td>The arguments for the given <a class="value">CMD</a></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.g"></a>/xdid -g	</td></tr>
 	<tr><td colspan="2">This command is like hitting the Home button in IE.</td></tr>
 	<tr>
@@ -250,6 +349,20 @@
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.opticalzoom"></a>$xdid().opticalzoom	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the current optical zoom percentage.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).opticalzoom</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).opticalzoom</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.ready"></a>$xdid().ready	</td></tr>
 	<tr><td colspan="2">This property lets you retrieve the ready state. If it is <a class="value">$true</a> the control is ready for another command, else you should wait.</td></tr>
 	<tr>
@@ -315,6 +428,20 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).url</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.zoom"></a>$xdid().zoom	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the current zoom factor.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).zoom</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).zoom</div></td>
 	</tr>
 </table>
 <br />
@@ -459,6 +586,20 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.nav_error"></a>nav_error	</td></tr>
+	<tr><td colspan="2">When the control has encountered an error navigating to the URL.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME nav_error ID CODE URL</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx nav_error 4 404 http://dcx.scriptsdb.org/</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The code shown is an example only, don't expect that value.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.status"></a>status	</td></tr>
 	<tr><td colspan="2">When the statusbar text changes.</td></tr>
 	<tr>
@@ -484,6 +625,20 @@
 		<td><div class="example">/cb_alias dcx title 4 The other page title</div></td>
 	</tr>
 </table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.win_close"></a>win_close	</td></tr>
+	<tr><td colspan="2">When a window is attempted to be closed.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME win_close ID [child|main]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx win_close 4 child</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> Return this value to block the window from closing.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -729,6 +884,7 @@
 </td><td width="80%" valign="top" class="menuright">
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
 	<a class='header' href="#xdid"><div style='background:#6A7CB0;'>/xdid Flags</div></a>
+		<a class='flag' href="#xdid.c"><div>-c</div></a>
 		<a class='flag' href="#xdid.g"><div>-g</div></a>
 		<a class='flag' href="#xdid.i"><div>-i</div></a>
 		<a class='flag' href="#xdid.j"><div>-j</div></a>
@@ -740,11 +896,13 @@
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a class='flag' href="#xdidprop.opticalzoom"><div>opticalzoom</div></a>
 		<a class='flag' href="#xdidprop.ready"><div>ready</div></a>
 		<a class='flag' href="#xdidprop.script"><div>script</div></a>
 		<a class='flag' href="#xdidprop.statusbar"><div>statusbar</div></a>
 		<a class='flag' href="#xdidprop.statustext"><div>statustext</div></a>
 		<a class='flag' href="#xdidprop.url"><div>url</div></a>
+		<a class='flag' href="#xdidprop.zoom"><div>zoom</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
 	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
@@ -757,8 +915,10 @@
 		<a class='flag' href="#events.help"><div>help</div></a>
 		<a class='flag' href="#events.nav_begin"><div>nav_begin</div></a>
 		<a class='flag' href="#events.nav_complete"><div>nav_complete</div></a>
+		<a class='flag' href="#events.nav_error"><div>nav_error</div></a>
 		<a class='flag' href="#events.status"><div>status</div></a>
 		<a class='flag' href="#events.title"><div>title</div></a>
+		<a class='flag' href="#events.win_close"><div>win_close</div></a>
 		<a class='flag' href="#events.win_open"><div>win_open</div></a>
 	</div>
 </td>
@@ -769,7 +929,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2024</td>
-		<td style="text-align: right;">Last Updated: 4th January, 24</td>
+		<td style="text-align: right;">Last Updated: 9th January, 24</td>
 	</tr>
 </table>
 <div style="text-align: center;">

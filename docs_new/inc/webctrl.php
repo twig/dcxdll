@@ -8,6 +8,42 @@ function get_intro_webctrl() {
 
 function get_xdid_webctrl(&$XDID) {
 	$XDID = array(
+		'c' => array(
+	        '__desc' => 'Send commands to the browser.',
+	        '__cmd' => '[+FLAGS] [CMD] (ARGS)',
+	        '__eg' => "+s opticalzoom 120",
+			'__params' => array(
+				'+FLAGS' => array(
+					'__desc' => 'Can be any of',
+					'__values' => array(
+						's' => 'Set the value.',
+						'd' => 'Display the dialog for setting this value. (may not exist on the version you have)',
+					),
+				),
+				'CMD' => array(
+					'__desc' => 'The command to execute.',
+					'__values' => array(
+						'zoom [N]' => 'Set the zoom factor. (limited to 0 to 4)',
+						'opticalzoom [N]' => 'Set the optical zoom percentage. (limited to 10 to 1000)',
+						'save' => 'Save the current webpage.',
+						'saveas' => 'Save the current webpage via a save dialog.',
+						'print' => 'Print the current webpage.',
+						'printpreview' => 'View a preview of the current webpage being printed.',
+						'pagesetup' => 'Open the print setup dialog.',
+						'find' => 'Opens the browsers find dialog.',
+						'cut' => 'Cut selected content to clipboard.',
+						'copy' => 'Copy selected content to clipboard.',
+						'paste' => 'Paste clipboard to carets location in browser.',
+						'undo' => 'Undo last action.',
+						'redo' => 'Redo action that was previously undone.',
+						'selectall' => 'Select all the browsers content.',
+						'clearselection' => 'Clear the current selection.',
+						'stopdownload' => 'Stop the current download.',
+					),
+				),
+                'ARGS' => "The arguments for the given [v]CMD[/v]",
+			),
+		),
 	    'g' => array(
 	        '__desc' => 'This command is like hitting the Home button in IE.',
 		),
@@ -80,6 +116,12 @@ function get_xdidprops_webctrl(&$XDIDPROPS) {
 			'__cmd' => 'scriptcommand',
 			'__eg' => 'document.title',
 		),
+		"zoom" => array(
+		    '__desc' => 'This property lets you retrieve the current zoom factor.',
+		),
+		"opticalzoom" => array(
+		    '__desc' => 'This property lets you retrieve the current optical zoom percentage.',
+		),
 	);
 }
 
@@ -95,6 +137,14 @@ function get_events_webctrl(&$EVENTS) {
 			'__desc' => "When the control is finished navigating to the URL.",
 			'__cmd' => 'URL',
 			'__eg' => 'http://dcx.scriptsdb.org/',
+		),
+		"nav_error" => array(
+			'__desc' => "When the control has encountered an error navigating to the URL.",
+			'__cmd' => 'CODE URL',
+			'__eg' => '404 http://dcx.scriptsdb.org/',
+			'__notes' => array(
+				"The code shown is an example only, don't expect that value.",
+			),
 		),
 		"doc_complete" => array(
 			'__desc' => "When the document has been downloaded.",
@@ -120,6 +170,12 @@ function get_events_webctrl(&$EVENTS) {
 		"win_open" => array(
 			'__desc' => "When a new window is attempted to be opened.",
 			'__return' => "[r]cancel[/r] Return this value to block the new window from opening.",
+		),
+		"win_close" => array(
+			'__desc' => "When a window is attempted to be closed.",
+			'__cmd' => '[child|main]',
+			'__eg' => 'child',
+			'__return' => "[r]cancel[/r] Return this value to block the window from closing.",
 		),
 		"status" => array(
 			'__desc' => "When the statusbar text changes.",
