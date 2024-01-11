@@ -1111,6 +1111,7 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 	m_webview->add_ContainsFullScreenElementChanged(Microsoft::WRL::Callback<ICoreWebView2ContainsFullScreenElementChangedEventHandler>(this, &DcxWebControl2::OnContainsFullScreenElementChanged).Get(), &m_fullscreenToken);
 	m_webview->add_HistoryChanged(Microsoft::WRL::Callback<ICoreWebView2HistoryChangedEventHandler>(this, &DcxWebControl2::OnHistoryChanged).Get(), &m_historyChangedToken);
 	m_webview->add_NewWindowRequested(Microsoft::WRL::Callback<ICoreWebView2NewWindowRequestedEventHandler>(this, &DcxWebControl2::OnNewWindowRequested).Get(), &m_newWindowRequestedToken);
+	m_webview->add_WindowCloseRequested(Microsoft::WRL::Callback<ICoreWebView2WindowCloseRequestedEventHandler>(this, &DcxWebControl2::OnWindowCloseRequested).Get(), &m_windowCloseRequestedToken);
 	m_webview->add_SourceChanged(Microsoft::WRL::Callback<ICoreWebView2SourceChangedEventHandler>(this, &DcxWebControl2::OnSourceChanged).Get(), &m_sourceChangedToken);
 	m_webview->add_ProcessFailed(Microsoft::WRL::Callback<ICoreWebView2ProcessFailedEventHandler>(this, &DcxWebControl2::OnProcessFailed).Get(), &m_processFailedToken);
 	m_webview->add_WebMessageReceived(Microsoft::WRL::Callback<ICoreWebView2WebMessageReceivedEventHandler>(this, &DcxWebControl2::OnWebMessageReceived).Get(), &m_webMessageReceivedToken);
@@ -1422,13 +1423,6 @@ HRESULT DcxWebControl2::OnNewWindowRequested(ICoreWebView2* sender, ICoreWebView
 
 	if (this->IsNewWindowsManaged())
 	{
-		//wil::unique_cotaskmem_string uri;
-		//args->get_Uri(&uri);
-		//TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
-		//evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"win_open,%u,%s", getUserID(), uri.get());
-		//if (tsBuf == L"cancel")
-		//	args->put_Handled(TRUE);
-
 		if (const auto pd = getParentDialog(); pd)
 		{
 			wil::unique_cotaskmem_string uri;
@@ -1445,6 +1439,30 @@ HRESULT DcxWebControl2::OnNewWindowRequested(ICoreWebView2* sender, ICoreWebView
 	}
 	else
 		args->put_Handled(FALSE);
+	return S_OK;
+}
+
+HRESULT DcxWebControl2::OnWindowCloseRequested(ICoreWebView2* sender, IUnknown* args)
+{
+	//WindowCloseRequested triggers when content inside the WebView requested to close the window,
+	//such as after window.close is run.The app should close the WebView and related app window if that makes sense to the app.
+
+	if (!sender)
+		return E_FAIL;
+
+	if (this->IsNewWindowsManaged())
+	{
+		if (const auto pd = getParentDialog(); pd)
+		{
+			wil::unique_cotaskmem_string uri;
+			sender->get_Source(&uri);
+
+			TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+
+			mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), uri.get());
+			mIRCLinker::eval(tsBuf, TEXT("$%(%,win_close,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
+		}
+	}
 	return S_OK;
 }
 

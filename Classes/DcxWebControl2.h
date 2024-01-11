@@ -12,8 +12,8 @@
 
 #pragma comment(lib, "Urlmon.lib")
 
-class DcxWebControl2 :
-    public DcxControl
+class DcxWebControl2 final
+	: public DcxControl
 {
 public:
 	DcxWebControl2() = delete;
@@ -117,6 +117,7 @@ private:
 	EventRegistrationToken m_stateChangedToken;
 	EventRegistrationToken m_downloadStartingToken;
 	EventRegistrationToken m_newWindowRequestedToken;
+	EventRegistrationToken m_windowCloseRequestedToken;
 	EventRegistrationToken m_sourceChangedToken;
 	EventRegistrationToken m_processFailedToken;
 	EventRegistrationToken m_contextmenuToken;
@@ -154,6 +155,7 @@ private:
 	HRESULT OnDownloadStarting(ICoreWebView2* sender, ICoreWebView2DownloadStartingEventArgs* args);
 	HRESULT OnClearBrowsingDataCompleted(HRESULT errorCode);
 	HRESULT OnNewWindowRequested(ICoreWebView2* sender, ICoreWebView2NewWindowRequestedEventArgs* args);
+	HRESULT OnWindowCloseRequested(ICoreWebView2* sender, IUnknown* args);
 	HRESULT OnSourceChanged(ICoreWebView2* sender, ICoreWebView2SourceChangedEventArgs* args);
 	HRESULT OnProcessFailed(ICoreWebView2* sender, ICoreWebView2ProcessFailedEventArgs* args);
 	HRESULT OnContextMenu(ICoreWebView2* sender, ICoreWebView2ContextMenuRequestedEventArgs* eventArgs);

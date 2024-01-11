@@ -770,6 +770,20 @@ NB: The control also requires WebView2 installed & will try to install it if not
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.win_close"></a>win_close	</td></tr>
+	<tr><td colspan="2">When a script is requesting a window be closed.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME win_close ID URL</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx win_close 4 https://www.sample.com/</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>This event ONLY triggers if new window managment is enabled via <a class='value' href='web2ctrl.htm#xdid.m'>xdid -m</a><a class="value"> dname id +m +m</a>.</li><li>From the WebView docs:</li><li>WindowCloseRequested triggers when content inside the WebView requested to close the window,</li><li>such as after window.close is run.The app should close the WebView and related app window if that makes sense to the app.</li></ul></td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.win_open"></a>win_open	</td></tr>
 	<tr><td colspan="2">When a new window is attempting to open.</td></tr>
 	<tr>
@@ -780,7 +794,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx win_open 4 https://www.sample.com/</div></td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> Return this value to block the new window from opening.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This event ONLY triggers if new window managment is enabled via <a class="value">xdid -m dname id +m +m</a>.</td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> Return this value to block the new window from opening.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This event ONLY triggers if new window managment is enabled via <a class='value' href='web2ctrl.htm#xdid.m'>xdid -m</a><a class="value"> dname id +m +m</a>.</td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #CCACC7; color: #CCACC7;"><a name="ctrldcxml"></a>Generic &lt;dcxml&gt;</td></tr>
@@ -1058,6 +1072,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 		<a class='flag' href="#events.source_changed"><div>source_changed</div></a>
 		<a class='flag' href="#events.status"><div>status</div></a>
 		<a class='flag' href="#events.title"><div>title</div></a>
+		<a class='flag' href="#events.win_close"><div>win_close</div></a>
 		<a class='flag' href="#events.win_open"><div>win_open</div></a>
 	</div>
 </td>
@@ -1068,7 +1083,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2024</td>
-		<td style="text-align: right;">Last Updated: 9th January, 24</td>
+		<td style="text-align: right;">Last Updated: 11th January, 24</td>
 	</tr>
 </table>
 <div style="text-align: center;">

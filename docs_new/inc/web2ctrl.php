@@ -246,7 +246,18 @@ function get_events_web2ctrl(&$EVENTS) {
 			'__eg' => 'https://www.sample.com/',
 			'__return' => "[r]cancel[/r] Return this value to block the new window from opening.",
 			'__notes' => array(
-				'This event ONLY triggers if new window managment is enabled via [v]xdid -m dname id +m +m[/v].',
+				'This event ONLY triggers if new window managment is enabled via [cmd]xdid -m[/cmd][v] dname id +m +m[/v].',
+			),
+		),
+		"win_close" => array(
+			'__desc' => "When a script is requesting a window be closed.",
+			'__cmd' => 'URL',
+			'__eg' => 'https://www.sample.com/',
+			'__notes' => array(
+				'This event ONLY triggers if new window managment is enabled via [cmd]xdid -m[/cmd][v] dname id +m +m[/v].',
+				'From the WebView docs:',
+				"WindowCloseRequested triggers when content inside the WebView requested to close the window,",
+				"such as after window.close is run.The app should close the WebView and related app window if that makes sense to the app.",
 			),
 		),
 		"externaluri" => array(
