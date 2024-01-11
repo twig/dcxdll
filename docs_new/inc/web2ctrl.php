@@ -148,6 +148,9 @@ function get_xdidprops_web2ctrl(&$XDIDPROPS) {
 		"mute" => array(
 		    '__desc' => 'This property lets you retrieve the audio mute state. [v]$true[/v] if the audio is muted.',
 		),
+		"datafolder" => array(
+		    '__desc' => 'This property lets you retrieve the data folder being used.',
+		),
 		"version" => array(
 		    '__desc' => 'This property lets you retrieve the webview2 version.',
 		),
@@ -270,6 +273,12 @@ function get_events_web2ctrl(&$EVENTS) {
 			'__desc' => "When a source page changes.",
 			'__cmd' => 'URL',
 			'__eg' => 'https://www.sample.com/',
+		),
+		"contextmenu" => array(
+			'__desc' => "When a conetxt menu is about to be opened.",
+			'__cmd' => 'KIND X Y',
+			'__eg' => 'COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND_IMAGE 10 10',
+			'__return' => "[r]cancel[/r] Return this value to block opening the menu.",
 		),
 		"proc_error" => array(
 			'__desc' => "When an error occurs in the browser process.",

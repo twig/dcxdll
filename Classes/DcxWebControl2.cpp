@@ -246,6 +246,28 @@ void DcxWebControl2::parseInfoRequest(const TString& input, const refString<TCHA
 		}
 	}
 	break;
+	// [NAME] [ID] [PROP]
+	case L"datafolder"_hash:
+	{
+		if (m_webviewEnvironment)
+		{
+			if (auto env7 = m_webviewEnvironment.try_query<ICoreWebView2Environment7>(); env7)
+			{
+				wil::unique_cotaskmem_string value;
+
+				env7->get_UserDataFolder(&value);
+
+				szReturnValue = value.get();
+			}
+		}
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"custommenus"_hash:
+	{
+		szReturnValue = dcx_truefalse(m_bCustomMenus);
+	}
+	break;
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 	}
@@ -470,12 +492,21 @@ dcxWindowStyles DcxWebControl2::parseControlStyles(const TString& tsStyles)
 {
 	dcxWindowStyles ws;
 
-	if (tsStyles.istok(TEXT("dcomp")))
-		m_bDCompRender = true;
-
+	for (const auto& tsStyle : tsStyles)
+	{
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case L"dcomp"_hash:
+			m_bDCompRender = true;
+			break;
+		case L"custommenus"_hash:
+			m_bCustomMenus = true;
+			break;
+		default:
+			break;
+		}
+	}
 	return parseGeneralControlStyles(tsStyles, ws);
-
-	//return parseGeneralControlStyles(tsStyles);
 }
 
 void DcxWebControl2::toXml(TiXmlElement* const xml) const
@@ -1539,6 +1570,10 @@ HRESULT DcxWebControl2::OnContextMenu(ICoreWebView2* sender, ICoreWebView2Contex
 	if (FAILED(target->get_Kind(&targetKind)))
 		return E_FAIL;
 
+	POINT pt{};
+	if (FAILED(eventArgs->get_Location(&pt)))
+		return E_FAIL;
+
 	auto getKind = [](COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND targetKind) noexcept {
 #define __SWITCH_KIND(x) L##x
 #define _SWITCH_KIND(x) __SWITCH_KIND(#x)
@@ -1560,7 +1595,10 @@ HRESULT DcxWebControl2::OnContextMenu(ICoreWebView2* sender, ICoreWebView2Contex
 	};
 
 	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
-	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"contextmenu,%u,%s", getUserID(), getKind(targetKind));
+	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"contextmenu,%u,%s,%ld,%ld", getUserID(), getKind(targetKind), pt.x, pt.y);
+
+	if (tsBuf == L"cancel")
+		eventArgs->put_Handled(TRUE);
 
 	return S_OK;
 }

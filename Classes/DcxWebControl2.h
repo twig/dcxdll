@@ -133,6 +133,7 @@ private:
 	bool m_bManageNewWindows{};
 	bool m_bDownloadsDialogEnabled{ true };
 	bool m_bDCompRender{};
+	bool m_bCustomMenus{};
 	bool m_isCapturingMouse{};
 	bool m_bTracking{};
 
