@@ -218,6 +218,7 @@ public:
 protected:
 	HWND m_Hwnd{ nullptr };
 	UINT m_ID{};
+	UINT m_uDPI{ 96 };
 
 	DWORD m_dEventMask{ DCX_EVENT_ALL };
 

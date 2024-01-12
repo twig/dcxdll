@@ -28,6 +28,8 @@ DcxWindow::DcxWindow(const HWND mHwnd, const UINT mID) noexcept
 {
 	if (!m_hZeroRgn)
 		m_hZeroRgn = CreateRectRgn(0, 0, 0, 0);
+
+	m_uDPI = Dcx::DpiModule.dcxGetDpiForWindow(m_Hwnd);
 }
 
 /*!
