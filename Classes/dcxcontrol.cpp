@@ -1052,6 +1052,11 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 		tsResult += m_clrBackground;
 	}
 	break;
+	case L"dpi"_hash:
+	{
+		tsResult += m_uDPI;
+	}
+	break;
 	default:
 		throw Dcx::dcxException("Invalid property or number of arguments");
 		break;
@@ -2337,21 +2342,27 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 		// win8.1+ only
 		dcxlParam(LPCRECT, pRc);
 
+		bool bResize{ true };
 		if (dcx_testflag(getEventMask(), DCX_EVENT_THEME))
-			execAliasEx(TEXT("dpichanged,%u,%d,%d,%d,%d,%d"), getUserID(), Dcx::dcxLOWORD(wParam), pRc->top, pRc->bottom, pRc->left, pRc->right);
+		{
+			stString<MIRC_BUFFER_SIZE_CCH> stRes;
+			evalAliasEx(stRes, MIRC_BUFFER_SIZE_CCH, TEXT("dpichanged,%u,%d,%d,%d,%d,%d,%u"), getUserID(), Dcx::dcxLOWORD(wParam), pRc->top, pRc->bottom, pRc->left, pRc->right, m_uDPI);
+			bResize = (stRes != TEXT("noresize"));
+		}
 
 		if (!IsValidWindow())
 			break;
 
 		bParsed = TRUE;
 
-		SetWindowPos(m_Hwnd,
-			nullptr,
-			pRc->left,
-			pRc->top,
-			pRc->right - pRc->left,
-			pRc->bottom - pRc->top,
-			SWP_NOZORDER | SWP_NOACTIVATE);
+		if (bResize)
+			SetWindowPos(m_Hwnd,
+				nullptr,
+				pRc->left,
+				pRc->top,
+				pRc->right - pRc->left,
+				pRc->bottom - pRc->top,
+				SWP_NOZORDER | SWP_NOACTIVATE);
 		break;
 	}
 

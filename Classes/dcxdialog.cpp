@@ -1849,6 +1849,12 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 	}
 	break;
 
+	case L"dpi"_hash:
+	{
+		_ts_snprintf(szReturnValue, TEXT("%u"), m_uDPI);
+	}
+	break;
+
 	// invalid info request
 	default:
 		throw Dcx::dcxException("Invalid property or parameters");
@@ -2055,21 +2061,25 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	{
 		dcxlParam(LPCRECT, pRc);
 
-		if (dcx_testflag(p_this->getEventMask(), DCX_EVENT_THEME))
-			p_this->execAliasEx(TEXT("dpichanged,0,%d,%d,%d,%d,%d"), Dcx::dcxLOWORD(wParam), pRc->top, pRc->bottom, pRc->left, pRc->right);
+		bool bResize{ true };
 
+		if (dcx_testflag(p_this->getEventMask(), DCX_EVENT_THEME))
+		{
+			bResize = (p_this->evalAliasT(TEXT("dpichanged,0,%d,%d,%d,%d,%d,%u"), Dcx::dcxLOWORD(wParam), pRc->top, pRc->bottom, pRc->left, pRc->right, p_this->m_uDPI).second != TEXT("noresize"));
+		}
 		if (!p_this->m_Hwnd)
 			break;
 
 		bParsed = TRUE;
 
-		SetWindowPos(p_this->m_Hwnd,
-			nullptr,
-			pRc->left,
-			pRc->top,
-			pRc->right - pRc->left,
-			pRc->bottom - pRc->top,
-			SWP_NOZORDER | SWP_NOACTIVATE);
+		if (bResize)
+			SetWindowPos(p_this->m_Hwnd,
+				nullptr,
+				pRc->left,
+				pRc->top,
+				pRc->right - pRc->left,
+				pRc->bottom - pRc->top,
+				SWP_NOZORDER | SWP_NOACTIVATE);
 		break;
 	}
 
