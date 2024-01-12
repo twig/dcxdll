@@ -326,6 +326,7 @@ function get_xdidprops_xdid(&$XDIDPROPS) {
         'textcolor' => 'This property retrieves the text color.',
         'textbgcolor' => 'This property retrieves the text bcakground color.',
         'bgcolor' => 'This property retrieves the background color.',
+		"dpi" => "This property retrieves the controls current dpi setting.",
 	);
 }
 
@@ -367,6 +368,20 @@ function get_events_xdid(&$EVENTS) {
 					),
 				),
 			),
+		),
+		'dpichanged' => array(
+			'__desc' => 'Event triggered when the dialogs dpi has changed.',
+			'__cmd' => 'NEWDPI X Y W H OLDDPI',
+			'__eg' => '120 4 4 20 20 96',
+			'__params' => array(
+				'NEWDPI' => 'The windows new dpi.',
+				'X' => 'Suggested X pos.',
+				'Y' => 'Suggested Y pos.',
+				'W' => 'Suggested width.',
+				'H' => 'Suggested height.',
+				'OLDDPI' => 'The windows old dpi.',
+			),
+			"__return" => "[r]noresize[/r] - Return this value to block the window resizing.",
 		),
 	);
 }

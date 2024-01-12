@@ -1424,6 +1424,20 @@
 <br />
 <table class="xdialogprop">
 	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xdialogprop.dpi"></a>$xdialog().dpi	</td></tr>
+	<tr><td colspan="2">This property retrieves the dialogs current dpi setting.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdialog(dialog).dpi</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdialog(dcx).dpi</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdialogprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
 			<a name="xdialogprop.focusid"></a>$xdialog().focusid	</td></tr>
 	<tr><td colspan="2">This property retrieves which control currently has the focus.</td></tr>
 	<tr>
@@ -1842,6 +1856,45 @@
 		<td><div class="example">/cb_alias dcx dleave 0</div></td>
 	</tr>
 </table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.dpichanged"></a>dpichanged	</td></tr>
+	<tr><td colspan="2">Event triggered when the dialogs dpi has changed.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME dpichanged ID NEWDPI X Y W H OLDDPI</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx dpichanged 0 120 4 4 20 20 96</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">NEWDPI</td>
+		<td>The windows new dpi.</td>
+	</tr>
+	<tr>
+		<td class="param">X</td>
+		<td>Suggested X pos.</td>
+	</tr>
+	<tr>
+		<td class="param">Y</td>
+		<td>Suggested Y pos.</td>
+	</tr>
+	<tr>
+		<td class="param">W</td>
+		<td>Suggested width.</td>
+	</tr>
+	<tr>
+		<td class="param">H</td>
+		<td>Suggested height.</td>
+	</tr>
+	<tr>
+		<td class="param">OLDDPI</td>
+		<td>The windows old dpi.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">noresize</a> - Return this value to block the window resizing.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -2970,6 +3023,7 @@
 <div class='rightmenu' style='border:1px solid #CCACC7'>
 	<a class='header' href="#xdialogprop"><div style='background:#CCACC7;'>$xdialog() Properties</div></a>
 		<a class='flag' href="#xdialogprop.alias"><div>alias</div></a>
+		<a class='flag' href="#xdialogprop.dpi"><div>dpi</div></a>
 		<a class='flag' href="#xdialogprop.focusid"><div>focusid</div></a>
 		<a class='flag' href="#xdialogprop.glasscolor"><div>glasscolor</div></a>
 		<a class='flag' href="#xdialogprop.id"><div>id</div></a>
@@ -2997,6 +3051,7 @@
 		<a class='flag' href="#events.deactivate"><div>deactivate</div></a>
 		<a class='flag' href="#events.denter"><div>denter</div></a>
 		<a class='flag' href="#events.dleave"><div>dleave</div></a>
+		<a class='flag' href="#events.dpichanged"><div>dpichanged</div></a>
 		<a class='flag' href="#events.dragbegin"><div>dragbegin</div></a>
 		<a class='flag' href="#events.dragfile"><div>dragfile</div></a>
 		<a class='flag' href="#events.dragfinish"><div>dragfinish</div></a>
@@ -3046,7 +3101,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2024</td>
-		<td style="text-align: right;">Last Updated: 4th January, 24</td>
+		<td style="text-align: right;">Last Updated: 12th January, 24</td>
 	</tr>
 </table>
 <div style="text-align: center;">

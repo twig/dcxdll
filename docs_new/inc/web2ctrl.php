@@ -275,7 +275,7 @@ function get_events_web2ctrl(&$EVENTS) {
 			'__eg' => 'https://www.sample.com/',
 		),
 		"contextmenu" => array(
-			'__desc' => "When a conetxt menu is about to be opened.",
+			'__desc' => "When a context menu is about to be opened.",
 			'__cmd' => 'KIND X Y',
 			'__eg' => 'COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND_IMAGE 10 10',
 			'__return' => "[r]cancel[/r] Return this value to block opening the menu.",

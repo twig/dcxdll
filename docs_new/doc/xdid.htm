@@ -755,6 +755,20 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.dpi"></a>$xdid().dpi	</td></tr>
+	<tr><td colspan="2">This property retrieves the controls current dpi setting.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).dpi</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).dpi</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.dpos"></a>$xdid().dpos	</td></tr>
 	<tr><td colspan="2">This property retrieves the position and size of a control in the format [X] [Y] [W] [H] relative to the dialog.</td></tr>
 	<tr>
@@ -953,6 +967,45 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>Controls Events</td></tr>
 	<tr><td>These events are fired when activity occurs in the Controls control.</td></tr>
 </table>
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.dpichanged"></a>dpichanged	</td></tr>
+	<tr><td colspan="2">Event triggered when the dialogs dpi has changed.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME dpichanged ID NEWDPI X Y W H OLDDPI</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx dpichanged 4 120 4 4 20 20 96</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">NEWDPI</td>
+		<td>The windows new dpi.</td>
+	</tr>
+	<tr>
+		<td class="param">X</td>
+		<td>Suggested X pos.</td>
+	</tr>
+	<tr>
+		<td class="param">Y</td>
+		<td>Suggested Y pos.</td>
+	</tr>
+	<tr>
+		<td class="param">W</td>
+		<td>Suggested width.</td>
+	</tr>
+	<tr>
+		<td class="param">H</td>
+		<td>Suggested height.</td>
+	</tr>
+	<tr>
+		<td class="param">OLDDPI</td>
+		<td>The windows old dpi.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">noresize</a> - Return this value to block the window resizing.</td></tr></table>
+<br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.focus"></a>focus	</td></tr>
@@ -1348,6 +1401,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
 		<a class='flag' href="#xdidprop.alpha"><div>alpha</div></a>
 		<a class='flag' href="#xdidprop.bgcolor"><div>bgcolor</div></a>
+		<a class='flag' href="#xdidprop.dpi"><div>dpi</div></a>
 		<a class='flag' href="#xdidprop.dpos"><div>dpos</div></a>
 		<a class='flag' href="#xdidprop.enabled"><div>enabled</div></a>
 		<a class='flag' href="#xdidprop.font"><div>font</div></a>
@@ -1365,6 +1419,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
 	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
+		<a class='flag' href="#events.dpichanged"><div>dpichanged</div></a>
 		<a class='flag' href="#events.focus"><div>focus</div></a>
 		<a class='flag' href="#events.focusout"><div>focusout</div></a>
 		<a class='flag' href="#events.mouse"><div>mouse</div></a>
@@ -1381,7 +1436,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2024</td>
-		<td style="text-align: right;">Last Updated: 4th January, 24</td>
+		<td style="text-align: right;">Last Updated: 12th January, 24</td>
 	</tr>
 </table>
 <div style="text-align: center;">

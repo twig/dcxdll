@@ -837,16 +837,17 @@ menu status,menubar {
 }
 
 ; this alias opens the dialog
+; $1 = browser type
 alias dcx_webbrowser {
   ; if dialog already exists, then show it.
   if ($dialog(dcx_webbrowser)) dialog -v dcx_webbrowser
   else {
-    if (!%dcx_browser_default_type) {
-      ; default to IE browser type
+    ; default to IE browser type
+    if ($0) {
       set %dcx_browser_default_type webctrl
       if ($1 == WebView2) set %dcx_browser_default_type web2ctrl
     }
-    if (!%dcx_browser_type) set %dcx_browser_type %dcx_browser_default_type
+    set %dcx_browser_type %dcx_browser_default_type
     ; open dialog
     dialog -m dcx_webbrowser dcx_webbrowser
   }
@@ -912,7 +913,8 @@ alias dcx_webbrowser_newurl {
   var %id = $2, %url = $3-, %edit_id = $+(%id,_edit), %web_id = $+(%id,_web)
 
   xdid -ra $1 %edit_id %url
-  xdid -m $1 %web_id +usm +u %url
+  xdid -m $1 %web_id +usm +um %url
+  ;xdid -m $1 %web_id + + %url
 }
 
 ; go home
@@ -941,23 +943,12 @@ alias dcx_webbrowser_remtab {
   dcx_webbrowser_positionaddbutton $1
 }
 
-; add a browser tab
-; $1 = dname, $2- = url if any
-alias dcx_webbrowser_addtab {
-  ; increase the tab coun t to make sure we have a unique id
-  inc %dcx_browser_tabcnt
+; add a browser toolbar
+; $1 = dname, $2 = tab id
+alias dcx_webbrowser_addtoolbar {
+  var %id = $2, %rebar_id = $+(%id,_rebar), %edit_id = $+(%id,_edit), %web_id = $+(%id,_web), %back_id = $+(%id,_back), %forward_id = $+(%id,_forward), %refresh_id = $+(%id,_refresh), %home_id = $+(%id,_home), %favicon_id = $+(%id,_favicon)
 
-  ; create the named id's for this tab
-  var %id = $+(Tab,%dcx_browser_tabcnt), %url = $iif($2 != $null,$2,about:blank)
-  var %edit_id = $+(%id,_edit), %web_id = $+(%id,_web), %back_id = $+(%id,_back), %forward_id = $+(%id,_forward), %refresh_id = $+(%id,_refresh), %home_id = $+(%id,_home), %favicon_id = $+(%id,_favicon)
-
-  ; make sure browser type is set.
-  if (!$istok(webctrl web2ctrl,%dcx_browser_type,32)) set %dcx_browser_type webctrl
-
-  xdid -a $1 4 0 $iif(%dcx_browser_type == webctrl,2,1) Tab %dcx_browser_tabcnt $chr(9) %id panel 0 0 400 300 notheme $chr(9) %url
-  xdid -J $1 %id +r arrow
-  xdid -E $1 %id + -cdefhmstCM
-
+  ; the toolbar as seperate controls
   xdid -c $1 %id %back_id button 0 0 0 0 noformat tooltips disabled tabstop
   xdid -t $1 %back_id Back
   xdid -T $1 %back_id Go backwards...
@@ -977,6 +968,58 @@ alias dcx_webbrowser_addtab {
   xdid -c $1 %id %favicon_id image 0 0 0 0 transparent hidden
 
   xdid -c $1 %id %edit_id edit 0 0 0 0 autohs tabstop
+  xdid -E $1 %edit_id + -es
+
+  xdid -l $1 %id cell 1 $chr(9) +fiwvh %back_id 1 40 20
+  xdid -l $1 %id cell 1 $chr(9) +fiwvh %forward_id 1 50 20
+  xdid -l $1 %id cell 1 $chr(9) +fiwvh %refresh_id 1 50 20
+  xdid -l $1 %id cell 1 $chr(9) +fiwvh %home_id 1 40 20
+  xdid -l $1 %id cell 1 $chr(9) +fiwvh %favicon_id 1 20 20
+  xdid -l $1 %id cell 1 $chr(9) +fiwv %edit_id 1 0 20
+
+  ; the toolbar as a rebar control
+  ;xdid -c $1 %id %rebar_id rebar 0 0 0 0 tooltips tabstop noauto dlbclktoggle fixedorder
+  ;;[DNAME] [ID] [N] [+FLAGS] [CX] [CY] [WIDTH] [ICON] [COLOR] (TEXT) [TAB] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS) [TAB] (TOOLTIP)
+  ;xdid -a $1 %rebar_id 1 +f 40 20 40 0 0 $chr(9) %back_id button 0 0 0 0 noformat tooltips disabled tabstop $chr(9) Go Backwards...
+  ;xdid -t $1 %back_id Back
+  ;xdid -T $1 %back_id Go Backwards...
+  ;xdid -a $1 %rebar_id 1 +f 50 20 50 0 0 $chr(9) %forward_id button 0 0 0 0 noformat tooltips disabled tabstop $chr(9) Go Forwards...
+  ;xdid -t $1 %forward_id Forward
+  ;xdid -T $1 %forward_id Go forwards...
+  ;xdid -a $1 %rebar_id 3 +f 50 20 50 0 0 $chr(9) %refresh_id button 0 0 0 0 noformat tooltips disabled tabstop $chr(9) Refresh Page...
+  ;xdid -t $1 %refresh_id Refresh
+  ;xdid -T $1 %refresh_id Refresh page...
+  ;xdid -a $1 %rebar_id 4 +f 40 20 40 0 0 $chr(9) %home_id button 0 0 0 0 noformat tooltips tabstop $chr(9) Go Home...
+  ;xdid -t $1 %home_id Home
+  ;xdid -T $1 %home_id Go home...
+  ;xdid -a $1 %rebar_id 5 +f 20 20 20 0 0 $chr(9) %favicon_id image 0 0 0 0 transparent $chr(9)
+  ;xdid -a $1 %rebar_id 6 +n 80 20 80 0 0 $chr(9) %edit_id edit 0 0 0 0 autohs tabstop $chr(9)
+  ;xdid -v $1 %rebar_id 1 2
+  ;xdid -l $1 %id cell 1 $chr(9) +fiwv %rebar_id 1 0 20
+}
+
+; add a browser tab
+; $1 = dname, $2- = url if any
+alias dcx_webbrowser_addtab {
+  ; increase the tab coun t to make sure we have a unique id
+  inc %dcx_browser_tabcnt
+
+  ; create the named id's for this tab
+  var %id = $+(Tab,%dcx_browser_tabcnt), %url = $iif($2 != $null,$2,about:blank)
+  var %edit_id = $+(%id,_edit), %web_id = $+(%id,_web), %back_id = $+(%id,_back), %forward_id = $+(%id,_forward), %refresh_id = $+(%id,_refresh), %home_id = $+(%id,_home), %favicon_id = $+(%id,_favicon)
+
+  ; make sure browser type is set.
+  if (!$istok(webctrl web2ctrl,%dcx_browser_type,32)) set %dcx_browser_type webctrl
+
+  xdid -a $1 4 0 $iif(%dcx_browser_type == webctrl,2,1) Tab %dcx_browser_tabcnt $chr(9) %id panel 0 0 400 300 notheme $chr(9) %url
+  xdid -J $1 %id +r arrow
+  xdid -E $1 %id + -cdefhmstCM
+
+  xdid -l $1 %id root $chr(9) +pv 0 1 0 0
+  xdid -l $1 %id space root $chr(9) + 0 0 0 0
+  xdid -l $1 %id cell root $chr(9) +ph 0 0 0 0
+
+  dcx_webbrowser_addtoolbar $1 %id
 
   xdid -c $1 %id %web_id %dcx_browser_type 0 0 0 0 tabstop
 
@@ -985,16 +1028,6 @@ alias dcx_webbrowser_addtab {
     xdid -e $1 %forward_id
   }
 
-  ; setup CLA for this tab.
-  xdid -l $1 %id root $chr(9) +pv 0 1 0 0
-  xdid -l $1 %id space root $chr(9) + 0 0 0 0
-  xdid -l $1 %id cell root $chr(9) +ph 0 0 0 0
-  xdid -l $1 %id cell 1 $chr(9) +fiwvh %back_id 1 20 20
-  xdid -l $1 %id cell 1 $chr(9) +fiwvh %forward_id 1 20 20
-  xdid -l $1 %id cell 1 $chr(9) +fiwvh %refresh_id 1 20 20
-  xdid -l $1 %id cell 1 $chr(9) +fiwvh %home_id 1 20 20
-  xdid -l $1 %id cell 1 $chr(9) +fiwvh %favicon_id 1 20 20
-  xdid -l $1 %id cell 1 $chr(9) +fiwv %edit_id 1 0 20
   xdid -l $1 %id cell root $chr(9) +li %web_id 10 0 0
 
   dcx_webbrowser_positionaddbutton $1
@@ -1447,6 +1480,16 @@ alias dcx_webbrowser_work {
     .timerresetprogress 1 5 _resetprogress $1
     xdid -t $1 24 2 + 1 ... $chr(9) ...
   }
+  elseif ($2 == back) {
+    ; cangoback
+    var %id = $xdialog($1,$3).namedid
+    xdid $iif($4,-e,-b) $1 $+($gettok(%id,1,95),_back)
+  }
+  elseif ($2 == forward) {
+    ; cangoforwards
+    var %id = $xdialog($1,$3).namedid
+    xdid $iif($4,-e,-b) $1 $+($gettok(%id,1,95),_forward)
+  }
   elseif ($2 == history) {
     ; cangoback cangoforwards
     var %id = $xdialog($1,$3).namedid
@@ -1498,7 +1541,7 @@ ON *:SIGNAL:XPopup-_dcx_webbrowser: {
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2024</td>
-		<td style="text-align: right;">Last Updated: 4th January, 24</td>
+		<td style="text-align: right;">Last Updated: 12th January, 24</td>
 	</tr>
 </table>
 <div style="text-align: center;">
