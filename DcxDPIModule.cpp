@@ -5,11 +5,6 @@
 #pragma warning(push)
 #pragma warning(disable: 26425)	//warning C26425 : Assigning 'nullptr' to a static variable.
 
-// Theme functions
-//PFNGETDPIFORSYSTEM DcxDPIModule::GetDpiForSystemUx = nullptr;
-//PFNGETDPIFORWINDOW DcxDPIModule::GetDpiForWindowUx = nullptr;
-//PFNGETSYSTEMMETRICSFORDPI DcxDPIModule::GetSystemMetricsForDpiUx = nullptr;
-
 DcxDPIModule::~DcxDPIModule() noexcept
 {
 	unload();
@@ -31,13 +26,16 @@ bool DcxDPIModule::load()
 #pragma warning(disable: 4191)
 #pragma warning(disable: 26493)	//warning C26493 : Don't use C-style casts that would perform a static_cast downcast, const_cast, or reinterpret_cast. (type.4: http://go.microsoft.com/fwlink/p/?LinkID=620420)
 
-		GetDpiForSystemUx = (PFNGETDPIFORSYSTEM)GetProcAddress(m_hModule, "GetDpiForSystem");
-		GetDpiForWindowUx = (PFNGETDPIFORWINDOW)GetProcAddress(m_hModule, "GetDpiForWindow");
-		GetSystemMetricsForDpiUx = (PFNGETSYSTEMMETRICSFORDPI)GetProcAddress(m_hModule, "GetSystemMetricsForDpi");
+		GetDpiForSystemUx = reinterpret_cast<decltype(::GetDpiForSystem)*>(GetProcAddress(m_hModule, "GetDpiForSystem"));
+		GetDpiForWindowUx = reinterpret_cast<decltype(::GetDpiForWindow)*>(GetProcAddress(m_hModule, "GetDpiForWindow"));
+		GetSystemMetricsForDpiUx = reinterpret_cast<decltype(::GetSystemMetricsForDpi)*>(GetProcAddress(m_hModule, "GetSystemMetricsForDpi"));
+		SetProcessDpiAwarenessContextUx = reinterpret_cast<decltype(::SetProcessDpiAwarenessContext)*>(::GetProcAddress(m_hModule, "SetProcessDpiAwarenessContext"));
+		InheritWindowMonitorUx = reinterpret_cast<decltype(::InheritWindowMonitor)*>(::GetProcAddress(m_hModule, "InheritWindowMonitor"));
+		SetThreadDpiHostingBehaviorUx = reinterpret_cast<decltype(::SetThreadDpiHostingBehavior)*>(::GetProcAddress(m_hModule, "SetThreadDpiHostingBehavior"));
 
 #pragma warning(pop)
 
-		if (GetDpiForSystemUx && GetDpiForWindowUx && GetSystemMetricsForDpiUx)
+		if (GetDpiForSystemUx && GetDpiForWindowUx && GetSystemMetricsForDpiUx && InheritWindowMonitorUx && SetThreadDpiHostingBehaviorUx)
 		{
 			DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Found Win10+ DPI Functions"));
 		}
@@ -64,6 +62,9 @@ bool DcxDPIModule::unload() noexcept
 	GetDpiForSystemUx = nullptr;
 	GetDpiForWindowUx = nullptr;
 	GetSystemMetricsForDpiUx = nullptr;
+	SetProcessDpiAwarenessContextUx = nullptr;
+	InheritWindowMonitorUx = nullptr;
+	SetThreadDpiHostingBehaviorUx = nullptr;
 
 	return isUseable();
 }
@@ -115,4 +116,25 @@ UINT DcxDPIModule::dcxGetWindowMetrics(_In_ _Maybenull_ HWND hwnd, _In_ int nInd
 {
 	const auto dpi = dcxGetDpiForWindow(hwnd);
 	return dcxGetSystemMetricsForDpi(nIndex, dpi);
+}
+
+BOOL DcxDPIModule::dcxSetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT value) noexcept
+{
+	if (SetProcessDpiAwarenessContextUx)
+		return SetProcessDpiAwarenessContextUx(value);
+	return FALSE;
+}
+
+BOOL DcxDPIModule::dcxInheritWindowMonitor(HWND hwnd, HWND hwndInherit) noexcept
+{
+	if (InheritWindowMonitorUx)
+		return InheritWindowMonitorUx(hwnd, hwndInherit);
+	return FALSE;
+}
+
+DPI_HOSTING_BEHAVIOR DcxDPIModule::dcxSetThreadDpiHostingBehavior(DPI_HOSTING_BEHAVIOR value) noexcept
+{
+	if (SetThreadDpiHostingBehaviorUx)
+		return SetThreadDpiHostingBehaviorUx(value);
+	return DPI_HOSTING_BEHAVIOR_INVALID;
 }

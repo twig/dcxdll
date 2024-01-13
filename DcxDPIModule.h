@@ -4,19 +4,15 @@
 
 #include "dcxmodule.h"
 
-typedef UINT(WINAPI* PFNGETDPIFORSYSTEM)();
-typedef UINT(WINAPI* PFNGETDPIFORWINDOW)(_In_ HWND);
-typedef int(WINAPI* PFNGETSYSTEMMETRICSFORDPI)(_In_ int, _In_ UINT);
-
 class DcxDPIModule final
 	: public DcxModule
 {
-	//static PFNGETDPIFORSYSTEM GetDpiForSystemUx;
-	//static PFNGETDPIFORWINDOW GetDpiForWindowUx;
-	//static PFNGETSYSTEMMETRICSFORDPI GetSystemMetricsForDpiUx;
-	static inline PFNGETDPIFORSYSTEM GetDpiForSystemUx = nullptr;
-	static inline PFNGETDPIFORWINDOW GetDpiForWindowUx= nullptr;
-	static inline PFNGETSYSTEMMETRICSFORDPI GetSystemMetricsForDpiUx = nullptr;
+	static inline decltype(::GetDpiForSystem)* GetDpiForSystemUx = nullptr;
+	static inline decltype(::GetDpiForWindow)* GetDpiForWindowUx= nullptr;
+	static inline decltype(::GetSystemMetricsForDpi)* GetSystemMetricsForDpiUx = nullptr;
+	static inline decltype(::SetProcessDpiAwarenessContext)* SetProcessDpiAwarenessContextUx = nullptr;
+	static inline decltype(::InheritWindowMonitor)* InheritWindowMonitorUx = nullptr;
+	static inline decltype(::SetThreadDpiHostingBehavior)* SetThreadDpiHostingBehaviorUx = nullptr;
 
 public:
 	constexpr DcxDPIModule(void) noexcept
@@ -36,5 +32,8 @@ public:
 	static UINT dcxGetDpiForWindow(_In_ _Maybenull_ HWND hwnd) noexcept;
 	static UINT dcxGetSystemMetricsForDpi(_In_ int nIndex, _In_ UINT dpi) noexcept;
 	static UINT dcxGetWindowMetrics(_In_ _Maybenull_ HWND hwnd, _In_ int nIndex) noexcept;
+	static BOOL dcxSetProcessDpiAwarenessContext(_In_ DPI_AWARENESS_CONTEXT value) noexcept;
+	static BOOL dcxInheritWindowMonitor(_In_ HWND hwnd, _In_ HWND hwndInherit) noexcept;
+	static DPI_HOSTING_BEHAVIOR dcxSetThreadDpiHostingBehavior(_In_ DPI_HOSTING_BEHAVIOR value) noexcept;
 };
 #endif // _DCXUXMODULES_H_
