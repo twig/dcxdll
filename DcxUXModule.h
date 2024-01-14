@@ -35,36 +35,6 @@ typedef HRESULT(WINAPI* PFNGETTHEMERECT)(_In_ HTHEME hTheme, _In_ int iPartId, _
 class DcxUXModule final
 	: public DcxModule
 {
-	//static PFNSETTHEME SetWindowThemeUx;
-	//static PFNISTHEMEACTIVE IsThemeActiveUx;
-	//static PFNOPENTHEMEDATA OpenThemeDataUx;
-	//static PFNCLOSETHEMEDATA CloseThemeDataUx;
-	//static PFNDRAWTHEMEBACKGROUND DrawThemeBackgroundUx;
-	//static PFNGETTHEMEBACKGROUNDCONTENTRECT GetThemeBackgroundContentRectUx;
-	//static PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT IsThemeBackgroundPartiallyTransparentUx;
-	//static PFNDRAWTHEMEPARENTBACKGROUND DrawThemeParentBackgroundUx;
-	//static PFNDRAWTHEMETEXT DrawThemeTextUx;
-	//static PFNDRAWTHEMETEXTEX DrawThemeTextExUx;
-	//static PFNGETTHEMEBACKGROUNDREGION GetThemeBackgroundRegionUx;
-	//static PFNGETWINDOWTHEME GetWindowThemeUx;
-	//static PFNDRAWTHEMEEDGE DrawThemeEdgeUx;
-	//static PFNGETTHEMECOLOR GetThemeColorUx;
-	//static PFNGETTHEMEFONT GetThemeFontUx;
-	//static PFNGETTHEMETEXTEXTENT GetThemeTextExtentUx;
-	//static PFNDRAWTHEMEPARENTBACKGROUNDEX DrawThemeParentBackgroundExUx;
-	//static PFNGETTHEMERECT GetThemeRectUx;
-	////static PFNGETTHEMEBITMAP GetThemeBitmapUx;
-	//// Vista Function pointers.
-	//static PFNBUFFEREDPAINTINIT BufferedPaintInitUx;
-	//static PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx;
-	//static PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx;
-	//static PFNENDBUFFEREDPAINT EndBufferedPaintUx;
-	//static PFNBUFFEREDPAINTSETALPHA BufferedPaintSetAlphaUx;
-	//static PFNBUFFEREDPAINTCLEAR BufferedPaintClearUx;
-	//static PFNHITTESTTHEMEBACKGROUND HitTestThemeBackgroundUx;
-
-	//static bool m_bBufferedPaintEnabled;
-
 	static inline PFNSETTHEME SetWindowThemeUx = nullptr;
 	static inline PFNISTHEMEACTIVE IsThemeActiveUx = nullptr;
 	static inline PFNOPENTHEMEDATA OpenThemeDataUx = nullptr;
@@ -83,7 +53,6 @@ class DcxUXModule final
 	static inline PFNGETTHEMETEXTEXTENT GetThemeTextExtentUx = nullptr;
 	static inline PFNDRAWTHEMEPARENTBACKGROUNDEX DrawThemeParentBackgroundExUx = nullptr;
 	static inline PFNGETTHEMERECT GetThemeRectUx = nullptr;
-	//static inline PFNGETTHEMEBITMAP GetThemeBitmapUx = nullptr;
 	// Vista Function pointers.
 	static inline PFNBUFFEREDPAINTINIT BufferedPaintInitUx = nullptr;
 	static inline PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx = nullptr;
@@ -92,6 +61,8 @@ class DcxUXModule final
 	static inline PFNBUFFEREDPAINTSETALPHA BufferedPaintSetAlphaUx = nullptr;
 	static inline PFNBUFFEREDPAINTCLEAR BufferedPaintClearUx = nullptr;
 	static inline PFNHITTESTTHEMEBACKGROUND HitTestThemeBackgroundUx = nullptr;
+	// Win10+ functions
+	static inline decltype(::OpenThemeDataForDpi)* OpenThemeDataForDpiUx = nullptr;
 
 	static inline bool m_bBufferedPaintEnabled = false;
 
@@ -135,8 +106,7 @@ public:
 	static HRESULT dcxBufferedPaintClear(_In_ HPAINTBUFFER hBufferedPaint, _In_opt_ LPCRECT prc) noexcept;
 	static HRESULT dcxHitTestThemeBackground(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ DWORD dwOptions, _In_ LPCRECT pRect, _In_ HRGN hrgn, _In_ POINT ptTest, _Out_ WORD* pwHitTestCode) noexcept;
 	static HRESULT dcxGetThemeRect(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ LPRECT pRect) noexcept;
+	[[nodiscard("Memory Leak")]] static HTHEME dcxOpenThemeDataForDpi(HWND hwnd, LPCWSTR pszClassList, UINT dpi) noexcept;
 
-
-	//bool operator==(const DcxUXModule& other) const = default;
 };
 #endif // _DCXUXMODULES_H_

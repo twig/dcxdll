@@ -55,6 +55,9 @@ bool DcxUXModule::load()
 		BufferedPaintClearUx = (PFNBUFFEREDPAINTCLEAR)GetProcAddress(m_hModule, "BufferedPaintClear");
 		HitTestThemeBackgroundUx = (PFNHITTESTTHEMEBACKGROUND)GetProcAddress(m_hModule, "HitTestThemeBackground");
 
+		// Win10+
+		OpenThemeDataForDpiUx = reinterpret_cast<decltype(::OpenThemeDataForDpi)*>(::GetProcAddress(m_hModule, "OpenThemeDataForDpi"));
+
 #pragma warning(pop)
 
 		// NB: DONT count vista functions in XP+ check.
@@ -316,4 +319,11 @@ HRESULT DcxUXModule::dcxGetThemeRect(_In_ HTHEME hTheme, _In_ int iPartId, _In_ 
 	if (GetThemeRectUx)
 		return GetThemeRectUx(hTheme, iPartId, iStateId, iPropId, pRect);
 	return E_NOTIMPL;
+}
+
+HTHEME DcxUXModule::dcxOpenThemeDataForDpi(HWND hwnd, LPCWSTR pszClassList, UINT dpi) noexcept
+{
+	if (OpenThemeDataForDpiUx)
+		return OpenThemeDataForDpiUx(hwnd, pszClassList, dpi);
+	return nullptr;
 }
