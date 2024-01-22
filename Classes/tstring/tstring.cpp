@@ -2260,6 +2260,8 @@ TString& TString::append(const_pointer_const cString, const size_t iChars)
 			ts_strncat_throw(this->m_pString, cString, iChars);
 
 			m_bDirty = true;
+
+			DCX_DEBUG_ENSURES(m_pString[l - 1] == 0);
 		}
 		else {
 			TString tmp(l);
@@ -2271,7 +2273,11 @@ TString& TString::append(const_pointer_const cString, const size_t iChars)
 			ts_strncat_throw(tmp.m_pString, cString, iChars);
 
 			this->swap(tmp);
+
+			DCX_DEBUG_ENSURES(m_pString[l - 1] == 0);
 		}
+
+		DCX_DEBUG_ENSURES(m_pString[l - 1] == 0);
 	}
 	return *this;
 }

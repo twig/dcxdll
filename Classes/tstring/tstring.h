@@ -376,7 +376,7 @@ private:
 	mutable UINT		m_savedtotaltoks{};
 	mutable UINT		m_savedcurrenttok{};
 
-	size_type			m_buffersize{ TSTRING_INTERNALBUFFERSIZE_BYTES };		// size of string buffer in use. (size in bytes)
+	size_type			m_buffersize{ TSTRING_INTERNALBUFFERSIZE_BYTES };		// size of string buffer in use. (size in bytes, multiple of sizeof(value_type))
 	mutable size_type	m_iLen{};												// the string length of m_pString
 	mutable bool		m_bDirty{ true };										// is buffer `dirty` (string length is unknown)?
 	mutable bool		m_bUsingInternal{ true };								// using internal buffer?
