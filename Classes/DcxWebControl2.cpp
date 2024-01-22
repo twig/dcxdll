@@ -268,6 +268,12 @@ void DcxWebControl2::parseInfoRequest(const TString& input, const refString<TCHA
 		szReturnValue = dcx_truefalse(m_bCustomMenus);
 	}
 	break;
+	// [NAME] [ID] [PROP]
+	case L"contextmenus"_hash:
+	{
+		szReturnValue = dcx_truefalse(IsDefaultContextMenusEnabled());
+	}
+	break;
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 	}
@@ -779,6 +785,17 @@ bool DcxWebControl2::IsWebMessageEnabled() const
 	return bRes;
 }
 
+bool DcxWebControl2::IsDefaultContextMenusEnabled() const
+{
+	if (!m_settings)
+		return false;
+
+	BOOL bRes{};
+	m_settings->get_AreDefaultContextMenusEnabled(&bRes);
+
+	return bRes;
+}
+
 const bool& DcxWebControl2::IsDownloadingEnabled() const noexcept
 {
 	return m_bAllowDownloads;
@@ -912,6 +929,14 @@ void DcxWebControl2::setWebMessageState(bool bEnable)
 	m_settings->put_IsWebMessageEnabled(bEnable);
 }
 
+void DcxWebControl2::setDefaultContextMenusState(bool bEnable)
+{
+	if (!m_settings)
+		return;
+
+	m_settings->put_AreDefaultContextMenusEnabled(bEnable);
+}
+
 void DcxWebControl2::setURL(const TString& tsURL, const TString& tsFlags, const TString& tsMask)
 {
 	if (!m_webview || !m_settings)
@@ -944,6 +969,8 @@ void DcxWebControl2::setURL(const TString& tsURL, const TString& tsFlags, const 
 		this->setStatusbarState(xmask['s']);
 	if (xflags['A']) // Mute Audio on/off
 		this->setAudioMuteState(xmask['A']);
+	if (xflags['C']) // Default context menus on/off
+		this->setDefaultContextMenusState(xmask['C']);
 	if (xflags['D']) // scripting dialog on/off
 		this->setScriptingDialogState(xmask['D']);
 	if (xflags['S']) // scripting on/off
@@ -1128,6 +1155,8 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 	m_settings->put_IsScriptEnabled(TRUE);
 	m_settings->put_AreDefaultScriptDialogsEnabled(TRUE);
 	m_settings->put_IsWebMessageEnabled(FALSE);	// TRUE
+	//m_settings->put_AreDevToolsEnabled(TRUE);
+	m_settings->put_AreDefaultContextMenusEnabled(TRUE);
 
 	// Resize WebView to fit the bounds of the parent window
 	if (RECT bounds; GetClientRect(m_Hwnd, &bounds))
@@ -1147,6 +1176,11 @@ HRESULT DcxWebControl2::OnCreateCoreWebView2ControllerCompleted(HRESULT result, 
 	m_webview->add_ProcessFailed(Microsoft::WRL::Callback<ICoreWebView2ProcessFailedEventHandler>(this, &DcxWebControl2::OnProcessFailed).Get(), &m_processFailedToken);
 	m_webview->add_WebMessageReceived(Microsoft::WRL::Callback<ICoreWebView2WebMessageReceivedEventHandler>(this, &DcxWebControl2::OnWebMessageReceived).Get(), &m_webMessageReceivedToken);
 
+	if (wil::com_ptr<ICoreWebView2DevToolsProtocolEventReceiver> receiver; SUCCEEDED(m_webview->GetDevToolsProtocolEventReceiver(L"Security.visibleSecurityStateChanged", &receiver)))
+	{
+		m_webview->CallDevToolsProtocolMethod(L"Security.enable", L"{}", nullptr);
+		receiver->add_DevToolsProtocolEventReceived(Microsoft::WRL::Callback<ICoreWebView2DevToolsProtocolEventReceivedEventHandler>(this, &DcxWebControl2::OndevToolsProtocolEventReceived).Get(), &m_devToolsProtocolEventReceivedToken);
+	}
 	// these can silently fail as an unsupported feature.
 	if (auto webview4 = m_webview.try_query<ICoreWebView2_4>(); webview4)
 		webview4->add_DownloadStarting(Microsoft::WRL::Callback<ICoreWebView2DownloadStartingEventHandler>(this, &DcxWebControl2::OnDownloadStarting).Get(), &m_downloadStartingToken);
@@ -1655,6 +1689,47 @@ HRESULT DcxWebControl2::OnGotFocus(ICoreWebView2Controller* sender, IUnknown* ev
 {
 	getParentDialog()->setFocusControl(getUserID());
 	//getParentDialog()->setMouseControl(getUserID());
+	return S_OK;
+}
+
+HRESULT DcxWebControl2::OndevToolsProtocolEventReceived(ICoreWebView2* sender, ICoreWebView2DevToolsProtocolEventReceivedEventArgs* eventArgs)
+{
+	if (!sender || !eventArgs)
+		return E_FAIL;
+
+	if (const auto pd = getParentDialog(); pd)
+	{
+		wil::unique_cotaskmem_string res;
+		eventArgs->get_ParameterObjectAsJson(&res);
+
+		TString tsSecState(L"securityState=");
+
+		//{
+		//	// this version doesnt need a json parser
+		//	TString tsJson(res.get());
+		//	TString tsTmp(tsJson.wildtok(L"*\"securityState\":*", 1, TSCOMMA));
+		//	if (tsTmp.empty())
+		//		tsSecState += L"unknown";
+		//	else
+		//		tsSecState += tsTmp.gettok(tsTmp.numtok(L':'), L':');
+		//}
+
+		{
+			// this version uses our simple json parser
+			const Json jData(res.get());
+			TString tsSec(jData[L"visibleSecurityState"][L"securityState"]);
+			if (tsSec.empty())
+				tsSec = jData[L"securityState"];
+			if (tsSec.empty())
+				tsSec = L"unknown";
+			tsSecState += tsSec;
+		}
+		//{"visibleSecurityState":{"certificateSecurityState":{"certificate":["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"],"certificateHasSha1Signature":false,"certificateHasWeakSignature":false,"cipher":"CHACHA20_POLY1305","issuer":"R3","keyExchange":"","keyExchangeGroup":"X25519","modernSSL":true,"obsoleteSslCipher":false,"obsoleteSslKeyExchange":false,"obsoleteSslProtocol":false,"obsoleteSslSignature":false,"protocol":"TLS 1.3","subjectName":"us.aminet.net","validFrom":1703097414,"validTo":1710873413},"securityState":"secure","securityStateIssueIds":[]}}
+		//{"visibleSecurityState":{"securityState":"neutral","securityStateIssueIds":["scheme-is-not-cryptographic"]}}
+		TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+		mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), tsSecState);
+		mIRCLinker::eval(tsBuf, TEXT("$%(%,devtools,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
+	}
 	return S_OK;
 }
 

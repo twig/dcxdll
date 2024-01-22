@@ -57,6 +57,7 @@ public:
 	bool IsAudioMuted() const;
 	bool IsAudioPlaying() const;
 	bool IsWebMessageEnabled() const;
+	bool IsDefaultContextMenusEnabled() const;
 	const bool& IsDownloadingEnabled() const noexcept;
 	const bool& IsNewWindowsManaged() const noexcept;
 	const bool& IsDownloadsDialogEnabled() const noexcept;
@@ -74,6 +75,7 @@ public:
 	void setDownloadsDialogState(bool bEnable) noexcept;
 	void setAudioMuteState(bool bEnable);
 	void setWebMessageState(bool bEnable);
+	void setDefaultContextMenusState(bool bEnable);
 
 	void setURL(const TString& tsURL, const TString& tsFlags, const TString& tsMask);
 	void setDownloadDir(const TString& tsDir);
@@ -125,7 +127,7 @@ private:
 	EventRegistrationToken m_mutedToken;
 	EventRegistrationToken m_externaluriToken;
 	EventRegistrationToken m_gotFocusToken;
-	//EventRegistrationToken m_lostFocusToken;
+	EventRegistrationToken m_devToolsProtocolEventReceivedToken;
 	EventRegistrationToken m_webMessageReceivedToken;
 
 	bool m_bFullScreen{};
@@ -164,7 +166,7 @@ private:
 	HRESULT OnMutedChanged(ICoreWebView2* sender, IUnknown* eventArgs);
 	HRESULT OnExternalURI(ICoreWebView2* sender, ICoreWebView2LaunchingExternalUriSchemeEventArgs* eventArgs);
 	HRESULT OnGotFocus(ICoreWebView2Controller* sender, IUnknown* eventArgs);
-	//HRESULT OnLostFocus(ICoreWebView2Controller* sender, IUnknown* eventArgs);
+	HRESULT OndevToolsProtocolEventReceived(ICoreWebView2* sender, ICoreWebView2DevToolsProtocolEventReceivedEventArgs* eventArgs);
 	HRESULT OnWebMessageReceived(ICoreWebView2* sender, ICoreWebView2WebMessageReceivedEventArgs* eventArgs);
 
 	bool OnMouseMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
