@@ -214,6 +214,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // Dev Build, enable debug output.
 #define DCX_DEBUG_OUTPUT 1
 #define DCX_DEBUG(x,y,z) x((y), (z));
+#define DCX_DEBUG_ENSURES(x) Ensures((x))
 #define DLL_STATE      "Development Build"
 // Link with DirectX error lib, enables extra error reporting.
 #define DCX_DX_ERR	1
@@ -223,6 +224,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // Release Build, disable debug info.
 #define DCX_DEBUG_OUTPUT 0
 #define DCX_DEBUG(x,y,z)
+#define DCX_DEBUG_ENSURES(x)
 #define DLL_STATE      "Release Build"
 #define _SECURE_SCL 0 // disables checked iterators
 #endif
@@ -230,6 +232,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // Debug Build, enable debug output.
 #define DCX_DEBUG_OUTPUT 1
 #define DCX_DEBUG(x,y,z) x((y), (z));
+#define DCX_DEBUG_ENSURES(x) Ensures((x))
 #define DLL_STATE      "Debug Build"
 // Link with DirectX error lib, enables extra error reporting.
 #define DCX_DX_ERR	1
@@ -294,16 +297,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 
 // GDIPlus support
 #ifdef DCX_USE_GDIPLUS
-// VS 2015 generates C4458 errors in GDI+ includes
-//c:\program files\windows kits\10\include\10.0.10240.0\um\GdiplusHeaders.h(701): warning C4458: declaration of 'nativeCap' hides class member
-// VS 2015 generates C4365 errors in GDI+ includes
-//c:\program files(x86)\windows kits\10\include\10.0.14393.0\um\GdiplusBitmap.h(1008) : warning C4365 : 'initializing' : conversion from 'INT' to 'unsigned int', signed / unsigned mismatch
-
-#pragma warning(push)
-#pragma warning(disable: 4458)
-#pragma warning(disable: 4365)
 #include <gdiplus.h>
-#pragma warning(pop)
 #pragma comment(lib, "gdiplus.lib")
 #endif
 
@@ -392,6 +386,8 @@ namespace Dcx
 
 #include "dcxExceptions.h"
 #include "Classes\WindowStyles.h"
+
+#include "json.h"
 
 // Win2000+ stuff for Win98+ compat (only used during testing)
 //#ifndef ICC_STANDARD_CLASSES
