@@ -598,77 +598,6 @@ LRESULT DcxDirectshow::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 	return lRes;
 }
 
-//GSL_SUPPRESS(type.4)
-//IVMRWindowlessControl9* DcxDirectshow::InitWindowlessVMR(const HWND hwndApp, IGraphBuilder* pGraph)
-//{
-//	if (!pGraph || !hwndApp)
-//		throw Dcx::dcxException("InitWindowlessVMR() - Invalid Filter Graph Manager");
-//
-//	HRESULT hr = S_OK;
-//
-//	try {
-//		wil::com_ptr< IBaseFilter> pVmr;
-//		hr = CoCreateInstance(CLSID_VideoMixingRenderer9, nullptr, CLSCTX_INPROC, IID_IBaseFilter, reinterpret_cast<void**>(&pVmr));
-//
-//		//MyCOMClass<IBaseFilter> pVmr(CLSCTX_INPROC, CLSID_VideoMixingRenderer9);
-//
-//		if (!pVmr)
-//			throw Dcx::dcxException("InitWindowlessVMR() - Unable to Create Video Mixing Renderer9");
-//
-//		// Add the VMR to the filter graph.
-//		hr = pGraph->AddFilter(pVmr.get(), L"Video Mixing Renderer");	// dont use TEXT() here.
-//		if (FAILED(hr))
-//			throw Dcx::dcxException("InitWindowlessVMR() - Unable to Add Filter: Video Mixing Renderer");
-//
-//		// Set the rendering mode.
-//		{
-//			auto pConfig = pVmr.try_query<IVMRFilterConfig9>();
-//			if (!pConfig)
-//			{
-//				hr = E_FAIL;
-//				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Get Filter Config9");
-//			}
-//
-//			hr = pConfig->SetRenderingMode(VMR9Mode_Windowless);
-//			if (dcx_testflag(dcxGetWindowExStyle(hwndApp), WS_EX_TRANSPARENT))
-//				hr = pConfig->SetRenderingPrefs(RenderPrefs9_DoNotRenderBorder);
-//
-//			if (FAILED(hr))
-//				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Set Rendering Options");
-//		}
-//		// Set the window.
-//		IVMRWindowlessControl9* pRes{ nullptr };
-//		{
-//			auto pWc = pVmr.try_query<IVMRWindowlessControl9>();
-//			if (!pWc)
-//			{
-//				hr = E_FAIL;
-//				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Get Windowless Control9");
-//			}
-//
-//			hr = pWc->SetVideoClippingWindow(hwndApp);
-//			if (FAILED(hr))
-//			{
-//				// An error occurred, so release the interface.
-//				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Set Clipping Window");
-//			}
-//
-//			//if (MyCOMClass<IVMRMixerControl9> pMixer(pVmr); pMixer)
-//			//{
-//			//	pMixer->SetAlpha(0,0.5);
-//			//}
-//
-//			pRes = pWc.detach(); // Return this as an AddRef'd pointer.
-//		}
-//		return pRes;
-//	}
-//	catch (const std::exception)
-//	{
-//		DX_ERR(nullptr, TEXT("InitWindowlessVMR"), hr);
-//		throw;
-//	}
-//}
-
 wil::com_ptr<IVMRWindowlessControl9> DcxDirectshow::InitWindowlessVMR(const HWND hwndApp, const wil::com_ptr<IGraphBuilder>& pGraph)
 {
 	if (!pGraph || !hwndApp)
@@ -759,41 +688,6 @@ HRESULT DcxDirectshow::SetVideoPos(void)
 
 void DcxDirectshow::ReleaseAll() noexcept
 {
-	//try {
-	//	if (this->m_pControl)
-	//		this->m_pControl->Release();
-	//	if (this->m_pEvent)
-	//	{
-	//		this->m_pEvent->SetNotifyWindow(0, 0, 0);
-	//		this->m_pEvent->Release();
-	//	}
-	//	if (this->m_pSeek)
-	//		this->m_pSeek->Release();
-	//	if (this->m_pWc)
-	//		this->m_pWc->Release();
-	//	if (this->m_pGraph)
-	//		this->m_pGraph->Release();
-	//}
-	//catch (...) {}
-	//this->m_pControl = nullptr;
-	//this->m_pEvent = nullptr;
-	//this->m_pGraph = nullptr;
-	//this->m_pWc = nullptr;
-	//this->m_pSeek = nullptr;
-	//this->m_tsFilename.clear();	// = TEXT("");
-
-	//try {
-	//	if (this->m_pEvent)
-	//		this->m_pEvent->SetNotifyWindow(0, 0, 0);
-	//	this->m_pControl.release();
-	//	this->m_pEvent.release();
-	//	this->m_pSeek.release();
-	//	this->m_pWc.release();
-	//	this->m_pGraph.release();
-	//}
-	//catch (...) {}
-	//this->m_tsFilename.clear();	// = TEXT("");
-
 	try {
 		if (this->m_pEvent)
 			this->m_pEvent->SetNotifyWindow(0, 0, 0);
