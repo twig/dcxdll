@@ -347,6 +347,9 @@
       <Message>
       </Message>
     </PreLinkEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <PreBuildEvent>
@@ -400,6 +403,9 @@
       <Message>UPX Compress Dll...</Message>
       <Command>"$(ProjectDir)..\upx" --ultra-brute "$(TargetPath)"</Command>
     </PostBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Dll|Win32'">
     <PreBuildEvent>
@@ -453,6 +459,9 @@
       <Message>UPX Compress Dll...</Message>
       <Command>"$(ProjectDir)..\upx" --ultra-brute "$(TargetPath)"</Command>
     </PostBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Optimal|Win32'">
     <PreBuildEvent>
@@ -507,6 +516,9 @@
       <Message>UPX Compress Dll...</Message>
       <Command>"$(ProjectDir)..\upx" --ultra-brute "$(TargetPath)"</Command>
     </PostBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|Win32'">
     <PreBuildEvent>
@@ -562,6 +574,9 @@
       <Message>UPX Compress Dll...</Message>
       <Command>"$(ProjectDir)..\upx" --ultra-brute "$(TargetPath)"</Command>
     </PostBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
     <PreBuildEvent>
@@ -612,6 +627,9 @@
       <Message>UPX Compress Dll...</Message>
       <Command>"$(ProjectDir)..\upx" --ultra-brute "$(TargetPath)"</Command>
     </PostBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -795,6 +813,7 @@
     </ClCompile>
     <ClCompile Include="dll.cpp" />
     <ClCompile Include="getdxver.cpp" />
+    <ClCompile Include="json.cpp" />
     <ClCompile Include="mircFunctions.cpp" />
     <ClCompile Include="mIRCLinker.cpp" />
     <ClCompile Include="misc.cpp" />
@@ -889,6 +908,7 @@
     <ClInclude Include="defines.h" />
     <ClInclude Include="dxerr_nov2015\dxerr.h" />
     <ClInclude Include="EnumConcepts.h" />
+    <ClInclude Include="json.h" />
     <ClInclude Include="mIRCLinker.h" />
     <ClInclude Include="pcre2\pcre2.h" />
     <ClInclude Include="refString.h" />
