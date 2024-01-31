@@ -1474,7 +1474,7 @@ mIRC(xpop)
 		if (d.numtok() < 3)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto tsMenu(d.gettok(1));
+		const auto tsMenu(d.getfirsttok(1));
 		const auto uHash = std::hash<TString>{}(tsMenu);
 
 		if ((uHash == TEXT("mirc"_hash)) || (uHash == TEXT("mircbar"_hash)))
@@ -1523,7 +1523,7 @@ mIRC(_xpop)
 		if (d.numtok() < 3)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto tsMenu(d.gettok(1));
+		const auto tsMenu(d.getfirsttok(1));
 		const auto uHash = std::hash<TString>{}(tsMenu);
 
 		if ((uHash == TEXT("mirc"_hash)) || (uHash == TEXT("mircbar"_hash)))
