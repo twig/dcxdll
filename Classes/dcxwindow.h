@@ -32,6 +32,9 @@
 #define DCX_EVENT_EDIT				0x00000200
 #define DCX_EVENT_ALL				0xFFFFFFFF
 
+/// <summary>
+/// The sources a cursor can be loaded from.
+/// </summary>
 enum class DcxResourceFlags
 	: UINT
 {
@@ -108,6 +111,9 @@ enum class SizingTypes
 
 //using CursorValue = Dcx::CodeValue<HCURSOR, bool >;
 
+/// <summary>
+/// Cursor data
+/// </summary>
 struct CursorPair
 {
 	HCURSOR	cursor{ nullptr };
@@ -121,16 +127,6 @@ struct CursorPair
 	}
 };
 
-/*!
- * \brief blah
- *
- * blah
- */
-#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
-#pragma warning( push )
-#pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
-#endif
-
  //class DcxBase
  //{
  //	DcxBase() = delete;
@@ -138,13 +134,20 @@ struct CursorPair
  //	DcxBase& operator =(const DcxBase&) = delete;
  //	DcxBase(DcxBase&& other) = delete;
  //	DcxBase& operator =(DcxBase&&) = delete;
+ // virtual ~DcxBase() noexcept = default;
  //
+ // virtual void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) = 0;
  //	virtual void toXml(TiXmlElement* const xml) const = 0;
  //	virtual void parseCommandRequest(const TString& input) = 0;
  //	virtual TString parseInfoRequest(const TString& input) const = 0;
  //
+ // virtual void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) = 0;
+ // virtual void xmlSetStyle(const TiXmlElement* xStyle) = 0;
  //};
 
+/// <summary>
+/// The root class for all dcx dialogs and controls.
+/// </summary>
 class DcxWindow
 {
 public:
@@ -225,8 +228,5 @@ protected:
 	static inline HRGN m_hZeroRgn{ nullptr };
 	HWND m_HwndTooltip{ nullptr };
 };
-#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
-#pragma warning( pop )
-#endif
 
 #endif // _DCXWINDOW_H_
