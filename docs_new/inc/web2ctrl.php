@@ -42,6 +42,7 @@ function get_xdid_web2ctrl(&$XDID) {
 						'f' => 'toggle fullscreen on/off',
 						's' => 'toggle statusbar on/off',
 						'A' => 'toggle Mute on/off',
+						'C' => 'toggle Default context menus on/off',
 						'D' => 'toggle Scripting Dialog on/off',
 						'S' => 'toggle Scripting on/off',
 						'W' => 'toggle Web Messages on/off',
@@ -150,6 +151,9 @@ function get_xdidprops_web2ctrl(&$XDIDPROPS) {
 		),
 		"datafolder" => array(
 		    '__desc' => 'This property lets you retrieve the data folder being used.',
+		),
+		"contextmenus" => array(
+		    '__desc' => 'This property lets you retrieve the default context menus state. [v]$true[/v] if the menus are enabled.',
 		),
 		"version" => array(
 		    '__desc' => 'This property lets you retrieve the webview2 version.',
@@ -285,6 +289,11 @@ function get_events_web2ctrl(&$EVENTS) {
 			'__cmd' => 'KIND',
 			'__eg' => 'COREWEBVIEW2_PROCESS_FAILED_KIND_BROWSER_PROCESS_EXITED',
 			'__return' => "[r]reload[/r] Return this value to attempt to fix the issue and display the page.",
+		),
+		"devtools" => array(
+			'__desc' => "When the browser state changes.",
+			'__cmd' => 'STATE',
+			'__eg' => 'securityState=secure',
 		),
 	);
 }

@@ -211,6 +211,10 @@ NB: The control also requires WebView2 installed & will try to install it if not
 		<td>toggle Mute on/off</td>
 	</tr>
 	<tr>
+		<td class="value">C</td>
+		<td>toggle Default context menus on/off</td>
+	</tr>
+	<tr>
 		<td class="value">D</td>
 		<td>toggle Scripting Dialog on/off</td>
 	</tr>
@@ -336,6 +340,20 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.contextmenus"></a>$xdid().contextmenus	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the default context menus state. <a class="value">$true</a> if the menus are enabled.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).contextmenus</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).contextmenus</div></td>
+	</tr>
+</table>
+<br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.datafolder"></a>$xdid().datafolder	</td></tr>
@@ -563,6 +581,20 @@ NB: The control also requires WebView2 installed & will try to install it if not
 		<td><div class="example">/cb_alias dcx contextmenu 4 COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND_IMAGE 10 10</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> Return this value to block opening the menu.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.devtools"></a>devtools	</td></tr>
+	<tr><td colspan="2">When the browser state changes.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME devtools ID STATE</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx devtools 4 securityState=secure</div></td>
+	</tr>
+</table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -1068,6 +1100,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a class='flag' href="#xdidprop.contextmenus"><div>contextmenus</div></a>
 		<a class='flag' href="#xdidprop.datafolder"><div>datafolder</div></a>
 		<a class='flag' href="#xdidprop.downloaddialog"><div>downloaddialog</div></a>
 		<a class='flag' href="#xdidprop.downloads"><div>downloads</div></a>
@@ -1087,6 +1120,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
 		<a class='flag' href="#events.cache"><div>cache</div></a>
 		<a class='flag' href="#events.contextmenu"><div>contextmenu</div></a>
+		<a class='flag' href="#events.devtools"><div>devtools</div></a>
 		<a class='flag' href="#events.dl_begin"><div>dl_begin</div></a>
 		<a class='flag' href="#events.dl_canceled"><div>dl_canceled</div></a>
 		<a class='flag' href="#events.dl_complete"><div>dl_complete</div></a>
@@ -1113,7 +1147,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2024</td>
-		<td style="text-align: right;">Last Updated: 12th January, 24</td>
+		<td style="text-align: right;">Last Updated: 31st January, 24</td>
 	</tr>
 </table>
 <div style="text-align: center;">
