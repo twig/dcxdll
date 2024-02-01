@@ -126,4 +126,10 @@ namespace DcxConcepts
 
 	template<class T, class U>
 	concept IsDerivedFrom = std::is_base_of<U, T>::value;
+
+	template<typename T>
+	concept ImplementsTrimFunction = std::is_member_function_pointer_v<decltype(&T::Trim)>;
+
+	template<typename T>
+	concept ImplementsNoTrimFunction = !std::is_member_function_pointer_v<decltype(&T::Trim)>;
 };
