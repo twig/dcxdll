@@ -1375,7 +1375,7 @@ mIRC(xdialog)
 	try {
 		d.trim();
 
-		const auto tsDname(d.gettok(1));
+		const auto tsDname(d.getfirsttok(1));
 
 		if (d.numtok() < 2)
 			throw DcxExceptions::dcxInvalidArguments();
