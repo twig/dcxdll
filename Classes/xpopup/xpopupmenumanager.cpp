@@ -23,6 +23,7 @@ namespace
 	WNDPROC g_OldmIRCMenusWindowProc = nullptr;
 	HWND g_toolTipWin = nullptr;
 	TOOLINFO g_toolItem{};
+	std::mutex g_ListLock;
 
 	class CallBackTimer
 	{
@@ -138,6 +139,48 @@ namespace
 		static std::vector<HMENU> menulist;
 
 		return menulist;
+	}
+
+	HMENU getBackMenu()
+	{
+		std::scoped_lock lk(g_ListLock);
+		if (const auto& m = getGlobalMenuList(); !m.empty())
+			return m.back();
+		return nullptr;
+	}
+
+	HWND getBackWin()
+	{
+		std::scoped_lock lk(g_ListLock);
+		if (const auto& m = getGlobalMenuWindowList(); !m.empty())
+			return m.back();
+		return nullptr;
+	}
+
+	void AddBackMenu(HMENU hMenu)
+	{
+		std::scoped_lock lk(g_ListLock);
+		getGlobalMenuList().push_back(hMenu);
+	}
+
+	void AddBackWin(HWND hwnd)
+	{
+		std::scoped_lock lk(g_ListLock);
+		getGlobalMenuWindowList().push_back(hwnd);
+	}
+
+	void RemoveBackMenu()
+	{
+		std::scoped_lock lk(g_ListLock);
+		if (auto& m = getGlobalMenuList(); !m.empty())
+			m.pop_back();
+	}
+
+	void RemoveBackWin()
+	{
+		std::scoped_lock lk(g_ListLock);
+		if (auto& m = getGlobalMenuWindowList(); !m.empty())
+			m.pop_back();
 	}
 }
 #endif
@@ -1413,19 +1456,20 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			if (!getGlobalMenuWindowList().empty())
 			{
 				// change previous window.
-				auto parent = getGlobalMenuWindowList().back();
+				if (auto parent = getBackWin(); parent)
+				{
+					// make sure previous menu is layered.
+					if (const auto dwStyle = dcxGetWindowExStyle(parent); !dcx_testflag(dwStyle, WS_EX_LAYERED))
+						dcxSetWindowExStyle(parent, dwStyle | WS_EX_LAYERED);
 
-				// make sure previous menu is layered.
-				if (const auto dwStyle = dcxGetWindowExStyle(parent); !dcx_testflag(dwStyle, WS_EX_LAYERED))
-					dcxSetWindowExStyle(parent, dwStyle | WS_EX_LAYERED);
-
-				// set alpha for previous menu.
-				//SetLayeredWindowAttributes(parent, 0, Dcx::setting_CustomMenusAlpha, LWA_ALPHA); // 0xCC = 80% Opaque, 0xC0
+					// set alpha for previous menu.
+					//SetLayeredWindowAttributes(parent, 0, Dcx::setting_CustomMenusAlpha, LWA_ALPHA); // 0xCC = 80% Opaque, 0xC0
+				}
 			}
 		}
 
 		// add this window to list.
-		getGlobalMenuWindowList().push_back(mHwnd);
+		AddBackWin(mHwnd);
 	}
 	break;
 
@@ -1435,19 +1479,20 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			break;
 
 		// remove ourselfs.
-		getGlobalMenuWindowList().pop_back();
+		RemoveBackWin();
 
 		if (!getGlobalMenuWindowList().empty())
 		{
 			if (Dcx::m_CurrentMenuAlpha != std::byte{ 255 })
 			{
 				// get previous menu window.
-				auto parent = getGlobalMenuWindowList().back();
+				if (auto parent = getBackWin(); parent)
+				{
+					if (const auto dwStyle = dcxGetWindowExStyle(parent); !dcx_testflag(dwStyle, WS_EX_LAYERED))
+						break;
 
-				if (const auto dwStyle = dcxGetWindowExStyle(parent); !dcx_testflag(dwStyle, WS_EX_LAYERED))
-					break;
-
-				SetLayeredWindowAttributes(parent, 0, 0xFFU, LWA_ALPHA); // 0xCC = 80% Opaque
+					SetLayeredWindowAttributes(parent, 0, 0xFFU, LWA_ALPHA); // 0xCC = 80% Opaque
+				}
 			}
 		}
 	}
@@ -1559,26 +1604,29 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		if (!getGlobalMenuList().empty() && g_toolTipWin && IsWindow(g_toolTipWin))
 		{
 			const POINT pt{ GET_X_LPARAM(lParam) , GET_Y_LPARAM(lParam) };
-			if (const auto id = MenuItemFromPoint(nullptr, getGlobalMenuList().back(), pt); id >= 0)
+			if (auto hMenu = getBackMenu(); hMenu)
 			{
-				if (auto p_Item = Dcx::XPopups.getMenuItemByID(getGlobalMenuList().back(), id); p_Item)
+				if (const auto id = MenuItemFromPoint(nullptr, hMenu, pt); id >= 0)
 				{
-					if (p_Item->IsTooltipsEnabled())
+					if (auto p_Item = Dcx::XPopups.getMenuItemByID(hMenu, id); p_Item)
 					{
-						//g_toolItem.lpszText = const_cast<TCHAR*>(p_Item->getItemTooltipText().to_chr());
-						//SendMessage(g_toolTipWin, TTM_SETTOOLINFO, 0, (LPARAM)&g_toolItem);
-						//if (!p_Item->getItemTooltipText().empty())
-						//{
-						//	SendMessage(g_toolTipWin, TTM_TRACKACTIVATE, (WPARAM)TRUE, (LPARAM)&g_toolItem);
-						//	SendMessage(g_toolTipWin, TTM_TRACKPOSITION, 0, Dcx::dcxMAKELPARAM(GET_X_LPARAM(lParam) + 10, GET_Y_LPARAM(lParam) - 20));
-						//}
-
-						g_toolItem.lpszText = const_cast<TCHAR*>(p_Item->getItemTooltipText().to_chr());
-						Dcx::dcxToolTip_SetToolInfo(g_toolTipWin, &g_toolItem);
-						if (!p_Item->getItemTooltipText().empty())
+						if (p_Item->IsTooltipsEnabled())
 						{
-							Dcx::dcxToolTip_TrackActivate(g_toolTipWin, TRUE, &g_toolItem);
-							Dcx::dcxToolTip_TrackPosition(g_toolTipWin, pt.x + 10, pt.y - 20);
+							//g_toolItem.lpszText = const_cast<TCHAR*>(p_Item->getItemTooltipText().to_chr());
+							//SendMessage(g_toolTipWin, TTM_SETTOOLINFO, 0, (LPARAM)&g_toolItem);
+							//if (!p_Item->getItemTooltipText().empty())
+							//{
+							//	SendMessage(g_toolTipWin, TTM_TRACKACTIVATE, (WPARAM)TRUE, (LPARAM)&g_toolItem);
+							//	SendMessage(g_toolTipWin, TTM_TRACKPOSITION, 0, Dcx::dcxMAKELPARAM(GET_X_LPARAM(lParam) + 10, GET_Y_LPARAM(lParam) - 20));
+							//}
+
+							g_toolItem.lpszText = const_cast<TCHAR*>(p_Item->getItemTooltipText().to_chr());
+							Dcx::dcxToolTip_SetToolInfo(g_toolTipWin, &g_toolItem);
+							if (!p_Item->getItemTooltipText().empty())
+							{
+								Dcx::dcxToolTip_TrackActivate(g_toolTipWin, TRUE, &g_toolItem);
+								Dcx::dcxToolTip_TrackPosition(g_toolTipWin, pt.x + 10, pt.y - 20);
+							}
 						}
 					}
 				}
