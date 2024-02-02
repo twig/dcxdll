@@ -100,10 +100,10 @@ struct regexOptions
 		if (tsPattern[0] != TEXT('/'))
 			m_tsPattern = tsPattern;
 		else
-			m_tsPattern = tsPattern.gettok(2, tsPattern.numtok(TEXT('/')) - 1, TEXT('/'));
+			m_tsPattern = tsPattern.gettok(2, gsl::narrow_cast<int>(tsPattern.numtok(TEXT('/')) - 1), TEXT('/'));
 
 #if DCX_USE_PCRE2
-		const TString opts(tsPattern.gettok(tsPattern.numtok(TEXT('/')), TEXT('/')));
+		const TString opts(tsPattern.gettok(gsl::narrow_cast<int>(tsPattern.numtok(TEXT('/'))), TEXT('/')));
 		for (UINT i = 0; i < opts.len(); ++i)
 		{
 			//	g - continue after first match
@@ -188,7 +188,7 @@ struct regexOptions
 			//if (m_re = pcre2_compile_32(reinterpret_cast<PCRE2_SPTR>(utf32_str.c_str()), utf32_str.length(), m_Opts, &m_Error, &m_Erroffset, m_context); !m_re)
 
 			// Convert to utf-32.
-			auto str32(convert_utf16_to_utf32((char16_t*)m_tsPattern.to_wchr(), m_tsPattern.len()));
+			auto str32(convert_utf16_to_utf32(reinterpret_cast<char16_t*>(m_tsPattern.to_wchr()), m_tsPattern.len()));
 			if (m_re = pcre2_compile_32(reinterpret_cast<PCRE2_SPTR>(str32.get()), PCRE2_ZERO_TERMINATED, m_Opts, &m_Error, &m_Erroffset, m_context); !m_re)
 				throw Dcx::dcxException("pcre2: Unable to compile regex: % pos %", m_Error, m_Erroffset);
 
@@ -307,7 +307,7 @@ struct DcxSearchResults
 class DcxSearchHelper
 {
 public:
-	static bool isRegexMatch(const TCHAR* matchtext, const TCHAR* pattern) noexcept;
+	static bool isRegexMatch(const TCHAR* matchtext, const TCHAR* pattern);
 	static bool isRegexMatch(const TCHAR* matchtext, const dcxSearchData& srch_data) noexcept;
 
 	[[nodiscard]] static std::optional<RegexResults> getRegexMatchOffset(const TCHAR* matchtext, const TCHAR* pattern);
@@ -320,9 +320,9 @@ public:
 	[[nodiscard]] static const DcxSearchTypes CharToSearchType(const TCHAR& cType) noexcept;
 	[[nodiscard]] static const DcxSearchTypes FlagsToSearchType(const XSwitchFlags& xFlags) noexcept;
 
-	[[nodiscard]] static std::optional<DcxSearchResults> matchText(const TString& txt, const UINT nChar, const TString& search, const DcxSearchTypes& SearchType);
-	[[nodiscard]] static std::optional<DcxSearchResults> matchText(const TString& txt, const UINT nLine, const UINT nSubChar, const TString& search, const DcxSearchTypes& SearchType);
-	[[nodiscard]] static std::optional<DcxSearchResults> matchText(const TString& txt, const UINT nChar, const dcxSearchData& srch_data);
+	[[nodiscard]] static std::optional<DcxSearchResults> matchText(const TString& txt, const size_t nChar, const TString& search, const DcxSearchTypes& SearchType);
+	[[nodiscard]] static std::optional<DcxSearchResults> matchText(const TString& txt, const size_t nLine, const size_t nSubChar, const TString& search, const DcxSearchTypes& SearchType);
+	[[nodiscard]] static std::optional<DcxSearchResults> matchText(const TString& txt, const size_t nChar, const dcxSearchData& srch_data) noexcept;
 
 	[[nodiscard]] static TString findTextRange(const TString& tsText, const TString& tsMatchText, const TString& tsParams);
 };

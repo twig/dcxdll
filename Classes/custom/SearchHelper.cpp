@@ -1,7 +1,7 @@
 #include "defines.h"
 #include "SearchHelper.h"
 
-bool DcxSearchHelper::isRegexMatch(const TCHAR* matchtext, const TCHAR* pattern) noexcept
+bool DcxSearchHelper::isRegexMatch(const TCHAR* matchtext, const TCHAR* pattern)
 {
 	if ((!matchtext) || (!pattern))
 		return false;
@@ -50,14 +50,14 @@ bool DcxSearchHelper::isRegexMatch(const TCHAR* matchtext, const dcxSearchData& 
 
 				const auto tsStripped(tsMatchText.strip());
 				// Convert to utf-32.
-				auto str32(srch_data.m_regexOpts.convert_utf16_to_utf32((const char16_t*)tsStripped.to_wchr(), tsStripped.len()));
+				auto str32(srch_data.m_regexOpts.convert_utf16_to_utf32(reinterpret_cast<const char16_t*>(tsStripped.to_wchr()), tsStripped.len()));
 				res = pcre2_match_32(srch_data.m_regexOpts.m_re, reinterpret_cast<PCRE2_SPTR32>(str32.get()), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
 			}
 			else {
 				//res = pcre2_match(srch_data.m_regexOpts.m_re, reinterpret_cast<PCRE2_SPTR>(matchtext), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
 
 				// Convert to utf-32.
-				auto str32(srch_data.m_regexOpts.convert_utf16_to_utf32((const char16_t*)matchtext, _ts_strlen(matchtext)));
+				auto str32(srch_data.m_regexOpts.convert_utf16_to_utf32(reinterpret_cast<const char16_t*>(matchtext), _ts_strlen(matchtext)));
 				res = pcre2_match_32(srch_data.m_regexOpts.m_re, reinterpret_cast<PCRE2_SPTR32>(str32.get()), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
 			}
 			return (res > 0);
@@ -238,14 +238,14 @@ const DcxSearchTypes DcxSearchHelper::FlagsToSearchType(const XSwitchFlags& xFla
 	return SearchType;
 }
 
-std::optional<DcxSearchResults> DcxSearchHelper::matchText(const TString &txt, const UINT nChar, const TString& search, const DcxSearchTypes& SearchType)
+std::optional<DcxSearchResults> DcxSearchHelper::matchText(const TString &txt, const size_t nChar, const TString& search, const DcxSearchTypes& SearchType)
 {
 	const dcxSearchData srch_data(search, SearchType);
 
 	return matchText(txt, nChar, srch_data);
 }
 
-std::optional<DcxSearchResults> DcxSearchHelper::matchText(const TString& txt, const UINT nLine, const UINT nSubChar, const TString& search, const DcxSearchTypes& SearchType)
+std::optional<DcxSearchResults> DcxSearchHelper::matchText(const TString& txt, const size_t nLine, const size_t nSubChar, const TString& search, const DcxSearchTypes& SearchType)
 {
 	if (nLine == 0)
 		return { };
@@ -258,13 +258,13 @@ std::optional<DcxSearchResults> DcxSearchHelper::matchText(const TString& txt, c
 		return { };
 
 	// find line character offset.
-	const auto LineOffset = txt.find(TEXT("\r\n"), nLine);
+	const auto LineOffset = txt.find(TEXT("\r\n"), gsl::narrow_cast<int>(nLine));
 
 	// couldnt find line?
 	if (LineOffset == -1)
 		return { };
 
-	const UINT nChar = LineOffset + nSubChar;
+	const size_t nChar = LineOffset + nSubChar;
 
 	// is char outside of range allowed?
 	if (nChar >= txt.len())
@@ -273,7 +273,7 @@ std::optional<DcxSearchResults> DcxSearchHelper::matchText(const TString& txt, c
 	return matchText(txt, nChar, search, SearchType);
 }
 
-std::optional<DcxSearchResults> DcxSearchHelper::matchText(const TString &txt, const UINT nChar, const dcxSearchData& srch_data)
+std::optional<DcxSearchResults> DcxSearchHelper::matchText(const TString &txt, const size_t nChar, const dcxSearchData& srch_data) noexcept
 {
 	if (nChar >= txt.len())
 		return { };
