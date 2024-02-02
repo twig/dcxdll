@@ -1178,7 +1178,18 @@ inline WindowExStyle dcxSetWindowExStyle(_In_ HWND Hwnd, _In_ WindowExStyle styl
 	return to_WindowExStyle(SetWindowLongPtr(Hwnd, GWL_EXSTYLE, gsl::narrow_cast<LONG>(style)));
 }
 
-inline HWND dcxCreateWindow(_In_ const WindowExStyle ExStyles, _In_opt_z_ const TCHAR* const szClass, _In_ const WindowStyle Styles, _In_ const RECT* const rc, _In_opt_ HWND hParent, _In_opt_ const UINT uID, _In_opt_ const void* const pthis = nullptr) noexcept
+/// <summary>
+/// CreateWindowEx wrapper.
+/// </summary>
+/// <param name="ExStyles">- Window extended styles</param>
+/// <param name="szClass">- Window class</param>
+/// <param name="Styles">- Window styles</param>
+/// <param name="rc">- The RECT defining the window area</param>
+/// <param name="hParent">- The windows parent</param>
+/// <param name="uID">- The windows ID, this is a size_t to better fit 64bit compiles.</param>
+/// <param name="pthis">- The DcxControl object for this window.</param>
+/// <returns>- The windows HWND on success or nullptr</returns>
+inline HWND dcxCreateWindow(_In_ const WindowExStyle ExStyles, _In_opt_z_ const TCHAR* const szClass, _In_ const WindowStyle Styles, _In_ const RECT* const rc, _In_opt_ HWND hParent, _In_opt_ const size_t uID, _In_opt_ const void* const pthis = nullptr) noexcept
 {
 	if (!rc)
 		return nullptr;
@@ -1190,7 +1201,7 @@ inline HWND dcxCreateWindow(_In_ const WindowExStyle ExStyles, _In_opt_z_ const 
 		gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		hParent,
-		(HMENU)uID,
+		reinterpret_cast<HMENU>(uID),
 		GetModuleHandle(nullptr),
 		(LPVOID)pthis);
 }
