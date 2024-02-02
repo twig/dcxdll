@@ -55,6 +55,9 @@ struct XPMENUBARCOLORS final
 	}
 	void toXml(TiXmlElement* xml) const
 	{
+		if (!xml)
+			return;
+
 		setColourAttribute(xml, "back", m_clrBack);
 
 		setColourAttribute(xml, "box", m_clrBox);
@@ -122,6 +125,9 @@ struct XPMENUBARITEM
 	}
 	void toXml(TiXmlElement* xml) const
 	{
+		if (!xml)
+			return;
+
 		xml->LinkEndChild(m_Colours.toXml());
 		if (!m_hBkg.m_tsFilename.empty() && m_hBkg.m_tsFilename != L"none")
 			xml->LinkEndChild(m_hBkg.toXml());
@@ -132,8 +138,11 @@ struct XPMENUBARITEM
 		toXml(xml.get());
 		return xml.release();
 	}
-	void fromXml(const TiXmlElement* xml) noexcept
+	void fromXml(const TiXmlElement* xml)
 	{
+		if (!xml)
+			return;
+
 		if (auto xColours = xml->FirstChildElement("colours"); xColours)
 			m_Colours.fromXml(xColours);
 
@@ -163,6 +172,9 @@ struct XPMENUBAR
 	}
 	void toXml(TiXmlElement* xml) const
 	{
+		if (!xml)
+			return;
+
 		if (m_bEnable)
 			xml->SetAttribute("enable", "1");
 		if (m_bDrawBorder)
@@ -194,8 +206,11 @@ struct XPMENUBAR
 		toXml(xml.get());
 		return xml.release();
 	}
-	void fromXml(const TiXmlElement* xml) noexcept
+	void fromXml(const TiXmlElement* xml)
 	{
+		if (!xml)
+			return;
+
 		if (const auto tmp = queryIntAttribute(xml, "enable"); tmp)
 			m_bEnable = true;
 
