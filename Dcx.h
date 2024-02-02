@@ -1012,7 +1012,7 @@ namespace Dcx
 			TVITEMEX item{};
 			item.hItem = m_Item;
 			item.pszText = tsRes.to_chr();
-			item.cchTextMax = tsRes.capacity_cch();
+			item.cchTextMax = gsl::narrow_cast<int>(tsRes.capacity_cch());
 			item.mask = TVIF_TEXT | TVIF_HANDLE;
 			if (TreeView_GetItem(m_Window, &item))
 				return TString(item.pszText);
@@ -1028,7 +1028,7 @@ namespace Dcx
 			TVITEMEX item{};
 			item.hItem = m_Item;
 			GSL_SUPPRESS(type.3) item.pszText = const_cast<TCHAR*>(tsStr.to_chr());
-			item.cchTextMax = tsStr.len();
+			item.cchTextMax = gsl::narrow_cast<int>(tsStr.len());
 			item.mask = TVIF_TEXT | TVIF_HANDLE;
 
 			TreeView_SetItem(m_Window, &item);
