@@ -110,7 +110,11 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // DCX Using C++11 regex
 // NB: Can't be used with either BOOST OR PCRE enabled.
 #define DCX_USE_CREGEX 0
+#ifdef WIN32
 #define DCX_USE_PCRE2 1
+#else
+#define DCX_USE_PCRE2 0
+#endif
 
 #if DCX_USE_CREGEX
 #pragma message ("### DCX OPTION: Use C++11 Regex - Enabled")
@@ -197,6 +201,9 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #define _CRT_RAND_S 1
 
 // Includes created git build info header...
+#if !__has_include("gitBuild.h")
+#error "gitBuild.h Missing! SourceControl project hasn't been run?"
+#endif
 #include "gitBuild.h"
 
 // --------------------------------------------------
@@ -370,7 +377,7 @@ namespace Dcx
 	constexpr bool is_pod_v = is_pod<T>::value;
 }
 
-#define UMAX_PATH static_cast<uint32_t>(MAX_PATH)
+#define UMAX_PATH static_cast<size_t>(MAX_PATH)
 
 #include "AutoRelease.h"
 
@@ -724,7 +731,7 @@ if ((x)) (y)[0] = TEXT('1'); \
 //#define dcx_testflag(x,y) (((x) & (y)) == (y))
 //template <typename T, typename M>
 //constexpr bool dcx_testflag(T x, M y) noexcept { return ((x & gsl::narrow_cast<T>(y)) == gsl::narrow_cast<T>(y)); }
-template <typename T, typename M>
+template <DcxConcepts::IsNumeric T, DcxConcepts::IsNumeric M>
 constexpr bool dcx_testflag(T x, M y) noexcept {
 	if constexpr (sizeof(T) >= sizeof(M)) return ((x & gsl::narrow_cast<T>(y)) == gsl::narrow_cast<T>(y));
 	else return ((gsl::narrow_cast<M>(x) & y) == y);
@@ -732,6 +739,12 @@ constexpr bool dcx_testflag(T x, M y) noexcept {
 
 #define dcxlParam(x,y) const auto y = reinterpret_cast<x>(lParam)
 #define dcxwParam(x,y) auto y = reinterpret_cast<x>(wParam)
+
+template <DcxConcepts::IsNumeric T = size_t>
+constexpr HWND to_hwnd(T t) noexcept { return reinterpret_cast<HWND>(t); }
+
+template <DcxConcepts::IsNumeric T = size_t>
+constexpr T from_hwnd(HWND t) noexcept { return reinterpret_cast<T>(t); }
 
 // --------------------------------------------------
 // DLL routines
@@ -858,6 +871,13 @@ bool dcxDrawBitMap(HDC hdc, LPCRECT prc, HBITMAP hbm, bool bStretch, bool bAlpha
 /// <param name="sRGB"></param>
 /// <returns></returns>
 COLORREF GetContrastColour(COLORREF sRGB) noexcept;
+
+/// <summary>
+/// Get a colour that contrasts nicely with the supplied colour. Maintains alpha value.
+/// </summary>
+/// <param name="sRGB"></param>
+/// <returns></returns>
+RGBQUAD GetContrastColour(RGBQUAD sRGB) noexcept;
 
 TString BitmapToBase64(HBITMAP hBMP);
 TString IconToBase64(HICON hIcon);

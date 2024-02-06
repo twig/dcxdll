@@ -193,7 +193,7 @@ namespace
 		// data structures.)  
 
 		if (cClrBits < 24)
-			pbmi = static_cast<PBITMAPINFO>(LocalAlloc(LPTR, sizeof(BITMAPINFOHEADER) + (sizeof(RGBQUAD) * (1 << cClrBits))));
+			pbmi = static_cast<PBITMAPINFO>(LocalAlloc(LPTR, sizeof(BITMAPINFOHEADER) + (sizeof(RGBQUAD) * (static_cast<size_t>(1U) << cClrBits))));
 
 		// There is no RGBQUAD array for these formats: 24-bit-per-pixel or 32-bit-per-pixel 
 
@@ -443,12 +443,12 @@ namespace
 		{	// if DT_CALCRECT flag NOT given then do calcrect here.
 			//DrawText(hdc, txt.to_chr(), len, &rcTmp, iStyle | DT_CALCRECT);
 			if (shadow)
-				dcxDrawShadowText(hdc, txt.to_chr(), len, std::addressof(rcTmp), iStyle | DT_CALCRECT, clrFG, 0, 5, 5);
+				dcxDrawShadowText(hdc, txt.to_chr(), gsl::narrow_cast<UINT>(len), std::addressof(rcTmp), iStyle | DT_CALCRECT, clrFG, 0, 5, 5);
 			else
 				DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle | DT_CALCRECT);
 		}
 		if (shadow)
-			dcxDrawShadowText(hdc, txt.to_chr(), len, std::addressof(rcTmp), iStyle, clrFG, 0, 5, 5);
+			dcxDrawShadowText(hdc, txt.to_chr(), gsl::narrow_cast<UINT>(len), std::addressof(rcTmp), iStyle, clrFG, 0, 5, 5);
 		else
 			DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle);
 
@@ -2247,7 +2247,7 @@ void DeleteHDCBuffer(gsl::owner<HDC*> hBuffer) noexcept
 int TGetWindowText(HWND hwnd, TString& txt)
 {
 	txt = TGetWindowText(hwnd);
-	return txt.len();
+	return gsl::narrow_cast<int>(txt.len());
 }
 
 TString TGetWindowText(HWND hwnd)
@@ -2705,44 +2705,85 @@ COLORREF GetContrastColour(COLORREF sRGB) noexcept
 	return RGB(0, 0, 0);
 }
 
+RGBQUAD GetContrastColour(RGBQUAD sRGB) noexcept
+{
+	// (0.21 × R) + (0.72 × G) + (0.07 × B)
+	// (0.2126*R + 0.7152*G + 0.0722*B)
+	// (0.299*R + 0.587*G + 0.114*B)
+	// sqrt( 0.299*R^2 + 0.587*G^2 + 0.114*B^2 )
+	// 
+	// vR = sR / 255;
+	// vG = sG / 255;
+	// vB = sB / 255;
+	// Y = (0.2126 * sRGBtoLin(vR) + 0.7152 * sRGBtoLin(vG) + 0.0722 * sRGBtoLin(vB))
+
+	const double vR = sRGB.rgbRed / 255.0;
+	const double vG = sRGB.rgbGreen / 255.0;
+	const double vB = sRGB.rgbBlue / 255.0;
+
+	const auto Y = (0.2126 * sRGBtoLin(vR) + 0.7152 * sRGBtoLin(vG) + 0.0722 * sRGBtoLin(vB));
+
+	const auto Lstar = YtoLstar(Y);
+
+	// maintain the alpha value.
+	// 
+	// white
+	if (Lstar < 50.0)
+		return { 255, 255, 255, sRGB.rgbReserved };
+
+	// black
+	return { 0, 0, 0, sRGB.rgbReserved };
+}
+
 namespace
 {
-	std::vector<BYTE> Base64Decode(const wchar_t* str, DWORD szLen)
+	std::vector<BYTE> Base64Decode(const wchar_t* str, size_t szLen)
 	{
-		DWORD bLen{};
 		std::vector<BYTE> data;
 
-		if (CryptStringToBinaryW(str, szLen, CRYPT_STRING_BASE64, nullptr, &bLen, nullptr, nullptr))
+		if (str && szLen > 0)
+	{
+		DWORD bLen{};
+
+			if (CryptStringToBinaryW(str, gsl::narrow_cast<DWORD>(szLen), CRYPT_STRING_BASE64, nullptr, &bLen, nullptr, nullptr))
 		{
 			data.reserve(bLen);
 
-			CryptStringToBinaryW(str, szLen, CRYPT_STRING_BASE64, data.data(), &bLen, nullptr, nullptr);
+				CryptStringToBinaryW(str, gsl::narrow_cast<DWORD>(szLen), CRYPT_STRING_BASE64, data.data(), &bLen, nullptr, nullptr);
+		}
 		}
 		return data;
 	}
-	std::vector<BYTE> Base64Decode(const char* str, DWORD szLen)
+	std::vector<BYTE> Base64Decode(const char* str, size_t szLen)
 	{
-		DWORD bLen{};
 		std::vector<BYTE> data;
 
-		if (CryptStringToBinaryA(str, szLen, CRYPT_STRING_BASE64, nullptr, &bLen, nullptr, nullptr))
+		if (str && szLen > 0)
+	{
+		DWORD bLen{};
+
+			if (CryptStringToBinaryA(str, gsl::narrow_cast<DWORD>(szLen), CRYPT_STRING_BASE64, nullptr, &bLen, nullptr, nullptr))
 		{
 			data.reserve(bLen);
 
-			CryptStringToBinaryA(str, szLen, CRYPT_STRING_BASE64, data.data(), &bLen, nullptr, nullptr);
+				CryptStringToBinaryA(str, gsl::narrow_cast<DWORD>(szLen), CRYPT_STRING_BASE64, data.data(), &bLen, nullptr, nullptr);
+			}
 		}
 		return data;
 	}
 	TString Base64Encode(LPBYTE data, size_t nLen)
 	{
 		TString tsBuf;
+		if (data && nLen > 0)
+		{
 		DWORD szLen{};
 
-		if (CryptBinaryToStringW(data, nLen, CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, nullptr, &szLen))
+			if (CryptBinaryToStringW(data, gsl::narrow_cast<DWORD>(nLen), CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, nullptr, &szLen))
 		{
 			tsBuf.reserve(szLen);
 
-			CryptBinaryToStringW(data, nLen, CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, tsBuf.to_wchr(), &szLen);
+				CryptBinaryToStringW(data, gsl::narrow_cast<DWORD>(nLen), CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, tsBuf.to_wchr(), &szLen);
+			}
 		}
 		return tsBuf;
 	}
