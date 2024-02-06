@@ -190,9 +190,9 @@ TString FileDialog(const TString& data, const TString& method, const HWND pWnd)
 	auto filter(data.getnexttok(TSTABCHAR).trim());
 
 	// Get Current dir for resetting later.
-	const UINT tsBufSize = GetCurrentDirectory(0, nullptr);
+	const TString::size_type tsBufSize = GetCurrentDirectory(0, nullptr);
 	TString tsCurrentDir(tsBufSize);
-	GetCurrentDirectory(tsBufSize, tsCurrentDir.to_chr());
+	GetCurrentDirectory(gsl::narrow_cast<DWORD>(tsBufSize), tsCurrentDir.to_chr());
 
 	// format the filter into the format WinAPI wants, with double zero TERMINATOR at end
 	if (filter.empty())
@@ -329,6 +329,8 @@ mIRC(BrowseDialog)
 		TString displayPath(UMAX_PATH);
 		gsl::owner<LPITEMIDLIST> pidlRoot = nullptr;
 
+		Auto(CoTaskMemFree(pidlRoot));
+
 		// set up the BI structure
 		XBROWSEDIALOGSETTINGS extra{};
 		BROWSEINFO bi{};
@@ -376,18 +378,20 @@ mIRC(BrowseDialog)
 				break;
 			case TEXT("computers"_hash):
 			{
-				// NOTE: do not use with "advanced"
+				// NOTE: do not use with "advanced" or "printers"
 				//bi.ulFlags &= ~BIF_USENEWUI;
 				bi.ulFlags |= BIF_BROWSEFORCOMPUTER;
-				pidlRoot = GetFolderFromCSIDL(CSIDL_NETWORK);
+				if (!pidlRoot)
+					pidlRoot = GetFolderFromCSIDL(CSIDL_NETWORK);
 			}
 			break;
 			case TEXT("printers"_hash):
 			{
-				// NOTE: do not use with "advanced"
+				// NOTE: do not use with "advanced" or "computers"
 				//bi.ulFlags &= ~BIF_USENEWUI;
 				bi.ulFlags |= BIF_BROWSEFORPRINTER;
-				pidlRoot = GetFolderFromCSIDL(CSIDL_PRINTERS);
+				if (!pidlRoot)
+					pidlRoot = GetFolderFromCSIDL(CSIDL_PRINTERS);
 			}
 			break;
 			case TEXT("nonetwork"_hash):
@@ -404,8 +408,6 @@ mIRC(BrowseDialog)
 				break;
 			}
 		}
-
-		Auto(CoTaskMemFree(pidlRoot));
 
 		// Set initial folder
 		if (bInitialFolder && (!pidlRoot))
@@ -878,9 +880,9 @@ mIRC(PickIcon)
 
 		const stString<MAX_PATH + 1U> sIconPath;
 
-		GetFullPathName(tsFilename.to_chr(), sIconPath.size(), sIconPath, nullptr);
+		GetFullPathName(tsFilename.to_chr(), gsl::narrow_cast<DWORD>(sIconPath.size()), sIconPath, nullptr);
 
-		if (dcxPickIconDlg(aWnd, sIconPath.data(), sIconPath.size(), &index))
+		if (dcxPickIconDlg(aWnd, sIconPath.data(), gsl::narrow_cast<UINT>(sIconPath.size()), &index))
 			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("D_OK %d %s"), index, sIconPath.data());
 		else
 			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("D_ERROR %d %s"), index, sIconPath.data());
