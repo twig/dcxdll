@@ -38,7 +38,7 @@ HWND FindOwner(const TString& data, const gsl::not_null<HWND>& defaultWnd)
 		const auto tsHwnd(data.gettok(gsl::narrow_cast<int>(i) + 1));
 
 		// if it is a number (HWND) passed		
-		if (const auto wnd = reinterpret_cast<HWND>(tsHwnd.to_<DWORD>()); wnd)
+		if (const auto wnd = to_hwnd(tsHwnd.to_<size_t>()); wnd)
 			return wnd;
 
 		// try to retrieve dialog hwnd from name
@@ -66,7 +66,7 @@ std::optional<HWND> FindOwner(const TString& data)
 		const auto tsHwnd(data.gettok(gsl::narrow_cast<int>(i) + 1));
 
 		// if it is a number (HWND) passed		
-		if (const auto wnd = reinterpret_cast<HWND>(tsHwnd.to_<DWORD>()); wnd)
+		if (const auto wnd = to_hwnd(tsHwnd.to_<size_t>()); wnd)
 			return wnd;
 
 		// try to retrieve dialog hwnd from name
@@ -92,14 +92,14 @@ HWND GetHwndFromString(const TString& str)
 	//return GetHwndFromString(str.to_chr());
 
 	// test code to allow docking by hwnd (wtf its only 3 lines)
-	if (const auto hwnd = reinterpret_cast<HWND>(str.to_<DWORD>()); IsWindow(hwnd))
+	if (const auto hwnd = to_hwnd(str.to_<size_t>()); IsWindow(hwnd))
 		return hwnd;
 
 	TString tsRes;
 	//mIRCLinker::tsEvalex(tsRes, TEXT("$dialog(%s).hwnd"), str.to_chr());
 	mIRCLinker::eval(tsRes, TEXT("$dialog(%).hwnd"), str);
 
-	return reinterpret_cast<HWND>(tsRes.to_<DWORD>());
+	return to_hwnd(tsRes.to_<size_t>());
 }
 
 /*!
@@ -792,6 +792,9 @@ bool GetWindowRectParent(const HWND hwnd, RECT* rcWin) noexcept
 /// <returns></returns>
 void dcxDrawLine(HDC hdc, LONG x1, LONG y1, LONG x2, LONG y2) noexcept
 {
+	if (!hdc)
+		return;
+
 	MoveToEx(hdc, x1, y1, nullptr);
 	LineTo(hdc, x2, y2);
 }
@@ -806,6 +809,9 @@ void dcxDrawLine(HDC hdc, LONG x1, LONG y1, LONG x2, LONG y2) noexcept
 /// <returns></returns>
 void dcxDrawEdge(HDC hdc, const LPRECT rc, COLORREF clr) noexcept
 {
+	if (!hdc)
+		return;
+
 	if (clr != CLR_INVALID)
 	{
 		if (auto hPen = CreatePen(PS_SOLID, 5, clr); hPen)
@@ -833,6 +839,9 @@ void dcxDrawEdge(HDC hdc, const LPRECT rc, COLORREF clr) noexcept
 /// <returns></returns>
 void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept
 {
+	if (!hdc || !lprc)
+		return;
+
 	LOGPEN oLogPen{};
 
 	auto hOld = SelectObject(hdc, GetStockObject(BLACK_PEN));
@@ -854,43 +863,55 @@ void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept
 	DeleteObject(SelectObject(hdc, hOld));
 }
 
-COLORREF getCheckBoxBkgColour(const clrCheckBox* lpcol, DWORD dState) noexcept
+namespace
 {
-	if (dcx_testflag(dState, CDIS_DISABLED))
-		return lpcol->m_clrDisabledBackground;
+	COLORREF getCheckBoxBkgColour(const clrCheckBox* lpcol, DWORD dState) noexcept
+	{
+		if (!lpcol)
+			return RGB(0, 0, 0);
 
-	if (dcx_testflag(dState, CDIS_HOT))
-		return lpcol->m_clrHotBackground;
+		if (dcx_testflag(dState, CDIS_DISABLED))
+			return lpcol->m_clrDisabledBackground;
 
-	return lpcol->m_clrBackground;
-}
+		if (dcx_testflag(dState, CDIS_HOT))
+			return lpcol->m_clrHotBackground;
 
-COLORREF getCheckBoxFrameColour(const clrCheckBox* lpcol, DWORD dState) noexcept
-{
-	if (dcx_testflag(dState, CDIS_DISABLED))
-		return lpcol->m_clrDisabledFrame;
+		return lpcol->m_clrBackground;
+	}
 
-	if (dcx_testflag(dState, CDIS_HOT))
-		return lpcol->m_clrHotFrame;
+	COLORREF getCheckBoxFrameColour(const clrCheckBox* lpcol, DWORD dState) noexcept
+	{
+		if (!lpcol)
+			return RGB(0, 0, 0);
 
-	return lpcol->m_clrFrame;
-}
+		if (dcx_testflag(dState, CDIS_DISABLED))
+			return lpcol->m_clrDisabledFrame;
 
-COLORREF getCheckBoxHighliteFrameColour(const clrCheckBox* lpcol, DWORD dState) noexcept
-{
-	//return GetSysColor(COLOR_3DHIGHLIGHT);
-	return GetContrastColour(getCheckBoxFrameColour(lpcol, dState));
-}
+		if (dcx_testflag(dState, CDIS_HOT))
+			return lpcol->m_clrHotFrame;
 
-COLORREF getCheckBoxTickColour(const clrCheckBox* lpcol, DWORD dState) noexcept
-{
-	if (dcx_testflag(dState, CDIS_DISABLED))
-		return lpcol->m_clrDisabledTick;
+		return lpcol->m_clrFrame;
+	}
 
-	if (dcx_testflag(dState, CDIS_HOT))
-		return lpcol->m_clrHotTick;
+	COLORREF getCheckBoxHighliteFrameColour(const clrCheckBox* lpcol, DWORD dState) noexcept
+	{
+		//return GetSysColor(COLOR_3DHIGHLIGHT);
+		return GetContrastColour(getCheckBoxFrameColour(lpcol, dState));
+	}
 
-	return lpcol->m_clrTick;
+	COLORREF getCheckBoxTickColour(const clrCheckBox* lpcol, DWORD dState) noexcept
+	{
+		if (!lpcol)
+			return RGB(0, 0, 0);
+
+		if (dcx_testflag(dState, CDIS_DISABLED))
+			return lpcol->m_clrDisabledTick;
+
+		if (dcx_testflag(dState, CDIS_HOT))
+			return lpcol->m_clrHotTick;
+
+		return lpcol->m_clrTick;
+	}
 }
 
 /// <summary>
