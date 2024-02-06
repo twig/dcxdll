@@ -230,7 +230,7 @@ namespace mIRCLinker {
 
 	HWND getActiveMDIWindow() noexcept
 	{
-		return reinterpret_cast<HWND>(SendMessage(mIRCLinker::getMDIClient(), WM_MDIGETACTIVE, 0L, 0L));
+		return to_hwnd(SendMessage(mIRCLinker::getMDIClient(), WM_MDIGETACTIVE, 0L, 0L));
 	}
 
 	HWND& getHWND() noexcept

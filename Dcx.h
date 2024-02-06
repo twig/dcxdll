@@ -1583,7 +1583,7 @@ namespace Dcx
 		if constexpr (std::is_integral_v<T>)
 			return reinterpret_cast<T>(GetProp(hwnd, str));
 		else if constexpr (std::is_enum_v<T>)
-			return static_cast<T>(reinterpret_cast<DWORD>(GetProp(hwnd, str)));
+			return static_cast<T>(reinterpret_cast<size_t>(GetProp(hwnd, str)));
 		else
 			return static_cast<T>(GetProp(hwnd, str));
 	}
@@ -1593,11 +1593,11 @@ namespace Dcx
 		inline auto dcxGetProp(_In_ Window hwnd, _In_z_ const TCHAR* const str) noexcept
 	{
 		if constexpr (std::is_integral_v<T>)
-			return reinterpret_cast<T>(GetProp(reinterpret_cast<HWND>(hwnd), str));
+			return reinterpret_cast<T>(GetProp(to_hwnd(hwnd), str));
 		else if constexpr (std::is_enum_v<T>)
-			return static_cast<T>(reinterpret_cast<DWORD>(GetProp(reinterpret_cast<HWND>(hwnd), str)));
+			return static_cast<T>(reinterpret_cast<size_t>(GetProp(to_hwnd(hwnd), str)));
 		else
-			return static_cast<T>(GetProp(reinterpret_cast<HWND>(hwnd), str));
+			return static_cast<T>(GetProp(to_hwnd(hwnd), str));
 	}
 
 #if DCX_USE_CREGEX

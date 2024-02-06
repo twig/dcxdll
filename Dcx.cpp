@@ -319,7 +319,7 @@ namespace Dcx {
 		{
 		case WM_SIZE:
 			if (dcxSignal.xdock)
-				mIRCLinker::signal(TEXT("size mIRC % % %"), reinterpret_cast<DWORD>(mHwnd), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
+				mIRCLinker::signal(TEXT("size mIRC % % %"), from_hwnd(mHwnd), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
 			break;
 
 			//case WM_CONTEXTMENU:
@@ -402,7 +402,7 @@ namespace Dcx {
 				SetProp(mIRCLinker::getHWND(), TEXT("dcx_ghosted"), reinterpret_cast<HANDLE>(1U));
 			}
 			if (dcxSignal.xdock)
-				mIRCLinker::signal(TEXT("sizemove mIRC start %"), reinterpret_cast<DWORD>(mHwnd));
+				mIRCLinker::signal(TEXT("sizemove mIRC start %"), from_hwnd(mHwnd));
 		}
 		break;
 
@@ -416,7 +416,7 @@ namespace Dcx {
 				RemoveProp(mIRCLinker::getHWND(), TEXT("dcx_ghosted"));
 			}
 			if (dcxSignal.xdock)
-				mIRCLinker::signal(TEXT("sizemove mIRC end %"), reinterpret_cast<DWORD>(mHwnd));
+				mIRCLinker::signal(TEXT("sizemove mIRC end %"), from_hwnd(mHwnd));
 			break;
 		}
 
