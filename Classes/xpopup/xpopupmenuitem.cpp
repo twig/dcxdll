@@ -777,7 +777,7 @@ void XPopupMenuItem::DrawGradient(const HDC hdc, const RECT* const lprc, const C
 
 	const ULONG gMode = (bHorz) ? GRADIENT_FILL_RECT_V : GRADIENT_FILL_RECT_H;
 
-	if (!GradientFill(hdc, &vert[0], std::size(vert), &gRect, 1, gMode))
+	if (!GradientFill(hdc, &vert[0], gsl::narrow_cast<ULONG>(std::size(vert)), &gRect, 1, gMode))
 	{
 		// if GradientFill fails do our own method.
 		constexpr auto dy = 2;

@@ -17,6 +17,7 @@
 
 #if DCX_CUSTOM_MENUS
 #include <thread>
+#include <mutex>
 
 namespace
 {
@@ -645,7 +646,7 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 		/*
 		Add offsetting for multiple monitor based on supplied hwnd this menu is to be associated with
 		*/
-		if (const auto hTrack = reinterpret_cast<HWND>(input.getnexttok().to_<ULONG_PTR>()); (hTrack && IsWindow(hTrack)))
+		if (const auto hTrack = to_hwnd(input.getnexttok().to_<ULONG_PTR>()); (hTrack && IsWindow(hTrack)))
 		{
 			// map window relative pos ($mouse.x/y) to screen pos for TrackPopupMenuEx()
 			POINT pt{ x, y };
@@ -1570,7 +1571,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			break;
 
 		const auto lRes = CallWindowProc(g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
-		auto menu_hwnd = reinterpret_cast<HWND>(lRes);
+		auto menu_hwnd = to_hwnd(lRes);
 
 		bool bAfter = false;
 
