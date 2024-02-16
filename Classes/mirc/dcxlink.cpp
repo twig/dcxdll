@@ -363,7 +363,7 @@ LRESULT DcxLink::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			bParsed = TRUE;
 			return TRUE;
 		}
-		else if (Dcx::dcxLOWORD(lParam) == HTCLIENT && reinterpret_cast<HWND>(wParam) == m_Hwnd)
+		else if (Dcx::dcxLOWORD(lParam) == HTCLIENT && to_hwnd(wParam) == m_Hwnd)
 		{
 			if (const auto hStm_Cursor = LoadCursor(nullptr, IDC_HAND); GetCursor() != hStm_Cursor)
 				SetCursor(hStm_Cursor);

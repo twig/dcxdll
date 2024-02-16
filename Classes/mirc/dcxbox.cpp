@@ -459,7 +459,7 @@ LRESULT DcxBox::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 		if (lParam == 0L)
 			break;
 
-		if (IsWindow(reinterpret_cast<HWND>(lParam)))
+		if (IsWindow(to_hwnd(lParam)))
 		{
 			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(lParam, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);

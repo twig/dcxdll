@@ -1371,7 +1371,7 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 	case WM_SETCURSOR:
 	{
-		if ((Dcx::dcxLOWORD(lParam) != HTCLIENT) || (reinterpret_cast<HWND>(wParam) != m_Hwnd) || (!m_bShowLineNumbers))
+		if ((Dcx::dcxLOWORD(lParam) != HTCLIENT) || (to_hwnd(wParam) != m_Hwnd) || (!m_bShowLineNumbers))
 			break;
 
 		if (IsCursorOnGutter())
