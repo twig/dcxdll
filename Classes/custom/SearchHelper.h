@@ -228,6 +228,9 @@ struct regexOptions
 	/// <param name="output">- The output utf32 buffer, buffer size MUST be atleast input_size + 16</param>
 	void convert_utf16_to_utf32(const char16_t* input, size_t input_size, char32_t* output) const noexcept
 	{
+		if (!input || !output)
+			return;
+
 		const char16_t* const end = input + input_size;
 		while (input < end)
 		{
@@ -290,6 +293,11 @@ struct dcxSearchData
 	dcxSearchData& operator =(const dcxSearchData&) = delete;
 	dcxSearchData& operator =(dcxSearchData&&) noexcept = default;
 };
+
+#if !DCX_USE_PCRE2
+#define PCRE2_SIZE size_t
+#define PCRE2_SIZE_MAX SIZE_MAX
+#endif
 
 struct RegexResults
 {

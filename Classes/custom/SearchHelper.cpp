@@ -327,11 +327,11 @@ TString DcxSearchHelper::findTextRange(const TString&  tsText, const TString& ts
 	const auto SearchType = CharToSearchType(tsParams++[0]);
 
 	// find the Nth match (zero for count all matches)
-	const auto N = tsParams++.to_<UINT>();		// tok 2
+	const auto N = tsParams++.to_<size_t>();		// tok 2
 	// get line to search from
-	const auto nLine = tsParams++.to_<UINT>();	// tok 3
+	const auto nLine = tsParams++.to_<size_t>();	// tok 3
 	// get the char on that line to search from
-	auto nChar = tsParams++.to_<UINT>();	// tok 4
+	auto nChar = tsParams++.to_<size_t>();	// tok 4
 
 	// nLine is either lines or chars, either must be > 0
 	if (nLine < 1)
@@ -371,15 +371,15 @@ TString DcxSearchHelper::findTextRange(const TString&  tsText, const TString& ts
 	// count total
 	if (N == 0)
 	{
-		UINT count{};
+		size_t count{};
 		for (auto match = matchText(tsText, nChar, tsMatchText, SearchType); match.has_value(); match = matchText(tsText, match->m_nEnd + 1, tsMatchText, SearchType))
 			++count;
 
-		_ts_snprintf(tsRes, TEXT("%u"), count);
+		_ts_snprintf(tsRes, TEXT("%zu"), count);
 	}
 	// find Nth matching
 	else {
-		UINT count{};
+		size_t count{};
 
 		for (auto match = matchText(tsText, nChar, tsMatchText, SearchType); match.has_value(); match = matchText(tsText, match->m_nEnd + 1, tsMatchText, SearchType))
 		{
@@ -388,7 +388,7 @@ TString DcxSearchHelper::findTextRange(const TString&  tsText, const TString& ts
 			// found Nth matching
 			if (count == N)
 			{
-				_ts_snprintf(tsRes, TEXT("%u %u"), match->m_nStart + 1, match->m_nEnd); // return the char offset.
+				_ts_snprintf(tsRes, TEXT("%zu %zu"), match->m_nStart + 1, match->m_nEnd); // return the char offset.
 				return tsRes;
 			}
 		}
