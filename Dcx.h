@@ -1512,7 +1512,7 @@ namespace Dcx
 
 		bool operator==(const CodeValue& other) const = default;
 
-		CodeValue(const CodeType& code, const T& value) noexcept(std::is_nothrow_copy_constructible_v<CodeType>&& std::is_nothrow_copy_constructible_v<T>)
+		CodeValue(const CodeType& code, const T& value) noexcept(std::is_nothrow_copy_constructible_v<CodeType> && std::is_nothrow_copy_constructible_v<T>)
 			: code(code), value(value)
 		{
 		}
@@ -1580,9 +1580,7 @@ namespace Dcx
 	GSL_SUPPRESS(lifetime)
 		inline auto dcxGetProp(_In_ HWND hwnd, _In_z_ const TCHAR* const str) noexcept
 	{
-		if constexpr (std::is_integral_v<T>)
-			return reinterpret_cast<T>(GetProp(hwnd, str));
-		else if constexpr (std::is_enum_v<T>)
+		if constexpr (std::is_integral_v<T> || std::is_enum_v<T>)
 			return static_cast<T>(reinterpret_cast<size_t>(GetProp(hwnd, str)));
 		else
 			return static_cast<T>(GetProp(hwnd, str));
@@ -1592,9 +1590,7 @@ namespace Dcx
 	GSL_SUPPRESS(lifetime)
 		inline auto dcxGetProp(_In_ Window hwnd, _In_z_ const TCHAR* const str) noexcept
 	{
-		if constexpr (std::is_integral_v<T>)
-			return reinterpret_cast<T>(GetProp(to_hwnd(hwnd), str));
-		else if constexpr (std::is_enum_v<T>)
+		if constexpr (std::is_integral_v<T> || std::is_enum_v<T>)
 			return static_cast<T>(reinterpret_cast<size_t>(GetProp(to_hwnd(hwnd), str)));
 		else
 			return static_cast<T>(GetProp(to_hwnd(hwnd), str));
