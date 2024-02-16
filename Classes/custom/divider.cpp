@@ -66,7 +66,7 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 	case WM_SETCURSOR:
 	{
-		if (Dcx::dcxLOWORD(lParam) == HTCLIENT && reinterpret_cast<HWND>(wParam) == mHwnd)
+		if (Dcx::dcxLOWORD(lParam) == HTCLIENT && to_hwnd(wParam) == mHwnd)
 		{
 			HCURSOR hCursor{ nullptr };
 

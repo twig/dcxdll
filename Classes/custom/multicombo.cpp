@@ -230,7 +230,7 @@ namespace
 			if (!lpmcdata)
 				break;
 
-			if (reinterpret_cast<HWND>(lParam) != lpmcdata->m_hDropChild)
+			if (to_hwnd(lParam) != lpmcdata->m_hDropChild)
 				break;
 
 			switch (const auto vkChar = Dcx::dcxLOWORD(wParam); vkChar)
@@ -364,7 +364,7 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 	case WM_SETCURSOR:
 	{
-		if ((Dcx::dcxLOWORD(lParam) != HTCLIENT) || (reinterpret_cast<HWND>(wParam) != mHwnd))
+		if ((Dcx::dcxLOWORD(lParam) != HTCLIENT) || (to_hwnd(wParam) != mHwnd))
 			break;
 
 		if (const HCURSOR hCursor = LoadCursor(nullptr, IDC_ARROW); GetCursor() != hCursor)
@@ -898,7 +898,7 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 	{
 		auto lpmcdata = std::make_unique<MCOMBO_DATA>();
 
-		lpmcdata->m_BaseID = reinterpret_cast<UINT>(cs->hMenu);
+		lpmcdata->m_BaseID = gsl::narrow_cast<UINT>(reinterpret_cast<size_t>(cs->hMenu));
 
 		const RECT rcEdit = MultiCombo_GetEditRect(&rc);
 		lpmcdata->m_rcButton = MultiCombo_GetButtonRect(&rc);
@@ -1726,7 +1726,7 @@ LRESULT MultiCombo_Drop_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexce
 	if (!lpmcdata)
 		return DefWindowProc(mHwnd, WM_COMMAND, wParam, lParam);
 
-	if ((lpmcdata->m_hDropChild == reinterpret_cast<HWND>(lParam)) && (Dcx::dcxLOWORD(wParam) == MC_ID_DROPCHILD))
+	if ((lpmcdata->m_hDropChild == to_hwnd(lParam)) && (Dcx::dcxLOWORD(wParam) == MC_ID_DROPCHILD))
 	{
 		switch (lpmcdata->m_Styles)
 		{
@@ -1798,7 +1798,7 @@ LRESULT MultiCombo_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 	if (!lpmcdata)
 		return DefWindowProc(mHwnd, WM_COMMAND, wParam, lParam);
 
-	if ((lpmcdata->m_hEdit == reinterpret_cast<HWND>(lParam)) && (Dcx::dcxLOWORD(wParam) == MC_ID_EDIT))
+	if ((lpmcdata->m_hEdit == to_hwnd(lParam)) && (Dcx::dcxLOWORD(wParam) == MC_ID_EDIT))
 	{
 		switch (Dcx::dcxHIWORD(wParam))
 		{
