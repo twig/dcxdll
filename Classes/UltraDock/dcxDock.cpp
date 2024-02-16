@@ -65,7 +65,7 @@ GSL_SUPPRESS(r.11)
 bool DcxDock::DockWindow(HWND hwnd, const TString& flag)
 {
 	if (isDocked(hwnd))
-		throw Dcx::dcxException(TEXT("Window (%) is already docked"), reinterpret_cast<DWORD>(hwnd));
+		throw Dcx::dcxException(TEXT("Window (%) is already docked"), from_hwnd(hwnd));
 
 	if (!IsWindow(m_hParent))
 		throw Dcx::dcxException("Invalid Dock Host Window");
@@ -866,7 +866,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 	case WM_PARENTNOTIFY:
 	{
 		if (Dcx::dcxLOWORD(wParam) == WM_DESTROY)
-			pthis->UnDockWindow(reinterpret_cast<HWND>(lParam));
+			pthis->UnDockWindow(to_hwnd(lParam));
 	}
 	break;
 

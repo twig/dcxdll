@@ -144,9 +144,9 @@ namespace
 			if (dcxSignal.xdock)
 			{
 				if (!dd->type.empty())
-					mIRCLinker::signal(TEXT("size % % % %"), dd->type, reinterpret_cast<DWORD>(dd->win), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
+					mIRCLinker::signal(TEXT("size % % % %"), dd->type, from_hwnd(dd->win), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
 				else
-					mIRCLinker::signal(TEXT("size Custom % % %"), reinterpret_cast<DWORD>(dd->win), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
+					mIRCLinker::signal(TEXT("size Custom % % %"), from_hwnd(dd->win), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
 			}
 			EnumChildWindows(mHwnd, SizeDocked, 0);
 			//return lRes;
@@ -155,9 +155,9 @@ namespace
 			if (dcxSignal.xdock)
 			{
 				if (!dd->type.empty())
-					mIRCLinker::signal(TEXT("size % % % %"), dd->type, reinterpret_cast<DWORD>(dd->win), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
+					mIRCLinker::signal(TEXT("size % % % %"), dd->type, from_hwnd(dd->win), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
 				else
-					mIRCLinker::signal(TEXT("size Custom % % %"), reinterpret_cast<DWORD>(dd->win), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
+					mIRCLinker::signal(TEXT("size Custom % % %"), from_hwnd(dd->win), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
 			}
 			EnumChildWindows(mHwnd, SizeDocked, 0);
 #endif
@@ -166,7 +166,7 @@ namespace
 		case WM_PARENTNOTIFY:
 		{
 			if (Dcx::dcxLOWORD(wParam) == WM_DESTROY)
-				RemoveProp(reinterpret_cast<HWND>(lParam), TEXT("dcx_docked"));
+				RemoveProp(to_hwnd(lParam), TEXT("dcx_docked"));
 		}
 		break;
 #ifdef DCX_DEBUG_OUTPUT
@@ -175,9 +175,9 @@ namespace
 			if (dcxSignal.xdock)
 			{
 				if (!dd->type.empty())
-					mIRCLinker::signal(TEXT("close % %"), dd->type, reinterpret_cast<DWORD>(dd->win));
+					mIRCLinker::signal(TEXT("close % %"), dd->type, from_hwnd(dd->win));
 				else
-					mIRCLinker::signal(TEXT("close Custom %"), reinterpret_cast<DWORD>(dd->win));
+					mIRCLinker::signal(TEXT("close Custom %"), from_hwnd(dd->win));
 			}
 		}
 		break;
@@ -437,7 +437,7 @@ mIRC(xdock)
 		if (numtok < 2)
 			throw DcxExceptions::dcxInvalidFlag();
 
-		const auto dockHwnd = reinterpret_cast<HWND>(input.getnexttok().to_<DWORD>()); // tok 2
+		const auto dockHwnd = to_hwnd(input.getnexttok().to_<size_t>()); // tok 2
 
 		// show/hide switchbar
 		// [-S] [1|0]
@@ -557,7 +557,7 @@ mIRC(xdock)
 		// [-n] [hwnd to dock] [+options] [hwnd to dock with]
 		else if ((switches[1] == TEXT('n')) && (numtok > 3))
 		{
-			mWnd = reinterpret_cast<HWND>(input.getnexttok().to_<DWORD>()); // tok 4
+			mWnd = to_hwnd(input.getnexttok().to_<size_t>()); // tok 4
 
 			if (!IsWindow(mWnd))
 				throw DcxExceptions::dcxInvalidArguments();
@@ -568,7 +568,7 @@ mIRC(xdock)
 		// [-c] [hwnd to dock] [+options] [hwnd to dock with]
 		else if ((switches[1] == TEXT('c')) && (numtok > 3))
 		{
-			mWnd = reinterpret_cast<HWND>(input.getnexttok().to_<DWORD>()); // tok 4
+			mWnd = to_hwnd(input.getnexttok().to_<size_t>()); // tok 4
 
 			if (!IsWindow(mWnd))
 				throw DcxExceptions::dcxInvalidArguments();
@@ -583,7 +583,7 @@ mIRC(xdock)
 			if (numtok < 4)
 				throw DcxExceptions::dcxInvalidArguments();
 
-			mWnd = reinterpret_cast<HWND>(input.getnexttok().to_<DWORD>()); // tok 4
+			mWnd = to_hwnd(input.getnexttok().to_<size_t>()); // tok 4
 
 			if (!IsWindow(mWnd))
 				throw DcxExceptions::dcxInvalidArguments();
@@ -839,20 +839,20 @@ mIRC(_xdock)
 			break;
 			case TEXT("switchBarHwnd"_hash):
 			{
-				const auto i = Dcx::numeric_cast<DWORD>(mIRCLinker::getSwitchbar());
-				_ts_snprintf(refData, TEXT("%lu"), i); // don't use %p as this gives a hex result.
+				const auto i = from_hwnd(mIRCLinker::getSwitchbar());
+				_ts_snprintf(refData, TEXT("%zu"), i); // don't use %p as this gives a hex result.
 			}
 			break;
 			case TEXT("toolBarHwnd"_hash):
 			{
-				const auto i = Dcx::numeric_cast<DWORD>(mIRCLinker::getToolbar());
-				_ts_snprintf(refData, TEXT("%lu"), i);
+				const auto i = from_hwnd(mIRCLinker::getToolbar());
+				_ts_snprintf(refData, TEXT("%zu"), i);
 			}
 			break;
 			case TEXT("treeBarHwnd"_hash):
 			{
-				const auto i = Dcx::numeric_cast<DWORD>(mIRCLinker::getTreebar());
-				_ts_snprintf(refData, TEXT("%lu"), i);
+				const auto i = from_hwnd(mIRCLinker::getTreebar());
+				_ts_snprintf(refData, TEXT("%zu"), i);
 			}
 			break;
 			case 0: // error
@@ -861,7 +861,7 @@ mIRC(_xdock)
 			}
 		}
 		else {
-			const auto hwnd = reinterpret_cast<HWND>(d.getfirsttok(1).to_<DWORD>());
+			const auto hwnd = to_hwnd(d.getfirsttok(1).to_<size_t>());
 
 			if (!IsWindow(hwnd))
 				throw Dcx::dcxException(TEXT("Invalid window (%)"), d.gettok(1));
@@ -880,19 +880,19 @@ mIRC(_xdock)
 			break;
 			case TEXT("isAutoV"_hash):
 			{
-				const auto flags = gsl::narrow_cast<DockFlags>(reinterpret_cast<UINT>(GetProp(hwnd, TEXT("dcx_docked"))));
+				const auto flags = gsl::narrow_cast<DockFlags>(reinterpret_cast<size_t>(GetProp(hwnd, TEXT("dcx_docked"))));
 				dcx_Con(flags == DockFlags::DOCKF_AUTOV, data);
 			}
 			break;
 			case TEXT("isAutoH"_hash):
 			{
-				const auto flags = gsl::narrow_cast<DockFlags>(reinterpret_cast<UINT>(GetProp(hwnd, TEXT("dcx_docked"))));
+				const auto flags = gsl::narrow_cast<DockFlags>(reinterpret_cast<size_t>(GetProp(hwnd, TEXT("dcx_docked"))));
 				dcx_Con(flags == DockFlags::DOCKF_AUTOH, data);
 			}
 			break;
 			case TEXT("isAutoS"_hash):
 			{
-				const auto flags = gsl::narrow_cast<DockFlags>(reinterpret_cast<UINT>(GetProp(hwnd, TEXT("dcx_docked"))));
+				const auto flags = gsl::narrow_cast<DockFlags>(reinterpret_cast<size_t>(GetProp(hwnd, TEXT("dcx_docked"))));
 				dcx_Con(flags == DockFlags::DOCKF_SIZE, data);
 			}
 			break;
@@ -901,7 +901,7 @@ mIRC(_xdock)
 				const auto* const ud = GetUltraDock(hwnd);
 
 				if (!ud)
-					throw Dcx::dcxException(TEXT("Window not docked to main mIRC window (%).%"), Dcx::numeric_cast<DWORD>(hwnd), d.gettok(2));
+					throw Dcx::dcxException(TEXT("Window not docked to main mIRC window (%).%"), from_hwnd(hwnd), d.gettok(2));
 
 				const TCHAR* p = TEXT("unknown");
 				switch (ud->flags)
@@ -930,7 +930,7 @@ mIRC(_xdock)
 			break;
 			case 0: // error
 			default:
-				throw Dcx::dcxException(TEXT("Invalid prop (%).%"), Dcx::numeric_cast<DWORD>(hwnd), d.gettok(2));
+				throw Dcx::dcxException(TEXT("Invalid prop (%).%"), from_hwnd(hwnd), d.gettok(2));
 			}
 		}
 		return 3;
