@@ -751,25 +751,25 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 			{
 			case NM_CLICK:
 			{
-				mIRCLinker::signal(TEXT("DCXStatusbar sclick % %"), reinterpret_cast<DWORD>(hdr->hwndFrom), idPart);
+				mIRCLinker::signal(TEXT("DCXStatusbar sclick % %"), from_hwnd(hdr->hwndFrom), idPart);
 				return TRUE;
 			}
 			break;
 			case NM_DBLCLK:
 			{
-				mIRCLinker::signal(TEXT("DCXStatusbar dclick % %"), reinterpret_cast<DWORD>(hdr->hwndFrom), idPart);
+				mIRCLinker::signal(TEXT("DCXStatusbar dclick % %"), from_hwnd(hdr->hwndFrom), idPart);
 				return TRUE;
 			}
 			break;
 			case NM_RCLICK:
 			{
-				mIRCLinker::signal(TEXT("DCXStatusbar rclick % %"), reinterpret_cast<DWORD>(hdr->hwndFrom), idPart);
+				mIRCLinker::signal(TEXT("DCXStatusbar rclick % %"), from_hwnd(hdr->hwndFrom), idPart);
 				return TRUE;
 			}
 			break;
 			case NM_RDBLCLK:
 			{
-				mIRCLinker::signal(TEXT("DCXStatusbar rdclick % %"), reinterpret_cast<DWORD>(hdr->hwndFrom), idPart);
+				mIRCLinker::signal(TEXT("DCXStatusbar rdclick % %"), from_hwnd(hdr->hwndFrom), idPart);
 				return TRUE;
 			}
 			break;
