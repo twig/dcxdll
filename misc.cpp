@@ -228,21 +228,25 @@ namespace
 	}
 
 	// Taken from msft examples.
-	void CreateBMPFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC) noexcept
+	bool CreateBMPFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC) noexcept
 	{
 		if ((!pszFile) || (!pbi) || (!hBMP) || (!hDC))
-			return;
+			return false;
 
 		PBITMAPINFOHEADER pbih = reinterpret_cast<PBITMAPINFOHEADER>(pbi);     // bitmap info-header  
 		LPBYTE lpBits = static_cast<LPBYTE>(GlobalAlloc(GMEM_FIXED, pbih->biSizeImage));              // memory pointer
 
 		if (!lpBits)
-			return;
+			return false;
+
+		Auto(GlobalFree(lpBits));
 
 		// Retrieve the color table (RGBQUAD array) and the bits  
 		// (array of palette indices) from the DIB.  
 		if (!GetDIBits(hDC, hBMP, 0, pbih->biHeight, lpBits, pbi, DIB_RGB_COLORS))
-			return;
+			return false;
+
+		//Dcx::dcxFileHandleResource hf(pszFile, GENERIC_READ | GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 
 		// Create the .BMP file.  
 		auto hf = CreateFile(pszFile,
@@ -253,7 +257,9 @@ namespace
 			FILE_ATTRIBUTE_NORMAL,
 			nullptr);
 		if (hf == INVALID_HANDLE_VALUE)
-			return;
+			return false;
+
+		Auto(CloseHandle(hf));
 
 		BITMAPFILEHEADER hdr{};       // bitmap file-header  
 		hdr.bfType = 0x4d42;        // 0x42 = "B" 0x4d = "M"  
@@ -269,22 +275,17 @@ namespace
 
 		// Copy the BITMAPFILEHEADER into the .BMP file.  
 		if (!WriteFile(hf, &hdr, sizeof(BITMAPFILEHEADER), &dwTmp, nullptr))
-			return;
+			return false;
 
 		// Copy the BITMAPINFOHEADER and RGBQUAD array into the file.  
 		if (!WriteFile(hf, pbih, sizeof(BITMAPINFOHEADER) + (pbih->biClrUsed * sizeof(RGBQUAD)), &dwTmp, nullptr))
-			return;
+			return false;
 
 		// Copy the array of color indices into the .BMP file.
 		if (!WriteFile(hf, lpBits, pbih->biSizeImage, &dwTmp, nullptr))
-			return;
+			return false;
 
-		// Close the .BMP file.  
-		if (!CloseHandle(hf))
-			return;
-
-		// Free memory.  
-		GlobalFree(lpBits);
+		return true;
 	}
 
 	/*!
@@ -310,8 +311,7 @@ namespace
 		auto oldBm = SelectObject(hDC, hBm);
 		Auto(SelectObject(hDC, oldBm));
 
-		CreateBMPFile(tsFile.to_chr(), pbis, hBm, hDC);
-		return true;
+		return CreateBMPFile(tsFile.to_chr(), pbis, hBm, hDC);
 	}
 
 	bool SaveClipboardAsText(const TString& tsFile)
@@ -375,9 +375,14 @@ namespace
 
 					const auto c1 = gsl::narrow_cast<DWORD>(sz.cx * sz.cy);
 
-					const auto lpBits = static_cast<LPDWORD>(::GlobalAlloc(GMEM_FIXED, (c1) * 4));
+					const auto lpBits = static_cast<LPDWORD>(::GlobalAlloc(GMEM_FIXED, (gsl::narrow_cast<SIZE_T>(c1)) * 4));
 
-					if (lpBits && ::GetDIBits(hdc, icInfo.hbmColor, 0, gsl::narrow_cast<UINT>(sz.cy), lpBits, &bmpInfo, DIB_RGB_COLORS) != 0)
+					if (!lpBits)
+						return nullptr;
+
+					Auto(::GlobalFree(lpBits));
+
+					if (::GetDIBits(hdc, icInfo.hbmColor, 0, gsl::narrow_cast<UINT>(sz.cy), lpBits, &bmpInfo, DIB_RGB_COLORS) != 0)
 					{
 						auto lpBitsPtr = reinterpret_cast<LPBYTE>(lpBits);
 
@@ -411,7 +416,6 @@ namespace
 							hGrayIcon = ::CreateIconIndirect(&icGrayInfo);
 						}
 
-						::GlobalFree(lpBits);
 					}
 				}
 
@@ -432,11 +436,15 @@ namespace
 
 	void mIRC_OutText(HDC hdc, TString& txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow) noexcept
 	{
-		if (txt.empty())
+		if (txt.empty() || !rcOut || !lf || !hdc)
 			return;
 
 		const auto len = txt.len();
-		const auto hOldFont = SelectObject(hdc, CreateFontIndirect(lf));
+		auto hNewFont = CreateFontIndirect(lf);
+		if (!hNewFont)
+			return;
+
+		const auto hOldFont = SelectObject(hdc, hNewFont);
 		auto rcTmp = *rcOut;
 
 		if (!dcx_testflag(iStyle, DT_CALCRECT))
@@ -512,6 +520,9 @@ namespace
 		//free(pImageCodecInfo);
 		//return -1;  // Failure
 
+		if (!format || !pClsid)
+			return -1;
+
 		UINT  num = 0;          // number of image encoders
 		UINT  size = 0;         // size of the image encoder array in bytes
 
@@ -522,7 +533,7 @@ namespace
 		std::vector<BYTE> codecdata;
 		codecdata.reserve(size);
 
-		Gdiplus::ImageCodecInfo* pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(codecdata.data());
+		Gdiplus::ImageCodecInfo* pImageCodecInfo = reinterpret_cast<Gdiplus::ImageCodecInfo*>(codecdata.data());
 		if (pImageCodecInfo == nullptr)
 			return -1;  // Failure
 
@@ -541,6 +552,9 @@ namespace
 
 	bool CreatePNGFile(const WCHAR* pszFile, Gdiplus::Image& img)
 	{
+		if (!pszFile)
+			return false;
+
 		CLSID pngClsid;
 		if (GetEncoderClsid(L"image/png", &pngClsid) != -1)
 		{
@@ -647,10 +661,10 @@ bool SaveDataToFile(const TString& tsFile, const TString& tsData)
 
 	constexpr WCHAR tBOM = 0xFEFF;	// unicode BOM
 
-	fwrite(&tBOM, sizeof(TCHAR), 1, file.get());
+	fwrite(&tBOM, sizeof(WCHAR), 1, file.get());
 
 	// if not in unicode mode then save without BOM as ascii/utf8
-	fwrite(tsData.to_chr(), sizeof(TCHAR), tsData.len(), file.get());
+	fwrite(tsData.to_chr(), sizeof(TString::value_type), tsData.len(), file.get());
 	fflush(file.get());
 	return true;
 #else
@@ -663,10 +677,10 @@ bool SaveDataToFile(const TString& tsFile, const TString& tsData)
 
 	constexpr WCHAR tBOM = 0xFEFF;	// unicode BOM
 
-	fwrite(&tBOM, sizeof(TCHAR), 1, file);
+	fwrite(&tBOM, sizeof(WCHAR), 1, file);
 
 	// if not in unicode mode then save without BOM as ascii/utf8
-	fwrite(tsData.to_chr(), sizeof(TCHAR), tsData.len(), file);
+	fwrite(tsData.to_chr(), sizeof(TString::value_type), tsData.len(), file);
 	fflush(file);
 	return true;
 #endif
