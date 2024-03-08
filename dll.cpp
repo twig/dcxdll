@@ -1962,9 +1962,9 @@ static TString dcxGetWindowProps(HWND hwnd, size_t prop)
 		// Only works on a window that has a "ListBox" child (channel, custom, etc..), returns the item number the mouse is over or nothing if mouse isnt over an item.
 		if (auto hListbox = FindWindowExW(hwnd, nullptr, WC_LISTBOX, nullptr); hListbox)
 		{
-			const Dcx::dcxCursorPos pos(hListbox);
+			//const Dcx::dcxCursorPos pos(hListbox);
 
-			if (auto iItem = dcxGetListBoxHoverItem(hListbox, pos); iItem >= 0)
+			if (auto iItem = dcxGetListBoxHoverItem(hListbox, Dcx::dcxCursorPos(hListbox)); iItem >= 0)
 				tsRes.addtok(++iItem);
 		}
 	}
@@ -1997,7 +1997,7 @@ mIRC(GetWindowProps)
 
 		const auto numtok = input.numtok();
 
-		if (numtok < 1)
+		if (numtok < 2)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto hwnd = to_hwnd(input.getfirsttok(1).to_<size_t>());
@@ -2014,6 +2014,7 @@ mIRC(GetWindowProps)
 		Dcx::error(TEXT("$!dcx(GetWindowProps)"), TEXT("\"%\" error: Unknown Exception"), input);
 	}
 	mIRCLinker::echo(TEXT("$!dcx(GetWindowProps, [hwnd] [property])"));
+	mIRCLinker::echo(TEXT("[hwnd] = The windows HWND"));
 	mIRCLinker::echo(TEXT("[property] = x,y,w,h,caption,dpi,class,hoveritem"));
 	return 0;
 }
@@ -2027,6 +2028,8 @@ mIRC(GetWindowProps)
  * $dcx(ActiveWindow, caption)
  * $dcx(ActiveWindow, hwnd)
  * $dcx(ActiveWindow, dpi)
+ * $dcx(ActiveWindow, class)
+ * $dcx(ActiveWindow, hoveritem)
  */
 mIRC(ActiveWindow)
 {
