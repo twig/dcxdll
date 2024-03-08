@@ -70,7 +70,7 @@
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
 			<a name="general.ActiveWindow"></a>$dcx(ActiveWindow)	</td></tr>
-	<tr><td colspan="2">Returns the size and title of the active window.</td></tr>
+	<tr><td colspan="2">Returns properties of the active desktop window.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$dcx(ActiveWindow, [PROP])</div></td>
@@ -103,6 +103,18 @@
 	<tr>
 		<td class="param">h</td>
 		<td>The height of the active window.</td>
+	</tr>
+	<tr>
+		<td class="param">dpi</td>
+		<td>The DPI of the active window.</td>
+	</tr>
+	<tr>
+		<td class="param">class</td>
+		<td>The WindowClass of the active window.</td>
+	</tr>
+	<tr>
+		<td class="param">hoveritem</td>
+		<td>The ListBox item under the mouse pointer in the active window.</td>
 	</tr>
 </table>
 <br />
@@ -580,6 +592,53 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<td><div class="example">$dcx(GetTaskbarPos)</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns X Y W H when successful.</li><li>Returns <a class="value">D_ERROR: GetTaskbarPos</a> when unsuccessful.</li></ul></td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.GetWindowProps"></a>$dcx(GetWindowProps)	</td></tr>
+	<tr><td colspan="2">Returns properties of the specified window.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(GetWindowProps, [HWND] [PROP])</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(GetWindowProps, $window($active).hwnd caption)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">caption</td>
+		<td>Returns the caption of the window.</td>
+	</tr>
+	<tr>
+		<td class="param">x</td>
+		<td>The left position of the window.</td>
+	</tr>
+	<tr>
+		<td class="param">y</td>
+		<td>The bottom position of the window.</td>
+	</tr>
+	<tr>
+		<td class="param">w</td>
+		<td>The width of the window.</td>
+	</tr>
+	<tr>
+		<td class="param">h</td>
+		<td>The height of the window.</td>
+	</tr>
+	<tr>
+		<td class="param">dpi</td>
+		<td>The DPI of the window.</td>
+	</tr>
+	<tr>
+		<td class="param">class</td>
+		<td>The WindowClass of the window.</td>
+	</tr>
+	<tr>
+		<td class="param">hoveritem</td>
+		<td>The ListBox item under the mouse pointer in the window.</td>
+	</tr>
+</table>
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
@@ -1119,6 +1178,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<a class='flag' href="#general.FontDialog"><div>FontDialog</div></a>
 		<a class='flag' href="#general.GetSystemColor"><div>GetSystemColor</div></a>
 		<a class='flag' href="#general.GetTaskbarPos"><div>GetTaskbarPos</div></a>
+		<a class='flag' href="#general.GetWindowProps"><div>GetWindowProps</div></a>
 		<a class='flag' href="#general.GhostDrag"><div>GhostDrag</div></a>
 		<a class='flag' href="#general.IsThemedXP"><div>IsThemedXP</div></a>
 		<a class='flag' href="#general.IsUnloadSafe"><div>IsUnloadSafe</div></a>
@@ -1142,7 +1202,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2024</td>
-		<td style="text-align: right;">Last Updated: 12th January, 24</td>
+		<td style="text-align: right;">Last Updated: 8th March, 24</td>
 	</tr>
 </table>
 <div style="text-align: center;">

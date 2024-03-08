@@ -120,6 +120,7 @@ alias dcx_webbrowser_remtab {
 ; $1 = dname, $2 = tab id
 alias dcx_webbrowser_addtoolbar {
   var %id = $2, %rebar_id = $+(%id,_rebar), %edit_id = $+(%id,_edit), %web_id = $+(%id,_web), %back_id = $+(%id,_back), %forward_id = $+(%id,_forward), %refresh_id = $+(%id,_refresh), %home_id = $+(%id,_home), %favicon_id = $+(%id,_favicon)
+  var %security_id = $+(%id,_security)
 
   ; the toolbar as seperate controls
   xdid -c $1 %id %back_id button 0 0 0 0 noformat tooltips disabled tabstop
@@ -140,6 +141,11 @@ alias dcx_webbrowser_addtoolbar {
 
   xdid -c $1 %id %favicon_id image 0 0 0 0 transparent hidden
 
+  xdid -c $1 %id %security_id image 0 0 0 0 transparent hidden
+  ; This provides a padlock icon.
+  var %f = $mircdirIcons\Vista\vista32.icl
+  xdid -w $1 %security_id + 80 20 %f
+
   xdid -c $1 %id %edit_id edit 0 0 0 0 autohs tabstop
   xdid -E $1 %edit_id + -es
 
@@ -148,6 +154,7 @@ alias dcx_webbrowser_addtoolbar {
   xdid -l $1 %id cell 1 $chr(9) +fiwvh %refresh_id 1 50 20
   xdid -l $1 %id cell 1 $chr(9) +fiwvh %home_id 1 40 20
   xdid -l $1 %id cell 1 $chr(9) +fiwvh %favicon_id 1 20 20
+  xdid -l $1 %id cell 1 $chr(9) +fiwvh %security_id 1 20 20
   xdid -l $1 %id cell 1 $chr(9) +fiwv %edit_id 1 0 20
 
   ; the toolbar as a rebar control
@@ -166,9 +173,13 @@ alias dcx_webbrowser_addtoolbar {
   ;xdid -t $1 %home_id Home
   ;xdid -T $1 %home_id Go home...
   ;xdid -a $1 %rebar_id 5 +f 20 20 20 0 0 $chr(9) %favicon_id image 0 0 0 0 transparent $chr(9)
+  ;xdid -a $1 %rebar_id 5 +f 20 20 20 0 0 $chr(9) %security_id image 0 0 0 0 transparent $chr(9)
   ;xdid -a $1 %rebar_id 6 +n 80 20 80 0 0 $chr(9) %edit_id edit 0 0 0 0 autohs tabstop $chr(9)
   ;xdid -v $1 %rebar_id 1 2
   ;xdid -l $1 %id cell 1 $chr(9) +fiwv %rebar_id 1 0 20
+  ; This provides a padlock icon.
+  ;var %f = $mircdirIcons\Vista\vista32.icl
+  ;xdid -w $1 %security_id + 80 20 %f
 }
 
 ; add a browser tab
@@ -686,6 +697,11 @@ alias dcx_webbrowser_work {
         else .timer 1 0 _setfavicon $1 $gettok(%id,1,95) %f
       }
     }
+  }
+  elseif ($2 == devtools) {
+    var %id = $xdialog($1,$3).namedid
+    if ($4 == securityState=secure) xdid -s $1 $+($gettok(%id,1,95),_security)
+    else xdid -h $1 $+($gettok(%id,1,95),_security)
   }
   elseif (($2 == keyup) && ($4 == 13)) {
     var %id = $xdialog($1,$3).namedid

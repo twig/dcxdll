@@ -37,7 +37,7 @@ function dcx_layout($page, $pagelabel) {
 function get_general_dcx(&$GENERAL) {
 	$GENERAL = array(
 		"ActiveWindow" => array(
-			'__desc' => "Returns the size and title of the active window.",
+			'__desc' => "Returns properties of the active desktop window.",
 			'__isid' => true,
 			'__cmd' => "[PROP]",
 			'__eg' => "caption",
@@ -48,6 +48,25 @@ function get_general_dcx(&$GENERAL) {
 				'y' => "The bottom position of the active window.",
 				'w' => "The width of the active window.",
 				'h' => "The height of the active window.",
+				'dpi' => "The DPI of the active window.",
+				'class' => "The WindowClass of the active window.",
+				'hoveritem' => "The ListBox item under the mouse pointer in the active window.",
+			),
+		),
+		"GetWindowProps" => array(
+			'__desc' => "Returns properties of the specified window.",
+			'__isid' => true,
+			'__cmd' => "[HWND] [PROP]",
+			'__eg' => '$window($active).hwnd caption',
+			'__params' => array(
+				'caption' => 'Returns the caption of the window.',
+				'x' => "The left position of the window.",
+				'y' => "The bottom position of the window.",
+				'w' => "The width of the window.",
+				'h' => "The height of the window.",
+				'dpi' => "The DPI of the window.",
+				'class' => "The WindowClass of the window.",
+				'hoveritem' => "The ListBox item under the mouse pointer in the window.",
 			),
 		),
 		'BrowseDialog' => array(
