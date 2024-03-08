@@ -46,7 +46,8 @@ SIGNALSWITCH dcxSignal;
 	* function added to insure that only a single instance of dcx.dll is loaded.
 */
 
-namespace {
+namespace
+{
 	HANDLE getMutex() noexcept
 	{
 		static HANDLE hDcxMutex{ nullptr };
@@ -831,7 +832,7 @@ mIRC(Version)
 		mIRCLinker::echo(TEXT("Success: RGB % lightens to %"), RGB(184, 199, 146), XPopupMenuItem::LightenColor(200, RGB(184, 199, 146)));
 
 		{
-			auto getnum = [](char *t) {
+			auto getnum = [](char* t) noexcept {
 				char* ptr{};
 				//allows hex & decimal, hex numbers must start 0x or 0X or # for web style
 				if (_ts_strnicmp(t, "0x", 2) == 0)	// base 16 hex number 0x00000000 - 0x00FFFFFF
@@ -1777,7 +1778,7 @@ mIRC(WindowProps)
 		if (numtok < 2)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		auto hwnd = reinterpret_cast<HWND>(input.getfirsttok(1).to_<DWORD>());	// tok 1
+		auto hwnd = to_hwnd(input.getfirsttok(1).to_<size_t>());	// tok 1
 
 		if (!IsWindow(hwnd))
 			throw Dcx::dcxException("Invalid window");
@@ -1882,6 +1883,141 @@ mIRC(WindowProps)
 	return 0;
 }
 
+static int dcxGetListBoxHoverItem(HWND hListbox, POINT pt) noexcept
+{
+	if (!hListbox)
+		return -1;
+
+	// do we have any items?
+	if (const auto iCnt = ListBox_GetCount(hListbox); iCnt > 0)
+	{
+		RECT rc {};
+
+		// check point is in client area.
+		if (GetClientRect(hListbox, &rc))
+		{
+			if (!PtInRect(&rc, pt))
+				return -1;
+		}
+
+		// loop through items & check for a match
+		for (int i{}; i < iCnt; ++i)
+		{
+			// get items rect
+			if (ListBox_GetItemRect(hListbox, i, &rc) == LB_ERR)
+				break;
+
+			// check if point is within this item.
+			if (PtInRect(&rc, pt))
+				return i;
+		}
+	}
+	return -1;
+}
+
+static TString dcxGetWindowProps(HWND hwnd, size_t prop)
+{
+	if (!hwnd || !IsWindow(hwnd))
+		throw Dcx::dcxException("Invalid window");
+
+	WINDOWINFO wi{};
+	wi.cbSize = sizeof(WINDOWINFO);
+
+	if (!GetWindowInfo(hwnd, &wi))
+		throw Dcx::dcxException("Unable to get window information");
+
+	TString tsRes;
+
+	switch (prop)
+	{
+	case TEXT("hwnd"_hash):			// handle
+		tsRes.addtok(from_hwnd(hwnd));
+		break;
+	case TEXT("x"_hash):			// left
+		tsRes.addtok(wi.rcWindow.left);
+		break;
+	case TEXT("y"_hash):			// top
+		tsRes.addtok(wi.rcWindow.top);
+		break;
+	case TEXT("w"_hash):			// width
+		tsRes.addtok(wi.rcWindow.right - wi.rcWindow.left);
+		break;
+	case TEXT("h"_hash):			// height
+		tsRes.addtok(wi.rcWindow.bottom - wi.rcWindow.top);
+		break;
+	case TEXT("caption"_hash):		// title text
+		tsRes = TGetWindowText(hwnd);
+		break;
+	case TEXT("dpi"_hash):			// dpi
+		tsRes.addtok(Dcx::DpiModule.dcxGetDpiForWindow(hwnd));
+		break;
+	case TEXT("class"_hash):		// class
+	{
+		const Dcx::dcxClassName cls(hwnd);
+		tsRes = cls.data();
+	}
+	break;
+	case TEXT("hoveritem"_hash):	// hoveritem
+	{
+		// Only works on a window that has a "ListBox" child (channel, custom, etc..), returns the item number the mouse is over or nothing if mouse isnt over an item.
+		if (auto hListbox = FindWindowExW(hwnd, nullptr, WC_LISTBOX, nullptr); hListbox)
+		{
+			const Dcx::dcxCursorPos pos(hListbox);
+
+			if (auto iItem = dcxGetListBoxHoverItem(hListbox, pos); iItem >= 0)
+				tsRes.addtok(++iItem);
+		}
+	}
+	break;
+	default:					// otherwise
+		throw DcxExceptions::dcxInvalidArguments();
+	}
+	return tsRes;
+}
+
+/*! \brief $dcx(GetWindowProps, hwnd property)
+ *
+ * $dcx(GetWindowProps, hwnd x)
+ * $dcx(GetWindowProps, hwnd y)
+ * $dcx(GetWindowProps, hwnd w)
+ * $dcx(GetWindowProps, hwnd h)
+ * $dcx(GetWindowProps, hwnd caption)
+ * $dcx(GetWindowProps, hwnd dpi)
+ * $dcx(GetWindowProps, hwnd class)
+ * $dcx(GetWindowProps, hwnd hoveritem)
+ */
+mIRC(GetWindowProps)
+{
+	TString input(data);
+
+	data[0] = 0;
+
+	try {
+		input.trim();
+
+		const auto numtok = input.numtok();
+
+		if (numtok < 1)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto hwnd = to_hwnd(input.getfirsttok(1).to_<size_t>());
+
+		_ts_strcpyn(data, dcxGetWindowProps(hwnd, std::hash<TString>{}(input.getnexttok())).to_chr(), mIRCLinker::c_mIRC_Buffer_Size_cch);
+		return 3;
+	}
+	catch (const std::exception& e)
+	{
+		Dcx::error(TEXT("$!dcx(GetWindowProps)"), TEXT("\"%\" error: %"), input, e.what());
+	}
+	catch (...) {
+		// stop any left over exceptions...
+		Dcx::error(TEXT("$!dcx(GetWindowProps)"), TEXT("\"%\" error: Unknown Exception"), input);
+	}
+	mIRCLinker::echo(TEXT("$!dcx(GetWindowProps, [hwnd] [property])"));
+	mIRCLinker::echo(TEXT("[property] = x,y,w,h,caption,dpi,class,hoveritem"));
+	return 0;
+}
+
 /*! \brief $dcx(ActiveWindow, property)
  *
  * $dcx(ActiveWindow, x)
@@ -1890,6 +2026,7 @@ mIRC(WindowProps)
  * $dcx(ActiveWindow, h)
  * $dcx(ActiveWindow, caption)
  * $dcx(ActiveWindow, hwnd)
+ * $dcx(ActiveWindow, dpi)
  */
 mIRC(ActiveWindow)
 {
@@ -1905,43 +2042,9 @@ mIRC(ActiveWindow)
 		if (numtok < 1)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto hwnd = GetForegroundWindow();
+		const auto hwnd = GetForegroundWindow(); // gives active desktop win
 
-		if (!IsWindow(hwnd))
-			throw Dcx::dcxException("Unable to determine active window");
-
-		WINDOWINFO wi{};
-		wi.cbSize = sizeof(WINDOWINFO);
-
-		if (!GetWindowInfo(hwnd, &wi))
-			throw Dcx::dcxException("Unable to get window information");
-
-		switch (std::hash<TString>{}(input.gettok(1)))
-		{
-		case TEXT("hwnd"_hash):		// handle
-			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%lu"), (DWORD)hwnd);	// don't use %p as this gives a hex result.
-			break;
-		case TEXT("x"_hash):		// left
-			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d"), wi.rcWindow.left);
-			break;
-		case TEXT("y"_hash):		// top
-			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d"), wi.rcWindow.top);
-			break;
-		case TEXT("w"_hash):		// width
-			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d"), wi.rcWindow.right - wi.rcWindow.left);
-			break;
-		case TEXT("h"_hash):		// height
-			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d"), wi.rcWindow.bottom - wi.rcWindow.top);
-			break;
-		case TEXT("caption"_hash):	// title text
-			GetWindowText(hwnd, data, mIRCLinker::m_dwCharacters);
-			break;
-		case TEXT("dpi"_hash):		// dpi
-			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%u"), Dcx::DpiModule.dcxGetDpiForWindow(hwnd));
-			break;
-		default:					// otherwise
-			throw DcxExceptions::dcxInvalidArguments();
-		}
+		_ts_strcpyn(data, dcxGetWindowProps(hwnd, std::hash<TString>{}(input.gettok(1))).to_chr(), mIRCLinker::c_mIRC_Buffer_Size_cch);
 		return 3;
 	}
 	catch (const std::exception& e)
@@ -1953,7 +2056,7 @@ mIRC(ActiveWindow)
 		Dcx::error(TEXT("$!dcx(ActiveWindow)"), TEXT("\"%\" error: Unknown Exception"), input);
 	}
 	mIRCLinker::echo(TEXT("$!dcx(ActiveWindow, [property])"));
-	mIRCLinker::echo(TEXT("[property] = x,y,w,h,caption,hwnd"));
+	mIRCLinker::echo(TEXT("[property] = x,y,w,h,caption,hwnd,dpi,class,hoveritem"));
 	return 0;
 }
 

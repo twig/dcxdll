@@ -23,6 +23,7 @@ CountIcons
 TrayIcon
 WindowProps
 ActiveWindow
+GetWindowProps
 GhostDrag
 SetSystemCursors
 SetmIRCCursors
