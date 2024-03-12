@@ -34,10 +34,46 @@ namespace Dcx
 
 		return tsBuf;
 	}
-	inline int dcxListBox_InsertString(HWND hwnd, int nPos, const TString& txt) noexcept
+	int dcxListBox_GetPointItem(HWND hListbox, POINT pt) noexcept
 	{
-		return ListBox_InsertString(hwnd, nPos, txt.to_chr());
+		if (!hListbox)
+			return -1;
+
+		// do we have any items?
+		if (const auto iCnt = ListBox_GetCount(hListbox); iCnt > 0)
+		{
+			RECT rc{};
+
+			// check point is in client area.
+			if (GetClientRect(hListbox, &rc))
+			{
+				if (!PtInRect(&rc, pt))
+					return -1;
+			}
+
+			// loop through items & check for a match
+			for (int i{}; i < iCnt; ++i)
+			{
+				// get items rect
+				if (!Dcx::dcxListBox_GetItemRect(hListbox, i, &rc))
+					break;
+
+				// check if point is within this item.
+				if (PtInRect(&rc, pt))
+					return i;
+			}
+		}
+		return -1;
 	}
+	int dcxListBox_GetHoverItem(HWND hListbox) noexcept
+	{
+		if (!hListbox)
+			return -1;
+
+		const Dcx::dcxCursorPos pt(hListbox);
+		return dcxListBox_GetPointItem(hListbox, pt);
+	}
+
 }
 
 /*!
@@ -234,6 +270,13 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		ListBox_GetText(m_Hwnd, nSel, szReturnValue);
 	}
 	break;
+	// [NAME] [ID] [PROP]
+	case L"hoveritem"_hash:
+	{
+		const auto i = Dcx::dcxListBox_GetHoverItem(m_Hwnd) + 1;
+		_ts_snprintf(szReturnValue, TEXT("%d"), i);
+	}
+	break;
 	// [NAME] [ID] [PROP] (N)
 	case L"seltext"_hash:
 	{
@@ -327,8 +370,8 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		if (!GetClientRect(m_Hwnd, &rc))
 			throw Dcx::dcxException("Unable to get client rect!");
 
-		const auto top = SendMessage(m_Hwnd, LB_GETTOPINDEX, 0, 0);
-		const auto height = SendMessage(m_Hwnd, LB_GETITEMHEIGHT, 0, 0);
+		const auto top = ListBox_GetTopIndex(m_Hwnd);
+		const auto height = ListBox_GetItemHeight(m_Hwnd, 0);
 
 		auto bottom = top + ((rc.bottom - rc.top) / height);
 
@@ -352,7 +395,7 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		if (matchtext.empty())
 			throw Dcx::dcxException("No Match text supplied");
 
-		auto SearchType = CharToSearchType(params++[0]);
+		const auto SearchType = CharToSearchType(params++[0]);
 
 		const auto N = params++.to_<UINT>();	// tok 2
 		const auto nItems = ListBox_GetCount(m_Hwnd);
@@ -1056,9 +1099,10 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 
 		if (len > 0)
 		{ // Only do all this if theres any text to draw.
-			TString txt(gsl::narrow_cast<UINT>(len + 1));
+			//TString txt(gsl::narrow_cast<TString::size_type>(len + 1));
+			//ListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID, txt.to_chr());
 
-			ListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID, txt.to_chr());
+			const auto txt (Dcx::dcxListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID));
 
 			rc.left += 2;
 
@@ -1267,7 +1311,7 @@ void DcxList::DrawDragLine(const int location) noexcept
 {
 	RECT rc{};
 
-	if (ListBox_GetItemRect(m_Hwnd, location, &rc) == LB_ERR)
+	if (!Dcx::dcxListBox_GetItemRect(m_Hwnd, location, &rc))
 		return;
 
 	if (location != m_iLastDrawnLine)
