@@ -1883,7 +1883,7 @@ mIRC(WindowProps)
 	return 0;
 }
 
-static int dcxGetListBoxHoverItem(HWND hListbox, POINT pt) noexcept
+static int dcxGetListBoxHoverItem(HWND hListbox) noexcept
 {
 	if (!hListbox)
 		return -1;
@@ -1891,6 +1891,8 @@ static int dcxGetListBoxHoverItem(HWND hListbox, POINT pt) noexcept
 	// do we have any items?
 	if (const auto iCnt = ListBox_GetCount(hListbox); iCnt > 0)
 	{
+		const Dcx::dcxCursorPos pt(hListbox);
+
 		RECT rc {};
 
 		// check point is in client area.
@@ -1964,7 +1966,7 @@ static TString dcxGetWindowProps(HWND hwnd, size_t prop)
 		{
 			//const Dcx::dcxCursorPos pos(hListbox);
 
-			if (auto iItem = dcxGetListBoxHoverItem(hListbox, Dcx::dcxCursorPos(hListbox)); iItem >= 0)
+			if (auto iItem = dcxGetListBoxHoverItem(hListbox); iItem >= 0)
 				tsRes.addtok(++iItem);
 		}
 	}
