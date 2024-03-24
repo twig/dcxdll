@@ -325,13 +325,13 @@ HWND XPopupMenuManager::CreateTrackingToolTip(int toolID, HWND hDlg, WCHAR* pTex
 	g_toolItem.hwnd = hDlg;
 	g_toolItem.hinst = GetModuleHandle(nullptr);
 	g_toolItem.lpszText = pText;
-	g_toolItem.uId = (UINT_PTR)hDlg;
+	g_toolItem.uId = from_hwnd<UINT_PTR>(hDlg);
 
 	GetClientRect(hDlg, &g_toolItem.rect);
 
 	// Associate the tooltip with the tool window.
 
-	SendMessage(hwndTT, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&g_toolItem);
+	SendMessage(hwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&g_toolItem));
 
 	return hwndTT;
 }
