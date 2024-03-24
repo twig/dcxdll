@@ -222,7 +222,7 @@ UINT DcxDPIModule::dcxGetDpiForSystem() noexcept
 /// </summary>
 /// <param name="hwnd"></param>
 /// <returns></returns>
-UINT DcxDPIModule::dcxGetDpiForWindow(_In_ _Maybenull_ HWND hwnd) noexcept
+UINT DcxDPIModule::dcxGetDpiForWindow(_In_opt_ HWND hwnd) noexcept
 {
 	if (hwnd && GetDpiForWindowUx)
 		return GetDpiForWindowUx(hwnd);
@@ -338,7 +338,7 @@ BOOL DcxDPIModule::dcxSystemParametersInfoForDpi(_In_ UINT uiAction, _In_ UINT u
 /// <param name="hwnd"></param>
 /// <param name="nIndex"></param>
 /// <returns></returns>
-UINT DcxDPIModule::dcxGetWindowMetrics(_In_ _Maybenull_ HWND hwnd, _In_ int nIndex) noexcept
+UINT DcxDPIModule::dcxGetWindowMetrics(_In_opt_ HWND hwnd, _In_ int nIndex) noexcept
 {
 	const auto dpi = dcxGetDpiForWindow(hwnd);
 	return dcxGetSystemMetricsForDpi(nIndex, dpi);
@@ -372,7 +372,7 @@ DPI_AWARENESS_CONTEXT DcxDPIModule::dcxSetThreadDpiAwarenessContext(_In_ DPI_AWA
 	return nullptr;
 }
 
-BOOL DcxDPIModule::dcxInheritWindowMonitor(HWND hwnd, HWND hwndInherit) noexcept
+BOOL DcxDPIModule::dcxInheritWindowMonitor(_In_ HWND hwnd, _In_opt_ HWND hwndInherit) noexcept
 {
 	if (InheritWindowMonitorUx)
 		return InheritWindowMonitorUx(hwnd, hwndInherit);
