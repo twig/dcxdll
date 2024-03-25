@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.25
+// v1.26
 
 #include <tchar.h>
 #include <cstdlib>
@@ -660,7 +660,7 @@ namespace details {
 	};
 	template <>
 	struct _impl_vscprintf<wchar_t> {
-		GSL_SUPPRESS(f.55) _Success_(return >= 0) _Check_return_ const int operator()(_In_z_ _Printf_format_string_ const wchar_t* const fmt, const va_list args) noexcept
+		GSL_SUPPRESS(f.55) _Success_(return >= 0) _Check_return_ const int operator()(_In_z_ _Printf_format_string_ const wchar_t* const fmt, _In_ const va_list args) noexcept
 		{
 			return _vscwprintf(fmt, args);
 		}
@@ -671,14 +671,14 @@ namespace details {
 	};
 	template <>
 	struct _impl_vsprintf<char> {
-		GSL_SUPPRESS(f.55) _Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_writes_opt_(nCount) _Always_(_Post_z_) char* const buf, _In_ size_t const nCount, _In_z_ _Printf_format_string_ const char* const fmt, const va_list args) noexcept
+		GSL_SUPPRESS(f.55) _Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_writes_opt_(nCount) _Always_(_Post_z_) char* const buf, _In_ size_t const nCount, _In_z_ _Printf_format_string_ const char* const fmt, _In_ const va_list args) noexcept
 		{
 			return vsnprintf(buf, nCount, fmt, args);
 		}
 	};
 	template <>
 	struct _impl_vsprintf<wchar_t> {
-		GSL_SUPPRESS(f.55) _Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_writes_opt_(nCount) _Always_(_Post_z_) wchar_t* const buf, _In_ size_t const nCount, _In_z_ _Printf_format_string_ const wchar_t* const fmt, const va_list args) noexcept
+		GSL_SUPPRESS(f.55) _Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_writes_opt_(nCount) _Always_(_Post_z_) wchar_t* const buf, _In_ size_t const nCount, _In_z_ _Printf_format_string_ const wchar_t* const fmt, _In_ const va_list args) noexcept
 		{
 			return vswprintf(buf, nCount, fmt, args);
 		}
