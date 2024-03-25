@@ -165,12 +165,12 @@ namespace CRC32
 // turns a literal string into a hash number at compile time.
 constexpr unsigned int operator "" _crc32(const char* v, size_t c)
 {
-	return CRC32::crc32_helper(v, c, 0xFFFFFFFF);
+	return CRC32::crc32_helper(v, gsl::narrow_cast<UINT>(c), 0xFFFFFFFF);
 }
 // turns a literal string into a hash number at compile time.
 constexpr size_t operator""_crc32(const wchar_t* p, size_t N)
 {
-	return CRC32::crc32_helper(p, N, 0xFFFFFFFF);
+	return CRC32::crc32_helper(p, gsl::narrow_cast<UINT>(N), 0xFFFFFFFF);
 }
 
 namespace ZobHash
@@ -467,7 +467,7 @@ namespace ZobHash
 // turns a literal string into a hash number at compile time.
 constexpr unsigned int operator "" _zob(const char* v, size_t c)
 {
-	return ZobHash::ZobHash(v, c);
+	return ZobHash::ZobHash(v, gsl::narrow_cast<int32_t>(c));
 }
 
 namespace FNV1a
@@ -542,7 +542,7 @@ namespace XXH3
 			if (pos >= inputLen)
 				return 0;
 
-			return static_cast<uint8_t>(input[pos]);
+			GSL_SUPPRESS(type.1) return static_cast<uint8_t>(input[pos]);
 		}
 		constexpr uint32_t read_u32le(const char* input, int inputLen, int pos)
 		{
@@ -767,7 +767,7 @@ namespace XXH3
 _CONSTEVAL uint32_t operator "" _xxh32(const char* p, size_t N)
 {
 	constexpr uint32_t seed = 0;
-	return XXH3::xxh32(p, N - 1, seed);
+	return XXH3::xxh32(p, gsl::narrow_cast<int>(N - 1), seed);
 }
 
 
@@ -775,7 +775,7 @@ _CONSTEVAL uint32_t operator "" _xxh32(const char* p, size_t N)
 _CONSTEVAL uint64_t operator "" _xxh64(const char* p, size_t N)
 {
 	constexpr uint64_t seed = 0;
-	return XXH3::xxh64(p, N - 1, seed);
+	return XXH3::xxh64(p, gsl::narrow_cast<int>(N - 1), seed);
 }
 
 /// <summary>
