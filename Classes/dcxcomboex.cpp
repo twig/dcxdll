@@ -69,7 +69,7 @@ DcxComboEx::DcxComboEx(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_D
 
 		//SetWindowLong( this->m_EditHwnd, GWL_STYLE, GetWindowLong( this->m_EditHwnd, GWL_STYLE ));// | ES_AUTOHSCROLL );
 		this->m_exEdit.OldProc = SubclassWindow(this->m_EditHwnd, DcxComboEx::ComboExEditProc);
-		SetWindowLongPtr(this->m_EditHwnd, GWLP_USERDATA, reinterpret_cast<LONG>(&this->m_exEdit));
+		SetWindowLongPtr(this->m_EditHwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&this->m_exEdit));
 	}
 
 	this->m_hComboHwnd = getComboControl();
@@ -255,7 +255,7 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 			{
 				for (auto i = decltype(nItems){0}; i < nItems; ++i)
 				{
-					if (this->matchItemText(i, srch_data))
+					if (this->matchItemText(gsl::narrow_cast<int>(i), srch_data))
 						++count;
 				}
 
@@ -265,7 +265,7 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 			else {
 				for (auto i = decltype(nItems){0}; i < nItems; ++i)
 				{
-					if (this->matchItemText(i, srch_data))
+					if (this->matchItemText(gsl::narrow_cast<int>(i), srch_data))
 						++count;
 
 					if (count == N)
@@ -428,7 +428,7 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 			{
 				const TString tsLine(*itStart);
 
-				const auto [iStart, iEnd] = Dcx::getItemRange(tsLine, nItems);
+				const auto [iStart, iEnd] = Dcx::getItemRange(tsLine, gsl::narrow_cast<int>(nItems));
 
 				if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
 					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
@@ -541,7 +541,7 @@ bool DcxComboEx::matchItemText(const int nItem, const dcxSearchData& srch_data) 
 
 bool DcxComboEx::setItem(const PCOMBOBOXEXITEM lpcCBItem) noexcept
 {
-	if (!m_Hwnd)
+	if (!m_Hwnd || !lpcCBItem)
 		return false;
 
 	return Dcx::dcxComboEx_SetItem(m_Hwnd, lpcCBItem);
@@ -549,7 +549,7 @@ bool DcxComboEx::setItem(const PCOMBOBOXEXITEM lpcCBItem) noexcept
 
 LRESULT DcxComboEx::insertItem(const PCOMBOBOXEXITEM lpcCBItem) noexcept
 {
-	if (!m_Hwnd)
+	if (!m_Hwnd || !lpcCBItem)
 		return -1;
 
 	return Dcx::dcxComboEx_InsertItem(m_Hwnd, lpcCBItem);
@@ -563,7 +563,7 @@ LRESULT DcxComboEx::insertItem(const PCOMBOBOXEXITEM lpcCBItem) noexcept
 
 LRESULT DcxComboEx::getItem(const PCOMBOBOXEXITEM lpcCBItem) const noexcept
 {
-	if (!m_Hwnd)
+	if (!m_Hwnd || !lpcCBItem)
 		return 0;
 
 	return Dcx::dcxComboEx_GetItem(m_Hwnd, lpcCBItem);
@@ -641,7 +641,7 @@ LRESULT DcxComboEx::getCurSel() const noexcept
 
 LRESULT DcxComboEx::getLBText(const int iIndex, LPSTR lps) noexcept
 {
-	if (!m_Hwnd)
+	if (!m_Hwnd || !lps)
 		return CB_ERR;
 
 	return SendMessage(m_Hwnd, CB_GETLBTEXT, gsl::narrow_cast<WPARAM>(iIndex), reinterpret_cast<LPARAM>(lps));
@@ -658,8 +658,10 @@ LRESULT DcxComboEx::resetContent() noexcept
 	if (!m_Hwnd)
 		return CB_OKAY;
 
-	setEditboxContents(TEXT(""), 0, 0, 0, 0);
-
+	try {
+		setEditboxContents(TString(), 0, 0, 0, 0);
+	}
+	catch (...) {}
 	return SendMessage(m_Hwnd, CB_RESETCONTENT, 0U, 0);
 }
 
@@ -727,7 +729,7 @@ void DcxComboEx::setEditboxContents(const TString& tsStr, int icon, int state, i
 
 			if (tsStr == str)
 			{
-				setCurSel(i);
+				setCurSel(gsl::narrow_cast<int>(i));
 				return;
 			}
 		}
@@ -854,7 +856,7 @@ void DcxComboEx::UpdateHorizExtent()
 		if (const auto nLen = ComboBox_GetLBTextLen(m_Hwnd, i); nLen > nMaxStrlen)
 		{
 			nMaxStrlen = nLen;
-			iLongestItem = i;
+			iLongestItem = gsl::narrow_cast<int>(i);
 		}
 	}
 
@@ -874,7 +876,7 @@ void DcxComboEx::UpdateHorizExtent(const int nPos)
 	UpdateHorizExtent(tsItem);
 }
 
-void DcxComboEx::UpdateHorizExtent(const TString& tsItem)
+void DcxComboEx::UpdateHorizExtent(const TString& tsItem) noexcept
 {
 	// Get Font sizes (best way i can find atm, if you know something better then please let me know)
 	if (const auto hdc = GetDC(m_Hwnd); hdc)
@@ -1213,7 +1215,7 @@ void DcxComboEx::toXml(TiXmlElement* const xml) const
 	// get editbox contents
 	cbi.iItem = -1;
 	cbi.mask = CBEIF_TEXT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE | CBEIF_INDENT;
-	cbi.cchTextMax = std::size(szBuf);
+	cbi.cchTextMax = gsl::narrow_cast<int>(std::size(szBuf));
 	cbi.pszText = &szBuf[0];
 	this->getItem(&cbi);
 	TString wtext(szBuf);
@@ -1238,7 +1240,7 @@ void DcxComboEx::toXml(TiXmlElement* const xml) const
 	for (int nItem{}; nItem < iCount; ++nItem)
 	{
 		cbi.iItem = nItem;
-		cbi.cchTextMax = std::size(szBuf);
+		cbi.cchTextMax = gsl::narrow_cast<int>(std::size(szBuf));
 		cbi.pszText = &szBuf[0];
 		if (this->getItem(&cbi))
 		{
@@ -1327,7 +1329,7 @@ LRESULT DcxComboEx::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }
 
-const WindowExStyle DcxComboEx::parseComboExStyles(const TString& tsStyles) noexcept
+const WindowExStyle DcxComboEx::parseComboExStyles(const TString& tsStyles)
 {
 	WindowExStyle ws{};
 

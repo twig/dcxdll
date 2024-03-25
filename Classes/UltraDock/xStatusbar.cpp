@@ -17,6 +17,7 @@ namespace {
 	LPSB_PARTINFOD xstatus_GetPart(const int iPart) noexcept
 	{
 		return reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(iPart, nullptr));
+		//return Dcx::dcxStatusBar_GetPartInfo<LPSB_PARTINFOD>(g_StatusBar, iPart);
 	}
 }
 
@@ -108,7 +109,7 @@ mIRC(xstatusbar)
 
 				gsl::at(parts,i) = t;
 			}
-			DcxDock::status_setParts(nParts, &parts[0]);
+			DcxDock::status_setParts(gsl::narrow_cast<UINT>(nParts), &parts[0]);
 			DcxDock::status_updateParts();
 		}
 		break;
@@ -173,7 +174,7 @@ mIRC(xstatusbar)
 			if (numtok < 4)
 				throw DcxExceptions::dcxInvalidArguments();
 
-			if (const auto nPos = (input.getnexttok().to_int() - 1); (nPos > -1 && gsl::narrow_cast<UINT>(nPos) < DcxDock::status_getParts(SB_MAX_PARTSD, nullptr)))
+			if (const auto nPos = (input.getnexttok().to_int() - 1); (nPos > -1 && nPos < DcxDock::status_getParts(SB_MAX_PARTSD, nullptr)))
 			{
 				TString itemtext;
 				const auto bkgClr = input.getnexttok().to_<COLORREF>();	// tok 3
@@ -296,7 +297,7 @@ mIRC(_xstatusbar)
 		break;
 		case TEXT("text"_hash):
 		{
-			if (const auto iPart = (d.getnexttok().to_int() - 1), nParts = gsl::narrow_cast<int>(DcxDock::status_getParts(SB_MAX_PARTSD, nullptr)); (iPart > -1 && iPart < nParts))
+			if (const auto iPart = (d.getnexttok().to_int() - 1), nParts = DcxDock::status_getParts(SB_MAX_PARTSD, nullptr); (iPart > -1 && iPart < nParts))
 			{
 				if (const auto iFlags = DcxDock::status_getPartFlags(iPart); dcx_testflag(iFlags, SBT_OWNERDRAW))
 				{
@@ -335,7 +336,7 @@ mIRC(_xstatusbar)
 		break;
 		case TEXT("tooltip"_hash):
 		{
-			if (const auto iPart = d.getnexttok().to_int(), nParts = gsl::narrow_cast<int>(DcxDock::status_getParts(SB_MAX_PARTSD, nullptr)); (iPart > -1 && iPart < nParts))
+			if (const auto iPart = d.getnexttok().to_int(), nParts = DcxDock::status_getParts(SB_MAX_PARTSD, nullptr); (iPart > -1 && iPart < nParts))
 				DcxDock::status_getTipText(iPart, mIRCLinker::m_dwCharacters, data);
 		}
 		break;

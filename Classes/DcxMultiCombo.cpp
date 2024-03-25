@@ -52,9 +52,9 @@ LRESULT DcxMultiCombo::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 	case WM_VSCROLL:
 	case WM_COMMAND:
 	{
-		if (IsWindow(reinterpret_cast<HWND>(lParam)))
+		if (IsWindow(to_hwnd(lParam)))
 		{
-			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis")); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(to_hwnd(lParam), TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -366,7 +366,7 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 
 		// control has a single child control, adding a new one over an existing one will remove & destroy the old one first.
 		if (const auto p_Control = getParentDialog()->addControl(input, 4, DcxAllowControls::ALLOW_ALL, m_Hwnd); p_Control)
-			SendMessage(m_Hwnd, MC_WM_ADDCHILD, 0, (LPARAM)p_Control->getHwnd());
+			SendMessage(m_Hwnd, MC_WM_ADDCHILD, 0, reinterpret_cast<LPARAM>(p_Control->getHwnd()));
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	//xdid -d -> [NAME] [ID] -d [N](,[N],[N1]-N2],...)
@@ -441,8 +441,8 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		COLORREF plt[mIRC_PALETTE_SIZE]{ CLR_INVALID };
-		getmIRCPalette(&plt[0], std::size(plt), false);
-		SendMessage(m_Hwnd, MC_WM_FILLCOLOURS, (WPARAM)std::size(plt), (LPARAM)&plt[0]);
+		getmIRCPalette(&plt[0], gsl::narrow_cast<UINT>(std::size(plt)), false);
+		SendMessage(m_Hwnd, MC_WM_FILLCOLOURS, gsl::narrow_cast<WPARAM>(std::size(plt)), reinterpret_cast<LPARAM>(&plt[0]));
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [RGB] (TEXT)
 	else if (flags[TEXT('o')])

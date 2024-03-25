@@ -429,7 +429,7 @@ void DcxProgressBar::toXml(TiXmlElement* const xml) const
 		xml->SetAttribute("min", pbr.iLow);
 		xml->SetAttribute("max", pbr.iHigh);
 	}
-	xml->SetAttribute("pos", this->getPosition());
+	xml->SetAttribute("pos", gsl::narrow_cast<int>(this->getPosition()));
 	xml->SetAttribute("step", this->getStep());
 	if ((this->m_clrStartGradient == CLR_INVALID) && (this->m_clrEndGradient == CLR_INVALID))
 	{
@@ -524,10 +524,10 @@ LRESULT DcxProgressBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	{
 		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 		{
-			const auto iLower = getRange(TRUE, nullptr);
-			const auto iHigher = getRange(FALSE, nullptr);
+			const auto iLower = gsl::narrow_cast<int>(getRange(TRUE, nullptr));
+			const auto iHigher = gsl::narrow_cast<int>(getRange(FALSE, nullptr));
 
-			execAliasEx(TEXT("sclick,%u,%d,%d,%d,%d"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
+			execAliasEx(TEXT("sclick,%u,%d,%d,%d,%zd"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
 		}
 	}
 	break;
@@ -550,10 +550,10 @@ LRESULT DcxProgressBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	{
 		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 		{
-			const auto iLower = getRange(TRUE, nullptr);
-			const auto iHigher = getRange(FALSE, nullptr);
+			const auto iLower = gsl::narrow_cast<int>(getRange(TRUE, nullptr));
+			const auto iHigher = gsl::narrow_cast<int>(getRange(FALSE, nullptr));
 
-			execAliasEx(TEXT("rclick,%u,%d,%d,%d,%d"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
+			execAliasEx(TEXT("rclick,%u,%d,%d,%d,%zd"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
 		}
 	}
 	break;
@@ -566,10 +566,10 @@ LRESULT DcxProgressBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		{
 			if (wParam == MK_LBUTTON)
 			{
-				const auto iLower = this->getRange(TRUE, nullptr);
-				const auto iHigher = this->getRange(FALSE, nullptr);
+				const auto iLower = gsl::narrow_cast<int>(this->getRange(TRUE, nullptr));
+				const auto iHigher = gsl::narrow_cast<int>(this->getRange(FALSE, nullptr));
 
-				this->execAliasEx(TEXT("mousebar,%u,%d,%d,%d, %d"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
+				this->execAliasEx(TEXT("mousebar,%u,%d,%d,%d,%zd"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
 			}
 		}
 	}
@@ -596,7 +596,7 @@ int DcxProgressBar::CalculatePosition() const noexcept
 	const auto iPos = getPosition();
 
 	if (m_bIsAbsoluteValue)
-		return iPos;
+		return gsl::narrow_cast<int>(iPos);
 
 	const auto iLower = getRange(TRUE, nullptr);
 	const auto iHigher = getRange(FALSE, nullptr);

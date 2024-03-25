@@ -26,55 +26,6 @@
 
 class DcxDialog;
 
-namespace Dcx {
-	/// <summary>
-	/// Add a string to the listbox
-	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <param name="nPos"></param>
-	/// <param name="txt"></param>
-	/// <returns></returns>
-	inline int dcxListBox_InsertString(HWND hwnd, int nPos, const TString& txt) noexcept
-	{
-		return ListBox_InsertString(hwnd, nPos, txt.to_chr());
-	}
-
-	/// <summary>
-	/// Get an items rect.
-	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <param name="nPos"></param>
-	/// <param name="prc"></param>
-	/// <returns>true on success</returns>
-	inline bool dcxListBox_GetItemRect(HWND hwnd, int nPos, LPRECT prc) noexcept
-	{
-		return (ListBox_GetItemRect(hwnd, nPos, prc) != LB_ERR);
-	}
-
-	/// <summary>
-	/// Get an items text.
-	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <param name="i"></param>
-	/// <returns></returns>
-	TString dcxListBox_GetText(HWND hwnd, int i);
-
-	/// <summary>
-	/// Get the item at a specific point.
-	/// </summary>
-	/// <param name="hListbox"></param>
-	/// <param name="pt"></param>
-	/// <returns>Item number or -1 if no item</returns>
-	int dcxListBox_GetPointItem(HWND hListbox, POINT pt) noexcept;
-
-	/// <summary>
-	/// Get the item the mouse is currently over
-	/// </summary>
-	/// <param name="hListbox"></param>
-	/// <returns></returns>
-	int dcxListBox_GetHoverItem(HWND hListbox) noexcept;
-}
-
 /*!
  * \brief blah
  *

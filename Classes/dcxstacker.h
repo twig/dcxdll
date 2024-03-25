@@ -21,10 +21,11 @@
 
 #define MIN_STACK_HEIGHT 20 //!< Min height for a stacker item.
 
-#define STACKERS_GRAD			0x01
+#define STACKERS_GRAD		0x01
 #define STACKERS_IMAGE		0x02
 #define STACKERS_ARROW		0x04
 #define STACKERS_COLLAPSE	0x08
+#define STACKERS_FLOAT		0x10
 
 #define ST_ERR	-1
 
@@ -111,10 +112,12 @@ protected:
 
 	void DrawSItem(const LPDRAWITEMSTRUCT idata);
 	static void DrawAliasedTriangle(const HDC hdc, const LPCRECT rc, const COLORREF clrShape);
+#ifdef DCX_USE_GDIPLUS
 	void DrawItemImage(const HDC hdc, Gdiplus::Image* const img, const LPCRECT rc);
+#endif
 	//
 	void clearImageList(void) noexcept;
-	void clearItemList(void);
+	void clearItemList(void) noexcept;
 	//
 	void calcItemRect(LPRECT rc);
 };

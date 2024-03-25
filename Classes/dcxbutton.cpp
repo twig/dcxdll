@@ -126,15 +126,7 @@ TString DcxButton::parseInfoRequest(const TString& input) const
 	case TEXT("text"_hash):
 		return m_tsCaption;
 	case TEXT("note"_hash):
-	{
-		TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
-		if (Button_GetNoteLength(m_Hwnd) > 0)
-		{
-			DWORD l{ MIRC_BUFFER_SIZE_CCH - 1 };
-			Button_GetNote(m_Hwnd, tsBuf.data(), &l);	// both args are pointers
-		}
-		return tsBuf;
-	}
+		return Dcx::dcxButton_GetNote(m_Hwnd);
 	break;
 	default:
 		break;
@@ -337,17 +329,10 @@ void DcxButton::parseCommandRequest(const TString& input)
 
 		m_tsCaption.clear();
 
-		if (xFlags[TEXT('n')])
-		{	// note (for command link style)
-			Button_SetNote(m_Hwnd, tsText.to_chr());
-		}
+		if (xFlags[TEXT('n')])	// note (for command link style)
+			Dcx::dcxButton_SetNote(m_Hwnd, tsText.to_chr());
 		else
-		{
-			Button_SetText(m_Hwnd, tsText.to_chr());
-
-			//m_tsCaption = tsText;
-			//Button_SetText(m_Hwnd, m_tsCaption.to_chr());
-		}
+			Dcx::dcxButton_SetText(m_Hwnd, tsText.to_chr());
 
 		redrawWindow();
 	}
@@ -389,7 +374,7 @@ void DcxButton::parseCommandRequest(const TString& input)
 			// group button
 			dStyle |= BS_GROUPBOX;
 		}
-		Button_SetStyle(m_Hwnd, dStyle, TRUE);
+		Dcx::dcxButton_SetStyle(m_Hwnd, dStyle, TRUE);
 	}
 	else
 		parseGlobalCommandRequest(input, flags);
@@ -540,12 +525,15 @@ void DcxButton::toXml(TiXmlElement* const xml) const
 		xml->SetAttribute("text", TGetWindowText(m_Hwnd).c_str());
 		if (bCmd)
 		{
-			if (Button_GetNoteLength(m_Hwnd) > 0)
+			if (Dcx::dcxButton_GetNoteLength(m_Hwnd) > 0)
 			{
-				TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
-				DWORD l{ MIRC_BUFFER_SIZE_CCH - 1 };
-				Button_GetNote(m_Hwnd, &szBuf[0], &l); // NB: two POINTERS
-				xml->SetAttribute("note", TString(szBuf).c_str());
+				//TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
+				//DWORD l{ MIRC_BUFFER_SIZE_CCH - 1 };
+				//Dcx::dcxButton_GetNote(m_Hwnd, &szBuf[0], &l); // NB: two POINTERS
+				//xml->SetAttribute("note", TString(szBuf).c_str());
+
+				const auto tsBuf(Dcx::dcxButton_GetNote(m_Hwnd));
+				xml->SetAttribute("note", tsBuf.c_str());
 			}
 		}
 	}
@@ -1024,7 +1012,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			if (IsControlCodeTextEnabled())
 				t.strip();
 			if (!m_bSelected && IsShadowTextEnabled())
-				dcxDrawShadowText(hdc, t.to_wchr(), t.len(), &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_CALCRECT, gsl::at(m_aColors, nState), 0, 5, 5);
+				dcxDrawShadowText(hdc, t.to_wchr(), gsl::narrow_cast<UINT>(t.len()), &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_CALCRECT, gsl::at(m_aColors, nState), 0, 5, 5);
 			else
 				DrawText(hdc, t.to_chr(), gsl::narrow_cast<int>(t.len()), &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_CALCRECT);
 		}
@@ -1076,7 +1064,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			if (!IsControlCodeTextEnabled())
 			{
 				if (!m_bSelected && IsShadowTextEnabled())
-					dcxDrawShadowText(hdc, m_tsCaption.to_wchr(), m_tsCaption.len(), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, gsl::at(m_aColors, nState), 0, 5, 5);
+					dcxDrawShadowText(hdc, m_tsCaption.to_wchr(), gsl::narrow_cast<UINT>(m_tsCaption.len()), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, gsl::at(m_aColors, nState), 0, 5, 5);
 				else
 					DrawText(hdc, m_tsCaption.to_chr(), gsl::narrow_cast<int>(m_tsCaption.len()), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
 			}

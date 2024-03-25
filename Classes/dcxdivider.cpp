@@ -256,7 +256,7 @@ BOOL DcxDivider::setBarColor(COLORREF clrUnselected, COLORREF clrSelected) noexc
 
 BOOL DcxDivider::setBarWidth(UINT nWidth) noexcept
 {
-	return SendMessage(m_Hwnd, DV_SETBARWIDTH, 0U, gsl::narrow_cast<LPARAM>(nWidth));
+	return gsl::narrow_cast<BOOL>(SendMessage(m_Hwnd, DV_SETBARWIDTH, 0U, gsl::narrow_cast<LPARAM>(nWidth)));
 }
 
 UINT DcxDivider::getDivPos() const noexcept
@@ -452,9 +452,9 @@ LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 	case WM_VSCROLL:
 	case WM_COMMAND:
 	{
-		if (IsWindow(reinterpret_cast<HWND>(lParam)))
+		if (IsWindow(to_hwnd(lParam)))
 		{
-			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis")); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(to_hwnd(lParam), TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}

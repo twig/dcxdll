@@ -301,6 +301,7 @@ void DcxDialog::xmlSaveMenubar(TiXmlElement* xParent, const XPMENUBAR& mMenuBar)
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
 GSL_SUPPRESS(f.55)
+GSL_SUPPRESS(lifetime.1)
 void DcxDialog::parseCommandRequestEX(_In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...)
 {
 	TString msg;
@@ -322,7 +323,8 @@ void DcxDialog::parseCommandRequestEX(_In_z_ _Printf_format_string_ const TCHAR*
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
 GSL_SUPPRESS(f.55)
-void DcxDialog::parseComControlRequestEX(_In_ const UINT id, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...)
+GSL_SUPPRESS(lifetime.1)
+void DcxDialog::parseComControlRequestEX(_In_ const UINT id, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const
 {
 	auto p_Control = getControlByID(id + mIRC_ID_OFFSET);
 	if (!p_Control)
@@ -1864,7 +1866,9 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
-bool DcxDialog::evalAliasEx(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const
+GSL_SUPPRESS(lifetime.1)
+GSL_SUPPRESS(f.55)
+bool DcxDialog::evalAliasEx(_Out_ const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const
 {
 	TString line;
 	va_list args = nullptr;
@@ -1876,7 +1880,8 @@ bool DcxDialog::evalAliasEx(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szRetu
 	return evalAlias(szReturn, maxlen, line.to_chr());
 }
 
-bool DcxDialog::evalAlias(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _In_z_ const TCHAR* const szArgs) const
+GSL_SUPPRESS(lifetime.1)
+bool DcxDialog::evalAlias(_Out_ const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _In_z_ const TCHAR* const szArgs) const
 {
 	incRef();
 	Auto(decRef());
@@ -1887,6 +1892,8 @@ bool DcxDialog::evalAlias(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn
 
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
+GSL_SUPPRESS(lifetime.1)
+GSL_SUPPRESS(f.55)
 bool DcxDialog::execAliasEx(_In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const
 {
 	TString line;
@@ -1973,7 +1980,7 @@ void DcxDialog::setFocusControl(const UINT mUID)
 /// and modified for our needs.
 /// </summary>
 /// <param name="hWnd"></param>
-void DcxDialog::UAHDrawMenuNCBottomLine(HWND hWnd) noexcept
+void DcxDialog::UAHDrawMenuNCBottomLine(HWND hWnd) const noexcept
 {
 	if (!hWnd)
 		return;
@@ -1984,7 +1991,7 @@ void DcxDialog::UAHDrawMenuNCBottomLine(HWND hWnd) noexcept
 
 	RECT rcClient{};
 	GetClientRect(hWnd, &rcClient);
-	MapWindowPoints(hWnd, nullptr, (POINT*)&rcClient, 2);
+	MapWindowRect(hWnd, nullptr, &rcClient);
 
 	RECT rcWindow{};
 	GetWindowRect(hWnd, &rcWindow);
@@ -2057,6 +2064,17 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		break;
 	}
 
+	case WM_DPICHANGED_AFTERPARENT:
+	{
+		// win10+ only
+		// incase this dialog is changed to be a child at some point...
+		if (dcx_testflag(p_this->getEventMask(), DCX_EVENT_THEME))
+			p_this->execAlias(TEXT("dpichanged,0,afterparent"));
+
+		p_this->m_uDPI = Dcx::DpiModule.dcxGetDpiForWindow(mHwnd);
+	}
+	break;
+
 	case WM_DPICHANGED:
 	{
 		dcxlParam(LPCRECT, pRc);
@@ -2065,10 +2083,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		if (dcx_testflag(p_this->getEventMask(), DCX_EVENT_THEME))
 		{
-			bResize = (p_this->evalAliasT(TEXT("dpichanged,0,%d,%d,%d,%d,%d,%u"), Dcx::dcxLOWORD(wParam), pRc->top, pRc->bottom, pRc->left, pRc->right, p_this->m_uDPI).second != TEXT("noresize"));
+			bResize = (p_this->evalAliasT(TEXT("dpichanged,0,%,%,%,%,%,%"), Dcx::dcxLOWORD(wParam), pRc->top, pRc->bottom, pRc->left, pRc->right, p_this->m_uDPI).second != TEXT("noresize"));
 		}
 		if (!p_this->m_Hwnd)
 			break;
+
+		p_this->m_uDPI = Dcx::dcxLOWORD(wParam);
 
 		bParsed = TRUE;
 
@@ -2124,9 +2144,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	case WM_HSCROLL:
 	case WM_VSCROLL:
 	{
-		if (IsWindow(reinterpret_cast<HWND>(lParam)))
+		if (IsWindow(to_hwnd(lParam)))
 		{
-			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis")); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(to_hwnd(lParam), TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 		break;
@@ -2638,7 +2658,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	case WM_CTLCOLORSTATIC:
 	case WM_CTLCOLOREDIT:
 	{
-		if (const auto* const p_Control = p_this->getControlByHWND(reinterpret_cast<HWND>(lParam)); p_Control)
+		if (const auto* const p_Control = p_this->getControlByHWND(to_hwnd(lParam)); p_Control)
 		{
 			const auto clrText = p_Control->getTextColor();
 			const auto clrBackText = p_Control->getBackTextColor();
@@ -2931,7 +2951,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		MENUITEMINFO mii = { sizeof(mii), MIIM_STRING };
 		{
 			mii.dwTypeData = &menuString[0];
-			mii.cch = std::size(menuString) - 1;
+			mii.cch = gsl::narrow_cast<UINT>(std::size(menuString) - 1);
 
 			GetMenuItemInfo(pUDMI->um.hmenu, pUDMI->umi.iPosition, TRUE, &mii);
 		}
@@ -3026,27 +3046,27 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	//{
 	//	lRes = p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
 	//	bParsed = TRUE;
-
+	//
 	//	if (HDC hdc = GetWindowDC(mHwnd); /*GetDCEx(mHwnd, (HRGN)wParam, DCX_WINDOW | DCX_INTERSECTRGN);*/ hdc)
 	//	{
 	//		TITLEBARINFOEX tbiex{};
 	//		tbiex.cbSize = sizeof(TITLEBARINFOEX);
-
+	//
 	//		SendMessage(mHwnd, WM_GETTITLEBARINFOEX, 0, reinterpret_cast<LPARAM>(&tbiex));
-
+	//
 	//		RECT rc = tbiex.rcTitleBar;
 	//		MapWindowRect(nullptr, mHwnd, &rc);
-
+	//
 	//		OffsetRect(&rc, -rc.left, -rc.top);
-
+	//
 	//		Dcx::FillRectColour(hdc, &rc, RGB(255, 0, 0));
-
+	//
 	//		ReleaseDC(mHwnd, hdc);
 	//	}
-
+	//
 	//	if (p_this->m_CustomMenuBar.m_bEnable)
 	//		p_this->UAHDrawMenuNCBottomLine(mHwnd);
-
+	//
 	//	break;
 	//}
 	case WM_NCPAINT:
@@ -3073,7 +3093,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		//	lRes = TRUE;
 		//}
 
-		if (const auto wHitCode = Dcx::dcxLOWORD(lParam); reinterpret_cast<HWND>(wParam) == p_this->getHwnd())
+		if (const auto wHitCode = Dcx::dcxLOWORD(lParam); to_hwnd(wParam) == p_this->getHwnd())
 		{
 			auto hCursor = p_this->getCursor(wHitCode);
 			if (!hCursor)
@@ -3124,7 +3144,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		const stString<500> stFilename;
 
-		if (const auto count = DragQueryFile(files, 0xFFFFFFFF, stFilename, Dcx::countof(stFilename)); count > 0)
+		if (const auto count = DragQueryFile(files, 0xFFFFFFFF, stFilename, gsl::narrow_cast<UINT>(stFilename.size())); count > 0)
 		{
 			if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_DRAG))
 			{
@@ -3150,7 +3170,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				// for each file, send callback message
 				for (auto i = decltype(count){0}; i < count; ++i)
 				{
-					if (DragQueryFile(files, i, stFilename, stFilename.size()))
+					if (DragQueryFile(files, i, stFilename, gsl::narrow_cast<UINT>(stFilename.size())))
 						p_this->execAliasEx(TEXT("dragfile,0,%s"), stFilename.data());
 				}
 
@@ -3626,7 +3646,7 @@ void DcxDialog::RemoveVistaStyle(void) noexcept
 }
 
 #ifdef DCX_USE_GDIPLUS
-void DcxDialog::DrawCaret(Gdiplus::Graphics& graph)
+void DcxDialog::DrawCaret(Gdiplus::Graphics& graph) const
 {
 	const auto pWnd = GetFocus();
 	if (!pWnd || !IsWindow(pWnd))
@@ -3648,7 +3668,7 @@ void DcxDialog::DrawCaret(Gdiplus::Graphics& graph)
 	}
 }
 
-void DcxDialog::DrawDialog(Gdiplus::Graphics& graphics, HDC hDC)
+void DcxDialog::DrawDialog(Gdiplus::Graphics& graphics, HDC hDC) const
 {
 	if (!m_Hwnd)
 		return;
@@ -3694,7 +3714,7 @@ void DcxDialog::DrawDialog(Gdiplus::Graphics& graphics, HDC hDC)
 #endif
 }
 
-void DcxDialog::DrawCtrl(Gdiplus::Graphics& graphics, HDC hDC, HWND hWnd)
+void DcxDialog::DrawCtrl(Gdiplus::Graphics& graphics, HDC hDC, HWND hWnd) const
 {
 #if DCX_USE_WRAPPERS
 	if (!::IsWindow(hWnd) || !::IsWindowVisible(hWnd))
@@ -4205,7 +4225,7 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 	{
 		TiXmlElement xIcons("icons");
 
-		if (HICON hIcon = (HICON)SendMessage(m_Hwnd, WM_GETICON, ICON_SMALL, DcxDPIModule::dcxGetDpiForWindow(m_Hwnd)); hIcon)
+		if (HICON hIcon = reinterpret_cast<HICON>(SendMessage(m_Hwnd, WM_GETICON, ICON_SMALL, DcxDPIModule::dcxGetDpiForWindow(m_Hwnd))); hIcon)
 		{
 			TiXmlElement xIcon("icon");
 
@@ -4216,7 +4236,7 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 
 			xIcons.InsertEndChild(xIcon);
 		}
-		if (HICON hIcon = (HICON)SendMessage(m_Hwnd, WM_GETICON, ICON_BIG, DcxDPIModule::dcxGetDpiForWindow(m_Hwnd)); hIcon)
+		if (HICON hIcon = reinterpret_cast<HICON>(SendMessage(m_Hwnd, WM_GETICON, ICON_BIG, DcxDPIModule::dcxGetDpiForWindow(m_Hwnd))); hIcon)
 		{
 			TiXmlElement xIcon("icon");
 
@@ -4228,7 +4248,7 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 			xIcons.InsertEndChild(xIcon);
 		}
 
-		for (auto& a : this->m_xmlIcons)
+		for (const auto& a : this->m_xmlIcons)
 		{
 			if (!a.tsSrc.empty() && !a.tsID.empty())
 			{

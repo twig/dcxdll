@@ -16,6 +16,8 @@
 #define _DCXWINDOW_H_
 
 #include <map>
+#include <wil/resource.h>
+
 #include "Classes/tinyxml/tinyxml.h"
 #include "EnumConcepts.h"
 

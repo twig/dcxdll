@@ -200,7 +200,7 @@ protected:
 	int getIndexToCommand(const int iIndex) const noexcept;
 
 	static BYTE parseButtonStateFlags(const TString& flags) noexcept;
-	static TString parseButtonStateFlags(UINT iflags) noexcept;
+	static TString parseButtonStateFlags(UINT iflags);
 	static UINT parseButtonStyleFlags(const TString& flags) noexcept;
 
 	void resetContent() noexcept;

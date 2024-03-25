@@ -21,42 +21,11 @@
 
 class DcxDialog;
 
-// version of Edit_SetCaretIndex in the sdk is broken as it uses newCaretIndex instead of the defined newCaretPosition
-#ifdef Edit_SetCaretIndex
-#undef Edit_SetCaretIndex
-#endif
-#define Edit_SetCaretIndex(hwndCtl, newCaretPosition) \
-        (BOOL)SNDMSG((hwndCtl), EM_SETCARETINDEX, (WPARAM)(newCaretPosition), 0)
-
 /*!
 * \brief blah
 *
 * blah
 */
-
-namespace Dcx
-{
-	int dcxEdit_GetEndOfLine(HWND hwnd) noexcept;
-	bool dcxEdit_GetZoom(HWND hwnd, int* nNumerator, int* nDenominator) noexcept;
-	TString dcxEdit_GetEndOfLineCharacters(HWND hwnd);
-	DWORD dcxEdit_GetCaretIndex(HWND hwnd) noexcept;
-	void dcxEdit_SetCaretIndex(HWND hwnd, DWORD nPos) noexcept;
-	inline DWORD dcxEdit_GetFirstVisibleLine(HWND hwnd) noexcept
-	{
-		return gsl::narrow_cast<DWORD>(Edit_GetFirstVisibleLine(hwnd));
-	}
-	DWORD dcxEdit_CharFromPos(HWND hwnd, const LONG& iPos) noexcept;
-	DWORD dcxEdit_LineFromChar(HWND hwnd, const LONG& ich) noexcept;
-	void dcxEdit_GetSel(HWND hwnd, _Maybenull_ DWORD* nStart, _Maybenull_ DWORD* nEnd) noexcept;
-	inline void dcxEdit_SetReadOnly(HWND hwnd, BOOL bEnable) noexcept
-	{
-		SendMessage(hwnd, EM_SETREADONLY, gsl::narrow_cast<WPARAM>(bEnable), 0);
-	}
-	inline void dcxEdit_ScrollCaret(HWND hwnd) noexcept
-	{
-		SendMessage(hwnd, EM_SCROLLCARET, 0, 0);
-	}
-}
 
 class DcxEdit final
 	: public DcxControl
@@ -201,17 +170,21 @@ private:
 
 	[[nodiscard]] DWORD GetLineIndex(DWORD iLine) const noexcept
 	{
-		if (!m_Hwnd)
-			return 0;
+		//if (!m_Hwnd)
+		//	return 0;
+		//
+		//return gsl::narrow_cast<DWORD>(SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(iLine), 0));
 
-		return SendMessage(m_Hwnd, EM_LINEINDEX, iLine, 0);
+		return Dcx::dcxEdit_GetLineIndex(m_Hwnd, iLine);
 	}
 	[[nodiscard]] POINTL GetPosFromChar(DWORD iLineChar) const noexcept
 	{
-		POINTL pl{};
-		if (m_Hwnd)
-			SendMessage(m_Hwnd, EM_POSFROMCHAR, reinterpret_cast<WPARAM>(&pl), gsl::narrow_cast<LPARAM>(iLineChar));
-		return pl;
+		//POINTL pl{};
+		//if (m_Hwnd)
+		//	SendMessage(m_Hwnd, EM_POSFROMCHAR, reinterpret_cast<WPARAM>(&pl), gsl::narrow_cast<LPARAM>(iLineChar));
+		//return pl;
+
+		return Dcx::dcxEdit_GetPosFromChar(m_Hwnd, iLineChar);
 	}
 
 	//struct Edit_SearchResults

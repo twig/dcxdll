@@ -1964,9 +1964,7 @@ static TString dcxGetWindowProps(HWND hwnd, size_t prop)
 		// Only works on a window that has a "ListBox" child (channel, custom, etc..), returns the item number the mouse is over or nothing if mouse isnt over an item.
 		if (auto hListbox = FindWindowExW(hwnd, nullptr, WC_LISTBOX, nullptr); hListbox)
 		{
-			//const Dcx::dcxCursorPos pos(hListbox);
-
-			if (auto iItem = dcxGetListBoxHoverItem(hListbox); iItem >= 0)
+			if (auto iItem = Dcx::dcxListBox_GetHoverItem(hListbox); iItem >= 0)
 				tsRes.addtok(++iItem);
 		}
 	}

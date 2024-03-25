@@ -584,11 +584,11 @@ auto readFile(const TString& filename)
 	const auto size = file.Size();
 
 	// make data container for file contents
-	auto fileContents = std::make_unique<BYTE[]>(size + 2);
+	auto fileContents = std::make_unique<BYTE[]>(gsl::narrow_cast<size_t>(size) + 2);
 
 	// Null terminate the string (use double zero)
 	gsl::at(fileContents, size) = 0;
-	gsl::at(fileContents, size + 1U) = 0;
+	gsl::at(fileContents, gsl::narrow_cast<gsl::index>(size) + 1U) = 0;
 
 	// read the file
 	fread(fileContents.get(), 1U, size, file.get());

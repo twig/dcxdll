@@ -90,6 +90,8 @@ public:
 	inline const TString getType() const final { return TEXT("richedit"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::RICHEDIT; }
 
+	static DWORD parseExEditStyles(const TString& tsStyles);
+
 protected:
 	TString m_tsText;			//!< RichEdit Text contents
 	TString m_tsFontFaceName;	//!< Font Face Name

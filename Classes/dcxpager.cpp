@@ -450,9 +450,9 @@ LRESULT DcxPager::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 	case WM_VSCROLL:
 	case WM_COMMAND:
 	{
-		if (IsWindow(reinterpret_cast<HWND>(lParam)))
+		if (IsWindow(to_hwnd(lParam)))
 		{
-			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis")); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(to_hwnd(lParam), TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}

@@ -440,6 +440,24 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		Dcx::dcxListView_GetItemText(m_Hwnd, nItem, nSubItem, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 	}
 	break;
+	// [NAME] [ID] [PROP] [N] (NSUB)
+	case L"textlen"_hash:
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto nItem = input++.to_int() - 1;		// tok 4
+		auto nSubItem = 0;
+
+		if (numtok > 4)
+			nSubItem = input++.to_int() - 1;			// tok 5
+		if ((nItem < 0) || (nSubItem < 0) || (nItem >= Dcx::dcxListView_GetItemCount(m_Hwnd)))
+			throw DcxExceptions::dcxOutOfRange();
+
+		const auto len = Dcx::dcxListView_GetItemTextLength(m_Hwnd, nItem, nSubItem);
+		_ts_snprintf(szReturnValue, TEXT("%zu"), len);
+	}
+	break;
 	// [NAME] [ID] [PROP] [N] [NSUB]
 	case L"icon"_hash:
 	{
@@ -736,7 +754,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 
 		LVCOLUMN lvc{};
 		lvc.mask = LVCF_TEXT;
-		lvc.cchTextMax = szReturnValue.size();
+		lvc.cchTextMax = gsl::narrow_cast<int>(szReturnValue.size());
 		lvc.pszText = szReturnValue;
 
 		Dcx::dcxListView_GetColumn(m_Hwnd, nColumn, &lvc);
@@ -854,7 +872,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		else {
 			auto gcount = 0U;
 			for (auto g = 0U; g < 256U; g++)
-				if (Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(g)))
+				if (Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<int>(g)))
 					++gcount;
 
 			_ts_snprintf(szReturnValue, TEXT("%u"), gcount);
@@ -1711,7 +1729,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			const auto gid = input++.to_int();								// tok 5
 			const auto index = input++.to_int() - 1;						// tok 6
 
-			if (!Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(gid)))
+			if (!Dcx::dcxListView_HasGroup(m_Hwnd, gid))
 				throw Dcx::dcxException(TEXT("Group doesn't exist: %"), gid);
 
 			Dcx::dcxListView_MoveGroup(m_Hwnd, gid, index);
@@ -1729,7 +1747,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			if (gid == -1)
 				Dcx::dcxListView_RemoveAllGroups(m_Hwnd);
 			else {
-				if (!Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(gid)))
+				if (!Dcx::dcxListView_HasGroup(m_Hwnd, gid))
 					throw Dcx::dcxException(TEXT("Group doesn't exist: %"), gid);
 
 				Dcx::dcxListView_RemoveGroup(m_Hwnd, gid);
@@ -1763,7 +1781,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 				for (auto nGID : r)
 				{
 					// setup each specified group.
-					if (!Dcx::dcxListView_HasGroup(m_Hwnd, nGID))
+					if (!Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<int>(nGID)))
 						throw Dcx::dcxException(TEXT("Group doesn't exist: %"), nGID);
 
 				}
@@ -2162,10 +2180,10 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 			for (auto nGID : r)
 			{
-				if (!Dcx::dcxListView_HasGroup(m_Hwnd, nGID))
+				if (!Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<int>(nGID)))
 					throw Dcx::dcxException(TEXT("Group doesn't exist: %"), nGID);
 
-				Dcx::dcxListView_SetGroupState(m_Hwnd, nGID, iMask, iState);
+				Dcx::dcxListView_SetGroupState(m_Hwnd, gsl::narrow_cast<int>(nGID), iMask, iState);
 			}
 		}
 	}
@@ -3041,8 +3059,8 @@ int CALLBACK DcxListView::sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lPa
 	plvsort->itemtext1[0] = TEXT('\0');
 	plvsort->itemtext2[0] = TEXT('\0');
 
-	GSL_SUPPRESS(bounds.3) Dcx::dcxListView_GetItemText(plvsort->m_Hwnd, lParam1, plvsort->nColumn, &plvsort->itemtext1[0], gsl::narrow_cast<int>(std::size(plvsort->itemtext1)));
-	GSL_SUPPRESS(bounds.3) Dcx::dcxListView_GetItemText(plvsort->m_Hwnd, lParam2, plvsort->nColumn, &plvsort->itemtext2[0], gsl::narrow_cast<int>(std::size(plvsort->itemtext2)));
+	GSL_SUPPRESS(bounds.3) Dcx::dcxListView_GetItemText(plvsort->m_Hwnd, gsl::narrow_cast<int>(lParam1), plvsort->nColumn, &plvsort->itemtext1[0], gsl::narrow_cast<int>(std::size(plvsort->itemtext1)));
+	GSL_SUPPRESS(bounds.3) Dcx::dcxListView_GetItemText(plvsort->m_Hwnd, gsl::narrow_cast<int>(lParam2), plvsort->nColumn, &plvsort->itemtext2[0], gsl::narrow_cast<int>(std::size(plvsort->itemtext2)));
 
 	// CUSTOM Sort
 	if (dcx_testflag(plvsort->iSortFlags, LVSS_CUSTOM))
@@ -3691,7 +3709,7 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 	case WM_COMMAND:
 	{
-		if (IsWindow(reinterpret_cast<HWND>(lParam)))
+		if (IsWindow(to_hwnd(lParam)))
 		{
 			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(lParam, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
@@ -3934,7 +3952,7 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	case WM_HSCROLL:
 	case WM_VSCROLL:
 	{
-		if (IsWindow(reinterpret_cast<HWND>(lParam)))
+		if (IsWindow(to_hwnd(lParam)))
 		{
 			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(lParam, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
@@ -4822,7 +4840,7 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 	// groups not reportview only.
 	if (group > 0)
 	{
-		if (!Dcx::dcxListView_HasGroup(m_Hwnd, Dcx::numeric_cast<WPARAM>(group)))
+		if (!Dcx::dcxListView_HasGroup(m_Hwnd, group))
 			throw Dcx::dcxException(TEXT("Invalid Group specified: %"), group);
 
 		lvi.iGroupId = group;
@@ -5530,7 +5548,7 @@ LRESULT DcxListView::DrawItem(LPNMLVCUSTOMDRAW lplvcd)
 					// no text, but has image, so center image in item
 					if (auto himl = getImageList(LVSIL_SMALL); himl)
 					{
-						if (RECT rcBounds{}; Dcx::dcxListView_GetSubItemRect(m_Hwnd, lplvcd->nmcd.dwItemSpec, lplvcd->iSubItem, LVIR_BOUNDS, &rcBounds))
+						if (RECT rcBounds{}; Dcx::dcxListView_GetSubItemRect(m_Hwnd, gsl::narrow_cast<int>(lplvcd->nmcd.dwItemSpec), lplvcd->iSubItem, LVIR_BOUNDS, &rcBounds))
 						{
 							UINT iDrawFlags = ILD_NORMAL | ILD_TRANSPARENT;
 
@@ -5697,7 +5715,7 @@ LRESULT DcxListView::DrawGroup(LPNMLVCUSTOMDRAW lplvcd)
 	case CDDS_PREPAINT:
 	{
 		// get group text if any.
-		const TString tsBuf(getGroupHeader(lplvcd->nmcd.dwItemSpec));
+		const TString tsBuf(getGroupHeader(gsl::narrow_cast<int>(lplvcd->nmcd.dwItemSpec)));
 
 		// bail out if no tab seperated text
 		if (tsBuf.numtok(TSTABCHAR) == 1)
@@ -5764,7 +5782,7 @@ LRESULT DcxListView::DrawGroup(LPNMLVCUSTOMDRAW lplvcd)
 			DrawGroupHeaderText(lplvcd->nmcd.hdc, hTheme, iStateId, &lplvcd->rcText, tsBuf, iTextFlags, lplvcd->uAlign, bCustomText, 0);
 
 		// draw collapse/expand button.
-		if (IsGroupCollapsible(lplvcd->nmcd.dwItemSpec))
+		if (IsGroupCollapsible(gsl::narrow_cast<int>(lplvcd->nmcd.dwItemSpec)))
 		{
 			const RECT rcButton{ GetHeaderButtonRect(&lplvcd->rcText) };
 			//RECT rcButton{ lplvcd->rcText };
@@ -5784,7 +5802,7 @@ LRESULT DcxListView::DrawGroup(LPNMLVCUSTOMDRAW lplvcd)
 			if (PtInRect(&rcButton, pt))
 				iButtonStateId = LVEB_HOVER;
 
-			if (IsGroupCollapsed(lplvcd->nmcd.dwItemSpec))
+			if (IsGroupCollapsed(gsl::narrow_cast<int>(lplvcd->nmcd.dwItemSpec)))
 				Dcx::UXModule.dcxDrawThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_EXPANDBUTTON, iButtonStateId, &rcButton, nullptr);
 			else
 				Dcx::UXModule.dcxDrawThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_COLLAPSEBUTTON, iButtonStateId, &rcButton, nullptr);
@@ -5867,7 +5885,7 @@ TString DcxListView::getGroupHeader(int gid)
 	gInfo.stateMask = 0;
 	gInfo.state = 0;
 	gInfo.pszHeader = tsBuf.to_chr();
-	gInfo.cchHeader = tsBuf.capacity_cch();
+	gInfo.cchHeader = gsl::narrow_cast<int>(tsBuf.capacity_cch());
 
 	if (Dcx::dcxListView_GetGroupInfo(m_Hwnd, gid, &gInfo) == -1)
 		return tsBuf;
@@ -5890,7 +5908,7 @@ void DcxListView::addGroup(int index, const TString& tsFlags, int gid, TString& 
 	if (index < 0 || gid <= 0)
 		throw DcxExceptions::dcxInvalidArguments();
 
-	if (Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(gid)))
+	if (Dcx::dcxListView_HasGroup(m_Hwnd, gid))
 		throw Dcx::dcxException(TEXT("Group already exists: %"), gid);
 
 	const auto iFlags = this->parseGroupFlags(tsFlags);
@@ -5969,7 +5987,7 @@ void DcxListView::CopyItem(int iSrc, int iDest)
 			lvi.iItem = iSrc;
 			lvi.iSubItem = i;
 			lvi.pszText = &szBuf[0];
-			lvi.cchTextMax = std::size(szBuf);
+			lvi.cchTextMax = gsl::narrow_cast<int>(std::size(szBuf));
 
 			Dcx::dcxListView_GetItem(m_Hwnd, &lvi);
 
@@ -6022,7 +6040,7 @@ void DcxListView::MoveItem(int iSrc, int iDest) noexcept
 			lvi.iItem = iSrc;
 			lvi.iSubItem = i;
 			lvi.pszText = &szBuf[0];
-			lvi.cchTextMax = std::size(szBuf);
+			lvi.cchTextMax = gsl::narrow_cast<int>(std::size(szBuf));
 
 			if (Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
 			{
@@ -6317,7 +6335,7 @@ void DcxListView::toXml(TiXmlElement* const xml) const
 		{
 			lvg.cbSize = sizeof(lvg);
 			lvg.pszHeader = &szBuffer[0];
-			lvg.cchHeader = std::size(szBuffer);
+			lvg.cchHeader = gsl::narrow_cast<int>(std::size(szBuffer));
 			lvg.mask = LVGF_HEADER | LVGF_GROUPID | LVGF_ALIGN | LVGF_STATE;
 			lvg.stateMask = LVGS_NORMAL | LVGS_COLLAPSED | LVGS_HIDDEN | LVGS_NOHEADER | LVGS_COLLAPSIBLE | LVGS_SUBSETED | LVGS_SELECTED;
 

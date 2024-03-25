@@ -24,7 +24,7 @@
 #include "Classes/tinyxml/tinyxml.h"
 
 #ifdef DCX_USE_TESTCODE
-// enables custom drawing for treeview
+ // enables custom drawing for treeview
 #define USE_CUSTOM_TREE_DRAWING 1
 #endif
 
@@ -108,7 +108,7 @@ using LPDCXTVSORT = DCXTVSORT*;
  * blah
  */
 
-// text, background, line, insert colours alrdy set elsewhere.
+ // text, background, line, insert colours alrdy set elsewhere.
 struct DCXTVCOLOURS
 {
 	COLORREF	m_clrSelected{ CLR_INVALID };		//!< Colour of selection box.
@@ -218,7 +218,7 @@ protected:
 	[[nodiscard]] bool matchItemText(const HTREEITEM hItem, const TString& search, const DcxSearchTypes& SearchType) const;
 	[[nodiscard]] std::optional<HTREEITEM> findItemText(const HTREEITEM hStart, const TString& queryText, const int n, int& matchCount, const DcxSearchTypes& SearchType) const;
 
-	[[nodiscard]] bool matchItemText(const HTREEITEM hItem, const dcxSearchData &srch_data) const;
+	[[nodiscard]] bool matchItemText(const HTREEITEM hItem, const dcxSearchData& srch_data) const;
 	[[nodiscard]] std::optional<HTREEITEM> findItemText(const HTREEITEM hStart, const int n, int& matchCount, const dcxSearchData& srch_data) const;
 
 	void expandAllItems(const HTREEITEM hStart, const UINT expandOption) noexcept;
@@ -263,76 +263,9 @@ protected:
 	HTREEITEM xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, const TString& name, TString& filename);
 	const TiXmlElement* xmlInsertItems(HTREEITEM hParent, HTREEITEM& hInsertAfter, const TiXmlElement* xElm);
 
-	[[nodiscard]] const size_t TV_GetCount() const noexcept
-	{
-		if (!m_Hwnd)
-			return 0U;
-
-		// NB: This macro returns values 0 - 32767 ok, but 32768 - 65536 are returned as negatives, & anything > 65536 returns as zero & the treeview fails to display.
-		const auto cnt = gsl::narrow_cast<int>(TreeView_GetCount(m_Hwnd));
-		if (cnt < 0)
-			return (abs(cnt) + 32767U);
-
-		return gsl::narrow_cast<size_t>(cnt);
-	}
 	[[nodiscard]] const size_t size() const noexcept
 	{
-		return TV_GetCount();
-	}
-	[[nodiscard]] HTREEITEM TV_GetLastSibling(HTREEITEM child) const noexcept;
-	void TV_SetItemState(HTREEITEM hItem, UINT data, UINT mask) noexcept
-	{
-		if (!m_Hwnd)
-			return;
-
-		//TreeView_SetItemState(m_Hwnd, hItem, data, mask);
-		TVITEM _ms_TVi{};
-		_ms_TVi.mask = TVIF_STATE | TVIF_HANDLE;
-		_ms_TVi.hItem = hItem;
-		_ms_TVi.state = data;
-		_ms_TVi.stateMask = mask;
-		SNDMSG(m_Hwnd, TVM_SETITEM, 0, reinterpret_cast<LPARAM>(std::addressof(_ms_TVi)));
-	}
-	[[nodiscard]] inline HTREEITEM TV_GetSelection() const noexcept
-	{
-		if (!m_Hwnd)
-			return nullptr;
-
-		GSL_SUPPRESS(es.47) GSL_SUPPRESS(lifetime.4) return TreeView_GetSelection(m_Hwnd);
-	}
-
-	/// <summary>
-	/// Get an items text.
-	/// </summary>
-	/// <param name="hItem"></param>
-	/// <returns></returns>
-	TString TV_GetItemText(HTREEITEM hItem) const
-	{
-		TString tsRes;
-		TVITEMEX tvitem{};
-		TCHAR buf[MIRC_BUFFER_SIZE_CCH]{};
-		tvitem.hItem = hItem;
-		tvitem.mask = TVIF_TEXT | TVIF_HANDLE;
-		tvitem.pszText = &buf[0];
-		tvitem.cchTextMax = std::size(buf);
-		if (TreeView_GetItem(m_Hwnd, &tvitem))
-			tsRes = tvitem.pszText;
-
-		return tsRes;
-	}
-
-	void TV_SetItemText(HTREEITEM hItem, const TString& txt) noexcept
-	{
-		if (!m_Hwnd)
-			return;
-
-		TVITEMEX tvi{};
-
-		tvi.mask = TVIF_TEXT | TVIF_HANDLE;
-		tvi.hItem = hItem;
-		tvi.pszText = const_cast<TCHAR *>(txt.to_chr());
-
-		TreeView_SetItem(m_Hwnd, &tvi);
+		return Dcx::dcxTreeView_GetCount(m_Hwnd);
 	}
 
 	[[nodiscard]] HIMAGELIST TV_GetNormalImageList() noexcept
@@ -374,53 +307,6 @@ protected:
 			ImageList_Destroy(himl);
 			this->setImageList(nullptr, TVSIL_STATE);
 		}
-	}
-	bool TV_DeleteItem(const HTREEITEM item) noexcept
-	{
-		if (!m_Hwnd)
-			return false;
-
-		// If the window style for a tree-view control contains TVS_SCROLL and all items are deleted,
-		// new items are not displayed until the window styles are reset.
-		// The following code shows one way to ensure that items are always displayed.
-		const auto styles = dcxGetWindowStyle(m_Hwnd);
-		Auto(dcxSetWindowStyle(m_Hwnd, styles));
-
-		return (TreeView_DeleteItem(m_Hwnd, item) != FALSE);
-	}
-	bool TV_DeleteAllItems() noexcept
-	{
-		if (!m_Hwnd)
-			return false;
-
-		// If the window style for a tree-view control contains TVS_SCROLL and all items are deleted,
-		// new items are not displayed until the window styles are reset.
-		// The following code shows one way to ensure that items are always displayed.
-		const auto styles = dcxGetWindowStyle(m_Hwnd);
-		if (!dcx_testflag(styles, TVS_NOSCROLL))
-		{
-			// If a TreeView control doesn't have the TVS_NOSCROLL style it can loose the scrollbars when all items are deleted.
-			// This fixes that.
-			dcxSetWindowStyle(m_Hwnd, styles | TVS_NOSCROLL);
-		}
-		Auto(dcxSetWindowStyle(m_Hwnd, styles));
-
-		return (TreeView_DeleteAllItems(m_Hwnd) != FALSE);
-	}
-
-	TVHITTESTINFO TV_GetCursorItem() const noexcept
-	{
-		TVHITTESTINFO tvh{};
-		if (!m_Hwnd)
-			return tvh;
-
-		if (!GetCursorPos(&tvh.pt))
-			return tvh;
-
-		MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
-		TreeView_HitTest(m_Hwnd, &tvh);
-
-		return tvh;
 	}
 };
 

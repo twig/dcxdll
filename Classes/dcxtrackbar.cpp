@@ -51,7 +51,7 @@ DcxTrackBar::DcxTrackBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 	// Keep track of the tooltip
 	if (dcx_testflag(ws.m_Styles, TBS_TOOLTIPS))
 	{
-		if (const auto tooltip = reinterpret_cast<HWND>(SendMessage(m_Hwnd, TBM_GETTOOLTIPS, 0, 0)); tooltip)
+		if (const auto tooltip = to_hwnd(SendMessage(m_Hwnd, TBM_GETTOOLTIPS, 0, 0)); tooltip)
 			this->setToolTipHWND(tooltip);
 	}
 
@@ -383,12 +383,12 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 
 HWND DcxTrackBar::setBuddy(const HWND mHwnd, bool bLeft) noexcept
 {
-	return reinterpret_cast<HWND>(SendMessage(m_Hwnd, TBM_SETBUDDY, bLeft, reinterpret_cast<LPARAM>(mHwnd)));
+	return to_hwnd(SendMessage(m_Hwnd, TBM_SETBUDDY, bLeft, reinterpret_cast<LPARAM>(mHwnd)));
 }
 
 HWND DcxTrackBar::getBuddy(bool bLeft) const noexcept
 {
-	return reinterpret_cast<HWND>(SendMessage(m_Hwnd, TBM_GETBUDDY, bLeft, 0));
+	return to_hwnd(SendMessage(m_Hwnd, TBM_GETBUDDY, bLeft, 0));
 }
 
 /*!
@@ -397,9 +397,9 @@ HWND DcxTrackBar::getBuddy(bool bLeft) const noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::setRangeMin(const LONG iLowLim) noexcept
+void DcxTrackBar::setRangeMin(const LONG iLowLim) noexcept
 {
-	return SendMessage(m_Hwnd, TBM_SETRANGEMIN, 1U, gsl::narrow_cast<LPARAM>(iLowLim));
+	SendMessage(m_Hwnd, TBM_SETRANGEMIN, 1U, gsl::narrow_cast<LPARAM>(iLowLim));
 }
 
 /*!
@@ -408,9 +408,9 @@ LRESULT DcxTrackBar::setRangeMin(const LONG iLowLim) noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::getRangeMin() const noexcept
+int DcxTrackBar::getRangeMin() const noexcept
 {
-	return SendMessage(m_Hwnd, TBM_GETRANGEMIN, 0U, 0);
+	return gsl::narrow_cast<int>(SendMessage(m_Hwnd, TBM_GETRANGEMIN, 0U, 0));
 }
 
 /*!
@@ -419,9 +419,9 @@ LRESULT DcxTrackBar::getRangeMin() const noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::setRangeMax(const LONG iHighLim) noexcept
+void DcxTrackBar::setRangeMax(const LONG iHighLim) noexcept
 {
-	return SendMessage(m_Hwnd, TBM_SETRANGEMAX, 1U, gsl::narrow_cast<LPARAM>(iHighLim));
+	SendMessage(m_Hwnd, TBM_SETRANGEMAX, 1U, gsl::narrow_cast<LPARAM>(iHighLim));
 }
 
 /*!
@@ -430,9 +430,9 @@ LRESULT DcxTrackBar::setRangeMax(const LONG iHighLim) noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::getRangeMax() const noexcept
+int DcxTrackBar::getRangeMax() const noexcept
 {
-	return SendMessage(m_Hwnd, TBM_GETRANGEMAX, 0U, 0);
+	return gsl::narrow_cast<int>(SendMessage(m_Hwnd, TBM_GETRANGEMAX, 0U, 0));
 }
 
 /*!
@@ -441,10 +441,9 @@ LRESULT DcxTrackBar::getRangeMax() const noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::setRange(const LONG iLowLim, const LONG iHighLim) noexcept
+void DcxTrackBar::setRange(const LONG iLowLim, const LONG iHighLim) noexcept
 {
-	//return SendMessage(m_Hwnd, TBM_SETRANGE, 1U, MAKELPARAM(iLowLim, iHighLim));
-	return SendMessage(m_Hwnd, TBM_SETRANGE, 1U, Dcx::dcxMAKELPARAM(iLowLim, iHighLim));
+	SendMessage(m_Hwnd, TBM_SETRANGE, 1U, Dcx::dcxMAKELPARAM(iLowLim, iHighLim));
 }
 
 /*!
@@ -453,9 +452,9 @@ LRESULT DcxTrackBar::setRange(const LONG iLowLim, const LONG iHighLim) noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::setPos(const LONG lPosition) noexcept
+void DcxTrackBar::setPos(const LONG lPosition) noexcept
 {
-	return SendMessage(m_Hwnd, TBM_SETPOS, 1U, gsl::narrow_cast<LPARAM>(lPosition));
+	SendMessage(m_Hwnd, TBM_SETPOS, 1U, gsl::narrow_cast<LPARAM>(lPosition));
 }
 
 /*!
@@ -464,9 +463,9 @@ LRESULT DcxTrackBar::setPos(const LONG lPosition) noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::getPos() const noexcept
+int DcxTrackBar::getPos() const noexcept
 {
-	return SendMessage(m_Hwnd, TBM_GETPOS, 0U, 0);
+	return gsl::narrow_cast<int>(SendMessage(m_Hwnd, TBM_GETPOS, 0U, 0));
 }
 
 /*!
@@ -498,9 +497,9 @@ void DcxTrackBar::setTicFreq(const LONG wFreq) noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::clearTics() noexcept
+void DcxTrackBar::clearTics() noexcept
 {
-	return SendMessage(m_Hwnd, TBM_CLEARTICS, 1U, 0);
+	SendMessage(m_Hwnd, TBM_CLEARTICS, 1U, 0);
 }
 
 /*!
@@ -517,7 +516,7 @@ int DcxTrackBar::setTipSide(const int fLocation) noexcept
 int DcxTrackBar::getTipSide() const noexcept
 {
 	auto notthis = const_cast<DcxTrackBar*>(this);
-	auto oldvalue = notthis->setTipSide(TBTS_LEFT);
+	const auto oldvalue = notthis->setTipSide(TBTS_LEFT);
 	notthis->setTipSide(oldvalue);
 	return oldvalue;
 }
@@ -528,9 +527,9 @@ int DcxTrackBar::getTipSide() const noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::setPageSize(const LONG lPageSize) noexcept
+uint32_t DcxTrackBar::setPageSize(const LONG lPageSize) noexcept
 {
-	return SendMessage(m_Hwnd, TBM_SETPAGESIZE, 0U, gsl::narrow_cast<LPARAM>(lPageSize));
+	return gsl::narrow_cast<uint32_t>(SendMessage(m_Hwnd, TBM_SETPAGESIZE, 0U, gsl::narrow_cast<LPARAM>(lPageSize)));
 }
 
 /*!
@@ -539,9 +538,9 @@ LRESULT DcxTrackBar::setPageSize(const LONG lPageSize) noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::getPageSize() const noexcept
+uint32_t DcxTrackBar::getPageSize() const noexcept
 {
-	return SendMessage(m_Hwnd, TBM_GETPAGESIZE, 0U, 0);
+	return gsl::narrow_cast<uint32_t>(SendMessage(m_Hwnd, TBM_GETPAGESIZE, 0U, 0));
 }
 
 /*!
@@ -550,9 +549,9 @@ LRESULT DcxTrackBar::getPageSize() const noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::setLineSize(const LONG lLineSize) noexcept
+uint32_t DcxTrackBar::setLineSize(const LONG lLineSize) noexcept
 {
-	return SendMessage(m_Hwnd, TBM_SETLINESIZE, 0U, gsl::narrow_cast<LPARAM>(lLineSize));
+	return gsl::narrow_cast<uint32_t>(SendMessage(m_Hwnd, TBM_SETLINESIZE, 0U, gsl::narrow_cast<LPARAM>(lLineSize)));
 }
 
 /*!
@@ -561,9 +560,9 @@ LRESULT DcxTrackBar::setLineSize(const LONG lLineSize) noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::getLineSize() const noexcept
+uint32_t DcxTrackBar::getLineSize() const noexcept
 {
-	return SendMessage(m_Hwnd, TBM_GETLINESIZE, 0U, 0);
+	return gsl::narrow_cast<uint32_t>(SendMessage(m_Hwnd, TBM_GETLINESIZE, 0U, 0));
 }
 
 /*!
@@ -572,9 +571,9 @@ LRESULT DcxTrackBar::getLineSize() const noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::setThumbLength(const UINT iLength) noexcept
+void DcxTrackBar::setThumbLength(const UINT iLength) noexcept
 {
-	return SendMessage(m_Hwnd, TBM_SETTHUMBLENGTH, gsl::narrow_cast<WPARAM>(iLength), 0);
+	SendMessage(m_Hwnd, TBM_SETTHUMBLENGTH, gsl::narrow_cast<WPARAM>(iLength), 0);
 }
 
 UINT DcxTrackBar::getThumbLength() const noexcept
@@ -604,9 +603,9 @@ void DcxTrackBar::setSel(const LONG iLowLim, const LONG iHighLim) noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::getSelStart() const noexcept
+uint32_t DcxTrackBar::getSelStart() const noexcept
 {
-	return SendMessage(m_Hwnd, TBM_GETSELSTART, 0U, 0);
+	return gsl::narrow_cast<uint32_t>(SendMessage(m_Hwnd, TBM_GETSELSTART, 0U, 0));
 }
 
 /*!
@@ -615,9 +614,9 @@ LRESULT DcxTrackBar::getSelStart() const noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::getSelEnd() const noexcept
+uint32_t DcxTrackBar::getSelEnd() const noexcept
 {
-	return SendMessage(m_Hwnd, TBM_GETSELEND, 0U, 0);
+	return gsl::narrow_cast<uint32_t>(SendMessage(m_Hwnd, TBM_GETSELEND, 0U, 0));
 }
 
 /*!

@@ -43,6 +43,9 @@ DcxRichEdit::DcxRichEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
+	if (const auto dStyle = parseExEditStyles(styles); dStyle)
+		Edit_SetExtendedStyle(m_Hwnd, dStyle, dStyle);
+
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 	else
@@ -229,7 +232,7 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		CHARRANGE c{};
 
 		SendMessage(m_Hwnd, EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&c));
-		auto buffer = std::make_unique<TCHAR[]>(c.cpMax - c.cpMin);
+		auto buffer = std::make_unique<TCHAR[]>(gsl::narrow_cast<size_t>(c.cpMax) - c.cpMin);
 
 		SendMessage(m_Hwnd, EM_GETSELTEXT, 0, reinterpret_cast<LPARAM>(buffer.get()));
 		szReturnValue = buffer.get();
@@ -301,6 +304,17 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		szReturnValue = findTextRange(m_tsText, matchtext, params).to_chr();
 	}
 	break;
+	case L"zoom"_hash:
+	{
+		//Supported in Windows 10 1809 and later. The edit control needs to have the ES_EX_ZOOMABLE extended style set, for this message to have an effect
+		//(the zoom ratio is always between 1/64 and 64) NOT inclusive, 1.0 = no zoom
+		//if (int nNumerator{}, nDenominator{}; Dcx::dcxEdit_GetZoom(m_Hwnd, &nNumerator, &nDenominator))
+		//	_ts_snprintf(szReturnValue, TEXT("%d.%d"), nNumerator, nDenominator);
+		//else
+			szReturnValue = TEXT("1.0");
+	}
+	break;
+
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 	}
@@ -315,10 +329,10 @@ bool DcxRichEdit::SaveRichTextToFile(HWND hWnd, const TString& tsFilename) noexc
 		return false;
 
 	//EDITSTREAM es{};
-	//es.dwCookie = reinterpret_cast<DWORD>(hFile);
+	//es.dwCookie = reinterpret_cast<DWORD_PTR>(hFile);
 	//es.pfnCallback = StreamOutToFileCallback;
 
-	EDITSTREAM es{ reinterpret_cast<DWORD>(hFile), 0U, StreamOutToFileCallback };
+	EDITSTREAM es{ reinterpret_cast<DWORD_PTR>(hFile), 0U, StreamOutToFileCallback };
 
 	SendMessage(hWnd, EM_STREAMOUT, SF_RTF, reinterpret_cast<LPARAM>(&es));
 	return (es.dwError == 0);
@@ -336,7 +350,7 @@ bool DcxRichEdit::LoadRichTextFromFile(HWND hWnd, const TString& tsFilename) noe
 	//es.dwCookie = reinterpret_cast<DWORD>(hFile);
 	//es.pfnCallback = StreamInFromFileCallback;
 
-	EDITSTREAM es{ reinterpret_cast<DWORD>(hFile), 0U,StreamInFromFileCallback };
+	EDITSTREAM es{ reinterpret_cast<DWORD_PTR>(hFile), 0U,StreamInFromFileCallback };
 
 	SendMessage(hWnd, EM_STREAMIN, SF_RTF, reinterpret_cast<LPARAM>(&es));
 	return (es.dwError == 0);
@@ -478,20 +492,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 			const auto itEnd = tsLines.end();
 			for (auto itStart = tsLines.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 			{
-				//const TString tsLineRange(*itStart);
-				//UINT nStartLine{}, nEndLine{};
-				//if (tsLineRange.numtok(TEXT('-')) == 2)
-				//{
-				//	nStartLine = tsLineRange.getfirsttok(1, TEXT('-')).to_<UINT>();
-				//	nEndLine = tsLineRange.getnexttok(TEXT('-')).to_<UINT>();
-				//}
-				//else {
-				//	nStartLine = nEndLine = tsLineRange.to_<UINT>();
-				//}
-				//// delete lines from the back of the text so it doesnt change the position of other lines.
-				//for (auto nLine = nEndLine; nLine >= nStartLine; --nLine)
-				//	this->m_tsText.deltok(nLine, TEXT("\r\n"));
-
 				const TString tsLineRange(*itStart);
 				const auto r = Dcx::make_range(tsLineRange, this->m_tsText.numtok(TEXT("\r\n")));
 				// delete lines from the back of the text so it doesnt change the position of other lines.
@@ -508,52 +508,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
 	else if (flags[TEXT('f')])
 	{
-		//if (numtok < 4)
-		//	throw DcxExceptions::dcxInvalidArguments();
-		//
-		//this->m_bIgnoreInput = true;
-		//{
-		//	this->setRedraw(FALSE);
-		//	Auto(this->setRedraw(TRUE));
-		//
-		//	this->parseGlobalCommandRequest(input, flags);
-		//
-		//	const auto iFontFlags = parseFontFlags(input.getnexttok());	// tok 4
-		//
-		//	if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_DEFAULT))
-		//	{
-		//		this->m_clrBackText = GetSysColor(COLOR_WINDOW);
-		//		this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
-		//		this->m_iFontSize = 10 * 20;
-		//		this->m_bFontBold = false;
-		//		this->m_bFontItalic = false;
-		//		this->m_bFontUnderline = false;
-		//		this->m_bFontStrikeout = false;
-		//		this->m_byteCharset = DEFAULT_CHARSET;
-		//		this->setContentsFont();
-		//		this->parseContents(TRUE);
-		//	}
-		//	else if (numtok > 5)
-		//	{
-		//		this->m_byteCharset = gsl::narrow_cast<BYTE>(parseFontCharSet(input.getnexttok()));	// tok 5
-		//		this->m_iFontSize = 20U * input.getnexttok().to_<UINT>();			// tok 6
-		//		this->m_tsFontFaceName = input.getlasttoks().trim();				// tok 7, -1
-		//
-		//		m_bFontBold = dcx_testflag(iFontFlags, dcxFontFlags::DCF_BOLD);
-		//
-		//		m_bFontItalic = dcx_testflag(iFontFlags, dcxFontFlags::DCF_ITALIC);
-		//
-		//		m_bFontStrikeout = dcx_testflag(iFontFlags, dcxFontFlags::DCF_STRIKEOUT);
-		//
-		//		m_bFontUnderline = dcx_testflag(iFontFlags, dcxFontFlags::DCF_UNDERLINE);
-		//
-		//		this->setContentsFont();
-		//		this->parseContents(TRUE);
-		//	}
-		//}
-		//this->m_bIgnoreInput = false;
-		//this->redrawWindow();
-
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -571,38 +525,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
-
-		//auto tsClr(input.getnexttok());
-		//if (tsClr != TEXT('-'))
-		//	this->m_clrGutter_selbkg = tsClr.to_<COLORREF>();
-		//
-		//if (numtok > 4)
-		//{
-		//	tsClr = input.getnexttok();
-		//	if (tsClr != TEXT('-'))
-		//		this->m_clrGutter_bkg = tsClr.to_<COLORREF>();
-		//
-		//	if (numtok > 5)
-		//	{
-		//		tsClr = input.getnexttok();
-		//		if (tsClr != TEXT('-'))
-		//			this->m_clrGutter_seltxt = tsClr.to_<COLORREF>();
-		//
-		//		if (numtok > 6)
-		//		{
-		//			tsClr = input.getnexttok();
-		//			if (tsClr != TEXT('-'))
-		//				this->m_clrGutter_txt = tsClr.to_<COLORREF>();
-		//
-		//			if (numtok > 7)
-		//			{
-		//				tsClr = input.getnexttok();
-		//				if (tsClr != TEXT('-'))
-		//					this->m_clrGutter_border = tsClr.to_<COLORREF>();
-		//			}
-		//		}
-		//	}
-		//}
 
 		int argcnt{ 4 };
 		const TString tsArgs(input.getlasttoks());
@@ -793,7 +715,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 		const auto nColor = numtok - 3;
 
-		if (nColor >= std::min(std::size(m_aColorPalette), 16U))
+		if (nColor >= std::min(std::size(m_aColorPalette), gsl::narrow_cast<size_t>(16U)))
 			throw Dcx::dcxException("Invalid Colour Count");
 
 		for (auto i = decltype(nColor){0}; i < nColor; ++i)
@@ -1866,6 +1788,17 @@ const TString DcxRichEdit::getStyles(void) const
 		styles.addtok(TEXT("disablescroll"));
 	if (m_bShowLineNumbers)
 		styles.addtok(TEXT("showlinenumbers"));
+
+	const auto dStyles = Edit_GetExtendedStyle(m_Hwnd);
+	if (dcx_testflag(dStyles, ES_EX_ZOOMABLE))
+		styles.addtok(TEXT("zoomable"));
+	if (dcx_testflag(dStyles, ES_EX_ALLOWEOL_LF))
+		styles.addtok(TEXT("eollf"));
+	if (dcx_testflag(dStyles, ES_EX_ALLOWEOL_CR))
+		styles.addtok(TEXT("eolcr"));
+	if (dcx_testflag(dStyles, ES_EX_CONVERT_EOL_ON_PASTE))
+		styles.addtok(TEXT("convert"));
+
 	return styles;
 }
 
@@ -2127,7 +2060,7 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 	case WM_SETCURSOR:
 	{
-		if ((!m_bLockGutter) && (Dcx::dcxLOWORD(lParam) == HTCLIENT) && (reinterpret_cast<HWND>(wParam) == m_Hwnd) && (IsCursorOnGutterBorder()))
+		if ((!m_bLockGutter) && (Dcx::dcxLOWORD(lParam) == HTCLIENT) && (to_hwnd(wParam) == m_Hwnd) && (IsCursorOnGutterBorder()))
 		{
 			if (auto hCursor = LoadCursor(nullptr, IDC_SIZEWE); GetCursor() != hCursor)
 				SetCursor(hCursor);
@@ -2285,4 +2218,32 @@ LRESULT DcxRichEdit::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
+}
+
+DWORD DcxRichEdit::parseExEditStyles(const TString& tsStyles)
+{
+	DWORD dStyles{};
+
+	for (const auto& tsStyle : tsStyles)
+	{
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case L"zoomable"_hash:
+			dStyles |= ES_EX_ZOOMABLE;
+			break;
+		case L"eollf"_hash:
+			dStyles |= ES_EX_ALLOWEOL_LF;
+			break;
+		case L"eolcr"_hash:
+			dStyles |= ES_EX_ALLOWEOL_CR;
+			break;
+		case L"convert"_hash:
+			dStyles |= ES_EX_CONVERT_EOL_ON_PASTE;
+			break;
+		default:
+			break;
+		}
+	}
+
+	return dStyles;
 }

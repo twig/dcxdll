@@ -104,13 +104,13 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #endif
 // end of GDI+
 
-// use string hashes for compares etc..? (non-hashing code removed, always use this now)
-//constexpr auto DCX_USE_HASHING = 1;
-
 // DCX Using C++11 regex
 // NB: Can't be used with either BOOST OR PCRE enabled.
 #define DCX_USE_CREGEX 0
-#ifdef WIN32
+
+// DCX Using PCRE2 regex
+// NB: Can't be used with either BOOST OR C++11 regex enabled.
+#ifdef _M_IX86
 #define DCX_USE_PCRE2 1
 #else
 #define DCX_USE_PCRE2 0

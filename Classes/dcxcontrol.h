@@ -17,6 +17,7 @@
 
 #include "defines.h"
 #include "dcxwindow.h"
+#include "CtrlHelper.h"
 
  //#include "DcxTextRender.h"
 
@@ -187,113 +188,6 @@ inline RECT TSToRect(const TString& tsInput)
 	return rc;
 }
 
-namespace Dcx
-{
-	inline bool dcxToolTip_GetCurrentTool(_In_ HWND hwnd, LPTOOLINFO pti) noexcept
-	{
-		return (SendMessage(hwnd, TTM_GETCURRENTTOOL, 0, reinterpret_cast<LPARAM>(pti)) != 0);
-	}
-	inline void dcxToolTip_TrackActivate(_In_ HWND hwnd, BOOL bActivate, LPTOOLINFO pti) noexcept
-	{
-		SendMessage(hwnd, TTM_TRACKACTIVATE, bActivate, reinterpret_cast<LPARAM>(pti));
-	}
-	inline void dcxToolTip_Pop(_In_ HWND hwnd) noexcept
-	{
-		SendMessage(hwnd, TTM_POP, 0, 0);
-	}
-	inline void dcxToolTip_PopUp(_In_ HWND hwnd) noexcept
-	{
-		SendMessage(hwnd, TTM_POPUP, 0, 0);
-	}
-	inline void dcxToolTip_SetToolInfo(_In_ HWND hwnd, LPTOOLINFO pti) noexcept
-	{
-		SendMessage(hwnd, TTM_SETTOOLINFO, 0, reinterpret_cast<LPARAM>(pti));
-	}
-	enum class dcxToolTipTitleIcons
-		: int
-	{
-		eTTI_NONE,
-		eTTI_INFO,
-		eTTI_WARNING,
-		eTTI_ERROR,
-		eTTI_INFO_LARGE,
-		eTTI_WARNING_LARGE,
-		eTTI_ERROR_LARGE
-	};
-	/// <summary>
-	/// Set the tooltips title text and icon.
-	/// </summary>
-	/// <param name="hwnd">- The tooltip hwnd.</param>
-	/// <param name="hIcon">- The icon to use.</param>
-	/// <param name="str">- The string to use as a title. (Must not exceed 100 chars including the NULL)</param>
-	/// <returns>true on success</returns>
-	inline bool dcxToolTip_SetTitle(_In_ HWND hwnd, HICON hIcon, LPWSTR str) noexcept
-	{
-		//When calling TTM_SETTITLE, the string pointed to by lParam must not exceed 100 TCHARs in length, including the terminating NULL.
-		return (SendMessage(hwnd, TTM_SETTITLE, reinterpret_cast<WPARAM>(hIcon), reinterpret_cast<LPARAM>(str)) == TRUE);
-	}
-	/// <summary>
-	/// Set the tooltips title text and icon.
-	/// </summary>
-	/// <param name="hwnd">- The tooltip hwnd.</param>
-	/// <param name="eIcon">- The default icon to use.</param>
-	/// <param name="str">- The string to use as a title. (Must not exceed 100 chars including the NULL)</param>
-	/// <returns>true on success</returns>
-	inline bool dcxToolTip_SetTitle(_In_ HWND hwnd, dcxToolTipTitleIcons eIcon, LPWSTR str) noexcept
-	{
-		//When calling TTM_SETTITLE, the string pointed to by lParam must not exceed 100 TCHARs in length, including the terminating NULL.
-		return (SendMessage(hwnd, TTM_SETTITLE, gsl::narrow_cast<WPARAM>(eIcon), reinterpret_cast<LPARAM>(str)) == TRUE);
-	}
-	inline void dcxToolTip_TrackPosition(_In_ HWND hwnd, int x, int y) noexcept
-	{
-		SendMessage(hwnd, TTM_TRACKPOSITION, 0, MAKELPARAM(x + 10, y - 20));
-	}
-	inline void dcxToolTip_UpdateTipText(_In_ HWND hwnd, TOOLINFO* pti) noexcept
-	{
-		SendMessage(hwnd, TTM_UPDATETIPTEXT, 0, reinterpret_cast<LPARAM>(pti));
-	}
-	inline void dcxToolTip_UpdateTipText(_In_ HWND hwnd, _In_ HWND ctrl, _In_ UINT_PTR id, _In_z_ LPWSTR str) noexcept
-	{
-		TOOLINFO ti{};
-
-		ti.cbSize = sizeof(TOOLINFO);
-		ti.hinst = GetModuleHandle(nullptr);
-		ti.hwnd = ctrl;
-		ti.uId = id;
-		ti.lpszText = str;
-
-		dcxToolTip_UpdateTipText(hwnd, &ti);
-	}
-	inline void dcxToolTip_Activate(_In_ HWND hwnd, BOOL bState) noexcept
-	{
-		SendMessage(hwnd, TTM_ACTIVATE, bState, 0);
-	}
-	inline bool dcxToolTip_AddTool(_In_ HWND hwnd, TOOLINFO* pti) noexcept
-	{
-		return (SendMessage(hwnd, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(pti)) == TRUE);
-	}
-	inline bool dcxToolTip_AdjustRect(_In_ HWND hwnd, BOOL bState, LPRECT prc) noexcept
-	{
-		return (SendMessage(hwnd, TTM_ADJUSTRECT, bState, reinterpret_cast<LPARAM>(prc)) != 0);
-	}
-	inline COLORREF dcxToolTip_GetTipBkColor(_In_ HWND hwnd) noexcept
-	{
-		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, TTM_GETTIPBKCOLOR, 0, 0));
-	}
-	inline COLORREF dcxToolTip_GetTipTextColor(_In_ HWND hwnd) noexcept
-	{
-		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, TTM_GETTIPTEXTCOLOR, 0, 0));
-	}
-	inline COLORREF dcxToolTip_SetTipBkColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
-	{
-		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, TTM_SETTIPBKCOLOR, gsl::narrow_cast<WPARAM>(clr), 0));
-	}
-	inline COLORREF dcxToolTip_SetTipTextColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
-	{
-		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, TTM_SETTIPTEXTCOLOR, gsl::narrow_cast<WPARAM>(clr), 0));
-	}
-}
-
 /*!
  * \brief blah
  *
@@ -324,7 +218,7 @@ public:
 	[[nodiscard]] dcxWindowStyles parseGeneralControlStyles(const TString& styles, dcxWindowStyles& ws);
 	[[nodiscard]] dcxWindowStyles parseGeneralControlStyles(const TString& styles);
 
-	bool evalAliasEx(TCHAR* const szReturn, const int maxlen, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const;
+	bool evalAliasEx(_Out_writes_z_(maxlen) TCHAR* const szReturn, _In_ const int maxlen, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const;
 
 	//template <typename Format, typename Value, typename... Arguments>
 	//bool evalAliasEx(TCHAR *const szReturn, const int maxlen, const Format &fmt, const Value val, Arguments&&... args) const
@@ -578,9 +472,9 @@ protected:
 	LRESULT CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed);
 	void HandleChildControlSize();
 
-	void DrawControl(HDC hDC, HWND hwnd);
-	void ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, const UINT style);
-	void calcTextRect(HDC hdc, const TString& txt, LPRECT rc, const UINT style);
+	void DrawControl(HDC hDC, HWND hwnd) const;
+	void ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, const UINT style) const;
+	void calcTextRect(HDC hdc, const TString& txt, LPRECT rc, const UINT style) const;
 
 	static void InvalidateParentRect(HWND hwnd) noexcept;
 	[[nodiscard]] static const DcxColourFlags parseColorFlags(const TString& flags) noexcept;

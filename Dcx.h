@@ -1571,7 +1571,8 @@ namespace Dcx
 		return gsl::narrow_cast<LPARAM>(dcxLOWORD(l) | (gsl::narrow_cast<DWORD>(dcxLOWORD(h)) << 16));
 	}
 
-	inline bool dcxSetProp(_In_ HWND hwnd, _In_z_ const TCHAR* const str, _In_ DcxControl* data) noexcept
+	template <class T>
+	inline bool dcxSetProp(_In_ HWND hwnd, _In_z_ const TCHAR* const str, _In_ T* data) noexcept
 	{
 		return SetPropW(hwnd, str, data);
 	}

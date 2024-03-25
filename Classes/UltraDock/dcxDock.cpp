@@ -1039,76 +1039,80 @@ void DcxDock::status_getRect(LPRECT rc) noexcept
 
 void DcxDock::status_setBkColor(const COLORREF clrBk) noexcept
 {
-	SendMessage(g_StatusBar, SB_SETBKCOLOR, 0U, gsl::narrow_cast<LPARAM>(clrBk));
+	Dcx::dcxStatusBar_SetBkColor(g_StatusBar, clrBk);
 }
 
 void DcxDock::status_setParts(const UINT nParts, const LPINT aWidths) noexcept
 {
-	SendMessage(g_StatusBar, SB_SETPARTS, gsl::narrow_cast<WPARAM>(nParts), reinterpret_cast<LPARAM>(aWidths));
+	Dcx::dcxStatusBar_SetParts(g_StatusBar, nParts, aWidths);
 }
 
-UINT DcxDock::status_getParts(const UINT nParts, const LPINT aWidths) noexcept
+int DcxDock::status_getParts(const UINT nParts, const LPINT aWidths) noexcept
 {
-	return gsl::narrow_cast<UINT>(SendMessage(g_StatusBar, SB_GETPARTS, gsl::narrow_cast<WPARAM>(nParts), reinterpret_cast<LPARAM>(aWidths)));
+	return Dcx::dcxStatusBar_GetParts(g_StatusBar, nParts, aWidths);
 }
 
 void DcxDock::status_setText(const int iPart, const int Style, const WCHAR* const lpstr) noexcept
 {
-	SendMessage(g_StatusBar, SB_SETTEXTW, gsl::narrow_cast<WPARAM>(iPart | Style), reinterpret_cast<LPARAM>(lpstr));
+	Dcx::dcxStatusBar_SetText(g_StatusBar, iPart, Style, lpstr);
 }
 
 UINT DcxDock::status_getTextLength(const int iPart) noexcept
 {
-	return gsl::narrow_cast<UINT>(Dcx::dcxLOWORD(SendMessage(g_StatusBar, SB_GETTEXTLENGTHW, gsl::narrow_cast<WPARAM>(iPart), 0)));
+	return Dcx::dcxStatusBar_GetTextLength(g_StatusBar, iPart);
 }
 
 UINT DcxDock::status_getPartFlags(const int iPart) noexcept
 {
-	return gsl::narrow_cast<UINT>(Dcx::dcxHIWORD(SendMessage(g_StatusBar, SB_GETTEXTLENGTHW, gsl::narrow_cast<WPARAM>(iPart), 0)));
+	return Dcx::dcxStatusBar_GetPartFlags(g_StatusBar, iPart);
 }
 
 LRESULT DcxDock::status_getText(const int iPart, LPWSTR lpstr) noexcept
 {
-	return SendMessage(g_StatusBar, SB_GETTEXTW, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(lpstr));
+	return Dcx::dcxStatusBar_GetText(g_StatusBar, iPart, lpstr);
 }
 
 void DcxDock::status_setTipText(const int iPart, const WCHAR* const lpstr) noexcept
 {
-	SendMessage(g_StatusBar, SB_SETTIPTEXTW, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(lpstr));
+	Dcx::dcxStatusBar_SetTipText(g_StatusBar, iPart, lpstr);
 }
 
 void DcxDock::status_getTipText(const int iPart, const int nSize, const LPWSTR lpstr) noexcept
 {
-	SendMessage(g_StatusBar, SB_GETTIPTEXTW, MAKEWPARAM(iPart, nSize), reinterpret_cast<LPARAM>(lpstr));
+	Dcx::dcxStatusBar_GetTipText(g_StatusBar, iPart, nSize, lpstr);
 }
 
 void DcxDock::status_getRect(const int iPart, const LPRECT lprc) noexcept
 {
-	SendMessage(g_StatusBar, SB_GETRECT, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(lprc));
+	Dcx::dcxStatusBar_GetRect(g_StatusBar, iPart, lprc);
 }
 
 void DcxDock::status_setIcon(const int iPart, const HICON hIcon) noexcept
 {
-	SendMessage(g_StatusBar, SB_SETICON, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(hIcon));
+	Dcx::dcxStatusBar_SetIcon(g_StatusBar, iPart, hIcon);
 }
 
 GSL_SUPPRESS(lifetime.4)
 HICON DcxDock::status_getIcon(const int iPart) noexcept
 {
-	return reinterpret_cast<HICON>(SendMessage(g_StatusBar, SB_GETICON, gsl::narrow_cast<WPARAM>(iPart), gsl::narrow_cast<LPARAM>(0)));
+	return Dcx::dcxStatusBar_GetIcon(g_StatusBar, iPart);
 }
 
 LRESULT DcxDock::status_setPartInfo(const int iPart, const int Style, const LPSB_PARTINFOD pPart) noexcept
 {
-	return SendMessage(g_StatusBar, SB_SETTEXT, gsl::narrow_cast<WPARAM>(iPart | (Style | SBT_OWNERDRAW)), reinterpret_cast<LPARAM>(pPart));
+	return Dcx::dcxStatusBar_SetPartInfo(g_StatusBar, iPart, Style, pPart);
+}
+
+LPSB_PARTINFOD DcxDock::status_getPartInfo(const int iPart) noexcept
+{
+	return Dcx::dcxStatusBar_GetPartInfo<LPSB_PARTINFOD>(g_StatusBar, iPart);
 }
 
 void DcxDock::status_deletePartInfo(const int iPart) noexcept
 {
 	if (dcx_testflag(DcxDock::status_getPartFlags(iPart), SBT_OWNERDRAW))
 	{
-		auto pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(iPart, nullptr));
-
+		auto pPart = DcxDock::status_getPartInfo(iPart);
 		if (!pPart)
 			return;
 
@@ -1189,9 +1193,9 @@ void DcxDock::status_cleanPartIcons() noexcept
 		DestroyIcon(DcxDock::status_getIcon(n));
 }
 
-LRESULT DcxDock::status_getBorders(const LPINT aWidths) noexcept
+bool DcxDock::status_getBorders(const LPINT aWidths) noexcept
 {
-	return SendMessage(g_StatusBar, SB_GETBORDERS, 0U, reinterpret_cast<LPARAM>(aWidths));
+	return Dcx::dcxStatusBar_GetBorders(g_StatusBar, aWidths);
 }
 
 void DcxDock::status_updateParts(void)

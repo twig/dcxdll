@@ -167,7 +167,7 @@ public:
 	static void status_getRect(LPRECT rc) noexcept;
 	static void status_setBkColor(const COLORREF clr) noexcept;
 	static void status_setParts(const UINT nParts, const LPINT aWidths) noexcept;
-	static UINT status_getParts(const UINT nParts, const LPINT aWidths) noexcept;
+	static int status_getParts(const UINT nParts, const LPINT aWidths) noexcept;
 	static void status_setText(const int iPart, const int Style, const WCHAR* const lpstr) noexcept;
 	static LRESULT status_getText(const int iPart, LPWSTR lpstr) noexcept;
 	static UINT status_getTextLength(const int iPart) noexcept;
@@ -182,10 +182,11 @@ public:
 	static HIMAGELIST status_createImageList() noexcept;
 	static const UINT status_parseItemFlags(const TString& flags) noexcept;
 	static void status_cleanPartIcons() noexcept;
-	static LRESULT status_getBorders(const LPINT aWidths) noexcept;
+	static bool status_getBorders(const LPINT aWidths) noexcept;
 	static void status_updateParts();
 	static void status_setFont(HFONT f) noexcept;
 	static LRESULT status_setPartInfo(const int iPart, const int Style, const LPSB_PARTINFOD pPart) noexcept;
+	static LPSB_PARTINFOD status_getPartInfo(const int iPart) noexcept;
 	static void status_deletePartInfo(const int iPart) noexcept;
 	//
 	static const SwitchBarPos getPos(const int x, const int y, const int w, const int h) noexcept;

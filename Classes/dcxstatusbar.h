@@ -73,9 +73,9 @@ public:
 
 	const TString getStyles(void) const final;
 
-	LRESULT setParts( const int nParts, const LPINT aWidths ) noexcept;
-	LRESULT getParts( const int nParts, LPINT aWidths ) const noexcept;
-	LRESULT getBorders( LPINT aWidths ) const noexcept;
+	bool setParts( const int nParts, const LPINT aWidths ) noexcept;
+	int getParts( const int nParts, LPINT aWidths ) const noexcept;
+	bool getBorders( LPINT aWidths ) const noexcept;
 	void setPartsPositions(const TString &tsPositions);
 	void setPartContents(int nPos, const TString &tsFlags, int nIcon, const TString &tsText, const TString &tsTooltip);
 
@@ -93,11 +93,11 @@ public:
 	LRESULT getText( const int iPart, PTCHAR lpstr ) const noexcept;
 	TString getText(const int iPart) const;
 	LRESULT getTextLength( const int iPart ) const noexcept;
-	LRESULT setTipText( const int iPart, const LPCTCH lpstr ) noexcept;
-	LRESULT getTipText( const int iPart, const int nSize, PTCHAR lpstr ) const noexcept;
+	void setTipText( const int iPart, const LPCTCH lpstr ) noexcept;
+	void getTipText( const int iPart, const int nSize, PTCHAR lpstr ) const noexcept;
 	TString getTipText(const int iPart) const;
-	LRESULT getRect( const int iPart, gsl::not_null<LPRECT> lprc ) const noexcept;
-	LRESULT setIcon( const int iPart, const HICON hIcon ) noexcept;
+	bool getRect( const int iPart, gsl::not_null<LPRECT> lprc ) const noexcept;
+	bool setIcon( const int iPart, const HICON hIcon ) noexcept;
 	HICON getIcon( const int iPart ) const noexcept;
 	UINT getPartFlags(const int iPart) const noexcept;
 	TString getItemFlags(int iPos) const noexcept;

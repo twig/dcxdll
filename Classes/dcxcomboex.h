@@ -44,48 +44,6 @@ struct DCXCBITEM
 };
 using LPDCXCBITEM = DCXCBITEM *;
 
-namespace Dcx
-{
-	inline DWORD dcxComboEx_SetExtendedStyles(_In_ HWND hwnd, _In_ const WPARAM mask, _In_ const LPARAM dw) noexcept
-	{
-		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, CBEM_SETEXTENDEDSTYLE, mask, dw));
-	}
-	[[nodiscard]] inline DWORD dcxComboEx_GetExtendedStyles(_In_ HWND hwnd) noexcept
-	{
-		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, CBEM_GETEXTENDEDSTYLE, 0, 0));
-	}
-	inline DWORD dcxCombo_SetHorizExtent(_In_ HWND hwnd, _In_ const WPARAM iWidth) noexcept
-	{
-		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, CB_SETHORIZONTALEXTENT, iWidth, 0));
-	}
-	[[nodiscard]] inline DWORD dcxCombo_GetHorizExtent(_In_ HWND hwnd) noexcept
-	{
-		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, CB_GETHORIZONTALEXTENT, 0, 0));
-	}
-	inline bool dcxComboEx_SetItem(_In_ HWND hwnd, _In_ const PCOMBOBOXEXITEM lpcCBItem) noexcept
-	{
-		return (SendMessage(hwnd, CBEM_SETITEM, 0, reinterpret_cast<LPARAM>(lpcCBItem)) != 0);
-	}
-	inline LRESULT dcxComboEx_GetItem(_In_ HWND hwnd, const PCOMBOBOXEXITEM lpcCBItem) noexcept
-	{
-		return SendMessage(hwnd, CBEM_GETITEM, 0U, reinterpret_cast<LPARAM>(lpcCBItem));
-	}
-	inline LRESULT dcxComboEx_InsertItem(_In_ HWND hwnd, _In_ const PCOMBOBOXEXITEM lpcCBItem) noexcept
-	{
-		return SendMessage(hwnd, CBEM_INSERTITEM, 0, reinterpret_cast<LPARAM>(lpcCBItem));
-	}
-	GSL_SUPPRESS(lifetime.4)
-	[[nodiscard]] inline HWND dcxComboEx_GetEditControl(_In_ HWND hwnd) noexcept
-	{
-		return reinterpret_cast<HWND>(SendMessage(hwnd, CBEM_GETEDITCONTROL, 0U, 0));
-	}
-	GSL_SUPPRESS(lifetime.4)
-	[[nodiscard]] inline HWND dcxComboEx_GetComboControl(_In_ HWND hwnd) noexcept
-	{
-		return reinterpret_cast<HWND>(SendMessage(hwnd, CBEM_GETCOMBOCONTROL, 0U, 0));
-	}
-}
-
 /*!
  * \brief blah
  *
@@ -141,7 +99,7 @@ public:
 
 	void UpdateHorizExtent();
 	void UpdateHorizExtent(const int nPos);
-	void UpdateHorizExtent(const TString &tsItem);
+	void UpdateHorizExtent(const TString &tsItem) noexcept;
 
 	static LRESULT CALLBACK ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) noexcept;
 
@@ -165,7 +123,7 @@ protected:
 private:
 	DCXCOMBOEXEDIT		m_exEdit{};
 
-	[[nodiscard]] static const WindowExStyle parseComboExStyles(const TString& tsStyles) noexcept;
+	[[nodiscard]] static const WindowExStyle parseComboExStyles(const TString& tsStyles);
 
 };
 

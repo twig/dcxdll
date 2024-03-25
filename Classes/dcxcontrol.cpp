@@ -191,8 +191,13 @@ dcxWindowStyles DcxControl::parseGeneralControlStyles(const TString& styles)
 
 GSL_SUPPRESS(type.3)
 GSL_SUPPRESS(es.47)
-bool DcxControl::evalAliasEx(TCHAR* const szReturn, const int maxlen, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const
+GSL_SUPPRESS(lifetime.1)
+GSL_SUPPRESS(f.55)
+bool DcxControl::evalAliasEx(_Out_writes_z_(maxlen) TCHAR* const szReturn, _In_ const int maxlen, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const
 {
+	if (!szReturn || !szFormat)
+		return false;
+
 	TString parms;
 	va_list args = nullptr;
 
@@ -206,8 +211,13 @@ bool DcxControl::evalAliasEx(TCHAR* const szReturn, const int maxlen, _In_z_ _Pr
 
 GSL_SUPPRESS(type.3)
 GSL_SUPPRESS(es.47)
+GSL_SUPPRESS(lifetime.1)
+GSL_SUPPRESS(f.55)
 bool DcxControl::execAliasEx(_In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const
 {
+	if (!szFormat)
+		return false;
+
 	TString parms;
 	va_list args = nullptr;
 
@@ -905,7 +915,7 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 	{
 	case L"hwnd"_hash:
 	{
-		tsResult += (DWORD)m_Hwnd;
+		tsResult += from_hwnd<size_t>(m_Hwnd);
 	}
 	break;
 	case L"visible"_hash:
@@ -1070,7 +1080,9 @@ void DcxControl::HandleDragDrop(int x, int y) noexcept
 	{
 	case DcxControlTypes::LISTVIEW:
 	{
-		((DcxListView*)this)->HandleDragDrop(x, y);
+		//((DcxListView*)this))->HandleDragDrop(x, y);
+		//(reinterpret_cast<DcxListView*>(this))->HandleDragDrop(x, y);
+		(dynamic_cast<DcxListView*>(this))->HandleDragDrop(x, y);
 	}
 	break;
 	default:
@@ -1084,7 +1096,9 @@ void DcxControl::HandleDragMove(int x, int y) noexcept
 	{
 	case DcxControlTypes::LISTVIEW:
 	{
-		((DcxListView*)this)->HandleDragMove(x, y);
+		//((DcxListView*)this)->HandleDragMove(x, y);
+		//(reinterpret_cast<DcxListView*>(this))->HandleDragMove(x, y);
+		(dynamic_cast<DcxListView*>(this))->HandleDragMove(x, y);
 	}
 	break;
 	default:
@@ -1168,6 +1182,7 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
  * Input [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
  */
 
+GSL_SUPPRESS(r.11)
 DcxControl* DcxControl::controlFactory(gsl::strict_not_null<DcxDialog* const> p_Dialog, const UINT mID, const TString& tsInput, const UINT offset, const DcxAllowControls mask = DcxAllowControls::ALLOW_ALL, HWND hParent)
 {
 	if (!m_bInitialized)
@@ -1175,15 +1190,12 @@ DcxControl* DcxControl::controlFactory(gsl::strict_not_null<DcxDialog* const> p_
 
 	const auto type(tsInput.getfirsttok(gsl::narrow_cast<int>(offset)));
 
-	//RECT rc{};
-	//rc.left = tsInput.getnexttok().to_<LONG>();
-	//rc.top = tsInput.getnexttok().to_<LONG>();
-	//rc.right = rc.left + tsInput.getnexttok().to_<LONG>();
-	//rc.bottom = rc.top + tsInput.getnexttok().to_<LONG>();
-
 	const RECT rc = TSToRect(tsInput);
 
 	const auto styles(tsInput.getlasttoks());
+
+	//const auto oldContext = Dcx::DpiModule.dcxSetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+	//Auto(Dcx::DpiModule.dcxSetThreadDpiAwarenessContext(oldContext));
 
 	if (!hParent)
 		hParent = p_Dialog->getHwnd();
@@ -1253,13 +1265,9 @@ DcxControl* DcxControl::controlFactory(gsl::strict_not_null<DcxDialog* const> p_
 		{
 			auto ctrl_p = new DcxWebControl(mID, p_Dialog, hParent, &rc, styles);
 
-			//ctrl_p->InitializeInterface();
-
 			if (!ctrl_p->InitializeInterface())
 			{
 				DestroyWindow(ctrl_p->getHwnd());
-				//delete ctrl_p;
-				//throw Dcx::dcxException("Unable To Create Browser Window");
 				throw DcxExceptions::dcxUnableToCreateWindow();
 			}
 
@@ -1378,7 +1386,7 @@ DcxControl* DcxControl::controlFactory(gsl::strict_not_null<DcxDialog* const> p_
 			if (tsWin.len() < 2)
 				throw Dcx::dcxException(TEXT("No such window: %"), tsWin);
 
-			auto winHwnd = reinterpret_cast<HWND>(tsWin.to_<DWORD>());
+			auto winHwnd = to_hwnd(tsWin.to_<size_t>());
 			if (!IsWindow(winHwnd))
 			{
 				//stString<30> windowHwnd;
@@ -1387,16 +1395,16 @@ DcxControl* DcxControl::controlFactory(gsl::strict_not_null<DcxDialog* const> p_
 				//
 				//stString<30> windowHwnd;
 				//mIRCLinker::eval(windowHwnd, TEXT("$window(%).hwnd"), tsWin);
-				//winHwnd = reinterpret_cast<HWND>(dcx_atoi(windowHwnd.data()));
+				//winHwnd = to_hwnd(dcx_atoi(windowHwnd.data()));
 
 				TString tsRes;
 				mIRCLinker::eval(tsRes, TEXT("$window(%).hwnd"), tsWin);
-				winHwnd = reinterpret_cast<HWND>(tsRes.to_<size_t>());
+				winHwnd = to_hwnd(tsRes.to_<size_t>());
 
 				//TString tsRes;
 				//if (auto o = mIRCLinker::o_eval<TString>(TEXT("$window(%).hwnd"), tsWin); o.has_value())
 				//	tsRes = o.value();
-				//winHwnd = reinterpret_cast<HWND>(tsRes.to_<size_t>());
+				//winHwnd = to_hwnd(tsRes.to_<size_t>());
 			}
 
 			if (!IsWindow(winHwnd))
@@ -1595,7 +1603,7 @@ void DcxControl::setRegion(const TString& tsFlags, const TString& tsArgs)
 		if (tPoints < 3)
 			throw Dcx::dcxException("Invalid Points: At least 3 points required.");
 
-		auto pnts = std::make_unique<POINT[]>(tPoints);
+		GSL_SUPPRESS(r.5) auto pnts = std::make_unique<POINT[]>(tPoints);
 		UINT cnt = 0;
 
 		for (const auto& strPoint : strPoints)
@@ -1826,7 +1834,7 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl* const p_thi
 	}
 }
 
-void DcxControl::DrawControl(HDC hDC, HWND hwnd)
+void DcxControl::DrawControl(HDC hDC, HWND hwnd) const
 {
 	if (!hDC || !hwnd)
 		return;
@@ -2334,6 +2342,8 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 		// win10+ only
 		if (dcx_testflag(getEventMask(), DCX_EVENT_THEME))
 			execAliasEx(TEXT("dpichanged,%u,afterparent"), getUserID());
+
+		m_uDPI = Dcx::DpiModule.dcxGetDpiForWindow(m_Hwnd);
 	}
 	break;
 
@@ -2353,6 +2363,8 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 		if (!IsValidWindow())
 			break;
 
+		m_uDPI = Dcx::dcxLOWORD(wParam);
+
 		bParsed = TRUE;
 
 		if (bResize)
@@ -2368,7 +2380,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 
 	case WM_SETCURSOR:
 	{
-		if ((Dcx::dcxLOWORD(lParam) == HTCLIENT) && (reinterpret_cast<HWND>(wParam) == m_Hwnd) && (m_hCursor.cursor))
+		if ((Dcx::dcxLOWORD(lParam) == HTCLIENT) && (to_hwnd(wParam) == m_Hwnd) && (m_hCursor.cursor))
 		{
 			if (GetCursor() != m_hCursor.cursor)
 				SetCursor(m_hCursor.cursor);
@@ -2393,7 +2405,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 	case WM_CTLCOLORDLG:
 	{
 		bParsed = TRUE;
-		return reinterpret_cast<INT_PTR>(getBackClrBrush());
+		return reinterpret_cast<LRESULT>(getBackClrBrush());
 	}
 	break;
 
@@ -2403,7 +2415,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 	case WM_CTLCOLORSTATIC:
 	case WM_CTLCOLOREDIT:
 	{
-		if (const auto* const p_Control = this->getParentDialog()->getControlByHWND(reinterpret_cast<HWND>(lParam)); p_Control)
+		if (const auto* const p_Control = this->getParentDialog()->getControlByHWND(to_hwnd(lParam)); p_Control)
 		{
 			const auto clrText = p_Control->getTextColor();
 			const auto clrBackText = p_Control->getBackTextColor();
@@ -2490,7 +2502,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 	{
 		if (dcx_testflag(this->getEventMask(), DCX_EVENT_CLICK))
 		{
-			//if (auto hwnd = reinterpret_cast<HWND>(wParam); hwnd == m_Hwnd)
+			//if (auto hwnd = to_hwnd(wParam); hwnd == m_Hwnd)
 			//{
 			//	if (execAliasEx(TEXT("rclick,%u"), getUserID()))
 			//		lRes = CallDefaultClassProc(uMsg, wParam, lParam);	// this allows the display of local context menus (like copy/paste with edit control)
@@ -2516,7 +2528,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 
 		const stString<MIRC_BUFFER_SIZE_CCH> sFilename;
 
-		if (const auto count = DragQueryFile(files, 0xFFFFFFFF, sFilename, std::size(sFilename)); count > 0)
+		if (const auto count = DragQueryFile(files, 0xFFFFFFFF, sFilename, gsl::narrow_cast<UINT>(std::size(sFilename))); count > 0)
 		{
 			if (dcx_testflag(getEventMask(), DCX_EVENT_DRAG))
 			{
@@ -2534,7 +2546,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 				// for each file, send callback message
 				for (auto i = decltype(count){0}; i < count; ++i)
 				{
-					if (DragQueryFile(files, i, sFilename, std::size(sFilename)))
+					if (DragQueryFile(files, i, sFilename, gsl::narrow_cast<UINT>(std::size(sFilename))))
 						execAliasEx(TEXT("dragfile,%u,%s"), getUserID(), sFilename.data());
 				}
 
@@ -2623,14 +2635,14 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 			//if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
 			// break;
 
-			execAliasEx(TEXT("keydown,%u,%d"), getUserID(), wParam);
+			execAliasEx(TEXT("keydown,%u,%zu"), getUserID(), wParam);
 		}
 		break;
 	}
 	case WM_KEYUP:
 	{
 		if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
-			execAliasEx(TEXT("keyup,%u,%d"), getUserID(), wParam);
+			execAliasEx(TEXT("keyup,%u,%zu"), getUserID(), wParam);
 		break;
 	}
 
@@ -2694,7 +2706,7 @@ void DcxControl::InvalidateParentRect(HWND hwnd) noexcept
 #endif
 }
 
-void DcxControl::calcTextRect(HDC hdc, const TString& txt, LPRECT rc, const UINT style)
+void DcxControl::calcTextRect(HDC hdc, const TString& txt, LPRECT rc, const UINT style) const
 {
 	if (!hdc || !rc)
 		return;
@@ -2703,12 +2715,12 @@ void DcxControl::calcTextRect(HDC hdc, const TString& txt, LPRECT rc, const UINT
 	if (this->IsControlCodeTextEnabled())
 		t.strip();
 	if (this->IsShadowTextEnabled())
-		dcxDrawShadowText(hdc, t.to_chr(), t.len(), rc, style | DT_CALCRECT, this->m_clrText, 0, 5, 5);
+		dcxDrawShadowText(hdc, t.to_chr(), gsl::narrow_cast<UINT>(t.len()), rc, style | DT_CALCRECT, this->m_clrText, 0, 5, 5);
 	else
 		DrawText(hdc, t.to_chr(), gsl::narrow_cast<int>(t.len()), rc, style | DT_CALCRECT);
 }
 
-void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, const UINT style)
+void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, const UINT style) const
 {
 	if (!hdc || !rc || txt.empty())
 		return;
@@ -2735,7 +2747,7 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, cons
 		Auto(SetBkMode(hdc, oldBkgMode));
 
 		if (this->IsShadowTextEnabled())
-			dcxDrawShadowText(hdc, txt.to_chr(), txt.len(), rc, style, GetTextColor(hdc), 0, 5, 5);
+			dcxDrawShadowText(hdc, txt.to_chr(), gsl::narrow_cast<UINT>(txt.len()), rc, style, GetTextColor(hdc), 0, 5, 5);
 		else
 			DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(txt.len()), rc, style);
 	}
@@ -3173,7 +3185,7 @@ void DcxControl::xmlSaveImageList(HIMAGELIST himl, TiXmlElement* xml, const TStr
 	if (!himl || !xml || tsFlags.empty())
 		return;
 
-	auto pd = this->getParentDialog();
+	const auto pd = this->getParentDialog();
 	if (!pd)
 		return;
 
@@ -3414,6 +3426,7 @@ void DcxControl::UnInitializeDcxControls() noexcept
 	UnregisterClass(DCX_PANELCLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_BOXCLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_WEBCLASS, GetModuleHandle(nullptr));
+	UnregisterClass(DCX_WEB2CLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_LINECLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_LINKCLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_LISTCLASS, GetModuleHandle(nullptr));

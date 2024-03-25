@@ -71,14 +71,14 @@ public:
 
 	void parseCommandRequest(_In_ const TString& input) final;
 	void parseCommandRequestEX(_In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...);
-	void parseComControlRequestEX(_In_ const UINT id, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...);
+	void parseComControlRequestEX(_In_ const UINT id, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const;
 	//void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
 	void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const override;
 
 	//bool evalAliasEx( TCHAR *const szReturn, const int maxlen, const TCHAR *const szFormat, ... );
 	//bool evalAlias( TCHAR *const szReturn, const int maxlen, const TCHAR *const szArgs);
-	bool evalAliasEx(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const;
-	bool evalAlias(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _In_z_ const TCHAR* const szArgs) const;
+	bool evalAliasEx(_Out_ const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const;
+	bool evalAlias(_Out_ const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _In_z_ const TCHAR* const szArgs) const;
 	bool execAliasEx(_In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const;
 	bool execAlias(_In_z_ const TCHAR* const szArgs) const;
 
@@ -86,7 +86,7 @@ public:
 	auto evalAliasT(const Format& fmt, const Value& val, Arguments&& ... args)
 	{
 		TString tsArgs;
-		return evalAliasT(_ts_sprintf(tsArgs, fmt, val, args...));
+		GSL_SUPPRESS(lifetime.1) return evalAliasT(_ts_sprintf(tsArgs, fmt, val, args...));
 	}
 	template <typename Format, typename Value>
 	auto evalAliasT(const Format& fmt, const Value& val)
@@ -94,6 +94,7 @@ public:
 		TString tsArgs;
 		return evalAliasT(_ts_sprintf(tsArgs, fmt, val));
 	}
+
 	template <typename Value>
 	std::pair<bool, TString> evalAliasT(const Value& val)
 	{
@@ -102,14 +103,31 @@ public:
 			_ts_sprintf(tsArgs, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(&val[0]));
 		else
 			_ts_sprintf(tsArgs, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(val));
-
+	
 		incRef();
 		GSL_SUPPRESS(lifetime.1) Auto(decRef());
-
+	
 		const auto bRes = mIRCLinker::eval(tsRes, tsArgs);
-
+	
 		return{ bRes, tsRes };
 	}
+
+	//template <typename Value>
+	//Dcx::BoolValue<TString> evalAliasT(const Value& val)
+	//{
+	//	TString tsArgs, tsRes;
+	//	if constexpr (std::is_array_v<Value> && Dcx::is_pod_v<Value>)
+	//		_ts_sprintf(tsArgs, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(&val[0]));
+	//	else
+	//		_ts_sprintf(tsArgs, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(val));
+	//
+	//	incRef();
+	//	GSL_SUPPRESS(lifetime.1) Auto(decRef());
+	//
+	//	const auto bRes = mIRCLinker::eval(tsRes, tsArgs);
+	//
+	//	return{ bRes, tsRes };
+	//}
 
 	template <typename Value>
 	auto o_evalAliasT(const Value& val)
@@ -142,7 +160,7 @@ public:
 	void setFocusControl(const UINT mUID);
 
 #if DCX_CUSTOM_MENUS
-	void UAHDrawMenuNCBottomLine(HWND hWnd) noexcept;
+	void UAHDrawMenuNCBottomLine(HWND hWnd) const noexcept;
 #endif
 
 	/// <summary>
@@ -214,9 +232,9 @@ public:
 	void showControlError(const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const err) const;
 	void showControlErrorEx(__in_z const TCHAR* const prop, __in_z const TCHAR* const cmd, _Printf_format_string_ const TCHAR* const fmt, ...) const;
 #ifdef DCX_USE_GDIPLUS
-	void DrawCaret(Gdiplus::Graphics& graph);
-	void DrawCtrl(Gdiplus::Graphics& graphics, HDC hDC, HWND hWnd);
-	void DrawDialog(Gdiplus::Graphics& graphics, HDC hDC);
+	void DrawCaret(Gdiplus::Graphics& graph) const;
+	void DrawCtrl(Gdiplus::Graphics& graphics, HDC hDC, HWND hWnd) const;
+	void DrawDialog(Gdiplus::Graphics& graphics, HDC hDC) const;
 #endif
 	void CreateVistaStyle(void) noexcept;
 	const bool CreateVistaStyleBitmap(const SIZE& szWin) noexcept;

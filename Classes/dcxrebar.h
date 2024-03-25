@@ -75,23 +75,23 @@ public:
 	void resetContents() noexcept;
 
 	void addBand(int nIndex, UINT cx, UINT cy, UINT width, int nIcon, COLORREF clrText, const TString& tsFlags, const TString& tsText, const TString& tsControl_data, const TString& tsTooltip);
-	LRESULT insertBand(const int uIndex, const LPREBARBANDINFO lprbbi) noexcept;
-	LRESULT deleteBand(const UINT uIndex) noexcept;
-	LRESULT getBandInfo(const UINT uBand, const LPREBARBANDINFO lprbbi) const noexcept;
-	LRESULT setBandInfo(const UINT uBand, const LPREBARBANDINFO lprbbi) noexcept;
-	LRESULT setBarInfo(const LPREBARINFO lprbi) noexcept;
-	LRESULT getBarInfo(const LPREBARINFO lprbi) const noexcept;
-	LRESULT getRowCount() const noexcept;
-	LRESULT hitTest(const LPRBHITTESTINFO lprbht) const noexcept;
-	LRESULT getToolTips() const noexcept;
-	LRESULT setToolTips(const HWND hwndToolTip) noexcept;
-	LRESULT getIDToIndex(const UINT uBandID) const noexcept;
-	LRESULT getBandCount() const noexcept;
-	LRESULT setReDraw(const BOOL uState) noexcept;
-	LRESULT showBand(const UINT uBand, const BOOL fShow) noexcept;
-	LRESULT moveBand(const UINT iFrom, const UINT iTo) noexcept;
-	LRESULT maxBand(const UINT uBand, const BOOL fIdeal) noexcept;
-	LRESULT minBand(const UINT uBand, const BOOL fIdeal) noexcept;
+	bool insertBand(const int uIndex, const LPREBARBANDINFO lprbbi) noexcept;
+	bool deleteBand(const UINT uIndex) noexcept;
+	bool getBandInfo(const UINT uBand, const LPREBARBANDINFO lprbbi) const noexcept;
+	bool setBandInfo(const UINT uBand, const LPREBARBANDINFO lprbbi) noexcept;
+	bool setBarInfo(const LPREBARINFO lprbi) noexcept;
+	bool getBarInfo(const LPREBARINFO lprbi) const noexcept;
+	int getRowCount() const noexcept;
+	int hitTest(const LPRBHITTESTINFO lprbht) const noexcept;
+	HWND getToolTips() const noexcept;
+	void setToolTips(const HWND hwndToolTip) noexcept;
+	int getIDToIndex(const UINT uBandID) const noexcept;
+	int getBandCount() const noexcept;
+	void setReDraw(const BOOL uState) noexcept;
+	bool showBand(const UINT uBand, const BOOL fShow) noexcept;
+	bool moveBand(const UINT iFrom, const UINT iTo) noexcept;
+	void maxBand(const UINT uBand, const BOOL fIdeal) noexcept;
+	void minBand(const UINT uBand, const BOOL fIdeal) noexcept;
 
 	void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) override;
 

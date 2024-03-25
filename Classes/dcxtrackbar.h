@@ -67,28 +67,28 @@ public:
 
 	static UINT parseImageFlags(const TString& flags) noexcept;
 
-	LRESULT setRangeMin(const LONG iLowLim) noexcept;
-	LRESULT getRangeMin() const noexcept;
-	LRESULT setRangeMax(const LONG iHighLim) noexcept;
-	LRESULT getRangeMax() const noexcept;
-	LRESULT setRange(const LONG iLowLim, const LONG iHighLim) noexcept;
-	LRESULT setPos(const LONG lPosition) noexcept;
-	LRESULT getPos() const noexcept;
+	void setRangeMin(const LONG iLowLim) noexcept;
+	int getRangeMin() const noexcept;
+	void setRangeMax(const LONG iHighLim) noexcept;
+	int getRangeMax() const noexcept;
+	void setRange(const LONG iLowLim, const LONG iHighLim) noexcept;
+	void setPos(const LONG lPosition) noexcept;
+	int getPos() const noexcept;
 	void setTic(const LONG lPosition) noexcept;
 	void setTicFreq(const LONG wFreq) noexcept;
 	const LONG& getTickFreq() const noexcept { return m_iTickFreq; };
-	LRESULT clearTics() noexcept;
+	void clearTics() noexcept;
 	int setTipSide(const int fLocation) noexcept;
 	int getTipSide() const noexcept;
-	LRESULT setPageSize(const LONG lPageSize) noexcept;
-	LRESULT getPageSize() const noexcept;
-	LRESULT setLineSize(const LONG lLineSize) noexcept;
-	LRESULT getLineSize() const noexcept;
-	LRESULT setThumbLength(const UINT iLength) noexcept;
+	uint32_t setPageSize(const LONG lPageSize) noexcept;
+	uint32_t getPageSize() const noexcept;
+	uint32_t setLineSize(const LONG lLineSize) noexcept;
+	uint32_t getLineSize() const noexcept;
+	void setThumbLength(const UINT iLength) noexcept;
 	UINT getThumbLength() const noexcept;
 	void setSel(const LONG iLowLim, const LONG iHighLim) noexcept;
-	LRESULT getSelStart() const noexcept;
-	LRESULT getSelEnd() const noexcept;
+	uint32_t getSelStart() const noexcept;
+	uint32_t getSelEnd() const noexcept;
 	HWND setBuddy(const HWND mHwnd, bool bLeft) noexcept;
 	HWND getBuddy(bool bLeft) const noexcept;
 

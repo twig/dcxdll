@@ -59,7 +59,7 @@ DcxToolBar::DcxToolBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_D
 
 	SendMessage(m_Hwnd, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0L);
 
-	this->setToolTipHWND(reinterpret_cast<HWND>(SendMessage(m_Hwnd, TB_GETTOOLTIPS, 0, 0)));
+	this->setToolTipHWND(to_hwnd(SendMessage(m_Hwnd, TB_GETTOOLTIPS, 0, 0)));
 	if (styles.istok(TEXT("balloon")) && IsWindow(getToolTipHWND()))
 	{
 		dcxSetWindowStyle(getToolTipHWND(), dcxGetWindowStyle(getToolTipHWND()) | TTS_BALLOON);
@@ -465,7 +465,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 
 		TString tsButton(input.getnexttok());
 		const auto HandleButton = [=](const TString& tsButtons) {
-			const auto r = Dcx::make_range(tsButtons, this->getButtonCount(), 1L);
+			const auto r = Dcx::make_range(tsButtons, this->getButtonCount(), gsl::narrow_cast<LRESULT>(1L));
 
 			if ((r.b < 0) || (r.e < r.b))
 				throw DcxExceptions::dcxOutOfRange();
@@ -474,7 +474,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 			//	this->deleteButton(nButton);
 
 			for (auto it = r.rbegin(); it <= r.rend(); ++it)
-				this->deleteButton(*it);
+				this->deleteButton(gsl::narrow_cast<int>(*it));
 		};
 		if (tsButton.numtok(TSCOMMACHAR) > 1)
 		{
@@ -505,7 +505,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 			iImage = I_IMAGENONE;
 
 		const auto HandleButton = [=](const TString& tsButtons) {
-			const auto r = Dcx::make_range(tsButtons, this->getButtonCount(), 1L);
+			const auto r = Dcx::make_range(tsButtons, this->getButtonCount(), gsl::narrow_cast<LRESULT>(1L));
 
 			if ((r.b < 0) || (r.e < r.b))
 				throw DcxExceptions::dcxOutOfRange();
@@ -516,7 +516,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 			tbbi.iImage = iImage;
 
 			for (auto nButton : r)
-				this->setButtonInfo(nButton, &tbbi);
+				this->setButtonInfo(gsl::narrow_cast<int>(nButton), &tbbi);
 		};
 		if (tsButton.numtok(TSCOMMACHAR) > 1)
 		{
@@ -608,7 +608,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		const auto tsButton = input.getnexttok();						// tok 4
 		const auto fStates = parseButtonStateFlags(input.getnexttok());	// tok 5
 		const auto HandleButton = [=](const TString& tsButtons) {
-			auto r = Dcx::make_range(tsButtons, this->getButtonCount(), 1L);
+			auto r = Dcx::make_range(tsButtons, this->getButtonCount(), gsl::narrow_cast<LRESULT>(1L));
 
 			if (tsButtons == TEXT("0"))
 			{
@@ -621,7 +621,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 
 			for (auto nButton : r)
 			{
-				if (const auto idButton = this->getIndexToCommand(nButton); idButton > 0)
+				if (const auto idButton = this->getIndexToCommand(gsl::narrow_cast<int>(nButton)); idButton > 0)
 					this->setButtonState(idButton, fStates);
 			}
 		};
@@ -733,7 +733,7 @@ BYTE DcxToolBar::parseButtonStateFlags(const TString& flags) noexcept
 	return iFlags;
 }
 
-TString DcxToolBar::parseButtonStateFlags(UINT iflags) noexcept
+TString DcxToolBar::parseButtonStateFlags(UINT iflags)
 {
 	TString tsRes(L"+");
 
@@ -904,7 +904,7 @@ HIMAGELIST DcxToolBar::createImageList(const DcxIconSizes iSize) noexcept
 
 void DcxToolBar::resetContent() noexcept
 {
-	auto nButtons = this->getButtonCount();
+	auto nButtons = gsl::narrow_cast<int>(this->getButtonCount());
 
 	while (nButtons--)
 		this->deleteButton(nButtons);
@@ -919,7 +919,7 @@ void DcxToolBar::resetContent() noexcept
 void DcxToolBar::addButton(int iPos, const TString& tsFlags, WORD iWidth, int iIcon, int cColour, const TString& tsText, const TString& tsTooltip)
 {
 	if (iPos == -1)
-		iPos += this->getButtonCount() + 1;
+		iPos += gsl::narrow_cast<int>(this->getButtonCount() + 1);
 
 	TBBUTTON tbb{};
 
@@ -997,7 +997,7 @@ void DcxToolBar::addButton(int iPos, const TString& tsFlags, WORD iWidth, int iI
 
 void DcxToolBar::autoStretchButtons() noexcept
 {
-	const auto nButtons = this->getButtonCount();
+	const auto nButtons = gsl::narrow_cast<int>(this->getButtonCount());
 	auto nTotalButtons = nButtons;
 
 	RECT rc{};
@@ -1151,7 +1151,7 @@ LRESULT DcxToolBar::getItemRect(const int iButton, LPCRECT lprc) const noexcept
 Dcx::CodeValue<RECT> DcxToolBar::getItemRect(const int iButton) const noexcept
 {
 	RECT rc{};
-	return { SendMessage(m_Hwnd, TB_GETITEMRECT, gsl::narrow_cast<WPARAM>(iButton), reinterpret_cast<LPARAM>(std::addressof(rc))), rc };
+	return { gsl::narrow_cast<decltype(Dcx::CodeValue<RECT>::code)>(SendMessage(m_Hwnd, TB_GETITEMRECT, gsl::narrow_cast<WPARAM>(iButton), reinterpret_cast<LPARAM>(std::addressof(rc)))), rc };
 }
 
 /*!
@@ -1217,7 +1217,7 @@ LRESULT DcxToolBar::getButtonInfo(const int idButton, const LPTBBUTTONINFO lpbi)
 
 HWND DcxToolBar::getTooltips() const noexcept
 {
-	return reinterpret_cast<HWND>(SendMessage(m_Hwnd, TB_GETTOOLTIPS, 0U, 0));
+	return to_hwnd(SendMessage(m_Hwnd, TB_GETTOOLTIPS, 0U, 0));
 }
 
 /*!
@@ -1384,7 +1384,7 @@ int DcxToolBar::getFreeButtonID() const noexcept
 {
 	int i = 0, iID = 0;
 	do {
-		iID = this->getCommandToIndex(++i);
+		iID = gsl::narrow_cast<int>(this->getCommandToIndex(++i));
 	} while (iID != -1);
 	return i;
 }
@@ -1397,11 +1397,11 @@ int DcxToolBar::getFreeButtonID() const noexcept
 
 int DcxToolBar::getIndexToCommand(const int iIndex) const noexcept
 {
-	const auto nButtons = this->getButtonCount();
+	const auto nButtons = gsl::narrow_cast<int>(this->getButtonCount());
 
 	for (auto i = decltype(nButtons){1}; i <= nButtons; ++i)
 	{
-		if (this->getCommandToIndex(i) == iIndex)
+		if (gsl::narrow_cast<int>(this->getCommandToIndex(i)) == iIndex)
 			return i;
 	}
 
@@ -1458,11 +1458,11 @@ LRESULT DcxToolBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 			{
 				dcxlParam(LPNMCLICK, lpnm);
 
-				const auto iIndex = this->getCommandToIndex(lpnm->dwItemSpec);
+				const auto iIndex = gsl::narrow_cast<int>(this->getCommandToIndex(gsl::narrow_cast<int>(lpnm->dwItemSpec)));
 				if (auto [code, rc] = this->getItemRect(iIndex); code)
 				{
 					MapWindowRect(m_Hwnd, nullptr, &rc);
-					this->execAliasEx(TEXT("rclick,%u,%u,%d,%d,%d,%d"), getUserID(), iIndex + 1, rc.left, rc.bottom, rc.right, rc.top);
+					this->execAliasEx(TEXT("rclick,%u,%d,%d,%d,%d,%d"), getUserID(), iIndex + 1, rc.left, rc.bottom, rc.right, rc.top);
 				}
 			}
 			bParsed = TRUE;
@@ -1477,7 +1477,7 @@ LRESULT DcxToolBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 			{
 				dcxlParam(LPNMTOOLBAR, lpnmtb);
 
-				const auto iIndex = this->getCommandToIndex(lpnmtb->iItem);
+				const auto iIndex = gsl::narrow_cast<int>(this->getCommandToIndex(lpnmtb->iItem));
 
 				if (auto [code, rc] = this->getItemRect(iIndex); code)
 				{
@@ -1602,7 +1602,7 @@ LRESULT DcxToolBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 			TBBUTTON tbb{};
 
-			this->getButton(this->getCommandToIndex(lpnmtb->iItem), &tbb);
+			this->getButton(gsl::narrow_cast<int>(this->getCommandToIndex(lpnmtb->iItem)), &tbb);
 
 			auto lpBut = reinterpret_cast<LPDCXTBBUTTON>(tbb.dwData);
 

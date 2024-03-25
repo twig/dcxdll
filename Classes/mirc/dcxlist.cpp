@@ -18,64 +18,6 @@
 #include "Classes/dcxdialog.h"
 #include "Dcx.h"
 
-namespace Dcx
-{
-	[[nodiscard]] TString dcxListBox_GetText(HWND hwnd, int i)
-	{
-		TString tsBuf;
-
-		const auto len = ListBox_GetTextLen(hwnd, i);
-		if (len < 1)
-			return tsBuf;
-
-		tsBuf.reserve(len + 1U);
-
-		ListBox_GetText(hwnd, i, tsBuf.to_chr());
-
-		return tsBuf;
-	}
-	int dcxListBox_GetPointItem(HWND hListbox, POINT pt) noexcept
-	{
-		if (!hListbox)
-			return -1;
-
-		// do we have any items?
-		if (const auto iCnt = ListBox_GetCount(hListbox); iCnt > 0)
-		{
-			RECT rc{};
-
-			// check point is in client area.
-			if (GetClientRect(hListbox, &rc))
-			{
-				if (!PtInRect(&rc, pt))
-					return -1;
-			}
-
-			// loop through items & check for a match
-			for (int i{}; i < iCnt; ++i)
-			{
-				// get items rect
-				if (!Dcx::dcxListBox_GetItemRect(hListbox, i, &rc))
-					break;
-
-				// check if point is within this item.
-				if (PtInRect(&rc, pt))
-					return i;
-			}
-		}
-		return -1;
-	}
-	int dcxListBox_GetHoverItem(HWND hListbox) noexcept
-	{
-		if (!hListbox)
-			return -1;
-
-		const Dcx::dcxCursorPos pt(hListbox);
-		return dcxListBox_GetPointItem(hListbox, pt);
-	}
-
-}
-
 /*!
  * \brief Constructor
  *

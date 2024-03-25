@@ -51,7 +51,7 @@ DcxStatusBar::DcxStatusBar(const UINT ID, gsl::strict_not_null<DcxDialog* const>
 	//ZeroMemory(&m_iFixedParts[0], sizeof(m_iFixedParts));
 
 	if (const auto h = rc->bottom - rc->top; h > 0)
-		SendMessage(m_Hwnd, SB_SETMINHEIGHT, gsl::narrow_cast<WPARAM>(h), 0);
+		Dcx::dcxStatusBar_SetMinHeight(m_Hwnd, h);
 
 	setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
@@ -590,7 +590,7 @@ void DcxStatusBar::toXml(TiXmlElement* const xml) const
 
 	{
 		TString tsCells;
-		for (auto n = 0; n < nParts; ++n)
+		for (auto n = decltype(nParts){0}; n < nParts; ++n)
 		{
 			// add item to cell list
 			if (m_iDynamicParts[n])
@@ -738,9 +738,9 @@ const TString DcxStatusBar::getStyles(void) const
  * blah
  */
 
-LRESULT DcxStatusBar::setParts(const int nParts, const LPINT aWidths) noexcept
+bool DcxStatusBar::setParts(const int nParts, const LPINT aWidths) noexcept
 {
-	return SendMessage(m_Hwnd, SB_SETPARTS, gsl::narrow_cast<WPARAM>(nParts), reinterpret_cast<LPARAM>(aWidths));
+	return Dcx::dcxStatusBar_SetParts(m_Hwnd, nParts, aWidths);
 }
 
 /*!
@@ -749,9 +749,9 @@ LRESULT DcxStatusBar::setParts(const int nParts, const LPINT aWidths) noexcept
  * blah
  */
 
-LRESULT DcxStatusBar::getParts(const int nParts, LPINT aWidths) const noexcept
+int DcxStatusBar::getParts(const int nParts, LPINT aWidths) const noexcept
 {
-	return SendMessage(m_Hwnd, SB_GETPARTS, gsl::narrow_cast<WPARAM>(nParts), reinterpret_cast<LPARAM>(aWidths));
+	return Dcx::dcxStatusBar_GetParts(m_Hwnd, nParts, aWidths);
 }
 
 /*!
@@ -760,9 +760,9 @@ LRESULT DcxStatusBar::getParts(const int nParts, LPINT aWidths) const noexcept
  * blah
  */
 
-LRESULT DcxStatusBar::getBorders(LPINT aWidths) const noexcept
+bool DcxStatusBar::getBorders(LPINT aWidths) const noexcept
 {
-	return SendMessage(m_Hwnd, SB_GETBORDERS, 0U, reinterpret_cast<LPARAM>(aWidths));
+	return Dcx::dcxStatusBar_GetBorders(m_Hwnd, aWidths);
 }
 
 void DcxStatusBar::setPartsPositions(const TString& tsPositions)
@@ -795,7 +795,7 @@ void DcxStatusBar::setPartsPositions(const TString& tsPositions)
 
 		++i;
 	}
-	setParts(nParts, parts.get());
+	setParts(gsl::narrow_cast<int>(nParts), parts.get());
 	updateParts();
 }
 
@@ -856,7 +856,9 @@ void DcxStatusBar::setPartContents(int nPos, const TString& tsFlags, int nIcon, 
 _NODISCARD DcxStatusBar::sbBorders DcxStatusBar::getBorders() const noexcept
 {
 	sbBorders aWidths{};
-	SendMessage(m_Hwnd, SB_GETBORDERS, 0U, reinterpret_cast<LPARAM>(&aWidths));
+
+	Dcx::dcxStatusBar_GetBorders(m_Hwnd, reinterpret_cast<LPINT>(&aWidths));
+
 	return aWidths;
 }
 
@@ -868,7 +870,7 @@ _NODISCARD DcxStatusBar::sbBorders DcxStatusBar::getBorders() const noexcept
 
 COLORREF DcxStatusBar::setBkColor(const COLORREF clrBk) noexcept
 {
-	return gsl::narrow_cast<COLORREF>(SendMessage(m_Hwnd, SB_SETBKCOLOR, 0U, gsl::narrow_cast<LPARAM>(clrBk)));
+	return Dcx::dcxStatusBar_SetBkColor(m_Hwnd, clrBk);
 }
 
 COLORREF DcxStatusBar::getBkColor() const noexcept
@@ -887,7 +889,7 @@ COLORREF DcxStatusBar::getBkColor() const noexcept
 
 LRESULT DcxStatusBar::setText(const int iPart, const int Style, const LPCTCH lpstr) noexcept
 {
-	return SendMessage(m_Hwnd, SB_SETTEXT, gsl::narrow_cast<WPARAM>(iPart) | Style, reinterpret_cast<LPARAM>(lpstr));
+	return Dcx::dcxStatusBar_SetText(m_Hwnd, iPart, Style, lpstr);
 }
 
 /*!
@@ -898,15 +900,16 @@ LRESULT DcxStatusBar::setText(const int iPart, const int Style, const LPCTCH lps
 
 LRESULT DcxStatusBar::setPartInfo(const int iPart, const int Style, gsl::owner<const LPSB_PARTINFOX> pPart) noexcept
 {
-	return SendMessage(m_Hwnd, SB_SETTEXT, gsl::narrow_cast<WPARAM>(iPart) | (Style | SBT_OWNERDRAW), reinterpret_cast<LPARAM>(pPart));
+	return Dcx::dcxStatusBar_SetPartInfo(m_Hwnd, iPart, Style, pPart);
 }
 
 LPSB_PARTINFOX DcxStatusBar::getPartInfo(const int iPart) const noexcept
 {
-	if (dcx_testflag(this->getPartFlags(iPart), SBT_OWNERDRAW))
-		return reinterpret_cast<LPSB_PARTINFOX>(SendMessage(m_Hwnd, SB_GETTEXT, gsl::narrow_cast<WPARAM>(iPart), 0));
+	//if (dcx_testflag(this->getPartFlags(iPart), SBT_OWNERDRAW))
+	//	return reinterpret_cast<LPSB_PARTINFOX>(SendMessage(m_Hwnd, SB_GETTEXT, gsl::narrow_cast<WPARAM>(iPart), 0));
+	//return nullptr;
 
-	return nullptr;
+	return Dcx::dcxStatusBar_GetPartInfo<LPSB_PARTINFOX>(m_Hwnd, iPart);
 }
 
 /*!
@@ -917,16 +920,12 @@ LPSB_PARTINFOX DcxStatusBar::getPartInfo(const int iPart) const noexcept
 
 LRESULT DcxStatusBar::getText(const int iPart, PTCHAR lpstr) const noexcept
 {
-	return SendMessage(m_Hwnd, SB_GETTEXT, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(lpstr));
+	return Dcx::dcxStatusBar_GetText(m_Hwnd, iPart, lpstr);
 }
 
 TString DcxStatusBar::getText(const int iPart) const
 {
-	TString tsText((UINT)MIRC_BUFFER_SIZE_CCH);
-
-	this->getText(iPart, tsText.to_chr());
-
-	return tsText;
+	return Dcx::dcxStatusBar_GetText(m_Hwnd, iPart);
 }
 
 /*!
@@ -937,7 +936,7 @@ TString DcxStatusBar::getText(const int iPart) const
 
 LRESULT DcxStatusBar::getTextLength(const int iPart) const noexcept
 {
-	return SendMessage(m_Hwnd, SB_GETTEXTLENGTH, gsl::narrow_cast<WPARAM>(iPart), 0);
+	return Dcx::dcxStatusBar_GetTextLength(m_Hwnd, iPart);
 }
 
 /*!
@@ -946,9 +945,9 @@ LRESULT DcxStatusBar::getTextLength(const int iPart) const noexcept
  * blah
  */
 
-LRESULT DcxStatusBar::setTipText(const int iPart, const LPCTCH lpstr) noexcept
+void DcxStatusBar::setTipText(const int iPart, const LPCTCH lpstr) noexcept
 {
-	return SendMessage(m_Hwnd, SB_SETTIPTEXT, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(lpstr));
+	Dcx::dcxStatusBar_SetTipText(m_Hwnd, iPart, lpstr);
 }
 
 /*!
@@ -957,18 +956,14 @@ LRESULT DcxStatusBar::setTipText(const int iPart, const LPCTCH lpstr) noexcept
  * blah
  */
 
-LRESULT DcxStatusBar::getTipText(const int iPart, const int nSize, PTCHAR lpstr) const noexcept
+void DcxStatusBar::getTipText(const int iPart, const int nSize, PTCHAR lpstr) const noexcept
 {
-	return SendMessage(m_Hwnd, SB_GETTIPTEXT, MAKEWPARAM(iPart, nSize), reinterpret_cast<LPARAM>(lpstr));
+	Dcx::dcxStatusBar_GetTipText(m_Hwnd, iPart, nSize, lpstr);
 }
 
 TString DcxStatusBar::getTipText(const int iPart) const
 {
-	TString tsText((UINT)MIRC_BUFFER_SIZE_CCH);
-
-	this->getTipText(iPart, tsText.capacity_cch(), tsText.to_chr());
-
-	return tsText;
+	return Dcx::dcxStatusBar_GetTipText(m_Hwnd, iPart);
 }
 
 /*!
@@ -977,9 +972,9 @@ TString DcxStatusBar::getTipText(const int iPart) const
  * blah
  */
 
-LRESULT DcxStatusBar::getRect(const int iPart, gsl::not_null<LPRECT> lprc) const noexcept
+bool DcxStatusBar::getRect(const int iPart, gsl::not_null<LPRECT> lprc) const noexcept
 {
-	return SendMessage(m_Hwnd, SB_GETRECT, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(lprc.get()));
+	return Dcx::dcxStatusBar_GetRect(m_Hwnd, iPart, lprc);
 }
 
 /*!
@@ -988,9 +983,9 @@ LRESULT DcxStatusBar::getRect(const int iPart, gsl::not_null<LPRECT> lprc) const
  * blah
  */
 
-LRESULT DcxStatusBar::setIcon(const int iPart, const HICON hIcon) noexcept
+bool DcxStatusBar::setIcon(const int iPart, const HICON hIcon) noexcept
 {
-	return SendMessage(m_Hwnd, SB_SETICON, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(hIcon));
+	return Dcx::dcxStatusBar_SetIcon(m_Hwnd, iPart, hIcon);
 }
 
 /*!
@@ -1001,7 +996,7 @@ LRESULT DcxStatusBar::setIcon(const int iPart, const HICON hIcon) noexcept
 
 HICON DcxStatusBar::getIcon(const int iPart) const noexcept
 {
-	return reinterpret_cast<HICON>(SendMessage(m_Hwnd, SB_GETICON, gsl::narrow_cast<WPARAM>(iPart), 0));
+	return Dcx::dcxStatusBar_GetIcon(m_Hwnd, iPart);
 }
 
 /*!
@@ -1012,7 +1007,7 @@ HICON DcxStatusBar::getIcon(const int iPart) const noexcept
 
 UINT DcxStatusBar::getPartFlags(const int iPart) const noexcept
 {
-	return gsl::narrow_cast<UINT>(Dcx::dcxHIWORD(SendMessage(m_Hwnd, SB_GETTEXTLENGTH, gsl::narrow_cast<WPARAM>(iPart), 0)));
+	return Dcx::dcxStatusBar_GetPartFlags(m_Hwnd, iPart);
 }
 
 /*!
@@ -1027,8 +1022,7 @@ int DcxStatusBar::hitTest(const POINT& pt) const noexcept
 
 	for (auto n = decltype(nParts){0}; n < nParts; ++n)
 	{
-		RECT rc{};
-		getRect(n, gsl::not_null(&rc));
+		if (RECT rc{}; getRect(n, gsl::not_null(&rc)))
 		if (PtInRect(&rc, pt))
 			return n;
 	}
@@ -1171,9 +1165,9 @@ LRESULT DcxStatusBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	case WM_VSCROLL:
 	case WM_COMMAND:
 	{
-		if (IsWindow(reinterpret_cast<HWND>(lParam)))
+		if (IsWindow(to_hwnd(lParam)))
 		{
-			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis")); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(to_hwnd(lParam), TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1201,7 +1195,7 @@ LRESULT DcxStatusBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 	case WM_MEASUREITEM:
 	{
-		if (const auto cHwnd = GetDlgItem(m_Hwnd, wParam); IsWindow(cHwnd))
+		if (const auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
 		{
 			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(cHwnd, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);

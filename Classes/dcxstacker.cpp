@@ -83,6 +83,11 @@ void DcxStacker::clearImageList(void) noexcept
 #endif
 }
 
+void DcxStacker::clearItemList(void) noexcept
+{
+	this->m_vItems.clear();
+}
+
 dcxWindowStyles DcxStacker::parseControlStyles(const TString& tsStyles)
 {
 	auto ws = parseGeneralControlStyles(tsStyles);
@@ -105,6 +110,9 @@ dcxWindowStyles DcxStacker::parseControlStyles(const TString& tsStyles)
 			break;
 		case L"nocollapse"_hash:
 			m_dStyles &= ~STACKERS_COLLAPSE;
+			break;
+		case L"float"_hash:
+			m_dStyles |= STACKERS_FLOAT;
 			break;
 		default:
 			break;
@@ -144,13 +152,11 @@ void DcxStacker::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
 			throw DcxExceptions::dcxInvalidItem();
 
 		auto sitem = this->getItem(nSel);
@@ -172,13 +178,11 @@ void DcxStacker::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"haschild"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
 			throw DcxExceptions::dcxInvalidItem();
 
 		const auto* const sitem = this->getItem(nSel);
@@ -192,13 +196,11 @@ void DcxStacker::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"childid"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
 			throw DcxExceptions::dcxInvalidItem();
 
 		const auto* const sitem = this->getItem(nSel);
@@ -398,7 +400,6 @@ int DcxStacker::getItemID(void) const noexcept
 
 	MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
 #endif
-	//return gsl::narrow_cast<int>(LOWORD(gsl::narrow_cast<DWORD>(SendMessage(m_Hwnd, LB_ITEMFROMPOINT, 0, MAKELPARAM(pt.x, pt.y)))) + 1);
 	return gsl::narrow_cast<int>(Dcx::dcxLOWORD(SendMessage(m_Hwnd, LB_ITEMFROMPOINT, 0, Dcx::dcxMAKELPARAM(pt.x, pt.y))) + 1);
 }
 
@@ -440,6 +441,8 @@ const TString DcxStacker::getStyles(void) const
 		styles.addtok(TEXT("arrows"));
 	if (!dcx_testflag(this->m_dStyles, STACKERS_COLLAPSE))
 		styles.addtok(TEXT("nocollapse"));
+	if (dcx_testflag(this->m_dStyles, STACKERS_FLOAT))
+		styles.addtok(TEXT("float"));
 	return styles;
 }
 
@@ -490,13 +493,13 @@ void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPCRECT rc, const COLO
 	points[2].X = (rc->left + (rc->right - rc->left) / 2);
 	points[2].Y = rc->bottom;
 	// Fill the polygon.
-	gfx.FillPolygon(&blackBrush, &points[0], std::size(points));
+	gfx.FillPolygon(&blackBrush, &points[0], gsl::narrow_cast<INT>(std::size(points)));
 #endif
 }
 
+#ifdef DCX_USE_GDIPLUS
 void DcxStacker::DrawItemImage(const HDC hdc, Gdiplus::Image* const img, const LPCRECT rc)
 {
-#ifdef DCX_USE_GDIPLUS
 	if (!Dcx::GDIModule.isUseable() || !img || !rc || !hdc)
 		return;
 
@@ -512,8 +515,8 @@ void DcxStacker::DrawItemImage(const HDC hdc, Gdiplus::Image* const img, const L
 		grphx.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
 	}
 	grphx.DrawImage(img, rc->left, rc->top, w, h);
-#endif
 }
+#endif
 
 void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 {
@@ -593,11 +596,13 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		ExtTextOut(memDC, rcText.left, rcText.top, ETO_CLIPPED | ETO_OPAQUE, &rcText, TEXT(""), 0, nullptr);
 	}
 
+#ifdef DCX_USE_GDIPLUS
 	// draw GDI+ image if any, we draw the image after the  colour fill to allow for alpha in pics.
 	if (dcx_testflag(idata->itemState, ODS_SELECTED) && sitem->iSelectedItemImg > -1 && sitem->iSelectedItemImg < gsl::narrow_cast<int>(this->m_vImageList.size()))
 		DrawItemImage(memDC, gsl::at(m_vImageList, sitem->iSelectedItemImg).get(), &rcText);
 	else if (sitem->iItemImg > -1 && sitem->iItemImg < gsl::narrow_cast<int>(this->m_vImageList.size()))
 		DrawItemImage(memDC, gsl::at(m_vImageList, sitem->iItemImg).get(), &rcText);
+#endif
 
 	// draw text if any
 	if (!sitem->tsCaption.empty())
@@ -617,24 +622,6 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 
 		if (oldClr != CLR_INVALID)
 			SetTextColor(memDC, oldClr);
-
-		//COLORREF clrText = sitem->clrText;
-		//if (clrText == CLR_INVALID)
-		//	clrText = GetSysColor(COLOR_BTNTEXT);
-		// draw the text
-		//if (!this->m_bCtrlCodeText) {
-		//	SetBkMode(memDC,TRANSPARENT);
-		//	if (this->m_bShadowText)
-		//		dcxDrawShadowText(memDC,sitem->tsCaption.to_chr(), sitem->tsCaption.len(),&rcText, DT_END_ELLIPSIS | DT_CENTER, clrText, 0, 5, 5);
-		//	else {
-		//		if (clrText != CLR_INVALID)
-		//			SetTextColor(memDC,clrText);
-		//		DrawTextW(memDC, sitem->tsCaption.to_chr(), sitem->tsCaption.len(), &rcText, DT_CENTER | DT_END_ELLIPSIS);
-		//	}
-		//}
-		//else
-		//	mIRC_DrawText(memDC, sitem->tsCaption, &rcText, DT_CENTER | DT_END_ELLIPSIS, this->m_bShadowText);
-
 	}
 	// draw arrows if wanted.
 	if (dcx_testflag(this->m_dStyles, STACKERS_ARROW))
@@ -772,7 +759,8 @@ LRESULT DcxStacker::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 			if (const auto dct = sitem->pChild->getControlType(); dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW)
 				delete sitem->pChild;
 			else { //if ( sitem->pChild->getRefCount( ) == 0 ) {
-				this->getParentDialog()->deleteControl(sitem->pChild); // remove from internal list!
+				if (const auto pd = this->getParentDialog(); pd)
+					pd->deleteControl(sitem->pChild); // remove from internal list!
 				if (IsWindow(sitem->pChild->getHwnd()))
 					DestroyWindow(sitem->pChild->getHwnd());
 			}
@@ -877,9 +865,9 @@ LRESULT DcxStacker::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 
 	case WM_COMMAND:
 	{
-		if (IsWindow(reinterpret_cast<HWND>(lParam)))
+		if (IsWindow(to_hwnd(lParam)))
 		{
-			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis")); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(to_hwnd(lParam), TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -907,7 +895,7 @@ LRESULT DcxStacker::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 
 	case WM_MEASUREITEM:
 	{
-		if (const auto cHwnd = GetDlgItem(m_Hwnd, wParam); IsWindow(cHwnd))
+		if (const auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
 		{
 			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(cHwnd, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);

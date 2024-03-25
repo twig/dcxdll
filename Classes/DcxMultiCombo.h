@@ -44,22 +44,22 @@ public:
 
 	int getCount() const noexcept
 	{
-		return SendMessage(m_Hwnd, MC_WM_GETITEMCOUNT, 0, 0);
+		return gsl::narrow_cast<int>(SendMessage(m_Hwnd, MC_WM_GETITEMCOUNT, 0, 0));
 	}
 
 	int getCurSel() const noexcept
 	{
-		return SendMessage(m_Hwnd, MC_WM_GETSEL, 0, 0);
+		return gsl::narrow_cast<int>(SendMessage(m_Hwnd, MC_WM_GETSEL, 0, 0));
 	}
 
 	void setCurSel(int iSel) const noexcept
 	{
-		SendMessage(m_Hwnd, MC_WM_SETSEL, TRUE, iSel);
+		SendMessage(m_Hwnd, MC_WM_SETSEL, TRUE, gsl::narrow_cast<LPARAM>(iSel));
 	}
 
 	UINT getCurStyle() const noexcept
 	{
-		return SendMessage(m_Hwnd, MC_WM_GETSTYLE, 0, 0);
+		return gsl::narrow_cast<UINT>(SendMessage(m_Hwnd, MC_WM_GETSTYLE, 0, 0));
 	}
 
 	int getDropState() const noexcept
@@ -71,7 +71,7 @@ public:
 	{
 		MCOMBO_ITEM res;
 
-		SendMessage(m_Hwnd, MC_WM_GETITEM, iItem, reinterpret_cast<LPARAM>(std::addressof(res)));
+		SendMessage(m_Hwnd, MC_WM_GETITEM, gsl::narrow_cast<WPARAM>(iItem), reinterpret_cast<LPARAM>(std::addressof(res)));
 
 		return res;
 	}
@@ -80,7 +80,7 @@ public:
 	{
 		MCOMBO_ITEM res;
 
-		SendMessage(m_Hwnd, MC_WM_GETITEM, iItem, reinterpret_cast<LPARAM>(std::addressof(res)));
+		SendMessage(m_Hwnd, MC_WM_GETITEM, gsl::narrow_cast<WPARAM>(iItem), reinterpret_cast<LPARAM>(std::addressof(res)));
 
 		return res;
 	}
@@ -92,7 +92,7 @@ public:
 
 	DcxControl* getChild() const noexcept
 	{
-		if (auto hChild = reinterpret_cast<HWND>(SendMessage(m_Hwnd, MC_WM_GETCHILD, 0, 0)); hChild)
+		if (auto hChild = to_hwnd(SendMessage(m_Hwnd, MC_WM_GETCHILD, 0, 0)); hChild)
 		{
 			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(hChild, TEXT("dcx_cthis")); c_this)
 				return c_this;

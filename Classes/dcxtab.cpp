@@ -1165,7 +1165,7 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 	case WM_HSCROLL:
 	case WM_VSCROLL:
 	{
-		//if (!IsWindow(reinterpret_cast<HWND>(lParam)))
+		//if (!IsWindow(to_hwnd(lParam)))
 		{
 			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				this->execAliasEx(TEXT("scroll,%u,%u"), getUserID(), wParam);
@@ -1174,9 +1174,9 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 	[[fallthrough]];
 	case WM_COMMAND:
 	{
-		if (IsWindow(reinterpret_cast<HWND>(lParam)))
+		if (IsWindow(to_hwnd(lParam)))
 		{
-			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis")); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(to_hwnd(lParam), TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1316,7 +1316,7 @@ void DcxTab::DrawGlow(const int nTabIndex, HDC hDC, const RECT& rect) const
 		const Gdiplus::REAL blendFactors[] = { 0.0f, 0.1f, 0.3f, 1.0f };
 		const Gdiplus::REAL blendPos[] = { 0.0f, 0.4f, 0.6f, 1.0f };
 		//sets how transition toward the center is shaped
-		brush.SetBlend(&blendFactors[0], &blendPos[0], std::size(blendFactors));
+		brush.SetBlend(&blendFactors[0], &blendPos[0], gsl::narrow_cast<int>(std::size(blendFactors)));
 		//sets the scaling on the center. you may want to have it elongated in the x-direction
 		brush.SetFocusScales(0.2f, 0.2f);
 

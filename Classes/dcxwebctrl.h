@@ -28,6 +28,10 @@
 
 class DcxDialog;
 
+#ifdef DCX_USE_TESTCODE
+#define DCX_USE_AMBIENT 1
+#endif
+
 /*!
  * \brief blah
  *

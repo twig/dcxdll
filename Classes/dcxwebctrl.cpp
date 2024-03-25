@@ -1424,14 +1424,16 @@ void DcxWebControl::setURL(const TString& tsURL, const TString& tsFlags, const T
 	}
 	if (xflags['s']) // statusbar on/off
 		this->setStatusbarState(xmask['s']);
-	//if (xflags['t']) {
+	//if (xflags['t'])
+	//{
 	//	if (xmask['t'])
 	//		bEnabled = VARIANT_TRUE;
 	//	else
 	//		bEnabled = VARIANT_FALSE;
-	//	if (auto com = wil::com_ptr<IWebBrowser2>(m_pWebBrowser2).try_query<INavigatorDoNotTrack>())
+	//	if (auto com = m_pWebBrowser2.try_query<INavigatorDoNotTrack>())
 	//	{
-	//		//com->get_msDoNotTrack();
+	//		// cant be set ??
+	//		com->get_msDoNotTrack();
 	//	}
 	//}
 

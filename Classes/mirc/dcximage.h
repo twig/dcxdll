@@ -89,7 +89,7 @@ private:
 		m_FrameImage = 0;
 
 		const auto count = m_pImage->GetFrameDimensionsCount();
-		auto m_DimensionIDs = std::make_unique<GUID[]>(count);
+		GSL_SUPPRESS(r.5) auto m_DimensionIDs = std::make_unique<GUID[]>(count);
 		m_pImage->GetFrameDimensionsList(m_DimensionIDs.get(), count);
 		m_FrameCount = m_pImage->GetFrameCount(m_DimensionIDs.get());
 

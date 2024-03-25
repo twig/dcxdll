@@ -229,17 +229,17 @@ void DcxUpDown::parseCommandRequest(const TString& input)
 
 DcxControl* DcxUpDown::getBuddy() const noexcept
 {
-	if (auto hwnd = reinterpret_cast<HWND>(SendMessage(m_Hwnd, UDM_GETBUDDY, 0, 0)); hwnd)
+	if (auto hwnd = to_hwnd(SendMessage(m_Hwnd, UDM_GETBUDDY, 0, 0)); hwnd)
 	{
-		if (auto pd = getParentDialog(); pd)
+		if (const auto pd = getParentDialog(); pd)
 			return pd->getControlByHWND(hwnd);
 	}
 	return nullptr;
 }
 
-LRESULT DcxUpDown::setBuddy(const HWND mHwnd) noexcept
+HWND DcxUpDown::setBuddy(const HWND mHwnd) noexcept
 {
-	return SendMessage(m_Hwnd, UDM_SETBUDDY, reinterpret_cast<WPARAM>(mHwnd), 0);
+	return to_hwnd(SendMessage(m_Hwnd, UDM_SETBUDDY, reinterpret_cast<WPARAM>(mHwnd), 0));
 }
 
 /*!
@@ -248,9 +248,14 @@ LRESULT DcxUpDown::setBuddy(const HWND mHwnd) noexcept
  * blah
  */
 
-LRESULT DcxUpDown::setRange32(const int iLow, const int iHigh) noexcept
+void DcxUpDown::setRange32(const int iLow, const int iHigh) noexcept
 {
-	return SendMessage(m_Hwnd, UDM_SETRANGE32, gsl::narrow_cast<WPARAM>(iLow), gsl::narrow_cast<LPARAM>(iHigh));
+	SendMessage(m_Hwnd, UDM_SETRANGE32, gsl::narrow_cast<WPARAM>(iLow), gsl::narrow_cast<LPARAM>(iHigh));
+}
+
+void DcxUpDown::setRange32(const Dcx::range_t<int> &r) noexcept
+{
+	SendMessage(m_Hwnd, UDM_SETRANGE32, gsl::narrow_cast<WPARAM>(r.b), gsl::narrow_cast<LPARAM>(r.e));
 }
 
 /*!
@@ -259,11 +264,19 @@ LRESULT DcxUpDown::setRange32(const int iLow, const int iHigh) noexcept
  * blah
  */
 
-std::pair<int, int> DcxUpDown::getRange32() const noexcept
+//std::pair<int, int> DcxUpDown::getRange32() const noexcept
+//{
+//	int iMin{}, iMax{};
+//	SendMessage(m_Hwnd, UDM_GETRANGE32, reinterpret_cast<WPARAM>(&iMin), reinterpret_cast<LPARAM>(&iMax));
+//	return{ iMin,iMax };
+//}
+
+Dcx::range_t<int> DcxUpDown::getRange32() const noexcept
 {
-	int iMin{}, iMax{};
-	SendMessage(m_Hwnd, UDM_GETRANGE32, reinterpret_cast<WPARAM>(&iMin), reinterpret_cast<LPARAM>(&iMax));
-	return{ iMin,iMax };
+	Dcx::range_t<int> t{};
+	if (m_Hwnd)
+		SendMessage(m_Hwnd, UDM_GETRANGE32, reinterpret_cast<WPARAM>(&t.b), reinterpret_cast<LPARAM>(&t.e));
+	return t;
 }
 
 /*!
@@ -272,9 +285,9 @@ std::pair<int, int> DcxUpDown::getRange32() const noexcept
  * blah
  */
 
-LRESULT DcxUpDown::setBase(const int iBase) noexcept
+int DcxUpDown::setBase(const int iBase) noexcept
 {
-	return SendMessage(m_Hwnd, UDM_SETBASE, gsl::narrow_cast<WPARAM>(iBase), 0);
+	return gsl::narrow_cast<int>(SendMessage(m_Hwnd, UDM_SETBASE, gsl::narrow_cast<WPARAM>(iBase), 0));
 }
 
 /*!
@@ -283,9 +296,9 @@ LRESULT DcxUpDown::setBase(const int iBase) noexcept
  * blah
  */
 
-LRESULT DcxUpDown::getBase() const noexcept
+int DcxUpDown::getBase() const noexcept
 {
-	return SendMessage(m_Hwnd, UDM_GETBASE, 0U, 0);
+	return gsl::narrow_cast<int>(SendMessage(m_Hwnd, UDM_GETBASE, 0U, 0));
 }
 
 /*!
@@ -294,9 +307,9 @@ LRESULT DcxUpDown::getBase() const noexcept
  * blah
  */
 
-LRESULT DcxUpDown::setPos32(const INT nPos) noexcept
+int DcxUpDown::setPos32(const INT nPos) noexcept
 {
-	return SendMessage(m_Hwnd, UDM_SETPOS32, 0U, gsl::narrow_cast<LPARAM>(nPos));
+	return gsl::narrow_cast<int>(SendMessage(m_Hwnd, UDM_SETPOS32, 0U, gsl::narrow_cast<LPARAM>(nPos)));
 }
 
 /*!
@@ -305,9 +318,9 @@ LRESULT DcxUpDown::setPos32(const INT nPos) noexcept
  * blah
  */
 
-LRESULT DcxUpDown::getPos32(const LPBOOL pfError) const noexcept
+int DcxUpDown::getPos32(const LPBOOL pfError) const noexcept
 {
-	return SendMessage(m_Hwnd, UDM_GETPOS32, 0U, reinterpret_cast<LPARAM>(pfError));
+	return gsl::narrow_cast<int>(SendMessage(m_Hwnd, UDM_GETPOS32, 0U, reinterpret_cast<LPARAM>(pfError)));
 }
 
 const TString DcxUpDown::getStyles(void) const
