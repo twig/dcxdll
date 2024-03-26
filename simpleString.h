@@ -24,14 +24,16 @@ struct simpleString
 	using pointer = std::add_pointer_t<value_type>;
 	using reference = std::add_lvalue_reference_t<value_type>;
 	using const_value_type = std::add_const_t<value_type>;
+	using pointer_const = std::add_pointer_t<const_value_type>;
 	using const_pointer = std::add_const_t<pointer>;
+	using const_pointer_const = std::add_const_t<std::add_pointer_t<const_value_type>>;
 	using const_reference = std::add_const_t<reference>;
 	using size_type = std::size_t;
 
 	constexpr simpleString() noexcept = default;
 	constexpr simpleString(const simpleString<T,N> &other) noexcept = default;
 	constexpr simpleString(simpleString<T,N> &&other) noexcept = default;
-	constexpr simpleString(const_pointer other) noexcept
+	constexpr simpleString(const_pointer_const other) noexcept
 	{
 		_ts_strcpyn(&m_data[0], other, N);
 	}
@@ -40,27 +42,39 @@ struct simpleString
 	{
 	}
 
+	//template <std::size_t otherSize>
+	//constexpr simpleString(const_value_type(&other)[otherSize]) noexcept
+	//{
+	//	_ts_strcpyn(&m_data[0], &other[0], std::min(N,otherSize));
+	//}
+
 	simpleString<T, N> &operator =(const simpleString<T, N> &other) noexcept = default;
 	simpleString<T, N> &operator =(simpleString<T, N> &&other) noexcept = default;
-	simpleString<T, N> &operator =(const_pointer other) noexcept
+	simpleString<T, N> &operator =(const_pointer_const other) noexcept
 	{
 		_ts_strcpyn(&m_data[0], other, N);
 		return *this;
 	}
+	//template <std::size_t otherSize>
+	//simpleString<T, N>& operator =(const_value_type(&other)[otherSize]) noexcept
+	//{
+	//	_ts_strcpyn(&m_data[0], &other[0], std::min(N, otherSize));
+	//	return *this;
+	//}
 
-	template <std::size_t otherSize>
-	simpleString<T, N> &operator +=(const_value_type (&other)[otherSize]) noexcept
-	{
-		const size_type nLen = length();
-		constexpr size_type nOtherLen = otherSize;
-		const size_type nDiff = N - (nLen + nOtherLen);
+	//template <std::size_t otherSize>
+	//simpleString<T, N> &operator +=(const_value_type (&other)[otherSize]) noexcept
+	//{
+	//	const size_type nLen = length();
+	//	constexpr size_type nOtherLen = otherSize;
+	//	const size_type nDiff = N - (nLen + nOtherLen);
 
-		if (nDiff > 1U)	// > 1 to account for zero char
-			_ts_strncat(&m_data[0], &other[0], nDiff);
+	//	if (nDiff > 1U)	// > 1 to account for zero char
+	//		_ts_strncat(&m_data[0], &other[0], nDiff);
 
-		return *this;
-	}
-	simpleString<T, N> &operator +=(const_pointer other) noexcept
+	//	return *this;
+	//}
+	simpleString<T, N> &operator +=(const_pointer_const other) noexcept
 	{
 		const size_type nLen = length();
 		const size_type nOtherLen = _ts_strlen(other);
@@ -95,15 +109,17 @@ struct simpleString
 		return *this;
 	}
 
-	template <std::size_t otherSize>
-	constexpr bool operator ==(const_value_type(&other)[otherSize]) const noexcept { return (*this == &other[0]); }
+	//template <std::size_t otherSize>
+	//constexpr bool operator ==(const_value_type(&other)[otherSize]) const noexcept { return (*this == &other[0]); }
 	constexpr bool operator ==(const simpleString<T, N> &other) const noexcept { return (*this == other.data()); }
-	constexpr bool operator ==(const_pointer other) const noexcept { return (_ts_strncmp(&m_data[0], other, N) == 0); }
+	constexpr bool operator ==(const_pointer_const other) const noexcept { return (_ts_strncmp(&m_data[0], other, N) == 0); }
+	constexpr bool operator ==(pointer other) const noexcept { return (_ts_strncmp(&m_data[0], other, N) == 0); }
 
-	template <std::size_t otherSize>
-	constexpr bool operator !=(const_value_type(&other)[otherSize]) const noexcept { return !(*this == &other[0]); }
+	//template <std::size_t otherSize>
+	//constexpr bool operator !=(const_value_type(&other)[otherSize]) const noexcept { return !(*this == &other[0]); }
 	constexpr bool operator !=(const simpleString<T, N> &other) const noexcept { return !(*this == other); }
-	constexpr bool operator !=(const_pointer other) const noexcept { return !(*this == other); }
+	constexpr bool operator !=(const_pointer_const other) const noexcept { return !(*this == other); }
+	constexpr bool operator !=(pointer other) const noexcept { return !(*this == other); }
 
 	constexpr explicit operator bool() const noexcept { return !empty(); }
 	//constexpr operator pointer() const noexcept { return const_cast<pointer>(&m_data[0]); }
