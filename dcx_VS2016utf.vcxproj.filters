@@ -354,6 +354,9 @@
     <ClCompile Include="json.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CtrlHelper.cpp">
+      <Filter>Source Files\Controls\Custom</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dcx.h">
@@ -622,6 +625,9 @@
     </ClInclude>
     <ClInclude Include="json.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CtrlHelper.h">
+      <Filter>Header Files\Controls\Custom</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
