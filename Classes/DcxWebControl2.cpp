@@ -1064,8 +1064,8 @@ void DcxWebControl2::DLProgressReport(ICoreWebView2DownloadOperation* download)
 	wil::unique_cotaskmem_string filename;
 	download->get_ResultFilePath(&filename);
 
-	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
-	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"dl_progress,%u,%lli,%lli,%s", getUserID(), iBytes, iTotalBytes, filename.get());
+	TString tsBuf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
+	evalAliasEx(tsBuf.to_wchr(), gsl::narrow_cast<int>(tsBuf.capacity_cch()), L"dl_progress,%u,%lli,%lli,%s", getUserID(), iBytes, iTotalBytes, filename.get());
 	switch (std::hash<TString>()(tsBuf))
 	{
 	case L"cancel"_hash:
@@ -1343,8 +1343,8 @@ HRESULT DcxWebControl2::OnFaviconChanged(ICoreWebView2* sender, IUnknown* args)
 	const TString tsURL(url.get());
 
 #ifdef DCX_USE_GDIPLUS
-	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
-	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"favicon,%u,changed,%s", getUserID(), tsURL.to_wchr());
+	TString tsBuf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
+	evalAliasEx(tsBuf.to_wchr(), gsl::narrow_cast<int>(tsBuf.capacity_cch()), L"favicon,%u,changed,%s", getUserID(), tsURL.to_wchr());
 	if (!tsBuf.empty())
 	{
 		if (tsBuf.getfirsttok(1) == L"save")
@@ -1396,7 +1396,7 @@ HRESULT DcxWebControl2::OnStateChanged(ICoreWebView2DownloadOperation* download,
 	if (FAILED(download->get_State(&downloadState)))
 		return E_FAIL;
 
-	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+	TString tsBuf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
 
 	wil::unique_cotaskmem_string filename;
 	download->get_ResultFilePath(&filename);
@@ -1450,8 +1450,8 @@ HRESULT DcxWebControl2::OnDownloadStarting(ICoreWebView2* sender, ICoreWebView2D
 	wil::unique_cotaskmem_string filename;
 	args->get_ResultFilePath(&filename);
 
-	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
-	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"dl_begin,%u,%lli,%s", getUserID(), iBytes, filename.get());
+	TString tsBuf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
+	evalAliasEx(tsBuf.to_wchr(), gsl::narrow_cast<int>(tsBuf.capacity_cch()), L"dl_begin,%u,%lli,%s", getUserID(), iBytes, filename.get());
 	switch (std::hash<TString>()(tsBuf.getfirsttok(1)))
 	{
 	case L"cancel"_hash:
@@ -1493,7 +1493,7 @@ HRESULT DcxWebControl2::OnNewWindowRequested(ICoreWebView2* sender, ICoreWebView
 			wil::unique_cotaskmem_string uri;
 			args->get_Uri(&uri);
 
-			TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+			TString tsBuf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
 
 			mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), uri.get());
 			mIRCLinker::eval(tsBuf, TEXT("$%(%,win_open,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
@@ -1522,7 +1522,7 @@ HRESULT DcxWebControl2::OnWindowCloseRequested(ICoreWebView2* sender, IUnknown* 
 			wil::unique_cotaskmem_string uri;
 			sender->get_Source(&uri);
 
-			TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+			TString tsBuf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
 
 			mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), uri.get());
 			mIRCLinker::eval(tsBuf, TEXT("$%(%,win_close,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
@@ -1582,8 +1582,8 @@ HRESULT DcxWebControl2::OnProcessFailed(ICoreWebView2* sender, ICoreWebView2Proc
 		return L"COREWEBVIEW2_PROCESS_FAILED_KIND_UNKNOWN";
 	};
 
-	TString tsBuf((UINT)mIRCLinker::m_dwCharacters);
-	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"proc_error,%u,%s", getUserID(), getKind(kind));
+	TString tsBuf(gsl::narrow_cast<TString::size_type>(mIRCLinker::m_dwCharacters));
+	evalAliasEx(tsBuf.to_wchr(), gsl::narrow_cast<int>(tsBuf.capacity_cch()), L"proc_error,%u,%s", getUserID(), getKind(kind));
 
 	if (tsBuf == L"reload")
 		sender->Reload();
@@ -1628,8 +1628,8 @@ HRESULT DcxWebControl2::OnContextMenu(ICoreWebView2* sender, ICoreWebView2Contex
 		return L"COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND_UNKNOWN";
 	};
 
-	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
-	evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"contextmenu,%u,%s,%ld,%ld", getUserID(), getKind(targetKind), pt.x, pt.y);
+	TString tsBuf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
+	evalAliasEx(tsBuf.to_wchr(), gsl::narrow_cast<int>(tsBuf.capacity_cch()), L"contextmenu,%u,%s,%ld,%ld", getUserID(), getKind(targetKind), pt.x, pt.y);
 
 	if (tsBuf == L"cancel")
 		eventArgs->put_Handled(TRUE);
@@ -1644,8 +1644,8 @@ HRESULT DcxWebControl2::OnDocumentPlayingAudioChanged(ICoreWebView2* sender, IUn
 		BOOL isDocumentPlayingAudio;
 		webview2_8->get_IsDocumentPlayingAudio(&isDocumentPlayingAudio);
 
-		TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
-		evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"audio,%u,%s", getUserID(), (isDocumentPlayingAudio ? L"playing" : L"stopped"));
+		TString tsBuf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
+		evalAliasEx(tsBuf.to_wchr(), gsl::narrow_cast<int>(tsBuf.capacity_cch()), L"audio,%u,%s", getUserID(), (isDocumentPlayingAudio ? L"playing" : L"stopped"));
 	}
 
 	return S_OK;
@@ -1658,8 +1658,8 @@ HRESULT DcxWebControl2::OnMutedChanged(ICoreWebView2* sender, IUnknown* eventArg
 		BOOL isMuted;
 		webview2_8->get_IsMuted(&isMuted);
 
-		TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
-		evalAliasEx(tsBuf.to_wchr(), tsBuf.capacity_cch(), L"audio,%u,%s", getUserID(), (isMuted ? L"mute" : L"unmute"));
+		TString tsBuf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
+		evalAliasEx(tsBuf.to_wchr(), gsl::narrow_cast<int>(tsBuf.capacity_cch()), L"audio,%u,%s", getUserID(), (isMuted ? L"mute" : L"unmute"));
 	}
 
 	return S_OK;
@@ -1675,7 +1675,7 @@ HRESULT DcxWebControl2::OnExternalURI(ICoreWebView2* sender, ICoreWebView2Launch
 		wil::unique_cotaskmem_string uri;
 		eventArgs->get_Uri(&uri);
 
-		TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+		TString tsBuf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
 		mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), uri.get());
 		mIRCLinker::eval(tsBuf, TEXT("$%(%,externaluri,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
 
@@ -1775,7 +1775,7 @@ HRESULT DcxWebControl2::OnWebMessageReceived(ICoreWebView2* sender, ICoreWebView
 		wil::unique_cotaskmem_string messageRaw;
 		if (SUCCEEDED(eventArgs->TryGetWebMessageAsString(&messageRaw)))
 		{
-			TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+			TString tsBuf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
 			mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), messageRaw.get());
 			mIRCLinker::eval(tsBuf, TEXT("$%(%,webmessage,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
 		}

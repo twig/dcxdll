@@ -1200,8 +1200,8 @@ void DcxDirectshow::loadFile(const TString& tsFlags, const TString& tsFilename)
 		hr = this->m_pGraph->RenderFile(filename.to_chr(), nullptr);
 		if (FAILED(hr))
 		{
-			TString tsTmp(128U);
-			this->evalAliasEx(tsTmp.to_chr(), tsTmp.capacity_cch(), TEXT("loaderror,%u,%s"), getUserID(), filename.to_chr());
+			TString tsTmp(gsl::narrow_cast<TString::size_type>(128U));
+			this->evalAliasEx(tsTmp.to_chr(), gsl::narrow_cast<int>(tsTmp.capacity_cch()), TEXT("loaderror,%u,%s"), getUserID(), filename.to_chr());
 			if (tsTmp == TEXT("$false"))
 			{
 				this->ReleaseAll();

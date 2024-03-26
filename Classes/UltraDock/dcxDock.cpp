@@ -680,7 +680,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					if (tcgit->cchTextMax < 1)
 						break;
 
-					TString buf(gsl::narrow_cast<UINT>(MIRC_BUFFER_SIZE_CCH));
+					TString buf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
 					TVITEMEX item{};
 					//ZeroMemory(&item, sizeof(item));
 

@@ -1258,7 +1258,7 @@ TString DcxWebControl::CallScript(const TString& tsCmd) const
 
 TString DcxWebControl::getURL() const
 {
-	TString tsURL((UINT)MIRC_BUFFER_SIZE_CCH);
+	TString tsURL(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
 	if (this->m_pWebBrowser2)
 	{
 		if (BSTR str = nullptr; SUCCEEDED(this->m_pWebBrowser2->get_LocationURL(&str)))
@@ -1311,7 +1311,7 @@ bool DcxWebControl::IsAddressbarEnabled() const
 
 TString DcxWebControl::getStatusText() const
 {
-	TString tsText((UINT)MIRC_BUFFER_SIZE_CCH);
+	TString tsText(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
 	if (this->m_pWebBrowser2)
 	{
 		if (BSTR str = nullptr; SUCCEEDED(this->m_pWebBrowser2->get_StatusText(&str)))

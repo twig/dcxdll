@@ -1693,7 +1693,7 @@ void getmIRCPalette(bool bForce)
 		//for (const auto& a : colors)
 		//	gsl::at(staticPalette, i++) = a.to_<COLORREF>();
 
-		TString colors(180U);
+		TString colors(gsl::narrow_cast<TString::size_type>(180U));
 		static constexpr TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
 		mIRCLinker::eval(colors, std::addressof(com[0]));
 
@@ -2624,7 +2624,7 @@ Change special characters $%()[]; into there $chr() equivalents
 */
 TString MakeTextmIRCSafe(const TCHAR* const tString, const std::size_t len)
 {
-	TString tsRes(gsl::narrow_cast<UINT>(MIRC_BUFFER_SIZE_CCH));	// use MIRC_BUFFER_SIZE_CCH as starting buffer size (shouldnt be bigger...)
+	TString tsRes(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));	// use MIRC_BUFFER_SIZE_CCH as starting buffer size (shouldnt be bigger...)
 
 	if ((!tString) || (len == 0))
 		return tsRes;

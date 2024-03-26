@@ -235,7 +235,7 @@ void XPopupMenuManager::load(void)
 	auto menu = GetMenu(mIRCLinker::getHWND());
 
 	constexpr UINT buffSize = 30U;
-	TString label(buffSize);
+	TString label(gsl::narrow_cast<TString::size_type>(buffSize));
 	MENUITEMINFO mii{};
 
 	mii.cbSize = sizeof(MENUITEMINFO);
@@ -558,6 +558,10 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 
 		// Ook: maybe change to something like this instead? need to check how this affects alloc/free
 		//std::vector<XPopupMenu> testv;
+		//testv.emplace_back(tsMenuName, style);
+		//auto tete = std::make_unique<XPopupMenu>(tsMenuName, style);
+		//std::vector<std::unique_ptr<XPopupMenu>> testv;
+		//testv.emplace_back(tete);
 		//testv.emplace_back(tsMenuName, style);
 	}
 	// xpopup -d -> [MENU] [SWITCH]

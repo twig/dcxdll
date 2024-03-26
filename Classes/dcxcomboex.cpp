@@ -747,7 +747,6 @@ void DcxComboEx::setEditboxContents(const TString& tsStr, int icon, int state, i
 		SetWindowText(hCombo, tsStr.to_chr());
 	else
 		throw DcxExceptions::dcxInvalidArguments();
-
 }
 
 int DcxComboEx::AddTokList(int nPos, int iIcon, int iState, int iIndent, int iStart, int iEnd, const TCHAR* tok, const TString& tsTokList)
@@ -869,8 +868,11 @@ void DcxComboEx::UpdateHorizExtent(const int nPos)
 	if (nPos < 0)
 		return;
 
-	TString tsItem;
-	COMBOBOXEXITEM cbi{ CBEIF_TEXT,nPos,const_cast<TCHAR*>(tsItem.to_chr()),0,0,0,0,0, 0 };
+	// Ook: this ver sets a buffer size of zero, so never gets any text
+	//TString tsItem;
+	//COMBOBOXEXITEM cbi{ CBEIF_TEXT,nPos,const_cast<TCHAR*>(tsItem.to_chr()),0,0,0,0,0, 0 };
+	TString tsItem(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
+	COMBOBOXEXITEM cbi{ CBEIF_TEXT,nPos,tsItem.to_chr(),MIRC_BUFFER_SIZE_CCH,0,0,0,0, 0 };
 	this->getItem(&cbi);
 
 	UpdateHorizExtent(tsItem);

@@ -115,7 +115,7 @@ static void TraverseTreebarItems(void)
 	SetWindowRedraw(mIRCLinker::getTreeview(), FALSE);
 	Auto(SetWindowRedraw(mIRCLinker::getTreeview(), TRUE));
 
-	TString buf(gsl::narrow_cast<UINT>(mIRCLinker::c_mIRC_Buffer_Size_cch));
+	TString buf(gsl::narrow_cast<TString::size_type>(mIRCLinker::c_mIRC_Buffer_Size_cch));
 	TString res;
 	TVITEMEX item{};
 

@@ -20,9 +20,9 @@ bool DcxWebView2Module::load()
 	m_hModule = LoadLibrary(TEXT("WebView2Loader.dll"));
 	if (!m_hModule)
 	{
-		TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
-		GetModuleFileNameW(getDllModule(), tsBuf.to_wchr(), tsBuf.capacity_cch());
-		tsBuf.deltok(tsBuf.numtok(L'\\'), L'\\');
+		TString tsBuf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
+		GetModuleFileNameW(getDllModule(), tsBuf.to_wchr(), gsl::narrow_cast<DWORD>(tsBuf.capacity_cch()));
+		tsBuf.deltok(gsl::narrow_cast<UINT>(tsBuf.numtok(L'\\')), L'\\');
 		tsBuf.addtok(L"WebView2Loader.dll", L'\\');
 		m_hModule = LoadLibrary(tsBuf.to_wchr());
 	}

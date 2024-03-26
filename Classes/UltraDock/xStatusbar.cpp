@@ -8,7 +8,7 @@
 namespace {
 	TString xstatus_GetText(const int iPart)
 	{
-		TString tsText(DcxDock::status_getTextLength(iPart));
+		TString tsText(gsl::narrow_cast<TString::size_type>(DcxDock::status_getTextLength(iPart) +1));
 		DcxDock::status_getText(iPart, tsText.to_chr());
 
 		return tsText;
@@ -199,7 +199,6 @@ mIRC(xstatusbar)
 						DcxDock::status_setPartInfo(nPos, gsl::narrow_cast<int>(iFlags), pPart);
 					}
 					else
-						//throw Dcx::dcxException("Unable to set item text");
 						throw DcxExceptions::dcxInvalidItem();
 				}
 				else {
@@ -229,25 +228,21 @@ mIRC(xstatusbar)
 			}
 
 			if (!himl)
-				//throw Dcx::dcxException("Unable To Create ImageList");
 				throw DcxExceptions::dcxUnableToCreateImageList();
 
 #if DCX_USE_WRAPPERS
 			Dcx::dcxIconResource icon(index, filename, false, flags);
 
 			if (ImageList_AddIcon(himl, icon.get()) == -1)
-				//throw Dcx::dcxException("Unable To Add Image to ImageList");
 				throw DcxExceptions::dcxUnableToAddImage();
 #else
 			auto icon = dcxLoadIcon(index, filename, false, flags);
 			Auto(DestroyIcon(icon));
 
 			if (!icon)
-				//throw Dcx::dcxException("Unable To Load Icon");
 				throw DcxExceptions::dcxUnableToLoadIcon();
 
 			if (ImageList_AddIcon(himl, icon) == -1)
-				//throw Dcx::dcxException("Unable To Add Image to ImageList");
 				throw DcxExceptions::dcxUnableToAddImage();
 #endif
 		}
@@ -259,7 +254,6 @@ mIRC(xstatusbar)
 		}
 		break;
 		default:
-			//throw Dcx::dcxException("Invalid Switch");
 			throw DcxExceptions::dcxInvalidCommand();
 		}
 		return 1;
@@ -326,7 +320,7 @@ mIRC(_xstatusbar)
 
 			DcxDock::status_getParts(SB_MAX_PARTSD, &parts[0]);
 
-			TString tsOut(gsl::narrow_cast<UINT>(mIRCLinker::m_dwCharacters));
+			TString tsOut(gsl::narrow_cast<TString::size_type>(mIRCLinker::m_dwCharacters));
 
 			for (auto i = decltype(nParts){0}; i < nParts; ++i)
 				tsOut.addtok(gsl::at(parts,i));

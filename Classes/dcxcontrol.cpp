@@ -909,7 +909,7 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 /// <returns></returns>
 TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 {
-	TString tsResult((UINT)MIRC_BUFFER_SIZE_CCH);
+	TString tsResult(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
 
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
@@ -2355,8 +2355,12 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 		bool bResize{ true };
 		if (dcx_testflag(getEventMask(), DCX_EVENT_THEME))
 		{
-			stString<MIRC_BUFFER_SIZE_CCH> stRes;
-			evalAliasEx(stRes, MIRC_BUFFER_SIZE_CCH, TEXT("dpichanged,%u,%d,%d,%d,%d,%d,%u"), getUserID(), Dcx::dcxLOWORD(wParam), pRc->top, pRc->bottom, pRc->left, pRc->right, m_uDPI);
+			//stString<MIRC_BUFFER_SIZE_CCH> stRes; // 8k of stack
+			//evalAliasEx(stRes, gsl::narrow_cast<int>(stRes.capacity_cch()), TEXT("dpichanged,%u,%d,%d,%d,%d,%d,%u"), getUserID(), Dcx::dcxLOWORD(wParam), pRc->top, pRc->bottom, pRc->left, pRc->right, m_uDPI);
+			//bResize = (stRes != TEXT("noresize"));
+
+			TString stRes(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
+			evalAliasEx(stRes.to_chr(), gsl::narrow_cast<int>(stRes.capacity_cch()), TEXT("dpichanged,%u,%d,%d,%d,%d,%d,%u"), getUserID(), Dcx::dcxLOWORD(wParam), pRc->top, pRc->bottom, pRc->left, pRc->right, m_uDPI);
 			bResize = (stRes != TEXT("noresize"));
 		}
 

@@ -174,7 +174,7 @@ void DcxStatusBar::parseInfoRequest(const TString& input, const refString<TCHAR,
 
 		getParts(DCX_STATUSBAR_MAX_PARTS, parts.get());
 
-		TString tmp(gsl::narrow_cast<UINT>(32U * nParts));
+		TString tmp(gsl::narrow_cast<TString::size_type>(32U * nParts));
 
 		for (auto i = decltype(nParts){0}; i < nParts; ++i)
 			tmp.addtok(gsl::at(parts, i));
@@ -1023,8 +1023,8 @@ int DcxStatusBar::hitTest(const POINT& pt) const noexcept
 	for (auto n = decltype(nParts){0}; n < nParts; ++n)
 	{
 		if (RECT rc{}; getRect(n, gsl::not_null(&rc)))
-		if (PtInRect(&rc, pt))
-			return n;
+			if (PtInRect(&rc, pt))
+				return n;
 	}
 	return -1;
 }

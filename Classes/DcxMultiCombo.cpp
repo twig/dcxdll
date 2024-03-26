@@ -190,8 +190,8 @@ LRESULT DcxMultiCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 			if (dcx_testflag(getEventMask(), DCX_EVENT_SIZE))
 			{
-				TString tsBuf(128u);
-				evalAliasEx(tsBuf.to_chr(), tsBuf.capacity_cch(), TEXT("measureitem,%u,%u,%u"), getUserID(), lpmis->itemWidth, lpmis->itemHeight);
+				TString tsBuf(gsl::narrow_cast<TString::size_type>(128u));
+				evalAliasEx(tsBuf.to_chr(), gsl::narrow_cast<int>(tsBuf.capacity_cch()), TEXT("measureitem,%u,%u,%u"), getUserID(), lpmis->itemWidth, lpmis->itemHeight);
 
 				{
 					const UINT width = tsBuf.getfirsttok(1).to_<UINT>();

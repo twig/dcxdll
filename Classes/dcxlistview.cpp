@@ -415,7 +415,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		}
 
 		// collect all values
-		TString buff(gsl::narrow_cast<UINT>(count * 32));
+		TString buff(gsl::narrow_cast<TString::size_type>(count * 32));
 
 		for (auto i = decltype(count){0}; i < count; ++i)
 			buff.addtok(gsl::at(val, gsl::narrow_cast<size_t>(i)));
@@ -726,7 +726,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		// return all columns
 		if (nColumn == -1)
 		{
-			TString buff(gsl::narrow_cast<UINT>(count * 32));
+			TString buff(gsl::narrow_cast<TString::size_type>(count) * 32);
 
 			for (auto i = decltype(count){0}; i < count; i++)
 				buff.addtok(Dcx::dcxListView_GetColumnWidth(m_Hwnd, i));
@@ -4440,7 +4440,7 @@ bool DcxListView::xmlLoadListview(const int nPos, const TiXmlElement* xElm)
 	//}
 	//return true;
 
-	TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
+	TString tsBuf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
 	int nItem{ nPos };
 
 	if (nPos < 1)
@@ -5866,7 +5866,7 @@ int DcxListView::getGroupDrawState() noexcept
 
 TString DcxListView::getGroupHeader(int gid)
 {
-	TString tsBuf((UINT)mIRCLinker::c_mIRC_Buffer_Size_cch);
+	TString tsBuf(gsl::narrow_cast<TString::size_type>(mIRCLinker::c_mIRC_Buffer_Size_cch));
 
 	LVGROUP gInfo{};
 	gInfo.cbSize = sizeof(LVGROUP);

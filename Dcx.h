@@ -1008,7 +1008,7 @@ namespace Dcx
 				return {};
 
 			//NB: item text can be any length BUT treeview control only displays first 260 characters.
-			TString tsRes(gsl::narrow_cast<UINT>(mIRCLinker::c_mIRC_Buffer_Size_cch));
+			TString tsRes(gsl::narrow_cast<TString::size_type>(mIRCLinker::c_mIRC_Buffer_Size_cch));
 			TVITEMEX item{};
 			item.hItem = m_Item;
 			item.pszText = tsRes.to_chr();

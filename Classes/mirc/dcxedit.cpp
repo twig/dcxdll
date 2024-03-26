@@ -638,7 +638,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		const auto nChar = input.getnexttok().to_<UINT>();	// tok 4
 		const TString tsInsert(input.getlasttoks());
 
-		TString tsLeft(this->m_tsText.len() + tsInsert.len());
+		TString tsLeft(gsl::narrow_cast<TString::size_type>(this->m_tsText.len() + tsInsert.len()));
 
 		tsLeft = this->m_tsText.sub(0, nChar);
 		tsLeft += tsInsert;
