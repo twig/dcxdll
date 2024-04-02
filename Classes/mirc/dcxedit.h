@@ -93,13 +93,13 @@ private:
 	{
 		RECT rc{};
 		if (m_Hwnd)
-			Edit_GetRect(m_Hwnd, &rc);
+			Dcx::dcxEdit_GetRect(m_Hwnd, &rc);
 		return rc;
 	}
 	void resetFmtRect() noexcept
 	{
 		if (m_Hwnd)
-			Edit_SetRect(m_Hwnd, nullptr);
+			Dcx::dcxEdit_SetRect(m_Hwnd, nullptr);
 	}
 
 	//void setFmtRect(bool bReset = false) noexcept
@@ -129,9 +129,9 @@ private:
 
 			rcClient.left += m_GutterWidth;
 			if (bRedraw)
-				Edit_SetRect(m_Hwnd, &rcClient);
+				Dcx::dcxEdit_SetRect(m_Hwnd, &rcClient);
 			else
-				Edit_SetRectNoPaint(m_Hwnd, &rcClient);
+				Dcx::dcxEdit_SetRectNoPaint(m_Hwnd, &rcClient);
 		}
 	}
 	[[nodiscard]] RECT getGutterRect() const noexcept

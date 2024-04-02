@@ -46,14 +46,14 @@ DcxEdit::DcxEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog,
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (const auto dStyle = parseExEditStyles(styles); dStyle)
-		Edit_SetExtendedStyle(m_Hwnd, dStyle, dStyle);
+		Dcx::dcxEdit_SetExtendedStyle(m_Hwnd, dStyle, dStyle);
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	setNoThemed(ws.m_NoTheme);
 
-	Edit_LimitText(m_Hwnd, 0);
+	Dcx::dcxEdit_LimitText(m_Hwnd, 0);
 
 	//SendMessage(m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, 0);
 
@@ -175,7 +175,7 @@ void DcxEdit::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	if (const auto tmp = gsl::narrow_cast<TCHAR>(queryIntAttribute(xThis, "passchar")); tmp)
 	{
-		Edit_SetPasswordChar(m_Hwnd, tmp);
+		Dcx::dcxEdit_SetPasswordChar(m_Hwnd, tmp);
 		this->m_PassChar = tmp;
 	}
 
@@ -359,7 +359,8 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 			// current line
 			const auto iLinePos = Dcx::dcxEdit_LineFromChar(m_Hwnd, -1) + 1;
 			// line offset
-			const auto CharPos = (dwAbsoluteStartSelPos - gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(-1), 0)));
+			//const auto CharPos = (dwAbsoluteStartSelPos - gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(-1), 0)));
+			const auto CharPos = (dwAbsoluteStartSelPos - Dcx::dcxEdit_GetLineIndex(m_Hwnd, MAXDWORD));
 
 			_ts_snprintf(szReturnValue, TEXT("%d %u %u"), iLinePos, CharPos, dwAbsoluteStartSelPos);
 		}
@@ -476,7 +477,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 
 	case L"passchar"_hash:
 	{
-		_ts_snprintf(szReturnValue, TEXT("%u"), Edit_GetPasswordChar(m_Hwnd));
+		_ts_snprintf(szReturnValue, TEXT("%u"), Dcx::dcxEdit_GetPasswordChar(m_Hwnd));
 	}
 	break;
 
@@ -662,7 +663,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		TCHAR cPassChar = input.getnexttok().at(0);	// tok 5
 
 		if (cPassChar == 0)
-			cPassChar = Edit_GetPasswordChar(m_Hwnd);
+			cPassChar = Dcx::dcxEdit_GetPasswordChar(m_Hwnd);
 		if (cPassChar == 0)
 			cPassChar = this->m_PassChar;
 		// XP actually uses the unicode `Black Circle` char U+25CF (9679)
@@ -686,11 +687,11 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		{
 			this->addStyle(WindowStyle::ES_Password);
 
-			Edit_SetPasswordChar(m_Hwnd, cPassChar);
+			Dcx::dcxEdit_SetPasswordChar(m_Hwnd, cPassChar);
 		}
 		else {
 			this->removeStyle(WindowStyle::ES_Password);
-			Edit_SetPasswordChar(m_Hwnd, 0);
+			Dcx::dcxEdit_SetPasswordChar(m_Hwnd, 0);
 			this->m_PassChar = cPassChar;	// save pass char used for later
 		}
 
@@ -737,7 +738,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (const auto N = input.getnexttok().to_int(); N > -1)
-			Edit_LimitText(m_Hwnd, N);
+			Dcx::dcxEdit_LimitText(m_Hwnd, N);
 	}
 	// Used to prevent invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -1727,6 +1728,8 @@ void DcxEdit::DrawGutter()
 		Auto(ReleaseDC(m_Hwnd, hdc));
 		DrawGutter(hdc);
 	}
+
+	//DrawGutter(wil::GetDC(m_Hwnd).get());
 }
 
 void DcxEdit::DrawGutter(HDC hdc)
