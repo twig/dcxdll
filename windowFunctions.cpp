@@ -14,13 +14,12 @@
 #include "defines.h"
 #include "Dcx.h"
 
-
-
-/*!
-* \brief Finds an owner of a dialog, used with styles.
-*
-* Returns the owner HWND
-*/
+/// <summary>
+/// Finds an owner of a dialog, used with styles.
+/// </summary>
+/// <param name="data"></param>
+/// <param name="defaultWnd"></param>
+/// <returns>Returns the owner HWND</returns>
 HWND FindOwner(const TString& data, const gsl::not_null<HWND>& defaultWnd)
 {
 	if (data.empty())

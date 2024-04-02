@@ -96,6 +96,17 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Determines if an item in a list-view control is selected. This should be used only for list-view controls that have the LVS_EX_CHECKBOXES style.
+	/// </summary>
+	/// <param name="hwnd">- A handle to a list-view control.</param>
+	/// <param name="i">- The index of the item for which to retrieve the check state.</param>
+	/// <returns></returns>
+	inline UINT dcxListView_GetCheckState(_In_ HWND hwnd, _In_ const int i) noexcept
+	{
+		return ListView_GetCheckState(hwnd, i);
+	}
+
+	/// <summary>
 	/// Set controls extended styles.
 	/// </summary>
 	/// <param name="hwnd"></param>
@@ -333,159 +344,498 @@ namespace Dcx
 	{
 		return ListView_GetTopIndex(hwnd);
 	}
-	inline LRESULT dcxListView_GetGroupInfo(_In_ HWND hwnd, _In_ const unsigned int gid, _Inout_ PLVGROUP pgrp) noexcept
+
+	/// <summary>
+	/// Calculates the approximate width and height required to display a given number of items.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
+	/// <param name="iWidth">- The proposed x-dimension of the control, in pixels.<para/> This parameter can be -1 to allow the message to use the current width value.</param>
+	/// <param name="iHeight">- The proposed y-dimension of the control, in pixels.<para/> This parameter can be -1 to allow the message to use the current height value.</param>
+	/// <param name="iCount">- The number of items to be displayed in the control.<para/> If this parameter is -1, the message uses the total number of items in the control.</param>
+	/// <returns>Returns a DWORD value that holds the approximate width (in the LOWORD) and height (in the HIWORD) needed to display the items, in pixels.</returns>
+	inline DWORD dcxListView_ApproximateViewRect(_In_ HWND hwnd, _In_ int iWidth, _In_ int iHeight, _In_ int iCount) noexcept
 	{
-		return ListView_GetGroupInfo(hwnd, gid, pgrp);
+		return ListView_ApproximateViewRect(hwnd, iWidth, iHeight, iCount);
 	}
+
+	/// <summary>
+	/// Arranges items in icon view.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
+	/// <param name="uCode">
+	///	<para>- One of the following values that specifies alignment:</para>
+	///		<para>Value - Meaning</para>
+	///		<para>LVA_ALIGNLEFT - Not implemented. Apply the LVS_ALIGNLEFT style instead.</para>
+	///		<para>LVA_ALIGNTOP - Not implemented. Apply the LVS_ALIGNTOP style instead.</para>
+	///		<para>LVA_DEFAULT - Aligns items according to the list - view control's current alignment styles (the default value).</para>
+	///		<para>LVA_SNAPTOGRID - Snaps all icons to the nearest grid position.</para>
+	///	</param>
+	/// <returns>Returns true if successful; otherwise, false.</returns>
+	inline bool dcxListView_Arrange(_In_ HWND hwnd, _In_ UINT uCode) noexcept
+	{
+		return !!ListView_Arrange(hwnd, uCode);
+	}
+
+	/// <summary>
+	/// Cancels an item text editing operation.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
+	inline void dcxListView_CancelEditLabel(_In_ HWND hwnd) noexcept
+	{
+		ListView_CancelEditLabel(hwnd);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="gid"></param>
+	/// <param name="pgrp"></param>
+	/// <returns></returns>
+	inline int dcxListView_GetGroupInfo(_In_ HWND hwnd, _In_ const unsigned int gid, _Inout_ PLVGROUP pgrp) noexcept
+	{
+		return gsl::narrow_cast<int>(ListView_GetGroupInfo(hwnd, gid, pgrp));
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iIndex"></param>
+	/// <param name="pgrp"></param>
+	/// <returns></returns>
 	inline LRESULT dcxListView_GetGroupInfoByIndex(_In_ HWND hwnd, _In_ const unsigned int iIndex, _Inout_ PLVGROUP pgrp) noexcept
 	{
 		return ListView_GetGroupInfoByIndex(hwnd, iIndex, pgrp);
 	}
-	[[nodiscard]] inline LRESULT dcxListView_GetGroupCount(_In_ HWND hwnd) noexcept
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
+	[[nodiscard]] inline int dcxListView_GetGroupCount(_In_ HWND hwnd) noexcept
 	{
-		return ListView_GetGroupCount(hwnd);
+		return gsl::narrow_cast<int>(ListView_GetGroupCount(hwnd));
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="gid"></param>
+	/// <param name="mask"></param>
+	/// <returns></returns>
 	[[nodiscard]] inline unsigned int dcxListView_GetGroupState(_In_ HWND hwnd, _In_ const int gid, _In_ const DWORD mask) noexcept
 	{
 		return ListView_GetGroupState(hwnd, gid, mask);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="gid"></param>
+	/// <param name="type"></param>
+	/// <param name="prc"></param>
+	/// <returns></returns>
 	inline BOOL dcxListView_GetGroupRect(_In_ HWND hwnd, _In_ const int gid, _In_ const long type, _Out_ LPRECT prc) noexcept
 	{
 		GSL_SUPPRESS(es.47) return gsl::narrow_cast<BOOL>(ListView_GetGroupRect(hwnd, gid, type, prc));
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="str"></param>
+	/// <param name="sz"></param>
+	/// <returns></returns>
 	inline BOOL dcxListView_GetEmptyText(_In_ HWND hwnd, _Inout_z_ PTCHAR str, _In_ const int sz) noexcept
 	{
 		return ListView_GetEmptyText(hwnd, str, sz);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="lvht"></param>
+	/// <returns></returns>
 	inline int dcxListView_SubItemHitTest(_In_ HWND hwnd, _Inout_ LPLVHITTESTINFO lvht) noexcept
 	{
 		return ListView_SubItemHitTest(hwnd, lvht);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="lvht"></param>
+	/// <returns></returns>
 	inline int dcxListView_SubItemGroupHitTest(_In_ HWND hwnd, _Inout_ LPLVHITTESTINFO lvht) noexcept
 	{
 		// setting wparam to -1 causes it to return the iGroup info.
 		return gsl::narrow_cast<int>(SendMessageW(hwnd, LVM_SUBITEMHITTEST, UINT_MAX, reinterpret_cast<LPARAM>(lvht)));
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iCol"></param>
+	/// <param name="cx"></param>
+	/// <returns></returns>
 	inline BOOL dcxListView_SetColumnWidth(_In_ HWND hwnd, _In_ const int iCol, _In_ const int cx) noexcept
 	{
 		return ListView_SetColumnWidth(hwnd, iCol, cx);
 	}
-	inline BOOL dcxListView_SetColumnOrderArray(_In_ HWND hwnd, _In_ const int iCount, _In_ const int* pi) noexcept
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iCount"></param>
+	/// <param name="pi"></param>
+	/// <returns></returns>
+	inline bool dcxListView_SetColumnOrderArray(_In_ HWND hwnd, _In_ const int iCount, _In_ const int* pi) noexcept
 	{
-		return ListView_SetColumnOrderArray(hwnd, iCount, pi);
+		return !!ListView_SetColumnOrderArray(hwnd, iCount, pi);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="mode"></param>
+	/// <returns></returns>
 	inline DWORD dcxListView_SetView(_In_ HWND hwnd, _In_ DWORD mode) noexcept
 	{
 		return ListView_SetView(hwnd, mode);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="group"></param>
+	/// <returns></returns>
 	[[nodiscard]] inline LRESULT dcxListView_HasGroup(_In_ HWND hwnd, _In_ const int group) noexcept
 	{
 		return ListView_HasGroup(hwnd, group);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
 	[[nodiscard]] inline BOOL dcxListView_IsGroupViewEnabled(_In_ HWND hwnd) noexcept
 	{
 		return ListView_IsGroupViewEnabled(hwnd);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="fEnable"></param>
+	/// <returns></returns>
 	inline BOOL dcxListView_EnableGroupView(_In_ HWND hwnd, _In_ bool fEnable) noexcept
 	{
 		return gsl::narrow_cast<BOOL>(ListView_EnableGroupView(hwnd, fEnable));
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="gid"></param>
+	/// <param name="mask"></param>
+	/// <param name="state"></param>
 	inline void dcxListView_SetGroupState(_In_ HWND hwnd, _In_ const int gid, _In_ const unsigned int mask, _In_ const unsigned int state) noexcept
 	{
 		ListView_SetGroupState(hwnd, gid, mask, state);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="index"></param>
+	/// <param name="pgrp"></param>
 	inline void dcxListView_InsertGroup(_In_ HWND hwnd, _In_ const int index, _In_ PLVGROUP pgrp) noexcept
 	{
 		ListView_InsertGroup(hwnd, index, pgrp);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iGID"></param>
+	/// <param name="pgrp"></param>
+	/// <returns></returns>
+	inline int dcxListView_SetGroupInfo(_In_ HWND hwnd, _In_ const int iGID, _In_ PLVGROUP pgrp) noexcept
+	{
+		return gsl::narrow_cast<int>(ListView_SetGroupInfo(hwnd, iGID, pgrp));
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="gid"></param>
+	/// <param name="index"></param>
 	inline void dcxListView_MoveGroup(_In_ HWND hwnd, _In_ const int gid, _In_ const int index) noexcept
 	{
 		ListView_MoveGroup(hwnd, gid, index);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="index"></param>
+	/// <param name="gid"></param>
+	inline void dcxListView_MoveItemToGroup(_In_ HWND hwnd, _In_ const int index, _In_ const int gid) noexcept
+	{
+		ListView_MoveItemToGroup(hwnd, index, gid);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="gid"></param>
 	inline void dcxListView_RemoveGroup(_In_ HWND hwnd, _In_ const int gid) noexcept
 	{
 		ListView_RemoveGroup(hwnd, gid);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
 	inline void dcxListView_RemoveAllGroups(_In_ HWND hwnd) noexcept
 	{
 		ListView_RemoveAllGroups(hwnd);
 	}
+
+	/// <summary>
+	/// Removes a column from a list-view control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
+	/// <param name="column">- An index of the column to delete.</param>
+	/// <returns>Returns true if successful, or false otherwise.</returns>
 	inline BOOL dcxListView_DeleteColumn(_In_ HWND hwnd, _In_ const int column) noexcept
 	{
 		return ListView_DeleteColumn(hwnd, column);
 	}
+
+	/// <summary>
+	/// Removes all items from a list-view control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
+	/// <returns></returns>
 	inline BOOL dcxListView_DeleteAllItems(_In_ HWND hwnd) noexcept
 	{
 		return ListView_DeleteAllItems(hwnd);
 	}
+
+	/// <summary>
+	/// Removes an item from a list-view control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
+	/// <param name="i">- An index of the list-view item to delete.</param>
+	/// <returns></returns>
 	inline BOOL dcxListView_DeleteItem(_In_ HWND hwnd, _In_ const int i) noexcept
 	{
 		return ListView_DeleteItem(hwnd, i);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="pFn"></param>
+	/// <param name="data"></param>
+	/// <returns></returns>
 	inline BOOL dcxListView_SortItemsEx(_In_ HWND hwnd, _In_ PFNLVCOMPARE pFn, _Inout_ void* data) noexcept
 	{
 		return ListView_SortItemsEx(hwnd, pFn, data);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="i"></param>
+	/// <param name="partialOK"></param>
+	/// <returns></returns>
 	inline BOOL dcxListView_EnsureVisible(_In_ HWND hwnd, _In_ const int i, _In_ BOOL partialOK) noexcept
 	{
 		return ListView_EnsureVisible(hwnd, i, partialOK);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="dx"></param>
+	/// <param name="dy"></param>
+	/// <returns></returns>
 	inline BOOL dcxListView_Scroll(_In_ HWND hwnd, _In_ const int dx, _In_ const int dy) noexcept
 	{
 		return ListView_Scroll(hwnd, dx, dy);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
 	[[nodiscard]] inline int dcxListView_GetCountPerPage(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetCountPerPage(hwnd);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
 	[[nodiscard]] inline HWND dcxListView_GetEditControl(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetEditControl(hwnd);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
 	[[nodiscard]] inline COLORREF dcxListView_GetBkColor(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetBkColor(hwnd);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="i"></param>
+	/// <returns></returns>
 	inline HWND dcxListView_EditLabel(_In_ HWND hwnd, _In_ const int i) noexcept
 	{
 		return ListView_EditLabel(hwnd, i);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="lvhti"></param>
+	/// <returns></returns>
 	inline int dcxListView_HitTest(_In_ HWND hwnd, _Inout_ LPLVHITTESTINFO lvhti) noexcept
 	{
 		return ListView_HitTest(hwnd, lvhti);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="lvhti"></param>
+	/// <returns></returns>
 	inline int dcxListView_HitTestEx(_In_ HWND hwnd, _Inout_ LPLVHITTESTINFO lvhti) noexcept
 	{
 		return ListView_HitTestEx(hwnd, lvhti);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="nItem"></param>
+	/// <returns></returns>
 	inline BOOL dcxListView_Update(_In_ HWND hwnd, _In_ int nItem) noexcept
 	{
 		return ListView_Update(hwnd, nItem);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="nFirst"></param>
+	/// <param name="nLast"></param>
+	/// <returns></returns>
 	inline BOOL dcxListView_RedrawItems(_In_ HWND hwnd, _In_ int nFirst, _In_ int nLast) noexcept
 	{
 		return ListView_RedrawItems(hwnd, nFirst, nLast);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="clr"></param>
+	/// <returns></returns>
 	inline COLORREF dcxListView_SetTextColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
 	{
 		return ListView_SetTextColor(hwnd, clr);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="clr"></param>
+	/// <returns></returns>
 	inline COLORREF dcxListView_SetTextBkColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
 	{
 		return ListView_SetTextBkColor(hwnd, clr);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="clr"></param>
+	/// <returns></returns>
 	inline COLORREF dcxListView_SetBkColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
 	{
 		return ListView_SetBkColor(hwnd, clr);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="clr"></param>
+	/// <returns></returns>
 	inline COLORREF dcxListView_SetOutlineColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
 	{
 		return ListView_SetOutlineColor(hwnd, clr);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="lplvim"></param>
+	/// <returns></returns>
 	inline BOOL dcxListView_SetInsertMark(_In_ HWND hwnd, _In_ LPLVINSERTMARK lplvim) noexcept
 	{
 		return ListView_SetInsertMark(hwnd, lplvim);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
 	inline BOOL dcxListView_ClearInsertMark(_In_ HWND hwnd) noexcept
 	{
 		LVINSERTMARK lvim{};
@@ -494,10 +844,25 @@ namespace Dcx
 
 		return Dcx::dcxListView_SetInsertMark(hwnd, &lvim);
 	}
+
+	/// <summary>
+	/// Creates a drag image list for the specified item.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
+	/// <param name="i">- The index of the item.</param>
+	/// <param name="pt">- A pointer to a POINT structure that receives the initial location of the upper-left corner of the image, in view coordinates.</param>
+	/// <returns>Returns the handle to the drag image list if successful, or NULL otherwise.</returns>
 	[[nodiscard("Memory leak")]] inline HIMAGELIST dcxListView_CreateDragImage(_In_ HWND hwnd, _In_ int i, _Inout_ LPPOINT pt) noexcept
 	{
 		return ListView_CreateDragImage(hwnd, i, pt);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="i"></param>
+	/// <returns></returns>
 	[[nodiscard]] inline BOOL dcxListView_IsItemVisible(_In_ HWND hwnd, _In_ int i) noexcept
 	{
 		return ListView_IsItemVisible(hwnd, i);
@@ -601,14 +966,36 @@ namespace Dcx
 
 	// Header
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="hdti"></param>
+	/// <returns></returns>
 	inline LRESULT dcxHeader_HitTest(_In_ HWND hwnd, _Inout_ LPHDHITTESTINFO hdti) noexcept
 	{
 		return SendMessage(hwnd, HDM_HITTEST, 0U, reinterpret_cast<LPARAM>(hdti));
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="i"></param>
+	/// <param name="phi"></param>
+	/// <returns></returns>
 	inline BOOL dcxHeader_GetItem(_In_ HWND hwnd, _In_ const int i, _Inout_ LPHDITEM phi) noexcept
 	{
 		return Header_GetItem(hwnd, i, phi);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="i"></param>
+	/// <param name="phi"></param>
+	/// <returns></returns>
 	inline BOOL dcxHeader_SetItem(_In_ HWND hwnd, _In_ const int i, _In_ const LPHDITEM phi) noexcept
 	{
 		return Header_SetItem(hwnd, i, phi);
@@ -674,26 +1061,56 @@ namespace Dcx
 
 	// ToolTip
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="pti"></param>
+	/// <returns></returns>
 	inline bool dcxToolTip_GetCurrentTool(_In_ HWND hwnd, _Inout_ LPTOOLINFO pti) noexcept
 	{
 		return (SendMessage(hwnd, TTM_GETCURRENTTOOL, 0, reinterpret_cast<LPARAM>(pti)) != 0);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="bActivate"></param>
+	/// <param name="pti"></param>
 	inline void dcxToolTip_TrackActivate(_In_ HWND hwnd, _In_ BOOL bActivate, _In_ LPTOOLINFO pti) noexcept
 	{
 		SendMessage(hwnd, TTM_TRACKACTIVATE, bActivate, reinterpret_cast<LPARAM>(pti));
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
 	inline void dcxToolTip_Pop(_In_ HWND hwnd) noexcept
 	{
 		SendMessage(hwnd, TTM_POP, 0, 0);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
 	inline void dcxToolTip_PopUp(_In_ HWND hwnd) noexcept
 	{
 		SendMessage(hwnd, TTM_POPUP, 0, 0);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="pti"></param>
 	inline void dcxToolTip_SetToolInfo(_In_ HWND hwnd, _Inout_ LPTOOLINFO pti) noexcept
 	{
 		SendMessage(hwnd, TTM_SETTOOLINFO, 0, reinterpret_cast<LPARAM>(pti));
 	}
+
 	enum class dcxToolTipTitleIcons
 		: int
 	{
@@ -705,6 +1122,7 @@ namespace Dcx
 		eTTI_WARNING_LARGE,
 		eTTI_ERROR_LARGE
 	};
+
 	/// <summary>
 	/// Set the tooltips title text and icon.
 	/// </summary>
@@ -717,6 +1135,7 @@ namespace Dcx
 		//When calling TTM_SETTITLE, the string pointed to by lParam must not exceed 100 TCHARs in length, including the terminating NULL.
 		return (SendMessage(hwnd, TTM_SETTITLE, reinterpret_cast<WPARAM>(hIcon), reinterpret_cast<LPARAM>(str)) == TRUE);
 	}
+
 	/// <summary>
 	/// Set the tooltips title text and icon.
 	/// </summary>
@@ -729,14 +1148,35 @@ namespace Dcx
 		//When calling TTM_SETTITLE, the string pointed to by lParam must not exceed 100 TCHARs in length, including the terminating NULL.
 		return (SendMessage(hwnd, TTM_SETTITLE, gsl::narrow_cast<WPARAM>(eIcon), reinterpret_cast<LPARAM>(str)) == TRUE);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="x"></param>
+	/// <param name="y"></param>
 	inline void dcxToolTip_TrackPosition(_In_ HWND hwnd, _In_ int x, _In_ int y) noexcept
 	{
 		SendMessage(hwnd, TTM_TRACKPOSITION, 0, MAKELPARAM(x + 10, y - 20));	// Dcx::dcxMAKELPARAM() not available here.
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="pti"></param>
 	inline void dcxToolTip_UpdateTipText(_In_ HWND hwnd, _In_ LPTOOLINFO pti) noexcept
 	{
 		SendMessage(hwnd, TTM_UPDATETIPTEXT, 0, reinterpret_cast<LPARAM>(pti));
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="ctrl"></param>
+	/// <param name="id"></param>
+	/// <param name="str"></param>
 	inline void dcxToolTip_UpdateTipText(_In_ HWND hwnd, _In_ HWND ctrl, _In_ UINT_PTR id, _In_z_ LPWSTR str) noexcept
 	{
 		TOOLINFO ti{};
@@ -749,30 +1189,77 @@ namespace Dcx
 
 		dcxToolTip_UpdateTipText(hwnd, &ti);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="bState"></param>
 	inline void dcxToolTip_Activate(_In_ HWND hwnd, _In_ BOOL bState) noexcept
 	{
 		SendMessage(hwnd, TTM_ACTIVATE, bState, 0);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="pti"></param>
+	/// <returns></returns>
 	inline bool dcxToolTip_AddTool(_In_ HWND hwnd, _In_ LPTOOLINFO pti) noexcept
 	{
 		return (SendMessage(hwnd, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(pti)) == TRUE);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="bState"></param>
+	/// <param name="prc"></param>
+	/// <returns></returns>
 	inline bool dcxToolTip_AdjustRect(_In_ HWND hwnd, _In_ BOOL bState, _Inout_ LPRECT prc) noexcept
 	{
 		return (SendMessage(hwnd, TTM_ADJUSTRECT, bState, reinterpret_cast<LPARAM>(prc)) != 0);
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
 	inline COLORREF dcxToolTip_GetTipBkColor(_In_ HWND hwnd) noexcept
 	{
 		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, TTM_GETTIPBKCOLOR, 0, 0));
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
 	inline COLORREF dcxToolTip_GetTipTextColor(_In_ HWND hwnd) noexcept
 	{
 		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, TTM_GETTIPTEXTCOLOR, 0, 0));
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="clr"></param>
+	/// <returns></returns>
 	inline COLORREF dcxToolTip_SetTipBkColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
 	{
 		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, TTM_SETTIPBKCOLOR, gsl::narrow_cast<WPARAM>(clr), 0));
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="clr"></param>
+	/// <returns></returns>
 	inline COLORREF dcxToolTip_SetTipTextColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
 	{
 		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, TTM_SETTIPTEXTCOLOR, gsl::narrow_cast<WPARAM>(clr), 0));
@@ -1466,37 +1953,97 @@ namespace Dcx
 
 	// Statusbar
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iPart"></param>
+	/// <returns></returns>
 	UINT dcxStatusBar_GetTextLength(_In_ HWND hwnd, _In_ int iPart) noexcept;
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iPart"></param>
+	/// <param name="lpstr"></param>
+	/// <returns></returns>
 	inline LRESULT dcxStatusBar_GetText(_In_ HWND hwnd, _In_ int iPart, _Inout_z_ LPWSTR lpstr) noexcept
 	{
 		return SendMessage(hwnd, SB_GETTEXTW, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(lpstr));
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="clrBk"></param>
+	/// <returns></returns>
 	inline COLORREF dcxStatusBar_SetBkColor(_In_ HWND hwnd, _In_ COLORREF clrBk) noexcept
 	{
 		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, SB_SETBKCOLOR, 0U, gsl::narrow_cast<LPARAM>(clrBk)));
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="nParts"></param>
+	/// <param name="aWidths"></param>
+	/// <returns></returns>
 	inline bool dcxStatusBar_SetParts(_In_ HWND hwnd, _In_ UINT nParts, _In_ const LPINT aWidths) noexcept
 	{
 		return (SendMessage(hwnd, SB_SETPARTS, gsl::narrow_cast<WPARAM>(nParts), reinterpret_cast<LPARAM>(aWidths)) != FALSE);
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="nParts"></param>
+	/// <param name="aWidths"></param>
+	/// <returns></returns>
 	inline int dcxStatusBar_GetParts(_In_ HWND hwnd, _In_ UINT nParts, _In_ const LPINT aWidths) noexcept
 	{
 		return gsl::narrow_cast<int>(SendMessage(hwnd, SB_GETPARTS, gsl::narrow_cast<WPARAM>(nParts), reinterpret_cast<LPARAM>(aWidths)));
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iPart"></param>
+	/// <param name="Style"></param>
+	/// <param name="lpstr"></param>
+	/// <returns></returns>
 	inline LRESULT dcxStatusBar_SetText(_In_ HWND hwnd, _In_ int iPart, _In_ int Style, _In_z_ const WCHAR* const lpstr) noexcept
 	{
 		return SendMessage(hwnd, SB_SETTEXTW, gsl::narrow_cast<WPARAM>(iPart | Style), reinterpret_cast<LPARAM>(lpstr));
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iPart"></param>
+	/// <returns></returns>
 	UINT dcxStatusBar_GetPartFlags(_In_ HWND hwnd, _In_ int iPart) noexcept;
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iPart"></param>
+	/// <returns></returns>
 	TString dcxStatusBar_GetText(_In_ HWND hwnd, _In_ int iPart);
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="hwnd"></param>
+	/// <param name="iPart"></param>
+	/// <returns></returns>
 	template <typename T>
 	T dcxStatusBar_GetPartInfo(_In_ HWND hwnd, _In_ int iPart) noexcept
 	{
@@ -1506,45 +2053,104 @@ namespace Dcx
 		return nullptr;
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="hwnd"></param>
+	/// <param name="iPart"></param>
+	/// <param name="Style"></param>
+	/// <param name="pPart"></param>
+	/// <returns></returns>
 	template <typename T>
 	LRESULT dcxStatusBar_SetPartInfo(_In_ HWND hwnd, _In_ int iPart, _In_ int Style, _In_ const T pPart) noexcept
 	{
 		return SendMessage(hwnd, SB_SETTEXT, gsl::narrow_cast<WPARAM>(iPart | (Style | SBT_OWNERDRAW)), reinterpret_cast<LPARAM>(pPart));
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iPart"></param>
+	/// <param name="lpstr"></param>
 	inline void dcxStatusBar_SetTipText(_In_ HWND hwnd, _In_ int iPart, _In_z_ const WCHAR* const lpstr) noexcept
 	{
 		SendMessage(hwnd, SB_SETTIPTEXTW, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(lpstr));
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iPart"></param>
+	/// <param name="nSize"></param>
+	/// <param name="lpstr"></param>
 	inline void dcxStatusBar_GetTipText(_In_ HWND hwnd, _In_ int iPart, _In_ int nSize, _In_z_ const LPWSTR lpstr) noexcept
 	{
 		SendMessage(hwnd, SB_GETTIPTEXTW, MAKEWPARAM(iPart, nSize), reinterpret_cast<LPARAM>(lpstr));
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iPart"></param>
+	/// <returns></returns>
 	TString dcxStatusBar_GetTipText(_In_ HWND hwnd, _In_ int iPart);
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iPart"></param>
+	/// <param name="lprc"></param>
+	/// <returns></returns>
 	inline bool dcxStatusBar_GetRect(_In_ HWND hwnd, _In_ int iPart, _Inout_ LPRECT lprc) noexcept
 	{
 		return (SendMessage(hwnd, SB_GETRECT, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(lprc)) == TRUE);
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iPart"></param>
+	/// <param name="hIcon"></param>
+	/// <returns></returns>
 	inline bool dcxStatusBar_SetIcon(_In_ HWND hwnd, _In_ int iPart, _In_ const HICON hIcon) noexcept
 	{
 		return (SendMessage(hwnd, SB_SETICON, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(hIcon)) != 0);
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iPart"></param>
+	/// <returns></returns>
 	GSL_SUPPRESS(lifetime.4)
 		inline HICON dcxStatusBar_GetIcon(_In_ HWND hwnd, _In_ int iPart) noexcept
 	{
 		return reinterpret_cast<HICON>(SendMessage(hwnd, SB_GETICON, gsl::narrow_cast<WPARAM>(iPart), gsl::narrow_cast<LPARAM>(0)));
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="h"></param>
 	inline void dcxStatusBar_SetMinHeight(_In_ HWND hwnd, _In_ int h) noexcept
 	{
 		SendMessage(hwnd, SB_SETMINHEIGHT, gsl::narrow_cast<WPARAM>(h), 0);
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="aWidths"></param>
+	/// <returns></returns>
 	inline bool dcxStatusBar_GetBorders(_In_ HWND hwnd, _In_ LPINT aWidths) noexcept
 	{
 		return (SendMessage(hwnd, SB_GETBORDERS, 0U, reinterpret_cast<LPARAM>(aWidths)) == TRUE);
@@ -1559,26 +2165,125 @@ namespace Dcx
 #define Edit_SetCaretIndex(hwndCtl, newCaretPosition) \
         (BOOL)SNDMSG((hwndCtl), EM_SETCARETINDEX, (WPARAM)(newCaretPosition), 0)
 
-	inline void dcxEdit_SetReadOnly(_In_ HWND hwnd, _In_ BOOL bEnable) noexcept
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="bEnable"></param>
+	/// <returns></returns>
+	inline bool dcxEdit_SetReadOnly(_In_ HWND hwnd, _In_ BOOL bEnable) noexcept
 	{
-		SendMessage(hwnd, EM_SETREADONLY, gsl::narrow_cast<WPARAM>(bEnable), 0);
+		return !!Edit_SetReadOnly(hwnd, bEnable);
 	}
 
-	inline void dcxEdit_ScrollCaret(_In_ HWND hwnd) noexcept
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="prc"></param>
+	inline void dcxEdit_SetRect(_In_ HWND hwnd, _In_ LPCRECT prc) noexcept
 	{
-		SendMessage(hwnd, EM_SCROLLCARET, 0, 0);
+		Edit_SetRect(hwnd, prc);
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="prc"></param>
+	inline void dcxEdit_SetRectNoPaint(_In_ HWND hwnd, _In_ LPCRECT prc) noexcept
+	{
+		Edit_SetRectNoPaint(hwnd, prc);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="dwStyle"></param>
+	/// <param name="dwMask"></param>
+	inline void dcxEdit_SetExtendedStyle(_In_ HWND hwnd, _In_ DWORD dwStyle, _In_ DWORD dwMask) noexcept
+	{
+		Edit_SetExtendedStyle(hwnd, dwStyle, dwMask);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iMax"></param>
+	inline void dcxEdit_LimitText(_In_ HWND hwnd, _In_ int iMax) noexcept
+	{
+		Edit_LimitText(hwnd, iMax);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="chr"></param>
+	inline void dcxEdit_SetPasswordChar(_In_ HWND hwnd, _In_ TCHAR chr) noexcept
+	{
+		Edit_SetPasswordChar(hwnd, chr);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
+	inline TCHAR dcxEdit_GetPasswordChar(_In_ HWND hwnd) noexcept
+	{
+		return Edit_GetPasswordChar(hwnd);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="prc"></param>
+	inline void dcxEdit_GetRect(_In_ HWND hwnd, _In_ LPRECT prc) noexcept
+	{
+		Edit_GetRect(hwnd, prc);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
+	inline bool dcxEdit_ScrollCaret(_In_ HWND hwnd) noexcept
+	{
+		return !!Edit_ScrollCaret(hwnd);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwndCtl"></param>
+	/// <param name="newCaretPosition"></param>
+	/// <returns></returns>
 	inline bool dcxEdit_SetCaretIndex(_In_ HWND hwndCtl, _In_ DWORD newCaretPosition) noexcept
 	{
 		return (Edit_SetCaretIndex(hwndCtl, newCaretPosition) != FALSE);
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
 	inline DWORD dcxEdit_GetFirstVisibleLine(_In_ HWND hwnd) noexcept
 	{
 		return gsl::narrow_cast<DWORD>(Edit_GetFirstVisibleLine(hwnd));
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iLine"></param>
+	/// <returns></returns>
 	[[nodiscard]] inline DWORD dcxEdit_GetLineIndex(_In_ HWND hwnd, _In_ DWORD iLine) noexcept
 	{
 		if (!hwnd)
@@ -1587,6 +2292,12 @@ namespace Dcx
 		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(iLine), 0));
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iLineChar"></param>
+	/// <returns></returns>
 	[[nodiscard]] inline POINTL dcxEdit_GetPosFromChar(_In_ HWND hwnd, _In_ DWORD iLineChar) noexcept
 	{
 		POINTL pl{};
@@ -1595,12 +2306,143 @@ namespace Dcx
 		return pl;
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
 	int dcxEdit_GetEndOfLine(_In_ HWND hwnd) noexcept;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="nNumerator"></param>
+	/// <param name="nDenominator"></param>
+	/// <returns></returns>
 	bool dcxEdit_GetZoom(_In_ HWND hwnd, _In_ int* nNumerator, _In_ int* nDenominator) noexcept;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
 	TString dcxEdit_GetEndOfLineCharacters(_In_ HWND hwnd);
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
 	DWORD dcxEdit_GetCaretIndex(_In_ HWND hwnd) noexcept;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="nPos"></param>
 	void dcxEdit_SetCaretIndex2(_In_ HWND hwnd, _In_ DWORD nPos) noexcept;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iPos"></param>
+	/// <returns></returns>
 	DWORD dcxEdit_CharFromPos(_In_ HWND hwnd, _In_ const LONG& iPos) noexcept;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="ich"></param>
+	/// <returns></returns>
 	DWORD dcxEdit_LineFromChar(_In_ HWND hwnd, _In_ const LONG& ich) noexcept;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="nStart"></param>
+	/// <param name="nEnd"></param>
 	void dcxEdit_GetSel(_In_ HWND hwnd, _In_opt_ DWORD* nStart, _In_opt_ DWORD* nEnd) noexcept;
+
+	// Animate
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="pszName"></param>
+	/// <returns></returns>
+	inline bool dcxAnimate_Open(_In_ HWND hwnd, _In_z_ LPTSTR pszName) noexcept
+	{
+		return !!Animate_Open(hwnd, pszName);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="hInst"></param>
+	/// <param name="pszName"></param>
+	/// <returns></returns>
+	inline bool dcxAnimate_OpenEx(_In_ HWND hwnd, _In_ HINSTANCE hInst, _In_z_ LPTSTR pszName) noexcept
+	{
+		return !!Animate_OpenEx(hwnd, hInst, pszName);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
+	inline bool dcxAnimate_Close(_In_ HWND hwnd) noexcept
+	{
+		return !!Animate_Close(hwnd);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
+	inline bool dcxAnimate_IsPlaying(_In_ HWND hwnd) noexcept
+	{
+		return !!Animate_IsPlaying(hwnd);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="uFrom"></param>
+	/// <param name="uTo"></param>
+	/// <param name="uRep"></param>
+	/// <returns></returns>
+	inline bool dcxAnimate_Play(_In_ HWND hwnd, _In_ UINT uFrom, _In_ UINT uTo, _In_ UINT uRep) noexcept
+	{
+		return !!Animate_Play(hwnd, uFrom, uTo, uRep);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="uFrame"></param>
+	/// <returns></returns>
+	inline bool dcxAnimate_Seek(_In_ HWND hwnd, _In_ UINT uFrame) noexcept
+	{
+		return !!Animate_Seek(hwnd, uFrame);
+	}
+
+	/// <summary>
+	/// Stops playing an AVI clip in an animation control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the animation control.</param>
+	/// <returns>true on success.</returns>
+	inline bool dcxAnimate_Stop(_In_ HWND hwnd) noexcept
+	{
+		return !!Animate_Stop(hwnd);
+	}
 }
