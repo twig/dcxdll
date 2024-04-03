@@ -212,6 +212,10 @@ public:
 	inline const DWORD &getEventMask() const noexcept { return m_dEventMask; }
 	void setEventMask(const TString& tspFlags, const TString& tsnFlags);
 
+	inline const UINT& getDPI() const noexcept {
+		return m_uDPI;
+	}
+
 	bool TrackMouseEvents(DWORD events) noexcept;
 
 	[[nodiscard]] static PTCHAR parseCursorType(const TString& cursor);
