@@ -63,7 +63,7 @@ public:
 	const bool& IsDownloadsDialogEnabled() const noexcept;
 
 	TString getStatusText() const;
-	TString getReadyState() const;
+	TString getReadyState() const noexcept;
 
 	void setFullScreenState(bool bEnable) noexcept;
 	void setScriptingState(bool bEnable);
@@ -81,7 +81,7 @@ public:
 	void setDownloadDir(const TString& tsDir);
 	void setPreferedColourScheme(COREWEBVIEW2_PREFERRED_COLOR_SCHEME value);
 
-	void CallScript(const TString& tsCmd);
+	void CallScript(const TString &tsFlags, const TString& tsCmd);
 
 	void ClearCache();
 	void ClearCacheKind(COREWEBVIEW2_BROWSING_DATA_KINDS kind);
@@ -149,6 +149,9 @@ private:
 	HRESULT OnNavigationCompleted(ICoreWebView2* sender, ICoreWebView2NavigationCompletedEventArgs* args);
 	HRESULT OnDocumentTitleChanged(ICoreWebView2* sender, IUnknown* args);
 	HRESULT OnExecuteScriptCompleted(HRESULT errorCode, LPCWSTR resultObjectAsJson);
+	HRESULT OnExecuteScriptWithResultCompleted(bool bJSON, HRESULT errorCode, ICoreWebView2ExecuteScriptResult* result);
+	HRESULT OnExecuteScriptWithResultCompletedJSON(HRESULT errorCode, ICoreWebView2ExecuteScriptResult* result);
+	HRESULT OnExecuteScriptWithResultCompletedString(HRESULT errorCode, ICoreWebView2ExecuteScriptResult* result);
 	HRESULT OnContainsFullScreenElementChanged(ICoreWebView2* sender, IUnknown* args);
 	HRESULT OnStatusBarTextChanged(ICoreWebView2* sender, IUnknown* args);
 	HRESULT OnHistoryChanged(ICoreWebView2* sender, IUnknown* args);

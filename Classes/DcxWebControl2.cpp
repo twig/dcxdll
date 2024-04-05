@@ -312,9 +312,21 @@ void DcxWebControl2::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto CMD(input.getlasttoks().trim());		// tok 4, -1
+		const TString tsFlags(L'+');
+		const auto CMD(input.getlasttoks().trim());
 
-		CallScript(CMD);
+		CallScript(tsFlags, CMD);
+	}
+	// xdid -J [NAME] [ID] [SWITCH] [+FLAGS] [JAVASCRIPT]
+	else if (flags[TEXT('J')])
+	{
+		if (numtok < 5)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const TString tsFlags(input.getnexttok());
+		const auto CMD(input.getlasttoks().trim());
+
+		CallScript(tsFlags, CMD);
 	}
 	// xdid -k [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('k')])
@@ -603,7 +615,7 @@ DWORD WINAPI DcxWebControl2::DownloadAndInstallWV2RT(_In_ LPVOID lpParameter) no
 	{
 		// Either Package the WebView2 Bootstrapper with your app or download it using fwlink
 		// Then invoke install at Runtime.
-		GSL_SUPPRESS(type.7) SHELLEXECUTEINFO shExInfo{};
+		GSL_SUPPRESS(type.7) SHELLEXECUTEINFO shExInfo {};
 		shExInfo.cbSize = sizeof(shExInfo);
 		shExInfo.fMask = SEE_MASK_NOASYNC;
 		shExInfo.hwnd = nullptr;
@@ -827,7 +839,7 @@ TString DcxWebControl2::getStatusText() const
 	return tsRes;
 }
 
-TString DcxWebControl2::getReadyState() const
+TString DcxWebControl2::getReadyState() const noexcept
 {
 	TString tsRes(L"$false");
 	if (this->m_webview)
@@ -1006,12 +1018,29 @@ void DcxWebControl2::setPreferedColourScheme(COREWEBVIEW2_PREFERRED_COLOR_SCHEME
 	}
 }
 
-void DcxWebControl2::CallScript(const TString& tsCmd)
+void DcxWebControl2::CallScript(const TString& tsFlags, const TString& tsCmd)
 {
 	if (!m_webview)
 		return;
 
-	m_webview->ExecuteScript(tsCmd.to_chr(), Microsoft::WRL::Callback<ICoreWebView2ExecuteScriptCompletedHandler>(this, &DcxWebControl2::OnExecuteScriptCompleted).Get());
+	const XSwitchFlags xFlags(tsFlags);
+
+	if (!xFlags[L'+'])
+		return;
+
+	if (xFlags[L'r'])
+	{
+		// script gives a result.
+		if (auto webview21 = m_webview.try_query<ICoreWebView2_21>(); webview21)
+		{
+			if (xFlags[L'j'])
+				webview21->ExecuteScriptWithResult(tsCmd.to_wchr(), Microsoft::WRL::Callback<ICoreWebView2ExecuteScriptWithResultCompletedHandler>(this, &DcxWebControl2::OnExecuteScriptWithResultCompletedJSON).Get());
+			else
+				webview21->ExecuteScriptWithResult(tsCmd.to_wchr(), Microsoft::WRL::Callback<ICoreWebView2ExecuteScriptWithResultCompletedHandler>(this, &DcxWebControl2::OnExecuteScriptWithResultCompletedString).Get());
+		}
+	}
+	else
+		m_webview->ExecuteScript(tsCmd.to_chr(), Microsoft::WRL::Callback<ICoreWebView2ExecuteScriptCompletedHandler>(this, &DcxWebControl2::OnExecuteScriptCompleted).Get());
 
 	return;
 }
@@ -1782,6 +1811,115 @@ HRESULT DcxWebControl2::OnWebMessageReceived(ICoreWebView2* sender, ICoreWebView
 	}
 
 	return S_OK;
+}
+
+HRESULT DcxWebControl2::OnExecuteScriptWithResultCompleted(bool bJSON, HRESULT errorCode, ICoreWebView2ExecuteScriptResult* result)
+{
+	if (errorCode != S_OK || result == nullptr)
+	{
+		this->execAliasEx(TEXT("script error interface failed!"));
+		return S_OK;
+	}
+	else
+	{
+		BOOL isSuccess{};
+
+		// User should always invoke the get_Success firstly to get if execute
+		// success.
+		if (result->get_Succeeded(&isSuccess) != S_OK)
+		{
+			this->execAliasEx(TEXT("script error Get execute status failed!"));
+			return S_OK;
+		}
+
+		// If execute success, then we can get the raw json data, and try to get
+		// the string.
+		if (isSuccess)
+		{
+			if (bJSON)
+			{
+				wil::unique_cotaskmem_string rawJsonData;
+				// Get the raw json.
+				if (result->get_ResultAsJson(&rawJsonData) == S_OK)
+					this->execAliasEx(TEXT("script result %"), rawJsonData.get());
+				else
+					this->execAliasEx(TEXT("script error interface failed"));
+			}
+			else {
+				// Get the string, and if the result is not the string type,
+				// it will return the E_INVALIDARG.
+				wil::unique_cotaskmem_string stringData;
+				BOOL isString = FALSE;
+				if (result->TryGetResultAsString(&stringData, &isString) == S_OK && isString)
+					this->execAliasEx(TEXT("script result %"), stringData.get());
+				else
+					this->execAliasEx(TEXT("script error Get string failed!"));
+			}
+		}
+		else // If execute failed, then we can get the exception struct to get
+			 // the reason of failed.
+		{
+			wil::com_ptr<ICoreWebView2ScriptException> exception;
+
+			if (result->get_Exception(&exception) == S_OK)
+			{
+				if (exception)
+				{
+					// Get the exception name, this could return the empty string,
+					// such as `throw 1`.
+					wil::unique_cotaskmem_string exceptionName;
+					if (exception->get_Name(&exceptionName) == S_OK)
+					{
+						this->execAliasEx(TEXT("script exception name %"), exceptionName.get());
+					}
+
+					// Get the exception message, this could return the empty
+					// string, such as `throw 1`.
+					wil::unique_cotaskmem_string exceptionMessage;
+					if (exception->get_Message(&exceptionMessage) == S_OK)
+					{
+						this->execAliasEx(TEXT("script exception msg %"), exceptionMessage.get());
+					}
+
+					// Get the exception detail, it's a json struct data with all
+					// exception infomation , we can parse it and get the detail
+					// what we need.
+					wil::unique_cotaskmem_string exceptionDetail;
+					if (exception->get_ToJson(&exceptionDetail) == S_OK)
+					{
+						this->execAliasEx(TEXT("script exception details %"), exceptionDetail.get());
+					}
+
+					uint32_t lineNumber = 0;
+					uint32_t columnNumber = 0;
+					if (exception->get_LineNumber(&lineNumber) == S_OK &&
+						exception->get_ColumnNumber(&columnNumber) == S_OK)
+					{
+						const auto exceptionLocationInfo =
+							L"LineNumber:" + std::to_wstring(lineNumber) +
+							L", ColumnNumber:" + std::to_wstring(columnNumber);
+
+						this->execAliasEx(TEXT("script exception loc %"), exceptionLocationInfo.c_str());
+					}
+				}
+			}
+			else
+			{
+				this->execAliasEx(TEXT("script exception Get exception failed"));
+			}
+		}
+	}
+	return S_OK;
+}
+
+HRESULT DcxWebControl2::OnExecuteScriptWithResultCompletedJSON(HRESULT errorCode, ICoreWebView2ExecuteScriptResult* result)
+{
+	return OnExecuteScriptWithResultCompleted(true, errorCode, result);
+}
+
+HRESULT DcxWebControl2::OnExecuteScriptWithResultCompletedString(HRESULT errorCode, ICoreWebView2ExecuteScriptResult* result)
+{
+	return OnExecuteScriptWithResultCompleted(false, errorCode, result);
 }
 
 bool DcxWebControl2::OnMouseMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
