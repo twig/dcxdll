@@ -121,6 +121,10 @@ void DcxWebControl::SafeRelease() noexcept
 			//SafeReleaseCom(&m_pCPC);
 			m_pCPC.reset();
 		}
+#ifdef DCX_USE_AMBIENT
+		if (m_pC)
+			m_pC.reset();
+#endif
 		if (m_pOleInPlaceObject)
 		{
 			//SafeReleaseCom(&m_pOleInPlaceObject);
@@ -162,46 +166,59 @@ bool DcxWebControl::InitializeInterface() noexcept
 		/* Web Control Stuff */
 		const RECT rc = this->getWindowPosition();
 
-		if (const auto cFact = Dcx::getClassFactory(); cFact &&
-			SUCCEEDED(cFact->CreateInstance(nullptr, IID_IWebBrowser2, (void**)&m_pWebBrowser2)) &&
-			SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IOleObject, (LPVOID*)&m_pOleObject)) &&
-			SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IOleInPlaceObject, (LPVOID*)&m_pOleInPlaceObject)) &&
-			SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IConnectionPointContainer, (LPVOID*)&m_pCPC)) &&
-			SUCCEEDED(m_pOleObject->SetClientSite((IOleClientSite*)this)) &&
-			SUCCEEDED(m_pCPC->FindConnectionPoint(DIID_DWebBrowserEvents2, &m_pCP)) &&
-			SUCCEEDED(m_pCP->Advise((IUnknown*)(IOleClientSite*)this, &m_dwCookie)) &&
-			//SUCCEEDED( m_pOleObject->DoVerb( OLEIVERB_UIACTIVATE, nullptr, (IOleClientSite*) this, 0, m_Hwnd, &rc ) )
-			SUCCEEDED(m_pOleObject->DoVerb(OLEIVERB_INPLACEACTIVATE, nullptr, (IOleClientSite*)this, 0, m_Hwnd, &rc))
-			)
-			//const auto cFact = Dcx::getClassFactory();
-			//if (!cFact)
-			//	throw "fail: ClassFactory";
-			//
-			//if (!SUCCEEDED(cFact->CreateInstance(nullptr, IID_IWebBrowser2, (void**)&m_pWebBrowser2)) || !m_pWebBrowser2)
-			//	throw "fail: WebBrowser2";
-			//
-			//if (!SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IOleObject, (LPVOID*)&m_pOleObject)) || !m_pOleObject)
-			//	throw "fail: OleObject";
-			//
-			//if (!SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IOleInPlaceObject, (LPVOID*)&m_pOleInPlaceObject)) || !m_pOleInPlaceObject)
-			//	throw "fail: OleObject";
-			//
-			//if (!SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IConnectionPointContainer, (LPVOID*)&m_pCPC)) || !m_pCPC)
-			//	throw "fail: OleObject";
-			//
-			//if (!SUCCEEDED(m_pOleObject->SetClientSite((IOleClientSite*)this)))
-			//	throw "fail: OleObject";
-			//
-			//if (!SUCCEEDED(m_pCPC->FindConnectionPoint(DIID_DWebBrowserEvents2, &m_pCP)) || !m_pCP)
-			//	throw "fail: OleObject";
-			//
-			//if (!SUCCEEDED(m_pCP->Advise((IUnknown*)(IOleClientSite*)this, &m_dwCookie)))
-			//	throw "fail: OleObject";
-			//
-			//if (!SUCCEEDED(m_pOleObject->DoVerb(OLEIVERB_INPLACEACTIVATE, nullptr, (IOleClientSite*)this, 0, m_Hwnd, &rc)))
-			//	throw "fail: OleObject";
-			//
-			//if (m_pWebBrowser2 && m_pOleObject && m_pOleInPlaceObject && m_pCPC && m_pCP)
+		//if (const auto cFact = Dcx::getClassFactory(); cFact &&
+		//	SUCCEEDED(cFact->CreateInstance(nullptr, IID_IWebBrowser2, (LPVOID*)&m_pWebBrowser2)) &&
+		//	SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IOleObject, (LPVOID*)&m_pOleObject)) &&
+		//	SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IOleInPlaceObject, (LPVOID*)&m_pOleInPlaceObject)) &&
+		//	SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IConnectionPointContainer, (LPVOID*)&m_pCPC)) &&
+		//	SUCCEEDED(m_pOleObject->SetClientSite((IOleClientSite*)this)) &&
+		//	SUCCEEDED(m_pCPC->FindConnectionPoint(DIID_DWebBrowserEvents2, &m_pCP)) &&
+		//	SUCCEEDED(m_pCP->Advise((IUnknown*)(IOleClientSite*)this, &m_dwCookie)) &&
+		//	//SUCCEEDED( m_pOleObject->DoVerb( OLEIVERB_UIACTIVATE, nullptr, (IOleClientSite*) this, 0, m_Hwnd, &rc ) )
+		//	SUCCEEDED(m_pOleObject->DoVerb(OLEIVERB_INPLACEACTIVATE, nullptr, (IOleClientSite*)this, 0, m_Hwnd, &rc))
+		//	)
+
+		const auto cFact = Dcx::getClassFactory();
+		if (!cFact)
+			throw "fail: ClassFactory";
+
+		if (!SUCCEEDED(cFact->CreateInstance(nullptr, IID_IWebBrowser2, (void**)&m_pWebBrowser2)) || !m_pWebBrowser2)
+			throw "fail: WebBrowser2";
+
+		if (m_pOleObject = m_pWebBrowser2.try_query<IOleObject>(); !m_pOleObject)
+			throw "fail: IOleObject";
+
+		if (m_pOleInPlaceObject = m_pWebBrowser2.try_query<IOleInPlaceObject>(); !m_pOleInPlaceObject)
+			throw "fail: IOleInPlaceObject";
+
+		if (m_pCPC = m_pWebBrowser2.try_query<IConnectionPointContainer>(); !m_pCPC)
+			throw "fail: IConnectionPointContainer";
+
+#ifdef DCX_USE_AMBIENT
+		if (m_pC = m_pWebBrowser2.try_query<IOleControl>(); !m_pC)
+			throw "fail: IOleControl";
+#endif
+
+		//if (!SUCCEEDED(m_pOleObject->SetClientSite((IOleClientSite*)this)))
+		//	throw "fail: IOleClientSite";
+		if (!SUCCEEDED(m_pOleObject->SetClientSite(dynamic_cast<IOleClientSite*>(this))))
+			throw "fail: IOleClientSite";
+
+		if (!SUCCEEDED(m_pCPC->FindConnectionPoint(DIID_DWebBrowserEvents2, &m_pCP)) || !m_pCP)
+			throw "fail: IConnectionPoint";
+
+		if (!SUCCEEDED(m_pCP->Advise((IUnknown*)(IOleClientSite*)this, &m_dwCookie)))
+			throw "fail: Advise";
+
+		if (!SUCCEEDED(m_pOleObject->DoVerb(OLEIVERB_INPLACEACTIVATE, nullptr, (IOleClientSite*)this, 0, m_Hwnd, &rc)))
+			throw "fail: DoVerb";
+
+#ifdef DCX_USE_AMBIENT
+		//m_pC->OnAmbientPropertyChange(DISPID_AMBIENT_USERMODE);
+		m_pC->OnAmbientPropertyChange(DISPID_AMBIENT_DLCONTROL);
+#endif
+
+		//if (m_pWebBrowser2 && m_pOleObject && m_pOleInPlaceObject && m_pCPC && m_pCP)
 		{
 #if DCX_USE_WRAPPERS
 			const Dcx::dcxBSTRResource url(TEXT("about:blank"));
@@ -222,12 +239,11 @@ bool DcxWebControl::InitializeInterface() noexcept
 			}
 #endif
 		}
-		else {
-			//Release all Web Control pointers
-			SafeRelease();
-
-			return false;
-		}
+		//else {
+		//	//Release all Web Control pointers
+		//	SafeRelease();
+		//	return false;
+		//}
 	}
 	catch (...)
 	{
@@ -293,16 +309,17 @@ void DcxWebControl::parseInfoRequest(const TString& input, const refString<TCHAR
 			szReturnValue = tsRes.to_chr();
 	}
 	break;
-	//case L"donottrack"_hash:
-	//{
-	//	if (auto com = m_pWebBrowser2.try_query<INavigatorDoNotTrack>(); com)
-	//	{
-	//		wil::unique_bstr arg;
-	//		com->get_msDoNotTrack(&arg);
-	//		szReturnValue = arg.get();
-	//	}
-	//}
-	//break;
+
+	case L"donottrack"_hash:
+	{
+		if (auto com = m_pWebBrowser2.try_query<INavigatorDoNotTrack>(); com)
+		{
+			wil::unique_bstr arg;
+			com->get_msDoNotTrack(&arg);
+			szReturnValue = arg.get();
+		}
+	}
+	break;
 
 	case L"zoom"_hash:
 	{
@@ -869,12 +886,47 @@ HRESULT STDMETHODCALLTYPE DcxWebControl::Invoke(DISPID dispIdMember,
 				// not have a popup in the onunload event before unadvising.
 				//
 				break;
-			//case DISPID_AMBIENT_DLCONTROL:
-			//{
-			//	const stString<256> sRet;
-			//	evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("dl_control,%u"), getUserID());
-			//}
-			//break;
+
+#ifdef DCX_USE_AMBIENT
+			case DISPID_AMBIENT_DLCONTROL:
+			{
+				if (!pVarResult)
+					return E_POINTER;
+
+				const stString<256> sRet;
+				evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("dl_control,%u"), getUserID());
+
+				// respond to this ambient to indicate that we only want to
+				// download the page, but we don't want to run scripts,
+				// Java applets, or ActiveX controls
+				V_VT(pVarResult) = VT_I4;
+				V_I4(pVarResult) = DLCTL_DOWNLOADONLY |
+					DLCTL_NO_SCRIPTS |
+					DLCTL_NO_JAVA |
+					DLCTL_NO_DLACTIVEXCTLS |
+					DLCTL_NO_RUNACTIVEXCTLS;
+
+			}
+			break;
+			case DISPID_AMBIENT_USERMODE:
+			{
+				if (!pVarResult)
+					return E_POINTER;
+
+				// put MSHTML into design mode
+				const stString<256> sRet;
+				evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("usermode,%u"), getUserID());
+
+				V_VT(pVarResult) = VT_BOOL;
+
+				if (sRet == L"$false")
+					V_BOOL(pVarResult) = VARIANT_FALSE;
+				else
+					V_BOOL(pVarResult) = VARIANT_TRUE;
+
+			}
+			break;
+#endif
 			default:
 				break;
 			}
@@ -912,9 +964,20 @@ HRESULT STDMETHODCALLTYPE DcxWebControl::QueryInterface(REFIID riid, void __RPC_
 		*ppvObject = (IOleInPlaceSite*)this;
 	else if (DIID_DWebBrowserEvents2 == riid)
 		*ppvObject = (DWebBrowserEvents2*)this;
+	//else if (IID_IPropertyNotifySink == riid)
+	//	*ppvObject = (IPropertyNotifySink*)this;
+#ifdef DCX_USE_AMBIENT
+	else if (IID_IDispatch == riid)
+		*ppvObject = (IDispatch*)this;
+#endif
 
 	return *ppvObject ? S_OK : E_NOINTERFACE;
 }
+
+//STDMETHODIMP DcxWebControl::OnChanged(DISPID dispID)
+//{
+//	return E_NOTIMPL;
+//}
 
 void DcxWebControl::toXml(TiXmlElement* const xml) const
 {
@@ -1440,6 +1503,11 @@ void DcxWebControl::setURL(const TString& tsURL, const TString& tsFlags, const T
 	// only open url if one supplied.
 	if (!tsURL.empty())
 	{
+#ifdef DCX_USE_AMBIENT
+		if (m_pC)
+			m_pC->OnAmbientPropertyChange(DISPID_AMBIENT_DLCONTROL);
+#endif
+
 #if DCX_USE_WRAPPERS
 		const Dcx::dcxBSTRResource bstrUrl(tsURL.to_wchr());
 

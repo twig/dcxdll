@@ -148,6 +148,9 @@ private:
 	wil::com_ptr<IOleObject> m_pOleObject;
 	wil::com_ptr<IConnectionPointContainer> m_pCPC;
 	wil::com_ptr<IConnectionPoint> m_pCP;
+#ifdef DCX_USE_AMBIENT
+	wil::com_ptr<IOleControl> m_pC;
+#endif
 
 	DWORD m_dwCookie{};
 	bool m_bHideEvents{ true };
