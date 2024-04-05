@@ -534,11 +534,13 @@ void DcxImage::AnimateThread(DcxImage* const img)
 		if (!img->m_pImage || !img->m_PropertyItem)
 			return;
 
-		if (HDC hDC = GetDC(img->m_Hwnd); hDC)
-		{
-			img->DrawClientArea(hDC);
-			ReleaseDC(img->m_Hwnd, hDC);
-		}
+		//if (HDC hDC = GetDC(img->m_Hwnd); hDC)
+		//{
+		//	Auto(ReleaseDC(img->m_Hwnd, hDC));
+		//	img->DrawClientArea(hDC);
+		//}
+
+		img->DrawClientArea(wil::GetDC(img->m_Hwnd).get());
 
 		img->m_pImage->SelectActiveFrame(&pageGuid, m_nFramePosition++);
 
@@ -818,11 +820,12 @@ LRESULT DcxImage::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 		bParsed = TRUE;
 		if (!wParam)
 		{
-			PAINTSTRUCT ps{};
-			auto hdc = BeginPaint(m_Hwnd, &ps);
-			Auto(EndPaint(m_Hwnd, &ps));
+			//PAINTSTRUCT ps{};
+			//auto hdc = BeginPaint(m_Hwnd, &ps);
+			//Auto(EndPaint(m_Hwnd, &ps));
+			//this->DrawClientArea(hdc);
 
-			this->DrawClientArea(hdc);
+			this->DrawClientArea(wil::BeginPaint(m_Hwnd).get());
 		}
 		else
 			this->DrawClientArea(reinterpret_cast<HDC>(wParam));
