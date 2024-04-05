@@ -1754,7 +1754,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			}
 			break;
 		}
-		// xdid -Q [NAME] [ID] [SWITCH] Setup [GID,GID2,GID3-GIDn] [+FLAGS]
+		// xdid -Q [NAME] [ID] [SWITCH] Setup [GID,GID2,GID3-GIDn] [+FLAGS] [+MASK] (ARGS)
 		case TEXT("Setup"_hash):
 		case TEXT("setup"_hash):
 		{
@@ -1762,11 +1762,19 @@ void DcxListView::parseCommandRequest(const TString& input)
 				throw DcxExceptions::dcxInvalidArguments();
 
 			const auto tsGID = input.getnexttok();
-			const XSwitchFlags xFlags(input.getnexttok());
-			const auto tsArgs = input.getnexttok(); // flags dependant args, if any
+			const auto tsFlags(input.getnexttok());
+			const auto tsMask(input.getnexttok());
+			const auto tsArgs(input.getlasttoks()); // flags dependant args, if any
 
-			if (!xFlags[TEXT('+')])
-				throw DcxExceptions::dcxInvalidFlag();
+			const auto iFlags = this->parseGroupFlags(tsFlags);
+			const auto iState = this->parseGroupState(tsFlags);
+
+			const auto iFlagsMask = this->parseGroupFlags(tsMask);
+			const auto iStateMask = this->parseGroupState(tsMask);
+
+			LVGROUP lvg{};
+			lvg.cbSize = sizeof(LVGROUP);
+			lvg.mask = LVGF_STATE | LVGF_ALIGN;
 
 			const auto gid_count = Dcx::dcxListView_GetGroupCount(m_Hwnd);
 			const auto itEnd = tsGID.end();
@@ -1778,12 +1786,24 @@ void DcxListView::parseCommandRequest(const TString& input)
 				if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
 					throw DcxExceptions::dcxInvalidArguments();
 
-				for (auto nGID : r)
+				for (const auto nGID : r)
 				{
 					// setup each specified group.
-					if (!Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<int>(nGID)))
+					if (!Dcx::dcxListView_HasGroup(m_Hwnd, nGID))
 						throw Dcx::dcxException(TEXT("Group doesn't exist: %"), nGID);
+					lvg.iGroupId = nGID;
+					Dcx::dcxListView_GetGroupInfo(m_Hwnd, nGID, &lvg);
 
+					lvg.stateMask = iStateMask;
+					lvg.state = iState;
+
+					if (iFlagsMask != 0)
+					{
+						if (const UINT uAlign{ (iFlags & iFlagsMask) }; uAlign != lvg.uAlign)
+							lvg.uAlign = uAlign;
+					}
+
+					Dcx::dcxListView_SetGroupInfo(m_Hwnd, nGID, &lvg);
 				}
 			}
 		}
@@ -1794,7 +1814,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		}
 	}
 	// xdid -r [NAME] [ID] [SWITCH]
-	// Note: This is here to prevent an message
+	// Note: This is here to prevent a message
 	else if (flags[TEXT('r')])
 	{
 		//ListView_DeleteAllItems(m_Hwnd);
@@ -2045,9 +2065,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
-
-		//if (const auto nItem = StringToItemNumber(input.getnexttok()); nItem > -1)
-		//	Dcx::dcxListView_EnsureVisible(m_Hwnd, nItem, FALSE);
 
 		if (const auto nItem = StringToItemNumber(input.getnexttok()); nItem > -1)
 		{
@@ -3829,8 +3846,7 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 					{
 					case 0: // left click
 					{
-						// commented code allows changing the sort up/down display by clicking on a header
-#if DCX_DEBUG_OUTPUT
+						// code allows changing the sort up/down display by clicking on a header
 						HDITEM tmphdr{};
 						tmphdr.mask = HDI_FORMAT;
 						if (Dcx::dcxHeader_GetItem(lphdr->hdr.hwndFrom, lphdr->iItem, &tmphdr))
@@ -3852,7 +3868,6 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 							execAliasEx(TEXT("hsclick,%u,%d,%d"), getUserID(), lphdr->iItem + 1, tmphdr.fmt);
 						}
 						else
-#endif
 							execAliasEx(TEXT("hsclick,%u,%d"), getUserID(), lphdr->iItem + 1);
 					}
 					break;
@@ -5407,8 +5422,8 @@ void DcxListView::DrawMargin(HDC hdc) noexcept
 	const auto olClr = SetTextColor(hdc, m_MarginData.m_Left.m_clrTxt);
 	Auto(SetTextColor(hdc, olClr));
 
-	const auto hPrevFont = SelectObject(hdc, m_hFont);
-	Auto(SelectObject(hdc, hPrevFont));
+	const auto hPrevFont = Dcx::dcxSelectObject(hdc, m_hFont);
+	Auto(Dcx::dcxSelectObject(hdc, hPrevFont));
 
 	//if (!dcxDrawTranslucentRect(hdc, &rc, m_MarginData.m_Left.m_clrBkg, m_MarginData.m_Left.m_clrBorder, false))
 	dcxDrawRect(hdc, &rc, m_MarginData.m_Left.m_clrBkg, m_MarginData.m_Left.m_clrBorder, false);
@@ -5434,11 +5449,13 @@ void DcxListView::DrawMargin() noexcept
 	if (!m_Hwnd)
 		return;
 
-	if (HDC hdc = GetDC(m_Hwnd); hdc)
-	{
-		Auto(ReleaseDC(m_Hwnd, hdc));
-		DrawMargin(hdc);
-	}
+	//if (HDC hdc = GetDC(m_Hwnd); hdc)
+	//{
+	//	Auto(ReleaseDC(m_Hwnd, hdc));
+	//	DrawMargin(hdc);
+	//}
+
+	DrawMargin(wil::GetDC(m_Hwnd).get());
 }
 
 void DcxListView::DrawClientArea(HDC hdc)
@@ -5472,11 +5489,13 @@ void DcxListView::DrawClientArea(HDC hdc)
 
 void DcxListView::DrawClientArea()
 {
-	if (HDC hdc = GetDC(m_Hwnd); hdc)
-	{
-		Auto(ReleaseDC(m_Hwnd, hdc));
-		DrawClientArea(hdc);
-	}
+	//if (HDC hdc = GetDC(m_Hwnd); hdc)
+	//{
+	//	Auto(ReleaseDC(m_Hwnd, hdc));
+	//	DrawClientArea(hdc);
+	//}
+
+	DrawClientArea(wil::GetDC(m_Hwnd).get());
 }
 
 LRESULT DcxListView::DrawItem(LPNMLVCUSTOMDRAW lplvcd)
@@ -6009,7 +6028,7 @@ void DcxListView::MoveItem(int iSrc, int iDest) noexcept
 	lvi.iSubItem = 0;
 	lvi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 	lvi.pszText = &szBuf[0];
-	lvi.stateMask = UINT_MAX; //~gsl::narrow_cast<UINT>(LVIS_SELECTED); // dont want selected state
+	lvi.stateMask = UINT_MAX;
 	lvi.mask = LVIF_STATE | LVIF_IMAGE | LVIF_INDENT | LVIF_PARAM | LVIF_TEXT | LVIF_GROUPID | LVIF_COLUMNS;
 
 	// Get source item details
@@ -6031,7 +6050,7 @@ void DcxListView::MoveItem(int iSrc, int iDest) noexcept
 			iSrc++;
 
 		// Set the subitem text & image
-		for (int i = 1; i < this->getColumnCount(); i++)
+		for (int i = 1; i < this->getColumnCount(); ++i)
 		{
 			//Dcx::dcxListView_GetItemText(m_Hwnd, iSrc, i, &szBuf[0], std::size(szBuf));
 			//Dcx::dcxListView_SetItemText(m_Hwnd, iRet, i, &szBuf[0]);
