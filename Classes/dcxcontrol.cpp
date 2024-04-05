@@ -2343,7 +2343,8 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 		if (dcx_testflag(getEventMask(), DCX_EVENT_THEME))
 			execAliasEx(TEXT("dpichanged,%u,afterparent"), getUserID());
 
-		m_uDPI = Dcx::DpiModule.dcxGetDpiForWindow(m_Hwnd);
+		//m_uDPI = Dcx::DpiModule.dcxGetDpiForWindow(m_Hwnd);
+		m_uDPI = this->getParentDialog()->getDPI();
 	}
 	break;
 
