@@ -798,7 +798,7 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 				if (dcx_testflag(mii.fType, MFT_SEPARATOR))
 					p_Item = std::make_unique<XPopupMenuItem>(this, true, mii.dwItemData);
 				else {
-					TString tsItem(string), tsTooltipText;
+					TString tsItem(string), tsTooltipText, tsStyle;
 					int nIcon{ -1 };
 
 					{
@@ -807,7 +807,13 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 						if (tsItem.numtok(sepChar) > 1)	// 11
 						{
 							nIcon = tsItem.getfirsttok(1, sepChar).to_int() - 1;	// tok 1, TEXT("\v")	get embeded icon number if any
-							tsItem = tsItem.getlasttoks().trim();				// tok 2, TEXT("\v")	get real item text
+
+							if (tsItem.numtok(sepChar) > 2)	// 11
+							{
+								// second \v token taken to be style info for item. Overrides the menus style.
+								tsStyle = tsItem.getnexttok(sepChar).trim();
+							}
+							tsItem = tsItem.getlasttoks().trim();				// tok last, TEXT("\v")	get real item text
 						}
 					}
 					{
@@ -834,6 +840,9 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 						mIRCLinker::eval(tsItem, tsItem); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
 
 					p_Item = std::make_unique<XPopupMenuItem>(this, tsItem, tsTooltipText, nIcon, (mii.hSubMenu != nullptr), mii.dwItemData);
+
+					if (p_Item && !tsStyle.empty())
+						p_Item->setOverrideStyle(gsl::narrow_cast<UINT>(parseStyle(tsStyle)));
 
 					//TString tsItem(string);
 					//

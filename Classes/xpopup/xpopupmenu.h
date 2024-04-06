@@ -24,8 +24,6 @@ constexpr auto XPS_DISABLEDSEL = 0x02; //!< Disabled Items have a selectionbox
 constexpr auto XPS_ICON3DSHADOW = 0x04; //!< Icons have a 3D effect with undershadow
 constexpr auto XPS_DOUBLESEP = 0x08; //!< Seperator items have a double line.
 
-using VectorOfXPopupMenu = std::vector<XPopupMenu *>; //!< Vector of XPopupMenu Objects
-
 struct XPMENUBARCOLORS final
 {
 	COLORREF m_clrBack{ RGB(184, 199, 146) };				//!< Menu Item BackGround Color
@@ -259,6 +257,7 @@ public:
 	* Availbale XPopupMenu Styles
 	*/
 	enum class MenuStyle : UINT {
+		XPMS_None,
 		XPMS_OFFICE2003,
 		XPMS_OFFICE2003_REV,
 		XPMS_OFFICEXP,
@@ -416,6 +415,7 @@ public:
 	void clearAllMenuItems() noexcept;
 
 	const HBITMAP &getBackBitmap() const noexcept { return m_hBitmap.m_hBitmap; }
+	const TString& getBackBitmapFilename() const noexcept { return m_hBitmap.m_tsFilename; }
 	void setBackBitmap(HBITMAP hBitmap, const TString &tsFilename) noexcept;
 
 	const inline bool &IsRoundedSelector(void) const noexcept { return this->m_bRoundedSel; };
@@ -504,6 +504,8 @@ protected:
 	bool m_bRoundedWindow{ false };		//!< Menu has rounded window.
 	const bool m_bDestroyHMENU{ true };		//!< Should the destructor call DestroyMenu()
 };
+
+using VectorOfXPopupMenu = std::vector<XPopupMenu*>; //!< Vector of XPopupMenu Objects
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

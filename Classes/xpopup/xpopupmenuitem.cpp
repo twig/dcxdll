@@ -85,6 +85,11 @@ void XPopupMenuItem::setItemIcon(const int nIcon) noexcept
 		this->m_nIcon = nIcon;
 }
 
+void XPopupMenuItem::setOverrideStyle(UINT uStyle) noexcept
+{
+	m_eStyleOverride = uStyle;
+}
+
 /*!
  * \brief blah
  *
@@ -105,6 +110,17 @@ const TString& XPopupMenuItem::getItemText() const noexcept
 const int& XPopupMenuItem::getItemIcon() const noexcept
 {
 	return this->m_nIcon;
+}
+
+auto XPopupMenuItem::getStyle() const noexcept
+{
+	if (m_eStyleOverride != gsl::narrow_cast<UINT>(XPopupMenu::MenuStyle::XPMS_None))
+		return gsl::narrow_cast<XPopupMenu::MenuStyle>(m_eStyleOverride);
+
+	if (m_pXParentMenu)
+		return m_pXParentMenu->getStyle();
+
+	return XPopupMenu::MenuStyle::XPMS_None;
 }
 
 bool XPopupMenuItem::IsTooltipsEnabled() const noexcept
@@ -243,7 +259,7 @@ void XPopupMenuItem::DrawItem(const LPDRAWITEMSTRUCT lpdis)
 	this->DrawItemBox(lpdis, lpcol);
 
 	// Item is selected
-	if (this->m_pXParentMenu->getStyle() != XPopupMenu::MenuStyle::XPMS_BUTTON)
+	if (this->getStyle() != XPopupMenu::MenuStyle::XPMS_BUTTON)
 	{
 		if (bSelected)
 		{
@@ -286,7 +302,7 @@ void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const XPME
 	if (!lpdis || !lpcol || !lpdis->hDC || !this->m_pXParentMenu)
 		return;
 
-	switch (this->m_pXParentMenu->getStyle())
+	switch (this->getStyle())
 	{
 	case XPopupMenu::MenuStyle::XPMS_ICY:
 		this->DrawGradient(lpdis->hDC, &lpdis->rcItem, lpcol->m_clrLightBox, lpcol->m_clrBox, true);
@@ -307,7 +323,7 @@ void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const XPME
 	case XPopupMenu::MenuStyle::XPMS_CUSTOM:
 	case XPopupMenu::MenuStyle::XPMS_CUSTOMBIG:
 	{
-		if (this->DrawMenuBitmap(lpdis, (this->m_pXParentMenu->getStyle() == XPopupMenu::MenuStyle::XPMS_CUSTOMBIG), this->m_pXParentMenu->getBackBitmap()))
+		if (this->DrawMenuBitmap(lpdis, (this->getStyle() == XPopupMenu::MenuStyle::XPMS_CUSTOMBIG), this->m_pXParentMenu->getBackBitmap()))
 			break;
 	}
 	// fall through when unable to draw bitmap (no bitmap or error)
@@ -339,7 +355,7 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 	if (!lpdis || !lpcol || !lpdis->hDC || !this->m_pXParentMenu)
 		return;
 
-	switch (this->m_pXParentMenu->getStyle())
+	switch (this->getStyle())
 	{
 	case XPopupMenu::MenuStyle::XPMS_OFFICE2003_REV:
 	{
@@ -359,7 +375,7 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 
 	case XPopupMenu::MenuStyle::XPMS_VERTICAL:
 	case XPopupMenu::MenuStyle::XPMS_VERTICAL_REV:
-		XPopupMenuItem::DrawVerticalBar(lpdis, lpcol, (this->m_pXParentMenu->getStyle() == XPopupMenu::MenuStyle::XPMS_VERTICAL_REV));
+		XPopupMenuItem::DrawVerticalBar(lpdis, lpcol, (this->getStyle() == XPopupMenu::MenuStyle::XPMS_VERTICAL_REV));
 		break;
 
 	case XPopupMenu::MenuStyle::XPMS_ICY:
@@ -680,7 +696,7 @@ void XPopupMenuItem::DrawItemSeparator(const LPDRAWITEMSTRUCT lpdis, const XPMEN
 	const auto x2 = lpdis->rcItem.right;
 	const auto y = (lpdis->rcItem.bottom + lpdis->rcItem.top) / 2;
 
-	switch (this->m_pXParentMenu->getStyle())
+	switch (this->getStyle())
 	{
 	case XPopupMenu::MenuStyle::XPMS_ICY:
 	case XPopupMenu::MenuStyle::XPMS_ICY_REV:

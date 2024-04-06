@@ -172,12 +172,14 @@ public:
 	void setItemText(const TString& tsItemText);
 	void setItemIcon(const int nIcon) noexcept;
 	void setItemTooltip(const TString& tsText) { m_tsTooltipText = tsText; }
+	void setOverrideStyle(UINT uStyle) noexcept;
 
 	const TString& getItemText() const noexcept;
 	const int& getItemIcon() const noexcept;
 	const TString& getItemTooltipText() const noexcept { return m_tsTooltipText; }
 	const XPopupMenu* getParentMenu() const noexcept { return m_pXParentMenu; }
-	const ULONG_PTR& getItemDataBackup() const noexcept	{ return m_dwItemDataBackup; }
+	const ULONG_PTR& getItemDataBackup() const noexcept { return m_dwItemDataBackup; }
+	auto getStyle() const noexcept;
 
 	bool IsTooltipsEnabled() const noexcept;
 
@@ -191,6 +193,7 @@ protected:
 	int m_nIcon{ -1 };						//!< Menu Item Icon Index
 	XPopupMenu* m_pXParentMenu{ nullptr };	//!< Parent XPopupMenu
 	ULONG_PTR m_dwItemDataBackup{};
+	UINT m_eStyleOverride{};
 	bool m_bBigBitmap{ false };				//!< Single large bitmap image used for whole menu?
 	bool m_bSep{ false };					//!< Is Separator ?
 	bool m_bSubMenu{ false };				//!< Has A SubMenu ?
