@@ -896,6 +896,14 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 		return p_Menu->getMarkedText();
 	}
 	break;
+	case TEXT("imagefile"_hash):
+	{
+		if (!p_Menu)
+			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
+
+		return p_Menu->getBackBitmapFilename();
+	}
+	break;
 	case 0:
 	default:
 		throw Dcx::dcxException(TEXT("Unknown prop \"%\""), prop);
