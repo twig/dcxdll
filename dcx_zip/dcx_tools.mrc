@@ -63,6 +63,14 @@ alias dcxml {
   dcx dcxml $1-
 }
 
+; $1 = required version (3.1), $2 = required build (1067)
+alias dcx_check_version {
+  var %v = $gettok($dcx(Version),4,32)
+  if ($gettok(%v,1,45) < $1) return 0
+  if ($gettok(%v,2,45) < $2) return 0
+  return 1
+}
+
 ;xdidtok dialog ID N C Item Text[[C]Item Text[C]Item Text]...
 ;xdidtok $dname 1 0 44 SomeText1,SomeText2
 ;$xdidtok($dname,1,0,44)
