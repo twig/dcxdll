@@ -311,6 +311,20 @@ mIRC(xtreebar)
 			{
 				switch (std::hash<TString>{}(x))		// tok 2+
 				{
+				case L"fullrowselect"_hash: // fullrowselect (off by default)
+					stylef |= TVS_FULLROWSELECT;
+					stylef &= ~TVS_HASLINES;	// this style does not work with the TVS_HASLINES style
+					break;
+				case L"nofullrowselect"_hash: // nofullrowselect
+					stylef &= ~TVS_FULLROWSELECT;
+					break;
+				case L"haslines"_hash: // haslines
+					stylef |= TVS_HASLINES;
+					stylef &= ~TVS_FULLROWSELECT;	// this style does not work with the TVS_FULLROWSELECT style
+					break;
+				case L"nohaslines"_hash: // haslines
+					stylef &= ~TVS_HASLINES;
+					break;
 				case L"trackselect"_hash: // trackselect (off by default)
 					stylef |= TVS_TRACKSELECT;
 					break;
@@ -648,7 +662,7 @@ mIRC(_xtreebar)
 		case TEXT("icons"_hash):
 		{
 			if (index < 1) // if index < 1 make it the last item.
-				index = cnt - 1;
+				index = gsl::narrow_cast<UINT>(cnt - 1);
 
 			//item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
 			item.hItem = MapIndexToItem(index);

@@ -15,7 +15,7 @@ function xtreebar_unload() {
 }
 
 function get_intro_xtreebar() {
-    echo "XTreebar is a command implemented to control the mIRC Treebar.";
+    echo "XTreebar is a command implemented to control the mIRC Treebar. Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/bumper-tree-view-tree-view-control-reference'>TreeView</a>";
 }
 
 function xtreebar_layout($page, $pagelabel) {
@@ -102,22 +102,36 @@ function get_xtreebar(&$XTREEBAR) {
             '__cmd' => '[STYLES]',
             '__eg' => 'tooltips scroll singleexpand',
             '__params' => array(
+                'fullrowselect' => 'Enables fullrowselection.',
+                'nofullrowselect' => 'Disables fullrowselection.',
+
+                'haslines' => 'Enables haslines.',
+                'nohaslines' => 'Disables haslines.',
+
                 'trackselect' => 'Enables hot-tracking.',
                 'notrackselect' => 'Disables hot-tracking.',
+
                 'tooltips' => 'Enables tooltips on items',
                 'notooltips' => 'Disables tooltip on items.',
+
                 'balloon' => 'Enables balloon styled tooltips. See note for further information.',
                 'noballoon' => 'Disables balloon styled tooltips.',
+
                 'infotip' => 'Enables modification of the tooltip text within the $xtreebar_callback. See note for further information.',
                 'noinfotip' => 'Disables modification of the tooltip text.',
+
                 'hasbuttons' => 'Enables &plusmn; buttons on the side of items containing child items for expand/collapse operations.',
                 'nohasbuttons' => 'Disables &plusmn; buttons on the side of items containing child items for expand/collapse operations.',
+
                 'rootlines' => 'Enables lines to be connected to the root item.',
                 'norootlines' => 'Disables lines to be connected to the root item.',
+
                 'singleexpand' => 'Causes the item being selected to expand and the item being unselected to collapse upon selection in the tree view.',
                 'nosingleexpand' => 'Disables [s]singleexpand[/s].',
+
                 'scroll' => 'Enables horizontal and vertical scrolling in the mIRC Treebar.',
                 'noscroll' => 'Disables horizontal and vertical scrolling in the mIRC Treebar.',
+
                 'showsel' => 'Selections will be shown when mIRC Treebar loses focus.',
                 'noshowsel' => 'Selections will not be shown when mIRC Treebar loses focus.',
 
