@@ -1,6 +1,6 @@
 <?php
 function get_intro_link() {
-	echo "Regular link control with icon support.";
+	echo "Regular link control with icon support.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/static-controls'>Static</a>";
 }
 
 function get_styles_link(&$STYLES) {

@@ -3,6 +3,7 @@ function get_intro_datetime() {
 	echo 'The DateTime Picker control allows users to select a date or time in a neat way, automatically enclosing the calendar control and also providing UpDown spinners on date/time values.<br />';
 	echo '<br />';
 	echo 'It is highly recommended that you familiarise yourself with how the mIRC functions $ctime and $asctime() functions work before using this control.<br />';
+	echo "<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/date-and-time-picker-control-reference'>Date And Time Picker</a>";
 }
 
 

@@ -1,6 +1,6 @@
 <?php
 function get_intro_tab() {
-	echo "The tab control is a collection of controls which allows the user to select a visible page at a time.";
+	echo "The tab control is a collection of controls which allows the user to select a visible page at a time.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/tab-control-reference'>Tab</a>";
 }
 
 

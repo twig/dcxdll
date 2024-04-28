@@ -1,6 +1,6 @@
 <?php
 function get_intro_webctrl() {
-	echo "Web HTML control.";
+	echo "Web HTML control.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/static-controls'>Static</a>";
 }
 
 

@@ -1,6 +1,6 @@
 <?php
 function get_intro_colorcombo() {
-	echo "This control enables you to create a colorcombo.";
+	echo "This control enables you to create a colorcombo.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/combo-boxes'>ComboBox</a>";
 }
 
 function get_styles_colorcombo(&$STYLES) {

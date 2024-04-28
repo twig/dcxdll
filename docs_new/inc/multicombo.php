@@ -1,6 +1,6 @@
 <?php
 function get_intro_multicombo() {
-	echo "This control enables you to create a multicombo control, which is a custom combo box that supports user defined dropdowns.";
+	echo "This control enables you to create a multicombo control, which is a custom combo box that supports user defined dropdowns.<br/>Root control: custom";
 }
 
 

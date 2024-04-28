@@ -5,6 +5,7 @@ function get_intro_window() {
 You can dock any number of windows as long as each is a separate control.<br />
 <br />
 Please take note that the windows are <b>ejected</b> when the dialog is closed.
+<br/>Root control: custom
 <?php
 }
 

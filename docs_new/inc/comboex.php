@@ -1,6 +1,6 @@
 <?php
 function get_intro_comboex() {
-	echo "This control enables you to create a comboex control, which is a combo box extended to support icons.";
+	echo "This control enables you to create a comboex control, which is a combo box extended to support icons.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/comboboxex-control-reference'>ComboBoxEx</a>";
 }
 
 

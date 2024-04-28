@@ -370,7 +370,7 @@ function get_events_xdid(&$EVENTS) {
 			),
 		),
 		'dpichanged' => array(
-			'__desc' => 'Event triggered when the dialogs dpi has changed.',
+			'__desc' => 'Event triggered when the dialogs dpi has changed. (This will only be triggered once mIRC updates its dpi awareness)',
 			'__cmd' => 'NEWDPI X Y W H OLDDPI',
 			'__eg' => '120 4 4 20 20 96',
 			'__params' => array(

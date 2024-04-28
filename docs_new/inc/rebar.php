@@ -1,6 +1,6 @@
 <?php
 function get_intro_rebar() {
-	echo "This control enables you to create a rebar control. This control acts as a container for other controls. The rebar control is consisted of <b>bands</b> that host an icon, text and a child control.";
+	echo "This control enables you to create a rebar control. This control acts as a container for other controls. The rebar control is consisted of <b>bands</b> that host an icon, text and a child control.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/rebar-control-reference'>ReBar</a>";
 }
 
 

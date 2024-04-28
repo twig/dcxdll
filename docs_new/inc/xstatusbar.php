@@ -16,6 +16,7 @@ function xstatusbar_unload() {
 
 function get_intro_xstatusbar() {
 	echo 'The /xstatusbar command is used to create and control a statusbar docked directly within the main mIRC window, without the need of creating a dialog to host it.';
+    echo "<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/status-bar-reference'>StatusBar</a>";
 }
 
 // TODO: fix this up after

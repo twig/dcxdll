@@ -1,6 +1,6 @@
 <?php
 function get_intro_list() {
-	echo "Normal listbox control.";
+	echo "Normal listbox control.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/list-boxes'>ListBox</a>";
 }
 
 

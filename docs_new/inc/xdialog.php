@@ -881,7 +881,7 @@ function get_events_xdialog(&$EVENTS) {
                         '__isdialog' => true,
                 ),
 		'dpichanged' => array(
-			'__desc' => 'Event triggered when the dialogs dpi has changed.',
+			'__desc' => 'Event triggered when the dialogs dpi has changed. (This will only be triggered once mIRC updates its dpi awareness)',
 			'__cmd' => 'NEWDPI X Y W H OLDDPI',
 			'__eg' => '120 4 4 20 20 96',
 			'__params' => array(
@@ -897,4 +897,169 @@ function get_events_xdialog(&$EVENTS) {
 		),
 	);
 }
+function get_ctrldcxml_xdialog(&$CTRLDCXMLS) {
+	$CTRLDCXMLS = array(
+		"dialog" => array(
+			'__desc' => 'Defines this dialog. Contains <a href="#ctrldcxml.menubar">&lt;menubar&gt;</a>, <a href="#ctrldcxml.pane">&lt;pane&gt;</a>, <a href="#ctrldcxml.control">&lt;control&gt;</a>, <a href="#ctrldcxml.icons">&lt;icons&gt;</a>, <a href="#ctrldcxml.cursors">&lt;cursors&gt;</a>, and <a href="#ctrldcxml.styles">&lt;styles&gt;</a> tags.',
+			'__cmd' => '',
+			'__eg' => 'cascade="v" margin="5 5 5 5"',
+			'__params' => array(
+				'cascade' => array(
+					'__desc' => 'The cla direction for the pane',
+					'__values' => array(
+						'v' => 'Vertical',
+						'h' => 'Horizontal',
+					),
+				),
+				'margin' => array(
+					'__desc' => 'The spacing to leave round the inside of the pane.',
+					'__eg' => '5 5 5 5',
+				),
+				'width' => array(
+					'__desc' => 'create a fixed width pane of the specified size.',
+					'__eg' => '50',
+				),
+				'height' => array(
+					'__desc' => 'create a fixed height pane of the specified size.',
+					'__eg' => '50',
+				),
+				'weight' => array(
+					'__desc' => 'The weight to give this pane when calculating the layout.',
+					'__eg' => '50',
+				),
+				'name' => 'The name of the dialog.',
+				'caption' => 'The title of the dialog.',
+				'border' => array(
+					'__desc' => 'The border styles',
+					'__values' => array(
+						'b' => "Regular Border.",
+						'c' => "Clientedge border.",
+						'd' => "Dialog frame border.",
+						'f' => "Dialog modal frame border. (Similar to [v]+d[/v])",
+						'h' => "Context help <b>?</b> button. (Needs [v]+y[/v] and can't be used with [v]+m[/v] or [v]+n[/v])",
+						'm' => "Maximize button. (Requires [v]+y[/v] and can't be used with [v]+m[/v] or [v]+n[/v])",
+						'n' => "Minimize button. (Requires [v]+y[/v] and can't be used with [v]+m[/v] or [v]+n[/v])",
+						'o' => "Tool window. (Can't be used with [v]+h[/v], [v]+m[/v] or [v]n[/v])",
+						's' => "Staticedge border.",
+						't' => "Has a titlebar.",
+						'v' => "Vista Aero styled dialog. [o]2k+[/o]",
+						'w' => "Windowedge border.",
+						'x' => 'Enables composite window rendering. [o]XP+[/o]',
+						'y' => "Sysmenu (the little X button)",
+						'z' => "Resizeable border.",
+					),
+				),
+				'bgstyle' => array(
+					'__desc' => 'The background styles',
+					'__values' => array(
+						'b' => "Specifies background color.",
+						'i' => 'Specifies background image.',
+						'n' => 'Reset the background image position to top left. (Used with [v]+i[/v] flag)',
+						't' => 'Tile the background image. (Used with [v]+i[/v] flag)',
+						's' => 'Stretch the background image. (Used with [v]+i[/v] flag)',
+						'c' => 'Center the background image horizontally. (Used with [v]+i[/v] flag)',
+						'v' => 'Center the background image vertically. (Used with [v]+i[/v] flag)',
+						'r' => 'Right-align the background image. (Used with [v]+i[/v] flag)',
+						'o' => 'Bottom-align the background image. (Used with [v]+i[/v] flag)',
+					),
+				),
+				'tooltipflags' => array(
+					'__desc' => 'The dialogs tooltip control flags.',
+					'__values' => array(
+						'a' => "Tooltip will always be displayed, even if mIRC is not the active application.",
+						'b' => 'Tooltip uses the balloon shape.',
+						'f' => 'No fade-in effect.',
+						'p' => 'Allows the ampersand character (&amp;) to be displayed',
+						's' => 'No slide-in effect.',
+					),
+				),
+				'bgcolour' => 'The background colour of the dialog.',
+				'x' => 'Sets the x position of the dialog.',
+				'y' => 'Sets the y position of the dialog.',
+				'width' => 'Sets the width of the dialog.',
+				'height' => 'Sets the height of the dialog.',
+				'src' => 'Sets the image file to be used as a background image. Needs [v]bgstyle[/v] with [v]+i[/v]',
+				'drag' => 'Enabled ghost dragging of the dialog.',
+				'ghostalpha' => 'Sets the alpha level to use when ghost dragging the dialog. 0-255, defaults to 255 (no alpha)',
+				'alpha' => 'Sets the alpha level the dialog. 0-255, defaults to 255 (no alpha)',
+				'transparentbg' => 'Sets colour to use as a transparent colour in the background image.',
+				'keycolour' => '',
+				'vistaoffsets' => '',
+				'nocla' => 'Disabled cla for child controls.',
+				'' => '',
+			),
+		),
+		"cursors" => 'Defines the cursors to use with this dialog. Contains <a href="#ctrldcxml.cursor">&lt;cursor&gt;</a> tags with the actual cursor information.',
+		"icons" => 'Defines the icons to use with this dialog, these override the ones defined in <a href="#ctrldcxml.dialogs">&lt;dialogs&gt;</a>. Contains <a href="#ctrldcxml.icon">&lt;icon&gt;</a> tags with the actual icon information.',
+		"styles" => 'Defines the styles to use with this dialog, these override the ones defined in <a href="#ctrldcxml.dialogs">&lt;dialogs&gt;</a>. Contains <a href="#ctrldcxml.style">&lt;style&gt;</a> tags with the actual style information.',
+		"menubar" => array(
+			'__desc' => 'Defines the custom menubar to use with this dialog. Contains <a href="#ctrldcxml.item">&lt;item&gt;</a> and <a href="#ctrldcxml.colours">&lt;colours&gt;</a> tags.',
+			'__cmd' => '',
+			'__eg' => 'enable="1"',
+			'__params' => array(
+				'enable' => array(
+					'__desc' => 'Enables the drawing of the custom menubar.',
+					'__values' => array(
+						'1' => 'Enable',
+						'0' => 'Disable (default)',
+					),
+				),
+				'drawborder' => array(
+					'__desc' => 'Enables the drawing of a border round the custom menubars items.',
+					'__values' => array(
+						'1' => 'Enable',
+						'0' => 'Disable (default)',
+					),
+				),
+				'roundedborder' => array(
+					'__desc' => 'Enables the drawing of a rounded border round the custom menubars items.',
+					'__values' => array(
+						'1' => 'Enable',
+						'0' => 'Disable (default)',
+					),
+				),
+				'shadowtext' => array(
+					'__desc' => 'Enables the drawing of shadow effect text in the custom menubars items.',
+					'__values' => array(
+						'1' => 'Enable',
+						'0' => 'Disable (default)',
+					),
+				),
+				'src' => 'Sets the background image of the custom menubar. (Only BMP files atm)',
+			),
+		),
+		"pane" => array(
+			'__desc' => 'Defines a cla pane within the dialog. Contains [v]<a href="#ctrldcxml.pane">&lt;pane&gt;</a>[/v] and [v]<a href="#ctrldcxml.control">&lt;control&gt;</a>[/v] tags.',
+			'__cmd' => '',
+			'__eg' => 'cascade="v" margin="5 5 5 5"',
+			'__params' => array(
+				'cascade' => array(
+					'__desc' => 'The cla direction for the pane',
+					'__values' => array(
+						'v' => 'Vertical',
+						'h' => 'Horizontal',
+					),
+				),
+				'margin' => array(
+					'__desc' => 'The spacing to leave round the inside of the pane.',
+					'__eg' => '5 5 5 5',
+				),
+				'width' => array(
+					'__desc' => 'create a fixed width pane of the specified size.',
+					'__eg' => '50',
+				),
+				'height' => array(
+					'__desc' => 'create a fixed height pane of the specified size.',
+					'__eg' => '50',
+				),
+				'weight' => array(
+					'__desc' => 'The weight to give this pane when calculating the layout.',
+					'__eg' => '50',
+				),
+			),
+		),
+
+	);
+}
+
 ?>

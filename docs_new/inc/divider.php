@@ -1,6 +1,6 @@
 <?php
 function get_intro_divider() {
-	echo "This control enables you to create a divider control. This control acts as a container for other controls. The divider control is consisted of two panes that host a child control. The panes are resized using the divider bar between them. The divider control resizes automaticaly it's child windows when the bar is moved. Multiple dividers can be nested for advanced UI interfaces.";
+	echo "This control enables you to create a divider control. This control acts as a container for other controls. The divider control is consisted of two panes that host a child control. The panes are resized using the divider bar between them. The divider control resizes automaticaly it's child windows when the bar is moved. Multiple dividers can be nested for advanced UI interfaces.<br/>Root control: custom";
 }
 
 

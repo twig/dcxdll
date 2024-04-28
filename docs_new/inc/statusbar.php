@@ -1,6 +1,6 @@
 <?php
 function get_intro_statusbar() {
-	echo "This control enables you to create a status bar.";
+	echo "This control enables you to create a status bar.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/status-bar-reference'>StatusBar</a>";
 }
 
 

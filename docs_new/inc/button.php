@@ -1,6 +1,6 @@
 <?php
 function get_intro_button() {
-	echo "This control enables you to create a button control.";
+	echo "This control enables you to create a button control.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/buttons'>Button</a>";
 }
 
 function get_xdid_button(&$XDID) {

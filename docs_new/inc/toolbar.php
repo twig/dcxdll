@@ -1,6 +1,6 @@
 <?php
 function get_intro_toolbar() {
-	echo "This control enables you to create a toolbar.";
+	echo "This control enables you to create a toolbar.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/toolbar-control-reference'>ToolBar</a>";
 }
 
 

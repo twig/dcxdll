@@ -1,6 +1,6 @@
 <?php
 function get_intro_radio() {
-	echo "Radio control.";
+	echo "Radio control.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/buttons'>Button</a>";
 }
 
 

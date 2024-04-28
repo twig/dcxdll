@@ -1,6 +1,6 @@
 <?php
 function get_intro_updown() {
-	echo "Updown control (without an edit control buddy.)";
+	echo "Updown control (without an edit control buddy.)<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/buttons'>Button</a>";
 }
 
 

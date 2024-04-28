@@ -1,6 +1,6 @@
 <?php
 function get_intro_scroll() {
-	echo "This control enables you to create a scroll bar.";
+	echo "This control enables you to create a scroll bar.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/scroll-bars'>Scroll Bar</a>";
 }
 
 

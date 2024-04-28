@@ -1,6 +1,7 @@
 <?php
 function get_intro_pager() {
 	echo 'The pager control manages the automatic scrolling of its child controls. This can be created within a dialog, panel or box control. It can contain a toolbar, rebar, panel, tab, box, image, pager, @window or dialog control.';
+	echo "<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/pager-control-reference'>Pager</a>";
 }
 
 function get_styles_pager(&$STYLES) {

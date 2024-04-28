@@ -1,6 +1,6 @@
 <?php
 function get_intro_edit() {
-	echo "Normal edit control.";
+	echo "Normal edit control.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/edit-controls'>Edit</a>";
 }
 
 

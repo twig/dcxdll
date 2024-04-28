@@ -1,6 +1,7 @@
 <?php
 function get_intro_image() {
 	echo 'Image control that lets you display BMP, GIF, JPEG, Exif, PNG, TIFF, ICON, WMF and EMF images. However, if GDI+ is not loaded, DCX can only support native BMP format files. See <a class="value" href="dcx.htm#general.IsUsingGDI">$dcx(IsUsingGDI)</a>.';
+	echo "<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/static-controls'>Static</a>";
 }
 
 function get_styles_image(&$STYLES) {

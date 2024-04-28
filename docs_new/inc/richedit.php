@@ -2,7 +2,7 @@
 function get_intro_richedit() {
 	echo "This control enables you to create a richedit. The richedit interprets the mIRC control codes to display the colors and bold/underline effects. The richedit control loads it's internal <a>Color Palette</a> as the actual mIRC colors as default behavior. You can modify the colors using the /xdid commands.<br />
 <br />
-The <a>Color Palette</a> is the richedit's internal color list of 16 values used to process mIRC color codes and convert them to disaplyed colors.";
+The <a>Color Palette</a> is the richedit's internal color list of 16 values used to process mIRC color codes and convert them to disaplyed colors.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/rich-edit-controls'>RichEdit</a>";
 }
 
 
@@ -19,6 +19,9 @@ function get_styles_richedit(&$STYLES) {
 		'tooltips' => 'The richedit will have a tooltip.',
 		'showlinenumbers' => 'Show line numbers in a multi line control',
 		'unlockgutter' => 'Allow resizing the gutter area.',
+		'zoomable' => 'Control is zoomable. [o]win10+[/o]',
+		'eollf' => 'Allow line feeds to end lines. [o]win10+[/o]',
+		'eolcr' => 'Allow carriage returns to end lines. [o]win10+[/o]',
 	);
 }
 
@@ -196,6 +199,16 @@ function get_xdidprops_richedit(&$XDIDPROPS) {
 		"guttercolours" => array(
 		    '__desc' => 'This returns the colours used to draw line numbers.',
 		    '__notes' => 'The return value is [p]Selected line Background Colour[/p] [p]Background Colour[/p] [p]Selected Line Text Colour[/p] [p]Text Colour[/p] [p]Border Colour[/p]',
+		),
+		"zoom" => array(
+		    '__desc' => 'This property returns the zoom level. [o]win10+[/o]',
+			'__return' => array(
+				"ZOOM" => "- Level of zoom",
+			),
+		    '__notes' => array(
+				'Only works on controls that have the [s]zoomable[/s] style.',
+				"The zoom ratio is always between 1/64 and 64 NOT inclusive, 1.0 = no zoom",
+			),
 		),
 	);
 }

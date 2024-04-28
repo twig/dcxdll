@@ -1,6 +1,6 @@
 <?php
 function get_intro_listview() {
-	echo "This control enables you to create a listview in 4 different view styles: icon, small icon, list and report.";
+	echo "This control enables you to create a listview in 4 different view styles: icon, small icon, list and report.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/list-view-control-reference'>ListView</a>";
 }
 
 
@@ -701,6 +701,12 @@ function get_xdidprops_listview(&$XDIDPROPS) {
 		),
 		"text" => array(
 			'__desc' => "This property lets you retreive a Nth listview item text.",
+			'__cmd' => 'N, (NSUB)',
+			'__eg' => '1, 2',
+			'__notes' => 'If [p]NSUB[/p] is not specified, it will return the first column.',
+		),
+		"textlen" => array(
+			'__desc' => "This property lets you retreive a Nth listview items text length.",
 			'__cmd' => 'N, (NSUB)',
 			'__eg' => '1, 2',
 			'__notes' => 'If [p]NSUB[/p] is not specified, it will return the first column.',

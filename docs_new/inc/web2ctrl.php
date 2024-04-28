@@ -1,6 +1,6 @@
 <?php
 function get_intro_web2ctrl() {
-	echo "WebView2 HTML control.<br/>
+	echo "WebView2 HTML control.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/static-controls'>Static</a><br/>
 NB: This control requires WebView2Loader.dll to be present somewhere LoadLibrary() can find it, or in the same directory as dcx.dll.<br/>
 NB: The control also requires WebView2 installed & will try to install it if not found.<br/>
 <a href='https://developer.microsoft.com/en-us/microsoft-edge/webview2/'>Download WebView2</a>";

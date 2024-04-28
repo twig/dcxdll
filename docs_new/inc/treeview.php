@@ -22,7 +22,7 @@ function treeview_layout($page, $pagelabel) {
 
 
 function get_intro_treeview() {
-	echo "This control enables you to create a treeview.";
+	echo "This control enables you to create a treeview.<p>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/tree-view-control-reference'>TreeView</a>";
 }
 
 

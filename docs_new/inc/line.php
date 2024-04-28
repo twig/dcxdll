@@ -1,6 +1,6 @@
 <?php
 function get_intro_line() {
-	echo "The line control is a graphical line, much like the side of a box control.";
+	echo "The line control is a graphical line, much like the side of a box control.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/static-controls'>Static</a>";
 }
 
 function get_styles_line(&$STYLES) {

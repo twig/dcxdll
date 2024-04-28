@@ -1,6 +1,6 @@
 <?php
 function get_intro_trackbar() {
-	echo "This control enables you to create a track bar.";
+	echo "This control enables you to create a track bar.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/trackbar-control-reference'>TrackBar</a>";
 }
 
 

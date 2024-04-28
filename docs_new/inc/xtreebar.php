@@ -15,7 +15,7 @@ function xtreebar_unload() {
 }
 
 function get_intro_xtreebar() {
-    echo "XTreebar is a command implemented to control the mIRC Treebar. Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/bumper-tree-view-tree-view-control-reference'>TreeView</a>";
+    echo "XTreebar is a command implemented to control the mIRC Treebar.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/tree-view-control-reference'>TreeView</a>";
 }
 
 function xtreebar_layout($page, $pagelabel) {
@@ -185,7 +185,7 @@ function get_xtreebar(&$XTREEBAR) {
 
 function get_xtreebarprops(&$XDIDPROPS) {
     $XDIDPROPS = array(
-        'icon' => array(
+        'icons' => array(
             '__desc' => 'Returns the current icons being used by the mIRC TreeBar item.',
             '__cmd' => 'N',
             '__eg' => '3',

@@ -1,6 +1,6 @@
 <?php
 function get_intro_pbar() {
-	echo "This control enables you to create a progress bar.";
+	echo "This control enables you to create a progress bar.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/progress-bar-control-reference'>ProgressBar</a>";
 }
 
 function get_xdid_pbar(&$XDID) {

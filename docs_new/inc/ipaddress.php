@@ -1,6 +1,6 @@
 <?php
 function get_intro_ipaddress() {
-	echo "IP Address control.";
+	echo "IP Address control.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/ip-address-control-reference'>IP Address</a>";
 }
 
 function get_styles_ipaddress(&$STYLES) {

@@ -1,6 +1,6 @@
 <?php
 function get_intro_directshow() {
-	echo 'The DirectShow control allows playback of media files. Formats which can be played will depend upon the codecs avaiable on the system.';
+	echo "The DirectShow control allows playback of media files. Formats which can be played will depend upon the codecs avaiable on the system.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/static-controls'>Static</a>";
 }
 
 
