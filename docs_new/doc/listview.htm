@@ -65,7 +65,7 @@
 	</td>
 <td><table class="description">
 	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>Listview</td></tr>
-	<tr><td>This control enables you to create a listview in 4 different view styles: icon, small icon, list and report.<br /><br />
+	<tr><td>This control enables you to create a listview in 4 different view styles: icon, small icon, list and report.<br/>Root control: <a href='https://learn.microsoft.com/en-gb/windows/win32/controls/list-view-control-reference'>ListView</a><br /><br />
 <div style="text-align: center;">
 	<img src="images/listview.png" alt="" />
 </div>
@@ -2004,6 +2004,20 @@
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">NSUB</a> is not specified, it will return the first column.</td></tr></table>
 <br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.textlen"></a>$xdid().textlen	</td></tr>
+	<tr><td colspan="2">This property lets you retreive a Nth listview items text length.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, N, (NSUB)).textlen</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 1, 2).textlen</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">NSUB</a> is not specified, it will return the first column.</td></tr></table>
+<br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>Listview Events</td></tr>
 	<tr><td>These events are fired when activity occurs in the Listview control.</td></tr>
@@ -2671,6 +2685,7 @@
 		<a class='flag' href="#xdidprop.state"><div>state</div></a>
 		<a class='flag' href="#xdidprop.tbitem"><div>tbitem</div></a>
 		<a class='flag' href="#xdidprop.text"><div>text</div></a>
+		<a class='flag' href="#xdidprop.textlen"><div>textlen</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
 	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
@@ -2700,7 +2715,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2024</td>
-		<td style="text-align: right;">Last Updated: 8th March, 24</td>
+		<td style="text-align: right;">Last Updated: 28th April, 24</td>
 	</tr>
 </table>
 <div style="text-align: center;">
