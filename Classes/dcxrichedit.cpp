@@ -44,7 +44,7 @@ DcxRichEdit::DcxRichEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (const auto dStyle = parseExEditStyles(styles); dStyle)
-		Edit_SetExtendedStyle(m_Hwnd, dStyle, dStyle);
+		Dcx::dcxEdit_SetExtendedStyle(m_Hwnd, dStyle, dStyle);
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -61,7 +61,8 @@ DcxRichEdit::DcxRichEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 
 	this->setContentsFont();
 
-	SendMessage(m_Hwnd, EM_SETEVENTMASK, 0, (ENM_SELCHANGE | ENM_CHANGE | ENM_LINK));
+	Dcx::dcxRichEdit_SetEventMask(m_Hwnd, (ENM_SELCHANGE | ENM_CHANGE | ENM_LINK));
+
 	//SendMessage(m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, 0);
 
 	if (styles.istok(TEXT("tooltips")))
@@ -148,17 +149,16 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (numtok > 3)
 			line = input.getnexttok().to_int() - 1;		// tok 4
 
-		if ((line < 0) || (line >= Edit_GetLineCount(m_Hwnd)))
+		if ((line < 0) || (line >= Dcx::dcxEdit_GetLineCount(m_Hwnd)))
 			throw Dcx::dcxException("Invalid line number.");
 
 		// get index of first character in line
-		const auto offset = SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(line), 0);
+		const auto offset = Dcx::dcxEdit_GetLineIndex(m_Hwnd, line);
 		// get length of the line we want to copy
-		const auto len = SendMessage(m_Hwnd, EM_LINELENGTH, gsl::narrow_cast<WPARAM>(offset), 0) + 1;
+		const auto len = Dcx::dcxEdit_LineLength(m_Hwnd, offset) + 1;
 		// create and fill the buffer
 		auto p = std::make_unique<TCHAR[]>(len);
-		*(reinterpret_cast<LPWORD>(p.get())) = gsl::narrow_cast<WORD>(len);
-		SendMessage(m_Hwnd, EM_GETLINE, gsl::narrow_cast<WPARAM>(line), reinterpret_cast<LPARAM>(p.get()));
+		Dcx::dcxEdit_GetLine(m_Hwnd, line, p.get(), len);
 
 		// terminate the string at the right position
 		gsl::at(p, len - 1) = TEXT('\0');
@@ -171,7 +171,7 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"num"_hash:
 	{
 		if (this->isStyle(WindowStyle::ES_MultiLine))
-			_ts_snprintf(szReturnValue, TEXT("%d"), gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_GETLINECOUNT, 0U, 0L)));
+			_ts_snprintf(szReturnValue, TEXT("%d"), Dcx::dcxEdit_GetLineCount(m_Hwnd));
 		else {
 			// single line control so always 1 line.
 			szReturnValue = TEXT('1');
@@ -187,9 +187,9 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
 			// current line
-			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<WPARAM>(-1), 0) + 1;
+			const auto iLinePos = Dcx::dcxEdit_LineFromChar(m_Hwnd, -1) + 1;
 			// line offset
-			const auto CharPos = (dwAbsoluteStartSelPos - gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(-1), 0)));
+			const auto CharPos = (dwAbsoluteStartSelPos - Dcx::dcxEdit_GetLineIndex(m_Hwnd, -1));
 
 			_ts_snprintf(szReturnValue, TEXT("%d %u %u"), iLinePos, CharPos, dwAbsoluteStartSelPos);
 		}
@@ -204,7 +204,7 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	{
 		CHARRANGE c{};
 
-		SendMessage(m_Hwnd, EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&c));
+		Dcx::dcxRichEdit_ExGetSel(m_Hwnd, &c);
 		_ts_snprintf(szReturnValue, TEXT("%d"), c.cpMin);
 	}
 	break;
@@ -213,7 +213,7 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	{
 		CHARRANGE c{};
 
-		SendMessage(m_Hwnd, EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&c));
+		Dcx::dcxRichEdit_ExGetSel(m_Hwnd, &c);
 		_ts_snprintf(szReturnValue, TEXT("%d"), c.cpMax);
 	}
 	break;
@@ -222,7 +222,7 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	{
 		CHARRANGE c{};
 
-		SendMessage(m_Hwnd, EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&c));
+		Dcx::dcxRichEdit_ExGetSel(m_Hwnd, &c);
 		_ts_snprintf(szReturnValue, TEXT("%d %d"), c.cpMin, c.cpMax);
 	}
 	break;
@@ -231,10 +231,10 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	{
 		CHARRANGE c{};
 
-		SendMessage(m_Hwnd, EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&c));
+		Dcx::dcxRichEdit_ExGetSel(m_Hwnd, &c);
 		auto buffer = std::make_unique<TCHAR[]>(gsl::narrow_cast<size_t>(c.cpMax) - c.cpMin);
 
-		SendMessage(m_Hwnd, EM_GETSELTEXT, 0, reinterpret_cast<LPARAM>(buffer.get()));
+		Dcx::dcxRichEdit_GetSelText(m_Hwnd, buffer.get());
 		szReturnValue = buffer.get();
 	}
 	break;
@@ -255,7 +255,7 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (tsFlags == TEXT("utf8"))
 			iFlags = gsl::narrow_cast<UINT>(UTF8Flags);
 
-		SendMessage(m_Hwnd, EM_STREAMOUT, gsl::narrow_cast<UINT>(iFlags), reinterpret_cast<LPARAM>(&es));
+		Dcx::dcxRichEdit_StreamOut(m_Hwnd, iFlags, &es);
 
 		const TString tsOut(rtf.str().c_str());	// handles any char convertions needed.
 		szReturnValue = tsOut.to_chr();
@@ -308,9 +308,9 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	{
 		//Supported in Windows 10 1809 and later. The edit control needs to have the ES_EX_ZOOMABLE extended style set, for this message to have an effect
 		//(the zoom ratio is always between 1/64 and 64) NOT inclusive, 1.0 = no zoom
-		//if (int nNumerator{}, nDenominator{}; Dcx::dcxEdit_GetZoom(m_Hwnd, &nNumerator, &nDenominator))
-		//	_ts_snprintf(szReturnValue, TEXT("%d.%d"), nNumerator, nDenominator);
-		//else
+		if (int nNumerator{}, nDenominator{}; Dcx::dcxEdit_GetZoom(m_Hwnd, &nNumerator, &nDenominator))
+			_ts_snprintf(szReturnValue, TEXT("%d.%d"), nNumerator, nDenominator);
+		else
 			szReturnValue = TEXT("1.0");
 	}
 	break;
@@ -334,7 +334,7 @@ bool DcxRichEdit::SaveRichTextToFile(HWND hWnd, const TString& tsFilename) noexc
 
 	EDITSTREAM es{ reinterpret_cast<DWORD_PTR>(hFile), 0U, StreamOutToFileCallback };
 
-	SendMessage(hWnd, EM_STREAMOUT, SF_RTF, reinterpret_cast<LPARAM>(&es));
+	Dcx::dcxRichEdit_StreamOut(hWnd, SF_RTF, &es);
 	return (es.dwError == 0);
 }
 
@@ -352,7 +352,7 @@ bool DcxRichEdit::LoadRichTextFromFile(HWND hWnd, const TString& tsFilename) noe
 
 	EDITSTREAM es{ reinterpret_cast<DWORD_PTR>(hFile), 0U,StreamInFromFileCallback };
 
-	SendMessage(hWnd, EM_STREAMIN, SF_RTF, reinterpret_cast<LPARAM>(&es));
+	Dcx::dcxRichEdit_StreamIn(hWnd, SF_RTF, &es);
 	return (es.dwError == 0);
 }
 
@@ -641,12 +641,12 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 		if (clrColor == CLR_INVALID)
 		{
-			SendMessage(m_Hwnd, EM_SETBKGNDCOLOR, 1, 0);
+			Dcx::dcxRichEdit_SetBkgndColor(m_Hwnd, TRUE, 0);
 			this->setBackColor(GetSysColor(COLOR_WINDOWTEXT));
 		}
 		else
 		{
-			SendMessage(m_Hwnd, EM_SETBKGNDCOLOR, 0, gsl::narrow_cast<LPARAM>(clrColor));
+			Dcx::dcxRichEdit_SetBkgndColor(m_Hwnd, 0, clrColor);
 			this->setBackColor(clrColor);
 		}
 		this->redrawWindow();
@@ -846,12 +846,12 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		c.cpMax = (numtok > 4) ? input.getnexttok().to_int() : c.cpMin;	// tok 5
 
 		SendMessage(m_Hwnd, EM_EXSETSEL, 0, reinterpret_cast<LPARAM>(&c));
-		SendMessage(m_Hwnd, EM_SCROLLCARET, 0, 0);
+		Dcx::dcxEdit_ScrollCaret(m_Hwnd);
 	}
 	// xdid -V [NAME] [ID]
 	else if (flags[TEXT('V')])
 	{
-		SendMessage(m_Hwnd, EM_SCROLLCARET, 0, 0);
+		Dcx::dcxEdit_ScrollCaret(m_Hwnd);
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1|-] [0|1]
 	else if (flags[TEXT('y')])
@@ -1495,7 +1495,7 @@ void DcxRichEdit::setRicheditFont(const TString& tsFlags, const TString& tsChars
 	tsInput.addtok(tsCharset);
 	tsInput.addtok(iSize);
 	tsInput.addtok(tsFontname);
-	
+
 	if (LOGFONT lf{ }; ParseCommandToLogfont(tsInput, &lf))
 		setControlFont(CreateFontIndirect(&lf), FALSE);
 

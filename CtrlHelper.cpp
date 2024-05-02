@@ -32,14 +32,14 @@ namespace Dcx
 		LVITEM lvi{};
 		lvi.iSubItem = nSubItem;
 
-		LRESULT len{}, cap{}, check{};
+		size_t len{}, cap{}, check{};
 		do {
-			cap = gsl::narrow_cast<int>(tsRes.capacity_cch());
+			cap = tsRes.capacity_cch();
 			check = (cap - 1);
 			lvi.pszText = tsRes.to_chr();
-			lvi.cchTextMax = cap;
+			lvi.cchTextMax = gsl::narrow_cast<int>(cap);
 
-			len = SendMessage(hwnd, LVM_GETITEMTEXT, nItem, reinterpret_cast<LPARAM>(&lvi));
+			len = gsl::narrow_cast<size_t>(SendMessage(hwnd, LVM_GETITEMTEXT, nItem, reinterpret_cast<LPARAM>(&lvi)));
 			if (len >= check)
 				tsRes.reserve(cap * 2);
 
@@ -338,6 +338,44 @@ namespace Dcx
 		return tvh;
 	}
 
+	namespace details
+	{
+		static HTREEITEM dcxTreeView_WalkChildItems(_In_ HWND mHwnd, _In_ HTREEITEM hParent, _Inout_ size_t& nCnt, _In_ const size_t& nIndex) noexcept
+		{
+			if ((!mHwnd) || (!hParent))
+				return nullptr;
+
+			for (auto hItem = Dcx::dcxTreeView_GetChild(mHwnd, hParent); hItem; hItem = Dcx::dcxTreeView_GetNextSibling(mHwnd, hItem))
+			{
+				if (++nCnt == nIndex)
+					return hItem;
+
+				if (auto hRes = dcxTreeView_WalkChildItems(mHwnd, hItem, nCnt, nIndex); hRes)
+					return hRes;
+			}
+			return nullptr;
+		}
+	}
+
+	[[nodiscard]] HTREEITEM dcxTreeView_MapIndexToItem(_In_ HWND hTree, _In_ size_t nIndex) noexcept
+	{
+		if ((!hTree) || (!IsWindow(hTree)))
+			return nullptr;
+
+		size_t nCnt{};
+
+		for (auto hItem = Dcx::dcxTreeView_GetRoot(hTree); hItem; hItem = Dcx::dcxTreeView_GetNextSibling(hTree, hItem))
+		{
+			if (++nCnt == nIndex)
+				return hItem;
+
+			if (auto hRes = details::dcxTreeView_WalkChildItems(hTree, hItem, nCnt, nIndex); hRes)
+				return hRes;
+		}
+
+		return nullptr;
+	}
+
 	/// <summary>
 	/// Get the note text.
 	/// </summary>
@@ -380,7 +418,7 @@ namespace Dcx
 	{
 		TString tsRes(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
 
-		dcxStatusBar_GetTipText(hwnd, iPart, tsRes.capacity_cch(), tsRes.to_chr());
+		dcxStatusBar_GetTipText(hwnd, iPart, gsl::narrow_cast<int>(tsRes.capacity_cch()), tsRes.to_chr());
 
 		return tsRes;
 	}

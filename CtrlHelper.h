@@ -10,6 +10,31 @@
 
 namespace Dcx
 {
+	// Window
+
+	/// <summary>
+	/// Get the windows icon.
+	/// </summary>
+	/// <param name="hwnd">- A handle to a window.</param>
+	/// <param name="uType">- The icon type wanted ICON_SMALL ICON_SMALL2 ICON_BIG</param>
+	/// <param name="uDpi">- The dpi of the requested icon.</param>
+	/// <returns>The icon requested or nullptr if no icon set.</returns>
+	inline HICON dcxWindow_GetIcon(HWND hwnd, UINT uType, UINT uDpi) noexcept
+	{
+		return reinterpret_cast<HICON>(SendMessage(hwnd, WM_GETICON, uType, uDpi));
+	}
+
+	/// <summary>
+	/// Get the windows icon.
+	/// </summary>
+	/// <param name="hwnd">- A handle to a window.</param>
+	/// <param name="uType">- The icon type wanted ICON_SMALL ICON_SMALL2 ICON_BIG</param>
+	/// <returns>The icon requested or nullptr if no icon set.</returns>
+	inline HICON dcxWindow_GetIcon(HWND hwnd, UINT uType) noexcept
+	{
+		return reinterpret_cast<HICON>(SendMessage(hwnd, WM_GETICON, uType, DcxDPIModule::dcxGetDpiForWindow(hwnd)));
+	}
+
 	// Listview
 #ifndef LVSIL_FOOTER
 #define LVSIL_FOOTER 4	// The image list for the footer. (undocumented)
@@ -41,7 +66,7 @@ namespace Dcx
 	/// <summary>
 	/// Set an existing items details.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to a list-view control.</param>
 	/// <param name="plvi"></param>
 	/// <returns></returns>
 	inline BOOL dcxListView_SetItem(_In_ HWND hwnd, _In_ const LPLVITEM plvi) noexcept
@@ -52,7 +77,7 @@ namespace Dcx
 	/// <summary>
 	/// Set an items text.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to a list-view control.</param>
 	/// <param name="i"></param>
 	/// <param name="iSub"></param>
 	/// <param name="str"></param>
@@ -64,7 +89,7 @@ namespace Dcx
 	/// <summary>
 	/// Set an items state.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to a list-view control.</param>
 	/// <param name="item"></param>
 	/// <param name="state"></param>
 	/// <param name="statemask"></param>
@@ -76,7 +101,7 @@ namespace Dcx
 	/// <summary>
 	/// Set an items infotip popup.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to a list-view control.</param>
 	/// <param name="lvit"></param>
 	/// <returns></returns>
 	inline BOOL dcxListView_SetInfoTip(_In_ HWND hwnd, _In_ PLVSETINFOTIP lvit) noexcept
@@ -87,7 +112,7 @@ namespace Dcx
 	/// <summary>
 	/// Set items check state.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to a list-view control.</param>
 	/// <param name="i"></param>
 	/// <param name="fCheck"></param>
 	inline void dcxListView_SetCheckState(_In_ HWND hwnd, _In_ const int i, _In_ const int fCheck) noexcept
@@ -109,7 +134,7 @@ namespace Dcx
 	/// <summary>
 	/// Set controls extended styles.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to a list-view control.</param>
 	/// <param name="mask"></param>
 	/// <param name="dw"></param>
 	/// <returns></returns>
@@ -1774,6 +1799,13 @@ namespace Dcx
 	/// <returns></returns>
 	TVHITTESTINFO dcxTreeView_GetCursorItem(_In_ HWND hTree) noexcept;
 
+	/// <summary>
+	/// Map an index to an item.
+	/// </summary>
+	/// <param name="nIndex"></param>
+	/// <returns>The matching item if any, or nullptr</returns>
+	[[nodiscard]] HTREEITEM dcxTreeView_MapIndexToItem(_In_ HWND hTree, _In_ size_t nIndex) noexcept;
+
 	// Button
 
 	/// <summary>
@@ -2279,23 +2311,48 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Gets the number of lines in a multiline edit control. You can send this message to either an edit control or a rich edit control.
 	/// </summary>
 	/// <param name="hwnd"></param>
-	/// <param name="iLine"></param>
-	/// <returns></returns>
-	[[nodiscard]] inline DWORD dcxEdit_GetLineIndex(_In_ HWND hwnd, _In_ DWORD iLine) noexcept
+	/// <returns>The return value is an integer specifying the total number of text lines in the multiline edit control or rich edit control. If the control has no text, the return value is 1. The return value will never be less than 1.</returns>
+	[[nodiscard]] inline int dcxEdit_GetLineCount(_In_ HWND hwnd) noexcept
 	{
-		if (!hwnd)
-			return 0;
+		return Edit_GetLineCount(hwnd);
+	}
 
-		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(iLine), 0));
+	/// <summary>
+	/// Retrieves the length, in characters, of a line in an edit control. You can send this message to either an edit control or a rich edit control.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iLine">- The character index of a character in the line whose length is to be retrieved. If this parameter is greater than the number of characters in the control, the return value is zero.
+	///	This parameter can be - 1. In this case, the message returns the number of unselected characters on lines containing selected characters.For example, if the selection extended from the fourth character of one line through the eighth character from the end of the next line, the return value would be 10 (three characters on the first line and seven on the next).
+	///	</param>
+	/// <returns>For multiline edit controls, the return value is the length, in TCHARs, of the line specified by the wParam parameter. For ANSI text, this is the number of bytes; for Unicode text, this is the number of characters. It does not include the carriage-return character at the end of the line.
+	/// For single - line edit controls, the return value is the length, in TCHARs, of the text in the edit control.
+	///	If wParam is greater than the number of characters in the control, the return value is zero.</returns>
+	[[nodiscard]] inline int dcxEdit_LineLength(_In_ HWND hwnd, _In_ int iLine) noexcept
+	{
+		return Edit_LineLength(hwnd, iLine);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	/// <param name="hwnd"></param>
+	/// <param name="iLine"></param>
+	/// <returns></returns>
+	[[nodiscard]] inline int dcxEdit_GetLineIndex(_In_ HWND hwnd, _In_ int iLine) noexcept
+	{
+		if (!hwnd)
+			return 0;
+
+		return gsl::narrow_cast<int>(SendMessage(hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(iLine), 0));
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iLineChar"></param>
 	/// <returns></returns>
 	[[nodiscard]] inline POINTL dcxEdit_GetPosFromChar(_In_ HWND hwnd, _In_ DWORD iLineChar) noexcept
@@ -2307,16 +2364,29 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Copies a line of text from an edit control and places it in a specified buffer. You can send this message to either an edit control or a rich edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="iLine">- The zero-based index of the line. This parameter is ignored by a single-line edit control.</param>
+	/// <param name="lpch">- A pointer to a buffer that receives the string.</param>
+	/// <param name="cchMax">- The maximum number of characters to be copied to the buffer.</param>
+	/// <returns>The return value is the number of TCHARs copied. The return value is zero if the line number specified by the wParam parameter is greater than the number of lines in the edit control.</returns>
+	inline int dcxEdit_GetLine(_In_ HWND hwnd, _In_ int iLine, _Inout_z_ LPTSTR lpch, _In_ int cchMax) noexcept
+	{
+		return Edit_GetLine(hwnd, iLine, lpch, cchMax);
+	}
+
+	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	int dcxEdit_GetEndOfLine(_In_ HWND hwnd) noexcept;
 
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="nNumerator"></param>
 	/// <param name="nDenominator"></param>
 	/// <returns></returns>
@@ -2325,28 +2395,28 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	TString dcxEdit_GetEndOfLineCharacters(_In_ HWND hwnd);
 
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	DWORD dcxEdit_GetCaretIndex(_In_ HWND hwnd) noexcept;
 
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="nPos"></param>
 	void dcxEdit_SetCaretIndex2(_In_ HWND hwnd, _In_ DWORD nPos) noexcept;
 
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iPos"></param>
 	/// <returns></returns>
 	DWORD dcxEdit_CharFromPos(_In_ HWND hwnd, _In_ const LONG& iPos) noexcept;
@@ -2354,7 +2424,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="ich"></param>
 	/// <returns></returns>
 	DWORD dcxEdit_LineFromChar(_In_ HWND hwnd, _In_ const LONG& ich) noexcept;
@@ -2362,17 +2432,101 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="nStart"></param>
 	/// <param name="nEnd"></param>
 	void dcxEdit_GetSel(_In_ HWND hwnd, _In_opt_ DWORD* nStart, _In_opt_ DWORD* nEnd) noexcept;
+
+	// RichEdit
+
+	/// <summary>
+	/// Set a rich edit controls event mask.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="dwMask">The previous event mask.</param>
+	/// <returns></returns>
+	inline DWORD dcxRichEdit_SetEventMask(_In_ HWND hwnd, _In_ DWORD dwMask) noexcept
+	{
+		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_SETEVENTMASK, 0, dwMask));
+	}
+
+	/// <summary>
+	/// Retrieves the starting and ending character positions of the selection in a rich edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="lprng">- A CHARRANGE structure that receives the selection range.</param>
+	inline void dcxRichEdit_ExGetSel(_In_ HWND hwnd, _Inout_ CHARRANGE *lprng) noexcept
+	{
+		SendMessage(hwnd, EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(lprng));
+	}
+
+	/// <summary>
+	/// Retrieves the currently selected text in a rich edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="lpstr">- Pointer to a buffer that receives the selected text. The calling application must ensure that the buffer is large enough to hold the selected text.</param>
+	/// <returns>This message returns the number of characters copied, not including the terminating null character.</returns>
+	inline int dcxRichEdit_GetSelText(_In_ HWND hwnd, _Inout_z_ LPTSTR lpstr) noexcept
+	{
+		return gsl::narrow_cast<int>(SendMessage(hwnd, EM_GETSELTEXT, 0, reinterpret_cast<LPARAM>(lpstr)));
+	}
+
+	/// <summary>
+	/// Causes a rich edit control to pass its contents to an application defined EditStreamCallback callback function. The callback function can then write the stream of data to a file or any other location that it chooses.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="dwFlags">- Specifies the data format and replacement options.
+	/// <para>This value must be one of the following values.</para>
+	///	<para>Value 		Meaning</para>
+	///	<para>SF_RTF		RTF.</para>
+	///	<para>SF_RTFNOOBJS	RTF with spaces in place of COM objects.</para>
+	///	<para>SF_TEXT		Text with spaces in place of COM objects.</para>
+	///	<para>SF_TEXTIZED	Text with a text representation of COM objects.</para>
+	///	<para>The SF_RTFNOOBJS option is useful if an application stores COM objects itself, as RTF representation of COM objects is not very compact.The control word, \objattph, followed by a space denotes the object position.</para>
+	///	<para>In addition, you can specify the following flags.</para>
+	/// <para>Value 			Meaning</para>
+	///	<para>SFF_PLAINRTF		If specified, the rich edit control streams out only the keywords common to all languages, ignoring language - specific keywords. If not specified, the rich edit control streams out all keywords.You can combine this flag with the SF_RTF or SF_RTFNOOBJS flag.</para>
+	///	<para>SFF_SELECTION		If specified, the rich edit control streams out only the contents of the current selection. If not specified, the control streams out the entire contents.You can combine this flag with any of data format values.</para>
+	///	<para>SF_UNICODE		Microsoft Rich Edit 2.0 and later: Indicates Unicode text.You can combine this flag with the SF_TEXT flag.</para>
+	///	<para>SF_USECODEPAGE	Rich Edit 3.0 and later : Generates UTF - 8 RTF and text using other code pages.The code page is set in the high word of wParam. For example, for UTF - 8 RTF, set wParam to(CP_UTF8 &lt;&lt; 16) | SF_USECODEPAGE | SF_RTF.</para>
+	///	</param>
+	/// <param name="lpstrm">- Pointer to an EDITSTREAM structure. On input, the pfnCallback member of this structure must point to an application defined EditStreamCallback function. On output, the dwError member can contain a nonzero error code if an error occurred.</param>
+	/// <returns>This message returns the number of characters written to the data stream.</returns>
+	inline int dcxRichEdit_StreamOut(_In_ HWND hwnd, _In_ DWORD dwFlags, _Inout_ EDITSTREAM *lpstrm) noexcept
+	{
+		return gsl::narrow_cast<int>(SendMessage(hwnd, EM_STREAMOUT, dwFlags, reinterpret_cast<LPARAM>(lpstrm)));
+	}
+
+	/// <summary>
+	/// The reverse of streamout
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="dwFlags"></param>
+	/// <param name="lpstrm"></param>
+	/// <returns></returns>
+	inline int dcxRichEdit_StreamIn(_In_ HWND hwnd, _In_ DWORD dwFlags, _Inout_ EDITSTREAM* lpstrm) noexcept
+	{
+		return gsl::narrow_cast<int>(SendMessage(hwnd, EM_STREAMIN, dwFlags, reinterpret_cast<LPARAM>(lpstrm)));
+	}
+
+	/// <summary>
+	/// Sets the background color for a rich edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="bUseSystem">- Specifies whether to use the system color. If this parameter is a nonzero value, the background is set to the window background system color. Otherwise, the background is set to the specified color.</param>
+	/// <param name="clr">- A COLORREF structure specifying the color if wParam is zero. To generate a COLORREF, use the RGB macro.</param>
+	/// <returns>The original background color.</returns>
+	inline COLORREF dcxRichEdit_SetBkgndColor(_In_ HWND hwnd, _In_ BOOL bUseSystem, _In_ COLORREF clr) noexcept
+	{
+		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, EM_SETBKGNDCOLOR, bUseSystem, gsl::narrow_cast<LPARAM>(clr)));
+	}
 
 	// Animate
 
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="pszName"></param>
 	/// <returns></returns>
 	inline bool dcxAnimate_Open(_In_ HWND hwnd, _In_z_ LPTSTR pszName) noexcept

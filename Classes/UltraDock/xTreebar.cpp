@@ -217,41 +217,41 @@ static void TraverseTreebarItems(void)
 	//}
 }
 
-static HTREEITEM WalkChildItems(HWND mHwnd, HTREEITEM hParent, size_t &nCnt, size_t &nIndex) noexcept
-{
-	if ((!mHwnd) || (!hParent))
-		return nullptr;
-
-	for (auto hItem = Dcx::dcxTreeView_GetChild(mHwnd, hParent); hItem; hItem = Dcx::dcxTreeView_GetNextSibling(mHwnd, hItem))
-	{
-		if (++nCnt == nIndex)
-			return hItem;
-
-		if (auto hRes = WalkChildItems(mHwnd, hItem, nCnt, nIndex); hRes)
-			return hRes;
-	}
-	return nullptr;
-}
-
-static HTREEITEM MapIndexToItem(size_t nIndex) noexcept
-{
-	HWND mHwnd{ mIRCLinker::getTreeview() };
-	if ((!mHwnd) || (!IsWindow(mHwnd)))
-		return nullptr;
-
-	size_t nCnt{};
-
-	for (auto hItem = Dcx::dcxTreeView_GetRoot(mHwnd); hItem; hItem = Dcx::dcxTreeView_GetNextSibling(mHwnd, hItem))
-	{
-		if (++nCnt == nIndex)
-			return hItem;
-
-		if (auto hRes = WalkChildItems(mHwnd, hItem, nCnt, nIndex); hRes)
-			return hRes;
-	}
-
-	return nullptr;
-}
+//static HTREEITEM WalkChildItems(HWND mHwnd, HTREEITEM hParent, size_t &nCnt, size_t &nIndex) noexcept
+//{
+//	if ((!mHwnd) || (!hParent))
+//		return nullptr;
+//
+//	for (auto hItem = Dcx::dcxTreeView_GetChild(mHwnd, hParent); hItem; hItem = Dcx::dcxTreeView_GetNextSibling(mHwnd, hItem))
+//	{
+//		if (++nCnt == nIndex)
+//			return hItem;
+//
+//		if (auto hRes = WalkChildItems(mHwnd, hItem, nCnt, nIndex); hRes)
+//			return hRes;
+//	}
+//	return nullptr;
+//}
+//
+//static HTREEITEM MapIndexToItem(size_t nIndex) noexcept
+//{
+//	HWND mHwnd{ mIRCLinker::getTreeview() };
+//	if ((!mHwnd) || (!IsWindow(mHwnd)))
+//		return nullptr;
+//
+//	size_t nCnt{};
+//
+//	for (auto hItem = Dcx::dcxTreeView_GetRoot(mHwnd); hItem; hItem = Dcx::dcxTreeView_GetNextSibling(mHwnd, hItem))
+//	{
+//		if (++nCnt == nIndex)
+//			return hItem;
+//
+//		if (auto hRes = WalkChildItems(mHwnd, hItem, nCnt, nIndex); hRes)
+//			return hRes;
+//	}
+//
+//	return nullptr;
+//}
 
 // [SWITCH] [OPTIONS]
 GSL_SUPPRESS(type.4)
@@ -636,18 +636,7 @@ mIRC(_xtreebar)
 			if (index < 1) // if index < 1 return total items.
 				_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%u"), cnt);
 			else {
-				//const stString<MIRC_BUFFER_SIZE_CCH> szbuf;
-				////item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
-				//item.hItem = MapIndexToItem(index);
-				//item.mask = TVIF_TEXT;
-				//item.pszText = szbuf;	// PVS-Studio reports `V507 pointer stored outside of scope` this is fine.
-				//item.cchTextMax = szbuf.capacity_cch();
-				//if (!TreeView_GetItem(mIRCLinker::getTreeview(), &item))
-				//	throw Dcx::dcxException("Unable To Get Item");
-				//
-				//dcx_strcpyn(data, item.pszText, mIRCLinker::m_dwCharacters);
-
-				item.hItem = MapIndexToItem(index);
+				item.hItem = Dcx::dcxTreeView_MapIndexToItem(mIRCLinker::getTreeview(), index);
 				item.mask = TVIF_TEXT;
 				item.pszText = data;
 				item.cchTextMax = mIRCLinker::m_dwCharacters;
@@ -664,8 +653,7 @@ mIRC(_xtreebar)
 			if (index < 1) // if index < 1 make it the last item.
 				index = gsl::narrow_cast<UINT>(cnt - 1);
 
-			//item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
-			item.hItem = MapIndexToItem(index);
+			item.hItem = Dcx::dcxTreeView_MapIndexToItem(mIRCLinker::getTreeview(), index);
 			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;
 			if (!Dcx::dcxTreeView_GetItem(mIRCLinker::getTreeview(), &item))
 				throw DcxExceptions::dcxUnableToGetItem();
