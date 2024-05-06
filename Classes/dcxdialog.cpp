@@ -4225,7 +4225,7 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 	{
 		TiXmlElement xIcons("icons");
 
-		if (HICON hIcon = reinterpret_cast<HICON>(SendMessage(m_Hwnd, WM_GETICON, ICON_SMALL, DcxDPIModule::dcxGetDpiForWindow(m_Hwnd))); hIcon)
+		if (HICON hIcon = Dcx::dcxWindow_GetIcon(m_Hwnd, ICON_SMALL); hIcon)
 		{
 			TiXmlElement xIcon("icon");
 
@@ -4236,7 +4236,7 @@ void DcxDialog::toXml(TiXmlElement* const xml, const TString& name) const
 
 			xIcons.InsertEndChild(xIcon);
 		}
-		if (HICON hIcon = reinterpret_cast<HICON>(SendMessage(m_Hwnd, WM_GETICON, ICON_BIG, DcxDPIModule::dcxGetDpiForWindow(m_Hwnd))); hIcon)
+		if (HICON hIcon = Dcx::dcxWindow_GetIcon(m_Hwnd, ICON_BIG); hIcon)
 		{
 			TiXmlElement xIcon("icon");
 
