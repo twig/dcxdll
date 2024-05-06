@@ -1631,7 +1631,7 @@ namespace Dcx
 	/// <returns>Returns the handle to the item if successful. For most cases, the message returns a NULL value to indicate an error.</returns>
 	[[nodiscard]] inline HTREEITEM dcxTreeView_GetDropHilight(_In_ HWND hwnd) noexcept
 	{
-		return TreeView_GetDropHilight(hwnd);
+		GSL_SUPPRESS(es.47) return TreeView_GetDropHilight(hwnd);
 	}
 
 	/// <summary>
@@ -2303,8 +2303,43 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwndCtl"></param>
+	/// <param name="bModified"></param>
+	inline void dcxEdit_SetModify(_In_ HWND hwndCtl, _In_ BOOL bModified) noexcept
+	{
+		Edit_SetModify(hwndCtl, bModified);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwndCtl"></param>
 	/// <returns></returns>
+	inline bool dcxEdit_GetModify(_In_ HWND hwndCtl) noexcept
+	{
+		return !!Edit_GetModify(hwndCtl);
+	}
+
+	/// <summary>
+	/// Sets the zoom ratio for a multiline edit control or a rich edit control. The ratio must be a value between 1/64 and 64. The edit control needs to have the ES_EX_ZOOMABLE extended style set, for this message to have an effect, see Edit Control Extended Styles.
+	/// </summary>
+	/// <param name="hwndCtl"></param>
+	/// <param name="iNumerator">- Numerator of the zoom ratio.</param>
+	/// <param name="iDenomerator">- Denominator of the zoom ratio. These parameters can have the following values.</param>
+	/// <returns><para>If the new zoom setting is accepted, the return value is TRUE.</para>
+	/// <para>If the new zoom setting is not accepted, the return value is FALSE.</para></returns>
+	inline bool dcxEdit_SetZoom(_In_ HWND hwndCtl, _In_ int iNumerator, _In_ int iDenomerator) noexcept
+	{
+		return !!Edit_SetZoom(hwndCtl, iNumerator, iDenomerator);
+	}
+
+	/// <summary>
+	/// Gets the zero-based index of the uppermost visible line in a multiline edit control. You can send this message to either an edit control or a rich edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <returns><para>The return value is the zero-based index of the uppermost visible line in a multiline edit control.</para>
+	///  <para>Edit controls : For single - line edit controls, the return value is the zero - based index of the first visible character.</para>
+	///	<para>Rich edit controls : For single - line rich edit controls, the return value is zero.</para></returns>
 	inline DWORD dcxEdit_GetFirstVisibleLine(_In_ HWND hwnd) noexcept
 	{
 		return gsl::narrow_cast<DWORD>(Edit_GetFirstVisibleLine(hwnd));
@@ -2313,7 +2348,7 @@ namespace Dcx
 	/// <summary>
 	/// Gets the number of lines in a multiline edit control. You can send this message to either an edit control or a rich edit control.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns>The return value is an integer specifying the total number of text lines in the multiline edit control or rich edit control. If the control has no text, the return value is 1. The return value will never be less than 1.</returns>
 	[[nodiscard]] inline int dcxEdit_GetLineCount(_In_ HWND hwnd) noexcept
 	{
@@ -2323,7 +2358,7 @@ namespace Dcx
 	/// <summary>
 	/// Retrieves the length, in characters, of a line in an edit control. You can send this message to either an edit control or a rich edit control.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iLine">- The character index of a character in the line whose length is to be retrieved. If this parameter is greater than the number of characters in the control, the return value is zero.
 	///	This parameter can be - 1. In this case, the message returns the number of unselected characters on lines containing selected characters.For example, if the selection extended from the fourth character of one line through the eighth character from the end of the next line, the return value would be 10 (three characters on the first line and seven on the next).
 	///	</param>
@@ -2338,7 +2373,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iLine"></param>
 	/// <returns></returns>
 	[[nodiscard]] inline int dcxEdit_GetLineIndex(_In_ HWND hwnd, _In_ int iLine) noexcept
@@ -2377,23 +2412,79 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Gets the character index of the first character of a specified line in a multiline edit control. A character index is the zero-based index of the character from the beginning of the edit control. You can send this message to either an edit control or a rich edit control.
 	/// </summary>
 	/// <param name="hwnd">- A handle to the control.</param>
-	/// <returns></returns>
-	int dcxEdit_GetEndOfLine(_In_ HWND hwnd) noexcept;
+	/// <param name="iLine">- The zero-based line number. A value of -1 specifies the current line number (the line that contains the caret).</param>
+	/// <returns>The return value is the character index of the line specified in the iLine parameter, or it is -1 if the specified line number is greater than the number of lines in the edit control.</returns>
+	inline int dcxEdit_LineIndex(_In_ HWND hwnd, _In_ int iLine) noexcept
+	{
+		return Edit_LineIndex(hwnd, iLine);
+	}
 
 	/// <summary>
-	/// 
+	/// Selects a range of characters in an edit control. You can send this message to either an edit control or a rich edit control.
 	/// </summary>
 	/// <param name="hwnd">- A handle to the control.</param>
-	/// <param name="nNumerator"></param>
-	/// <param name="nDenominator"></param>
-	/// <returns></returns>
+	/// <param name="nStart">- The starting character position of the selection.</param>
+	/// <param name="nEnd">- The ending character position of the selection.</param>
+	inline void dcxEdit_SetSel(_In_ HWND hwnd, _In_ DWORD nStart, _In_ DWORD nEnd) noexcept
+	{
+		Edit_SetSel(hwnd, nStart, nEnd);
+	}
+
+	/// <summary>
+	/// Replaces the selected text in an edit control or a rich edit control with the specified text.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="bUndoable">- Specifies whether the replacement operation can be undone. If this is TRUE, the operation can be undone. If this is FALSE , the operation cannot be undone.</param>
+	/// <param name="strReplacement">- A pointer to a null-terminated string containing the replacement text.</param>
+	inline void dcxEdit_ReplaceSel(_In_ HWND hwnd, _In_ BOOL bUndoable, _In_z_ LPCTSTR strReplacement) noexcept
+	{
+		SendMessage(hwnd, EM_REPLACESEL, bUndoable, reinterpret_cast<LPARAM>(strReplacement));
+	}
+
+	/// <summary>
+	/// Sets the textual cue, or tip, that is displayed by the edit control to prompt the user for information.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="strReplacement">- A pointer to a Unicode string that contains the text to display as the textual cue.</param>
+	/// <param name="bFocused">- TRUE if the cue banner should show even when the edit control has focus; otherwise, FALSE. FALSE is the default behavior the cue banner disappears when the user clicks in the control.</param>
+	/// <returns>If the message succeeds, it returns TRUE. Otherwise it returns FALSE.</returns>
+	inline bool dcxEdit_SetCueBannerTextFocused(_In_ HWND hwnd, _In_z_ LPCWSTR strReplacement, bool bFocused) noexcept
+	{
+		return !!SendMessage(hwnd, EM_SETCUEBANNER, bFocused, reinterpret_cast<LPARAM>(strReplacement));
+	}
+
+	/// <summary>
+	/// Sets the textual cue, or tip, that is displayed by the edit control to prompt the user for information.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="strReplacement">- A pointer to a Unicode string that contains the text to display as the textual cue.</param>
+	/// <returns>If the message succeeds, it returns TRUE. Otherwise it returns FALSE.</returns>
+	inline bool dcxEdit_SetCueBannerText(_In_ HWND hwnd, _In_z_ LPCWSTR strReplacement) noexcept
+	{
+		return !!SendMessage(hwnd, EM_SETCUEBANNER, 0, reinterpret_cast<LPARAM>(strReplacement));
+	}
+
+	/// <summary>
+	/// Gets the end of line character used for the content of the edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <returns>One of the EC_ENDOFLINE values.</returns>
+	EC_ENDOFLINE dcxEdit_GetEndOfLine(_In_ HWND hwnd) noexcept;
+
+	/// <summary>
+	/// Gets the current zoom ratio for a multiline edit control or a rich edit control. The zoom ration is always between 1/64 and 64.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="nNumerator">- Receives the numerator of the zoom ratio.</param>
+	/// <param name="nDenominator">- Receives the denominator of the zoom ratio.</param>
+	/// <returns>true if message is processed, which it will be if both nNumerator and nDenominator are not NULL.</returns>
 	bool dcxEdit_GetZoom(_In_ HWND hwnd, _In_ int* nNumerator, _In_ int* nDenominator) noexcept;
 
 	/// <summary>
-	/// 
+	/// Gets the characters used to mark the end of line.
 	/// </summary>
 	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
@@ -2435,7 +2526,11 @@ namespace Dcx
 	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="nStart"></param>
 	/// <param name="nEnd"></param>
-	void dcxEdit_GetSel(_In_ HWND hwnd, _In_opt_ DWORD* nStart, _In_opt_ DWORD* nEnd) noexcept;
+	/// <returns>
+	/// <para>The return value is a zero-based value with the starting position of the selection in the LOWORD and the position of the first TCHAR after the last selected TCHAR in the HIWORD. If either of these values exceeds 65,535, the return value is -1.</para>
+	/// <para>It is better to use the values returned in nStart and nEnd because they are full 32 - bit values.</para>
+	/// </returns>
+	int dcxEdit_GetSel(_In_ HWND hwnd, _In_opt_ DWORD* nStart, _In_opt_ DWORD* nEnd) noexcept;
 
 	// RichEdit
 
@@ -2458,6 +2553,171 @@ namespace Dcx
 	inline void dcxRichEdit_ExGetSel(_In_ HWND hwnd, _Inout_ CHARRANGE *lprng) noexcept
 	{
 		SendMessage(hwnd, EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(lprng));
+	}
+
+	/// <summary>
+	/// Enables or disables automatic detection of hyperlinks by a rich edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="dwType">-
+	/// <para>Specify 0 to disable automatic link detection, or one of the following values to enable various kinds of detection.</para>
+	/// <para>Value 					Meaning</para>
+	///	<para>AURL_DISABLEMIXEDLGC		Windows 8: Disable recognition of domain names that contain labels with characters belonging to more than one of the following scripts : Latin, Greek, and Cyrillic.</para>
+	///	<para>AURL_ENABLEDRIVELETTERS	Windows 8: Recognize file names that have a leading drive specification, such as c : \temp.</para>
+	///	<para>AURL_ENABLEEA				This value is deprecated; use AURL_ENABLEEAURLS instead.</para>
+	///	<para>AURL_ENABLEEAURLS			Recognize URLs that contain East Asian characters.</para>
+	///	<para>AURL_ENABLEEMAILADDR		Windows 8: Recognize email addresses.</para>
+	///	<para>AURL_ENABLETELNO			Windows 8: Recognize telephone numbers.</para>
+	///	<para>AURL_ENABLEURL			Windows 8: Recognize URLs that include the path.</para>
+	///	</param>
+	/// <param name="pstrScheme"><para>This parameter determines the URL schemes recognized if AURL_ENABLEURL is active.</para>
+	/// <para>If pstrScheme is NULL, the default scheme name list is used (see Remarks).</para>
+	/// <para>Alternatively, pstrScheme can point to a null-terminated string consisting of up to 50 colon-terminated scheme names that supersede the default scheme name list.</para>
+	/// <para>For example, the string could be "news:http:ftp:telnet:". The scheme name syntax is defined in the Uniform Resource Identifiers (URI): Generic Syntax document on The Internet Engineering Task Force (IETF) website.</para>
+	/// <para>Specifically, a scheme name can contain up to 13 characters (including the colon), must start with an ASCII alphabetic, and can be followed by a mixture of ASCII alphabetics, digits, and the three punctuation characters: ".", "+", and "-". The string type can be either char* or WCHAR*; the rich edit control automatically detects the type.</para>
+	/// </param>
+	/// <returns>
+	/// <para>If the message succeeds, the return value is zero.</para>
+	/// <para>If the message fails, the return value is a nonzero value. For example, the message might fail due to insufficient memory, an invalid detection option, or an invalid scheme - name string.</para>
+	///	<para>If pstrScheme contains more than 50 scheme names, the message fails with a return value of E_INVALIDARG.</para>
+	///	</returns>
+	inline DWORD dcxRichEdit_AutoUrlDetect(_In_ HWND hwnd, _In_ DWORD dwType, _In_opt_z_ LPCTSTR pstrScheme) noexcept
+	{
+		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_AUTOURLDETECT, dwType, reinterpret_cast<LPARAM>(pstrScheme)));
+	}
+
+	/// <summary>
+	/// Hides or shows the selection in a rich edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="bHide">- Value specifying whether to hide or show the selection. If this parameter is FALSE, the selection is shown. Otherwise, the selection is hidden.</param>
+	inline void dcxRichEdit_HideSelection(_In_ HWND hwnd, _In_ BOOL bHide) noexcept
+	{
+		SendMessage(hwnd, EM_HIDESELECTION, bHide, 0);
+	}
+
+	/// <summary>
+	/// Determines the character formatting in a rich edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="dwRange">-
+	/// <para>Specifies the range of text from which to retrieve formatting. It can be one of the following values.</para>
+	///	<para>Value 		-	Meaning</para>
+	///	<para>SCF_DEFAULT	-	The default character formatting.</para>
+	///	<para>SCF_SELECTION	-	The current selection's character formatting.</para>
+	///	</param>
+	/// <param name="chrFmt">- 
+	///	<para>A CHARFORMAT2 structure that receives the attributes of the first character.</para>
+	/// <para>The dwMask member specifies which attributes are consistent throughout the entire selection.</para>
+	/// <para>For example, if the entire selection is either in italics or not in italics, CFM_ITALIC is set; if the selection is partly in italics and partly not, CFM_ITALIC is not set.</para>
+	///	<para>Microsoft Rich Edit 2.0 and later: This parameter is a CHARFORMAT2 structure, which is an extension of the CHARFORMAT structure.</para>
+	/// <para>The structure's cbSize member is set to indicate the version of the structure.</para>
+	///	</param>
+	inline DWORD dcxRichEdit_GetCharFormat(_In_ HWND hwnd, _In_ UINT dwRange, _Inout_ CHARFORMAT2 &chrFmt) noexcept
+	{
+		chrFmt.cbSize = sizeof(CHARFORMAT2);
+		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_GETCHARFORMAT, dwRange, reinterpret_cast<LPARAM>(&chrFmt)));
+	}
+
+	/// <summary>
+	/// Determines the character formatting in a rich edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="dwRange">-
+	/// <para>Specifies the range of text from which to retrieve formatting. It can be one of the following values.</para>
+	///	<para>Value 		-	Meaning</para>
+	///	<para>SCF_DEFAULT	-	The default character formatting.</para>
+	///	<para>SCF_SELECTION	-	The current selection's character formatting.</para>
+	///	</param>
+	/// <param name="chrFmt">- 
+	///	<para>A CHARFORMAT structure that receives the attributes of the first character.</para>
+	/// <para>The dwMask member specifies which attributes are consistent throughout the entire selection.</para>
+	/// <para>For example, if the entire selection is either in italics or not in italics, CFM_ITALIC is set; if the selection is partly in italics and partly not, CFM_ITALIC is not set.</para>
+	/// <para>The structure's cbSize member is set to indicate the version of the structure.</para>
+	///	</param>
+	inline DWORD dcxRichEdit_GetCharFormat(_In_ HWND hwnd, _In_ UINT dwRange, _Inout_ CHARFORMAT& chrFmt) noexcept
+	{
+		chrFmt.cbSize = sizeof(CHARFORMAT);
+		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_GETCHARFORMAT, dwRange, reinterpret_cast<LPARAM>(&chrFmt)));
+	}
+
+	/// <summary>
+	/// Sets character formatting in a rich edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="dwRange">- 
+	/// <para>Character formatting that applies to the control. If this parameter is zero, the default character format is set. Otherwise, it can be one of the following values.</para>
+	///	<para>Value					-	Meaning</para>
+	///	<para>SCF_ALL				-	Applies the formatting to all text in the control.Not valid with SCF_SELECTION or SCF_WORD.</para>
+	///	<para>SCF_ASSOCIATEFONT		-	RichEdit 4.1: Associates a font to a given script, thus changing the default font for that script.To specify the font, use the following members of CHARFORMAT2 : yHeight, bCharSet, bPitchAndFamily, szFaceName, and lcid.</para>
+	///	<para>SCF_ASSOCIATEFONT2	-	RichEdit 4.1 : Associates a surrogate(plane - 2) font to a given script, thus changing the default font for that script.To specify the font, use the following members of CHARFORMAT2 : yHeight, bCharSet, bPitchAndFamily, szFaceName, and lcid.</para>
+	///	<para>SCF_CHARREPFROMLCID	-	Gets the character repertoire from the LCID.</para>
+	///	<para>SCF_DEFAULT			-	RichEdit 4.1: Sets the default font for the control.</para>
+	///	<para>SPF_DONTSETDEFAULT	-	Prevents setting the default paragraph format when the rich edit control is empty.</para>
+	///	<para>SCF_NOKBUPDATE		-	RichEdit 4.1: Prevents keyboard switching to match the font.For example, if an Arabic font is set, normally the automatic keyboard feature for Bidi languages changes the keyboard to an Arabic keyboard.</para>
+	///	<para>SCF_SELECTION			-	Applies the formatting to the current selection.If the selection is empty, the character formatting is applied to the insertion point, and the new character format is in effect only until the insertion point changes.</para>
+	///	<para>SPF_SETDEFAULT		-	Sets the default paragraph formatting attributes.</para>
+	///	<para>SCF_SMARTFONT			-	Apply the font only if it can handle script.</para>
+	///	<para>SCF_USEUIRULES		-	RichEdit 4.1: Used with SCF_SELECTION.Indicates that format came from a toolbar or other UI tool, so UI formatting rules should be used instead of literal formatting.</para>
+	///	<para>SCF_WORD				-	Applies the formatting to the selected word or words.If the selection is empty but the insertion point is inside a word, the formatting is applied to the word.The SCF_WORD value must be used in conjunction with the SCF_SELECTION value.</para>
+	///	</param>
+	/// <param name="chrFmt">-
+	/// <para>A CHARFORMAT structure specifying the character formatting to use. Only the formatting attributes specified by the dwMask member are changed.</para>
+	/// <para>The szFaceName and bCharSet members may be overruled when invalid for characters, for example: Arial on kanji characters.</para>
+	/// <para>The structure's cbSize member is set to sizeof(CHARFORMAT)</para>
+	/// </param>
+	/// <returns><para>If the operation succeeds, the return value is true.</para>
+	///	<para>If the operation fails, the return value is false.</para>
+	///	</returns>
+	inline bool dcxRichEdit_SetCharFormat(_In_ HWND hwnd, _In_ UINT dwRange, _Inout_ CHARFORMAT& chrFmt) noexcept
+	{
+		chrFmt.cbSize = sizeof(CHARFORMAT);
+		return !!SendMessage(hwnd, EM_GETCHARFORMAT, dwRange, reinterpret_cast<LPARAM>(&chrFmt));
+	}
+
+	/// <summary>
+	/// Sets character formatting in a rich edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="dwRange">- 
+	/// <para>Character formatting that applies to the control. If this parameter is zero, the default character format is set. Otherwise, it can be one of the following values.</para>
+	///	<para>Value					-	Meaning</para>
+	///	<para>SCF_ALL				-	Applies the formatting to all text in the control.Not valid with SCF_SELECTION or SCF_WORD.</para>
+	///	<para>SCF_ASSOCIATEFONT		-	RichEdit 4.1: Associates a font to a given script, thus changing the default font for that script.To specify the font, use the following members of CHARFORMAT2 : yHeight, bCharSet, bPitchAndFamily, szFaceName, and lcid.</para>
+	///	<para>SCF_ASSOCIATEFONT2	-	RichEdit 4.1 : Associates a surrogate(plane - 2) font to a given script, thus changing the default font for that script.To specify the font, use the following members of CHARFORMAT2 : yHeight, bCharSet, bPitchAndFamily, szFaceName, and lcid.</para>
+	///	<para>SCF_CHARREPFROMLCID	-	Gets the character repertoire from the LCID.</para>
+	///	<para>SCF_DEFAULT			-	RichEdit 4.1: Sets the default font for the control.</para>
+	///	<para>SPF_DONTSETDEFAULT	-	Prevents setting the default paragraph format when the rich edit control is empty.</para>
+	///	<para>SCF_NOKBUPDATE		-	RichEdit 4.1: Prevents keyboard switching to match the font.For example, if an Arabic font is set, normally the automatic keyboard feature for Bidi languages changes the keyboard to an Arabic keyboard.</para>
+	///	<para>SCF_SELECTION			-	Applies the formatting to the current selection.If the selection is empty, the character formatting is applied to the insertion point, and the new character format is in effect only until the insertion point changes.</para>
+	///	<para>SPF_SETDEFAULT		-	Sets the default paragraph formatting attributes.</para>
+	///	<para>SCF_SMARTFONT			-	Apply the font only if it can handle script.</para>
+	///	<para>SCF_USEUIRULES		-	RichEdit 4.1: Used with SCF_SELECTION.Indicates that format came from a toolbar or other UI tool, so UI formatting rules should be used instead of literal formatting.</para>
+	///	<para>SCF_WORD				-	Applies the formatting to the selected word or words.If the selection is empty but the insertion point is inside a word, the formatting is applied to the word.The SCF_WORD value must be used in conjunction with the SCF_SELECTION value.</para>
+	///	</param>
+	/// <param name="chrFmt">-
+	/// <para>A CHARFORMAT2 structure specifying the character formatting to use. Only the formatting attributes specified by the dwMask member are changed.</para>
+	/// <para>The szFaceName and bCharSet members may be overruled when invalid for characters, for example: Arial on kanji characters.</para>
+	/// <para>The structure's cbSize member is set to sizeof(CHARFORMAT2)</para>
+	/// </param>
+	/// <returns><para>If the operation succeeds, the return value is true.</para>
+	///	<para>If the operation fails, the return value is false.</para>
+	///	</returns>
+	inline bool dcxRichEdit_SetCharFormat(_In_ HWND hwnd, _In_ UINT dwRange, _Inout_ CHARFORMAT2& chrFmt) noexcept
+	{
+		chrFmt.cbSize = sizeof(CHARFORMAT2);
+		return !!SendMessage(hwnd, EM_GETCHARFORMAT, dwRange, reinterpret_cast<LPARAM>(&chrFmt));
+	}
+
+	/// <summary>
+	/// Determines which line contains the specified character in a rich edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="dwIndex">- Zero-based index of the character.</param>
+	/// <returns>The zero-based index of the line.</returns>
+	[[nodiscard]] inline DWORD dcxRichEdit_ExLineFromChar(_In_ HWND hwnd, _In_ DWORD dwIndex) noexcept
+	{
+		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_EXLINEFROMCHAR, 0, gsl::narrow_cast<LPARAM>(dwIndex)));
 	}
 
 	/// <summary>
@@ -2521,6 +2781,17 @@ namespace Dcx
 		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, EM_SETBKGNDCOLOR, bUseSystem, gsl::narrow_cast<LPARAM>(clr)));
 	}
 
+	/// <summary>
+	/// Retrieves a specified range of characters from a rich edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="rng">- A TEXTRANGE structure that specifies the range of characters to retrieve and a buffer to copy the characters to.</param>
+	/// <returns>The message returns the number of characters copied, not including the terminating null character.</returns>
+	inline DWORD dcxRichEdit_GetTextRange(_In_ HWND hwnd, _Inout_ TEXTRANGE &rng) noexcept
+	{
+		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&rng)));
+	}
+
 	// Animate
 
 	/// <summary>
@@ -2553,7 +2824,7 @@ namespace Dcx
 	/// <returns></returns>
 	inline bool dcxAnimate_Close(_In_ HWND hwnd) noexcept
 	{
-		return !!Animate_Close(hwnd);
+		GSL_SUPPRESS(es.47) return !!Animate_Close(hwnd);
 	}
 
 	/// <summary>

@@ -423,7 +423,7 @@ namespace Dcx
 		return tsRes;
 	}
 
-	int dcxEdit_GetEndOfLine(_In_ HWND hwnd) noexcept
+	EC_ENDOFLINE dcxEdit_GetEndOfLine(_In_ HWND hwnd) noexcept
 	{
 		//	EC_ENDOFLINE_CRLF	one		The end - of - line character used for new linebreaks is carriage return followed by linefeed(CRLF).
 		//	EC_ENDOFLINE_CR		two		The end - of - line character used for new linebreaks is carriage return (CR).
@@ -473,8 +473,7 @@ namespace Dcx
 			return Edit_GetCaretIndex(hwnd);
 
 		DWORD hiPos{}, loPos{};
-		//Edit_GetSel(hwnd); // not usefull here.
-		SNDMSG(hwnd, EM_GETSEL, reinterpret_cast<LPARAM>(&loPos), reinterpret_cast<LPARAM>(&hiPos));
+		dcxEdit_GetSel(hwnd, &loPos, &hiPos);
 		if (loPos != hiPos)
 			--hiPos;
 		return hiPos;
@@ -488,7 +487,7 @@ namespace Dcx
 		if (Dcx::DwmModule.isWin10())
 			dcxEdit_SetCaretIndex(hwnd, nPos);
 		else
-			Edit_SetSel(hwnd, nPos, nPos);
+			dcxEdit_SetSel(hwnd, nPos, nPos);
 	}
 	DWORD dcxEdit_CharFromPos(_In_ HWND hwnd, _In_ const LONG& iPos) noexcept
 	{
@@ -504,12 +503,12 @@ namespace Dcx
 			return 0;
 		return gsl::narrow_cast<DWORD>(Edit_LineFromChar(hwnd, ich));
 	}
-	void dcxEdit_GetSel(_In_ HWND hwnd, _In_opt_ DWORD* nStart, _In_opt_ DWORD* nEnd) noexcept
+	int dcxEdit_GetSel(_In_ HWND hwnd, _In_opt_ DWORD* nStart, _In_opt_ DWORD* nEnd) noexcept
 	{
 		if (!hwnd)
-			return;
+			return -1;
 
-		SendMessage(hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(nStart), reinterpret_cast<LPARAM>(nEnd));
+		return gsl::narrow_cast<int>(SendMessage(hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(nStart), reinterpret_cast<LPARAM>(nEnd)));
 	}
 
 }
