@@ -450,6 +450,12 @@ void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, cons
 	if (!hdc || !this->m_pImage)
 		return;
 
+	// NB: These values can be zero, this leads to a divide by zero below
+	const auto iw = this->m_pImage->GetWidth();
+	const auto ih = this->m_pImage->GetHeight();
+	if ((iw == 0) || (ih == 0))	// no pixels to be drawn, just return.
+		return;
+
 	Gdiplus::Graphics grphx(hdc);
 
 	grphx.SetCompositingQuality(this->m_CQuality);
@@ -460,7 +466,7 @@ void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, cons
 
 	//grphx.Clear(Gdiplus::Color(m_clrBackground));
 
-	if (((this->m_pImage->GetWidth() == 1) || (this->m_pImage->GetHeight() == 1)) && this->m_bResizeImage)
+	if (((iw == 1) || (ih == 1)) && this->m_bResizeImage)
 	{
 		// This fixes a GDI+ bug when resizing 1 px images
 		// http://www.devnewsgroups.net/group/microsoft.public.dotnet.framework.windowsforms/topic11515.aspx
@@ -487,13 +493,13 @@ void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, cons
 			if (m_bKeepAspect)
 			{
 				// This code calculates the aspect ratio in which I have to draw the image
-				const float percentWidth = gsl::narrow_cast<float>(w) / gsl::narrow_cast<float>(m_pImage->GetWidth());
-				const float percentHeight = gsl::narrow_cast<float>(h) / gsl::narrow_cast<float>(m_pImage->GetHeight());
+				const float percentWidth = gsl::narrow_cast<float>(w) / gsl::narrow_cast<float>(iw);
+				const float percentHeight = gsl::narrow_cast<float>(h) / gsl::narrow_cast<float>(ih);
 
 				const float percent = percentHeight < percentWidth ? percentHeight : percentWidth;
 
-				const int newImageWidth = gsl::narrow_cast<int>(m_pImage->GetWidth() * percent);
-				const int newImageHeight = gsl::narrow_cast<int>(m_pImage->GetHeight() * percent);
+				const int newImageWidth = gsl::narrow_cast<int>(iw * percent);
+				const int newImageHeight = gsl::narrow_cast<int>(ih * percent);
 
 				//grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset, newImageWidth, newImageHeight);
 
