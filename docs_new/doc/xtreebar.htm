@@ -395,7 +395,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xtreebar -T 1</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>When enabled, the script function <a class="value">$xtreebar_callback(geticons, [TYPE], [TEXT])</a> will be called for each item. This will allow you to configure the appearance of each item in the TreeBar.</li><li>The same alias is called when an item is added to the TreeBar. This will allow you to configure the appearance of the new item.</li><li>The <a class="value">$xtreebar_callback</a> alias should return <a class="value">2</a> image indexes, <a class="param">IMAGE</a> <a class="param">SELECTEDIMAGE</a>. (eg. <a class="value">return 2 5</a>)</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>When enabled, the script function <a class="value">$xtreebar_callback(geticons, [TYPE], [TEXT])</a> will be called for each item. This will allow you to configure the appearance of each item in the TreeBar.</li><li>The same alias is called when an item is added to the TreeBar. This will allow you to configure the appearance of the new item.</li><li>The <a class="value">$xtreebar_callback</a> alias should return <a class="value">3</a> image indexes, <a class="param">IMAGE</a> <a class="param">SELECTEDIMAGE</a> <a class="param">EXPANDEDIMAGE</a>. (eg. <a class="value">return 2 5 6</a>)</li></ul></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xtreebarprop"></a>$xtreebar Properties</td></tr>
@@ -439,6 +439,230 @@
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="param">N</a> is <a class="value">0</a>, this property retrieves the total number of items in the mIRC Treebar.</li><li>Returns <a class="value">$null</a> if unsuccessful.</li></ul></td></tr></table>
 <br />
+<table class="xtreebarprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xtreebarprop.wid"></a>$xtreebar().wid	</td></tr>
+	<tr><td colspan="2">Returns the window ID of the current item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xtreebar(N).wid</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xtreebar(3).wid</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>The index of the item.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="param">N</a> is <a class="value">0</a>, this property retrieves the current item being proccessed by $xtreebar_callback.</li><li>(This ONLY works within the $xtreebar_callback alias.)</li><li>Returns <a class="value">0</a> if unsuccessful.</li></ul></td></tr></table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="xtreebarcallback"></a>$xtreebar_callback events</td></tr>
+	<tr><td>The $xtreebar_callback identifier is used to react to changes on the to the treebars contents.</td></tr>
+</table>
+<table class="xtreebarcallback">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="xtreebarcallback.geticons"></a>$xtreebar_callback(geticons)	</td></tr>
+	<tr><td colspan="2">Get the icons to use with this item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xtreebar_callback(geticons,[TYPE],[TEXT])</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xtreebar_callback(geticons,channel,#genscripts)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">TYPE</td>
+		<td>Item type.</td>
+	</tr>
+	<tr>
+		<td class="value">channelfolder</td>
+		<td>Channel group</td>
+	</tr>
+	<tr>
+		<td class="value">windowfolder</td>
+		<td>Windows group</td>
+	</tr>
+	<tr>
+		<td class="value">notifyfolder</td>
+		<td>Notify group</td>
+	</tr>
+	<tr>
+		<td class="value">transfersfolder</td>
+		<td>DCC group</td>
+	</tr>
+	<tr>
+		<td class="value">channel</td>
+		<td>Channel window.</td>
+	</tr>
+	<tr>
+		<td class="value">custom</td>
+		<td>Custom window.</td>
+	</tr>
+	<tr>
+		<td class="value">query</td>
+		<td>Query window.</td>
+	</tr>
+	<tr>
+		<td class="value">send</td>
+		<td>DCC Send window.</td>
+	</tr>
+	<tr>
+		<td class="value">get</td>
+		<td>DCC Get window.</td>
+	</tr>
+	<tr>
+		<td class="value">chat</td>
+		<td>DCC Chat window.</td>
+	</tr>
+	<tr>
+		<td class="param">TEXT</td>
+		<td>The items text.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">NORMAL SELECTED EXPANDED</a> eg - return 1 3 6<br /><a class="returnevent">NORMAL</a> The icon index to display when the item is not selected or expanded (also the default if no other index supplied).<br /><a class="returnevent">SELECTED</a> The icon index to display when the item is selected.<br /><a class="returnevent">EXPANDED</a> The icon index to display when the item is expanded.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This requires <a class='value' href='xtreebar.htm#xtreebar.big.T'>/xtreebar -T</a> to be activated.</td></tr></table>
+<br />
+<table class="xtreebarcallback">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="xtreebarcallback.gettooltip"></a>$xtreebar_callback(gettooltip)	</td></tr>
+	<tr><td colspan="2">Get the items tooltip.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xtreebar_callback(gettooltip,[TYPE],[TEXT])</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xtreebar_callback(gettooltip,channel,#genscripts)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">TYPE</td>
+		<td>Item type.</td>
+	</tr>
+	<tr>
+		<td class="value">channelfolder</td>
+		<td>Channel group</td>
+	</tr>
+	<tr>
+		<td class="value">windowfolder</td>
+		<td>Windows group</td>
+	</tr>
+	<tr>
+		<td class="value">notifyfolder</td>
+		<td>Notify group</td>
+	</tr>
+	<tr>
+		<td class="value">transfersfolder</td>
+		<td>DCC group</td>
+	</tr>
+	<tr>
+		<td class="value">channel</td>
+		<td>Channel window.</td>
+	</tr>
+	<tr>
+		<td class="value">custom</td>
+		<td>Custom window.</td>
+	</tr>
+	<tr>
+		<td class="value">query</td>
+		<td>Query window.</td>
+	</tr>
+	<tr>
+		<td class="value">send</td>
+		<td>DCC Send window.</td>
+	</tr>
+	<tr>
+		<td class="value">get</td>
+		<td>DCC Get window.</td>
+	</tr>
+	<tr>
+		<td class="value">chat</td>
+		<td>DCC Chat window.</td>
+	</tr>
+	<tr>
+		<td class="param">TEXT</td>
+		<td>The items text.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td>The tooltip text to display.</td></tr></table>
+<br />
+<table class="xtreebarcallback">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="xtreebarcallback.setitem"></a>$xtreebar_callback(setitem)	</td></tr>
+	<tr><td colspan="2">This command allows you to change the mIRC Treebar styles.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xtreebar_callback(setitem,[TYPE],[WID],[STATE])</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xtreebar_callback(setitem,channel,61,selected)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">TYPE</td>
+		<td>Item type.</td>
+	</tr>
+	<tr>
+		<td class="value">channelfolder</td>
+		<td>Channel group</td>
+	</tr>
+	<tr>
+		<td class="value">windowfolder</td>
+		<td>Windows group</td>
+	</tr>
+	<tr>
+		<td class="value">notifyfolder</td>
+		<td>Notify group</td>
+	</tr>
+	<tr>
+		<td class="value">transfersfolder</td>
+		<td>DCC group</td>
+	</tr>
+	<tr>
+		<td class="value">channel</td>
+		<td>Channel window.</td>
+	</tr>
+	<tr>
+		<td class="value">custom</td>
+		<td>Custom window.</td>
+	</tr>
+	<tr>
+		<td class="value">query</td>
+		<td>Query window.</td>
+	</tr>
+	<tr>
+		<td class="value">send</td>
+		<td>DCC Send window.</td>
+	</tr>
+	<tr>
+		<td class="value">get</td>
+		<td>DCC Get window.</td>
+	</tr>
+	<tr>
+		<td class="value">chat</td>
+		<td>DCC Chat window.</td>
+	</tr>
+	<tr>
+		<td class="param">WID</td>
+		<td>The items WID, not valid for group items.</td>
+	</tr>
+	<tr>
+		<td class="param">STATE</td>
+		<td>Items state.</td>
+	</tr>
+	<tr>
+		<td class="value">selected</td>
+		<td>Item has been selected.</td>
+	</tr>
+	<tr>
+		<td class="value">deselected</td>
+		<td>Items has been deselected.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td>No return value.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Not all items will have a valid WID.</td></tr></table>
+<br />
 </td><td width="80%" valign="top" class="menuright">
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
 	<a class='header' href="#xtreebar"><div style='background:#6A7CB0;'>/xtreebar</div></a>
@@ -452,6 +676,13 @@
 	<a class='header' href="#xtreebarprop"><div style='background:#A8B2D1;'>$xtreebar()</div></a>
 		<a class='flag' href="#xtreebarprop.icons"><div>icons</div></a>
 		<a class='flag' href="#xtreebarprop.item"><div>item</div></a>
+		<a class='flag' href="#xtreebarprop.wid"><div>wid</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #74C043'>
+	<a class='header' href="#xtreebarcallback"><div style='background:#74C043;'>$xtreebar_callback()</div></a>
+		<a class='flag' href="#xtreebarcallback.geticons"><div>geticons</div></a>
+		<a class='flag' href="#xtreebarcallback.gettooltip"><div>gettooltip</div></a>
+		<a class='flag' href="#xtreebarcallback.setitem"><div>setitem</div></a>
 	</div>
 </td>
   </tr>
@@ -461,7 +692,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2024</td>
-		<td style="text-align: right;">Last Updated: 28th April, 24</td>
+		<td style="text-align: right;">Last Updated: 11th July, 24</td>
 	</tr>
 </table>
 <div style="text-align: center;">

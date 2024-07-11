@@ -20,6 +20,7 @@ define('SECTION_XSTATUSBAR'   , 'xstatusbar');
 define('SECTION_XSTATUSBARPROPS', 'xstatusbarprop');
 define('SECTION_XTREEBAR'     , 'xtreebar');
 define('SECTION_XTREEBARPROPS', 'xtreebarprop');
+define('SECTION_XTREEBARCALLBACK', 'xtreebarcallback');
 define('SECTION_XMENUBAR'     , 'xmenubar');
 define('SECTION_XMENUBARPROPS', 'xmenubarprop');
 
@@ -49,6 +50,7 @@ $XSTATUSBAR = array();
 $XSTATUSBARPROPS = array();
 $XTREEBAR = array();
 $XTREEBARPROPS = array();
+$XTREEBARCALLBACK = array();
 $XMENUBAR = array();
 $XMENUBARPROPS = array();
 
@@ -396,7 +398,7 @@ function dcxdoc_menu_left() {
 function dcxdoc_menu_right($page) {
 	global $SECTION, $XDID, $XDIALOG, $XDIDPROPS, $XDIALOGPROPS, $EVENTS, $GENERAL,
 	$STYLES, $XPOPUP, $XPOPUPPROPS, $XPOP, $XPOPPROPS, $XDOCK, $XDOCKPROPS, $XDOCKEVENTS, $XTRAY,
-        $XSTATUSBAR, $XSTATUSBARPROPS, $XTREEBAR, $XTREEBARPROPS, $XMENUBAR, $XMENUBARPROPS;
+        $XSTATUSBAR, $XSTATUSBARPROPS, $XTREEBAR, $XTREEBARPROPS, $XTREEBARCALLBACK, $XMENUBAR, $XMENUBARPROPS;
 
 ?><td width="80%" valign="top" class="menuright">
 <?php
@@ -423,6 +425,7 @@ function dcxdoc_menu_right($page) {
 
     print_menu_items($XTREEBAR, SECTION_XTREEBAR, "/xtreebar");
     print_menu_items($XTREEBARPROPS, SECTION_XTREEBARPROPS, "\$xtreebar()");
+    print_menu_items($XTREEBARCALLBACK, SECTION_XTREEBARCALLBACK, "\$xtreebar_callback()");
 
     print_menu_items($XMENUBAR, SECTION_XMENUBAR, "/xmenubar");
     print_menu_items($XMENUBARPROPS, SECTION_XMENUBARPROPS, "\$xmenubar()");
@@ -632,6 +635,9 @@ function dcxdoc_format_xtreebar($event, $data) {
 }
 function dcxdoc_format_xtreebarprops($event, $data) {
 	format_xcmd(SECTION_XTREEBARPROPS, $event, $data);
+}
+function dcxdoc_format_xtreebarcallback($event, $data) {
+	format_xcmd(SECTION_XTREEBARCALLBACK, $event, $data);
 }
 
 function dcxdoc_format_xmenubar($event, $data) {
@@ -893,6 +899,13 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 			$examplefmt[$NOARGS] = "\$xtreebar().$flag";
             break;
 
+        case SECTION_XTREEBARCALLBACK:
+			$heading = "\$xtreebar_callback($flag)";
+			$syntax = "\$xtreebar_callback($flag,{$data['__cmd']})";
+			$examplefmt[$ARGS]   = "\$xtreebar_callback($flag,[-EXAMPLE])";
+			$examplefmt[$NOARGS] = "\$xtreebar_callback($flag)";
+            break;
+
         case SECTION_XMENUBAR:
 			$heading = "/xmenubar -$flag";
 			$syntax = "/xmenubar -$flag {$data['__cmd']}";
@@ -1105,6 +1118,7 @@ function get_section_color($section = 0) {
 
         case SECTION_XTREEBAR		: return '#6A7CB0'; // blue
 		case SECTION_XTREEBARPROPS	: return '#A8B2D1'; // light blue
+		case SECTION_XTREEBARCALLBACK	: return '#74C043'; // green
 
         // TODO: pick a new color for xmenubar
         case SECTION_XMENUBAR		: return '#6A7CB0'; // blue
@@ -1148,6 +1162,7 @@ function get_section_name($section = 0) {
 
         case SECTION_XTREEBAR			: return 'xtreebar'; // blue
 		case SECTION_XTREEBARPROPS		: return 'xtreebarprops'; // light blue
+		case SECTION_XTREEBARCALLBACK		: return 'xtreebarcallback'; // light blue
 
         case SECTION_XMENUBAR			: return 'xmenubar'; // blue
 		case SECTION_XMENUBARPROPS		: return 'xmenubarprops'; // light blue

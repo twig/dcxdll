@@ -1,17 +1,19 @@
 <?php
 
 function xtreebar_load($page) {
-    global $XTREEBAR, $XTREEBARPROPS;
+    global $XTREEBAR, $XTREEBARPROPS, $XTREEBARCALLBACK;
 
     loadSection($XTREEBAR, "get_xtreebar");
     loadSection($XTREEBARPROPS, "get_xtreebarprops");
+    loadSection($XTREEBARCALLBACK, "get_xtreebarcallback");
 }
 
 function xtreebar_unload() {
-    global $XTREEBAR, $XTREEBARPROPS;
+    global $XTREEBAR, $XTREEBARPROPS, $XTREEBARCALLBACK;
 
     $XTREEBAR = array();
     $XTREEBARPROPS = array();
+    $XTREEBARCALLBACK = array();
 }
 
 function get_intro_xtreebar() {
@@ -19,7 +21,7 @@ function get_intro_xtreebar() {
 }
 
 function xtreebar_layout($page, $pagelabel) {
-    global $SECTION, $XTREEBAR, $XTREEBARPROPS;
+    global $SECTION, $XTREEBAR, $XTREEBARPROPS, $XTREEBARCALLBACK;
 
     dcxdoc_print_intro($page);
 	
@@ -33,7 +35,7 @@ function xtreebar_layout($page, $pagelabel) {
         foreach ($XTREEBAR as $cmd => $data) {
             dcxdoc_format_xtreebar($cmd, $data, $count);
             $count++;
-	}
+	    }
     }
 
     // $xtreebar commands
@@ -46,7 +48,20 @@ function xtreebar_layout($page, $pagelabel) {
         foreach ($XTREEBARPROPS as $cmd => $data) {
        	    dcxdoc_format_xtreebarprops($cmd, $data, $count);
       	    $count++;
-	}
+    	}
+    }
+
+    // $xtreebar_callback commands
+    if ($XTREEBARCALLBACK) {
+        $SECTION = SECTION_XTREEBARCALLBACK;
+        $count = 1;
+
+        dcxdoc_print_description('$xtreebar_callback events', 'The $xtreebar_callback identifier is used to react to changes on the to the treebars contents.');
+
+        foreach ($XTREEBARCALLBACK as $cmd => $data) {
+       	    dcxdoc_format_xtreebarcallback($cmd, $data, $count);
+      	    $count++;
+    	}
     }
 }
 
@@ -159,7 +174,7 @@ function get_xtreebar(&$XTREEBAR) {
             '__notes' => array(
                 'When enabled, the script function [v]$xtreebar_callback(geticons, [TYPE], [TEXT])[/v] will be called for each item. This will allow you to configure the appearance of each item in the TreeBar.',
                 'The same alias is called when an item is added to the TreeBar. This will allow you to configure the appearance of the new item.',
-                'The [v]$xtreebar_callback[/v] alias should return [v]2[/v] image indexes, [p]IMAGE[/p] [p]SELECTEDIMAGE[/p]. (eg. [v]return 2 5[/v])',
+                'The [v]$xtreebar_callback[/v] alias should return [v]3[/v] image indexes, [p]IMAGE[/p] [p]SELECTEDIMAGE[/p] [p]EXPANDEDIMAGE[/p]. (eg. [v]return 2 5 6[/v])',
             ),
         ),
         'w' => array(
@@ -206,6 +221,113 @@ function get_xtreebarprops(&$XDIDPROPS) {
                 'Returns [v]$null[/v] if unsuccessful.',
             ),
         ),
+        'wid' => array(
+            '__desc' => 'Returns the window ID of the current item.',
+            '__cmd' => 'N',
+            '__eg' => '3',
+            '__params' => array(
+                'N' => 'The index of the item.',
+            ),
+            '__notes' => array(
+                'If [p]N[/p] is [v]0[/v], this property retrieves the current item being proccessed by $xtreebar_callback.',
+                '(This ONLY works within the $xtreebar_callback alias.)',
+                'Returns [v]0[/v] if unsuccessful.',
+            ),
+        ),
     );
 }
+
+function get_xtreebarcallback(&$XTREEBARCALLBACK) {
+    $XTREEBARCALLBACK = array(
+        'geticons' => array(
+            '__desc' => 'Get the icons to use with this item.',
+            '__cmd' => '[TYPE],[TEXT]',
+            '__eg' => 'channel,#genscripts',
+            '__params' => array(
+                'TYPE' => array(
+                    '__desc' => 'Item type.',
+                    '__values' => array(
+                        'channelfolder' => 'Channel group',
+                        'windowfolder' => 'Windows group',
+                        'notifyfolder' => 'Notify group',
+                        'transfersfolder' => 'DCC group',
+                        'channel' => 'Channel window.',
+                        'custom' => "Custom window.",
+                        'query' => 'Query window.',
+                        'send' => 'DCC Send window.',
+                        'get' => "DCC Get window.",
+                        'chat' => 'DCC Chat window.',
+                    ),
+                ),
+                'TEXT' => 'The items text.',
+            ),
+            '__return' => array(
+                'NORMAL SELECTED EXPANDED' => 'eg - return 1 3 6',
+                'NORMAL' => 'The icon index to display when the item is not selected or expanded (also the default if no other index supplied).',
+                'SELECTED' => 'The icon index to display when the item is selected.',
+                'EXPANDED' => 'The icon index to display when the item is expanded.',
+            ),
+            '__notes' => 'This requires [cmd]/xtreebar -T[/cmd] to be activated.',
+        ),
+        'gettooltip' => array(
+            '__desc' => 'Get the items tooltip.',
+            '__cmd' => '[TYPE],[TEXT]',
+            '__eg' => 'channel,#genscripts',
+            '__params' => array(
+                'TYPE' => array(
+                    '__desc' => 'Item type.',
+                    '__values' => array(
+                        'channelfolder' => 'Channel group',
+                        'windowfolder' => 'Windows group',
+                        'notifyfolder' => 'Notify group',
+                        'transfersfolder' => 'DCC group',
+                        'channel' => 'Channel window.',
+                        'custom' => "Custom window.",
+                        'query' => 'Query window.',
+                        'send' => 'DCC Send window.',
+                        'get' => "DCC Get window.",
+                        'chat' => 'DCC Chat window.',
+                    ),
+                ),
+                'TEXT' => 'The items text.',
+            ),
+            '__return' => 'The tooltip text to display.',
+        ),
+        'setitem' => array(
+            '__desc' => 'This command allows you to change the mIRC Treebar styles.',
+            '__cmd' => '[TYPE],[WID],[STATE]',
+            '__eg' => 'channel,61,selected',
+            '__params' => array(
+                'TYPE' => array(
+                    '__desc' => 'Item type.',
+                    '__values' => array(
+                        'channelfolder' => 'Channel group',
+                        'windowfolder' => 'Windows group',
+                        'notifyfolder' => 'Notify group',
+                        'transfersfolder' => 'DCC group',
+                        'channel' => 'Channel window.',
+                        'custom' => "Custom window.",
+                        'query' => 'Query window.',
+                        'send' => 'DCC Send window.',
+                        'get' => "DCC Get window.",
+                        'chat' => 'DCC Chat window.',
+                    ),
+                ),
+                'WID' => 'The items WID, not valid for group items.',
+                'STATE' => array(
+                    '__desc' => 'Items state.',
+                    '__values' => array(
+                        'selected' => 'Item has been selected.',
+                        'deselected' => 'Items has been deselected.',
+                    ),
+                ),
+            ),
+            '__return' => 'No return value.',
+            '__notes' => array(
+                'Not all items will have a valid WID.',
+            ),
+        ),
+    );
+}
+
 ?>

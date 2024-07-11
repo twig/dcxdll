@@ -191,6 +191,8 @@ public:
 	//
 	static const SwitchBarPos getPos(const int x, const int y, const int w, const int h) noexcept;
 	//
+	static WORD getTreebarItemWID(const LPARAM lParam) noexcept;
+	//
 	static TString getTreebarItemType(const LPARAM lParam);
 	//static UINT getTreebarChildState(const HTREEITEM hParent, LPTVITEMEX pitem);
 
@@ -206,6 +208,8 @@ public:
 	// 0 = selected, 1 = selected bkg, 2 = message, 3 = message bkg
 	// 4 = event, 5 = event bkg, 6 = highlight, 7 = highlight bkg
 	static COLORREF g_clrTreebarColours[gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MAX) + 1];
+	// currently active wid for the callback alias
+	static WORD g_wid;
 
 protected:
 	static LRESULT CALLBACK mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

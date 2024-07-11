@@ -21,10 +21,13 @@ static void TraverseChildren(const HTREEITEM hParent, TString& buf, TString& res
 		if (Dcx::dcxTreeView_GetItem(mIRCLinker::getTreeview(), pitem))
 		{
 			{
+				DcxDock::g_wid = DcxDock::getTreebarItemWID(pitem->lParam);
 				const TString tsType(DcxDock::getTreebarItemType(pitem->lParam));
-	
+
 				mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), pitem->lParam, pitem->pszText);
 				mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, pitem->lParam);
+
+				DcxDock::g_wid = 0;
 			}
 			pitem->mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE | TVIF_HANDLE;
 	
@@ -128,10 +131,13 @@ static void TraverseTreebarItems(void)
 		if (Dcx::dcxTreeView_GetItem(mIRCLinker::getTreeview(), &item))
 		{
 			{
+				DcxDock::g_wid = DcxDock::getTreebarItemWID(item.lParam);
 				TString tsType(DcxDock::getTreebarItemType(item.lParam));
-	
+
 				mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), item.lParam, item.pszText);
 				mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, item.lParam);
+
+				DcxDock::g_wid = 0;
 			}
 			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE | TVIF_HANDLE;
 	
@@ -659,6 +665,20 @@ mIRC(_xtreebar)
 				throw DcxExceptions::dcxUnableToGetItem();
 
 			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d %d %d"), item.iImage, item.iSelectedImage, item.iExpandedImage);
+		}
+		break;
+		case TEXT("wid"_hash):
+		{
+			if (index < 1) // if index < 1 return active items wid.
+				_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d"), DcxDock::g_wid);
+			else {
+				item.hItem = Dcx::dcxTreeView_MapIndexToItem(mIRCLinker::getTreeview(), index);
+				item.mask = TVIF_PARAM;
+				if (!Dcx::dcxTreeView_GetItem(mIRCLinker::getTreeview(), &item))
+					throw DcxExceptions::dcxUnableToGetItem();
+
+				_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d"), DcxDock::getTreebarItemWID(item.lParam));
+			}
 		}
 		break;
 		default:	// error

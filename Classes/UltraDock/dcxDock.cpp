@@ -18,6 +18,7 @@ VectorOfDParts DcxDock::g_vParts;
 // treebar stuff
 bool DcxDock::g_bTakeOverTreebar{ false };
 COLORREF DcxDock::g_clrTreebarColours[gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MAX) + 1] = { CLR_INVALID };
+WORD DcxDock::g_wid{};
 
 DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType) noexcept
 	: m_OldRefWndProc(nullptr)
@@ -379,6 +380,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 		if (Dcx::dcxHIWORD(pitem->lParam) != 0)
 		{
+			DcxDock::g_wid = DcxDock::getTreebarItemWID(pitem->lParam);
 			TString buf(DcxDock::getTreebarItemType(pitem->lParam));
 
 			// <item type> <item pointer> <data1> <data2>
@@ -389,6 +391,8 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 			constexpr TCHAR sSel[] = TEXT("selected");
 			constexpr TCHAR sDeSel[] = TEXT("deselected");
 			mIRCLinker::eval(nullptr, TEXT("$xtreebar_callback(setitem,%,%,%)"), buf, Dcx::dcxHIWORD(pitem->lParam), dcx_testflag(Dcx::dcxLOWORD(pitem->lParam), 256) ? &sSel[0] : &sDeSel[0]);
+
+			DcxDock::g_wid = 0;
 		}
 	}
 	break;
@@ -404,12 +408,16 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 		if (dcx_testflag(pTvis->itemex.mask, TVIF_TEXT))
 		{
+			DcxDock::g_wid = DcxDock::getTreebarItemWID(pTvis->itemex.lParam);
 			TString buf(DcxDock::getTreebarItemType(pTvis->itemex.lParam));
 
 			//mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_%d %s"), pTvis->itemex.lParam, pTvis->itemex.pszText);
 			//mIRCLinker::tsEvalex(buf, TEXT("$xtreebar_callback(geticons,%s,%%dcx_%d)"), buf.to_chr(), pTvis->itemex.lParam);
+
 			mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), pTvis->itemex.lParam, pTvis->itemex.pszText);
 			mIRCLinker::eval(buf, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), buf, pTvis->itemex.lParam);
+
+			DcxDock::g_wid = 0;
 
 			// image
 			auto i = buf.getfirsttok(1).to_int() - 1;
@@ -623,11 +631,10 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 						//	}
 						//}
 
-						const auto wid = Dcx::dcxHIWORD(lpntvcd->nmcd.lItemlParam);
 						TString buf;
 
-						//mIRCLinker::tsEvalex(buf, TEXT("$window(@%d).sbcolor"), wid);
-						mIRCLinker::eval(buf, TEXT("$window(@%).sbcolor"), wid);
+						if (const auto wid = DcxDock::getTreebarItemWID(lpntvcd->nmcd.lItemlParam); wid > 0)
+							mIRCLinker::eval(buf, TEXT("$window(@%).sbcolor"), wid);
 
 						if (!buf.empty())
 						{
@@ -689,14 +696,18 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					item.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 					//item.mask = TVIF_TEXT;
 					item.mask = TVIF_TEXT | TVIF_PARAM;
-					if (TreeView_GetItem(mIRCLinker::getTreeview(), &item))
+					if (Dcx::dcxTreeView_GetItem(mIRCLinker::getTreeview(), &item))
 					{
+						DcxDock::g_wid = DcxDock::getTreebarItemWID(item.lParam);
 						const TString tsType(DcxDock::getTreebarItemType(item.lParam));
 
 						//mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_%d %s"), item.lParam, item.pszText); // <- had wrong args causing instant crash when showing tooltips
 						//mIRCLinker::tsEvalex(buf, TEXT("$xtreebar_callback(gettooltip,%s,%%dcx_%d)"), tsType.to_chr(), item.lParam);
+
 						mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), item.lParam, item.pszText); // <- had wrong args causing instant crash when showing tooltips
 						mIRCLinker::eval(buf, TEXT("$xtreebar_callback(gettooltip,%,\\%dcx_%)"), tsType, item.lParam);
+
+						DcxDock::g_wid = 0;
 
 						if (!buf.empty())
 							dcx_strcpyn(tcgit->pszText, buf.to_chr(), tcgit->cchTextMax);
@@ -1266,6 +1277,25 @@ const SwitchBarPos DcxDock::getPos(const int x, const int y, const int w, const 
 	return SwitchBarPos::SWB_RIGHT;
 }
 
+WORD DcxDock::getTreebarItemWID(const LPARAM lParam) noexcept
+{
+	switch (const WORD wid = Dcx::dcxHIWORD(lParam); wid)
+	{
+	case 15000: // channel folder
+	case 15004: // transfers folder
+	case 15006: // window folder
+	case 15007: // notify folder
+	case 0:
+		break;
+	default:
+	{
+		return wid;
+	}
+	break;
+	}
+	return 0;
+}
+
 TString DcxDock::getTreebarItemType(const LPARAM lParam)
 {
 	TString tsType;
@@ -1275,7 +1305,7 @@ TString DcxDock::getTreebarItemType(const LPARAM lParam)
 	case 15000: // channel folder
 		tsType = TEXT("channelfolder");
 		break;
-	case 15004:
+	case 15004: // transfers folder
 		tsType = TEXT("transferfolder");
 		break;
 	case 15006: // window folder
