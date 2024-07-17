@@ -2491,10 +2491,11 @@ namespace Dcx
 	TString dcxEdit_GetEndOfLineCharacters(_In_ HWND hwnd);
 
 	/// <summary>
-	/// 
+	/// Gets the character index of the caret location for a given edit control.
+	/// NB: Works on winXP+
 	/// </summary>
 	/// <param name="hwnd">- A handle to the control.</param>
-	/// <returns></returns>
+	/// <returns>The return value is a zero-based index value of the position of the caret.</returns>
 	DWORD dcxEdit_GetCaretIndex(_In_ HWND hwnd) noexcept;
 
 	/// <summary>
@@ -2505,12 +2506,14 @@ namespace Dcx
 	void dcxEdit_SetCaretIndex2(_In_ HWND hwnd, _In_ DWORD nPos) noexcept;
 
 	/// <summary>
-	/// 
+	/// Gets information about the character closest to a specified point in the client area of an edit control.
+	/// NB: MUST NOT be used with a RichEdit
 	/// </summary>
 	/// <param name="hwnd">- A handle to the control.</param>
-	/// <param name="iPos"></param>
-	/// <returns></returns>
-	DWORD dcxEdit_CharFromPos(_In_ HWND hwnd, _In_ const LONG& iPos) noexcept;
+	/// <param name="ihPos">- Contains the horizontal coordinate.</param>
+	/// <param name="ivPos">- Contains the vertical coordinate.</param>
+	/// <returns>The LOWORD specifies the zero-based index of the character nearest the specified point. This index is relative to the beginning of the control, not the beginning of the line. If the specified point is beyond the last character in the edit control, the return value indicates the last character in the control. The HIWORD specifies the zero-based index of the line that contains the character. For single-line edit controls, this value is zero. The index indicates the line delimiter if the specified point is beyond the last visible character in a line.</returns>
+	DWORD dcxEdit_CharFromPos(_In_ HWND hwnd, _In_ LONG ihPos, _In_ LONG ivPos) noexcept;
 
 	/// <summary>
 	/// 
@@ -2553,6 +2556,17 @@ namespace Dcx
 	inline void dcxRichEdit_ExGetSel(_In_ HWND hwnd, _Inout_ CHARRANGE *lprng) noexcept
 	{
 		SendMessage(hwnd, EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(lprng));
+	}
+
+	/// <summary>
+	/// Selects a range of characters or Component Object Model (COM) objects in a Microsoft Rich Edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="lprng">- A CHARRANGE structure that sets the selection range.</param>
+	/// <returns>The return value is the selection that is actually set.</returns>
+	inline DWORD dcxRichEdit_ExSetSel(_In_ HWND hwnd, _In_ CHARRANGE* lprng) noexcept
+	{
+		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_EXSETSEL, 0, reinterpret_cast<LPARAM>(lprng)));
 	}
 
 	/// <summary>
@@ -2718,6 +2732,18 @@ namespace Dcx
 	[[nodiscard]] inline DWORD dcxRichEdit_ExLineFromChar(_In_ HWND hwnd, _In_ DWORD dwIndex) noexcept
 	{
 		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_EXLINEFROMCHAR, 0, gsl::narrow_cast<LPARAM>(dwIndex)));
+	}
+
+	/// <summary>
+	/// Gets information about the character closest to a specified point in the client area of a RichEdit control.
+	/// NB: You must NOT use the edit controls version of this message with richedit.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="pos">- A pointer to a POINTL structure that contains the horizontal and vertical coordinates.</param>
+	/// <returns>The return value specifies the zero-based character index of the character nearest the specified point. The return value indicates the last character in the edit control if the specified point is beyond the last character in the control.</returns>
+	inline DWORD dcxRichEdit_CharFromPos(_In_ HWND hwnd, _In_ const PPOINTL pos) noexcept
+	{
+		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_CHARFROMPOS, 0, reinterpret_cast<LPARAM>(pos)));
 	}
 
 	/// <summary>

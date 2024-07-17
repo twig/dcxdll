@@ -489,13 +489,12 @@ namespace Dcx
 		else
 			dcxEdit_SetSel(hwnd, nPos, nPos);
 	}
-	DWORD dcxEdit_CharFromPos(_In_ HWND hwnd, _In_ const LONG& iPos) noexcept
+	DWORD dcxEdit_CharFromPos(_In_ HWND hwnd, _In_ LONG ihPos, _In_ LONG ivPos) noexcept
 	{
 		if (!hwnd)
 			return 0;
 
-		constexpr LONG iZero{};
-		return gsl::narrow_cast<DWORD>(SNDMSG(hwnd, EM_CHARFROMPOS, 0, Dcx::dcxMAKELPARAM(iZero, iPos)));
+		return gsl::narrow_cast<DWORD>(SNDMSG(hwnd, EM_CHARFROMPOS, 0, Dcx::dcxMAKELPARAM(ihPos, ivPos)));
 	}
 	DWORD dcxEdit_LineFromChar(_In_ HWND hwnd, _In_ const LONG& ich) noexcept
 	{
