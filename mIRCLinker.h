@@ -191,12 +191,12 @@ namespace mIRCLinker
 		TString line;
 		return o_eval<Output>(_ts_sprintf(line, fmt, val, args...));
 	}
-	template <typename Output, typename Input, TStringConcepts::IsSupportedAddType Value>
-	std::optional<Output> o_eval(const Input& fmt, const Value& val)
-	{
-		TString line;
-		return o_eval<Output>(_ts_sprintf(line, fmt, val));
-	}
+	//template <typename Output, typename Input, TStringConcepts::IsSupportedAddType Value>
+	//std::optional<Output> o_eval(const Input& fmt, const Value& val)
+	//{
+	//	TString line;
+	//	return o_eval<Output>(_ts_sprintf(line, fmt, val));
+	//}
 
 	bool iEval(int64_t* const res, const TCHAR* const data) noexcept;
 
