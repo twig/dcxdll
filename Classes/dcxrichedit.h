@@ -69,11 +69,11 @@ public:
 	void parseContents(const BOOL fNewLine) noexcept;
 
 	LRESULT setAutoUrlDetect(const BOOL iEnable) noexcept;
-	LRESULT hideSelection(const BOOL iHide) noexcept;
-	LRESULT setSel(const int iStart, const int iEnd) noexcept;
-	LRESULT replaceSel(const BOOL bUndo, LPCTSTR lpstr) noexcept;
-	LRESULT getCharFormat(const UINT iType, const CHARFORMAT2* cfm) const noexcept;
-	LRESULT setCharFormat(const UINT iType, const CHARFORMAT2* cfm) noexcept;
+	void hideSelection(const BOOL iHide) noexcept;
+	void setSel(const int iStart, const int iEnd) noexcept;
+	void replaceSel(const BOOL bUndo, LPCTSTR lpstr) noexcept;
+	DWORD getCharFormat(const UINT iType, CHARFORMAT2* const cfm) const noexcept;
+	bool setCharFormat(const UINT iType, CHARFORMAT2* const cfm) noexcept;
 
 	void toXml(TiXmlElement* const xml) const final;
 	TiXmlElement* toXml(void) const final;

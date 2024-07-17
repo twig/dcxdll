@@ -419,7 +419,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	{
 		this->m_tsText.clear();	// = TEXT("");
 		this->clearContents();
-		Edit_SetModify(m_Hwnd, FALSE);
+		Dcx::dcxEdit_SetModify(m_Hwnd, FALSE);
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
@@ -438,7 +438,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		this->m_tsText += tmp;
 		this->parseStringContents(tmp, TRUE);
 		//this->parseContents(TRUE);
-		Edit_SetModify(m_Hwnd, FALSE);
+		Dcx::dcxEdit_SetModify(m_Hwnd, FALSE);
 
 		this->setCaretPos(pos);
 	}
@@ -883,7 +883,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		const auto num = input.getnexttok().to_int();	// tok 4
 		const auto den = input.getnexttok().to_int();	// tok 5
 
-		if (!SendMessage(m_Hwnd, EM_SETZOOM, gsl::narrow_cast<WPARAM>(num), gsl::narrow_cast<LPARAM>(den)))
+		if (!Dcx::dcxEdit_SetZoom(m_Hwnd, num, den))
 			throw Dcx::dcxException("Richedit zooming error");
 	}
 	else
@@ -1403,9 +1403,8 @@ void DcxRichEdit::DrawGutter(HDC hdc)
 
 		{
 			// top line, could be a partial line
-			const auto iLineChar = SNDMSG(m_Hwnd, EM_LINEINDEX, rng.b, 0);
-			POINTL pl{};
-			SNDMSG(m_Hwnd, EM_POSFROMCHAR, reinterpret_cast<WPARAM>(&pl), gsl::narrow_cast<LPARAM>(iLineChar));
+			const auto iLineChar = Dcx::dcxEdit_GetLineIndex(m_Hwnd, rng.b);
+			const POINTL pl = Dcx::dcxEdit_GetPosFromChar(m_Hwnd, iLineChar);
 			// NB: if a partial line pl.y will be a negative (ie off screen)
 			RNumber.top = pl.y;
 			RNumber.bottom = RNumber.top + letter_height;
@@ -1444,14 +1443,14 @@ Dcx::range_t<DWORD> DcxRichEdit::GetVisibleRange() const noexcept
 {
 	// find the index of the top visible line
 
-	const auto start_line = gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_GETFIRSTVISIBLELINE, 0, 0));
+	const auto start_line = Dcx::dcxEdit_GetFirstVisibleLine(m_Hwnd);
 
 	const RECT rc = getFmtRect();
 
 	// find the index of the last visible line
-	POINTL PEnd{ 0,  rc.bottom };
-	const auto char_index = SNDMSG(m_Hwnd, EM_CHARFROMPOS, 0, reinterpret_cast<LPARAM>(&PEnd));
-	const auto stop_line = gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_EXLINEFROMCHAR, 0, gsl::narrow_cast<LPARAM>(char_index)));
+	POINTL pt{ 0, rc.bottom };
+	const auto char_index = Dcx::dcxRichEdit_CharFromPos(m_Hwnd, &pt);
+	const auto stop_line = Dcx::dcxRichEdit_ExLineFromChar(m_Hwnd, char_index);
 
 	// +1 to make range inclusive
 	return { start_line, stop_line + 1 };
@@ -1460,29 +1459,28 @@ Dcx::range_t<DWORD> DcxRichEdit::GetVisibleRange() const noexcept
 GSL_SUPPRESS(con.4)
 DWORD DcxRichEdit::GetCaretPos() const noexcept
 {
-	DWORD hiPos{}, loPos{};
-	SNDMSG(m_Hwnd, EM_GETSEL, reinterpret_cast<LPARAM>(&loPos), reinterpret_cast<LPARAM>(&hiPos));
-	if (loPos != hiPos)
-		--hiPos;
-	return hiPos;
+	//DWORD hiPos{}, loPos{};
+	//Dcx::dcxEdit_GetSel(m_Hwnd, &loPos, &hiPos);
+	//if (loPos != hiPos)
+	//	--hiPos;
+	//return hiPos;
+	////// windows 10 only :/
+	////return Edit_GetCaretIndex(m_Hwnd);
 
-	//// windows 10 only :/
-	//return Edit_GetCaretIndex(m_Hwnd);
+	return Dcx::dcxEdit_GetCaretIndex(m_Hwnd);
 }
 
 DWORD DcxRichEdit::GetCaretLine() const noexcept
 {
 	const auto pos = GetCaretPos();
-	return gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_EXLINEFROMCHAR, 0, gsl::narrow_cast<LPARAM>(pos)));
+	return Dcx::dcxRichEdit_ExLineFromChar(m_Hwnd, pos);
 }
 
 void DcxRichEdit::setCaretPos(DWORD pos) noexcept
 {
-	//SendMessage(m_Hwnd, EM_SETSEL, pos, pos);
-
 	CHARRANGE c{ gsl::narrow_cast<long>(pos), gsl::narrow_cast<long>(pos) };
 
-	SendMessage(m_Hwnd, EM_EXSETSEL, 0, reinterpret_cast<LPARAM>(&c));
+	Dcx::dcxRichEdit_ExSetSel(m_Hwnd, &c);
 }
 
 void DcxRichEdit::setRicheditFont(const TString& tsFlags, const TString& tsCharset, UINT iSize, const TString& tsFontname)
@@ -1543,9 +1541,9 @@ void DcxRichEdit::insertText(const TCHAR* const text, bool bline, bool uline, bo
 	// get total length
 	auto len = GetWindowTextLength(m_Hwnd);
 	// get line TCHAR number from end TCHAR pos
-	const auto line = Edit_LineIndex(m_Hwnd, Edit_LineFromChar(m_Hwnd, len - 1));
+	const auto line = Dcx::dcxEdit_LineIndex(m_Hwnd, Dcx::dcxEdit_LineFromChar(m_Hwnd, len - 1));
 	// get line length
-	const auto linelen = Edit_LineLength(m_Hwnd, line);
+	const auto linelen = Dcx::dcxEdit_LineLength(m_Hwnd, line);
 	// total length of insert point
 	len = line + linelen;
 
@@ -1603,7 +1601,10 @@ void DcxRichEdit::insertText(const TCHAR* const text, bool bline, bool uline, bo
 */
 LRESULT DcxRichEdit::setAutoUrlDetect(const BOOL iEnable) noexcept
 {
-	return SendMessage(m_Hwnd, EM_AUTOURLDETECT, gsl::narrow_cast<WPARAM>(iEnable), gsl::narrow_cast<LPARAM>(0));
+	//return SendMessage(m_Hwnd, EM_AUTOURLDETECT, gsl::narrow_cast<WPARAM>(iEnable), 0);
+
+	// this is ok as TRUE == 1 == AURL_ENABLEURL, & FALSE == 0 == Disable
+	return Dcx::dcxRichEdit_AutoUrlDetect(m_Hwnd, iEnable, nullptr);
 }
 
 /*!
@@ -1611,9 +1612,9 @@ LRESULT DcxRichEdit::setAutoUrlDetect(const BOOL iEnable) noexcept
 *
 * blah
 */
-LRESULT DcxRichEdit::hideSelection(const BOOL iHide) noexcept
+void DcxRichEdit::hideSelection(const BOOL iHide) noexcept
 {
-	return SendMessage(m_Hwnd, EM_HIDESELECTION, gsl::narrow_cast<WPARAM>(iHide), gsl::narrow_cast<LPARAM>(0));
+	Dcx::dcxRichEdit_HideSelection(m_Hwnd, iHide);
 }
 
 /*!
@@ -1621,9 +1622,9 @@ LRESULT DcxRichEdit::hideSelection(const BOOL iHide) noexcept
 *
 * blah
 */
-LRESULT DcxRichEdit::setSel(const int iStart, const int iEnd) noexcept
+void DcxRichEdit::setSel(const int iStart, const int iEnd) noexcept
 {
-	return SendMessage(m_Hwnd, EM_SETSEL, gsl::narrow_cast<WPARAM>(iStart), gsl::narrow_cast<LPARAM>(iEnd));
+	Dcx::dcxEdit_SetSel(m_Hwnd, iStart, iEnd);
 }
 
 /*!
@@ -1631,9 +1632,9 @@ LRESULT DcxRichEdit::setSel(const int iStart, const int iEnd) noexcept
 *
 * blah
 */
-LRESULT DcxRichEdit::replaceSel(const BOOL bUndo, LPCTSTR lpstr) noexcept
+void DcxRichEdit::replaceSel(const BOOL bUndo, LPCTSTR lpstr) noexcept
 {
-	return SendMessage(m_Hwnd, EM_REPLACESEL, gsl::narrow_cast<WPARAM>(bUndo), reinterpret_cast<LPARAM>(lpstr));
+	Dcx::dcxEdit_ReplaceSel(m_Hwnd, bUndo, lpstr);
 }
 
 /*!
@@ -1641,9 +1642,9 @@ LRESULT DcxRichEdit::replaceSel(const BOOL bUndo, LPCTSTR lpstr) noexcept
 *
 * blah
 */
-LRESULT DcxRichEdit::getCharFormat(const UINT iType, const CHARFORMAT2* cfm) const noexcept
+DWORD DcxRichEdit::getCharFormat(const UINT iType, CHARFORMAT2* const cfm) const noexcept
 {
-	return SendMessage(m_Hwnd, EM_GETCHARFORMAT, gsl::narrow_cast<WPARAM>(iType), reinterpret_cast<LPARAM>(cfm));
+	return Dcx::dcxRichEdit_GetCharFormat(m_Hwnd, iType, *cfm);
 }
 
 /*!
@@ -1652,9 +1653,9 @@ LRESULT DcxRichEdit::getCharFormat(const UINT iType, const CHARFORMAT2* cfm) con
 * blah
 */
 
-LRESULT DcxRichEdit::setCharFormat(const UINT iType, const CHARFORMAT2* cfm) noexcept
+bool DcxRichEdit::setCharFormat(const UINT iType, CHARFORMAT2* const cfm) noexcept
 {
-	return SendMessage(m_Hwnd, EM_SETCHARFORMAT, gsl::narrow_cast<WPARAM>(iType), reinterpret_cast<LPARAM>(cfm));
+	return Dcx::dcxRichEdit_SetCharFormat(m_Hwnd, iType, *cfm);
 }
 
 void DcxRichEdit::toXml(TiXmlElement* const xml) const
@@ -1727,7 +1728,7 @@ void DcxRichEdit::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	if (const auto tmp = gsl::narrow_cast<TCHAR>(queryIntAttribute(xThis, "passchar")); tmp)
 	{
-		Edit_SetPasswordChar(m_Hwnd, tmp);
+		Dcx::dcxEdit_SetPasswordChar(m_Hwnd, tmp);
 		this->m_PassChar = tmp;
 	}
 
@@ -1736,7 +1737,7 @@ void DcxRichEdit::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	if (const auto tmp = queryAttribute(xThis, "cue"); tmp)
 	{
 		this->m_tsCue = tmp;
-		Edit_SetCueBannerTextFocused(m_Hwnd, this->m_tsCue.to_chr(), m_bCueFocused);
+		Dcx::dcxEdit_SetCueBannerTextFocused(m_Hwnd, this->m_tsCue.to_chr(), m_bCueFocused);
 	}
 
 	if (const auto tmp = queryColourAttribute(xThis, "gutterbgcolour"); tmp != CLR_INVALID)
@@ -1757,7 +1758,7 @@ void DcxRichEdit::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 		this->m_tsText = xThis->GetText();
 		SetWindowText(m_Hwnd, this->m_tsText.to_chr());
 		this->parseContents(TRUE);
-		Edit_SetModify(m_Hwnd, FALSE);
+		Dcx::dcxEdit_SetModify(m_Hwnd, FALSE);
 	}
 
 	this->m_bIgnoreInput = false;
@@ -1835,7 +1836,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					auto str = std::make_unique<TCHAR[]>(strlen);
 
 					tr.lpstrText = str.get();
-					SendMessage(m_Hwnd, EM_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&tr));
+					Dcx::dcxRichEdit_GetTextRange(m_Hwnd, tr);
 
 					TString tsEvent;
 					if (enl->msg == WM_LBUTTONDOWN)
@@ -1871,7 +1872,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					// get information about selected text
 					tr.chrg = sel->chrg;
 					tr.lpstrText = str.get();
-					SendMessage(m_Hwnd, EM_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&tr));
+					Dcx::dcxRichEdit_GetTextRange(m_Hwnd, tr);
 
 					this->execAliasEx(TEXT("selchange,%u,%d,%d,%s"), getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
 				}

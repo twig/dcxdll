@@ -184,7 +184,7 @@ void DcxEdit::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	if (const auto tmp = queryAttribute(xThis, "cue"); tmp)
 	{
 		this->m_tsCue = tmp;
-		Edit_SetCueBannerTextFocused(m_Hwnd, this->m_tsCue.to_chr(), m_bCueFocused);
+		Dcx::dcxEdit_SetCueBannerTextFocused(m_Hwnd, this->m_tsCue.to_chr(), m_bCueFocused);
 	}
 
 	if (const auto tmp = queryColourAttribute(xThis, "gutterbgcolour"); tmp != CLR_INVALID)
@@ -204,7 +204,7 @@ void DcxEdit::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	{
 		this->m_tsText = xThis->GetText();
 		SetWindowText(m_Hwnd, this->m_tsText.to_chr());
-		Edit_SetModify(m_Hwnd, FALSE);
+		Dcx::dcxEdit_SetModify(m_Hwnd, FALSE);
 	}
 }
 
@@ -340,7 +340,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 
 		// [NAME] [ID] [PROP]
 	case L"ismodified"_hash:
-		_ts_snprintf(szReturnValue, TEXT("%d"), Edit_GetModify(m_Hwnd));
+		_ts_snprintf(szReturnValue, TEXT("%d"), Dcx::dcxEdit_GetModify(m_Hwnd));
 		break;
 
 		// [NAME] [ID] [PROP]
@@ -521,7 +521,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	{
 		this->m_tsText.clear();	// = TEXT("");
 		SetWindowTextW(m_Hwnd, L"");
-		Edit_SetModify(m_Hwnd, FALSE);
+		Dcx::dcxEdit_SetModify(m_Hwnd, FALSE);
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
@@ -534,7 +534,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 
 		this->m_tsText += input.getlasttoks();	// tok 4, -1
 		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
-		Edit_SetModify(m_Hwnd, FALSE);
+		Dcx::dcxEdit_SetModify(m_Hwnd, FALSE);
 
 		this->setCaretPos(pos);
 	}
@@ -758,7 +758,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 
 		m_tsText = readTextFile(tsFile);
 		SetWindowTextW(m_Hwnd, m_tsText.to_wchr());
-		Edit_SetModify(m_Hwnd, FALSE);
+		Dcx::dcxEdit_SetModify(m_Hwnd, FALSE);
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags[TEXT('u')])
@@ -780,10 +780,10 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto istart = input.getnexttok().to_int();	// tok 4
-		const auto iend = (numtok > 4) ? input.getnexttok().to_int() : istart;
+		const auto istart = input.getnexttok().to_<DWORD>();	// tok 4
+		const auto iend = (numtok > 4) ? input.getnexttok().to_<DWORD>() : istart;
 
-		SendMessage(m_Hwnd, EM_SETSEL, gsl::narrow_cast<WPARAM>(istart), gsl::narrow_cast<LPARAM>(iend));
+		Dcx::dcxEdit_SetSel(m_Hwnd, istart, iend);
 		Dcx::dcxEdit_ScrollCaret(m_Hwnd);
 	}
 	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
@@ -801,16 +801,12 @@ void DcxEdit::parseCommandRequest(const TString& input)
 			const XSwitchFlags xFlags(tsFlags);
 			this->m_tsCue = input.gettok(5, -1);	// tok 5, -1
 			m_bCueFocused = xFlags[TEXT('f')];
-			if (m_bCueFocused)
-				Edit_SetCueBannerTextFocused(m_Hwnd, m_tsCue.to_wchr(), TRUE);
-			else
-				Edit_SetCueBannerText(m_Hwnd, this->m_tsCue.to_wchr());
 		}
 		else {
 			m_bCueFocused = false;
 			this->m_tsCue = input.getlasttoks();	// tok 4, -1
-			Edit_SetCueBannerText(m_Hwnd, this->m_tsCue.to_wchr());
 		}
+		Dcx::dcxEdit_SetCueBannerTextFocused(m_Hwnd, m_tsCue.to_wchr(), m_bCueFocused);
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1|-] (0|1)
 	else if (flags[TEXT('y')])
@@ -1487,7 +1483,7 @@ Dcx::range_t<DWORD> DcxEdit::GetVisibleRange() const noexcept
 	const RECT rc = getFmtRect();
 
 	// find the index of the last visible line
-	const auto char_index = Dcx::dcxEdit_CharFromPos(m_Hwnd, rc.bottom);
+	const auto char_index = Dcx::dcxEdit_CharFromPos(m_Hwnd, 0, rc.bottom);
 	const auto stop_line = Dcx::dcxEdit_LineFromChar(m_Hwnd, char_index);
 
 	// +1 to make range inclusive
@@ -1782,8 +1778,6 @@ void DcxEdit::DrawGutter(HDC hdc)
 		// get current caret pos
 		const auto pos = GetCaretLine();
 
-		TCHAR buf[49]{};
-
 		{
 			// top line, could be a partial line
 			const POINTL pl = GetPosFromChar(GetLineIndex(rng.b));
@@ -1798,6 +1792,8 @@ void DcxEdit::DrawGutter(HDC hdc)
 		Auto(SetBkMode(*hdcbuf, oldMode));
 		const auto oldTextColor = GetTextColor(*hdcbuf);
 		Auto(SetTextColor(*hdcbuf, oldTextColor));
+
+		TCHAR buf[49]{};
 
 		// render the line numbers
 		for (const auto& index : rng)
