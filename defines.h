@@ -211,7 +211,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  "66"
+#define DLL_DEV_BUILD  "67"
 #define DCXML_VERSION			1
 #define DCXML_DIALOG_VERSION	2
 #define DCXML_POPUP_VERSION		2
@@ -525,6 +525,7 @@ constexpr auto mIRC_PALETTE_SIZE = 100U;	// Number of colours in mIRC's palette 
 #define DCX_MULTIBUTTONCLASS    TEXT("DCXMultiButtonClass")  //!< DCX MultiButton Class Name
 #define DCX_MULTICOMBOCLASS		TEXT("DCXMultiComboClass")   //!< DCX MultiCombo Class Name
 #define DCX_GRIDCLASS			TEXT("DCXGridClass")         //!< DCX Grid Class Name
+//#define DCX_TOOLTIPCLASS		TEXT("DCXToolTipClass")      //!< DCX Tooltip Class Name
 
 using mIRCResultString = refString<TCHAR, MIRC_BUFFER_SIZE_CCH>;
 
@@ -762,6 +763,7 @@ TString readTextFile(const TString& tFile);
 bool SaveDataToFile(const TString& tsFile, const TString& tsData);
 TString FileDialog(const TString& data, const TString& method, const HWND pWnd);
 std::pair<bool, int> SaveClipboardToFile(const XSwitchFlags& xFlags, const TString& tsFile);
+//Dcx::BoolValue<int> SaveClipboardToFile(const XSwitchFlags& xFlags, const TString& tsFile);
 
 int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData) noexcept;
 [[nodiscard("Memory Leak")]] gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl) noexcept;
