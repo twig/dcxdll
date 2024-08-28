@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.26
+// v1.27
 
 #include <tchar.h>
 #include <cstdlib>
@@ -1377,7 +1377,7 @@ GSL_SUPPRESS(bounds.4) bool _ts_InnerWildcardMatch(_In_ const TameString& pszStr
 	constexpr _Wild _zero{};
 	constexpr _Wild _star = static_cast<_Wild>('*');
 	constexpr _Wild _question = static_cast<_Wild>('?');
-#if STRINGSUPPORT_WILDT || TSTRING_WILDW
+#if STRINGSUPPORT_WILDT || STRINGSUPPORT_WILDW
 	constexpr _Wild _space = static_cast<_Wild>(' ');
 #endif
 #if STRINGSUPPORT_WILDT
