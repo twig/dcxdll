@@ -100,6 +100,19 @@ struct dcxWindowStyles
 		//if (dcx_testflag(m_Styles, ES_NOHIDESEL))
 		//	tsStyles.addtok(TEXT("showsel"));
 	}
+
+	dcxWindowStyles() noexcept = default;
+
+	bool operator==(const dcxWindowStyles& other) const noexcept = default;
+
+	dcxWindowStyles(const WindowStyle& eStyles, const WindowExStyle& eExStyles, const NoTheme& bNoTheme) noexcept
+		: m_Styles(eStyles), m_ExStyles(eExStyles), m_NoTheme(bNoTheme)
+	{
+	}
+	dcxWindowStyles(const WindowStyle& eStyles, const WindowExStyle& eExStyles) noexcept
+		: m_Styles(eStyles), m_ExStyles(eExStyles), m_NoTheme(false)
+	{
+	}
 };
 
 enum class SizingTypes
@@ -127,25 +140,38 @@ struct CursorPair
 	{
 		return enabled && cursor;
 	}
+
+	CursorPair() = default;
+
+	bool operator==(const CursorPair& other) const noexcept = default;
+
+	CursorPair(const HCURSOR& cursor, bool enabled, const TString& src, const TString& flags)
+		: cursor(cursor), enabled(enabled), src(src), flags(flags)
+	{
+	}
 };
 
- //class DcxBase
- //{
- //	DcxBase() = delete;
- //	DcxBase(const DcxBase& other) = delete;
- //	DcxBase& operator =(const DcxBase&) = delete;
- //	DcxBase(DcxBase&& other) = delete;
- //	DcxBase& operator =(DcxBase&&) = delete;
- // virtual ~DcxBase() noexcept = default;
- //
- // virtual void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) = 0;
- //	virtual void toXml(TiXmlElement* const xml) const = 0;
- //	virtual void parseCommandRequest(const TString& input) = 0;
- //	virtual TString parseInfoRequest(const TString& input) const = 0;
- //
- // virtual void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) = 0;
- // virtual void xmlSetStyle(const TiXmlElement* xStyle) = 0;
- //};
+class DcxBase
+{
+public:
+	DcxBase() = delete;
+	DcxBase(const DcxBase& other) = delete;
+	DcxBase& operator =(const DcxBase&) = delete;
+	DcxBase(DcxBase&& other) = delete;
+	DcxBase& operator =(DcxBase&&) = delete;
+	bool operator==(const DcxBase& other) const = delete;
+	virtual ~DcxBase() noexcept = default;
+
+	virtual void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) = 0;
+	virtual void toXml(TiXmlElement* const xml) const = 0;
+	virtual TiXmlElement* toXml() const = 0;
+
+	virtual void parseCommandRequest(const TString& input) = 0;
+	virtual TString parseInfoRequest(const TString& input) const = 0;
+
+	virtual void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) = 0;
+	virtual void xmlSetStyle(const TiXmlElement* xStyle) = 0;
+};
 
 /// <summary>
 /// The root class for all dcx dialogs and controls.
@@ -158,6 +184,7 @@ public:
 	DcxWindow& operator =(const DcxWindow&) = delete;
 	DcxWindow(DcxWindow&& other) = delete;
 	DcxWindow& operator =(DcxWindow&&) = delete;
+	bool operator==(const DcxWindow& other) const = delete;
 
 	DcxWindow(const HWND mHwnd, const UINT mID) noexcept;
 	explicit DcxWindow(const UINT mID) noexcept;
@@ -208,13 +235,11 @@ public:
 	{
 		return TString();
 	}
-	
-	inline const DWORD &getEventMask() const noexcept { return m_dEventMask; }
+
+	inline const DWORD& getEventMask() const noexcept { return m_dEventMask; }
 	void setEventMask(const TString& tspFlags, const TString& tsnFlags);
 
-	inline const UINT& getDPI() const noexcept {
-		return m_uDPI;
-	}
+	inline const UINT& getDPI() const noexcept { return m_uDPI; }
 
 	bool TrackMouseEvents(DWORD events) noexcept;
 
