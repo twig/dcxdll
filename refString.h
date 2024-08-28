@@ -64,7 +64,7 @@ public:
 		return *this;
 	}
 
-	template <typename otherT, typename = std::enable_if_t<std::is_same_v<otherT::value_type, value_type>&& std::is_member_function_pointer_v<decltype(&otherT::data)>> >
+	template <typename otherT, typename = std::enable_if_t<std::is_same_v<typename otherT::value_type, value_type>&& std::is_member_function_pointer_v<decltype(&otherT::data)>> >
 	//template <refStringConcepts::HasDataFunction otherT>
 	//requires(otherT t)
 	//{
