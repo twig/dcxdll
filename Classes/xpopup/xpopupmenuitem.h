@@ -173,6 +173,7 @@ public:
 	void setItemIcon(const int nIcon) noexcept;
 	void setItemTooltip(const TString& tsText) { m_tsTooltipText = tsText; }
 	void setOverrideStyle(UINT uStyle) noexcept;
+	void setCheckToggle(bool bState) noexcept { m_bCheckToggle = bState; }
 
 	const TString& getItemText() const noexcept;
 	const int& getItemIcon() const noexcept;
@@ -182,6 +183,7 @@ public:
 	auto getStyle() const noexcept;
 
 	bool IsTooltipsEnabled() const noexcept;
+	const bool& IsCheckToggle() const noexcept { return m_bCheckToggle; };
 
 	bool parseItemText();
 
@@ -197,7 +199,7 @@ protected:
 	bool m_bBigBitmap{ false };				//!< Single large bitmap image used for whole menu?
 	bool m_bSep{ false };					//!< Is Separator ?
 	bool m_bSubMenu{ false };				//!< Has A SubMenu ?
-	bool m_bReserved{ false };				//!< Reserved for future use.
+	bool m_bCheckToggle{ false };				//!< Reserved for future use.
 };
 
 using VectorOfXPopupMenuItem = std::vector<XPopupMenuItem*>; //!< Vector of XPopupMenuItem Objects

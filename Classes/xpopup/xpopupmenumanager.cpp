@@ -150,11 +150,27 @@ namespace
 		return nullptr;
 	}
 
+	HMENU getFirstMenu()
+	{
+		std::scoped_lock lk(g_ListLock);
+		if (const auto& m = getGlobalMenuList(); !m.empty())
+			return m.front();
+		return nullptr;
+	}
+
 	HWND getBackWin()
 	{
 		std::scoped_lock lk(g_ListLock);
 		if (const auto& m = getGlobalMenuWindowList(); !m.empty())
 			return m.back();
+		return nullptr;
+	}
+
+	HWND getFirstWin()
+	{
+		std::scoped_lock lk(g_ListLock);
+		if (const auto& m = getGlobalMenuWindowList(); !m.empty())
+			return m.front();
 		return nullptr;
 	}
 
@@ -386,13 +402,7 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 
 		m_bIsSysMenu = false;
 #if DCX_CUSTOM_MENUS
-		getGlobalMenuList().push_back(menu);
-
-		if (!g_toolTipWin)
-		{
-			static TCHAR szTest[] = L"tooltip...";
-			g_toolTipWin = CreateTrackingToolTip(100, mHwnd, &szTest[0]);
-		}
+		TrackMenu(mHwnd, menu);
 #endif
 		return lRes;
 	}
@@ -407,11 +417,7 @@ LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM l
 	auto menu = reinterpret_cast<HMENU>(wParam);
 
 #if DCX_CUSTOM_MENUS
-	if (!m_bIsSysMenu)	// we dont care about system menus
-	{
-		if (auto vMenu = getGlobalMenuList(); !vMenu.empty())	// check vector is not empty before poping.
-			vMenu.pop_back();
-	}
+	UnTrackMenu(mHwnd, menu);
 #endif
 
 	// Unset the custom menu handle so we dont have to keep track of submenus anymore.
@@ -427,12 +433,7 @@ LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM l
 LRESULT XPopupMenuManager::OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
 #if DCX_CUSTOM_MENUS
-	if (g_toolTipWin)
-	{
-		DestroyWindow(g_toolTipWin);
-		g_toolTipWin = nullptr;
-	}
-	getGlobalMenuList().clear();
+	DestroyMenuTracking();
 #endif
 
 	if (!m_bIsMenuBar && m_bIsActiveMircPopup)
@@ -491,6 +492,42 @@ LRESULT XPopupMenuManager::OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_COMMAND, wParam, lParam);
 }
 
+void XPopupMenuManager::TrackMenu(HWND mHwnd, HMENU hMenu)
+{
+#if DCX_CUSTOM_MENUS
+	getGlobalMenuList().push_back(hMenu);
+
+	if (!g_toolTipWin)
+	{
+		static TCHAR szTest[] = L"tooltip...";
+		g_toolTipWin = CreateTrackingToolTip(100, mHwnd, &szTest[0]);
+	}
+#endif
+}
+
+void XPopupMenuManager::UnTrackMenu(HWND mHwnd, HMENU hMenu) noexcept
+{
+#if DCX_CUSTOM_MENUS
+	if (!m_bIsSysMenu)	// we dont care about system menus
+	{
+		if (auto vMenu = getGlobalMenuList(); !vMenu.empty())	// check vector is not empty before poping.
+			vMenu.pop_back();
+	}
+#endif
+}
+
+void XPopupMenuManager::DestroyMenuTracking() noexcept
+{
+#if DCX_CUSTOM_MENUS
+	if (g_toolTipWin)
+	{
+		DestroyWindow(g_toolTipWin);
+		g_toolTipWin = nullptr;
+	}
+	getGlobalMenuList().clear();
+#endif
+}
+
 /*!
  * \brief blah
  *
@@ -540,6 +577,7 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 		p_Menu->setBackBitmap(hBitmap, tsFilename);
 	}
 	// xpopup -c -> [MENU] [SWITCH] [STYLE]
+	// xpopup -c -> [MENU] [SWITCH] [STYLE] $chr(9) (callback alias)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 3)
@@ -554,7 +592,13 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 			throw Dcx::dcxException(TEXT("\"%\" already exists"), tsMenuName);
 
 		const auto style = XPopupMenu::parseStyle(input.getnexttok());	// tok 3
-		this->m_vpXPMenu.push_back(new XPopupMenu(tsMenuName, style));
+		if (input.numtok(TSTABCHAR) > 1)
+		{
+			const auto tsCallback(input.gettok(2, TSTABCHAR).trim());	// tok 4
+			this->m_vpXPMenu.push_back(new XPopupMenu(tsMenuName, style, tsCallback));
+		}
+		else
+			this->m_vpXPMenu.push_back(new XPopupMenu(tsMenuName, style));
 
 		// Ook: maybe change to something like this instead? need to check how this affects alloc/free
 		//std::vector<XPopupMenu> testv;
@@ -1074,6 +1118,25 @@ XPopupMenuItem* XPopupMenuManager::getMenuItemByID(const HMENU hMenu, const int 
 	return nullptr;
 }
 
+XPopupMenuItem* XPopupMenuManager::getMenuItemByMenuID(const HMENU hMenu, const UINT id) const noexcept
+{
+	if (!hMenu)
+		return nullptr;
+
+	MENUITEMINFO mii{};
+	mii.cbSize = sizeof(MENUITEMINFO);
+	mii.fMask = MIIM_DATA;
+	if (GetMenuItemInfoW(hMenu, id, FALSE, &mii))
+	{
+		if (auto* p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+		{
+			if (Dcx::XPopups.isItemValid(p_Item))
+				return p_Item;
+		}
+	}
+	return nullptr;
+}
+
 /*
  * Check if menu handle is a custom menu (don't include converted mIRC menus)
  */
@@ -1112,7 +1175,7 @@ const bool XPopupMenuManager::isMenuBarMenu(const HMENU hMenu, const HMENU hMatc
 	return false;
 }
 
-const bool XPopupMenuManager::isItemValid(const XPopupMenuItem* const pItem) const noexcept
+const bool XPopupMenuManager::isItemValid(_In_opt_ const XPopupMenuItem* const pItem) const noexcept
 {
 	if (!pItem)
 		return false;
@@ -1646,6 +1709,37 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			}
 		}
 		return 0;
+	}
+	break;
+
+	// This enables halting the menu closing &/or item selection.
+	case WindowMessages::eMN_BUTTONDOWN:
+	{
+		// detect item selection.
+		auto hMenu = getBackMenu();
+		if (!hMenu)
+			break;
+
+		const auto mID = GetMenuItemID(hMenu, wParam);
+		if (mID == UINT_MAX)
+			break;
+
+		auto xItem = Dcx::XPopups.getMenuItemByMenuID(hMenu, mID);
+		if (!xItem)
+			break;
+
+		if (!xItem->IsCheckToggle())
+			break;
+		if (auto xMenu = xItem->getParentMenu(); xMenu)
+		{
+			if (const TString tsCallback(xMenu->getCallback()); !tsCallback.empty())
+			{
+				TString tsRes;
+				mIRCLinker::eval(tsRes, L"$%(%,%,checksel)", tsCallback, xMenu->getName(), mID);
+				if (tsRes == L"$true")
+					return 0L;
+			}
+		}
 	}
 	break;
 

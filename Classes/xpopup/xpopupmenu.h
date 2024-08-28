@@ -313,6 +313,7 @@ public:
 
 	XPopupMenu(const TString &tsName, HMENU hMenu);
 	XPopupMenu(const TString & tsMenuName, MenuStyle mStyle);
+	XPopupMenu(const TString& tsMenuName, MenuStyle mStyle, const TString& tsCallback);
 	~XPopupMenu();
 
 	bool operator==(const XPopupMenu& other) const = default;
@@ -436,6 +437,9 @@ public:
 	void setMarkedText(const TString &text) { this->m_tsMarkedText = text; }
 	const TString &getMarkedText() const noexcept { return this->m_tsMarkedText; }
 
+	void setCallback(const TString& tsCallback) { m_tsCallback = tsCallback; }
+	const TString& getCallback() const noexcept { return this->m_tsCallback; }
+
 	const bool& IsToolTipsEnabled() const noexcept { return m_bEnableTooltips; }
 	void setTooltipsState(bool a) noexcept { m_bEnableTooltips = a; }
 
@@ -488,6 +492,7 @@ protected:
 	MenuStyle m_MenuStyle{ MenuStyle::XPMS_OFFICE2003 };//!< Menu Style
 	TString m_tsMenuName;				//!< Menu Name
 	TString m_tsMarkedText;				//!< Extra field to store custom information
+	TString m_tsCallback;
 	UINT m_MenuItemStyles{};			//!< Menu Item Styles
 	size_t m_menuNameHash{};			//!< Hash of tsMenuName
 

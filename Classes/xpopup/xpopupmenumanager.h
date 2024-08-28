@@ -131,13 +131,15 @@ public:
 	XPopupMenu* getMenuByHandle(const HMENU hMenu) const noexcept;
 	XPopupMenuItem* getMenuItemByID(const HMENU hMenu, const int id) const noexcept;
 
+	XPopupMenuItem* getMenuItemByMenuID(const HMENU hMenu, const UINT id) const noexcept;
+
 	XPopupMenu* getmIRCPopup(void) const noexcept { return m_mIRCPopupMenu.get(); }
 	XPopupMenu* getmIRCMenuBar(void) const noexcept { return m_mIRCMenuBar.get(); }
 	XPopupMenu* getmIRCScriptMenu(void) const noexcept { return m_mIRCScriptMenu.get(); };
 
 	const bool isCustomMenu(const HMENU hMenu) const noexcept;
 	static const bool isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
-	const bool isItemValid(const XPopupMenuItem* const pItem) const noexcept;
+	const bool isItemValid(_In_opt_ const XPopupMenuItem* const pItem) const noexcept;
 	static constexpr bool isPatched(void) noexcept { return false; };
 
 	static void LoadPopupsFromXML(const TiXmlElement *const popups, const TiXmlElement *popup, const TString &popupName, const TString &popupDataset);
@@ -149,6 +151,10 @@ public:
 	LRESULT OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 	LRESULT OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam);
+
+	void TrackMenu(HWND mHwnd, HMENU hMenu);
+	void UnTrackMenu(HWND mHwnd, HMENU hMenu) noexcept;
+	void DestroyMenuTracking() noexcept;
 
 protected:
 

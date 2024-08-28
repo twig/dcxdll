@@ -30,6 +30,12 @@ XPopupMenu::XPopupMenu(const TString& tsMenuName, MenuStyle mStyle)
 	m_MenuStyle = mStyle;
 }
 
+XPopupMenu::XPopupMenu(const TString& tsMenuName, MenuStyle mStyle, const TString& tsCallback)
+	: XPopupMenu(tsMenuName, mStyle)
+{
+	m_tsCallback = tsCallback;
+}
+
 /*!
  * \brief Constructor
  *
@@ -171,6 +177,8 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 				mii.fState |= MFS_GRAYED;
 
 			p_Item = std::make_unique<XPopupMenuItem>(this, tsItemText, tsTooltip, nIcon, (mii.hSubMenu != nullptr));
+
+			p_Item->setCheckToggle(xflags[TEXT('C')]);
 		}
 
 		mii.dwItemData = reinterpret_cast<ULONG_PTR>(p_Item.get());
@@ -293,6 +301,18 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 				mii.fState |= MFS_CHECKED;
 			if (xflags[TEXT('g')])
 				mii.fState |= MFS_GRAYED;
+
+			{
+				MENUITEMINFO mii2{};
+				mii2.cbSize = sizeof(MENUITEMINFO);
+				mii2.fMask = MIIM_DATA;
+
+				if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii2) == FALSE)
+					throw Dcx::dcxException("Unable to get menu item info");
+
+				if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii2.dwItemData); p_Item)
+					p_Item->setCheckToggle(xflags[TEXT('C')]);
+			}
 		}
 
 		SetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
@@ -723,6 +743,27 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam,
 			return OnDrawItem(mHwnd, lpdis);
 	}
 	break;
+
+#if DCX_CUSTOM_MENUS
+	case WM_INITMENU:
+	case WM_INITMENUPOPUP:
+	{
+		Dcx::XPopups.TrackMenu(mHwnd, reinterpret_cast<HMENU>(wParam));
+		break;
+	}
+
+	case WM_UNINITMENUPOPUP:
+	{
+		Dcx::XPopups.UnTrackMenu(mHwnd, reinterpret_cast<HMENU>(wParam));
+		break;
+	}
+
+	case WM_EXITMENULOOP:
+	{
+		Dcx::XPopups.DestroyMenuTracking();
+		break;
+	}
+#endif
 
 	default:
 		break;

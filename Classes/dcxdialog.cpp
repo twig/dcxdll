@@ -2855,6 +2855,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				p_this->m_popup->convertMenu(hMenu, TRUE);
 			}
 			m_bIsSysMenu = false;
+#if DCX_CUSTOM_MENUS
+			Dcx::XPopups.TrackMenu(mHwnd, hMenu);
+#endif
 		}
 		else
 			m_bIsSysMenu = true;
@@ -2863,13 +2866,21 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 	case WM_UNINITMENUPOPUP:
 	{
+#if DCX_CUSTOM_MENUS
+		Dcx::XPopups.UnTrackMenu(mHwnd, reinterpret_cast<HMENU>(wParam));
+#endif
 		if (p_this->m_popup && m_bIsMenuBar && !m_bIsSysMenu)
 			p_this->m_popup->deleteAllItemData(reinterpret_cast<HMENU>(wParam));
-
 		break;
 	}
 
 #if DCX_CUSTOM_MENUS
+	case WM_EXITMENULOOP:
+	{
+		Dcx::XPopups.DestroyMenuTracking();
+		break;
+	}
+
 	// Taken from https://github.com/adzm/win32-custom-menubar-aero-theme
 	// and modified for our needs.
 	case WM_UAHDRAWMENU:
