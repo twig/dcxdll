@@ -222,7 +222,7 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr><td colspan="2">This command lets you create an XPopup empty menu.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xpopup -c [MENU] [STYLE]</div></td>
+		<td><div class="syntax">/xpopup -c [MENU] [STYLE] ($chr(9) (CALLBACK))</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -288,6 +288,10 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 		<td class="value">buttonrev</td>
 		<td>Items look like buttons (sunken).</td>
+	</tr>
+	<tr>
+		<td class="param">CALLBACK</td>
+		<td>Callback alias to use with +C flagged items.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>This command will fail if the menu already exists, use <a class='value' href='xpopup.htm#xpopupprop.ismenu'>$xpopup().ismenu</a> to check if the menu exists.</li><li>Some colors are not used in certain menu styles.</li></ul></td></tr></table>
 <br />
@@ -845,6 +849,10 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 		<td class="value">c</td>
 		<td>Item is checked.</td>
+	</tr>
+	<tr>
+		<td class="value">C</td>
+		<td>Item calls the saved callback alias on selection.</td>
 	</tr>
 	<tr>
 		<td class="value">g</td>
@@ -1483,7 +1491,7 @@ The only difference is that you can load multiple icons by seperating the indexe
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2024</td>
-		<td style="text-align: right;">Last Updated: 11th July, 24</td>
+		<td style="text-align: right;">Last Updated: 28th August, 24</td>
 	</tr>
 </table>
 <div style="text-align: center;">

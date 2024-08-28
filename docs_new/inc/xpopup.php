@@ -181,7 +181,7 @@ function get_xpopup(&$XPOPUP) {
 		),
 		'c' => array(
 	        '__desc' => 'This command lets you create an XPopup empty menu.',
-	        '__cmd' => '[STYLE]',
+	        '__cmd' => '[STYLE] ($chr(9) (CALLBACK))',
 	        '__eg' => 'office2003rev',
 	        '__params' => array(
                 'STYLE' => array(
@@ -203,6 +203,7 @@ function get_xpopup(&$XPOPUP) {
 						'buttonrev' => 'Items look like buttons (sunken).',
 					),
 				),
+				'CALLBACK' => 'Callback alias to use with +C flagged items.',
 			),
 	        '__notes' => array(
 				'This command will fail if the menu already exists, use [prop]$xpopup().ismenu[/prop] to check if the menu exists.',
@@ -398,6 +399,7 @@ function get_xpop(&$XPOP) {
                     '__desc' => 'Menu item flags.',
                     '__values' => array(
 						'c' => 'Item is checked.',
+						'C' => 'Item calls the saved callback alias on selection.',
 						'g' => 'Item is disabled/grayed.',
 						's' => 'An empty submenu is created for the item ready for menu items.',
 					),

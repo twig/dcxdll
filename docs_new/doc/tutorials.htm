@@ -1173,6 +1173,22 @@ alias -l _setmenustyle {
     xdialog -P %d -R +a 255
   }
 }
+; $1 = dialog, $2 = menu
+alias -l _setweb2ctrl {
+  did -u $1 311
+  did -c $1 312
+  set %dcx_browser_default_type web2ctrl
+  xpop -s $2 3 1 1 $chr(9) +C
+  xpop -s $2 3 1 2 $chr(9) +cC
+}
+; $1 = dialog, $2 = menu
+alias -l _setwebctrl {
+  did -u $1 312
+  did -c $1 311
+  set %dcx_browser_default_type webctrl
+  xpop -s $2 3 1 1 $chr(9) +cC
+  xpop -s $2 3 1 2 $chr(9) +C
+}
 alias -l _menuevent {
   var %m = $+(_,$1)
   if ($2 == 1) {
@@ -1185,20 +1201,8 @@ alias -l _menuevent {
     set %dcx_browser_type web2ctrl
     dcx_webbrowser_addtab $1
   }
-  elseif ($2 == 311) {
-    did -u $1 312
-    did -c $1 311
-    set %dcx_browser_default_type webctrl
-    xpop -s %m 3 1 1 $chr(9) +c
-    xpop -s %m 3 1 2 $chr(9) +
-  }
-  elseif ($2 == 312) {
-    did -u $1 311
-    did -c $1 312
-    set %dcx_browser_default_type web2ctrl
-    xpop -s %m 3 1 1 $chr(9) +
-    xpop -s %m 3 1 2 $chr(9) +c
-  }
+  elseif ($2 == 311) _setwebctrl $1 %m
+  elseif ($2 == 312) _setweb2ctrl $1 %m
   elseif ($2 == 32) xdialog -p $1 +v 1
   elseif ($2 == 33) xdialog -p $1 +v 0
   elseif ($2 == 341) _setmenustyle normal
@@ -1237,6 +1241,16 @@ alias -l _menuevent {
   }
 }
 on *:DIALOG:dcx_webbrowser:menu:*: _menuevent $dname $did
+alias dcx_webbrowser_menuCallback {
+  ;echo -s menu: $1 :: $2 :: $3-
+  if ($3 == checksel) {
+    if ($2 isnum 311-312) {
+      if ($2 == 311) _setwebctrl dcx_webbrowser $1
+      elseif ($2 == 312) _setweb2ctrl dcx_webbrowser $1
+      return $true
+    }
+  }
+}
 on *:DIALOG:dcx_webbrowser:init:0:{
   set %dcx_browser_tabcnt 0
 
@@ -1267,15 +1281,15 @@ on *:DIALOG:dcx_webbrowser:init:0:{
 
   var %m = _dcx_webbrowser
 
-  xpopup -c %m normal
+  xpopup -c %m normal $chr(9) dcx_webbrowser_menuCallback
   if ($isfile(%dcx_webbrowser_icon_webview)) xpopup -i %m +P 0 %dcx_webbrowser_icon_webview
   if ($isfile(%dcx_webbrowser_icon_ie)) xpopup -i %m + 1 %dcx_webbrowser_icon_ie
   xpop -a %m -1 $chr(9) + 1 2 Add IE Tab $chr(9) Open new IE tab.
   xpop -a %m -1 $chr(9) + 2 1 Add WebView2 Tab $chr(9) Open new WebView2 tab.
   xpop -a %m -1 $chr(9) +s 30 0 Options
   xpop -a %m 3 -1 $chr(9) +s 31 0 Default Browser
-  xpop -a %m 3 1 -1 $chr(9) $iif(%dcx_browser_default_type == webctrl,+c,+) 311 0 IE $chr(9) Set Internet Explorer as the default.
-  xpop -a %m 3 1 -1 $chr(9) $iif(%dcx_browser_default_type == web2ctrl,+c,+) 312 0 WebView2 $chr(9) Set WebView2 as the default.
+  xpop -a %m 3 1 -1 $chr(9) $iif(%dcx_browser_default_type == webctrl,+Cc,+C) 311 0 IE $chr(9) Set Internet Explorer as the default.
+  xpop -a %m 3 1 -1 $chr(9) $iif(%dcx_browser_default_type == web2ctrl,+Cc,+C) 312 0 WebView2 $chr(9) Set WebView2 as the default.
   xpop -a %m 3 -1 $chr(9) +s 34 0 Menu Options
   xpop -a %m 3 2 -1 $chr(9) +s 35 0 Menu Styles
   xpop -a %m 3 2 1 -1 $chr(9) + 341 0 Normal $chr(9) Normal looking menu
@@ -1557,7 +1571,7 @@ ON *:SIGNAL:XPopup-_dcx_webbrowser: {
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2024</td>
-		<td style="text-align: right;">Last Updated: 11th July, 24</td>
+		<td style="text-align: right;">Last Updated: 28th August, 24</td>
 	</tr>
 </table>
 <div style="text-align: center;">
