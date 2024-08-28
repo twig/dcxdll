@@ -210,6 +210,10 @@ public:
 	};
 	//inline const HWND& getToolTip(void) const noexcept { return m_ToolTipHWND; };
 
+	inline const XPopupMenu* getXMenu() const noexcept {
+		return m_popup.get();
+	};
+
 	void loadCursor(const TString &tsFlags, const TString &tsFilename);
 
 	inline void incRef() const noexcept { ++m_iRefCount; };
