@@ -173,8 +173,10 @@ void DcxText::parseCommandRequest(const TString& input)
 
 		// redraw if transparent
 		if (this->isExStyle(WindowExStyle::Transparent))
+		{
 			this->InvalidateParentRect(m_Hwnd);
-		this->redrawWindow();
+			this->redrawWindow();
+		}
 	}
 	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -189,8 +191,10 @@ void DcxText::parseCommandRequest(const TString& input)
 
 		// redraw if transparent
 		if (this->isExStyle(WindowExStyle::Transparent))
+		{
 			this->InvalidateParentRect(m_Hwnd);
-		this->redrawWindow();
+			this->redrawWindow();
+		}
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
