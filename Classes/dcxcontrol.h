@@ -146,9 +146,10 @@ using LPALPHAINFO = ALPHAINFO*;
 #define DCX_DELETE_CONTROL_METHODS(xclass) \
 xclass() = delete; \
 xclass(const xclass &other) = delete; \
-xclass &operator =(const xclass &) = delete; \
+GSL_SUPPRESS(c.128) xclass &operator =(const xclass &) = delete; \
 xclass(xclass &&other) noexcept = delete; \
-xclass &operator =(xclass &&) noexcept = delete;
+GSL_SUPPRESS(c.128) xclass &operator =(xclass &&) noexcept = delete; \
+bool operator==(const xclass& other) const = delete;
 
 template <class T, std::size_t N>
 GSL_SUPPRESS(bounds)
@@ -209,6 +210,7 @@ public:
 	GSL_SUPPRESS(c.128) DcxControl& operator =(const DcxControl&) = delete;	// No copy assignments!
 	DcxControl(DcxControl&& other) = delete;	// no move constructor
 	GSL_SUPPRESS(c.128) DcxControl& operator =(DcxControl&&) = delete;	// No move assignments!
+	bool operator==(const DcxControl& other) const = delete;
 
 	DcxControl(const UINT mID, gsl::strict_not_null<DcxDialog* const> p_Dialog) noexcept;
 	~DcxControl() noexcept;
@@ -236,10 +238,7 @@ public:
 	//	getParentDialog()->execAlias(_ts_sprintf(tsBuf, fmt, val, args...).to_chr());
 	//}
 
-	[[nodiscard]] const UINT& getUserID() const noexcept
-	{
-		return m_UserID;
-	}
+	[[nodiscard]] const UINT& getUserID() const noexcept { return m_UserID; }
 
 	void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) override;
 
