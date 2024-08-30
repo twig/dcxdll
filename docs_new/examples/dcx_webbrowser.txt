@@ -491,8 +491,8 @@ on *:DIALOG:dcx_webbrowser:init:0:{
   xpop -a %m -1 $chr(9) + 2 1 Add WebView2 Tab $chr(9) Open new WebView2 tab.
   xpop -a %m -1 $chr(9) +s 30 0 Options
   xpop -a %m 3 -1 $chr(9) +s 31 0 Default Browser
-  xpop -a %m 3 1 -1 $chr(9) $iif(%dcx_browser_default_type == webctrl,+Cc,+C) 311 0 IE $chr(9) Set Internet Explorer as the default.
-  xpop -a %m 3 1 -1 $chr(9) $iif(%dcx_browser_default_type == web2ctrl,+Cc,+C) 312 0 WebView2 $chr(9) Set WebView2 as the default.
+  xpop -a %m 3 1 -1 $chr(9) $iif(%dcx_browser_default_type == webctrl,+Ccr,+Cr) 311 0 IE $chr(9) Set Internet Explorer as the default.
+  xpop -a %m 3 1 -1 $chr(9) $iif(%dcx_browser_default_type == web2ctrl,+Ccr,+Cr) 312 0 WebView2 $chr(9) Set WebView2 as the default.
   xpop -a %m 3 -1 $chr(9) +s 34 0 Menu Options
   xpop -a %m 3 2 -1 $chr(9) +s 35 0 Menu Styles
   xpop -a %m 3 2 1 -1 $chr(9) +Cr 341 0 Normal $chr(9) Normal looking menu

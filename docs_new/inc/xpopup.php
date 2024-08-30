@@ -402,6 +402,8 @@ function get_xpop(&$XPOP) {
 						'C' => 'Item calls the saved callback alias on selection.',
 						'g' => 'Item is disabled/grayed.',
 						's' => 'An empty submenu is created for the item ready for menu items.',
+						'r' => 'Item is a Radio style check item.',
+						'R' => 'Force menu redraw if its open. (only affects [cmd]/xpop -s[/cmd])',
 					),
 				),
                 'ID' => "Menu item ID as returned on the event handler.",
