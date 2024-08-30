@@ -528,6 +528,14 @@ void XPopupMenuManager::DestroyMenuTracking() noexcept
 #endif
 }
 
+void XPopupMenuManager::RedrawMenuIfOpen() noexcept
+{
+	for (auto& win : getGlobalMenuWindowList())
+	{
+		RedrawWindow(win, nullptr, nullptr, RDW_UPDATENOW | RDW_FRAME | RDW_INTERNALPAINT | RDW_INVALIDATE);
+	}
+}
+
 /*!
  * \brief blah
  *
@@ -948,6 +956,14 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 		return p_Menu->getBackBitmapFilename();
 	}
 	break;
+	case TEXT("callback"_hash):
+	{
+		if (!p_Menu)
+			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
+
+		return p_Menu->getCallback();
+	}
+	break;
 	case 0:
 	default:
 		throw Dcx::dcxException(TEXT("Unknown prop \"%\""), prop);
@@ -1099,15 +1115,15 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) const noexcept
 	return nullptr;
 }
 
-XPopupMenuItem* XPopupMenuManager::getMenuItemByID(const HMENU hMenu, const int id) const noexcept
+XPopupMenuItem* XPopupMenuManager::_getMenuItemByID(const HMENU hMenu, const UINT id, BOOL bByPos) const noexcept
 {
-	if ((!hMenu) || (id == -1))
+	if (!hMenu)
 		return nullptr;
 
 	MENUITEMINFO mii{};
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fMask = MIIM_DATA;
-	if (GetMenuItemInfoW(hMenu, id, TRUE, &mii))
+	if (GetMenuItemInfoW(hMenu, id, bByPos, &mii))
 	{
 		if (auto* p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
 		{
@@ -1118,23 +1134,17 @@ XPopupMenuItem* XPopupMenuManager::getMenuItemByID(const HMENU hMenu, const int 
 	return nullptr;
 }
 
-XPopupMenuItem* XPopupMenuManager::getMenuItemByMenuID(const HMENU hMenu, const UINT id) const noexcept
+XPopupMenuItem* XPopupMenuManager::getMenuItemByID(const HMENU hMenu, const int id) const noexcept
 {
-	if (!hMenu)
+	if (id == -1)
 		return nullptr;
 
-	MENUITEMINFO mii{};
-	mii.cbSize = sizeof(MENUITEMINFO);
-	mii.fMask = MIIM_DATA;
-	if (GetMenuItemInfoW(hMenu, id, FALSE, &mii))
+	return _getMenuItemByID(hMenu, gsl::narrow_cast<UINT>(id), TRUE);
+}
+
+XPopupMenuItem* XPopupMenuManager::getMenuItemByCommandID(const HMENU hMenu, const UINT id) const noexcept
 	{
-		if (auto* p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
-		{
-			if (Dcx::XPopups.isItemValid(p_Item))
-				return p_Item;
-		}
-	}
-	return nullptr;
+	return _getMenuItemByID(hMenu, id, FALSE);
 }
 
 /*
@@ -1408,6 +1418,7 @@ const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu* menu, HMENU hMen
 
 			// TODO: command
 			item = std::make_unique<XPopupMenuItem>(menu, caption, mIcon, (mii.hSubMenu != nullptr));
+			item->setCheckToggle(xState[TEXT('C')]);
 		}
 
 		// item never nullptr here
@@ -1724,7 +1735,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		if (mID == UINT_MAX)
 			break;
 
-		auto xItem = Dcx::XPopups.getMenuItemByMenuID(hMenu, mID);
+		auto xItem = Dcx::XPopups.getMenuItemByCommandID(hMenu, mID);
 		if (!xItem)
 			break;
 
@@ -1735,6 +1746,8 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			if (const TString tsCallback(xMenu->getCallback()); !tsCallback.empty())
 			{
 				TString tsRes;
+				//_ts_sprintf(tsRes, L"$%(%,%,checksel)", tsCallback, xMenu->getName(), mID);
+				//mIRCLinker::eval(tsRes, tsRes);
 				mIRCLinker::eval(tsRes, L"$%(%,%,checksel)", tsCallback, xMenu->getName(), mID);
 				if (tsRes == L"$true")
 					return 0L;

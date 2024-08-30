@@ -211,7 +211,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  "68"
+#define DLL_DEV_BUILD  "69"
 #define DCXML_VERSION			1
 #define DCXML_DIALOG_VERSION	2
 #define DCXML_POPUP_VERSION		2
@@ -839,6 +839,7 @@ TString MakeTextmIRCSafe(const TCHAR* const tString, const std::size_t len);
 
 void dcxDrawLine(HDC hdc, LONG x1, LONG y1, LONG x2, LONG y2) noexcept;
 void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, const DWORD dState, const bool bTicked, const bool bRounded) noexcept;
+void dcxDrawRadioBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, const DWORD dState, const bool bTicked, const bool bRounded) noexcept;
 void dcxDrawEdge(HDC hdc, const LPRECT rc, COLORREF clr) noexcept;
 void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept;
 HWND dcxGetRealParent(HWND hWnd) noexcept;

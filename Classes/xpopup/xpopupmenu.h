@@ -444,6 +444,32 @@ public:
 	void setTooltipsState(bool a) noexcept { m_bEnableTooltips = a; }
 
 	bool getMenuInfo(const UINT iMask, const TString &path, MENUITEMINFO &mii) const;
+	XPopupMenuItem* getMenuItem(HMENU hMenu, int nPos)
+	{
+		MENUITEMINFO mii{};
+		mii.cbSize = sizeof(MENUITEMINFO);
+		mii.fMask = MIIM_DATA;
+
+		if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
+			throw Dcx::dcxException("Unable to get menu item info");
+
+		if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+			return p_Item;
+
+		return nullptr;
+	}
+	XPopupMenuItem* getMenuItem(const TString& path)
+	{
+		MENUITEMINFO mii{};
+		mii.cbSize = sizeof(MENUITEMINFO);
+
+		if (getMenuInfo(MIIM_DATA, path, mii))
+			return reinterpret_cast<XPopupMenuItem*>(mii.dwItemData);
+
+		return nullptr;
+	}
+
+	void setItemCheckToggle(UINT nPos, bool bEnable);
 
 	/// <summary>
 	/// Check if a menu item is valid.

@@ -129,9 +129,9 @@ public:
 	XPopupMenu* getMenuByHash(const std::size_t uHash, const bool bCheckSpecial) const noexcept;
 	XPopupMenu* getMenuByName(const TString &tsName, const bool bCheckSpecial) const noexcept;
 	XPopupMenu* getMenuByHandle(const HMENU hMenu) const noexcept;
-	XPopupMenuItem* getMenuItemByID(const HMENU hMenu, const int id) const noexcept;
 
-	XPopupMenuItem* getMenuItemByMenuID(const HMENU hMenu, const UINT id) const noexcept;
+	XPopupMenuItem* getMenuItemByID(const HMENU hMenu, const int id) const noexcept;
+	XPopupMenuItem* getMenuItemByCommandID(const HMENU hMenu, const UINT id) const noexcept;
 
 	XPopupMenu* getmIRCPopup(void) const noexcept { return m_mIRCPopupMenu.get(); }
 	XPopupMenu* getmIRCMenuBar(void) const noexcept { return m_mIRCMenuBar.get(); }
@@ -155,6 +155,10 @@ public:
 	void TrackMenu(HWND mHwnd, HMENU hMenu);
 	void UnTrackMenu(HWND mHwnd, HMENU hMenu) noexcept;
 	void DestroyMenuTracking() noexcept;
+	void RedrawMenuIfOpen() noexcept;
+
+private:
+	XPopupMenuItem* _getMenuItemByID(const HMENU hMenu, const UINT id, BOOL bByPos) const noexcept;
 
 protected:
 

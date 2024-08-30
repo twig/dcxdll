@@ -1011,6 +1011,94 @@ void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, con
 	}
 }
 
+void dcxDrawRadioBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, const DWORD dState, const bool bTicked, const bool bRounded) noexcept
+{
+	if (!hDC || !lpcol || !rcBox)
+		return;
+
+	// create background brush
+	const auto hBrush = CreateSolidBrush(getCheckBoxBkgColour(lpcol, dState));
+	if (!hBrush)
+		return;
+	Auto(DeleteObject(hBrush));
+
+	// create border pen
+	const auto hPenBorder = CreatePen(PS_SOLID, 1, getCheckBoxFrameColour(lpcol, dState));
+	if (!hPenBorder)
+		return;
+	Auto(DeleteObject(hPenBorder));
+
+	// create border highlite pen
+	const auto hPenHighBorder = CreatePen(PS_SOLID, 1, getCheckBoxHighliteFrameColour(lpcol, dState));
+	if (!hPenHighBorder)
+		return;
+	Auto(DeleteObject(hPenHighBorder));
+
+	// create tick pen
+	const auto hPenTick = CreatePen(PS_SOLID, 1, getCheckBoxTickColour(lpcol, dState));
+	if (!hPenTick)
+		return;
+	Auto(DeleteObject(hPenTick));
+
+	// set background brush
+	const auto hOldBrush = SelectObject(hDC, hBrush);
+	Auto(SelectObject(hDC, hOldBrush));
+
+	RECT rc = *rcBox;
+
+	InflateRect(&rc, -5, -5);
+
+	{
+		// draw tick box
+		const auto hOldPenBorder = SelectObject(hDC, hPenBorder);
+		Auto(SelectObject(hDC, hOldPenBorder));
+
+		InflateRect(&rc, 0, -1);
+		rc.left += 1;
+		rc.right = rc.left + rc.bottom - rc.top;
+
+		if (bRounded)
+		{
+			Ellipse(hDC, rc.left, rc.top, rc.right, rc.bottom);
+
+			InflateRect(&rc, -1, -1);
+
+			const auto hOldHighPenBorder = SelectObject(hDC, hPenHighBorder);
+			Auto(SelectObject(hDC, hOldHighPenBorder));
+
+			Ellipse(hDC, rc.left, rc.top, rc.right, rc.bottom);
+		}
+		else {
+			Rectangle(hDC, rc.left, rc.top, rc.right, rc.bottom);
+
+			InflateRect(&rc, -1, -1);
+
+			const auto hOldHighPenBorder = SelectObject(hDC, hPenHighBorder);
+			Auto(SelectObject(hDC, hOldHighPenBorder));
+
+			Rectangle(hDC, rc.left, rc.top, rc.right, rc.bottom);
+		}
+	}
+
+	if (bTicked)
+	{
+		// draw tick
+		const auto hOldPenTick = SelectObject(hDC, hPenTick);
+		Auto(SelectObject(hDC, hOldPenTick));
+
+		InflateRect(&rc, -1, -1);
+
+		if (bRounded)
+			Ellipse(hDC, rc.left, rc.top, rc.right, rc.bottom);
+		else {
+			auto hBrush2 = CreateSolidBrush(getCheckBoxTickColour(lpcol, dState));
+			Auto(DeleteObject(hBrush2));
+
+			FillRect(hDC, &rc, hBrush2);
+		}
+	}
+}
+
 HWND dcxGetRealParent(HWND hWnd) noexcept
 {
 	// To obtain a window's owner window, instead of using GetParent,

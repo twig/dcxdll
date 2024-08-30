@@ -283,12 +283,17 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 			p_Item->setItemIcon(nIcon);
 	}
 	// xpop -s - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS]
+	// xpop -s - [MENU] [SWITCH] [PATH] [TAB] +r [FIRST] [LAST]
 	else if (flags[TEXT('s')] && tabtoks > 1 && toks_in_tab_two > 0)
 	{
-		const XSwitchFlags xflags(tsTabTwo);
+		const XSwitchFlags xflags(tsTabTwo.getfirsttok(1));
 
 		if (nPos < 0)
 			throw DcxExceptions::dcxInvalidPath();
+
+		const auto p_Item = getMenuItem(hMenu, nPos);
+		if (!p_Item)
+			throw DcxExceptions::dcxInvalidItem();
 
 		MENUITEMINFO mii{};
 		mii.cbSize = sizeof(MENUITEMINFO);
@@ -302,18 +307,19 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 			if (xflags[TEXT('g')])
 				mii.fState |= MFS_GRAYED;
 
-			{
-				MENUITEMINFO mii2{};
-				mii2.cbSize = sizeof(MENUITEMINFO);
-				mii2.fMask = MIIM_DATA;
-
-				if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii2) == FALSE)
-					throw Dcx::dcxException("Unable to get menu item info");
-
-				if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii2.dwItemData); p_Item)
 					p_Item->setCheckToggle(xflags[TEXT('C')]);
+
+			if (xflags[TEXT('r')])
+			{
+				const auto nFirst = tsTabTwo.getnexttok().to_<UINT>() - 1;
+				const auto nLast = tsTabTwo.getnexttok().to_<UINT>() - 1;
+				CheckMenuRadioItem(hMenu, nFirst, nLast, nPos, MF_BYPOSITION);
 			}
+			if (xflags[TEXT('R')])
+				Dcx::XPopups.RedrawMenuIfOpen();
 		}
+		else
+			p_Item->setCheckToggle(false);
 
 		SetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
 	}
@@ -348,7 +354,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 
 		MENUITEMINFO mii{};
 		mii.cbSize = sizeof(MENUITEMINFO);
-		mii.fMask = MIIM_DATA | MIIM_STATE | MIIM_SUBMENU | MIIM_FTYPE | MIIM_ID;
+		mii.fMask = MIIM_DATA;
 
 		if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
 			throw Dcx::dcxException("Unable to get menu item info");
@@ -1015,6 +1021,19 @@ bool XPopupMenu::getMenuInfo(const UINT iMask, const TString& path, MENUITEMINFO
 	return GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
 }
 
+void XPopupMenu::setItemCheckToggle(UINT nPos, bool bEnable)
+{
+	MENUITEMINFO mii{};
+	mii.cbSize = sizeof(MENUITEMINFO);
+	mii.fMask = MIIM_DATA;
+
+	if (GetMenuItemInfo(this->getMenuHandle(), nPos, TRUE, &mii) == FALSE)
+		throw Dcx::dcxException("Unable to get menu item info");
+
+	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+		p_Item->setCheckToggle(bEnable);
+}
+
 const bool XPopupMenu::isItemValid(const XPopupMenuItem* const pItem) const noexcept
 {
 	if (!pItem)
@@ -1102,9 +1121,18 @@ void XPopupMenu::toXml(VectorOfIcons& vIcons, TiXmlElement* const xml) const
 	if (auto alpha = gsl::narrow_cast<int>(this->IsAlpha()); alpha < 255)
 		xml->SetAttribute("alpha", alpha);
 
+	if (auto tsCallback(getCallback()); !tsCallback.empty())
+		xml->SetAttribute("callback", tsCallback.c_str());
+
 	{
-		TString tsStyles(getItemStyleString());
+		const TString tsStyles(getItemStyleString());
 		xml->SetAttribute("itemstyles", tsStyles.c_str());
+	}
+
+	// TODO: save menu items...
+	for (const auto& item : this->m_vpMenuItem)
+	{
+		xml->LinkEndChild(item->toXml(vIcons));
 	}
 }
 
@@ -1115,7 +1143,7 @@ TiXmlElement* XPopupMenu::toXml(VectorOfIcons& vIcons) const
 	return xml.release();
 }
 
-void XPopupMenu::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, const VectorOfIcons &vIcons)
+void XPopupMenu::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, const VectorOfIcons& vIcons)
 {
 	if (!xThis)
 		return;
@@ -1131,6 +1159,9 @@ void XPopupMenu::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, 
 		this->setTooltipsState(true);
 	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "alpha")); tmp < 255)
 		this->SetAlpha(std::byte{ tmp });
+
+	if (const TString tsCallback(queryAttribute(xThis, "callback")); !tsCallback.empty())
+		this->setCallback(tsCallback);
 
 	if (auto xml = xThis->FirstChildElement("image"); xml)
 		m_hBitmap.fromXml(xml);
@@ -1157,9 +1188,13 @@ void XPopupMenu::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, 
 			Dcx::dcxLoadIconRange(himl, tsSrc, false, tsFlags, tsIndex);
 		}
 	}
+
+	// now check for items...
+	if (!Dcx::XPopups.LoadPopupItemsFromXML(this, this->getMenuHandle(), xThis))
+		throw Dcx::dcxException(TEXT("Unable to load menu items: %"), this->getName());
 }
 
-void XPopupMenu::xmlSaveImageList(VectorOfIcons &vIcons, TiXmlElement* xml) const
+void XPopupMenu::xmlSaveImageList(VectorOfIcons& vIcons, TiXmlElement* xml) const
 {
 	if (!m_hImageList || !xml)
 		return;
