@@ -444,7 +444,7 @@ public:
 	void setTooltipsState(bool a) noexcept { m_bEnableTooltips = a; }
 
 	bool getMenuInfo(const UINT iMask, const TString &path, MENUITEMINFO &mii) const;
-	XPopupMenuItem* getMenuItem(HMENU hMenu, int nPos)
+	XPopupMenuItem* getMenuItem(HMENU hMenu, int nPos) const
 	{
 		MENUITEMINFO mii{};
 		mii.cbSize = sizeof(MENUITEMINFO);
@@ -458,7 +458,7 @@ public:
 
 		return nullptr;
 	}
-	XPopupMenuItem* getMenuItem(const TString& path)
+	XPopupMenuItem* getMenuItem(const TString& path) const
 	{
 		MENUITEMINFO mii{};
 		mii.cbSize = sizeof(MENUITEMINFO);

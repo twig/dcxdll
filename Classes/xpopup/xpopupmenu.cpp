@@ -178,6 +178,12 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 
 			p_Item = std::make_unique<XPopupMenuItem>(this, tsItemText, tsTooltip, nIcon, (mii.hSubMenu != nullptr));
 
+			if (xflags[TEXT('r')])
+			{
+				mii.fType |= MFT_RADIOCHECK;
+				p_Item->setRadioCheck(true);
+			}
+
 			p_Item->setCheckToggle(xflags[TEXT('C')]);
 		}
 

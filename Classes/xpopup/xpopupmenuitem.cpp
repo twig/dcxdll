@@ -280,7 +280,12 @@ void XPopupMenuItem::DrawItem(const LPDRAWITEMSTRUCT lpdis)
 	// Regular Item
 	else {
 		if (bChecked)
+		{
+			if (this->IsRadioCheck())
+				this->DrawItemRadioCheck(lpdis, lpcol, bGrayed, this->m_pXParentMenu->IsRoundedSelector());
+			else
 			this->DrawItemCheckBox(lpdis, lpcol, bGrayed, this->m_pXParentMenu->IsRoundedSelector());
+		}
 
 		this->DrawItemText(lpdis, lpcol, bGrayed);
 
@@ -484,6 +489,23 @@ void XPopupMenuItem::DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const XPMENU
 	cols.m_clrDisabledTick = lpcol->m_clrDisabledText;
 
 	dcxDrawCheckBox(lpdis->hDC, std::addressof(lpdis->rcItem), std::addressof(cols), lpdis->itemState, true, bRounded);
+}
+
+void XPopupMenuItem::DrawItemRadioCheck(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const bool bDis, const bool bRounded) noexcept
+{
+	if (!lpdis || !lpcol || !lpdis->hDC)
+		return;
+
+	clrCheckBox cols;
+	cols.m_clrBackground = lpcol->m_clrCheckBox;
+	cols.m_clrDisabledBackground = lpcol->m_clrDisabledCheckBox;
+	cols.m_clrDisabledFrame = lpcol->m_clrSelectionBorder;
+	cols.m_clrFrame = lpcol->m_clrSelectionBorder;
+	cols.m_clrTick = lpcol->m_clrText;
+	cols.m_clrHotTick = lpcol->m_clrSelectedText;
+	cols.m_clrDisabledTick = lpcol->m_clrDisabledText;
+
+	dcxDrawRadioBox(lpdis->hDC, std::addressof(lpdis->rcItem), std::addressof(cols), lpdis->itemState, true, bRounded);
 }
 
 /*!

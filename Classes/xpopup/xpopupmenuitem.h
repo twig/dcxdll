@@ -142,6 +142,7 @@ public:
 
 	static void DrawItemSelection(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const bool bDis = false, const bool bRounded = false) noexcept;
 	static void DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const bool bDis = false, const bool bRounded = false) noexcept;
+	static void DrawItemRadioCheck(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const bool bDis = false, const bool bRounded = false) noexcept;
 	static void DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const bool bDis = false) noexcept;
 	static bool DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBigImage, const HBITMAP bmImage);
 	static void DrawGradient(const HDC hdc, const RECT* const lprc, const COLORREF clrStart, const COLORREF clrEnd, const bool bHorz = false) noexcept;
@@ -174,6 +175,7 @@ public:
 	void setItemTooltip(const TString& tsText) { m_tsTooltipText = tsText; }
 	void setOverrideStyle(UINT uStyle) noexcept;
 	void setCheckToggle(bool bState) noexcept { m_bCheckToggle = bState; }
+	void setRadioCheck(bool bEnable) noexcept { m_bRadioCheck = bEnable; }
 
 	const TString& getItemText() const noexcept;
 	const int& getItemIcon() const noexcept;
@@ -184,6 +186,7 @@ public:
 
 	bool IsTooltipsEnabled() const noexcept;
 	const bool& IsCheckToggle() const noexcept { return m_bCheckToggle; };
+	const bool& IsRadioCheck() const noexcept { return m_bRadioCheck; };
 
 	bool parseItemText();
 
@@ -200,6 +203,7 @@ protected:
 	bool m_bSep{ false };					//!< Is Separator ?
 	bool m_bSubMenu{ false };				//!< Has A SubMenu ?
 	bool m_bCheckToggle{ false };				//!< Reserved for future use.
+	bool m_bRadioCheck{ false };
 };
 
 using VectorOfXPopupMenuItem = std::vector<XPopupMenuItem*>; //!< Vector of XPopupMenuItem Objects
