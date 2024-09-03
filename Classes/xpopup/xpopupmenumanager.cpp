@@ -1567,6 +1567,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 
 		// remove ourselfs.
 		RemoveBackWin();
+		RemoveBackMenu();
 
 		if (!getGlobalMenuWindowList().empty())
 		{
