@@ -42,6 +42,7 @@ namespace
 		}
 		CallBackTimer(const CallBackTimer&) = delete;
 		CallBackTimer(CallBackTimer&&) = delete;
+		CallBackTimer(const std::atomic<bool>& _execute, const std::thread& _thd) = delete;
 		CallBackTimer& operator =(const CallBackTimer&) = delete;
 		CallBackTimer& operator =(CallBackTimer&&) = delete;
 		bool operator==(const CallBackTimer& other) const = default;
@@ -51,11 +52,16 @@ namespace
 			_execute.store(false, std::memory_order_release);
 		}
 
-		void stop()
+		void stop() noexcept
 		{
 			setstop();
 			if (_thd.joinable())
+			{
+				try {
 				_thd.join();
+		}
+				catch (...) {}
+			}
 		}
 
 		void start(int interval, std::function<void(void)> func)
