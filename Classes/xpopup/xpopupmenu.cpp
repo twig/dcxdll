@@ -125,7 +125,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 
 			if (tsTabTwo.numtok(TSTABCHAR) > 1)
 			{
-				tsItemText = itemtext.gettok(1, TSTABCHAR).trim();
+				tsItemText = itemtext.getfirsttok(1, TSTABCHAR).trim();
 				tsTooltip = itemtext.getlasttoks().trim();
 			}
 			else
