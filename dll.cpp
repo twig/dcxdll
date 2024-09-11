@@ -2268,11 +2268,13 @@ mIRC(SetDCXSettings)
 
 		switch (std::hash<TString>{}(tsOpt))
 		{
+		case L"StaticColors"_hash:
 		case L"StaticColours"_hash:
 		{
 			Dcx::setting_bStaticColours = (d.getnexttok().to_int() > 0);
 			break;
 		}
+		case L"UpdateColors"_hash:
 		case L"UpdateColours"_hash:
 		{
 			getmIRCPalette(true); // force colours to update
@@ -2314,6 +2316,7 @@ mIRC(GetDCXSettings)
 
 		switch (std::hash<TString>{}(tsOpt))
 		{
+		case L"StaticColors"_hash:
 		case L"StaticColours"_hash:
 		{
 			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%d"), Dcx::setting_bStaticColours);
