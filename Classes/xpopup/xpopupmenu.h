@@ -256,7 +256,8 @@ public:
 	*
 	* Availbale XPopupMenu Styles
 	*/
-	enum class MenuStyle : UINT {
+	enum class MenuStyle : UINT
+	{
 		XPMS_None,
 		XPMS_OFFICE2003,
 		XPMS_OFFICE2003_REV,
@@ -289,7 +290,8 @@ public:
 	11 	Selected text color
 	*/
 
-	enum class MenuColours : UINT {
+	enum class MenuColours : UINT
+	{
 		XPMC_MIN = 1,
 		XPMC_BACKGROUND = 1,
 		XPMC_ICONBOX,
@@ -306,46 +308,46 @@ public:
 	};
 
 	XPopupMenu() = delete;
-	XPopupMenu(const XPopupMenu &) = delete;
-	XPopupMenu &operator = (const XPopupMenu &) = delete;
-	XPopupMenu(XPopupMenu &&) = delete;
-	XPopupMenu &operator =(XPopupMenu &&) = delete;
+	XPopupMenu(const XPopupMenu&) = delete;
+	XPopupMenu& operator = (const XPopupMenu&) = delete;
+	XPopupMenu(XPopupMenu&&) = delete;
+	XPopupMenu& operator =(XPopupMenu&&) = delete;
 
-	XPopupMenu(const TString &tsName, HMENU hMenu);
-	XPopupMenu(const TString & tsMenuName, MenuStyle mStyle);
+	XPopupMenu(const TString& tsName, HMENU hMenu);
+	XPopupMenu(const TString& tsMenuName, MenuStyle mStyle);
 	XPopupMenu(const TString& tsMenuName, MenuStyle mStyle, const TString& tsCallback);
 	~XPopupMenu();
 
 	bool operator==(const XPopupMenu& other) const = default;
 
-	void parseXPopCommand(const TString & input);
-	void parseXPopIdentifier(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
-	static XPopupMenu::MenuStyle parseStyle(const TString &style) noexcept;
+	void parseXPopCommand(const TString& input);
+	void parseXPopIdentifier(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const;
+	static XPopupMenu::MenuStyle parseStyle(const TString& style) noexcept;
 
-	static HMENU parsePath(const TString & path, const HMENU hParent, const UINT depth = 1);
+	static HMENU parsePath(const TString& path, const HMENU hParent, const UINT depth = 1);
 
-	HIMAGELIST &getImageList() noexcept;
+	HIMAGELIST& getImageList() noexcept;
 	void destroyImageList() noexcept;
 
-	const MenuStyle &getStyle() const noexcept { return this->m_MenuStyle; }
+	const MenuStyle& getStyle() const noexcept { return this->m_MenuStyle; }
 
 	constexpr void setStyle(const MenuStyle style) noexcept { this->m_MenuStyle = style; }
 
-	const UINT &getItemStyle() const noexcept { return this->m_MenuItemStyles; }
+	const UINT& getItemStyle() const noexcept { return this->m_MenuItemStyles; }
 
 	constexpr void setItemStyle(const UINT iExStyles) noexcept { this->m_MenuItemStyles = iExStyles; }
 
 	void setItemStyleString(const TString& tsFlags);
 	TString getItemStyleString() const;
 
-	void deleteMenuItemData(const XPopupMenuItem *const p_Item, LPMENUITEMINFO mii = nullptr) noexcept;
+	void deleteMenuItemData(const XPopupMenuItem* const p_Item, LPMENUITEMINFO mii = nullptr) noexcept;
 	void deleteAllItemData(HMENU hMenu);
 
-	const TString &getName() const noexcept { return this->m_tsMenuName; }
+	const TString& getName() const noexcept { return this->m_tsMenuName; }
 
-	const size_t &getNameHash() const noexcept { return m_menuNameHash; }
+	const size_t& getNameHash() const noexcept { return m_menuNameHash; }
 
-	const inline HMENU &getMenuHandle() const noexcept { return this->m_hMenu; };
+	const inline HMENU& getMenuHandle() const noexcept { return this->m_hMenu; };
 
 	const XPMENUCOLORS& getColors() const noexcept { return m_MenuColors; }
 	void setColor(const MenuColours nColor, const COLORREF clrColor) noexcept;
@@ -415,13 +417,13 @@ public:
 	static void cleanMenu(HMENU hMenu) noexcept;
 	void clearAllMenuItems() noexcept;
 
-	const HBITMAP &getBackBitmap() const noexcept { return m_hBitmap.m_hBitmap; }
+	const HBITMAP& getBackBitmap() const noexcept { return m_hBitmap.m_hBitmap; }
 	const TString& getBackBitmapFilename() const noexcept { return m_hBitmap.m_tsFilename; }
-	void setBackBitmap(HBITMAP hBitmap, const TString &tsFilename) noexcept;
+	void setBackBitmap(HBITMAP hBitmap, const TString& tsFilename) noexcept;
 
-	const inline bool &IsRoundedSelector(void) const noexcept { return this->m_bRoundedSel; };
+	const inline bool& IsRoundedSelector(void) const noexcept { return this->m_bRoundedSel; };
 	const inline bool& IsRoundedWindow(void) const noexcept { return this->m_bRoundedWindow; };
-	const inline std::byte &IsAlpha(void) const noexcept { return this->m_uiAlpha; };
+	const inline std::byte& IsAlpha(void) const noexcept { return this->m_uiAlpha; };
 	constexpr void SetRoundedSelector(const bool rounded) noexcept { this->m_bRoundedSel = rounded; };
 	constexpr void SetAlpha(const std::byte alpha) noexcept { this->m_uiAlpha = alpha; };
 	constexpr void SetRoundedWindow(const bool rounded) noexcept { this->m_bRoundedWindow = rounded; };
@@ -430,12 +432,12 @@ public:
 	//constexpr void SetHMENUDestructible(const bool boom) noexcept { this->m_bDestroyHMENU = boom; };
 
 	// Methods to attach and detach from mIRC menu.
-	bool attachToMenuBar(HMENU menubar, const TString &label);
+	bool attachToMenuBar(HMENU menubar, const TString& label);
 	void detachFromMenuBar(HMENU menubar) noexcept;
 
 	// Methods to access marked text.
-	void setMarkedText(const TString &text) { this->m_tsMarkedText = text; }
-	const TString &getMarkedText() const noexcept { return this->m_tsMarkedText; }
+	void setMarkedText(const TString& text) { this->m_tsMarkedText = text; }
+	const TString& getMarkedText() const noexcept { return this->m_tsMarkedText; }
 
 	void setCallback(const TString& tsCallback) { m_tsCallback = tsCallback; }
 	const TString& getCallback() const noexcept { return this->m_tsCallback; }
@@ -443,8 +445,8 @@ public:
 	const bool& IsToolTipsEnabled() const noexcept { return m_bEnableTooltips; }
 	void setTooltipsState(bool a) noexcept { m_bEnableTooltips = a; }
 
-	bool getMenuInfo(const UINT iMask, const TString &path, MENUITEMINFO &mii) const;
-	XPopupMenuItem* getMenuItem(HMENU hMenu, int nPos) const
+	bool getMenuInfo(const UINT iMask, const TString& path, MENUITEMINFO& mii) const;
+	XPopupMenuItem* getMenuItem(_In_ HMENU hMenu, _In_ int nPos) const
 	{
 		MENUITEMINFO mii{};
 		mii.cbSize = sizeof(MENUITEMINFO);
@@ -458,7 +460,7 @@ public:
 
 		return nullptr;
 	}
-	XPopupMenuItem* getMenuItem(const TString& path) const
+	XPopupMenuItem* getMenuItem(_In_ const TString& path) const
 	{
 		MENUITEMINFO mii{};
 		mii.cbSize = sizeof(MENUITEMINFO);

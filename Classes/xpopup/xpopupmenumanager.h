@@ -152,9 +152,6 @@ public:
 	LRESULT OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 	LRESULT OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 
-	void TrackMenu(HWND mHwnd, HMENU hMenu);
-	void UnTrackMenu(HWND mHwnd, HMENU hMenu) noexcept;
-	void DestroyMenuTracking() noexcept;
 	void RedrawMenuIfOpen() noexcept;
 
 private:

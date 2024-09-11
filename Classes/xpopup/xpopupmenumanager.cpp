@@ -140,28 +140,9 @@ namespace
 		return winlist;
 	}
 
-	// Get list of open menus.
-	auto& getGlobalMenuList() noexcept
+	HMENU getWindowsMenu(HWND mHwnd) noexcept
 	{
-		static std::vector<HMENU> menulist;
-
-		return menulist;
-	}
-
-	HMENU getBackMenu()
-	{
-		std::scoped_lock lk(g_ListLock);
-		if (const auto& m = getGlobalMenuList(); !m.empty())
-			return m.back();
-		return nullptr;
-	}
-
-	HMENU getFirstMenu()
-	{
-		std::scoped_lock lk(g_ListLock);
-		if (const auto& m = getGlobalMenuList(); !m.empty())
-			return m.front();
-		return nullptr;
+		return reinterpret_cast<HMENU>(SendMessage(mHwnd, MN_GETHMENU, 0, 0));
 	}
 
 	HWND getBackWin()
@@ -180,23 +161,10 @@ namespace
 		return nullptr;
 	}
 
-	void AddBackMenu(HMENU hMenu)
-	{
-		std::scoped_lock lk(g_ListLock);
-		getGlobalMenuList().push_back(hMenu);
-	}
-
 	void AddBackWin(HWND hwnd)
 	{
 		std::scoped_lock lk(g_ListLock);
 		getGlobalMenuWindowList().push_back(hwnd);
-	}
-
-	void RemoveBackMenu()
-	{
-		std::scoped_lock lk(g_ListLock);
-		if (auto& m = getGlobalMenuList(); !m.empty())
-			m.pop_back();
 	}
 
 	void RemoveBackWin()
@@ -1133,7 +1101,7 @@ XPopupMenuItem* XPopupMenuManager::_getMenuItemByID(const HMENU hMenu, const UIN
 	{
 		if (auto* p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
 		{
-			if (Dcx::XPopups.isItemValid(p_Item))
+			//if (Dcx::XPopups.isItemValid(p_Item)) // Ook: no idea why this doesnt match?!?
 				return p_Item;
 		}
 	}
@@ -1457,35 +1425,6 @@ const TString XPopupMenuManager::GetMenuAttributeFromXML(const char* const attri
 #if DCX_CUSTOM_MENUS
 void XPopupMenuManager::dcxCheckMenuHover() noexcept
 {
-	//static POINT savedpt{};
-	//
-	//// make a copy of list to avoid it being modified elsewhere.
-	//std::vector<HWND> v = getGlobalMenuWindowList();
-	//
-	//if (v.empty())
-	//	return;
-	//
-	//if (Dcx::dcxCursorPos pt; pt)
-	//{
-	//	if (HWND win = v.back(); win)
-	//	{
-	//		if (Dcx::dcxWindowRect rc(win); rc)
-	//		{
-	//			if (PtInRect(&rc, pt))
-	//			{
-	//				// over window...
-	//
-	//				if ((savedpt.x == pt.x) && (savedpt.y == pt.y))
-	//				{
-	//					// hover!
-	//					PostMessage(win, WM_NCMOUSEHOVER, HTMENU, Dcx::dcxMAKELPARAM(pt.x,pt.y));
-	//				}
-	//			}
-	//		}
-	//	}
-	//	savedpt = pt;
-	//}
-
 	// make a copy of list to avoid it being modified elsewhere.
 	if (std::vector<HWND> v(getGlobalMenuWindowList()); !v.empty())
 		dcxCheckMenuHover2(v.back());
@@ -1495,7 +1434,7 @@ void XPopupMenuManager::dcxCheckMenuHover2(HWND win) noexcept
 {
 	static POINT savedpt{};
 
-	if (!win)
+	if (!win || !IsWindow(win))
 		return;
 
 	if (Dcx::dcxCursorPos pt; pt)
@@ -1505,12 +1444,16 @@ void XPopupMenuManager::dcxCheckMenuHover2(HWND win) noexcept
 			if (PtInRect(&rc, pt))
 			{
 				// over window...
-
-				if ((savedpt.x == pt.x) && (savedpt.y == pt.y))
+				if (pt == savedpt)
 				{
 					// hover!
 					PostMessage(win, WM_NCMOUSEHOVER, HTMENU, Dcx::dcxMAKELPARAM(pt.x, pt.y));
 				}
+				//if ((savedpt.x == pt.x) && (savedpt.y == pt.y))
+				//{
+				//	// hover!
+				//	PostMessage(win, WM_NCMOUSEHOVER, HTMENU, Dcx::dcxMAKELPARAM(pt.x, pt.y));
+				//}
 			}
 		}
 		savedpt = pt;
@@ -1561,6 +1504,12 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			}
 		}
 
+		if (!g_toolTipWin)
+		{
+			static TCHAR szTest[] = L"tooltip...";
+			g_toolTipWin = CreateTrackingToolTip(100, mHwnd, &szTest[0]);
+		}
+
 		// add this window to list.
 		AddBackWin(mHwnd);
 	}
@@ -1587,6 +1536,13 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 
 					SetLayeredWindowAttributes(parent, 0, 0xFFU, LWA_ALPHA); // 0xCC = 80% Opaque
 				}
+			}
+		}
+		else {
+			if (g_toolTipWin)
+			{
+				DestroyWindow(g_toolTipWin);
+				g_toolTipWin = nullptr;
 			}
 		}
 	}
@@ -1627,10 +1583,11 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 				Dcx::dcxToolTip_TrackActivate(g_toolTipWin, FALSE, &g_toolItem);
 
 			// start thread to check for hover...
-			if (!getGlobalMenuList().empty() && !getGlobalMenuWindowList().empty() && PtInRect(&rc, pt))
+			if (/*!getGlobalMenuList().empty() &&*/ !getGlobalMenuWindowList().empty() && PtInRect(&rc, pt))
 				dcxHoverTimer.start(600, XPopupMenuManager::dcxCheckMenuHover);
 
-			//if (!getGlobalMenuList().empty() && !getGlobalMenuWindowList().empty() && PtInRect(&rc, pt))
+			// Ook: cant use mHwnd as this may not exist when timer ends
+			//if (!getGlobalMenuWindowList().empty() && PtInRect(&rc, pt))
 			//	dcxHoverTimer.start(600, XPopupMenuManager::dcxCheckMenuHover2, mHwnd);
 		}
 
@@ -1695,25 +1652,17 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		if (dcxHoverTimer.is_running())
 			dcxHoverTimer.stop();
 
-		if (!getGlobalMenuList().empty() && g_toolTipWin && IsWindow(g_toolTipWin))
+		if (g_toolTipWin && IsWindow(g_toolTipWin))
+		{
+			if (auto hMenu = getWindowsMenu(mHwnd); hMenu)
 		{
 			const POINT pt{ GET_X_LPARAM(lParam) , GET_Y_LPARAM(lParam) };
-			if (auto hMenu = getBackMenu(); hMenu)
-			{
-				if (const auto id = MenuItemFromPoint(nullptr, hMenu, pt); id >= 0)
+				if (const auto id = MenuItemFromPoint(mHwnd, hMenu, pt); id >= 0)
 				{
 					if (auto p_Item = Dcx::XPopups.getMenuItemByID(hMenu, id); p_Item)
 					{
 						if (p_Item->IsTooltipsEnabled())
 						{
-							//g_toolItem.lpszText = const_cast<TCHAR*>(p_Item->getItemTooltipText().to_chr());
-							//SendMessage(g_toolTipWin, TTM_SETTOOLINFO, 0, (LPARAM)&g_toolItem);
-							//if (!p_Item->getItemTooltipText().empty())
-							//{
-							//	SendMessage(g_toolTipWin, TTM_TRACKACTIVATE, (WPARAM)TRUE, (LPARAM)&g_toolItem);
-							//	SendMessage(g_toolTipWin, TTM_TRACKPOSITION, 0, Dcx::dcxMAKELPARAM(GET_X_LPARAM(lParam) + 10, GET_Y_LPARAM(lParam) - 20));
-							//}
-
 							g_toolItem.lpszText = const_cast<TCHAR*>(p_Item->getItemTooltipText().to_chr());
 							Dcx::dcxToolTip_SetToolInfo(g_toolTipWin, &g_toolItem);
 							if (!p_Item->getItemTooltipText().empty())
@@ -1734,7 +1683,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	case WindowMessages::eMN_BUTTONDOWN:
 	{
 		// detect item selection.
-		auto hMenu = getBackMenu();
+		auto hMenu = getWindowsMenu(mHwnd);
 		if (!hMenu)
 			break;
 
