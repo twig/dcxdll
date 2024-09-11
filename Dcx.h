@@ -741,6 +741,11 @@ namespace Dcx
 		explicit operator bool() const noexcept { return ((x != -1) && (y != -1)); };
 
 		bool operator==(const dcxCursorPos& other) const = default;
+
+		bool operator==(const POINT& other) const noexcept
+		{
+			return ((x == other.x) && (y == other.y));
+		}
 	};
 
 	struct dcxRect
