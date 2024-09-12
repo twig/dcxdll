@@ -133,7 +133,11 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 
 			// Ook: this never seems to be used....
 			//if (tsItemText.numtok(TEXT(':')) > 1)
-			//	itemcom = tsItemText.gettok(2, TEXT(':')).trim();
+			//{
+			//	const TString tsTmp(tsItemText.getfirsttok(1, TEXT(':')).trim());
+			//	itemcom = tsItemText.getnexttok(TEXT(':')).trim();
+			//	tsItemText = tsTmp;
+			//}
 		}
 
 		if (nPos == -1)
@@ -755,27 +759,6 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam,
 			return OnDrawItem(mHwnd, lpdis);
 	}
 	break;
-
-#if DCX_CUSTOM_MENUS
-	case WM_INITMENU:
-	case WM_INITMENUPOPUP:
-	{
-		Dcx::XPopups.TrackMenu(mHwnd, reinterpret_cast<HMENU>(wParam));
-		break;
-	}
-
-	case WM_UNINITMENUPOPUP:
-	{
-		Dcx::XPopups.UnTrackMenu(mHwnd, reinterpret_cast<HMENU>(wParam));
-		break;
-	}
-
-	case WM_EXITMENULOOP:
-	{
-		Dcx::XPopups.DestroyMenuTracking();
-		break;
-	}
-#endif
 
 	default:
 		break;
