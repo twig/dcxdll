@@ -375,9 +375,6 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 		}
 
 		m_bIsSysMenu = false;
-#if DCX_CUSTOM_MENUS
-		TrackMenu(mHwnd, menu);
-#endif
 		return lRes;
 	}
 	else
@@ -389,10 +386,6 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 {
 	auto menu = reinterpret_cast<HMENU>(wParam);
-
-#if DCX_CUSTOM_MENUS
-	UnTrackMenu(mHwnd, menu);
-#endif
 
 	// Unset the custom menu handle so we dont have to keep track of submenus anymore.
 	if (menu == m_hMenuCustom)
@@ -406,10 +399,6 @@ LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM l
 
 LRESULT XPopupMenuManager::OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
-#if DCX_CUSTOM_MENUS
-	DestroyMenuTracking();
-#endif
-
 	if (!m_bIsMenuBar && m_bIsActiveMircPopup)
 		m_mIRCMenuBar->clearAllMenuItems();
 
@@ -464,42 +453,6 @@ LRESULT XPopupMenuManager::OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		}
 	}
 	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_COMMAND, wParam, lParam);
-}
-
-void XPopupMenuManager::TrackMenu(HWND mHwnd, HMENU hMenu)
-{
-#if DCX_CUSTOM_MENUS
-	getGlobalMenuList().push_back(hMenu);
-
-	if (!g_toolTipWin)
-	{
-		static TCHAR szTest[] = L"tooltip...";
-		g_toolTipWin = CreateTrackingToolTip(100, mHwnd, &szTest[0]);
-	}
-#endif
-}
-
-void XPopupMenuManager::UnTrackMenu(HWND mHwnd, HMENU hMenu) noexcept
-{
-#if DCX_CUSTOM_MENUS
-	if (!m_bIsSysMenu)	// we dont care about system menus
-	{
-		if (auto vMenu = getGlobalMenuList(); !vMenu.empty())	// check vector is not empty before poping.
-			vMenu.pop_back();
-	}
-#endif
-}
-
-void XPopupMenuManager::DestroyMenuTracking() noexcept
-{
-#if DCX_CUSTOM_MENUS
-	if (g_toolTipWin)
-	{
-		DestroyWindow(g_toolTipWin);
-		g_toolTipWin = nullptr;
-	}
-	getGlobalMenuList().clear();
-#endif
 }
 
 void XPopupMenuManager::RedrawMenuIfOpen() noexcept
@@ -1426,7 +1379,7 @@ const TString XPopupMenuManager::GetMenuAttributeFromXML(const char* const attri
 void XPopupMenuManager::dcxCheckMenuHover() noexcept
 {
 	// make a copy of list to avoid it being modified elsewhere.
-	if (std::vector<HWND> v(getGlobalMenuWindowList()); !v.empty())
+	if (auto v(getGlobalMenuWindowList()); !v.empty())
 		dcxCheckMenuHover2(v.back());
 }
 
