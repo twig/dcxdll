@@ -1883,40 +1883,6 @@ mIRC(WindowProps)
 	return 0;
 }
 
-static int dcxGetListBoxHoverItem(HWND hListbox) noexcept
-{
-	if (!hListbox)
-		return -1;
-
-	// do we have any items?
-	if (const auto iCnt = ListBox_GetCount(hListbox); iCnt > 0)
-	{
-		const Dcx::dcxCursorPos pt(hListbox);
-
-		RECT rc {};
-
-		// check point is in client area.
-		if (GetClientRect(hListbox, &rc))
-		{
-			if (!PtInRect(&rc, pt))
-				return -1;
-		}
-
-		// loop through items & check for a match
-		for (int i{}; i < iCnt; ++i)
-		{
-			// get items rect
-			if (ListBox_GetItemRect(hListbox, i, &rc) == LB_ERR)
-				break;
-
-			// check if point is within this item.
-			if (PtInRect(&rc, pt))
-				return i;
-		}
-	}
-	return -1;
-}
-
 static TString dcxGetWindowProps(HWND hwnd, size_t prop)
 {
 	if (!hwnd || !IsWindow(hwnd))
