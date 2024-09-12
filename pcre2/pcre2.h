@@ -42,9 +42,9 @@ POSSIBILITY OF SUCH DAMAGE.
 /* The current PCRE version information. */
 
 #define PCRE2_MAJOR           10
-#define PCRE2_MINOR           44
+#define PCRE2_MINOR           45
 #define PCRE2_PRERELEASE      -DEV
-#define PCRE2_DATE            2024-03-11
+#define PCRE2_DATE            2024-06-09
 
 /* When an application links to a PCRE DLL in Windows, the symbols that are
 imported have to be identified as such. When building PCRE2, the appropriate
@@ -166,6 +166,7 @@ D   is inspected during pcre2_dfa_match() execution
 #define PCRE2_JIT_PARTIAL_SOFT    0x00000002u
 #define PCRE2_JIT_PARTIAL_HARD    0x00000004u
 #define PCRE2_JIT_INVALID_UTF     0x00000100u
+#define PCRE2_JIT_TEST_ALLOC      0x00000200u
 
 /* These are for pcre2_match(), pcre2_dfa_match(), pcre2_jit_match(), and
 pcre2_substitute(). Some are allowed only for one of the functions, and in
@@ -320,6 +321,8 @@ pcre2_pattern_convert(). */
 #define PCRE2_ERROR_TOO_MANY_CAPTURES              197
 #define PCRE2_ERROR_CONDITION_ATOMIC_ASSERTION_EXPECTED  198
 #define PCRE2_ERROR_BACKSLASH_K_IN_LOOKAROUND      199
+#define PCRE2_ERROR_MAX_VAR_LOOKBEHIND_EXCEEDED    200
+#define PCRE2_ERROR_PATTERN_COMPILED_SIZE_TOO_BIG  201
 
 
 /* "Expected" matching error codes: no match and partial match. */
@@ -407,6 +410,7 @@ released, the numbers must not be changed. */
 #define PCRE2_ERROR_INTERNAL_DUPMATCH (-65)
 #define PCRE2_ERROR_DFA_UINVALID_UTF  (-66)
 #define PCRE2_ERROR_INVALIDOFFSET     (-67)
+#define PCRE2_ERROR_JIT_UNSUPPORTED   (-68)
 
 
 /* Request types for pcre2_pattern_info() */
@@ -739,6 +743,7 @@ PCRE2_EXP_DECL void PCRE2_CALL_CONVENTION \
   pcre2_substring_list_free(PCRE2_UCHAR **); \
 PCRE2_EXP_DECL int PCRE2_CALL_CONVENTION \
   pcre2_substring_list_get(pcre2_match_data *, PCRE2_UCHAR ***, PCRE2_SIZE **);
+
 
 /* Functions for serializing / deserializing compiled patterns. */
 
