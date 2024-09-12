@@ -1119,10 +1119,10 @@ void XPopupMenu::toXml(VectorOfIcons& vIcons, TiXmlElement* const xml) const
 	}
 
 	// TODO: save menu items...
-	for (const auto& item : this->m_vpMenuItem)
-	{
-		xml->LinkEndChild(item->toXml(vIcons));
-	}
+	//for (const auto& item : this->m_vpMenuItem)
+	//{
+	//	xml->LinkEndChild(item->toXml(vIcons));
+	//}
 }
 
 TiXmlElement* XPopupMenu::toXml(VectorOfIcons& vIcons) const
