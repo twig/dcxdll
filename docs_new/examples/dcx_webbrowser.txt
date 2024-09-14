@@ -65,13 +65,13 @@ dialog dcx_webbrowser {
 
   item "Rounded Selector $chr(9) Makes menu selection a rounded rect", 355, 68
   item "Rounded Window $chr(9) Make menus rounded rects", 356, 68
-  item "Square Selector $chr(9) Makes menu selection a rounded rect", 357, 68
+  item "Square Selector $chr(9) Makes menu selection a rect", 357, 68
   item "Square Window $chr(9) Make menus rects", 358, 68
   item "Tooltips $chr(9) Enable tooltips like this one!", 359, 68
   item "No Tooltips $chr(9) Disable tooltips like this one!", 360, 68
   item "Alpha Blend $chr(9) Set the menus to be translucent", 361, 68
   item "No Alpha Blend $chr(9) disable alpha blending", 362, 68
-  item "Hide Menu", 33, 61
+  item "Hide Menubar $chr(9) Hide windows menubar.", 33, 61
 }
 
 ; this alias updates the CLA and drawing after the init event.
@@ -144,7 +144,7 @@ alias dcx_webbrowser_addtoolbar {
   xdid -c $1 %id %security_id image 0 0 0 0 transparent hidden
   ; This provides a padlock icon.
   var %f = $mircdirIcons\Vista\vista32.icl
-  xdid -w $1 %security_id + 80 20 %f
+  if ($isfile(%f)) xdid -w $1 %security_id + 80 20 %f
 
   xdid -c $1 %id %edit_id edit 0 0 0 0 autohs tabstop
   xdid -E $1 %edit_id + -es
@@ -179,7 +179,7 @@ alias dcx_webbrowser_addtoolbar {
   ;xdid -l $1 %id cell 1 $chr(9) +fiwv %rebar_id 1 0 20
   ; This provides a padlock icon.
   ;var %f = $mircdirIcons\Vista\vista32.icl
-  ;xdid -w $1 %security_id + 80 20 %f
+  ;if ($isfile(%f)) xdid -w $1 %security_id + 80 20 %f
 }
 
 ; add a browser tab
