@@ -237,6 +237,16 @@ struct XPMENUBAR
 	}
 };
 
+using VectorOfGroupIDs = VectorOfInts;
+
+struct DcxMenuItemGroup
+{
+	UINT m_ID{};
+	VectorOfGroupIDs m_GroupIDs;	// these IDs are the command ids of items in the group. IDs can be in more than one group.
+};
+
+using VectorOfMenuItemGroups = std::vector<DcxMenuItemGroup>;
+
 /*!
  * \brief blah
  *
@@ -445,31 +455,44 @@ public:
 	const bool& IsToolTipsEnabled() const noexcept { return m_bEnableTooltips; }
 	void setTooltipsState(bool a) noexcept { m_bEnableTooltips = a; }
 
-	bool getMenuInfo(const UINT iMask, const TString& path, MENUITEMINFO& mii) const;
-	XPopupMenuItem* getMenuItem(_In_ HMENU hMenu, _In_ int nPos) const
-	{
-		MENUITEMINFO mii{};
-		mii.cbSize = sizeof(MENUITEMINFO);
-		mii.fMask = MIIM_DATA;
+	bool getMenuInfo(_In_ const UINT iMask, _In_ const TString& path, _In_ MENUITEMINFO& mii) const;
 
-		if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
-			throw Dcx::dcxException("Unable to get menu item info");
+	/// <summary>
+	/// Get a XPopupMenuItem based on an item position.
+	/// </summary>
+	/// <param name="hMenu">- The menu to search.</param>
+	/// <param name="nPos">- The position to look for.</param>
+	/// <returns>XPopupMenuItem*</returns>
+	XPopupMenuItem* getMenuItem(_In_ HMENU hMenu, _In_ int nPos) const;
 
-		if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
-			return p_Item;
+	/// <summary>
+	/// Get a XPopupMenuItem based on a path.
+	/// </summary>
+	/// <param name="path"></param>
+	/// <returns>XPopupMenuItem*</returns>
+	XPopupMenuItem* getMenuItem(_In_ const TString& path) const;
 
-		return nullptr;
-	}
-	XPopupMenuItem* getMenuItem(_In_ const TString& path) const
-	{
-		MENUITEMINFO mii{};
-		mii.cbSize = sizeof(MENUITEMINFO);
+	/// <summary>
+	/// Get a XPopupMenuItem based on a CommandID.
+	/// </summary>
+	/// <param name="mID">- CommandID to look for.</param>
+	/// <returns>XPopupMenuItem*</returns>
+	XPopupMenuItem* getMenuItem(_In_ UINT mID) const noexcept;
 
-		if (getMenuInfo(MIIM_DATA, path, mii))
-			return reinterpret_cast<XPopupMenuItem*>(mii.dwItemData);
+	/// <summary>
+	/// Gets groups data.
+	/// </summary>
+	/// <returns>VectorOfMenuItemGroups&amp;</returns>
+	VectorOfMenuItemGroups& getGroups() noexcept { return m_Groups; }
 
-		return nullptr;
-	}
+	/// <summary>
+	/// Converts a CommandID to a menu &amp; path.
+	/// </summary>
+	/// <param name="mID">- CommandID to convert.</param>
+	/// <param name="tsPath">- Place to save the new path.</param>
+	/// <param name="hMenu">- The menu to start searching. (maybe null)</param>
+	/// <returns>a matching menu or nullptr</returns>
+	HMENU CommandIDToPath(_In_ UINT mID, _Out_ TString& tsPath, _In_opt_ HMENU hMenu = nullptr) const;
 
 	void setItemCheckToggle(UINT nPos, bool bEnable);
 
@@ -513,6 +536,16 @@ public:
 
 	VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects
 
+private:
+	void xpop_a(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
+	void xpop_c(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
+	void xpop_d(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
+	void xpop_f(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
+	void xpop_i(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
+	void xpop_s(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
+	void xpop_t(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
+	void xpop_T(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
+
 protected:
 
 	HMENU m_hMenu{ nullptr };			//!< Menu Handle
@@ -528,6 +561,8 @@ protected:
 	dcxImage m_hBitmap;					//!< Menu Item Background Image in Custom Style
 
 	XPMENUCOLORS m_MenuColors;			//!< Menu Colors
+
+	VectorOfMenuItemGroups m_Groups;
 
 	std::byte m_uiAlpha{ 255 };			//!< Menu is alpha blended. 0 -> 255
 

@@ -158,6 +158,21 @@ bool XPopupMenuItem::parseItemText()
 	return false;
 }
 
+void XPopupMenuItem::toXml(VectorOfIcons& vIcons, TiXmlElement* const xml) const
+{
+}
+
+TiXmlElement* XPopupMenuItem::toXml(VectorOfIcons& vIcons) const
+{
+	auto xml = std::make_unique<TiXmlElement>("item");
+	toXml(vIcons, xml.get());
+	return xml.release();
+}
+
+void XPopupMenuItem::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, const VectorOfIcons& vIcons)
+{
+}
+
 /*!
  * \brief blah
  *

@@ -188,7 +188,34 @@ public:
 	const bool& IsCheckToggle() const noexcept { return m_bCheckToggle; };
 	const bool& IsRadioCheck() const noexcept { return m_bRadioCheck; };
 
+	void setCommandID(UINT mID) noexcept { m_CommandID = mID; }
+	const UINT& getCommandID() const noexcept { return m_CommandID; }
+
 	bool parseItemText();
+
+	/// <summary>
+	/// Convert a menuitem into a dcxml.
+	/// NB: Icon information is stored in vIcons to be saved by the dialogs toXml() at the end.
+	/// </summary>
+	/// <param name="vIcons"></param>
+	/// <param name="xml"></param>
+	void toXml(VectorOfIcons& vIcons, TiXmlElement* const xml) const;
+
+	/// <summary>
+	/// Convert a menuitem into a dcxml.
+	/// NB: Icon information is stored in vIcons to be saved by the dialogs toXml() at the end.
+	/// </summary>
+	/// <param name="vIcons"></param>
+	/// <returns></returns>
+	TiXmlElement* toXml(VectorOfIcons& vIcons) const;
+
+	/// <summary>
+	/// Convert a DCXML into a menuitem.
+	/// </summary>
+	/// <param name="xDcxml"></param>
+	/// <param name="xThis"></param>
+	/// <param name="vIcons"></param>
+	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, const VectorOfIcons& vIcons);
 
 protected:
 
@@ -199,6 +226,7 @@ protected:
 	XPopupMenu* m_pXParentMenu{ nullptr };	//!< Parent XPopupMenu
 	ULONG_PTR m_dwItemDataBackup{};
 	UINT m_eStyleOverride{};
+	UINT m_CommandID{};
 	bool m_bBigBitmap{ false };				//!< Single large bitmap image used for whole menu?
 	bool m_bSep{ false };					//!< Is Separator ?
 	bool m_bSubMenu{ false };				//!< Has A SubMenu ?

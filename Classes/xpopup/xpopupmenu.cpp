@@ -86,291 +86,464 @@ XPopupMenu::~XPopupMenu()
 
 void XPopupMenu::parseXPopCommand(const TString& input)
 {
-	const XSwitchFlags flags(input.gettok(2));
-	const auto path(input.getfirsttok(1, TSTABCHAR).gettok(3, -1).trim());	// tok 1
-	const auto path_toks = path.numtok();
+	//const XSwitchFlags flags(input.gettok(2));
+	//const auto path(input.getfirsttok(1, TSTABCHAR).gettok(3, -1).trim());	// tok 1
+	//const auto path_toks = path.numtok();
+	//
+	//HMENU hMenu = nullptr;
+	//
+	// Item Positions
+	//if (path_toks == 1)
+	//	hMenu = m_hMenu;
+	//else {
+	//	hMenu = parsePath(path.gettok(1, gsl::narrow_cast<ptrdiff_t>(path_toks - 1)), m_hMenu);
+	//
+	//	if (!hMenu)
+	//		throw DcxExceptions::dcxInvalidPath();
+	//}
+	//// this should never be null here.
+	//if (!hMenu)
+	//	throw Dcx::dcxException(TEXT("Menu is NULL."));
+	//
+	//const auto numtok = input.numtok();
+	//const auto tabtoks = input.numtok(TSTABCHAR);
+	//const auto tsTabTwo(input.getlasttoks().trim());	// tok 2, -1
+	//const auto toks_in_tab_two = tsTabTwo.numtok();
+	//auto nPos = path.gettok(gsl::narrow_cast<ptrdiff_t>(path_toks)).to_int() - 1;
+	//
+	//// xpop -a - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS] [ID] [ICON] ItemText (: Command) ([TAB] [TOOLTIP])
+	//if (flags[TEXT('a')])
+	//{
+	//	if ((tabtoks < 2) || (toks_in_tab_two < 4))
+	//		throw DcxExceptions::dcxInvalidArguments();
+	//
+	//	const XSwitchFlags xflags(tsTabTwo.getfirsttok(1));		// tok 1 [+FLAGS]
+	//	const auto mID = tsTabTwo.getnexttok().to_<UINT>();		// tok 2 [ID]
+	//	const auto nIcon = tsTabTwo.getnexttok().to_int() - 1;	// tok 3 [ICON]
+	//
+	//	TString tsItemText, tsTooltip;
+	//	//TString itemcom;
+	//
+	//	{
+	//		const auto itemtext(tsTabTwo.getlasttoks());			// tok 4, -1 ItemText....
+	//
+	//		if (tsTabTwo.numtok(TSTABCHAR) > 1)
+	//		{
+	//			tsItemText = itemtext.getfirsttok(1, TSTABCHAR).trim();
+	//			tsTooltip = itemtext.getlasttoks().trim();
+	//		}
+	//		else
+	//			tsItemText = itemtext;
+	//
+	//		// Ook: this never seems to be used....
+	//		//if (tsItemText.numtok(TEXT(':')) > 1)
+	//		//{
+	//		//	const TString tsTmp(tsItemText.getfirsttok(1, TEXT(':')).trim());
+	//		//	itemcom = tsItemText.getnexttok(TEXT(':')).trim();
+	//		//	tsItemText = tsTmp;
+	//		//}
+	//	}
+	//
+	//	if (nPos == -1)
+	//		nPos += GetMenuItemCount(hMenu) + 1;
+	//
+	//	MENUITEMINFO mii{};
+	//	mii.cbSize = sizeof(MENUITEMINFO);
+	//
+	//	std::unique_ptr<XPopupMenuItem> p_Item;
+	//
+	//	if (tsItemText == TEXT('-'))
+	//	{
+	//		mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
+	//		mii.fType = MFT_OWNERDRAW | MFT_SEPARATOR;
+	//
+	//		p_Item = std::make_unique<XPopupMenuItem>(this, true);
+	//	}
+	//	else {
+	//		mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE | MIIM_ID;
+	//		mii.fType = MFT_OWNERDRAW;
+	//		mii.wID = mID;
+	//
+	//		if (!xflags[TEXT('+')])
+	//			throw DcxExceptions::dcxInvalidFlag();
+	//
+	//		// submenu
+	//		if (xflags[TEXT('s')])
+	//		{
+	//			mii.fMask |= MIIM_SUBMENU;
+	//			if (mii.hSubMenu)
+	//				DestroyMenu(mii.hSubMenu);
+	//
+	//			mii.hSubMenu = CreatePopupMenu();
+	//
+	//			if (!mii.hSubMenu)
+	//				throw Dcx::dcxException(TEXT("Failed to create submenu."));
+	//		}
+	//		if (xflags[TEXT('c')])
+	//			mii.fState |= MFS_CHECKED;
+	//		if (xflags[TEXT('g')])
+	//			mii.fState |= MFS_GRAYED;
+	//
+	//		p_Item = std::make_unique<XPopupMenuItem>(this, tsItemText, tsTooltip, nIcon, (mii.hSubMenu != nullptr));
+	//
+	//		if (xflags[TEXT('r')])
+	//		{
+	//			mii.fType |= MFT_RADIOCHECK;
+	//			p_Item->setRadioCheck(true);
+	//		}
+	//
+	//		p_Item->setCheckToggle(xflags[TEXT('C')]);
+	//	}
+	//
+	//	mii.dwItemData = reinterpret_cast<ULONG_PTR>(p_Item.get());
+	//	this->m_vpMenuItem.push_back(p_Item.release());
+	//	InsertMenuItem(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
+	//}
+	//// xpop -c - [MENU] [SWITCH] [PATH]
+	//else if (flags[TEXT('c')])
+	//{
+	//	if (numtok < 3)
+	//		throw DcxExceptions::dcxInvalidArguments();
+//
+	//	if (nPos < 0)
+	//		throw DcxExceptions::dcxInvalidPath();
+//
+	//	MENUITEMINFO mii{};
+	//	mii.cbSize = sizeof(MENUITEMINFO);
+	//	mii.fMask = MIIM_SUBMENU | MIIM_DATA;
+//
+	//	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
+	//		throw Dcx::dcxException("Unable to get menu item info");
+//
+	//	if (mii.hSubMenu)
+	//	{
+	//		this->deleteAllItemData(mii.hSubMenu);
+	//		DestroyMenu(mii.hSubMenu);
+	//	}
+//
+	//	mii.hSubMenu = CreatePopupMenu();
+//
+	//	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+	//		p_Item->setSubMenu(TRUE);
+//
+	//	mii.fMask = MIIM_SUBMENU;
+//
+	//	SetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
+	//}
+	//// xpop -d - [MENU] [SWITCH] [PATH]
+	//else if (flags[TEXT('d')])
+	//{
+	//	if (numtok < 3)
+	//		throw DcxExceptions::dcxInvalidArguments();
+//
+	//	if (nPos < 0)
+	//		throw DcxExceptions::dcxInvalidPath();
+//
+	//	MENUITEMINFO mii{};
+	//	mii.cbSize = sizeof(MENUITEMINFO);
+	//	mii.fMask = MIIM_SUBMENU | MIIM_DATA;
+//
+	//	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
+	//		throw Dcx::dcxException("Unable to get menu item info");
+//
+	//	if (mii.hSubMenu)
+	//	{
+	//		this->deleteAllItemData(mii.hSubMenu);
+	//		DestroyMenu(mii.hSubMenu);
+	//	}
+//
+	//	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+	//		p_Item->setSubMenu(FALSE);
+//
+	//	mii.hSubMenu = nullptr;
+	//	mii.fMask = MIIM_SUBMENU;
+//
+	//	SetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
+	//}
+	//// xpop -f - [MENU] [SWITCH] [PATH]
+	//else if (flags[TEXT('f')])
+	//{
+	//	if (numtok < 3)
+	//		throw DcxExceptions::dcxInvalidArguments();
+//
+	//	if (nPos < 0)
+	//		throw DcxExceptions::dcxInvalidPath();
+//
+	//	MENUITEMINFO mii{};
+	//	mii.cbSize = sizeof(MENUITEMINFO);
+	//	mii.fMask = MIIM_SUBMENU | MIIM_DATA;
+//
+	//	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
+	//		throw Dcx::dcxException("Unable to get menu item info");
+//
+	//	if (mii.hSubMenu)
+	//	{
+	//		this->deleteAllItemData(mii.hSubMenu);
+	//		DestroyMenu(mii.hSubMenu);
+	//	}
+//
+	//	if (const auto* const p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+	//		this->deleteMenuItemData(p_Item, nullptr);
+//
+	//	DeleteMenu(hMenu, gsl::narrow_cast<UINT>(nPos), MF_BYPOSITION);
+	//}
+	//// xpop -i - [MENU] [SWITCH] [PATH] [TAB] [ICON]
+	//else if (flags[TEXT('i')])
+	//{
+	//	if ((tabtoks < 2) || (toks_in_tab_two < 1))
+	//		throw DcxExceptions::dcxInvalidArguments();
+//
+	//	const auto nIcon = tsTabTwo.to_int();
+//
+	//	if (nPos < 0)
+	//		throw DcxExceptions::dcxInvalidPath();
+//
+	//	MENUITEMINFO mii{};
+	//	mii.cbSize = sizeof(MENUITEMINFO);
+	//	mii.fMask = MIIM_DATA;
+//
+	//	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
+	//		throw Dcx::dcxException("Unable to get menu item info");
+//
+	//	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+	//		p_Item->setItemIcon(nIcon);
+	//}
+	//// xpop -s - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS]
+	//// xpop -s - [MENU] [SWITCH] [PATH] [TAB] +r [FIRST] [LAST]
+	//else if (flags[TEXT('s')])
+	//{
+	//	if ((tabtoks < 2) || (toks_in_tab_two < 1))
+	//		throw DcxExceptions::dcxInvalidArguments();
+//
+	//	const XSwitchFlags xflags(tsTabTwo.getfirsttok(1));
+//
+	//	if (nPos < 0)
+	//		throw DcxExceptions::dcxInvalidPath();
+//
+	//	const auto p_Item = getMenuItem(hMenu, nPos);
+	//	if (!p_Item)
+	//		throw DcxExceptions::dcxInvalidItem();
+//
+	//	MENUITEMINFO mii{};
+	//	mii.cbSize = sizeof(MENUITEMINFO);
+	//	mii.fMask = MIIM_STATE;
+//
+	//	// Flags may be empty, so no error if + is misssing.
+	//	if (xflags[TEXT('+')])
+	//	{
+	//		if (xflags[TEXT('c')])
+	//			mii.fState |= MFS_CHECKED;
+	//		if (xflags[TEXT('g')])
+	//			mii.fState |= MFS_GRAYED;
+//
+	//		p_Item->setCheckToggle(xflags[TEXT('C')]);
+//
+	//		if (xflags[TEXT('r')])
+	//		{
+	//			const auto nFirst = tsTabTwo.getnexttok().to_<UINT>() - 1;
+	//			const auto nLast = tsTabTwo.getnexttok().to_<UINT>() - 1;
+	//			CheckMenuRadioItem(hMenu, nFirst, nLast, nPos, MF_BYPOSITION);
+	//		}
+	//		if (xflags[TEXT('R')])
+	//			Dcx::XPopups.RedrawMenuIfOpen();
+	//	}
+	//	else
+	//		p_Item->setCheckToggle(false);
+//
+	//	SetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
+	//}
+	//// xpop -t - [MENU] [SWITCH] [PATH] [TAB] Itemtext
+	//else if (flags[TEXT('t')])
+	//{
+	//	if ((tabtoks < 2) || (toks_in_tab_two < 1))
+	//		throw DcxExceptions::dcxInvalidArguments();
+//
+	//	if (nPos < 0)
+	//		throw DcxExceptions::dcxInvalidPath();
+//
+	//	MENUITEMINFO mii{};
+	//	mii.cbSize = sizeof(MENUITEMINFO);
+	//	mii.fMask = MIIM_DATA | MIIM_STATE | MIIM_SUBMENU | MIIM_FTYPE | MIIM_ID;
+//
+	//	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
+	//		throw Dcx::dcxException("Unable to get menu item info");
+//
+	//	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+	//		p_Item->setItemText(tsTabTwo);
+//
+	//	// this is to make sure system resets the measurement of the itemwidth on next display
+	//	DeleteMenu(hMenu, gsl::narrow_cast<UINT>(nPos), MF_BYPOSITION);
+	//	InsertMenuItem(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
+	//}
+	//// xpop -T - [MENU] [SWITCH] [PATH] [TAB] (text)
+	//else if (flags[TEXT('T')])
+	//{
+	//	if (tabtoks < 2)
+	//		throw DcxExceptions::dcxInvalidArguments();
+//
+	//	if (nPos < 0)
+	//		throw DcxExceptions::dcxInvalidPath();
+//
+	//	MENUITEMINFO mii{};
+	//	mii.cbSize = sizeof(MENUITEMINFO);
+	//	mii.fMask = MIIM_DATA;
+//
+	//	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
+	//		throw Dcx::dcxException("Unable to get menu item info");
+//
+	//	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+	//		p_Item->setItemTooltip(tsTabTwo);
+	//}
 
-	HMENU hMenu = nullptr;
-	if (path_toks == 1)
-		hMenu = m_hMenu;
-	else {
-		hMenu = parsePath(path.gettok(1, gsl::narrow_cast<int>(path_toks - 1)), m_hMenu);
+	// new version
+	// all commands have the general syntax
+	// [MENU] [SWITCH] [PATH] [TAB] [DATA]
+	// [PATH] could be:
+	//	1: a normal path - 3 4 3
+	//		same as the old version, menu is gotten by parsePath()
+	//	2: a command id - :455
+	//		menu is gotten bu CommandIDToPath()
+	//		path var is adjusted to be normal 3 4 3 style
+	//	3: a group id - =4
+	//		menu can have many diff values depending on the grouped items
+	//		groups are created by /xpopup -g command.
+	//	4: a selection of these - 3 4 3,:455,=4
+	//
 
+	const auto fullpath(input.getfirsttok(1, TSTABCHAR).gettok(3, -1).trim());	// tok 1
+
+	for (TString path(fullpath.getfirsttok(1,TSCOMMACHAR)); !path.empty(); path = fullpath.getnexttok(TSCOMMACHAR))
+	{
+		auto path_toks = path.numtok();
+		HMENU hMenu = nullptr;
+
+		switch (path[0])
+		{
+		case L':':
+		{
+			// CommandID
+			const auto mID = path.right(-1).to_<UINT>();
+			path.clear();
+			hMenu = CommandIDToPath(mID, path);
+			path_toks = path.numtok();
+		}
+		break;
+
+		case L'=':
+		{
+			// GID
+			const auto gid = path.right(-1).to_<UINT>();
+			for (const auto& a : getGroups())
+			{
+				if (gid == a.m_ID)
+				{
+					// found matching group
+					// proccess all id's in group.
+					for (const auto& id : a.m_GroupIDs)
+					{
+						TString tsNewInput;
+						_ts_sprintf(tsNewInput, L"% :%\t%", input.gettok(1, 2), id, input.getlasttoks());
+						parseXPopCommand(tsNewInput);
+					}
+					return;
+				}
+			}
+			throw DcxExceptions::dcxInvalidPath();
+		}
+		break;
+
+		default:
+		{
+			// Item Positions
+			if (path_toks == 1)
+				hMenu = m_hMenu;
+			else {
+				hMenu = parsePath(path.gettok(1, gsl::narrow_cast<ptrdiff_t>(path_toks - 1)), m_hMenu);
+
+				if (!hMenu)
+					throw DcxExceptions::dcxInvalidPath();
+			}
+		}
+		break;
+		}
+
+		// this should never be null here.
 		if (!hMenu)
-			throw DcxExceptions::dcxInvalidPath();
-	}
+			throw Dcx::dcxException(TEXT("Menu is NULL."));
 
-	// this should never be null here.
-	if (!hMenu)
-		throw Dcx::dcxException(TEXT("Menu is NULL."));
+		const XSwitchFlags flags(input.gettok(2));
+		const auto numtok = input.numtok();
+		const auto tabtoks = input.numtok(TSTABCHAR);
+		const auto tsTabTwo(input.getlasttoks().trim());	// tok 2, -1
+		const auto toks_in_tab_two = tsTabTwo.numtok();
+		const auto nPos = path.gettok(gsl::narrow_cast<ptrdiff_t>(path_toks)).to_int() - 1;
 
-	const auto numtok = input.numtok();
-	const auto tabtoks = input.numtok(TSTABCHAR);
-	const auto tsTabTwo(input.getlasttoks().trim());	// tok 2, -1
-	const auto toks_in_tab_two = tsTabTwo.numtok();
-	auto nPos = path.gettok(gsl::narrow_cast<int>(path_toks)).to_int() - 1;
-
-	// xpop -a - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS] [ID] [ICON] ItemText (: Command) ([TAB] [TOOLTIP])
-	if (flags[TEXT('a')] && tabtoks > 1 && toks_in_tab_two > 3)
-	{
-		const XSwitchFlags xflags(tsTabTwo.getfirsttok(1));		// tok 1 [+FLAGS]
-		const auto mID = tsTabTwo.getnexttok().to_<UINT>();		// tok 2 [ID]
-		const auto nIcon = tsTabTwo.getnexttok().to_int() - 1;	// tok 3 [ICON]
-
-		TString tsItemText, tsTooltip;
-		//TString itemcom;
-
+		// xpop -a - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS] [ID] [ICON] ItemText (: Command) ([TAB] [TOOLTIP])
+		if (flags[TEXT('a')])
 		{
-			const auto itemtext(tsTabTwo.getlasttoks());			// tok 4, -1 ItemText....
+			// [PATH] cant be GID for this command.
+			if ((tabtoks < 2) || (toks_in_tab_two < 4))
+				throw DcxExceptions::dcxInvalidArguments();
 
-			if (tsTabTwo.numtok(TSTABCHAR) > 1)
-			{
-				tsItemText = itemtext.getfirsttok(1, TSTABCHAR).trim();
-				tsTooltip = itemtext.getlasttoks().trim();
-			}
-			else
-				tsItemText = itemtext;
-
-			// Ook: this never seems to be used....
-			//if (tsItemText.numtok(TEXT(':')) > 1)
-			//{
-			//	const TString tsTmp(tsItemText.getfirsttok(1, TEXT(':')).trim());
-			//	itemcom = tsItemText.getnexttok(TEXT(':')).trim();
-			//	tsItemText = tsTmp;
-			//}
+			xpop_a(hMenu, nPos, path, tsTabTwo);
 		}
-
-		if (nPos == -1)
-			nPos += GetMenuItemCount(hMenu) + 1;
-
-		MENUITEMINFO mii{};
-		mii.cbSize = sizeof(MENUITEMINFO);
-
-		std::unique_ptr<XPopupMenuItem> p_Item;
-
-		if (tsItemText == TEXT('-'))
+		// xpop -c - [MENU] [SWITCH] [PATH]
+		else if (flags[TEXT('c')])
 		{
-			mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
-			mii.fType = MFT_OWNERDRAW | MFT_SEPARATOR;
+			if (numtok < 3)
+				throw DcxExceptions::dcxInvalidArguments();
 
-			p_Item = std::make_unique<XPopupMenuItem>(this, true);
+			xpop_c(hMenu, nPos, path, tsTabTwo);
 		}
-		else {
-			mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE | MIIM_ID;
-			mii.fType = MFT_OWNERDRAW;
-			mii.wID = mID;
-
-			if (!xflags[TEXT('+')])
-				throw DcxExceptions::dcxInvalidFlag();
-
-			// submenu
-			if (xflags[TEXT('s')])
-			{
-				mii.fMask |= MIIM_SUBMENU;
-				if (mii.hSubMenu)
-					DestroyMenu(mii.hSubMenu);
-
-				mii.hSubMenu = CreatePopupMenu();
-
-				if (!mii.hSubMenu)
-					throw Dcx::dcxException(TEXT("Failed to create submenu."));
-			}
-			if (xflags[TEXT('c')])
-				mii.fState |= MFS_CHECKED;
-			if (xflags[TEXT('g')])
-				mii.fState |= MFS_GRAYED;
-
-			p_Item = std::make_unique<XPopupMenuItem>(this, tsItemText, tsTooltip, nIcon, (mii.hSubMenu != nullptr));
-
-			if (xflags[TEXT('r')])
-			{
-				mii.fType |= MFT_RADIOCHECK;
-				p_Item->setRadioCheck(true);
-			}
-
-			p_Item->setCheckToggle(xflags[TEXT('C')]);
-		}
-
-		mii.dwItemData = reinterpret_cast<ULONG_PTR>(p_Item.get());
-		this->m_vpMenuItem.push_back(p_Item.release());
-		InsertMenuItem(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
-	}
-	// xpop -c - [MENU] [SWITCH] [PATH]
-	else if (flags[TEXT('c')] && numtok > 2)
-	{
-		if (nPos < 0)
-			throw DcxExceptions::dcxInvalidPath();
-
-		MENUITEMINFO mii{};
-		mii.cbSize = sizeof(MENUITEMINFO);
-		mii.fMask = MIIM_SUBMENU | MIIM_DATA;
-
-		if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
-			throw Dcx::dcxException("Unable to get menu item info");
-
-		if (mii.hSubMenu)
+		// xpop -d - [MENU] [SWITCH] [PATH]
+		else if (flags[TEXT('d')])
 		{
-			this->deleteAllItemData(mii.hSubMenu);
-			DestroyMenu(mii.hSubMenu);
+			if (numtok < 3)
+				throw DcxExceptions::dcxInvalidArguments();
+
+			xpop_d(hMenu, nPos, path, tsTabTwo);
 		}
-
-		mii.hSubMenu = CreatePopupMenu();
-
-		if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
-			p_Item->setSubMenu(TRUE);
-
-		mii.fMask = MIIM_SUBMENU;
-
-		SetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
-	}
-	// xpop -d - [MENU] [SWITCH] [PATH]
-	else if (flags[TEXT('d')] && numtok > 2)
-	{
-		if (nPos < 0)
-			throw DcxExceptions::dcxInvalidPath();
-
-		MENUITEMINFO mii{};
-		mii.cbSize = sizeof(MENUITEMINFO);
-		mii.fMask = MIIM_SUBMENU | MIIM_DATA;
-
-		if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
-			throw Dcx::dcxException("Unable to get menu item info");
-
-		if (mii.hSubMenu)
+		// xpop -f - [MENU] [SWITCH] [PATH]
+		else if (flags[TEXT('f')])
 		{
-			this->deleteAllItemData(mii.hSubMenu);
-			DestroyMenu(mii.hSubMenu);
+			if (numtok < 3)
+				throw DcxExceptions::dcxInvalidArguments();
+
+			xpop_f(hMenu, nPos, path, tsTabTwo);
 		}
-
-		if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
-			p_Item->setSubMenu(FALSE);
-
-		mii.hSubMenu = nullptr;
-		mii.fMask = MIIM_SUBMENU;
-
-		SetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
-	}
-	// xpop -f - [MENU] [SWITCH] [PATH]
-	else if (flags[TEXT('f')] && numtok > 2)
-	{
-		if (nPos < 0)
-			throw DcxExceptions::dcxInvalidPath();
-
-		MENUITEMINFO mii{};
-		mii.cbSize = sizeof(MENUITEMINFO);
-		mii.fMask = MIIM_SUBMENU | MIIM_DATA;
-
-		if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
-			throw Dcx::dcxException("Unable to get menu item info");
-
-		if (mii.hSubMenu)
+		// xpop -i - [MENU] [SWITCH] [PATH] [TAB] [ICON]
+		else if (flags[TEXT('i')])
 		{
-			this->deleteAllItemData(mii.hSubMenu);
-			DestroyMenu(mii.hSubMenu);
+			if ((tabtoks < 2) || (toks_in_tab_two < 1))
+				throw DcxExceptions::dcxInvalidArguments();
+
+			xpop_i(hMenu, nPos, path, tsTabTwo);
 		}
-
-		if (const auto* const p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
-			this->deleteMenuItemData(p_Item, nullptr);
-
-		DeleteMenu(hMenu, gsl::narrow_cast<UINT>(nPos), MF_BYPOSITION);
-	}
-	// xpop -i - [MENU] [SWITCH] [PATH] [TAB] [ICON]
-	else if (flags[TEXT('i')] && tabtoks > 1 && toks_in_tab_two > 0)
-	{
-		const auto nIcon = tsTabTwo.to_int();
-
-		if (nPos < 0)
-			throw DcxExceptions::dcxInvalidPath();
-
-		MENUITEMINFO mii{};
-		mii.cbSize = sizeof(MENUITEMINFO);
-		mii.fMask = MIIM_DATA;
-
-		if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
-			throw Dcx::dcxException("Unable to get menu item info");
-
-		if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
-			p_Item->setItemIcon(nIcon);
-	}
-	// xpop -s - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS]
-	// xpop -s - [MENU] [SWITCH] [PATH] [TAB] +r [FIRST] [LAST]
-	else if (flags[TEXT('s')] && tabtoks > 1 && toks_in_tab_two > 0)
-	{
-		const XSwitchFlags xflags(tsTabTwo.getfirsttok(1));
-
-		if (nPos < 0)
-			throw DcxExceptions::dcxInvalidPath();
-
-		const auto p_Item = getMenuItem(hMenu, nPos);
-		if (!p_Item)
-			throw DcxExceptions::dcxInvalidItem();
-
-		MENUITEMINFO mii{};
-		mii.cbSize = sizeof(MENUITEMINFO);
-		mii.fMask = MIIM_STATE;
-
-		// Flags may be empty, so no error if + is misssing.
-		if (xflags[TEXT('+')])
+		// xpop -s - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS]
+		// xpop -s - [MENU] [SWITCH] [PATH] [TAB] +r [FIRST] [LAST]
+		else if (flags[TEXT('s')])
 		{
-			if (xflags[TEXT('c')])
-				mii.fState |= MFS_CHECKED;
-			if (xflags[TEXT('g')])
-				mii.fState |= MFS_GRAYED;
+			if ((tabtoks < 2) || (toks_in_tab_two < 1))
+				throw DcxExceptions::dcxInvalidArguments();
 
-					p_Item->setCheckToggle(xflags[TEXT('C')]);
-
-			if (xflags[TEXT('r')])
-			{
-				const auto nFirst = tsTabTwo.getnexttok().to_<UINT>() - 1;
-				const auto nLast = tsTabTwo.getnexttok().to_<UINT>() - 1;
-				CheckMenuRadioItem(hMenu, nFirst, nLast, nPos, MF_BYPOSITION);
-			}
-			if (xflags[TEXT('R')])
-				Dcx::XPopups.RedrawMenuIfOpen();
+			xpop_s(hMenu, nPos, path, tsTabTwo);
 		}
-		else
-			p_Item->setCheckToggle(false);
+		// xpop -t - [MENU] [SWITCH] [PATH] [TAB] Itemtext
+		else if (flags[TEXT('t')])
+		{
+			if ((tabtoks < 2) || (toks_in_tab_two < 1))
+				throw DcxExceptions::dcxInvalidArguments();
 
-		SetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
-	}
-	// xpop -t - [MENU] [SWITCH] [PATH] [TAB] Itemtext
-	else if (flags[TEXT('t')] && tabtoks > 1 && toks_in_tab_two > 0)
-	{
-		if (nPos < 0)
-			throw DcxExceptions::dcxInvalidPath();
+			xpop_t(hMenu, nPos, path, tsTabTwo);
+		}
+		// xpop -T - [MENU] [SWITCH] [PATH] [TAB] (text)
+		else if (flags[TEXT('T')])
+		{
+			if (tabtoks < 2)
+				throw DcxExceptions::dcxInvalidArguments();
 
-		MENUITEMINFO mii{};
-		mii.cbSize = sizeof(MENUITEMINFO);
-		mii.fMask = MIIM_DATA | MIIM_STATE | MIIM_SUBMENU | MIIM_FTYPE | MIIM_ID;
-
-		if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
-			throw Dcx::dcxException("Unable to get menu item info");
-
-		if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
-			p_Item->setItemText(tsTabTwo);
-
-		// this is to make sure system resets the measurement of the itemwidth on next display
-		DeleteMenu(hMenu, gsl::narrow_cast<UINT>(nPos), MF_BYPOSITION);
-		InsertMenuItem(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
-	}
-	// xpop -T - [MENU] [SWITCH] [PATH] [TAB] (text)
-	else if (flags[TEXT('T')])
-	{
-		if (tabtoks < 2)
-			throw DcxExceptions::dcxInvalidArguments();
-
-		if (nPos < 0)
-			throw DcxExceptions::dcxInvalidPath();
-
-		MENUITEMINFO mii{};
-		mii.cbSize = sizeof(MENUITEMINFO);
-		mii.fMask = MIIM_DATA;
-
-		if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
-			throw Dcx::dcxException("Unable to get menu item info");
-
-		if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
-			p_Item->setItemTooltip(tsTabTwo);
+			xpop_T(hMenu, nPos, path, tsTabTwo);
+		}
 	}
 }
 
@@ -879,20 +1052,14 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 
 					if (p_Item && !tsStyle.empty())
 						p_Item->setOverrideStyle(gsl::narrow_cast<UINT>(parseStyle(tsStyle)));
-
-					//TString tsItem(string);
-					//
-					//// fixes identifiers in the dialog menu not being resolved. 
-					//// TODO Needs testing to see if it causes any other issues, like double eval's)
-					//
-					//if (bForce && this->getNameHash() == TEXT("dialog"_hash))
-					//	mIRCLinker::eval(tsItem, tsItem); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
-					//
-					//p_Item = std::make_unique<XPopupMenuItem>(this, tsItem, -1, (mii.hSubMenu != nullptr), mii.dwItemData);
 				}
 
-				mii.dwItemData = reinterpret_cast<ULONG_PTR>(p_Item.get());
-				this->m_vpMenuItem.push_back(p_Item.release());
+				const auto lpItem = p_Item.release();
+				mii.dwItemData = reinterpret_cast<ULONG_PTR>(lpItem);
+				this->m_vpMenuItem.push_back(lpItem);
+
+				//mii.dwItemData = reinterpret_cast<ULONG_PTR>(p_Item.get());
+				//this->m_vpMenuItem.push_back(p_Item.release());
 				SetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(i), TRUE, &mii);
 			}
 		}
@@ -985,7 +1152,7 @@ void XPopupMenu::detachFromMenuBar(HMENU menubar) noexcept
 	this->m_bAttachedToMenuBar = false;
 }
 
-bool XPopupMenu::getMenuInfo(const UINT iMask, const TString& path, MENUITEMINFO& mii) const
+bool XPopupMenu::getMenuInfo(_In_ const UINT iMask, _In_ const TString& path, _In_ MENUITEMINFO& mii) const
 {
 	HMENU hMenu = nullptr;
 	const auto path_toks = path.numtok();
@@ -1008,6 +1175,75 @@ bool XPopupMenu::getMenuInfo(const UINT iMask, const TString& path, MENUITEMINFO
 	mii.fMask = iMask;
 
 	return GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
+}
+
+XPopupMenuItem* XPopupMenu::getMenuItem(_In_ HMENU hMenu, _In_ int nPos) const
+{
+	MENUITEMINFO mii{};
+	mii.cbSize = sizeof(MENUITEMINFO);
+	mii.fMask = MIIM_DATA;
+
+	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
+		throw Dcx::dcxException("Unable to get menu item info");
+
+	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+		return p_Item;
+
+	return nullptr;
+}
+
+XPopupMenuItem* XPopupMenu::getMenuItem(_In_ const TString& path) const
+{
+	MENUITEMINFO mii{};
+	mii.cbSize = sizeof(MENUITEMINFO);
+
+	if (getMenuInfo(MIIM_DATA, path, mii))
+		return reinterpret_cast<XPopupMenuItem*>(mii.dwItemData);
+
+	return nullptr;
+}
+
+XPopupMenuItem* XPopupMenu::getMenuItem(_In_ UINT mID) const noexcept
+{
+	for (auto xItem : m_vpMenuItem)
+	{
+		if (mID == xItem->getCommandID())
+			return xItem;
+	}
+	return nullptr;
+}
+
+HMENU XPopupMenu::CommandIDToPath(_In_ UINT mID, _Out_ TString& tsPath, _In_opt_ HMENU hMenu) const
+{
+	MENUITEMINFO mii{};
+	mii.cbSize = sizeof(MENUITEMINFO);
+	mii.fMask = MIIM_ID | MIIM_SUBMENU;
+
+	if (!hMenu)
+		hMenu = m_hMenu;
+
+	const auto nCnt = GetMenuItemCount(hMenu);
+	for (int i{}; i < nCnt; ++i)
+	{
+		GetMenuItemInfo(hMenu, i, TRUE, &mii);
+		if (mii.wID == mID)
+		{
+			tsPath.addtok(++i);
+			return hMenu;
+		}
+		if (mii.hSubMenu)
+		{
+			TString tsRes;
+			if (auto hFound = CommandIDToPath(mID, tsRes, mii.hSubMenu); hFound)
+			{
+				tsPath.clear();
+				tsPath.addtok(i + 1);
+				tsPath.addtok(tsRes);
+				return hFound;
+			}
+		}
+	}
+	return nullptr;
 }
 
 void XPopupMenu::setItemCheckToggle(UINT nPos, bool bEnable)
@@ -1216,6 +1452,272 @@ void XPopupMenu::xmlSaveImageList(VectorOfIcons& vIcons, TiXmlElement* xml) cons
 			}
 		}
 	}
+}
+
+void XPopupMenu::xpop_a(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo)
+{
+	// xpop -a - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS] [ID] [ICON] ItemText (: Command) ([TAB] [TOOLTIP])
+	// [PATH] cant be GID for this command.
+
+	if (path[0] == L'=')
+		throw DcxExceptions::dcxInvalidPath();
+
+	const XSwitchFlags xflags(tsTabTwo.getfirsttok(1));		// tok 1 [+FLAGS]
+	const auto mID = tsTabTwo.getnexttok().to_<UINT>();		// tok 2 [ID]
+	const auto nIcon = tsTabTwo.getnexttok().to_int() - 1;	// tok 3 [ICON]
+
+	TString tsItemText, tsTooltip;
+	//TString itemcom;
+
+	{
+		const auto itemtext(tsTabTwo.getlasttoks());			// tok 4, -1 ItemText....
+
+		if (tsTabTwo.numtok(TSTABCHAR) > 1)
+		{
+			tsItemText = itemtext.getfirsttok(1, TSTABCHAR).trim();
+			tsTooltip = itemtext.getlasttoks().trim();
+		}
+		else
+			tsItemText = itemtext;
+
+		// Ook: this never seems to be used....
+		//if (tsItemText.numtok(TEXT(':')) > 1)
+		//{
+		//	const TString tsTmp(tsItemText.getfirsttok(1, TEXT(':')).trim());
+		//	itemcom = tsItemText.getnexttok(TEXT(':')).trim();
+		//	tsItemText = tsTmp;
+		//}
+	}
+
+	if (nPos == -1)
+		nPos += GetMenuItemCount(hMenu) + 1;
+
+	MENUITEMINFO mii{};
+	mii.cbSize = sizeof(MENUITEMINFO);
+
+	std::unique_ptr<XPopupMenuItem> p_Item;
+
+	if (tsItemText == TEXT('-'))
+	{
+		mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
+		mii.fType = MFT_OWNERDRAW | MFT_SEPARATOR;
+
+		p_Item = std::make_unique<XPopupMenuItem>(this, true);
+	}
+	else {
+		mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE | MIIM_ID;
+		mii.fType = MFT_OWNERDRAW;
+		mii.wID = mID;
+
+		if (!xflags[TEXT('+')])
+			throw DcxExceptions::dcxInvalidFlag();
+
+		// submenu
+		if (xflags[TEXT('s')])
+		{
+			mii.fMask |= MIIM_SUBMENU;
+			if (mii.hSubMenu)
+				DestroyMenu(mii.hSubMenu);
+
+			mii.hSubMenu = CreatePopupMenu();
+
+			if (!mii.hSubMenu)
+				throw Dcx::dcxException(TEXT("Failed to create submenu."));
+		}
+		if (xflags[TEXT('c')])
+			mii.fState |= MFS_CHECKED;
+		if (xflags[TEXT('g')])
+			mii.fState |= MFS_GRAYED;
+
+		p_Item = std::make_unique<XPopupMenuItem>(this, tsItemText, tsTooltip, nIcon, (mii.hSubMenu != nullptr));
+
+		if (xflags[TEXT('r')])
+		{
+			mii.fType |= MFT_RADIOCHECK;
+			p_Item->setRadioCheck(true);
+		}
+
+		p_Item->setCheckToggle(xflags[TEXT('C')]);
+	}
+
+	p_Item->setCommandID(mID);
+
+	mii.dwItemData = reinterpret_cast<ULONG_PTR>(p_Item.get());
+	this->m_vpMenuItem.push_back(p_Item.release());
+	InsertMenuItem(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
+}
+
+void XPopupMenu::xpop_c(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo)
+{
+	if (nPos < 0)
+		throw DcxExceptions::dcxInvalidPath();
+
+	MENUITEMINFO mii{};
+	mii.cbSize = sizeof(MENUITEMINFO);
+	mii.fMask = MIIM_SUBMENU | MIIM_DATA;
+
+	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
+		throw Dcx::dcxException("Unable to get menu item info");
+
+	if (mii.hSubMenu)
+	{
+		this->deleteAllItemData(mii.hSubMenu);
+		DestroyMenu(mii.hSubMenu);
+	}
+
+	mii.hSubMenu = CreatePopupMenu();
+
+	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+		p_Item->setSubMenu(TRUE);
+
+	mii.fMask = MIIM_SUBMENU;
+
+	SetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
+}
+
+void XPopupMenu::xpop_d(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo)
+{
+	if (nPos < 0)
+		throw DcxExceptions::dcxInvalidPath();
+
+	MENUITEMINFO mii{};
+	mii.cbSize = sizeof(MENUITEMINFO);
+	mii.fMask = MIIM_SUBMENU | MIIM_DATA;
+
+	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
+		throw Dcx::dcxException("Unable to get menu item info");
+
+	if (mii.hSubMenu)
+	{
+		this->deleteAllItemData(mii.hSubMenu);
+		DestroyMenu(mii.hSubMenu);
+	}
+
+	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+		p_Item->setSubMenu(FALSE);
+
+	mii.hSubMenu = nullptr;
+	mii.fMask = MIIM_SUBMENU;
+
+	SetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
+}
+
+void XPopupMenu::xpop_f(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo)
+{
+	if (nPos < 0)
+		throw DcxExceptions::dcxInvalidPath();
+
+	MENUITEMINFO mii{};
+	mii.cbSize = sizeof(MENUITEMINFO);
+	mii.fMask = MIIM_SUBMENU | MIIM_DATA;
+
+	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
+		throw Dcx::dcxException("Unable to get menu item info");
+
+	if (mii.hSubMenu)
+	{
+		this->deleteAllItemData(mii.hSubMenu);
+		DestroyMenu(mii.hSubMenu);
+	}
+
+	if (const auto* const p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+		this->deleteMenuItemData(p_Item, nullptr);
+
+	DeleteMenu(hMenu, gsl::narrow_cast<UINT>(nPos), MF_BYPOSITION);
+}
+
+void XPopupMenu::xpop_i(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo)
+{
+	const auto nIcon = tsTabTwo.to_int();
+
+	if (nPos < 0)
+		throw DcxExceptions::dcxInvalidPath();
+
+	MENUITEMINFO mii{};
+	mii.cbSize = sizeof(MENUITEMINFO);
+	mii.fMask = MIIM_DATA;
+
+	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
+		throw Dcx::dcxException("Unable to get menu item info");
+
+	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+		p_Item->setItemIcon(nIcon);
+}
+
+void XPopupMenu::xpop_s(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo)
+{
+	const XSwitchFlags xflags(tsTabTwo.getfirsttok(1));
+
+	if (nPos < 0)
+		throw DcxExceptions::dcxInvalidPath();
+
+	const auto p_Item = getMenuItem(hMenu, nPos);
+	if (!p_Item)
+		throw DcxExceptions::dcxInvalidItem();
+
+	MENUITEMINFO mii{};
+	mii.cbSize = sizeof(MENUITEMINFO);
+	mii.fMask = MIIM_STATE;
+
+	// Flags may be empty, so no error if + is misssing.
+	if (xflags[TEXT('+')])
+	{
+		if (xflags[TEXT('c')])
+			mii.fState |= MFS_CHECKED;
+		if (xflags[TEXT('g')])
+			mii.fState |= MFS_GRAYED;
+
+		p_Item->setCheckToggle(xflags[TEXT('C')]);
+
+		if (xflags[TEXT('r')])
+		{
+			const auto nFirst = tsTabTwo.getnexttok().to_<UINT>() - 1;
+			const auto nLast = tsTabTwo.getnexttok().to_<UINT>() - 1;
+			CheckMenuRadioItem(hMenu, nFirst, nLast, nPos, MF_BYPOSITION);
+		}
+		if (xflags[TEXT('R')])
+			Dcx::XPopups.RedrawMenuIfOpen();
+	}
+	else
+		p_Item->setCheckToggle(false);
+
+	SetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
+}
+
+void XPopupMenu::xpop_t(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo)
+{
+	if (nPos < 0)
+		throw DcxExceptions::dcxInvalidPath();
+
+	MENUITEMINFO mii{};
+	mii.cbSize = sizeof(MENUITEMINFO);
+	mii.fMask = MIIM_DATA | MIIM_STATE | MIIM_SUBMENU | MIIM_FTYPE | MIIM_ID;
+
+	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
+		throw Dcx::dcxException("Unable to get menu item info");
+
+	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+		p_Item->setItemText(tsTabTwo);
+
+	// this is to make sure system resets the measurement of the itemwidth on next display
+	DeleteMenu(hMenu, gsl::narrow_cast<UINT>(nPos), MF_BYPOSITION);
+	InsertMenuItem(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
+}
+
+void XPopupMenu::xpop_T(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo)
+{
+	if (nPos < 0)
+		throw DcxExceptions::dcxInvalidPath();
+
+	MENUITEMINFO mii{};
+	mii.cbSize = sizeof(MENUITEMINFO);
+	mii.fMask = MIIM_DATA;
+
+	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
+		throw Dcx::dcxException("Unable to get menu item info");
+
+	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+		p_Item->setItemTooltip(tsTabTwo);
 }
 
 /*
