@@ -1473,7 +1473,7 @@ namespace Dcx
 
 	// Erase an item from a container if its found.
 	template <DcxConcepts::IsContainer Cont, typename Val>
-	bool eraseIfFound(Cont& con, Val& v) noexcept(std::is_nothrow_move_assignable_v<Cont::value_type>)
+	bool eraseIfFound(Cont& con, Val& v) noexcept(std::is_nothrow_move_assignable_v<typename Cont::value_type>)
 	{
 		if (const auto itEnd = con.end(), itGot = std::find(con.begin(), itEnd, v); itGot != itEnd)
 		{
