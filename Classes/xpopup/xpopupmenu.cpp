@@ -1633,14 +1633,10 @@ void XPopupMenu::xpop_i(HMENU hMenu, int nPos, const TString& path, const TStrin
 	if (nPos < 0)
 		throw DcxExceptions::dcxInvalidPath();
 
-	MENUITEMINFO mii{};
-	mii.cbSize = sizeof(MENUITEMINFO);
-	mii.fMask = MIIM_DATA;
+	const auto p_Item = getMenuItem(hMenu, nPos);
+	if (!p_Item)
+		throw DcxExceptions::dcxInvalidItem();
 
-	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
-		throw Dcx::dcxException("Unable to get menu item info");
-
-	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
 		p_Item->setItemIcon(nIcon);
 }
 
@@ -1659,7 +1655,7 @@ void XPopupMenu::xpop_s(HMENU hMenu, int nPos, const TString& path, const TStrin
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fMask = MIIM_STATE;
 
-	// Flags may be empty, so no error if + is misssing.
+	// Flags may be empty, so no error if + is missing.
 	if (xflags[TEXT('+')])
 	{
 		if (xflags[TEXT('c')])
