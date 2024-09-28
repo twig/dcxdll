@@ -429,7 +429,7 @@ namespace Dcx
 		//	EC_ENDOFLINE_CR		two		The end - of - line character used for new linebreaks is carriage return (CR).
 		//	EC_ENDOFLINE_LF		three	The end - of - line character used for new linebreaks is linefeed(LF).
 		// When the end-of-line character used is set to EC_ENDOFLINE_DETECTFROMCONTENT using Edit_SetEndOfLine, this message will return the detected end-of-line character.
-		if (hwnd && Dcx::DwmModule.isWin10())
+		if (hwnd && Dcx::VersInfo.isWin10())
 			return Edit_GetEndOfLine(hwnd);
 
 		// use CRLF if not win10+
@@ -442,7 +442,7 @@ namespace Dcx
 		if (!hwnd || !nNumerator || !nDenominator)
 			return false;
 
-		if (Dcx::DwmModule.isWin10())
+		if (Dcx::VersInfo.isWin10())
 			return Edit_GetZoom(hwnd, nNumerator, nDenominator);
 
 		*nNumerator = 1;
@@ -469,7 +469,7 @@ namespace Dcx
 			return 0;
 
 		// windows 10 only
-		if (Dcx::DwmModule.isWin10())
+		if (Dcx::VersInfo.isWin10())
 			return Edit_GetCaretIndex(hwnd);
 
 		DWORD hiPos{}, loPos{};
@@ -484,7 +484,7 @@ namespace Dcx
 			return;
 
 		// windows 10 only
-		if (Dcx::DwmModule.isWin10())
+		if (Dcx::VersInfo.isWin10())
 			dcxEdit_SetCaretIndex(hwnd, nPos);
 		else
 			dcxEdit_SetSel(hwnd, nPos, nPos);

@@ -60,7 +60,7 @@ DcxTreeView::DcxTreeView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 	if (styles.istok(TEXT("balloon")) && this->getToolTipHWND())
 		dcxSetWindowStyle(getToolTipHWND(), dcxGetWindowStyle(getToolTipHWND()) | TTS_BALLOON);
 
-	if (Dcx::DwmModule.isVista())
+	if (Dcx::VersInfo.isVista())
 	{
 		//auto ExStylesTreeView = gsl::narrow_cast<long>(TreeView_GetExtendedStyle(m_Hwnd));
 		//parseTreeViewExStyles( styles, &ExStylesTreeView);

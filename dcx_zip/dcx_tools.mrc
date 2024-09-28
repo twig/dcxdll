@@ -35,7 +35,7 @@ alias xmenubar {
 }
 
 alias mpopup {
-  dcx mpopup $1 $2
+  dcx mpopup $1 $2-
 }
 
 alias xdock {

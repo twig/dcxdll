@@ -7,6 +7,7 @@
 namespace Dcx {
 	static TCHAR szLastError[MIRC_BUFFER_SIZE_CCH]{};
 	IClassFactory* m_pClassFactory{};
+	dcxVersionInfo VersInfo;
 	DcxGDIModule GDIModule;
 	DcxUXModule UXModule;
 	DcxDWMModule DwmModule;

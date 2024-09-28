@@ -670,9 +670,9 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		// The problem is getting the char set to a unicode (2-byte) one, so far it always sets to CF (207)
 		if (cPassChar == 0)
 		{
-			if (Dcx::DwmModule.isVista())
+			if (Dcx::VersInfo.isVista())
 			{
-				if (Dcx::DwmModule.isWin7())
+				if (Dcx::VersInfo.isWin7())
 				{
 					cPassChar = TEXT('\u25CF');	// Win7 char
 				}

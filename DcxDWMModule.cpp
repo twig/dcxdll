@@ -36,12 +36,6 @@ bool DcxDWMModule::load(void)
 	if (isUseable())
 		return false;
 
-	m_bVista = IsWindowsVistaOrGreater();	// OS is Vista+
-	m_bWin7 = IsWindows7OrGreater();		// OS is Windows7+
-	m_bWin8 = IsWindows8OrGreater();		// OS is Windows8+
-	m_bWin10 = IsWindows10OrGreater();		// OS is Windows10+
-	m_bWin11 = IsWindows11OrGreater();		// OS is Windows11+
-
 	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Loading DWMAPI.DLL..."));
 	m_hModule = LoadLibrary(TEXT("dwmapi.dll"));
 	if (m_hModule)

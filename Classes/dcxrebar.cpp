@@ -128,7 +128,7 @@ void DcxReBar::toXml(TiXmlElement* const xml) const
 	{
 		TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
 		REBARBANDINFO rbbi{};
-		if (Dcx::DwmModule.isVista()) // NB: when rbBand.cbSize is set to the Vista size on XP the insertband will FAIL!! fucking MS!
+		if (Dcx::VersInfo.isVista()) // NB: when rbBand.cbSize is set to the Vista size on XP the insertband will FAIL!! fucking MS!
 			rbbi.cbSize = sizeof(REBARBANDINFO);
 		else
 			GSL_SUPPRESS(es.47) rbbi.cbSize = REBARBANDINFO_V6_SIZE;

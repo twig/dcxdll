@@ -867,7 +867,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	// [NAME] [ID] [PROP] [N]
 	case L"gnum"_hash:
 	{
-		if (Dcx::DwmModule.isVista())
+		if (Dcx::VersInfo.isVista())
 			_ts_snprintf(szReturnValue, TEXT("%d"), Dcx::dcxListView_GetGroupCount(m_Hwnd));
 		else {
 			auto gcount = 0U;
@@ -940,7 +940,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 
 		TString tsFlags('+');
 
-		if (Dcx::DwmModule.isVista())
+		if (Dcx::VersInfo.isVista())
 		{
 			const auto gid = input.getnexttok().to_int();	// tok 4
 			constexpr UINT iMask = LVGS_COLLAPSIBLE | LVGS_HIDDEN | LVGS_NOHEADER | LVGS_COLLAPSED | LVGS_SELECTED;
@@ -2178,7 +2178,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (numtok != 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		if (!Dcx::DwmModule.isVista())
+		if (!Dcx::VersInfo.isVista())
 			throw Dcx::dcxException("This Command is Vista+ Only!");
 
 		const auto tsGID = input.getnexttok();							// tok 4

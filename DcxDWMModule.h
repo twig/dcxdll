@@ -12,17 +12,6 @@ class DcxDWMModule final
 	: public DcxModule
 {
 	bool m_bAero{ false };
-	bool m_bVista{ false };
-	bool m_bWin7{ false };
-	bool m_bWin8{ false };
-	bool m_bWin10{ false };
-	bool m_bWin11{ false };
-	//static PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx;
-	//static PFNDWMGETWINDOWATTRIBUTE DwmGetWindowAttributeUx;
-	//static PFNDWMSETWINDOWATTRIBUTE DwmSetWindowAttributeUx;
-	//static PFNDWMEXTENDFRAMEINTOCLIENTAREA DwmExtendFrameIntoClientAreaUx;
-	//static PFNDWMENABLEBLURBEHINDWINDOW DwmEnableBlurBehindWindowUx;
-	//static PFNDWMGETCOLORIZATIONCOLOR DwmGetColorizationColorUx;
 	static inline PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx = nullptr;
 	static inline PFNDWMGETWINDOWATTRIBUTE DwmGetWindowAttributeUx = nullptr;
 	static inline PFNDWMSETWINDOWATTRIBUTE DwmSetWindowAttributeUx = nullptr;
@@ -53,8 +42,4 @@ public:
 	HRESULT dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend) noexcept;
 
 	const bool &isAero(void) const noexcept { return m_bAero; };
-	const bool &isVista(void) const noexcept { return m_bVista; };
-	const bool &isWin7(void) const noexcept { return m_bWin7; };
-	const bool &isWin8(void) const noexcept { return m_bWin8; };
-	const bool &isWin10(void) const noexcept { return m_bWin10; };
 };

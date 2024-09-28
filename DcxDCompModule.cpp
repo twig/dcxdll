@@ -39,8 +39,6 @@ bool DcxDCompModule::load()
 			// silently fail...
 
 			DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Missing DComp Functions"));
-
-			//throw Dcx::dcxException("There was a problem loading WebView2Loader Library");
 		}
 	}
 	else {

@@ -26,6 +26,7 @@
 //#endif
 
 #include "DcxConcepts.h"
+#include "dcxVersionInfo.h"
 
 //#include "DcxTextRender.h"
 
@@ -43,6 +44,8 @@ namespace Dcx
 	extern std::byte m_iGhostDrag;
 	extern IClassFactory* m_pClassFactory;
 	extern bool m_bDX9Installed;
+
+	extern dcxVersionInfo VersInfo;
 
 	extern DcxDialogCollection Dialogs;
 	extern DcxGDIModule GDIModule;
