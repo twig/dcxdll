@@ -987,7 +987,7 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 {
 	MENUITEMINFO mii{};
 	mii.cbSize = sizeof(MENUITEMINFO);
-	mii.fMask = MIIM_SUBMENU | MIIM_DATA | MIIM_FTYPE | MIIM_STRING;
+	mii.fMask = MIIM_SUBMENU | MIIM_DATA | MIIM_FTYPE | MIIM_STRING | MIIM_ID;
 	auto string = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 
 	const auto n = GetMenuItemCount(hMenu);
@@ -1009,6 +1009,15 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 				else {
 					TString tsItem(string), tsTooltipText, tsStyle;
 					int nIcon{ -1 };
+					bool bCheckToggle{};
+					UINT nSpecialID{};
+
+					// fixes identifiers in the dialog menu not being resolved. 
+					// do this BEFORE checking for special chars as these are often $chr()'s
+					// TODO Needs testing to see if it causes any other issues, like double eval's)
+
+					if (bForce && this->getNameHash() == TEXT("dialog"_hash))
+						mIRCLinker::eval(tsItem, tsItem); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
 
 					{
 						// handle icons
@@ -1041,17 +1050,39 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 						// remove $chr(12) from text and trim whitespaces
 						tsItem = tsItem.right(-1).trim();
 					}
-
-					// fixes identifiers in the dialog menu not being resolved. 
-					// TODO Needs testing to see if it causes any other issues, like double eval's)
-
-					if (bForce && this->getNameHash() == TEXT("dialog"_hash))
-						mIRCLinker::eval(tsItem, tsItem); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
+					if (const auto nPos = tsItem.find(L'\x0e', 1); nPos != -1)	// $chr(14)
+					{
+						ptrdiff_t nEnd{ nPos + 1 };
+						while (tsItem[nEnd] >= L'0' && tsItem[nEnd] <= L'9')
+						{
+							++nEnd;
+						}
+						if ((nEnd - nPos) > 1)
+						{
+							auto tsID(tsItem.sub(nPos, nEnd));
+							tsItem.remove(tsID.to_chr());
+							tsID.remove(L'\x0e');
+							if (!tsID.empty())
+								nSpecialID = tsID.to_<UINT>();
+						}
+						else
+							tsItem.remove(L'\x0e');
+						tsItem.trim();
+						bCheckToggle = true;
+					}
 
 					p_Item = std::make_unique<XPopupMenuItem>(this, tsItem, tsTooltipText, nIcon, (mii.hSubMenu != nullptr), mii.dwItemData);
 
-					if (p_Item && !tsStyle.empty())
+					if (p_Item)
+					{
+						if (!tsStyle.empty())
 						p_Item->setOverrideStyle(gsl::narrow_cast<UINT>(parseStyle(tsStyle)));
+						p_Item->setCheckToggle(bCheckToggle);
+						if (nSpecialID)
+							p_Item->setCommandID(nSpecialID);
+						else
+							p_Item->setCommandID(mii.wID);
+					}
 				}
 
 				const auto lpItem = p_Item.release();
