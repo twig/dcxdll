@@ -357,6 +357,9 @@
     <ClCompile Include="CtrlHelper.cpp">
       <Filter>Source Files\Controls\Custom</Filter>
     </ClCompile>
+    <ClCompile Include="dcxVersionInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dcx.h">
@@ -628,6 +631,9 @@
     </ClInclude>
     <ClInclude Include="CtrlHelper.h">
       <Filter>Header Files\Controls\Custom</Filter>
+    </ClInclude>
+    <ClInclude Include="dcxVersionInfo.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
