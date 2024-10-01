@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.27
+// v1.28
 
 #include <tchar.h>
 #include <cstdlib>
@@ -105,12 +105,16 @@ struct ci_char_traits
 	{
 		return to_upper(c1) < to_upper(c2);
 	}
+	static bool gt(_In_ char c1, _In_ char c2) noexcept
+	{
+		return to_upper(c1) > to_upper(c2);
+	}
 	static int compare(_In_z_ const char* s1, _In_z_ const char* s2, _In_ size_t n) noexcept
 	{
 		while (n-- != 0)
 		{
-			if (to_upper(*s1) < to_upper(*s2)) return -1;
-			if (to_upper(*s1) > to_upper(*s2)) return 1;
+			if (lt(*s1, *s2)) return -1;
+			if (gt(*s1, *s2)) return 1;
 			++s1; ++s2;
 		}
 		return 0;
@@ -142,12 +146,16 @@ struct ci_wchar_traits
 	{
 		return to_upper(c1) < to_upper(c2);
 	}
+	static bool gt(_In_ wchar_t c1, _In_ wchar_t c2) noexcept
+	{
+		return to_upper(c1) > to_upper(c2);
+	}
 	static int compare(_In_z_ const wchar_t* s1, _In_z_ const wchar_t* s2, _In_ size_t n) noexcept
 	{
 		while (n-- != 0)
 		{
-			if (to_upper(*s1) < to_upper(*s2)) return -1;
-			if (to_upper(*s1) > to_upper(*s2)) return 1;
+			if (lt(*s1, *s2)) return -1;
+			if (gt(*s1, *s2)) return 1;
 			++s1; ++s2;
 		}
 		return 0;
@@ -166,7 +174,8 @@ struct ci_wchar_traits
 using ci_stringview = std::basic_string_view<char, ci_char_traits>;
 using ci_wstringview = std::basic_string_view<wchar_t, ci_wchar_traits>;
 
-namespace details {
+namespace details
+{
 	template<class _Ty>
 	struct is_pod
 		: std::integral_constant<bool, std::is_standard_layout_v<_Ty>&& std::is_trivial_v<_Ty> >
@@ -207,6 +216,63 @@ namespace details {
 	};
 
 	template <class T>
+	concept HasTrimFunction = requires(T t)
+	{
+		t.trim();
+	};
+
+	template <class T>
+	concept HasStripFunction = requires(T t)
+	{
+		t.strip();
+	};
+
+	template <class T>
+	concept HasFrontFunction = requires(T t)
+	{
+		t.front();
+	};
+
+	template <class T>
+	concept HasBackFunction = requires(T t)
+	{
+		t.back();
+	};
+
+	template <class T>
+	concept HasPopBackFunction = requires(T t)
+	{
+		t.pop_back();
+	};
+
+	template <class T>
+	concept HasEmptyFunction = requires(T t)
+	{
+		t.empty();
+	};
+
+	template <class T>
+	concept HasEraseFunction = requires(T t)
+	{
+		t.erase();
+	};
+
+	template <class T>
+	concept HasBeginFunction = requires(T t)
+	{
+		t.begin();
+	};
+
+	template <class T>
+	concept HasEndFunction = requires(T t)
+	{
+		t.end();
+	};
+
+	template<typename T>
+	concept ImplementsTrimFunction = std::is_member_function_pointer_v<decltype(&T::trim)>;
+
+	template <class T>
 	concept HasDataSizeNoChr = HasDataFunction<T> && HasSizeFunction<T> && !HasChrFunction<T>;
 
 	template <class T>
@@ -214,6 +280,9 @@ namespace details {
 
 	template <class T>
 	concept HasCapacityChr = HasCapacityFunction<T> && HasChrFunction<T>;
+
+	template <class T>
+	concept HasFrontBack = HasFrontFunction<T> && HasBackFunction<T> && HasPopBackFunction<T> && HasEraseFunction<T> && HasEmptyFunction<T> && HasBeginFunction<T> && HasEndFunction<T>;
 
 	constexpr WCHAR make_upper(_In_ const WCHAR c) noexcept
 	{
@@ -285,7 +354,8 @@ namespace details {
 	}
 
 	template<typename T, class TR = std::char_traits<T> >
-	struct impl_strstr {
+	struct impl_strstr
+	{
 		using ptype = typename TR::char_type*;
 		using cptype = typename const ptype;
 
@@ -385,31 +455,36 @@ namespace details {
 	}
 
 	template <typename T>
-	struct _impl_strnlen {
+	struct _impl_strnlen
+	{
 	};
 	template <>
-	struct _impl_strnlen<char*> {
+	struct _impl_strnlen<char*>
+	{
 		size_t operator()(_In_reads_or_z_(length) const char* const ptr, _In_ size_t length) noexcept
 		{
 			return strnlen(ptr, length);
 		}
 	};
 	template <>
-	struct _impl_strnlen<wchar_t*> {
+	struct _impl_strnlen<wchar_t*>
+	{
 		size_t operator()(_In_reads_or_z_(length) const wchar_t* const ptr, _In_ size_t length) noexcept
 		{
 			return wcsnlen(ptr, length);
 		}
 	};
 	template <>
-	struct _impl_strnlen<char> {
+	struct _impl_strnlen<char>
+	{
 		size_t operator()(_In_ const char& ptr, _In_ size_t length) noexcept
 		{
 			return (ptr == 0 || length == 0 ? 0U : 1U);
 		}
 	};
 	template <>
-	struct _impl_strnlen<wchar_t> {
+	struct _impl_strnlen<wchar_t>
+	{
 		size_t operator()(_In_ const wchar_t& ptr, _In_ size_t length) noexcept
 		{
 			return (ptr == 0 || length == 0 ? 0U : 1U);
@@ -417,10 +492,12 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_strcpyn {
+	struct _impl_strcpyn
+	{
 	};
 	template <>
-	struct _impl_strcpyn<char> {
+	struct _impl_strcpyn<char>
+	{
 		char* operator()(_Out_writes_(length) char* const pDest, _In_reads_or_z_(length) const char* const pSrc, _In_ const size_t length) noexcept
 		{
 			//auto t = strncpy(pDest, pSrc, length);	// doesn't guarantee zero termination!
@@ -432,7 +509,8 @@ namespace details {
 		}
 	};
 	template <>
-	struct _impl_strcpyn<wchar_t> {
+	struct _impl_strcpyn<wchar_t>
+	{
 		wchar_t* operator()(_Out_writes_(length) wchar_t* const pDest, _In_reads_or_z_(length) const wchar_t* const pSrc, _In_ const size_t length) noexcept
 		{
 			//auto t = wcsncpy(pDest, pSrc, length); // doesn't guarantee zero termination!
@@ -445,17 +523,20 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_strcpy {
+	struct _impl_strcpy
+	{
 	};
 	template <>
-	struct _impl_strcpy<char> {
+	struct _impl_strcpy<char>
+	{
 		char* operator()(_Out_writes_z_(_String_length_(pSrc) + 1) char* const pDest, _In_z_ const char* const pSrc) noexcept
 		{
 			return strcpy(pDest, pSrc);
 		}
 	};
 	template <>
-	struct _impl_strcpy<wchar_t> {
+	struct _impl_strcpy<wchar_t>
+	{
 		wchar_t* operator()(_Out_writes_z_(_String_length_(pSrc) + 1) wchar_t* const pDest, _In_z_ const wchar_t* const pSrc) noexcept
 		{
 			return wcscpy(pDest, pSrc);
@@ -463,17 +544,20 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_strncat {
+	struct _impl_strncat
+	{
 	};
 	template <>
-	struct _impl_strncat<char> {
+	struct _impl_strncat<char>
+	{
 		char* operator()(_Inout_updates_z_(length) char* const pDest, _In_reads_or_z_(length) const char* const pSrc, _In_ const size_t length) noexcept
 		{
 			return strncat(pDest, pSrc, length);
 		}
 	};
 	template <>
-	struct _impl_strncat<wchar_t> {
+	struct _impl_strncat<wchar_t>
+	{
 		wchar_t* operator()(_Inout_updates_z_(length) wchar_t* const pDest, _In_reads_or_z_(length) const wchar_t* const pSrc, _In_ const size_t length) noexcept
 		{
 			return wcsncat(pDest, pSrc, length);
@@ -481,17 +565,20 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_strcat {
+	struct _impl_strcat
+	{
 	};
 	template <>
-	struct _impl_strcat<char> {
+	struct _impl_strcat<char>
+	{
 		char* operator()(_Inout_updates_z_(_String_length_(pDest) + _String_length_(pSrc) + 1) char* const pDest, _In_z_ const char* const pSrc) noexcept
 		{
 			return strcat(pDest, pSrc);
 		}
 	};
 	template <>
-	struct _impl_strcat<wchar_t> {
+	struct _impl_strcat<wchar_t>
+	{
 		wchar_t* operator()(_Inout_updates_z_(_String_length_(pDest) + _String_length_(pSrc) + 1) wchar_t* const pDest, _In_z_ const wchar_t* const pSrc) noexcept
 		{
 			return wcscat(pDest, pSrc);
@@ -499,17 +586,20 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_strchr {
+	struct _impl_strchr
+	{
 	};
 	template <>
-	struct _impl_strchr<char> {
+	struct _impl_strchr<char>
+	{
 		char* operator()(_In_z_ char* const pString, _In_ const char ch)
 		{
 			return strchr(pString, ch);
 		}
 	};
 	template <>
-	struct _impl_strchr<wchar_t> {
+	struct _impl_strchr<wchar_t>
+	{
 		wchar_t* operator()(_In_z_ wchar_t* const pString, _In_ const wchar_t ch)
 		{
 			return wcschr(pString, ch);
@@ -517,17 +607,20 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_strncmp {
+	struct _impl_strncmp
+	{
 	};
 	template <>
-	struct _impl_strncmp<char> {
+	struct _impl_strncmp<char>
+	{
 		int operator()(_In_reads_or_z_(length) const char* const pDest, _In_reads_or_z_(length) const char* const pSrc, _In_ const size_t length) noexcept
 		{
 			return strncmp(pDest, pSrc, length);
 		}
 	};
 	template <>
-	struct _impl_strncmp<wchar_t> {
+	struct _impl_strncmp<wchar_t>
+	{
 		int operator()(_In_reads_or_z_(length) const wchar_t* const pDest, _In_reads_or_z_(length) const wchar_t* const pSrc, _In_ const size_t length) noexcept
 		{
 			return wcsncmp(pDest, pSrc, length);
@@ -535,17 +628,20 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_strnicmp {
+	struct _impl_strnicmp
+	{
 	};
 	template <>
-	struct _impl_strnicmp<char> {
+	struct _impl_strnicmp<char>
+	{
 		int operator()(_In_reads_or_z_(length) const char* const pDest, _In_reads_or_z_(length) const char* const pSrc, _In_ const size_t length) noexcept
 		{
 			return _strnicmp(pDest, pSrc, length);
 		}
 	};
 	template <>
-	struct _impl_strnicmp<wchar_t> {
+	struct _impl_strnicmp<wchar_t>
+	{
 		int operator()(_In_reads_or_z_(length) const wchar_t* const pDest, _In_reads_or_z_(length) const wchar_t* const pSrc, _In_ const size_t length) noexcept
 		{
 			return _wcsnicmp(pDest, pSrc, length);
@@ -553,17 +649,20 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_strcmp {
+	struct _impl_strcmp
+	{
 	};
 	template <>
-	struct _impl_strcmp<char> {
+	struct _impl_strcmp<char>
+	{
 		int operator()(_In_z_ const char* const pDest, _In_z_ const char* const pSrc) noexcept
 		{
 			return strcmp(pDest, pSrc);
 		}
 	};
 	template <>
-	struct _impl_strcmp<wchar_t> {
+	struct _impl_strcmp<wchar_t>
+	{
 		int operator()(_In_z_ const wchar_t* const pDest, _In_z_ const wchar_t* const pSrc) noexcept
 		{
 			return wcscmp(pDest, pSrc);
@@ -571,17 +670,20 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_stricmp {
+	struct _impl_stricmp
+	{
 	};
 	template <>
-	struct _impl_stricmp<char> {
+	struct _impl_stricmp<char>
+	{
 		int operator()(_In_z_ const char* const pDest, _In_z_ const char* const pSrc) noexcept
 		{
 			return _stricmp(pDest, pSrc);
 		}
 	};
 	template <>
-	struct _impl_stricmp<wchar_t> {
+	struct _impl_stricmp<wchar_t>
+	{
 		int operator()(_In_z_ const wchar_t* const pDest, _In_z_ const wchar_t* const pSrc) noexcept
 		{
 			return _wcsicmp(pDest, pSrc);
@@ -589,59 +691,68 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_ts_find {
+	struct _impl_ts_find
+	{
 	};
 	template <>
-	struct _impl_ts_find<char> {
+	struct _impl_ts_find<char>
+	{
 		const char* operator()(_In_z_ const char* const str, _In_ const char& srch) noexcept
 		{
 			return strchr(str, srch);
 		}
 	};
 	template <>
-	struct _impl_ts_find<const char> {
+	struct _impl_ts_find<const char>
+	{
 		const char* operator()(_In_z_ const char* const str, _In_ const char& srch) noexcept
 		{
 			return strchr(str, srch);
 		}
 	};
 	template <>
-	struct _impl_ts_find<char*> {
+	struct _impl_ts_find<char*>
+	{
 		const char* operator()(_In_z_ const char* const str, _In_z_ const char* srch) noexcept
 		{
 			return strstr(str, srch);
 		}
 	};
 	template <>
-	struct _impl_ts_find<const char*> {
+	struct _impl_ts_find<const char*>
+	{
 		const char* operator()(_In_z_ const char* const str, _In_z_ const char* srch) noexcept
 		{
 			return strstr(str, srch);
 		}
 	};
 	template <>
-	struct _impl_ts_find<wchar_t> {
+	struct _impl_ts_find<wchar_t>
+	{
 		const wchar_t* operator()(_In_z_ const wchar_t* const str, _In_ const wchar_t& srch) noexcept
 		{
 			return wcschr(str, srch);
 		}
 	};
 	template <>
-	struct _impl_ts_find<const wchar_t> {
+	struct _impl_ts_find<const wchar_t>
+	{
 		const wchar_t* operator()(_In_z_ const wchar_t* const str, _In_ const wchar_t& srch) noexcept
 		{
 			return wcschr(str, srch);
 		}
 	};
 	template <>
-	struct _impl_ts_find<wchar_t*> {
+	struct _impl_ts_find<wchar_t*>
+	{
 		const wchar_t* operator()(_In_z_ const wchar_t* const str, _In_ const wchar_t* srch) noexcept
 		{
 			return wcsstr(str, srch);
 		}
 	};
 	template <>
-	struct _impl_ts_find<const wchar_t*> {
+	struct _impl_ts_find<const wchar_t*>
+	{
 		const wchar_t* operator()(_In_z_ const wchar_t* const str, _In_ const wchar_t* srch) noexcept
 		{
 			return wcsstr(str, srch);
@@ -649,17 +760,20 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_vscprintf {
+	struct _impl_vscprintf
+	{
 	};
 	template <>
-	struct _impl_vscprintf<char> {
+	struct _impl_vscprintf<char>
+	{
 		GSL_SUPPRESS(f.55) _Check_return_ const int operator()(_In_z_ _Printf_format_string_ const char* const fmt, _In_ const va_list args) noexcept
 		{
 			return _vscprintf(fmt, args);
 		}
 	};
 	template <>
-	struct _impl_vscprintf<wchar_t> {
+	struct _impl_vscprintf<wchar_t>
+	{
 		GSL_SUPPRESS(f.55) _Success_(return >= 0) _Check_return_ const int operator()(_In_z_ _Printf_format_string_ const wchar_t* const fmt, _In_ const va_list args) noexcept
 		{
 			return _vscwprintf(fmt, args);
@@ -667,17 +781,20 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_vsprintf {
+	struct _impl_vsprintf
+	{
 	};
 	template <>
-	struct _impl_vsprintf<char> {
+	struct _impl_vsprintf<char>
+	{
 		GSL_SUPPRESS(f.55) _Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_writes_opt_(nCount) _Always_(_Post_z_) char* const buf, _In_ size_t const nCount, _In_z_ _Printf_format_string_ const char* const fmt, _In_ const va_list args) noexcept
 		{
 			return vsnprintf(buf, nCount, fmt, args);
 		}
 	};
 	template <>
-	struct _impl_vsprintf<wchar_t> {
+	struct _impl_vsprintf<wchar_t>
+	{
 		GSL_SUPPRESS(f.55) _Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_writes_opt_(nCount) _Always_(_Post_z_) wchar_t* const buf, _In_ size_t const nCount, _In_z_ _Printf_format_string_ const wchar_t* const fmt, _In_ const va_list args) noexcept
 		{
 			return vswprintf(buf, nCount, fmt, args);
@@ -685,17 +802,20 @@ namespace details {
 	};
 
 	template <typename T, typename Format, typename... Arguments>
-	struct _impl_snprintf {
+	struct _impl_snprintf
+	{
 	};
 	template <typename... Arguments>
-	struct _impl_snprintf<char, char, Arguments...> {
+	struct _impl_snprintf<char, char, Arguments...>
+	{
 		_Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_writes_opt_(nCount) _Always_(_Post_z_) char* const buf, _In_ const size_t nCount, _In_z_ _Printf_format_string_ const char* const fmt, _In_ const Arguments&&... args) noexcept
 		{
 			return snprintf(buf, nCount, fmt, args...);
 		}
 	};
 	template <typename... Arguments>
-	struct _impl_snprintf<wchar_t, wchar_t, Arguments...> {
+	struct _impl_snprintf<wchar_t, wchar_t, Arguments...>
+	{
 		_Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_writes_opt_(nCount) _Always_(_Post_z_) wchar_t* const buf, _In_ const size_t nCount, _In_z_ _Printf_format_string_ const wchar_t* const fmt, _In_ const Arguments&&... args) noexcept
 		{
 			return _snwprintf(buf, nCount, fmt, args...);
@@ -703,7 +823,8 @@ namespace details {
 	};
 
 	template <HasDataSizeNoChr T, typename... Arguments>
-	struct _impl_snprintf<T, typename T::value_type, Arguments...> {
+	struct _impl_snprintf<T, typename T::value_type, Arguments...>
+	{
 		_Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_ T& buf, _In_z_ _Printf_format_string_ const typename T::value_type* const fmt, _In_ const Arguments&&... args) noexcept
 		{
 			if constexpr (std::is_same_v<char, typename T::value_type>)
@@ -713,7 +834,8 @@ namespace details {
 		}
 	};
 	template <HasCapacityChr T, typename... Arguments>
-	struct _impl_snprintf<T, typename T::value_type, Arguments...> {
+	struct _impl_snprintf<T, typename T::value_type, Arguments...>
+	{
 		_Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_ T& buf, _In_z_ _Printf_format_string_ const typename T::value_type* const fmt, _In_ const Arguments&&... args) noexcept
 		{
 			if constexpr (std::is_same_v<char, typename T::value_type>)
@@ -724,17 +846,20 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_atoi {
+	struct _impl_atoi
+	{
 	};
 	template <>
-	struct _impl_atoi<char> {
+	struct _impl_atoi<char>
+	{
 		auto operator()(_In_z_ const char* const buf) noexcept
 		{
 			return atoi(buf);
 		}
 	};
 	template <>
-	struct _impl_atoi<wchar_t> {
+	struct _impl_atoi<wchar_t>
+	{
 		auto operator()(_In_z_ const wchar_t* const buf) noexcept
 		{
 			return _wtoi(buf);
@@ -742,17 +867,20 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_atoi64 {
+	struct _impl_atoi64
+	{
 	};
 	template <>
-	struct _impl_atoi64<char> {
+	struct _impl_atoi64<char>
+	{
 		auto operator()(_In_z_ const char* const buf) noexcept
 		{
 			return _atoi64(buf);
 		}
 	};
 	template <>
-	struct _impl_atoi64<wchar_t> {
+	struct _impl_atoi64<wchar_t>
+	{
 		auto operator()(_In_z_ const wchar_t* const buf) noexcept
 		{
 			return _wtoi64(buf);
@@ -760,17 +888,20 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_atof {
+	struct _impl_atof
+	{
 	};
 	template <>
-	struct _impl_atof<char> {
+	struct _impl_atof<char>
+	{
 		auto operator()(_In_z_ const char* const buf) noexcept
 		{
 			return atof(buf);
 		}
 	};
 	template <>
-	struct _impl_atof<wchar_t> {
+	struct _impl_atof<wchar_t>
+	{
 		auto operator()(_In_z_ const wchar_t* const buf) noexcept
 		{
 			return _wtof(buf);
@@ -778,17 +909,20 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_itoa {
+	struct _impl_itoa
+	{
 	};
 	template <>
-	struct _impl_itoa<char> {
+	struct _impl_itoa<char>
+	{
 		auto operator()(_In_ const int val, _Pre_notnull_ _Post_z_ char* const buf, _In_ const int radix) noexcept
 		{
 			return _itoa(val, buf, radix);
 		}
 	};
 	template <>
-	struct _impl_itoa<wchar_t> {
+	struct _impl_itoa<wchar_t>
+	{
 		auto operator()(_In_ const int val, _Pre_notnull_ _Post_z_ wchar_t* const buf, _In_ const int radix) noexcept
 		{
 			return _itow(val, buf, radix);
@@ -796,17 +930,20 @@ namespace details {
 	};
 
 	template <typename T>
-	struct _impl_strtoul {
+	struct _impl_strtoul
+	{
 	};
 	template <>
-	struct _impl_strtoul<char> {
+	struct _impl_strtoul<char>
+	{
 		auto operator()(_In_z_ const char* const buf, _Out_opt_ _Deref_post_z_ char** endptr, _In_ int radx) noexcept
 		{
 			return strtoul(buf, endptr, radx);
 		}
 	};
 	template <>
-	struct _impl_strtoul<wchar_t> {
+	struct _impl_strtoul<wchar_t>
+	{
 		auto operator()(_In_z_ const wchar_t* const buf, _Out_opt_ _Deref_post_z_ wchar_t** endptr, _In_ int radx) noexcept
 		{
 			return wcstoul(buf, endptr, radx);
@@ -818,27 +955,32 @@ namespace details {
 	/// </summary>
 	/// <typeparam name="T">- char or wchar_t</typeparam>
 	template <typename T>
-	struct _impl_bstrtoul {
+	struct _impl_bstrtoul
+	{
 	};
 	template <>
-	struct _impl_bstrtoul<char> {
+	struct _impl_bstrtoul<char>
+	{
 		auto operator()(_In_z_ const char* const buf) noexcept
 		{
 			return strtoul(buf, nullptr, 2);
 		}
 	};
 	template <>
-	struct _impl_bstrtoul<wchar_t> {
+	struct _impl_bstrtoul<wchar_t>
+	{
 		auto operator()(_In_z_ const wchar_t* const buf) noexcept
 		{
 			return wcstoul(buf, nullptr, 2);
 		}
 	};
 	template <typename T>
-	struct _impl_strtok {
+	struct _impl_strtok
+	{
 	};
 	template <>
-	struct _impl_strtok<char> {
+	struct _impl_strtok<char>
+	{
 		auto operator()(_Inout_opt_z_ char* const buf, _In_z_ const char* delim, _Inout_ _Deref_prepost_opt_z_ char** contex) noexcept
 		{
 			return strtok_s(buf, delim, contex);
@@ -846,7 +988,8 @@ namespace details {
 	};
 
 	template <>
-	struct _impl_strtok<wchar_t> {
+	struct _impl_strtok<wchar_t>
+	{
 		auto operator()(_Inout_opt_z_ wchar_t* const buf, _In_z_ const wchar_t* delim, _Inout_ _Deref_prepost_opt_z_ wchar_t** contex) noexcept
 		{
 			return wcstok_s(buf, delim, contex);
@@ -1061,7 +1204,7 @@ _Success_(return >= 0) _Check_return_opt_ int _ts_snprintf(_Out_writes_opt_(nCou
 }
 
 template <typename T, details::IsPODText Format, typename... Arguments>
-_Success_(return >= 0) _Check_return_opt_ int _ts_snprintf(_Out_ T& buf, _In_z_ _Printf_format_string_ const Format* const fmt, _In_ Arguments&&... args) noexcept
+_Success_(return >= 0) _Check_return_opt_ int _ts_snprintf(_Out_ T & buf, _In_z_ _Printf_format_string_ const Format* const fmt, _In_ Arguments&&... args) noexcept
 {
 	static_assert(details::IsPODText<Format>, "Only char & wchar_t supported...");
 
@@ -1101,7 +1244,7 @@ auto _ts_itoa(_In_ const int val, _Pre_notnull_ _Post_z_ T* const buf, _In_ cons
 }
 
 template <details::IsPODText T>
-auto _ts_strtoul(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr, _In_ int base) noexcept
+auto _ts_strtoul(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T * *endptr, _In_ int base) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
@@ -1129,7 +1272,7 @@ auto _ts_bstrtoul(_In_z_ const T* const buf) noexcept
 /// <param name="contex"></param>
 /// <returns></returns>
 template <details::IsPODText T>
-auto _ts_strtok(_Inout_opt_z_ T* const buf, _In_z_ const T* delim, _Inout_ _Deref_prepost_opt_z_ T** contex) noexcept
+auto _ts_strtok(_Inout_opt_z_ T* const buf, _In_z_ const T * delim, _Inout_ _Deref_prepost_opt_z_ T * *contex) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
@@ -1143,7 +1286,7 @@ auto _ts_strtok(_Inout_opt_z_ T* const buf, _In_z_ const T* delim, _Inout_ _Dere
 /// <param name="a">- The number to convert.</param>
 /// <returns>The string representation of the number.</returns>
 template <details::IsNumeric T, class Result>
-Result DecimalToBinaryString(_In_ const T& a)
+Result DecimalToBinaryString(_In_ const T & a)
 {
 	Result binary;
 	constexpr auto sz = sizeof(a) * 8;
@@ -1170,7 +1313,7 @@ Result DecimalToBinaryString(_In_ const T& a)
 /// <param name="with">- replacement string</param>
 /// <returns>The string it was passed with the changes made.</returns>
 template <class T, class RepThis, class WithThis>
-T& _ts_replace(_Inout_ T& str, _In_ RepThis rep, _In_ WithThis with)
+T& _ts_replace(_Inout_ T & str, _In_ RepThis rep, _In_ WithThis with)
 {
 	for (std::size_t wlen = _ts_strlen(with), rlen = _ts_strlen(rep), pos = 0U; ; pos += wlen)
 	{
@@ -1201,7 +1344,7 @@ T& _ts_replace(_Inout_ T& str, _In_ RepThis rep, _In_ WithThis with)
 /// <param name="with">- replacement string</param>
 /// <returns>The string it was passed with the changes made.</returns>
 template <class T, class RepThis, class WithThis>
-T& _ts_mreplace(_Inout_ T& str, _In_ RepThis rep, _In_ WithThis with)
+T& _ts_mreplace(_Inout_ T & str, _In_ RepThis rep, _In_ WithThis with)
 {
 	for (std::ptrdiff_t i = 0; rep[i] != 0; ++i)
 		_ts_replace(str, rep[i], with);
@@ -1217,7 +1360,7 @@ T& _ts_mreplace(_Inout_ T& str, _In_ RepThis rep, _In_ WithThis with)
 /// <param name="rep">- string to remove.</param>
 /// <returns>The string it was passed with the changes made.</returns>
 template <class T, class RemThis>
-T& _ts_remove(_Inout_ T& str, _In_ RemThis rep)
+T& _ts_remove(_Inout_ T & str, _In_ RemThis rep)
 {
 	for (auto itEnd = str.end(), itStart = str.begin(); str.erase(std::find(itStart, itEnd, rep)) != itEnd; ) {}
 
@@ -1230,8 +1373,8 @@ T& _ts_remove(_Inout_ T& str, _In_ RemThis rep)
 /// <typeparam name="T">A string type object</typeparam>
 /// <param name="str">- The string to trim.</param>
 /// <returns>A reference to the same string object it was passed.</returns>
-template <class T>
-T& _ts_trim(_Inout_ T& str)
+template <details::HasFrontBack T>
+T& _ts_trim(_Inout_ T & str)
 {
 	if (str.empty())
 		return str;
@@ -1246,13 +1389,25 @@ T& _ts_trim(_Inout_ T& str)
 }
 
 /// <summary>
+/// Remove spaces from the front and back of the string.
+/// </summary>
+/// <typeparam name="T">A string type object</typeparam>
+/// <param name="str">- The string to trim.</param>
+/// <returns>A reference to the same string object it was passed.</returns>
+template <details::ImplementsTrimFunction T>
+T& _ts_trim(_Inout_ T & str)
+{
+	return str.trim();
+}
+
+/// <summary>
 /// Copies the string then remove spaces from the front and back of the string.
 /// </summary>
 /// <typeparam name="T">A string type object</typeparam>
 /// <param name="str">- The string to trim.</param>
 /// <returns>A copy of the string object it was passed.</returns>
 template <class T>
-T _ts_trim_and_copy(_In_ const T& str)
+T _ts_trim_and_copy(_In_ const T & str)
 {
 	T res(str);
 
@@ -1265,19 +1420,25 @@ T _ts_trim_and_copy(_In_ const T& str)
 /// <typeparam name="T"></typeparam>
 /// <param name="str">- string to modify.</param>
 /// <returns>The string it was passed with the changes made.</returns>
-template <class T>
+template <details::HasFrontBack T>
 T& _ts_strip(_Inout_ T& str)
 {
-	_ts_remove(str, _T('\x02'));	//02
-	_ts_remove(str, _T('\x0F'));	//15
-	_ts_remove(str, _T('\x16'));	//22
-	_ts_remove(str, _T('\x1D'));	//29
+	_ts_remove(str, typename T::value_type{'\x02'});	//02
+	_ts_remove(str, typename T::value_type{'\x0F'});	//15
+	_ts_remove(str, typename T::value_type{'\x16'});	//22
+	_ts_remove(str, typename T::value_type{'\x1D'});	//29
 
 	// NB: TODO: add ctrl-k removal for colour codes.
-	//for (auto itEnd = str.end(), itStart = str.begin(), itGet = std::find(itStart, itEnd, _T('\x03')); itGet != itEnd; itGet = std::find(itStart, itEnd, _T('\x03')))
-	//{
-	//	str.erase(itGet);
-	//}
+	for (auto itEnd = str.end(), itStart = str.begin(), itGet = std::find(itStart, itEnd, typename T::value_type{'\x03'}); itGet != itEnd; itGet = std::find(itStart, itEnd, typename T::value_type{'\x03'}))
+	{
+		decltype(itGet) itLast = ++itGet;
+		if ((*itLast >= typename T::value_type{ '0' }) && (*itLast <= typename T::value_type{'9'}))
+			++itLast;
+		if ((*itLast >= typename T::value_type{ '0' }) && (*itLast <= typename T::value_type{ '9' }))
+			++itLast;
+		--itLast;
+		str.erase(itGet, itLast);
+	}
 
 	_ts_replace(str, _T("  "), _T(' '));
 
@@ -1289,9 +1450,21 @@ T& _ts_strip(_Inout_ T& str)
 /// </summary>
 /// <typeparam name="T"></typeparam>
 /// <param name="str">- string to modify.</param>
+/// <returns>The string it was passed with the changes made.</returns>
+template <details::HasStripFunction T>
+T& _ts_strip(_Inout_ T& str)
+{
+	return str.strip();
+}
+
+/// <summary>
+/// Trim the string and remove double spaces.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="str">- string to modify.</param>
 /// <returns>A copy of the string it was passed with the changes made.</returns>
 template <class T>
-T _ts_strip_and_copy(_In_ const T& str)
+T _ts_strip_and_copy(_In_ const T & str)
 {
 	T tmp(str);
 
@@ -1305,7 +1478,7 @@ T _ts_strip_and_copy(_In_ const T& str)
 /// <param name="str">- string to modify.</param>
 /// <returns>The string it was passed with the changes made.</returns>
 template <class T>
-T& _ts_toupper(_Inout_ T& str)
+T& _ts_toupper(_Inout_ T & str)
 {
 	for (auto& a : str)
 		a = details::make_upper(a);
@@ -1313,13 +1486,13 @@ T& _ts_toupper(_Inout_ T& str)
 }
 
 template <details::IsPODText T>
-T _ts_toupper_c(_In_ const T& c) noexcept
+T _ts_toupper_c(_In_ const T & c) noexcept
 {
 	return details::make_upper(c);
 }
 
 template <details::IsPODText T>
-bool _ts_isupper(_In_ const T& c) noexcept
+bool _ts_isupper(_In_ const T & c) noexcept
 {
 	if constexpr (std::is_same_v<wchar_t, T>)
 		return (iswupper(c) != 0);
@@ -1335,7 +1508,7 @@ bool _ts_isupper(_In_ const T& c) noexcept
 /// <param name="str">- string to convert.</param>
 /// <returns>The number contained in the string.</returns>
 template <class T, class Input>
-T _ts_to_(_In_ const Input& str)
+T _ts_to_(_In_ const Input & str)
 {
 	static_assert(is_Numeric_v<T>, "Type T must be (int, long, float, double, ....)");
 
@@ -1367,7 +1540,7 @@ T _ts_to_(_In_ const Input& str)
 /// <param name="bCase"></param>
 /// <returns></returns>
 template <class _Wild, typename TameString, typename WildString>
-GSL_SUPPRESS(bounds.4) bool _ts_InnerWildcardMatch(_In_ const TameString& pszString, _In_ const WildString& pszMatch, _In_ const bool bCase) noexcept(std::is_nothrow_move_assignable_v<WildString>)
+GSL_SUPPRESS(bounds.4) bool _ts_InnerWildcardMatch(_In_ const TameString & pszString, _In_ const WildString & pszMatch, _In_ const bool bCase) noexcept(std::is_nothrow_move_assignable_v<WildString>)
 {
 	ptrdiff_t MatchPlaceholder = 0;
 	ptrdiff_t StringPlaceholder = 0;
@@ -1471,7 +1644,7 @@ GSL_SUPPRESS(bounds.4) bool _ts_InnerWildcardMatch(_In_ const TameString& pszStr
 /// <param name="bCase">- does case matter</param>
 /// <returns>did match succeed true/false</returns>
 template <typename TameString, typename WildString>
-GSL_SUPPRESS(bounds) bool _ts_WildcardMatch(_In_ const TameString& pszString, _In_ const WildString& pszMatch, _In_ const bool bCase = false) noexcept(std::is_nothrow_move_assignable_v<WildString>)
+GSL_SUPPRESS(bounds) bool _ts_WildcardMatch(_In_ const TameString & pszString, _In_ const WildString & pszMatch, _In_ const bool bCase = false) noexcept(std::is_nothrow_move_assignable_v<WildString>)
 {
 	if (_ts_isEmpty(pszMatch) || _ts_isEmpty(pszString))
 		return false;
@@ -1482,7 +1655,7 @@ GSL_SUPPRESS(bounds) bool _ts_WildcardMatch(_In_ const TameString& pszString, _I
 		return _ts_InnerWildcardMatch<std::remove_pointer_t<std::remove_cv_t<std::remove_all_extents_t<typename WildString::value_type>>>>(pszString, pszMatch, bCase);
 }
 
-template <typename T> T* _ts_AddMem(_Inout_ std::vector<std::shared_ptr<std::vector<char>>>& mem, _In_ std::size_t sz = sizeof(T))
+template <typename T> T* _ts_AddMem(_Inout_ std::vector<std::shared_ptr<std::vector<char>>>&mem, _In_ std::size_t sz = sizeof(T))
 {
 	std::shared_ptr<std::vector<char>> x = std::make_shared<std::vector<char>>();
 	x->resize(sz);
@@ -1498,7 +1671,7 @@ template <typename T> T* _ts_AddMem(_Inout_ std::vector<std::shared_ptr<std::vec
 /// <param name="str">- The vector to sort.</param>
 /// <returns>A sorted copy of the input.</returns>
 template <class T>
-std::vector<T> _ts_SortString(_In_ const std::vector<T>& str)
+std::vector<T> _ts_SortString(_In_ const std::vector<T>&str)
 {
 	std::vector<T> out(str);
 
