@@ -159,6 +159,8 @@ D   is inspected during pcre2_dfa_match() execution
 #define PCRE2_EXTRA_ASCII_BSW                0x00000400u  /* C */
 #define PCRE2_EXTRA_ASCII_POSIX              0x00000800u  /* C */
 #define PCRE2_EXTRA_ASCII_DIGIT              0x00001000u  /* C */
+#define PCRE2_EXTRA_PYTHON_OCTAL             0x00002000u  /* C */
+#define PCRE2_EXTRA_NO_BS0                   0x00004000u  /* C */
 
 /* These are for pcre2_jit_compile(). */
 
@@ -319,10 +321,11 @@ pcre2_pattern_convert(). */
 #define PCRE2_ERROR_ALPHA_ASSERTION_UNKNOWN        195
 #define PCRE2_ERROR_SCRIPT_RUN_NOT_AVAILABLE       196
 #define PCRE2_ERROR_TOO_MANY_CAPTURES              197
-#define PCRE2_ERROR_CONDITION_ATOMIC_ASSERTION_EXPECTED  198
+#define PCRE2_ERROR_MISSING_OCTAL_DIGIT            198
 #define PCRE2_ERROR_BACKSLASH_K_IN_LOOKAROUND      199
 #define PCRE2_ERROR_MAX_VAR_LOOKBEHIND_EXCEEDED    200
 #define PCRE2_ERROR_PATTERN_COMPILED_SIZE_TOO_BIG  201
+#define PCRE2_ERROR_OVERSIZE_PYTHON_OCTAL          202
 
 
 /* "Expected" matching error codes: no match and partial match. */
@@ -464,6 +467,18 @@ released, the numbers must not be changed. */
 #define PCRE2_CONFIG_COMPILED_WIDTHS        14
 #define PCRE2_CONFIG_TABLES_LENGTH          15
 
+/* Optimization directives for pcre2_set_optimize().
+For binary compatibility, only add to this list; do not renumber. */
+
+#define PCRE2_OPTIMIZATION_NONE    0
+#define PCRE2_OPTIMIZATION_FULL    1
+
+#define PCRE2_AUTO_POSSESS         64
+#define PCRE2_AUTO_POSSESS_OFF     65
+#define PCRE2_DOTSTAR_ANCHOR       66
+#define PCRE2_DOTSTAR_ANCHOR_OFF   67
+#define PCRE2_START_OPTIMIZE       68
+#define PCRE2_START_OPTIMIZE_OFF   69
 
 /* Types for code units in patterns and subject strings. */
 
@@ -617,7 +632,9 @@ PCRE2_EXP_DECL int PCRE2_CALL_CONVENTION \
   pcre2_set_parens_nest_limit(pcre2_compile_context *, uint32_t); \
 PCRE2_EXP_DECL int PCRE2_CALL_CONVENTION \
   pcre2_set_compile_recursion_guard(pcre2_compile_context *, \
-    int (*)(uint32_t, void *), void *);
+    int (*)(uint32_t, void *), void *); \
+PCRE2_EXP_DECL int PCRE2_CALL_CONVENTION \
+  pcre2_set_optimize(pcre2_compile_context *, uint32_t);
 
 #define PCRE2_MATCH_CONTEXT_FUNCTIONS \
 PCRE2_EXP_DECL pcre2_match_context *PCRE2_CALL_CONVENTION \
@@ -912,6 +929,7 @@ pcre2_compile are called by application code. */
 #define pcre2_set_newline                     PCRE2_SUFFIX(pcre2_set_newline_)
 #define pcre2_set_parens_nest_limit           PCRE2_SUFFIX(pcre2_set_parens_nest_limit_)
 #define pcre2_set_offset_limit                PCRE2_SUFFIX(pcre2_set_offset_limit_)
+#define pcre2_set_optimize                    PCRE2_SUFFIX(pcre2_set_optimize_)
 #define pcre2_set_substitute_callout          PCRE2_SUFFIX(pcre2_set_substitute_callout_)
 #define pcre2_substitute                      PCRE2_SUFFIX(pcre2_substitute_)
 #define pcre2_substring_copy_byname           PCRE2_SUFFIX(pcre2_substring_copy_byname_)
