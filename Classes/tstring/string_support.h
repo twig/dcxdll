@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.28
+// v1.29
 
 #include <tchar.h>
 #include <cstdlib>
@@ -226,6 +226,12 @@ namespace details
 	{
 		t.strip();
 	};
+
+	template <class T>
+	concept HasClearFunction = std::is_member_function_pointer_v<decltype(&T::clear)>;
+
+	template <class T>
+	concept HasNoClearFunction = !HasClearFunction<T>;
 
 	template <class T>
 	concept HasFrontFunction = requires(T t)
@@ -1074,6 +1080,17 @@ template <typename T>
 inline bool _ts_isEmpty(_In_ const T& str) noexcept
 {
 	return details::_ts_isEmpty(str);
+}
+
+//template <details::HasNoClearFunction T>
+//inline void _ts_clear(_In_ T& str) noexcept
+//{
+//}
+
+template <details::HasClearFunction T>
+inline void _ts_clear(_In_ T& str) noexcept
+{
+	str.clear();
 }
 
 // Finds a string or character within a string & returns a pointer to it.
