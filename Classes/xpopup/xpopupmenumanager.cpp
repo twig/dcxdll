@@ -671,6 +671,11 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 
 		p_Menu->setItemStyleString(input.getnexttok());
 	}
+	// xpopup -r -> [MENU] [SWITCH]
+	else if (flags[TEXT('r')])
+	{
+		RedrawMenuIfOpen();
+	}
 	// xpopup -R -> [MENU] [SWITCH] [+FLAGS] (FLAG OPTIONS)
 	else if (flags[TEXT('R')])
 	{
@@ -990,21 +995,21 @@ void XPopupMenuManager::clearMenus() noexcept
  * blah
  */
 
-XPopupMenu* XPopupMenuManager::getMenuByHash(const std::size_t uHash, const bool bCheckSpecial) const noexcept
+XPopupMenu* XPopupMenuManager::getMenuByHash(_In_ const std::size_t uHash, _In_ const bool bCheckSpecial) const noexcept
 {
 	if (bCheckSpecial)
 	{
 		if (uHash == TEXT("mircbar"_hash))
-			return m_mIRCMenuBar.get();
+			return getmIRCMenuBar();
 		else if (uHash == TEXT("mirc"_hash))
-			return Dcx::XPopups.getmIRCPopup();
+			return getmIRCPopup();
 		else if (uHash == TEXT("scriptpopup"_hash))
-			return m_mIRCScriptMenu.get();
+			return getmIRCScriptMenu();
 	}
 
 	for (const auto& x : m_vpXPMenu)
 	{
-		if (x != nullptr)
+		if (x)
 		{
 			if (x->getNameHash() == uHash)
 				return x;
@@ -1013,7 +1018,7 @@ XPopupMenu* XPopupMenuManager::getMenuByHash(const std::size_t uHash, const bool
 	return nullptr;
 }
 
-XPopupMenu* XPopupMenuManager::getMenuByName(const TString& tsName, const bool bCheckSpecial) const noexcept
+XPopupMenu* XPopupMenuManager::getMenuByName(_In_ const TString& tsName, _In_ const bool bCheckSpecial) const noexcept
 {
 	return getMenuByHash(std::hash<TString>{}(tsName), bCheckSpecial);
 }
@@ -1021,19 +1026,31 @@ XPopupMenu* XPopupMenuManager::getMenuByName(const TString& tsName, const bool b
 /*
  * Retrieves a menu by the handle.
  */
-XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) const noexcept
+XPopupMenu* XPopupMenuManager::getMenuByHandle(_In_opt_ const HMENU hMenu) const noexcept
 {
+	if (!hMenu)
+		return nullptr;
+
 	// Special cases
-	if (hMenu == m_mIRCMenuBar->getMenuHandle())
-		return m_mIRCMenuBar.get();
-	else if (hMenu == Dcx::XPopups.getmIRCPopup()->getMenuHandle())
-		return Dcx::XPopups.getmIRCPopup();
-	else if (hMenu == m_mIRCScriptMenu->getMenuHandle())
-		return m_mIRCScriptMenu.get();
+	if (auto pMenu = getmIRCMenuBar(); pMenu)
+	{
+		if (hMenu == pMenu->getMenuHandle())
+			return pMenu;
+	}
+	if (auto pMenu = getmIRCPopup(); pMenu)
+	{
+		if (hMenu == pMenu->getMenuHandle())
+			return pMenu;
+	}
+	if (auto pMenu = getmIRCScriptMenu(); pMenu)
+	{
+		if (hMenu == pMenu->getMenuHandle())
+			return pMenu;
+	}
 
 	for (const auto& x : this->m_vpXPMenu)
 	{
-		if (x != nullptr)
+		if (x)
 		{
 			if (hMenu == x->getMenuHandle())
 				return x;
@@ -1042,7 +1059,7 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) const noexcept
 	return nullptr;
 }
 
-XPopupMenuItem* XPopupMenuManager::_getMenuItemByID(const HMENU hMenu, const UINT id, BOOL bByPos) const noexcept
+XPopupMenuItem* XPopupMenuManager::_getMenuItemByID(_In_opt_ const HMENU hMenu, _In_ const UINT id, _In_ BOOL bByPos) const noexcept
 {
 	if (!hMenu)
 		return nullptr;
@@ -1061,7 +1078,7 @@ XPopupMenuItem* XPopupMenuManager::_getMenuItemByID(const HMENU hMenu, const UIN
 	return nullptr;
 }
 
-XPopupMenuItem* XPopupMenuManager::getMenuItemByID(const HMENU hMenu, const int id) const noexcept
+XPopupMenuItem* XPopupMenuManager::getMenuItemByID(_In_opt_ const HMENU hMenu, _In_ const int id) const noexcept
 {
 	if (id == -1)
 		return nullptr;
@@ -1069,7 +1086,7 @@ XPopupMenuItem* XPopupMenuManager::getMenuItemByID(const HMENU hMenu, const int 
 	return _getMenuItemByID(hMenu, gsl::narrow_cast<UINT>(id), TRUE);
 }
 
-XPopupMenuItem* XPopupMenuManager::getMenuItemByCommandID(const HMENU hMenu, const UINT id) const noexcept
+XPopupMenuItem* XPopupMenuManager::getMenuItemByCommandID(_In_opt_ const HMENU hMenu, _In_ const UINT id) const noexcept
 	{
 	return _getMenuItemByID(hMenu, id, FALSE);
 }
@@ -1077,11 +1094,14 @@ XPopupMenuItem* XPopupMenuManager::getMenuItemByCommandID(const HMENU hMenu, con
 /*
  * Check if menu handle is a custom menu (don't include converted mIRC menus)
  */
-const bool XPopupMenuManager::isCustomMenu(const HMENU hMenu) const noexcept
+const bool XPopupMenuManager::isCustomMenu(_In_opt_ const HMENU hMenu) const noexcept
 {
+	if (!hMenu)
+		return false;
+
 	for (const auto& x : this->m_vpXPMenu)
 	{
-		if (x != nullptr)
+		if (x)
 		{
 			if (hMenu == x->getMenuHandle())
 				return true;
@@ -1090,7 +1110,7 @@ const bool XPopupMenuManager::isCustomMenu(const HMENU hMenu) const noexcept
 	return false;
 }
 
-const bool XPopupMenuManager::isMenuBarMenu(const HMENU hMenu, const HMENU hMatch)
+const bool XPopupMenuManager::isMenuBarMenu(_In_opt_ const HMENU hMenu, _In_opt_ const HMENU hMatch)
 {
 	if (!hMenu || !hMatch)
 		return false;
@@ -1122,7 +1142,7 @@ const bool XPopupMenuManager::isItemValid(_In_opt_ const XPopupMenuItem* const p
 		return true;
 	if (m_mIRCScriptMenu && m_mIRCScriptMenu->isItemValid(pItem))
 		return true;
-	for (const auto a : m_vpXPMenu)
+	for (const auto& a : m_vpXPMenu)
 	{
 		if (a && a->isItemValid(pItem))
 			return true;
@@ -1441,6 +1461,9 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			dcxlParam(LPCREATESTRUCT, cs);
 			cs->dwExStyle |= WS_EX_LAYERED | WS_EX_COMPOSITED;
 
+			// If cs->lpCreateParams is nullptr then this is the first menu window
+			// otherwise its an unknown structure?
+
 			// check for previous menu...
 			if (!getGlobalMenuWindowList().empty())
 			{
@@ -1639,16 +1662,13 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		if (!hMenu)
 			break;
 
-		const auto mID = GetMenuItemID(hMenu, wParam);
-		if (mID == UINT_MAX)
-			break;
-
-		auto xItem = Dcx::XPopups.getMenuItemByCommandID(hMenu, mID);
+		auto xItem = Dcx::XPopups.getMenuItemByID(hMenu, wParam);
 		if (!xItem)
 			break;
 
 		if (!xItem->IsCheckToggle())
 			break;
+
 		if (auto xMenu = xItem->getParentMenu(); xMenu)
 		{
 			if (const TString tsCallback(xMenu->getCallback()); !tsCallback.empty())

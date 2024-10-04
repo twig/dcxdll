@@ -126,19 +126,26 @@ public:
 
 	constexpr void setIsMenuBar(const bool value) noexcept { m_bIsMenuBar = value; }
 
-	XPopupMenu* getMenuByHash(const std::size_t uHash, const bool bCheckSpecial) const noexcept;
-	XPopupMenu* getMenuByName(const TString &tsName, const bool bCheckSpecial) const noexcept;
-	XPopupMenu* getMenuByHandle(const HMENU hMenu) const noexcept;
+	XPopupMenu* getMenuByHash(_In_ const std::size_t uHash, _In_ const bool bCheckSpecial) const noexcept;
+	XPopupMenu* getMenuByName(_In_ const TString &tsName, _In_ const bool bCheckSpecial) const noexcept;
+	XPopupMenu* getMenuByHandle(_In_opt_ const HMENU hMenu) const noexcept;
 
-	XPopupMenuItem* getMenuItemByID(const HMENU hMenu, const int id) const noexcept;
-	XPopupMenuItem* getMenuItemByCommandID(const HMENU hMenu, const UINT id) const noexcept;
+	XPopupMenuItem* getMenuItemByID(_In_opt_ const HMENU hMenu, _In_ const int id) const noexcept;
+	XPopupMenuItem* getMenuItemByCommandID(_In_opt_ const HMENU hMenu, _In_ const UINT id) const noexcept;
 
 	XPopupMenu* getmIRCPopup(void) const noexcept { return m_mIRCPopupMenu.get(); }
 	XPopupMenu* getmIRCMenuBar(void) const noexcept { return m_mIRCMenuBar.get(); }
 	XPopupMenu* getmIRCScriptMenu(void) const noexcept { return m_mIRCScriptMenu.get(); };
 
-	const bool isCustomMenu(const HMENU hMenu) const noexcept;
-	static const bool isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
+	void setOwnerWindow(HWND mHwnd) noexcept {
+		m_hOwnerWindow = mHwnd;
+	}
+	HWND getOwnerWindow() const noexcept {
+		return m_hOwnerWindow;
+	}
+
+	const bool isCustomMenu(_In_opt_ const HMENU hMenu) const noexcept;
+	static const bool isMenuBarMenu(_In_opt_ const HMENU hMenu, _In_opt_ const HMENU hMatch);
 	const bool isItemValid(_In_opt_ const XPopupMenuItem* const pItem) const noexcept;
 	static constexpr bool isPatched(void) noexcept { return false; };
 
@@ -152,17 +159,18 @@ public:
 	LRESULT OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 	LRESULT OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 
-	void RedrawMenuIfOpen() noexcept;
+	static void RedrawMenuIfOpen() noexcept;
 
 private:
-	XPopupMenuItem* _getMenuItemByID(const HMENU hMenu, const UINT id, BOOL bByPos) const noexcept;
+	XPopupMenuItem* _getMenuItemByID(_In_opt_ const HMENU hMenu, _In_ const UINT id, _In_ BOOL bByPos) const noexcept;
 
 protected:
 
 	static const TString GetMenuAttributeFromXML(const char *const attrib, const TiXmlElement *const popup, const TiXmlElement *const global);
 	static const UINT parseTrackFlags( const TString & flags ) noexcept;
 
-	VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
+	VectorOfXPopupMenu m_vpXPMenu;	//!< Vector of XPopupMenu Objects
+	HWND m_hOwnerWindow{};			//!< Menus owner window. (set in WM_INITMENU)
 
 #if DCX_CUSTOM_MENUS
 	static HWND CreateTrackingToolTip(int toolID, HWND hDlg, WCHAR* pText) noexcept;
