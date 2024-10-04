@@ -29,7 +29,8 @@ public:
 	void parse(const TCHAR* pszJson)
 	{
 		parse(pszJson, false);
-		m_tsLabel.trim();
+		_ts_trim(m_tsLabel);
+		//m_tsLabel.trim();
 	}
 
 	/// <summary>
@@ -45,48 +46,48 @@ public:
 	/// <summary>
 	/// Get the label of the current object.
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>const label text</returns>
 	const storage_type& getLabel() const noexcept { return m_tsLabel; }
 
 	/// <summary>
 	/// Get the label of the current object.
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>label text</returns>
 	storage_type& getLabel() noexcept { return m_tsLabel; }
 
 	/// <summary>
-	/// Get the JSON object that matches the provided label.
+	/// Get the JSON data object that matches the provided label.
 	/// </summary>
 	/// <param name="szLabel"></param>
-	/// <returns></returns>
+	/// <returns>const JSON data object, object is empty if no match found.</returns>
 	const Json& at(const TCHAR* szLabel) const noexcept;
 
 	/// <summary>
-	/// Get the JSON object that matches the provided label.
+	/// Get the JSON data object that matches the provided label.
 	/// </summary>
 	/// <param name="szLabel"></param>
-	/// <returns></returns>
+	/// <returns>JSON data object, object is empty if no match found.</returns>
 	Json& at(const TCHAR* szLabel) noexcept;
 
 	/// <summary>
-	/// Get the JSON object at the specified offset.
+	/// Get the JSON data object at the specified offset.
 	/// </summary>
 	/// <param name="iOffset"></param>
-	/// <returns></returns>
+	/// <returns>const JSON data object, object is empty if no match found.</returns>
 	const Json& at(int iOffset) const noexcept;
 
 	/// <summary>
-	/// Get the JSON object at the specified offset.
+	/// Get the JSON data object at the specified offset.
 	/// </summary>
 	/// <param name="iOffset"></param>
-	/// <returns></returns>
+	/// <returns>JSON data object, object is empty if no match found.</returns>
 	Json& at(int iOffset) noexcept;
 
 	/// <summary>
-	/// Get a const Json object that matches szLabel
+	/// Get a const Json data object that matches szLabel
 	/// </summary>
 	/// <param name="szLabel"></param>
-	/// <returns></returns>
+	/// <returns>const JSON data object, object is empty if no match found.</returns>
 	const Json& operator[] (const TCHAR* szLabel) const noexcept
 	{
 		return at(szLabel);
@@ -96,7 +97,7 @@ public:
 	/// Get a const Json object at iOffset
 	/// </summary>
 	/// <param name="iOffset"></param>
-	/// <returns></returns>
+	/// <returns>const JSON object, object is empty if no match found.</returns>
 	const Json& operator[] (int iOffset) const noexcept
 	{
 		return at(iOffset);
@@ -106,7 +107,7 @@ public:
 	/// Get a Json object that matches szLabel
 	/// </summary>
 	/// <param name="szLabel"></param>
-	/// <returns></returns>
+	/// <returns>JSON object, object is empty if no match found.</returns>
 	Json& operator[] (const TCHAR* szLabel) noexcept
 	{
 		return at(szLabel);
@@ -116,7 +117,7 @@ public:
 	/// Get a Json object at iOffset
 	/// </summary>
 	/// <param name="iOffset"></param>
-	/// <returns></returns>
+	/// <returns>JSON object, object is empty if no match found.</returns>
 	Json& operator[] (int iOffset) noexcept
 	{
 		return at(iOffset);
@@ -126,7 +127,7 @@ public:
 	/// Replace the current contents with a new Json string.
 	/// </summary>
 	/// <param name="other"></param>
-	/// <returns></returns>
+	/// <returns>JSON object</returns>
 	Json& operator =(const storage_type& other)
 	{
 		parse(other.data());
@@ -134,22 +135,28 @@ public:
 	}
 
 	/// <summary>
-	/// Convert object into a string.
+	/// Convert object into a string. Returns the label only.
 	/// </summary>
 	operator const storage_type& () const noexcept { return m_tsLabel; }
 	operator storage_type& () noexcept { return m_tsLabel; }
 
 	/// <summary>
-	/// Test if the object is empty
+	/// Test if the object is empty. Only tests if label is empty as empty data could be valid.
 	/// </summary>
 	explicit operator bool () const noexcept { return !m_tsLabel.empty(); }
 
 	Json() = default;
-	Json(const Json& other) = default;
-	Json(Json&& other) noexcept = default;
+	~Json() = default;
+	//Json(const Json& other) = default;
+	//Json(Json&& other) noexcept = default;
 	bool operator==(const Json& other) const = default;
-	GSL_SUPPRESS(c.128) Json& operator =(const Json&) = default;
-	GSL_SUPPRESS(c.128) Json& operator =(Json&&) noexcept = default;
+	//GSL_SUPPRESS(c.128) Json& operator =(const Json&) = default;
+	//GSL_SUPPRESS(c.128) Json& operator =(Json&&) noexcept = default;
+
+	Json(const Json& other);
+	Json(Json&& other) noexcept;
+	Json& operator =(const Json& other);
+	Json& operator =(Json&& other) noexcept;
 
 	/// <summary>
 	/// Create a Json object based on a json string.
@@ -164,8 +171,8 @@ private:
 	/// Parse a JSON string into objects.
 	/// Internal function...
 	/// </summary>
-	/// <param name="pszJson"></param>
-	/// <param name="bData"></param>
+	/// <param name="pszJson">- The JSON string to parse.</param>
+	/// <param name="bData">- Is this the data part?</param>
 	/// <returns></returns>
 	const TCHAR* parse(const TCHAR* pszJson, bool bData);
 
@@ -175,7 +182,7 @@ private:
 	/// </summary>
 	/// <param name="iOffset"></param>
 	/// <param name="iMatch"></param>
-	/// <returns></returns>
+	/// <returns>const JSON object, object is empty if no match found.</returns>
 	const Json& at(int iOffset, int iMatch) const noexcept;
 
 	/// <summary>
@@ -184,7 +191,7 @@ private:
 	/// </summary>
 	/// <param name="iOffset"></param>
 	/// <param name="iMatch"></param>
-	/// <returns></returns>
+	/// <returns>JSON object, object is empty if no match found.</returns>
 	Json& at(int iOffset, int iMatch) noexcept;
 
 	storage_type m_tsLabel;
