@@ -2488,26 +2488,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE))
 			p_this->execAliasEx(TEXT("sizing,0,%d,%d"), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
 
-		//HWND bars = nullptr;
-		//
-		//while ((bars = FindWindowEx(mHwnd, bars, DCX_REBARCTRLCLASS, nullptr)) != nullptr)
-		//	SendMessage(bars, WM_SIZE, 0U, 0);
-		//
-		//bars = nullptr;
-		//while ((bars = FindWindowEx(mHwnd, bars, DCX_STATUSBARCLASS, nullptr)) != nullptr)
-		//	SendMessage(bars, WM_SIZE, 0U, 0);
-		//
-		//bars = nullptr;
-		//while ((bars = FindWindowEx(mHwnd, bars, DCX_PANELCLASS, nullptr)) != nullptr)
-		//	SendMessage(bars, WM_SIZE, 0U, 0);
-		//
-		//bars = nullptr;
-		//while ((bars = FindWindowEx(mHwnd, bars, DCX_TOOLBARCLASS, nullptr)) != nullptr)
-		//{
-		//	if (const auto t = static_cast<DcxToolBar*>(p_this->getControlByHWND(bars)); t)
-		//		t->autoPosition(LOWORD(lParam), HIWORD(lParam));
-		//}
-
+		// do not do SizingTypes::Toolbar as this is handled after
 		p_this->HandleChildSizing(SizingTypes::ReBar | SizingTypes::Status | SizingTypes::Panel /*| SizingTypes::MultiCombo*/);
 
 		for (HWND bars = FindWindowEx(mHwnd, nullptr, DCX_TOOLBARCLASS, nullptr); bars; bars = FindWindowEx(mHwnd, bars, DCX_TOOLBARCLASS, nullptr))
@@ -2551,32 +2532,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			if ((wp == nullptr) || ((dcx_testflag(wp->flags, SWP_NOMOVE)) && (dcx_testflag(wp->flags, SWP_NOSIZE))))
 				break;
 
-			//TCHAR ret[256] = { 0 }, *p = nullptr;
-			//
-			//switch ((wp->flags & (SWP_NOSIZE | SWP_NOMOVE))) {
-			//case SWP_NOSIZE:
-			//	p = TEXT("moving");
-			//	break;
-			//case SWP_NOMOVE:
-			//	p = TEXT("sizing");
-			//	break;
-			//case (SWP_NOSIZE | SWP_NOMOVE) :
-			//	p = TEXT("neither");
-			//	break;
-			//default:
-			//	p = TEXT("both");
-			//	break;
-			//}
-			//
-			//p_this->evalAliasEx(ret, Dcx::countof(ret), TEXT("changing,0,%s,%d,%d,%d,%d"), p, wp->x, wp->y, wp->cx, wp->cy);
-			//
-			//if (ts_strcmp(TEXT("nosize"), ret) == 0)
-			//	wp->flags |= SWP_NOSIZE;
-			//else if (ts_strcmp(TEXT("nomove"), ret) == 0)
-			//	wp->flags |= SWP_NOMOVE;
-			//else if (ts_strcmp(TEXT("nochange"), ret) == 0)
-			//	wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
-
 			const TCHAR* p = nullptr;
 
 			switch ((wp->flags & (SWP_NOSIZE | SWP_NOMOVE)))
@@ -2594,17 +2549,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				p = TEXT("both");
 				break;
 			}
-
-			//stString<256> sRet;
-			//
-			//p_this->evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("changing,0,%s,%d,%d,%d,%d"), p, wp->x, wp->y, wp->cx, wp->cy);
-			//
-			//if (sRet == TEXT("nosize"))
-			//	wp->flags |= SWP_NOSIZE;
-			//else if (sRet == TEXT("nomove"))
-			//	wp->flags |= SWP_NOMOVE;
-			//else if (sRet == TEXT("nochange"))
-			//	wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
 
 			switch (std::hash<TString>{}(p_this->evalAliasT(TEXT("changing,0,%,%,%,%,%"), p, wp->x, wp->y, wp->cx, wp->cy).second))
 			{
