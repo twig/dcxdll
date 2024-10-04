@@ -324,7 +324,12 @@ namespace Dcx {
 			break;
 
 			//case WM_CONTEXTMENU:
-			//case WM_INITMENU:
+		case WM_INITMENU:
+		{
+			Dcx::XPopups.setOwnerWindow(mHwnd);
+		}
+		break;
+
 		case WM_INITMENUPOPUP:
 			return Dcx::XPopups.OnInitMenuPopup(mHwnd, wParam, lParam);
 

@@ -2782,6 +2782,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	}
 
 	case WM_INITMENU:
+	{
+		Dcx::XPopups.setOwnerWindow(mHwnd);
+	}
+	[[fallthrough]];
 	case WM_INITMENUPOPUP:
 	{
 		if (Dcx::dcxHIWORD(lParam) == FALSE && p_this->m_popup)

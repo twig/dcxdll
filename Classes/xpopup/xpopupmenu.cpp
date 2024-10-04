@@ -914,6 +914,11 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam,
 
 	switch (uMsg)
 	{
+	case WM_INITMENU:
+	{
+		Dcx::XPopups.setOwnerWindow(mHwnd);
+	}
+	break;
 
 	case WM_MEASUREITEM:
 	{
