@@ -142,6 +142,7 @@ private:
 	RECT m_webViewBounds{};
 	RECT m_rcSize{};
 	TString m_tsHome;
+	Json m_SecurityState;
 
 	HRESULT OnCreateCoreWebView2EnvironmentCompleted(HRESULT result, ICoreWebView2Environment* env);
 	HRESULT OnCreateCoreWebView2ControllerCompleted(HRESULT result, ICoreWebView2Controller* controller);
