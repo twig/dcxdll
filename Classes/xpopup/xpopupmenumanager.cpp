@@ -910,13 +910,25 @@ const int XPopupMenuManager::parseMPopup(const TString& input)
 
 	const auto uMenuHash = std::hash<TString>{}(input.getfirsttok(1));
 	const auto iEnable = input.getnexttok().to_int();	// tok 2
+	const auto tsCallback(input.getnexttok());
 
 	if (uMenuHash == TEXT("mirc"_hash))
+	{
 		m_bIsActiveMircPopup = (iEnable == 1);
+		if (!tsCallback.empty())
+			m_mIRCPopupMenu->setCallback(tsCallback);
+	}
 	else if (uMenuHash == TEXT("mircbar"_hash))
 	{
 		if (iEnable == 1)
+		{
 			m_bIsActiveMircMenubarPopup = true;
+			if (!tsCallback.empty())
+			{
+				m_mIRCMenuBar->setCallback(tsCallback);
+				m_mIRCScriptMenu->setCallback(tsCallback);
+			}
+		}
 		else {
 			m_bIsActiveMircMenubarPopup = false;
 			m_mIRCMenuBar->cleanMenu(GetMenu(mIRCLinker::getHWND()));
@@ -1655,7 +1667,37 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	break;
 
 	// This enables halting the menu closing &/or item selection.
-	case WindowMessages::eMN_BUTTONDOWN:
+	//case WindowMessages::eMN_BUTTONUP:
+	//{
+	//	auto hParent = Dcx::m_MenuParent;
+	//	if (!IsWindow(hParent))
+	//		break;
+
+	//	auto hMenu = getWindowsMenu(mHwnd);
+	//	if (!hMenu)
+	//		break;
+	//	//LockWindowUpdate();
+	//	//std::dynamic_pointer_cast<>;
+
+	//	MENUINFO mi{};
+	//	mi.cbSize = sizeof(MENUINFO);
+	//	mi.fMask = MIM_STYLE;
+	//	GetMenuInfo(hMenu, &mi);
+	//	if (dcx_testflag(mi.dwStyle, MNS_NOTIFYBYPOS))
+	//		SendMessage(hParent, WM_MENUCOMMAND, wParam, reinterpret_cast<LPARAM>(hMenu));
+	//	else {
+	//		const auto mID = GetMenuItemID(hMenu, wParam);
+	//		if (mID == UINT_MAX)
+	//			break;
+
+	//		SendMessage(hParent, WM_COMMAND, MAKEWPARAM(mID, 0), 0);
+	//	}
+	//	RedrawMenuIfOpen();
+	//	return 0L;
+	//}
+	//break;
+
+	case WindowMessages::eMN_BUTTONUP:
 	{
 		// detect item selection.
 		auto hMenu = getWindowsMenu(mHwnd);
@@ -1671,14 +1713,76 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 
 		if (auto xMenu = xItem->getParentMenu(); xMenu)
 		{
+			switch (xMenu->getNameHash())
+			{
+			case L"dialog"_hash:
+			{
+				// This is a dialog menu, send the message back to trigger on dialog events etc..
+				auto hParent = Dcx::XPopups.getOwnerWindow();
+				if (!IsWindow(hParent))
+					break;
+
+				const auto mID = GetMenuItemID(hMenu, wParam);
+				if (mID == UINT_MAX)
+					break;
+
+				SendMessage(hParent, WM_COMMAND, MAKEWPARAM(mID, 0), 0);
+				// redraw menu to update the visible state incase this command changes something in the menu its self.
+				RedrawMenuIfOpen();
+				return 0L;
+			}
+			break;
+			// check toggle doesnt really work for mirc menus other than dialog & custom
+			// the command id's change every time the menu changes, making it hard to determine which item was clicked.
+			// and we can only send a single command back
+			// could embed an id in the item text allowing a constant id to send to a callback alias.
+			//case L"mirc"_hash:
+			//case L"mircbar"_hash:
+			//case L"scriptpopup"_hash:
+			//	break;
+			default:
+			{
 			if (const TString tsCallback(xMenu->getCallback()); !tsCallback.empty())
 			{
 				TString tsRes;
-				//_ts_sprintf(tsRes, L"$%(%,%,checksel)", tsCallback, xMenu->getName(), mID);
-				//mIRCLinker::eval(tsRes, tsRes);
-				mIRCLinker::eval(tsRes, L"$%(%,%,checksel)", tsCallback, xMenu->getName(), mID);
+
+					// notify callback alias that an item has been clicked that has the toggle setting.
+					mIRCLinker::eval(tsRes, L"$%(%,%,checksel)", tsCallback, xMenu->getName(), xItem->getCommandID());
+					// if alias returns "$true" then simply halt menu closing (its assumed the script has donme whatever needed doing)
 				if (tsRes == L"$true")
 					return 0L;
+					// if the alias returns "msg" then send the menu selection back to the menus owner & halt menu closing.
+					if (tsRes == L"msg")
+					{
+						//auto hParent = Dcx::m_MenuParent;
+						auto hParent = Dcx::XPopups.getOwnerWindow();
+						if (!IsWindow(hParent))
+							break;
+
+						MENUINFO mi{};
+						mi.cbSize = sizeof(MENUINFO);
+						mi.fMask = MIM_STYLE;
+						if (!GetMenuInfo(hMenu, &mi))
+							break;
+
+						if (dcx_testflag(mi.dwStyle, MNS_NOTIFYBYPOS))
+							SendMessage(hParent, WM_MENUCOMMAND, wParam, reinterpret_cast<LPARAM>(hMenu));
+						else
+						{
+							const auto mID = GetMenuItemID(hMenu, wParam);
+							if (mID == UINT_MAX)
+								break;
+
+							SendMessage(hParent, WM_COMMAND, MAKEWPARAM(mID, 0), 0);
+						}
+						// redraw menu to update the visible state incase this command changes something in the menu its self.
+						RedrawMenuIfOpen();
+						return 0L;
+
+			}
+		}
+	}
+	break;
 			}
 		}
 	}
