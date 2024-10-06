@@ -144,6 +144,19 @@ public:
 		return m_hOwnerWindow;
 	}
 
+	static void TriggerMenuItem(_In_opt_ HWND hOwner, _In_opt_ HMENU hMenu, _In_ UINT mPos, _In_ bool bByPos) noexcept;
+
+	void TriggerMenuPos(_In_opt_ HWND hOwner, _In_opt_ HMENU hMenu, _In_ UINT mPos) noexcept
+	{
+		TriggerMenuItem(hOwner, hMenu, mPos, true);
+	}
+	void TriggerMenuCommand(_In_opt_ HWND hOwner, _In_ UINT mCmd) noexcept
+	{
+		TriggerMenuItem(hOwner, nullptr, mCmd, false);
+	}
+
+	static void setCheckState(_In_opt_ HMENU hMenu, _In_ UINT mPos, _In_ BOOL bByPos, _In_ bool bCheck) noexcept;
+
 	const bool isCustomMenu(_In_opt_ const HMENU hMenu) const noexcept;
 	static const bool isMenuBarMenu(_In_opt_ const HMENU hMenu, _In_opt_ const HMENU hMatch);
 	const bool isItemValid(_In_opt_ const XPopupMenuItem* const pItem) const noexcept;

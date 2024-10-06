@@ -896,6 +896,31 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 		return p_Menu->getCallback();
 	}
 	break;
+	case TEXT("isopen"_hash):
+	{
+		if (!p_Menu)
+			return TEXT("$false");
+
+		return dcx_truefalse(getFirstWin() != nullptr);
+
+		//auto hWnd = getFirstWin();
+		//if (!hWnd)
+		//	return TEXT("$false");
+
+		//auto hTmp = getWindowsMenu(hWnd);
+		//if (!hTmp)
+		//	return TEXT("$false");
+
+		//auto xMenu = getMenuByHandle(hTmp);
+		//if (!xMenu)
+		//	return TEXT("$false");
+
+		//if (xMenu->getNameHash() == p_Menu->getNameHash())
+		//	return TEXT("$true");
+
+		//return TEXT("$false");
+	}
+	break;
 	case 0:
 	default:
 		throw Dcx::dcxException(TEXT("Unknown prop \"%\""), prop);
@@ -1101,6 +1126,57 @@ XPopupMenuItem* XPopupMenuManager::getMenuItemByID(_In_opt_ const HMENU hMenu, _
 XPopupMenuItem* XPopupMenuManager::getMenuItemByCommandID(_In_opt_ const HMENU hMenu, _In_ const UINT id) const noexcept
 	{
 	return _getMenuItemByID(hMenu, id, FALSE);
+}
+
+void XPopupMenuManager::TriggerMenuItem(_In_opt_ HWND hOwner, _In_opt_ HMENU hMenu, _In_ UINT mPos, _In_ bool bByPos) noexcept
+{
+	if (!IsWindow(hOwner))
+		return;
+
+	if (bByPos)
+	{
+		if (!hMenu)
+			return;
+
+		MENUINFO mi{};
+		mi.cbSize = sizeof(MENUINFO);
+		mi.fMask = MIM_STYLE;
+		if (!GetMenuInfo(hMenu, &mi))
+			return;
+
+		if (dcx_testflag(mi.dwStyle, MNS_NOTIFYBYPOS))
+			SendMessage(hOwner, WM_MENUCOMMAND, mPos, reinterpret_cast<LPARAM>(hMenu));
+		else
+		{
+			const auto cmdID = GetMenuItemID(hMenu, mPos);
+			if (cmdID == UINT_MAX)
+				return;
+
+			SendMessage(hOwner, WM_COMMAND, MAKEWPARAM(cmdID, 0), 0);
+		}
+	}
+	else {
+		// no HMENU so mPos is a CommandID
+		SendMessage(hOwner, WM_COMMAND, MAKEWPARAM(mPos, 0), 0);
+	}
+}
+
+void XPopupMenuManager::setCheckState(_In_opt_ HMENU hMenu, _In_ UINT mPos, _In_ BOOL bByPos, _In_ bool bCheck) noexcept
+{
+	if (!hMenu)
+		return;
+
+	MENUITEMINFO mii{};
+	mii.cbSize = sizeof(MENUITEMINFO);
+	mii.fMask = MIIM_STATE;
+	if (!GetMenuItemInfoW(hMenu, mPos, bByPos, &mii))
+		return;
+	if (bCheck)
+		mii.fState |= MFS_CHECKED;
+	else
+		mii.fState &= ~MFS_CHECKED;
+
+	SetMenuItemInfoW(hMenu, mPos, bByPos, &mii);
 }
 
 /*
@@ -1558,20 +1634,19 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	{
 		if (!dcxHoverTimer.is_running())
 		{
-			const Dcx::dcxCursorPos pt;
-			const Dcx::dcxWindowRect rc(mHwnd);
-
-			// hide any current tooltip
-			//if (g_toolTipWin && IsWindow(g_toolTipWin))
-			//	SendMessage(g_toolTipWin, TTM_TRACKACTIVATE, (WPARAM)FALSE, (LPARAM)&g_toolItem);
-
 			// hide any current tooltip
 			if (g_toolTipWin && IsWindow(g_toolTipWin))
 				Dcx::dcxToolTip_TrackActivate(g_toolTipWin, FALSE, &g_toolItem);
 
 			// start thread to check for hover...
-			if (/*!getGlobalMenuList().empty() &&*/ !getGlobalMenuWindowList().empty() && PtInRect(&rc, pt))
-				dcxHoverTimer.start(600, XPopupMenuManager::dcxCheckMenuHover);
+			if (!getGlobalMenuWindowList().empty())
+			{
+				const Dcx::dcxCursorPos pt;
+				const Dcx::dcxWindowRect rc(mHwnd);
+
+				if (PtInRect(&rc, pt))
+					dcxHoverTimer.start(1200, XPopupMenuManager::dcxCheckMenuHover);
+			}
 
 			// Ook: cant use mHwnd as this may not exist when timer ends
 			//if (!getGlobalMenuWindowList().empty() && PtInRect(&rc, pt))
@@ -1718,15 +1793,16 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			case L"dialog"_hash:
 			{
 				// This is a dialog menu, send the message back to trigger on dialog events etc..
-				auto hParent = Dcx::XPopups.getOwnerWindow();
-				if (!IsWindow(hParent))
-					break;
+				//auto hParent = Dcx::XPopups.getOwnerWindow();
+				//if (!IsWindow(hParent))
+				//	break;
+				//const auto mID = GetMenuItemID(hMenu, wParam);
+				//if (mID == UINT_MAX)
+				//	break;
+				//SendMessage(hParent, WM_COMMAND, MAKEWPARAM(mID, 0), 0);
 
-				const auto mID = GetMenuItemID(hMenu, wParam);
-				if (mID == UINT_MAX)
-					break;
+				Dcx::XPopups.TriggerMenuPos(Dcx::XPopups.getOwnerWindow(), hMenu, wParam);
 
-				SendMessage(hParent, WM_COMMAND, MAKEWPARAM(mID, 0), 0);
 				// redraw menu to update the visible state incase this command changes something in the menu its self.
 				RedrawMenuIfOpen();
 				return 0L;
@@ -1749,39 +1825,66 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					// notify callback alias that an item has been clicked that has the toggle setting.
 					mIRCLinker::eval(tsRes, L"$%(%,%,checksel)", tsCallback, xMenu->getName(), xItem->getCommandID());
 					// if alias returns "$true" then simply halt menu closing (its assumed the script has donme whatever needed doing)
-				if (tsRes == L"$true")
-					return 0L;
-					// if the alias returns "msg" then send the menu selection back to the menus owner & halt menu closing.
-					if (tsRes == L"msg")
+					switch (std::hash<TString>()(tsRes.getfirsttok(1)))
 					{
-						//auto hParent = Dcx::m_MenuParent;
-						auto hParent = Dcx::XPopups.getOwnerWindow();
-						if (!IsWindow(hParent))
-							break;
+					case L"$true"_hash:
+					return 0L;
+					default:
+						break;
+					// if the alias returns "msg" then send the menu selection back to the menus owner & halt menu closing.
+					case L"msg"_hash:
+					{
+						Dcx::XPopups.TriggerMenuPos(Dcx::XPopups.getOwnerWindow(), hMenu, wParam);
 
-						MENUINFO mi{};
-						mi.cbSize = sizeof(MENUINFO);
-						mi.fMask = MIM_STYLE;
-						if (!GetMenuInfo(hMenu, &mi))
-							break;
-
-						if (dcx_testflag(mi.dwStyle, MNS_NOTIFYBYPOS))
-							SendMessage(hParent, WM_MENUCOMMAND, wParam, reinterpret_cast<LPARAM>(hMenu));
-						else
-						{
-							const auto mID = GetMenuItemID(hMenu, wParam);
-							if (mID == UINT_MAX)
-								break;
-
-							SendMessage(hParent, WM_COMMAND, MAKEWPARAM(mID, 0), 0);
-						}
 						// redraw menu to update the visible state incase this command changes something in the menu its self.
 						RedrawMenuIfOpen();
 						return 0L;
+					}
+					case L"check"_hash:
+					{
+						switch (const auto tsIDs(tsRes.getlasttoks()); tsIDs.numtok())
+						{
+						case 1:
+						{
+							// one id assume its a group id.
+							const auto nGroup = tsIDs.getfirsttok(1).to_<UINT>();
 
+							if (auto& grp = xMenu->getGroup(nGroup); grp)
+							{
+								for (const auto gID : grp.m_GroupIDs)
+					{
+									Dcx::XPopups.setCheckState(hMenu, gID, TRUE, false);
+								}
+							}
+							Dcx::XPopups.setCheckState(hMenu, wParam, TRUE, true);
+						}
+							break;
+						case 2:
+						{
+							// two ids assume its a position range.
+							const auto nFirst = tsIDs.getfirsttok(1).to_<UINT>() - 1;
+							const auto nLast = tsIDs.getnexttok().to_<UINT>() - 1;
+
+							CheckMenuRadioItem(hMenu, nFirst, nLast, wParam, MF_BYPOSITION);
+						}
+							break;
+						default:
+						{
+							// no ids, just check this item.
+							Dcx::XPopups.setCheckState(hMenu, wParam, TRUE, true);
+						}
+								break;
+						}
+						return 0L;
+						}
+					case L"uncheck"_hash:
+					{
+						Dcx::XPopups.setCheckState(hMenu, wParam, TRUE, false);
+						return 0L;
 			}
 		}
 	}
+			}
 	break;
 			}
 		}

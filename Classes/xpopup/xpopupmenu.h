@@ -19,6 +19,9 @@
 #include "defines.h"
 #include "Classes/xpopup/xpopupmenuitem.h"
 
+// uncomment this to enable using unique_ptr
+//#define XPOPUP_USE_UNIQUEPTR 1
+
 constexpr auto XPS_ICON3D = 0x01; //!< Icons have a 3D effect
 constexpr auto XPS_DISABLEDSEL = 0x02; //!< Disabled Items have a selectionbox
 constexpr auto XPS_ICON3DSHADOW = 0x04; //!< Icons have a 3D effect with undershadow
@@ -241,8 +244,12 @@ using VectorOfGroupIDs = VectorOfInts;
 
 struct DcxMenuItemGroup
 {
-	UINT m_ID{};
+	UINT m_ID{};					// ID of this group.
 	VectorOfGroupIDs m_GroupIDs;	// these IDs are the command ids of items in the group. IDs can be in more than one group.
+
+	operator bool() const noexcept {
+		return (m_ID > 0 && !m_GroupIDs.empty());
+	}
 };
 
 using VectorOfMenuItemGroups = std::vector<DcxMenuItemGroup>;
@@ -486,6 +493,24 @@ public:
 	VectorOfMenuItemGroups& getGroups() noexcept { return m_Groups; }
 
 	/// <summary>
+	/// Gets groups data.
+	/// </summary>
+	/// <returns>const VectorOfMenuItemGroups&amp;</returns>
+	const VectorOfMenuItemGroups& getGroups() const noexcept { return m_Groups; }
+
+	const DcxMenuItemGroup &getGroup(UINT nID) const noexcept
+	{
+		static DcxMenuItemGroup gEmpty;
+		const auto& grps = getGroups();
+		for (auto& a : grps)
+		{
+			if (nID == a.m_ID)
+				return a;
+		}
+		return gEmpty;
+	}
+
+	/// <summary>
 	/// Converts a CommandID to a menu &amp; path.
 	/// </summary>
 	/// <param name="mID">- CommandID to convert.</param>
@@ -573,7 +598,11 @@ protected:
 	const bool m_bDestroyHMENU{ true };		//!< Should the destructor call DestroyMenu()
 };
 
+#if defined(XPOPUP_USE_UNIQUEPTR)
+using VectorOfXPopupMenu = std::vector<std::unique_ptr<XPopupMenu>>; //!< Vector of XPopupMenu Objects
+#else
 using VectorOfXPopupMenu = std::vector<XPopupMenu*>; //!< Vector of XPopupMenu Objects
+#endif
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )
