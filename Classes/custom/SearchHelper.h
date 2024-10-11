@@ -294,8 +294,10 @@ struct dcxSearchData
 	dcxSearchData& operator =(dcxSearchData&&) noexcept = default;
 };
 
-#if !DCX_USE_PCRE2
+#if !defined(PCRE2_SIZE)
 #define PCRE2_SIZE size_t
+#endif
+#if !defined(PCRE2_SIZE_MAX)
 #define PCRE2_SIZE_MAX SIZE_MAX
 #endif
 
