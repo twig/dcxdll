@@ -333,10 +333,10 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 	{
 		const auto menu = reinterpret_cast<HMENU>(wParam);
 		const auto currentMenubar = GetMenu(mIRCLinker::getHWND());
-		const auto switchMenu = (m_mIRCScriptMenu != nullptr) &&                  // The mIRC scriptpopup menu has been wrapped,
-			(menu == m_mIRCScriptMenu->getMenuHandle()) && // The menu the same as the one just shown,
-			(currentMenubar != g_OriginalMenuBar) &&       // The menubar is our generated menubar,
-			(g_OriginalMenuBar != nullptr);                   // And ensure it has been generated.
+		const auto switchMenu = (m_mIRCScriptMenu != nullptr) &&        // The mIRC scriptpopup menu has been wrapped,
+			(menu == m_mIRCScriptMenu->getMenuHandle()) &&				// The menu the same as the one just shown,
+			(currentMenubar != g_OriginalMenuBar) &&					// The menubar is our generated menubar,
+			(g_OriginalMenuBar != nullptr);								// And ensure it has been generated.
 
 		if (switchMenu)
 			SetMenu(mIRCLinker::getHWND(), g_OriginalMenuBar);
@@ -530,10 +530,18 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 		if (input.numtok(TSTABCHAR) > 1)
 		{
 			const auto tsCallback(input.gettok(2, TSTABCHAR).trim());	// tok 4
+#if defined(XPOPUP_USE_UNIQUEPTR)
+			this->m_vpXPMenu.emplace_back(tsMenuName, style, tsCallback);
+#else
 			this->m_vpXPMenu.push_back(new XPopupMenu(tsMenuName, style, tsCallback));
+#endif
 		}
 		else
+#if defined(XPOPUP_USE_UNIQUEPTR)
+			this->m_vpXPMenu.emplace_back(tsMenuName, style);
+#else
 			this->m_vpXPMenu.push_back(new XPopupMenu(tsMenuName, style));
+#endif
 
 		// Ook: maybe change to something like this instead? need to check how this affects alloc/free
 		//std::vector<XPopupMenu> testv;
@@ -542,6 +550,8 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 		//std::vector<std::unique_ptr<XPopupMenu>> testv;
 		//testv.emplace_back(tete);
 		//testv.emplace_back(tsMenuName, style);
+		//std::vector<std::shared_ptr<XPopupMenu>> testv;
+		//testv.emplace_back(std::make_shared<XPopupMenu>(tsMenuName, style));
 	}
 	// xpopup -d -> [MENU] [SWITCH]
 	else if (flags[TEXT('d')])
@@ -994,8 +1004,13 @@ const int XPopupMenuManager::parseMPopup(const TString& input)
 
 void XPopupMenuManager::addMenu(XPopupMenu* const p_Menu)
 {
+#if defined(XPOPUP_USE_UNIQUEPTR)
+	if (p_Menu)
+		this->m_vpXPMenu.emplace_back(p_Menu);
+#else
 	if (p_Menu)
 		this->m_vpXPMenu.push_back(p_Menu);
+#endif
 }
 
 /*!
@@ -1032,8 +1047,12 @@ void XPopupMenuManager::deleteMenu(const XPopupMenu* const p_Menu) noexcept
 	//	this->m_vpXPMenu.erase(itGot);
 	//}
 
+#if defined(XPOPUP_USE_UNIQUEPTR)
+	Dcx::eraseIfFound(m_vpXPMenu, p_Menu);
+#else
 	if (Dcx::eraseIfFound(m_vpXPMenu, p_Menu))
 		delete p_Menu;
+#endif
 }
 
 /*!
@@ -1044,8 +1063,10 @@ void XPopupMenuManager::deleteMenu(const XPopupMenu* const p_Menu) noexcept
 
 void XPopupMenuManager::clearMenus() noexcept
 {
+#if !defined(XPOPUP_USE_UNIQUEPTR)
 	for (const auto& a : this->m_vpXPMenu)
 		delete a;
+#endif
 
 	this->m_vpXPMenu.clear();
 }
@@ -1072,8 +1093,13 @@ XPopupMenu* XPopupMenuManager::getMenuByHash(_In_ const std::size_t uHash, _In_ 
 	{
 		if (x)
 		{
+#if defined(XPOPUP_USE_UNIQUEPTR)
+			if (x->getNameHash() == uHash)
+				return x.get();
+#else
 			if (x->getNameHash() == uHash)
 				return x;
+#endif
 		}
 	}
 	return nullptr;
@@ -1113,8 +1139,13 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(_In_opt_ const HMENU hMenu) const
 	{
 		if (x)
 		{
+#if defined(XPOPUP_USE_UNIQUEPTR)
+			if (hMenu == x->getMenuHandle())
+				return x.get();
+#else
 			if (hMenu == x->getMenuHandle())
 				return x;
+#endif
 		}
 	}
 	return nullptr;
@@ -1337,7 +1368,8 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, cons
 	// Create menu with style (from specific or global)
 	const auto style = XPopupMenu::parseStyle(GetMenuAttributeFromXML("style", popup, globalStyles));
 	// Ook: this needs looked at, should be protected....
-	const auto menu = new XPopupMenu(popupName, style);
+	//const auto menu = new XPopupMenu(popupName, style);
+	auto menu = std::make_unique<XPopupMenu>(popupName, style);
 
 	if (queryIntAttribute(popup, "version") > 0)
 	{
@@ -1356,9 +1388,8 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, cons
 			}
 		}
 		menu->fromXml(popups, popup, vIcons);
-		return;
 	}
-
+	else {
 	const static Dcx::CodeValue<const char*, XPopupMenu::MenuColours> colors[] = {
 		{ XPopupMenu::MenuColours::XPMC_BACKGROUND, "bgcolour" },
 		{ XPopupMenu::MenuColours::XPMC_ICONBOX, "iconcolour"},
@@ -1393,9 +1424,6 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, cons
 		}
 	}
 
-	// Successfully created a menu.
-	Dcx::XPopups.addMenu(menu);
-
 	// Parse icons
 	if (const auto* xIcons = popup->FirstChildElement("icons"); xIcons)
 	{
@@ -1410,13 +1438,17 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, cons
 			{
 				TString command;
 				_ts_sprintf(command, TEXT("% -i % % %"), popupName, flags, indexes, tsSrc);
-				Dcx::XPopups.parseCommand(command, menu);
+					Dcx::XPopups.parseCommand(command, menu.get());
 			}
 		}
 	}
 
-	if (!LoadPopupItemsFromXML(menu, menu->getMenuHandle(), popup))
+		if (!LoadPopupItemsFromXML(menu.get(), menu->getMenuHandle(), popup))
 		throw Dcx::dcxException(TEXT("Unable to load menu items: %"), popupName);
+}
+
+	// Successfully created a menu.
+	Dcx::XPopups.addMenu(menu.release());
 }
 
 /*
