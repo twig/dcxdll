@@ -1680,12 +1680,20 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 
 	case WindowMessages::eMN_SELECTITEM:
 	{
+		if (wParam != UINT_MAX)
+		{
 		if (!dcxHoverTimer.is_running())
 		{
 			// hide any current tooltip
 			if (g_toolTipWin && IsWindow(g_toolTipWin))
 				Dcx::dcxToolTip_TrackActivate(g_toolTipWin, FALSE, &g_toolItem);
 
+				if (auto hMenu = getWindowsMenu(mHwnd); hMenu)
+				{
+					if (auto p_Item = Dcx::XPopups.getMenuItemByID(hMenu, wParam); p_Item)
+					{
+						if (p_Item->IsTooltipsEnabled())
+						{
 			// start thread to check for hover...
 			if (!getGlobalMenuWindowList().empty())
 			{
@@ -1695,14 +1703,27 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 				if (PtInRect(&rc, pt))
 					dcxHoverTimer.start(1200, XPopupMenuManager::dcxCheckMenuHover);
 			}
+						}
+					}
+				}
+
+				//// start thread to check for hover...
+				//if (!getGlobalMenuWindowList().empty())
+				//{
+				//	const Dcx::dcxCursorPos pt;
+				//	const Dcx::dcxWindowRect rc(mHwnd);
+				//	if (PtInRect(&rc, pt))
+				//		dcxHoverTimer.start(1200, XPopupMenuManager::dcxCheckMenuHover);
+				//}
 
 			// Ook: cant use mHwnd as this may not exist when timer ends
 			//if (!getGlobalMenuWindowList().empty() && PtInRect(&rc, pt))
 			//	dcxHoverTimer.start(600, XPopupMenuManager::dcxCheckMenuHover2, mHwnd);
 		}
-
+		}
+		else
 		// if cursor NOT over menu, make all menus solid.
-		if (wParam == UINT_MAX)
+		//if (wParam == UINT_MAX)
 		{
 			if (Dcx::m_CurrentMenuAlpha == std::byte{ 255 })
 				break;
