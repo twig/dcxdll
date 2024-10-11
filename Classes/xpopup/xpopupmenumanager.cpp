@@ -458,16 +458,8 @@ LRESULT XPopupMenuManager::OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 void XPopupMenuManager::RedrawMenuIfOpen() noexcept
 {
 	for (auto& win : getGlobalMenuWindowList())
-	{
-		RedrawWindow(win, nullptr, nullptr, RDW_UPDATENOW | RDW_FRAME | RDW_INTERNALPAINT | RDW_INVALIDATE);
+		RedrawWindow(win, nullptr, nullptr, RDW_UPDATENOW | RDW_FRAME | RDW_INTERNALPAINT | RDW_INVALIDATE | RDW_ERASE);
 	}
-}
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void XPopupMenuManager::parseCommand(const TString& input)
 {
