@@ -496,7 +496,7 @@ enum class WindowMessages
 	eMN_SIZEWINDOW,
 	eMN_OPENHIERARCHY,
 	eMN_CLOSEHIERARCHY,
-	eMN_SELECTITEM,
+	eMN_SELECTITEM,					// wParam = item pos or -1 when not over menu.
 	eMN_CANCELMENUS,
 	eMN_SELECTFIRSTVALIDITEM,
 	eundefined_183,
