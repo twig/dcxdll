@@ -919,6 +919,39 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam,
 		Dcx::XPopups.setOwnerWindow(mHwnd);
 	}
 	break;
+	//case WM_COMMAND:
+	//{
+	//	if ((Dcx::dcxHIWORD(wParam) == 0) && (lParam == 0))
+	//	{
+	//		// no obvious way to get menu here...
+	//		//auto hMenu = reinterpret_cast<HMENU>(SendMessage(mHwnd, MN_GETHMENU, 0, 0));
+	//		auto hMenu = GetMenu(mHwnd);
+	//		if (!hMenu)
+	//			break;
+	//		auto xItem = Dcx::XPopups.getMenuItemByCommandID(hMenu, wParam);
+	//		if (!xItem)
+	//			break;
+	//		if (auto xMenu = xItem->getParentMenu(); xMenu)
+	//		{
+	//			mIRCLinker::exec(TEXT("//.signal -n XPopup-% %"), xMenu->getName(), Dcx::dcxLOWORD(wParam));
+	//		}
+	//	}
+	//}
+	//break;
+	case WM_MENUCOMMAND:
+	{
+			auto hMenu = reinterpret_cast<HMENU>(lParam);
+			if (!hMenu)
+				break;
+
+			auto xItem = Dcx::XPopups.getMenuItemByID(hMenu, wParam);
+			if (!xItem)
+				break;
+
+			if (auto xMenu = xItem->getParentMenu(); xMenu)
+				mIRCLinker::exec(TEXT("//.signal -n XPopup-% %"), xMenu->getName(), xItem->getCommandID());
+	}
+	break;
 
 	case WM_MEASUREITEM:
 	{
