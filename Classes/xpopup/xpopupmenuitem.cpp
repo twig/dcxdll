@@ -16,23 +16,40 @@
 #include "Classes/xpopup/xpopupmenu.h"
 #include "Dcx.h"
 
- /*!
-  * \brief Constructor
-  *
-  * blah
-  */
-
+/// <summary>
+/// Construct a menu item.
+/// </summary>
+/// <param name="Parent"></param>
+/// <param name="bSep"></param>
+/// <param name="dwDataBackup"></param>
 XPopupMenuItem::XPopupMenuItem(XPopupMenu* Parent, const bool bSep, ULONG_PTR dwDataBackup) noexcept
 	: m_pXParentMenu(Parent), m_bSep(bSep), m_nIcon(-1), m_dwItemDataBackup(dwDataBackup)
 {
 }
 
-/*!
- * \brief Constructor
- *
- * blah
- */
+/// <summary>
+/// Construct a menu item.
+/// </summary>
+/// <param name="Parent"></param>
+/// <param name="tsItemText"></param>
+/// <param name="bSubMenu"></param>
+/// <param name="dwDataBackup"></param>
+XPopupMenuItem::XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, const bool bSubMenu, ULONG_PTR dwDataBackup)
+	: m_pXParentMenu(Parent), m_tsItemText(tsItemText), m_bSubMenu(bSubMenu), m_dwItemDataBackup(dwDataBackup)
+{
+	m_tsItemText.trim();
 
+	parseItemText();
+}
+
+/// <summary>
+/// Construct a menu item.
+/// </summary>
+/// <param name="Parent"></param>
+/// <param name="tsItemText"></param>
+/// <param name="nIcon"></param>
+/// <param name="bSubMenu"></param>
+/// <param name="dwDataBackup"></param>
 XPopupMenuItem::XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup)
 	: m_pXParentMenu(Parent), m_tsItemText(tsItemText), m_nIcon(nIcon), m_bSubMenu(bSubMenu), m_dwItemDataBackup(dwDataBackup)
 {
@@ -41,6 +58,15 @@ XPopupMenuItem::XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, co
 	parseItemText();
 }
 
+/// <summary>
+/// Construct a menu item.
+/// </summary>
+/// <param name="Parent"></param>
+/// <param name="tsItemText"></param>
+/// <param name="tsTooltip"></param>
+/// <param name="nIcon"></param>
+/// <param name="bSubMenu"></param>
+/// <param name="dwDataBackup"></param>
 XPopupMenuItem::XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, const TString& tsTooltip, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup)
 	: m_pXParentMenu(Parent), m_tsItemText(tsItemText), m_tsTooltipText(tsTooltip), m_nIcon(nIcon), m_bSubMenu(bSubMenu), m_dwItemDataBackup(dwDataBackup)
 {
@@ -50,68 +76,66 @@ XPopupMenuItem::XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, co
 	parseItemText();
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
+/// <summary>
+/// Set this items submenu.
+/// </summary>
+/// <param name="bSubMenu"></param>
 void XPopupMenuItem::setSubMenu(const bool bSubMenu) noexcept
 {
 	this->m_bSubMenu = bSubMenu;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
+/// <summary>
+/// Set this items text.
+/// </summary>
+/// <param name="tsItemText"></param>
 void XPopupMenuItem::setItemText(const TString& tsItemText)
 {
 	if (!this->m_bSep)
 		this->m_tsItemText = tsItemText;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
+/// <summary>
+/// Set this items icon.
+/// </summary>
+/// <param name="nIcon"></param>
 void XPopupMenuItem::setItemIcon(const int nIcon) noexcept
 {
 	if (!this->m_bSep)
 		this->m_nIcon = nIcon;
 }
 
+/// <summary>
+/// Set this items overriding style.
+/// </summary>
+/// <param name="uStyle"></param>
 void XPopupMenuItem::setOverrideStyle(UINT uStyle) noexcept
 {
 	m_eStyleOverride = uStyle;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
+/// <summary>
+/// Get this items text.
+/// </summary>
+/// <returns></returns>
 const TString& XPopupMenuItem::getItemText() const noexcept
 {
 	return this->m_tsItemText;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
+/// <summary>
+/// Get this items icon.
+/// </summary>
+/// <returns></returns>
 const int& XPopupMenuItem::getItemIcon() const noexcept
 {
 	return this->m_nIcon;
 }
 
+/// <summary>
+/// Get this items current style.
+/// </summary>
+/// <returns></returns>
 auto XPopupMenuItem::getStyle() const noexcept
 {
 	if (m_eStyleOverride != gsl::narrow_cast<UINT>(XPopupMenu::MenuStyle::XPMS_None))
@@ -123,6 +147,10 @@ auto XPopupMenuItem::getStyle() const noexcept
 	return XPopupMenu::MenuStyle::XPMS_None;
 }
 
+/// <summary>
+/// Is tooltips enabled for this menu?
+/// </summary>
+/// <returns></returns>
 bool XPopupMenuItem::IsTooltipsEnabled() const noexcept
 {
 	if (!m_pXParentMenu)
@@ -130,6 +158,10 @@ bool XPopupMenuItem::IsTooltipsEnabled() const noexcept
 	return m_pXParentMenu->IsToolTipsEnabled();
 }
 
+/// <summary>
+/// Parse the item text for any embeded commands/effects.
+/// </summary>
+/// <returns></returns>
 bool XPopupMenuItem::parseItemText()
 {
 	if (const auto typeHash = m_pXParentMenu->getNameHash(); ((typeHash == TEXT("mirc"_hash)) || (typeHash == TEXT("mircbar"_hash)) || (typeHash == TEXT("dialog"_hash))))
@@ -625,8 +657,8 @@ void XPopupMenuItem::DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const XPMENU
 		return;
 
 	//#ifdef DCX_USE_GDIPLUS
-	//	const int x = lpdis->rcItem.right - 9;
-	//	const int y = ( lpdis->rcItem.bottom + lpdis->rcItem.top ) / 2 - 5;
+	//	const auto x = lpdis->rcItem.right - XPMI_SUBARROW_WIDTH;
+	//	const auto y = ((lpdis->rcItem.bottom + lpdis->rcItem.top) / 2) - (XPMI_SUBARROW_HEIGHT / 2);
 	//
 	//	if (!Dcx::GDIModule.isUseable())
 	//	{
@@ -661,7 +693,7 @@ void XPopupMenuItem::DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const XPMENU
 	//	else {
 	//		Gdiplus::Graphics gfx( lpdis->hDC );
 	//		const COLORREF clrShape = bDis?lpcol->m_clrDisabledText:lpcol->m_clrText;
-	//		RECT rc{ x,y,x + 5,y + 8 };
+	//		const RECT rc{ x,y,x + 5,y + 8 };
 	//
 	//		gfx.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias8x8);
 	//		//gfx.SetCompositingMode(Gdiplus::CompositingModeSourceOver);

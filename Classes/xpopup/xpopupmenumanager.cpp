@@ -575,18 +575,42 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 		p_Menu->destroyImageList();
 	}
 	// xpopup -l -> [MENU] [SWITCH] [N] [COLOR | default]
+	// xpopup -l -> [MENU] [SWITCH] [N,N2,N3-N4...] [COLOR | default]
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nColor = gsl::narrow_cast<XPopupMenu::MenuColours>(input.getnexttok().to_<UINT>());	// tok 3
-		const auto clr(input.getnexttok());				// tok 4
+		//const auto nColor = gsl::narrow_cast<XPopupMenu::MenuColours>(input.getnexttok().to_<UINT>());	// tok 3
+		//const auto clr(input.getnexttok());				// tok 4
+		//
+		//if (clr == TEXT("default"))
+		//	p_Menu->setDefaultColor(nColor);
+		//else
+		//	p_Menu->setColor(nColor, clr.to_<COLORREF>());
 
+		const auto nColors(input.getnexttok());
+		const auto clr(input.getnexttok());
+		const auto clrref = clr.to_<COLORREF>();
+
+		const auto itEnd = nColors.end();
+		for (auto itStart = nColors.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		{
+			const auto tsLine(*itStart);
+			const auto r = Dcx::make_range<int>(tsLine, gsl::narrow_cast<int>(XPopupMenu::MenuColours::XPMC_MAX) - 1);
+
+			if ((r.b < gsl::narrow_cast<int>(XPopupMenu::MenuColours::XPMC_MIN)) || (r.e < gsl::narrow_cast<int>(XPopupMenu::MenuColours::XPMC_MIN)) || (r.b > r.e))
+				throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+
+			for (const auto nColor : r)
+			{
 		if (clr == TEXT("default"))
-			p_Menu->setDefaultColor(nColor);
+					p_Menu->setDefaultColor(gsl::narrow_cast<XPopupMenu::MenuColours>(nColor));
 		else
-			p_Menu->setColor(nColor, clr.to_<COLORREF>());
+					p_Menu->setColor(gsl::narrow_cast<XPopupMenu::MenuColours>(nColor), clrref);
+	}
+		}
+
 	}
 	// xpopup -m -> mirc -m
 	else if (flags[TEXT('m')])
