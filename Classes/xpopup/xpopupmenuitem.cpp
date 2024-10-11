@@ -164,30 +164,65 @@ bool XPopupMenuItem::IsTooltipsEnabled() const noexcept
 /// <returns></returns>
 bool XPopupMenuItem::parseItemText()
 {
-	if (const auto typeHash = m_pXParentMenu->getNameHash(); ((typeHash == TEXT("mirc"_hash)) || (typeHash == TEXT("mircbar"_hash)) || (typeHash == TEXT("dialog"_hash))))
+	if (const auto typeHash = m_pXParentMenu->getNameHash(); ((typeHash != TEXT("mirc"_hash)) && (typeHash != TEXT("mircbar"_hash)) && (typeHash != TEXT("dialog"_hash))))
+		return false;
+
+	//// handle icons
+	//if (constexpr TCHAR sepChar = TEXT('\v'); m_tsItemText.numtok(sepChar) > 1)
+	//{
+	//	m_nIcon = m_tsItemText.getfirsttok(1, sepChar).to_int() - 1;	// tok 1, TEXT('\v')	get embeded icon number if any
+	//	m_tsItemText = m_tsItemText.getlasttoks().trim();				// tok 2, TEXT('\v')	get real item text
+	//}
+	// handle icons
+	if (constexpr TCHAR sepChar = TEXT('\v'); m_tsItemText.numtok(sepChar) > 1)	// 11
 	{
-		// handle icons
-		if (constexpr TCHAR sepChar = TEXT('\v'); m_tsItemText.numtok(sepChar) > 1)
+		m_nIcon = m_tsItemText.getfirsttok(1, sepChar).to_int() - 1;	// tok 1, TEXT('\v')	get embeded icon number if any
+
+		if (m_tsItemText.numtok(sepChar) > 2)	// 11
 		{
-			m_nIcon = m_tsItemText.getfirsttok(1, sepChar).to_int() - 1;	// tok 1, TEXT("\v")	get embeded icon number if any
-			m_tsItemText = m_tsItemText.getlasttoks().trim();				// tok 2, TEXT("\v")	get real item text
+			// second \v token taken to be style info for item. Overrides the menus style.
+			if (const TString tsStyle(m_tsItemText.getnexttok(sepChar).trim()); !tsStyle.empty())
+				setOverrideStyle(gsl::narrow_cast<UINT>(getParentMenu()->parseStyle(tsStyle)));
 		}
-		// handles tooltips
-		if (constexpr TCHAR sepChar = TEXT('\t'); m_tsItemText.numtok(sepChar) > 1)
-		{
-			TString tsTmp(m_tsItemText);							// copy item text
-			m_tsItemText = tsTmp.getfirsttok(1, sepChar).trim();	// tok 1, get real item text
-			m_tsTooltipText = tsTmp.getlasttoks().trim();			// tok 2-, get tooltip text
-		}
-		//check if the first char is $chr(12), if so then the text is utf8 (this is kept for compatability with old script only)
-		if (m_tsItemText[0] == 12)
-		{
-			// remove $chr(12) from text and trim whitespaces
-			m_tsItemText = m_tsItemText.right(-1).trim();
-		}
-		return true;
+		m_tsItemText = m_tsItemText.getlasttoks().trim();				// tok last, TEXT('\v')	get real item text
 	}
-	return false;
+	// handles tooltips
+	if (constexpr TCHAR sepChar = TEXT('\t'); m_tsItemText.numtok(sepChar) > 1)
+	{
+		const TString tsTmp(m_tsItemText);						// copy item text
+		m_tsItemText = tsTmp.getfirsttok(1, sepChar).trim();	// tok 1, get real item text
+		m_tsTooltipText = tsTmp.getlasttoks().trim();			// tok 2-, get tooltip text
+	}
+	if (const auto nPos = m_tsItemText.find(L'\x0e', 1); nPos != -1)	// $chr(14)
+	{
+		ptrdiff_t nEnd{ nPos + 1 };
+		while (m_tsItemText[nEnd] >= L'0' && m_tsItemText[nEnd] <= L'9')
+		{
+			++nEnd;
+		}
+		if ((nEnd - nPos) > 1)
+		{
+			auto tsID(m_tsItemText.sub(nPos, nEnd));
+			m_tsItemText.remove(tsID.to_chr());
+			tsID.remove(L'\x0e');
+			if (!tsID.empty())
+				setCommandID(tsID.to_<UINT>());
+		}
+		else
+			m_tsItemText.remove(L'\x0e');
+		m_tsItemText.trim();
+
+		setCheckToggle(true);
+
+	}
+	//check if the first char is $chr(12), if so then the text is utf8 (this is kept for compatability with old script only)
+	if (m_tsItemText[0] == 12)
+	{
+		// remove $chr(12) from text and trim whitespaces
+		m_tsItemText = m_tsItemText.right(-1).trim();
+		setRadioCheck(true);
+	}
+	return true;
 }
 
 void XPopupMenuItem::toXml(VectorOfIcons& vIcons, TiXmlElement* const xml) const
@@ -251,6 +286,7 @@ SIZE XPopupMenuItem::getItemSize(const HWND mHwnd)
 		{
 			// remove $chr(12) from text and trim whitespaces
 			m_tsItemText = m_tsItemText.right(-1).trim();
+			setRadioCheck(true);
 		}
 	}
 
@@ -331,7 +367,7 @@ void XPopupMenuItem::DrawItem(const LPDRAWITEMSTRUCT lpdis)
 			if (this->IsRadioCheck())
 				this->DrawItemRadioCheck(lpdis, lpcol, bGrayed, this->m_pXParentMenu->IsRoundedSelector());
 			else
-			this->DrawItemCheckBox(lpdis, lpcol, bGrayed, this->m_pXParentMenu->IsRoundedSelector());
+				this->DrawItemCheckBox(lpdis, lpcol, bGrayed, this->m_pXParentMenu->IsRoundedSelector());
 		}
 
 		this->DrawItemText(lpdis, lpcol, bGrayed);
@@ -525,6 +561,10 @@ void XPopupMenuItem::DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const XPMENU
 {
 	if (!lpdis || !lpcol || !lpdis->hDC)
 		return;
+
+	//GetSystemMetrics(SM_CXMENUCHECK)
+	//GetSystemMetrics(SM_CYMENUCHECK)
+	//GetMenuState
 
 	clrCheckBox cols;
 	cols.m_clrBackground = lpcol->m_clrCheckBox;
@@ -771,7 +811,7 @@ void XPopupMenuItem::DrawItemSeparator(const LPDRAWITEMSTRUCT lpdis, const XPMEN
 	case XPopupMenu::MenuStyle::XPMS_ICY_REV:
 	case XPopupMenu::MenuStyle::XPMS_NORMAL:
 	case XPopupMenu::MenuStyle::XPMS_BUTTON:
-	break;
+		break;
 
 	case XPopupMenu::MenuStyle::XPMS_OFFICEXP:
 	case XPopupMenu::MenuStyle::XPMS_OFFICE2003_REV:
@@ -784,7 +824,7 @@ void XPopupMenuItem::DrawItemSeparator(const LPDRAWITEMSTRUCT lpdis, const XPMEN
 	case XPopupMenu::MenuStyle::XPMS_VERTICAL_REV:
 	default:
 		x1 = XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
-	break;
+		break;
 	}
 
 	{
@@ -915,17 +955,6 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const XPMENUC
 	if (code == 0)
 		return;
 
-	//const auto menuH = bm.bmHeight;
-
-	//RECT rcIntersect{};
-	//RECT rcBar{};
-
-	//// get the size of the bar on the left
-	//SetRect(&rcBar, XPMI_BOXLPAD, 0, XPMI_BOXLPAD + XPMI_BOXWIDTH, menuH);
-
-	//// get the rect of the box which will draw JUST the box (prevents redraw over items already done)
-	//SetRect(&rcIntersect, rcBar.left, lpdis->rcItem.top, rcBar.right, lpdis->rcItem.bottom);
-
 	// get the size of the bar on the left
 	const RECT rcBar{ XPMI_BOXLPAD, 0, (XPMI_BOXLPAD + XPMI_BOXWIDTH), bm.bmHeight };
 
@@ -958,7 +987,7 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const XPMENUC
 
 		// copy the box we want from the whole gradient bar
 		BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, *hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
-	}
+}
 	else {
 		// buffer create failed, try unbuffered.
 		if (bReversed)
@@ -1131,12 +1160,12 @@ bool XPopupMenuItem::DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBi
 				SetBrushOrgEx(*hdcBuffer, 0, 0, nullptr);
 
 				StretchBlt(*hdcBuffer, rcBar.left, rcBar.top, rcBar.right - rcBar.left, rcBar.bottom - rcBar.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
-			}
+		}
 
 			// copy the box we want from the whole gradient bar
 			BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, *hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
-		}
 	}
+}
 	return true;
 #endif
 }

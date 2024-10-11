@@ -1045,10 +1045,12 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 				if (dcx_testflag(mii.fType, MFT_SEPARATOR))
 					p_Item = std::make_unique<XPopupMenuItem>(this, true, mii.dwItemData);
 				else {
-					TString tsItem(string), tsTooltipText, tsStyle;
-					int nIcon{ -1 };
-					bool bCheckToggle{};
-					UINT nSpecialID{};
+					TString tsItem(string);
+
+					//TString tsItem(string), tsTooltipText, tsStyle;
+					//int nIcon{ -1 };
+					//bool bCheckToggle{}, bRadioCheck{};
+					//UINT nSpecialID{};
 
 					// fixes identifiers in the dialog menu not being resolved. 
 					// do this BEFORE checking for special chars as these are often $chr()'s
@@ -1057,70 +1059,76 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 					if (bForce && this->getNameHash() == TEXT("dialog"_hash))
 						mIRCLinker::eval(tsItem, tsItem); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
 
-					{
-						// handle icons
-						constexpr TCHAR sepChar = TEXT('\v');	// 11
-						if (tsItem.numtok(sepChar) > 1)	// 11
-						{
-							nIcon = tsItem.getfirsttok(1, sepChar).to_int() - 1;	// tok 1, TEXT("\v")	get embeded icon number if any
+					//{
+					//	// handle icons
+					//	if (constexpr TCHAR sepChar = TEXT('\v'); tsItem.numtok(sepChar) > 1)	// 11
+					//	{
+					//		nIcon = tsItem.getfirsttok(1, sepChar).to_int() - 1;	// tok 1, TEXT('\v')	get embeded icon number if any
+					//
+					//		if (tsItem.numtok(sepChar) > 2)	// 11
+					//		{
+					//			// second \v token taken to be style info for item. Overrides the menus style.
+					//			tsStyle = tsItem.getnexttok(sepChar).trim();
+					//		}
+					//		tsItem = tsItem.getlasttoks().trim();				// tok last, TEXT('\v')	get real item text
+					//	}
+					//}
+					//{
+					//	// handles tooltips
+					//	if (constexpr TCHAR sepChar = TEXT('\t'); tsItem.numtok(sepChar) > 1)
+					//	{
+					//		const TString tsTmp(tsItem);
+					//		tsItem = tsTmp.getfirsttok(1, sepChar).trim();	// tok 1, get real item text
+					//		tsTooltipText = tsTmp.getlasttoks().trim();		// tok 2-, get tooltip text
+					//	}
+					//}
+					////check if the first char is $chr(12), if so then the text is utf8 (this is kept for compatability with old script only)
+					//if (tsItem[0] == 12)
+					//{
+					//	// remove $chr(12) from text and trim whitespaces
+					//	tsItem = tsItem.right(-1).trim();
+					//	bRadioCheck = true;
+					//}
+					//if (const auto nPos = tsItem.find(L'\x0e', 1); nPos != -1)	// $chr(14)
+					//{
+					//	ptrdiff_t nEnd{ nPos + 1 };
+					//	while (tsItem[nEnd] >= L'0' && tsItem[nEnd] <= L'9')
+					//	{
+					//		++nEnd;
+					//	}
+					//	if ((nEnd - nPos) > 1)
+					//	{
+					//		auto tsID(tsItem.sub(nPos, nEnd));
+					//		tsItem.remove(tsID.to_chr());
+					//		tsID.remove(L'\x0e');
+					//		if (!tsID.empty())
+					//			nSpecialID = tsID.to_<UINT>();
+					//	}
+					//	else
+					//		tsItem.remove(L'\x0e');
+					//	tsItem.trim();
+					//	bCheckToggle = true;
+					//}
+					//
+					//p_Item = std::make_unique<XPopupMenuItem>(this, tsItem, tsTooltipText, nIcon, (mii.hSubMenu != nullptr), mii.dwItemData);
+					//
+					//if (p_Item)
+					//{
+					//	if (!tsStyle.empty())
+					//		p_Item->setOverrideStyle(gsl::narrow_cast<UINT>(parseStyle(tsStyle)));
+					//	p_Item->setCheckToggle(bCheckToggle);
+					//	if (nSpecialID)
+					//		p_Item->setCommandID(nSpecialID);
+					//	else
+					//		p_Item->setCommandID(mii.wID);
+					//	p_Item->setRadioCheck(bRadioCheck);
+					//}
 
-							if (tsItem.numtok(sepChar) > 2)	// 11
-							{
-								// second \v token taken to be style info for item. Overrides the menus style.
-								tsStyle = tsItem.getnexttok(sepChar).trim();
-							}
-							tsItem = tsItem.getlasttoks().trim();				// tok last, TEXT("\v")	get real item text
-						}
-					}
-					{
-						// handles tooltips
-						constexpr TCHAR sepChar = TEXT('\t');	// 9
-						if (tsItem.numtok(sepChar) > 1)
-						{
-							const TString tsTmp(tsItem);
-							tsItem = tsTmp.getfirsttok(1, sepChar).trim();	// tok 1, get real item text
-							tsTooltipText = tsTmp.getlasttoks().trim();		// tok 2-, get tooltip text
-						}
-					}
-					//check if the first char is $chr(12), if so then the text is utf8 (this is kept for compatability with old script only)
-					if (tsItem[0] == 12)
-					{
-						// remove $chr(12) from text and trim whitespaces
-						tsItem = tsItem.right(-1).trim();
-					}
-					if (const auto nPos = tsItem.find(L'\x0e', 1); nPos != -1)	// $chr(14)
-					{
-						ptrdiff_t nEnd{ nPos + 1 };
-						while (tsItem[nEnd] >= L'0' && tsItem[nEnd] <= L'9')
-						{
-							++nEnd;
-						}
-						if ((nEnd - nPos) > 1)
-						{
-							auto tsID(tsItem.sub(nPos, nEnd));
-							tsItem.remove(tsID.to_chr());
-							tsID.remove(L'\x0e');
-							if (!tsID.empty())
-								nSpecialID = tsID.to_<UINT>();
-						}
-						else
-							tsItem.remove(L'\x0e');
-						tsItem.trim();
-						bCheckToggle = true;
-					}
+					p_Item = std::make_unique<XPopupMenuItem>(this, tsItem, (mii.hSubMenu != nullptr), mii.dwItemData);
 
-					p_Item = std::make_unique<XPopupMenuItem>(this, tsItem, tsTooltipText, nIcon, (mii.hSubMenu != nullptr), mii.dwItemData);
-
-					if (p_Item)
-					{
-						if (!tsStyle.empty())
-						p_Item->setOverrideStyle(gsl::narrow_cast<UINT>(parseStyle(tsStyle)));
-						p_Item->setCheckToggle(bCheckToggle);
-						if (nSpecialID)
-							p_Item->setCommandID(nSpecialID);
-						else
-							p_Item->setCommandID(mii.wID);
-					}
+					// If command id wasnt extracted from item text, set it here.
+					if (p_Item->getCommandID() == 0)
+						p_Item->setCommandID(mii.wID);
 				}
 
 				const auto lpItem = p_Item.release();
@@ -1705,8 +1713,8 @@ void XPopupMenu::xpop_i(HMENU hMenu, int nPos, const TString& path, const TStrin
 	const auto p_Item = getMenuItem(hMenu, nPos);
 	if (!p_Item)
 		throw DcxExceptions::dcxInvalidItem();
-
-		p_Item->setItemIcon(nIcon);
+	
+	p_Item->setItemIcon(nIcon);
 }
 
 void XPopupMenu::xpop_s(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo)

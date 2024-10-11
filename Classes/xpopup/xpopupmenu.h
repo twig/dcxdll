@@ -582,8 +582,8 @@ protected:
 	UINT m_MenuItemStyles{};			//!< Menu Item Styles
 	size_t m_menuNameHash{};			//!< Hash of tsMenuName
 
-	//HBITMAP m_hBitmap{ nullptr };		//!< Menu Item Background Image in Custom Style
-	dcxImage m_hBitmap;					//!< Menu Item Background Image in Custom Style
+	//HBITMAP m_hBitmapCache{ nullptr };	//!< Menu Item Background Image cache in Custom(Big) Style, pre-rendered image sized for menu.
+	dcxImage m_hBitmap;					//!< Menu Item Background Image in Custom(Big) Style
 
 	XPMENUCOLORS m_MenuColors;			//!< Menu Colors
 
