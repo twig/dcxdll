@@ -353,17 +353,7 @@ namespace Dcx {
 				break;
 
 			if (lpmis->CtlType == ODT_MENU)
-			{
-				//if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpmis->itemData); p_Item)
-				//{
-				//	const auto [x, y] = p_Item->getItemSize(mHwnd);
-				//	lpmis->itemWidth = gsl::narrow_cast<UINT>(x);
-				//	lpmis->itemHeight = gsl::narrow_cast<UINT>(y);
-				//	return TRUE;
-				//}
-
 				return XPopupMenu::OnMeasureItem(mHwnd, lpmis);
-			}
 			break;
 		}
 
