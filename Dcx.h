@@ -779,14 +779,14 @@ namespace Dcx
 		dcxWindowRect() = delete;
 
 		// Gets the window rect for hwnd
-		explicit dcxWindowRect(HWND hwnd) noexcept
+		explicit dcxWindowRect(_In_opt_ HWND hwnd) noexcept
 		{
 			if (!hwnd) m_ok = false;
 			else m_ok = (GetWindowRect(hwnd, this) != FALSE);
 		}
 
 		// Gets the window rect for hwnd & maps it to hMap
-		dcxWindowRect(HWND hwnd, HWND hMap) noexcept
+		dcxWindowRect(_In_opt_ HWND hwnd, _In_ HWND hMap) noexcept
 			: dcxWindowRect(hwnd)
 		{
 			if (m_ok)

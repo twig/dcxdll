@@ -366,11 +366,12 @@ namespace Dcx {
 
 			if (lpdis->CtlType == ODT_MENU)
 			{
-				if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpdis->itemData); p_Item)
-				{
-					p_Item->DrawItem(lpdis);
-					return TRUE;
-				}
+				//if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpdis->itemData); p_Item)
+				//{
+				//	p_Item->DrawItem(lpdis);
+				//	return TRUE;
+				//}
+				return XPopupMenu::OnDrawItem(mHwnd, lpdis);
 			}
 
 			break;

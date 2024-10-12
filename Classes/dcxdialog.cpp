@@ -2179,17 +2179,20 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			// wParam == 0 means sent by menu.
 			if (dcxlParam(LPMEASUREITEMSTRUCT, lpmis); p_this->m_popup && lpmis->CtlType == ODT_MENU)
 			{
-				if (auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpmis->itemData); p_Item)
-				{
-					const auto size = p_Item->getItemSize(mHwnd);
+				//if (auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpmis->itemData); p_Item)
+				//{
+				//	const auto size = p_Item->getItemSize(mHwnd);
+				//
+				//	lpmis->itemWidth = gsl::narrow_cast<UINT>(size.cx);
+				//	lpmis->itemHeight = gsl::narrow_cast<UINT>(size.cy);
+				//	lRes = TRUE;
+				//	bParsed = TRUE;
+				//}
 
-					lpmis->itemWidth = gsl::narrow_cast<UINT>(size.cx);
-					lpmis->itemHeight = gsl::narrow_cast<UINT>(size.cy);
-					lRes = TRUE;
 					bParsed = TRUE;
+				lRes = XPopupMenu::OnMeasureItem(mHwnd, lpmis);
 				}
 			}
-		}
 		else {
 			if (const auto cHwnd = GetDlgItem(mHwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
 			{
@@ -2213,13 +2216,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		}
 		else if (p_this->m_popup && idata->CtlType == ODT_MENU)
 		{
-			if (auto p_Item = reinterpret_cast<XPopupMenuItem*>(idata->itemData); p_Item)
-			{
-				p_Item->DrawItem(idata);
-				lRes = TRUE;
 				bParsed = TRUE;
+			lRes = XPopupMenu::OnDrawItem(mHwnd, idata);
 			}
-		}
 		break;
 	}
 
