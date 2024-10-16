@@ -185,8 +185,8 @@ enum class WindowMessages
 	eWM_NCXBUTTONDOWN,
 	eWM_NCXBUTTONUP,
 	eWM_NCXBUTTONDBLCLK,
-	eWM_NCUAHDRAWCAPTION,
-	eWM_NCUAHDRAWFRAME,	// wParam = HDC
+	eWM_NCUAHDRAWCAPTION, // for drawing themed caption
+	eWM_NCUAHDRAWFRAME,	// wParam = HDC for drawing themed window borders.
 	eEM_GETSEL,
 	eEM_SETSEL,
 	eEM_GETRECT,

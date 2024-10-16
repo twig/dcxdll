@@ -251,32 +251,6 @@ SIZE XPopupMenuItem::getItemSize(const HWND mHwnd)
 	if ((this->m_bSep) || (!m_pXParentMenu))
 		return{ XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD, XPMI_SEPHEIGHT };
 
-	//if (const auto typeHash = m_pXParentMenu->getNameHash(); ((typeHash == TEXT("mirc"_hash)) || (typeHash == TEXT("mircbar"_hash)) || (typeHash == TEXT("dialog"_hash))))
-	//{
-	//	// handle icons
-	//	if (constexpr TCHAR sepChar = TEXT('\v'); m_tsItemText.numtok(sepChar) > 1)
-	//	{
-	//		m_nIcon = m_tsItemText.getfirsttok(1, sepChar).to_int() - 1;	// tok 1, TEXT("\v")	get embeded icon number if any
-	//		m_tsItemText = m_tsItemText.getlasttoks().trim();				// tok 2, TEXT("\v")	get real item text
-	//	}
-	//	// handles tooltips
-	//	if (constexpr TCHAR sepChar = TEXT('\t'); m_tsItemText.numtok(sepChar) > 1)
-	//	{
-	//		TString tsTmp(m_tsItemText);							// copy item text
-	//		m_tsItemText = tsTmp.getfirsttok(1, sepChar).trim();	// tok 1, get real item text
-	//		m_tsTooltipText = tsTmp.getlasttoks().trim();			// tok 2-, get tooltip text
-	//	}
-	//}
-	//else
-	//	mIRCLinker::eval(m_tsItemText, m_tsItemText);
-	//
-	////check if the first char is $chr(12), if so then the text is utf8 (this is kept for compatability with old script only)
-	//if (m_tsItemText[0] == 12)
-	//{
-	//	// remove $chr(12) from text and trim whitespaces
-	//	m_tsItemText = m_tsItemText.right(-1).trim();
-	//}
-
 	if (!parseItemText())
 	{
 		mIRCLinker::eval(m_tsItemText, m_tsItemText);
@@ -566,16 +540,17 @@ void XPopupMenuItem::DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const XPMENU
 	//GetSystemMetrics(SM_CYMENUCHECK)
 	//GetMenuState
 
-	clrCheckBox cols;
-	cols.m_clrBackground = lpcol->m_clrCheckBox;
-	cols.m_clrDisabledBackground = lpcol->m_clrDisabledCheckBox;
-	cols.m_clrDisabledFrame = lpcol->m_clrSelectionBorder;
-	cols.m_clrFrame = lpcol->m_clrSelectionBorder;
-	cols.m_clrTick = lpcol->m_clrText;
-	cols.m_clrHotTick = lpcol->m_clrSelectedText;
-	cols.m_clrDisabledTick = lpcol->m_clrDisabledText;
+	//clrCheckBox cols;
+	//cols.m_clrBackground = lpcol->m_clrCheckBox;
+	//cols.m_clrDisabledBackground = lpcol->m_clrDisabledCheckBox;
+	//cols.m_clrDisabledFrame = lpcol->m_clrSelectionBorder;
+	//cols.m_clrFrame = lpcol->m_clrSelectionBorder;
+	//cols.m_clrTick = lpcol->m_clrText;
+	//cols.m_clrHotTick = lpcol->m_clrSelectedText;
+	//cols.m_clrDisabledTick = lpcol->m_clrDisabledText;
+	//dcxDrawCheckBox(lpdis->hDC, std::addressof(lpdis->rcItem), std::addressof(cols), lpdis->itemState, true, bRounded);
 
-	dcxDrawCheckBox(lpdis->hDC, std::addressof(lpdis->rcItem), std::addressof(cols), lpdis->itemState, true, bRounded);
+	dcxDrawCheckBox(lpdis->hDC, std::addressof(lpdis->rcItem), std::addressof(lpcol->m_clrCheckBox), lpdis->itemState, true, bRounded);
 }
 
 void XPopupMenuItem::DrawItemRadioCheck(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const bool bDis, const bool bRounded) noexcept
@@ -583,16 +558,17 @@ void XPopupMenuItem::DrawItemRadioCheck(const LPDRAWITEMSTRUCT lpdis, const XPME
 	if (!lpdis || !lpcol || !lpdis->hDC)
 		return;
 
-	clrCheckBox cols;
-	cols.m_clrBackground = lpcol->m_clrCheckBox;
-	cols.m_clrDisabledBackground = lpcol->m_clrDisabledCheckBox;
-	cols.m_clrDisabledFrame = lpcol->m_clrSelectionBorder;
-	cols.m_clrFrame = lpcol->m_clrSelectionBorder;
-	cols.m_clrTick = lpcol->m_clrText;
-	cols.m_clrHotTick = lpcol->m_clrSelectedText;
-	cols.m_clrDisabledTick = lpcol->m_clrDisabledText;
+	//clrCheckBox cols;
+	//cols.m_clrBackground = lpcol->m_clrCheckBox;
+	//cols.m_clrDisabledBackground = lpcol->m_clrDisabledCheckBox;
+	//cols.m_clrDisabledFrame = lpcol->m_clrSelectionBorder;
+	//cols.m_clrFrame = lpcol->m_clrSelectionBorder;
+	//cols.m_clrTick = lpcol->m_clrText;
+	//cols.m_clrHotTick = lpcol->m_clrSelectedText;
+	//cols.m_clrDisabledTick = lpcol->m_clrDisabledText;
+	//dcxDrawRadioBox(lpdis->hDC, std::addressof(lpdis->rcItem), std::addressof(cols), lpdis->itemState, true, bRounded);
 
-	dcxDrawRadioBox(lpdis->hDC, std::addressof(lpdis->rcItem), std::addressof(cols), lpdis->itemState, true, bRounded);
+	dcxDrawRadioBox(lpdis->hDC, std::addressof(lpdis->rcItem), std::addressof(lpcol->m_clrCheckBox), lpdis->itemState, true, bRounded);
 }
 
 /*!

@@ -132,48 +132,47 @@ namespace
 
 	CallBackTimer dcxHoverTimer;
 
-	// Get list of open menu windows.
-	auto& getGlobalMenuWindowList() noexcept
-	{
-		static std::vector<HWND> winlist;
+	//// Get list of open menu windows.
+	//auto& getGlobalMenuWindowList() noexcept
+	//{
+	//	static std::vector<HWND> winlist;
+	//	return winlist;
+	//}
 
-		return winlist;
-	}
+	//HMENU getWindowsMenu(HWND mHwnd) noexcept
+	//{
+	//	return reinterpret_cast<HMENU>(SendMessage(mHwnd, MN_GETHMENU, 0, 0));
+	//}
 
-	HMENU getWindowsMenu(HWND mHwnd) noexcept
-	{
-		return reinterpret_cast<HMENU>(SendMessage(mHwnd, MN_GETHMENU, 0, 0));
-	}
+	//HWND getBackWin()
+	//{
+	//	std::scoped_lock lk(g_ListLock);
+	//	if (const auto& m = getGlobalMenuWindowList(); !m.empty())
+	//		return m.back();
+	//	return nullptr;
+	//}
 
-	HWND getBackWin()
-	{
-		std::scoped_lock lk(g_ListLock);
-		if (const auto& m = getGlobalMenuWindowList(); !m.empty())
-			return m.back();
-		return nullptr;
-	}
+	//HWND getFirstWin()
+	//{
+	//	std::scoped_lock lk(g_ListLock);
+	//	if (const auto& m = getGlobalMenuWindowList(); !m.empty())
+	//		return m.front();
+	//	return nullptr;
+	//}
 
-	HWND getFirstWin()
-	{
-		std::scoped_lock lk(g_ListLock);
-		if (const auto& m = getGlobalMenuWindowList(); !m.empty())
-			return m.front();
-		return nullptr;
-	}
+	//void AddBackWin(HWND hwnd)
+	//{
+	//	std::scoped_lock lk(g_ListLock);
+	//	getGlobalMenuWindowList().push_back(hwnd);
+	//}
 
-	void AddBackWin(HWND hwnd)
-	{
-		std::scoped_lock lk(g_ListLock);
-		getGlobalMenuWindowList().push_back(hwnd);
+	//void RemoveBackWin()
+	//{
+	//	std::scoped_lock lk(g_ListLock);
+	//	if (auto& m = getGlobalMenuWindowList(); !m.empty())
+	//		m.pop_back();
+	//}
 	}
-
-	void RemoveBackWin()
-	{
-		std::scoped_lock lk(g_ListLock);
-		if (auto& m = getGlobalMenuWindowList(); !m.empty())
-			m.pop_back();
-	}
-}
 #endif
 
 /*!
@@ -329,6 +328,8 @@ HWND XPopupMenuManager::CreateTrackingToolTip(int toolID, HWND hDlg, WCHAR* pTex
 
 LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 {
+	XPopupMenuManager::m_isInitPopup = true;
+
 	if (const auto isWinMenu = (Dcx::dcxHIWORD(lParam) != FALSE); !isWinMenu)
 	{
 		const auto menu = reinterpret_cast<HMENU>(wParam);
@@ -375,6 +376,7 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 		}
 
 		m_bIsSysMenu = false;
+		XPopupMenuManager::m_isInitPopup = true;
 		return lRes;
 	}
 	else
@@ -847,10 +849,14 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
 
 		TString tsRes;
-		_ts_sprintf(tsRes, TEXT("% % % % % % % % % % %"), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_BACKGROUND), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_ICONBOX),
+		_ts_sprintf(tsRes, TEXT("% % % % % % % % % % % % % % % % % % %"), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_BACKGROUND), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_ICONBOX),
 			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_DISABLED),
 			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_BORDER),
-			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SEPARATOR), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTEDTEXT));
+			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SEPARATOR), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTEDTEXT),
+			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_TICK), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_FRAME), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_TICK_DISABLED),
+			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_FRAME_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_HOT),
+			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_TICK_HOT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_FRAME_HOT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_BORDER)
+		);
 		return tsRes;
 	}
 	break;
@@ -936,6 +942,11 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 		//auto hTmp = getWindowsMenu(hWnd);
 		//if (!hTmp)
 		//	return TEXT("$false");
+
+		//if (hTmp != p_Menu->getMenuHandle())
+		//	return TEXT("$false");
+
+		//return TEXT("$true");
 
 		//auto xMenu = getMenuByHandle(hTmp);
 		//if (!xMenu)
@@ -1173,6 +1184,50 @@ XPopupMenuItem* XPopupMenuManager::getMenuItemByID(_In_opt_ const HMENU hMenu, _
 XPopupMenuItem* XPopupMenuManager::getMenuItemByCommandID(_In_opt_ const HMENU hMenu, _In_ const UINT id) const noexcept
 	{
 	return _getMenuItemByID(hMenu, id, FALSE);
+}
+
+
+// Get list of open menu windows.
+
+HMENU XPopupMenuManager::getWindowsMenu(HWND mHwnd) noexcept
+{
+	return reinterpret_cast<HMENU>(SendMessage(mHwnd, MN_GETHMENU, 0, 0));
+}
+
+std::vector<HWND>& XPopupMenuManager::getGlobalMenuWindowList() noexcept
+{
+	static std::vector<HWND> winlist;
+
+	return winlist;
+}
+
+HWND XPopupMenuManager::getBackWin()
+{
+	std::scoped_lock lk(g_ListLock);
+	if (const auto& m = getGlobalMenuWindowList(); !m.empty())
+		return m.back();
+	return nullptr;
+}
+
+HWND XPopupMenuManager::getFirstWin()
+{
+	std::scoped_lock lk(g_ListLock);
+	if (const auto& m = getGlobalMenuWindowList(); !m.empty())
+		return m.front();
+	return nullptr;
+}
+
+void XPopupMenuManager::AddBackWin(HWND hwnd)
+{
+	std::scoped_lock lk(g_ListLock);
+	getGlobalMenuWindowList().push_back(hwnd);
+}
+
+void XPopupMenuManager::RemoveBackWin()
+{
+	std::scoped_lock lk(g_ListLock);
+	if (auto& m = getGlobalMenuWindowList(); !m.empty())
+		m.pop_back();
 }
 
 void XPopupMenuManager::TriggerMenuItem(_In_opt_ HWND hOwner, _In_opt_ HMENU hMenu, _In_ UINT mPos, _In_ bool bByPos) noexcept
@@ -1581,10 +1636,13 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	{
 	case WindowMessages::eWM_NCCREATE:
 	{
-		if (Dcx::m_CurrentMenuAlpha == std::byte{ 255 })
-			break;
-
 		dcxlParam(LPCREATESTRUCT, cs);
+
+		//cs->style &= ~(WS_BORDER | WS_DLGFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_SIZEBOX | WS_CAPTION);
+		//cs->dwExStyle &= ~(WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_CONTEXTHELP | WS_EX_TOOLWINDOW | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
+		//
+		//if (Dcx::m_CurrentMenuAlpha == std::byte{ 255 })
+		//	break;
 
 		cs->dwExStyle |= WS_EX_LAYERED | WS_EX_COMPOSITED;
 	}
@@ -1592,7 +1650,14 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 
 	case WindowMessages::eWM_CREATE:
 	{
-		if (Dcx::m_CurrentMenuAlpha != std::byte{ 255 })
+		XPopupMenuManager::m_isInitPopup = true;
+
+		//{
+		//	dcxlParam(LPCREATESTRUCT, cs);
+		//	cs->style &= ~(WS_BORDER | WS_DLGFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_SIZEBOX | WS_CAPTION);
+		//	cs->dwExStyle &= ~(WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_CONTEXTHELP | WS_EX_TOOLWINDOW | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
+		//}
+		//if (Dcx::m_CurrentMenuAlpha != std::byte{ 255 })
 		{
 			dcxlParam(LPCREATESTRUCT, cs);
 			cs->dwExStyle |= WS_EX_LAYERED | WS_EX_COMPOSITED;
@@ -1706,19 +1771,6 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 						}
 					}
 				}
-
-				//// start thread to check for hover...
-				//if (!getGlobalMenuWindowList().empty())
-				//{
-				//	const Dcx::dcxCursorPos pt;
-				//	const Dcx::dcxWindowRect rc(mHwnd);
-				//	if (PtInRect(&rc, pt))
-				//		dcxHoverTimer.start(1200, XPopupMenuManager::dcxCheckMenuHover);
-				//}
-
-			// Ook: cant use mHwnd as this may not exist when timer ends
-			//if (!getGlobalMenuWindowList().empty() && PtInRect(&rc, pt))
-			//	dcxHoverTimer.start(600, XPopupMenuManager::dcxCheckMenuHover2, mHwnd);
 		}
 		}
 		else
@@ -1816,13 +1868,13 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	//	auto hParent = Dcx::m_MenuParent;
 	//	if (!IsWindow(hParent))
 	//		break;
-
+	//
 	//	auto hMenu = getWindowsMenu(mHwnd);
 	//	if (!hMenu)
 	//		break;
 	//	//LockWindowUpdate();
 	//	//std::dynamic_pointer_cast<>;
-
+	//
 	//	MENUINFO mi{};
 	//	mi.cbSize = sizeof(MENUINFO);
 	//	mi.fMask = MIM_STYLE;
@@ -1833,7 +1885,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	//		const auto mID = GetMenuItemID(hMenu, wParam);
 	//		if (mID == UINT_MAX)
 	//			break;
-
+	//
 	//		SendMessage(hParent, WM_COMMAND, MAKEWPARAM(mID, 0), 0);
 	//	}
 	//	RedrawMenuIfOpen();

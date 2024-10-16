@@ -143,6 +143,20 @@ public:
 	HWND getOwnerWindow() const noexcept {
 		return m_hOwnerWindow;
 	}
+	static HMENU getWindowsMenu(HWND mHwnd) noexcept;
+
+	// Get list of open menu windows.
+	static std::vector<HWND>& getGlobalMenuWindowList() noexcept;
+
+	static HWND getBackWin();
+
+	static HWND getFirstWin();
+
+	static void AddBackWin(HWND hwnd);
+
+	static void RemoveBackWin();
+
+	static inline bool m_isInitPopup{ false };
 
 	static void TriggerMenuItem(_In_opt_ HWND hOwner, _In_opt_ HMENU hMenu, _In_ UINT mPos, _In_ bool bByPos) noexcept;
 

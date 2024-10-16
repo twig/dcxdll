@@ -412,7 +412,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 
 	const auto fullpath(input.getfirsttok(1, TSTABCHAR).gettok(3, -1).trim());	// tok 1
 
-	for (TString path(fullpath.getfirsttok(1,TSCOMMACHAR)); !path.empty(); path = fullpath.getnexttok(TSCOMMACHAR))
+	for (TString path(fullpath.getfirsttok(1, TSCOMMACHAR)); !path.empty(); path = fullpath.getnexttok(TSCOMMACHAR))
 	{
 		auto path_toks = path.numtok();
 		HMENU hMenu = nullptr;
@@ -678,11 +678,39 @@ void XPopupMenu::setColor(const MenuColours nColor, const COLORREF clrColor) noe
 		break;
 
 	case MenuColours::XPMC_CHECKBOX:
-		this->m_MenuColors.m_clrCheckBox = clrColor;
+		this->m_MenuColors.m_clrCheckBox.m_clrBackground = clrColor;
+		break;
+
+	case MenuColours::XPMC_CHECKBOX_FRAME:
+		this->m_MenuColors.m_clrCheckBox.m_clrFrame = clrColor;
+		break;
+
+	case MenuColours::XPMC_CHECKBOX_TICK:
+		this->m_MenuColors.m_clrCheckBox.m_clrTick = clrColor;
 		break;
 
 	case MenuColours::XPMC_CHECKBOX_DISABLED:
-		this->m_MenuColors.m_clrDisabledCheckBox = clrColor;
+		this->m_MenuColors.m_clrCheckBox.m_clrDisabledBackground = clrColor;
+		break;
+
+	case MenuColours::XPMC_CHECKBOX_FRAME_DISABLED:
+		this->m_MenuColors.m_clrCheckBox.m_clrDisabledFrame = clrColor;
+		break;
+
+	case MenuColours::XPMC_CHECKBOX_TICK_DISABLED:
+		this->m_MenuColors.m_clrCheckBox.m_clrDisabledTick = clrColor;
+		break;
+
+	case MenuColours::XPMC_CHECKBOX_HOT:
+		this->m_MenuColors.m_clrCheckBox.m_clrHotBackground = clrColor;
+		break;
+
+	case MenuColours::XPMC_CHECKBOX_FRAME_HOT:
+		this->m_MenuColors.m_clrCheckBox.m_clrHotFrame = clrColor;
+		break;
+
+	case MenuColours::XPMC_CHECKBOX_TICK_HOT:
+		this->m_MenuColors.m_clrCheckBox.m_clrHotTick = clrColor;
 		break;
 
 	case MenuColours::XPMC_SELECTIONBOX_DISABLED:
@@ -713,6 +741,10 @@ void XPopupMenu::setColor(const MenuColours nColor, const COLORREF clrColor) noe
 		this->m_MenuColors.m_clrSelectedText = clrColor;
 		break;
 
+	case MenuColours::XPMC_BORDER:
+		this->m_MenuColors.m_clrBorder = clrColor;
+		break;
+
 	case MenuColours::XPMC_MAX:
 	default:
 		break;
@@ -736,10 +768,31 @@ COLORREF XPopupMenu::getColor(const MenuColours nColor) const noexcept
 		return this->m_MenuColors.m_clrBox;
 
 	case MenuColours::XPMC_CHECKBOX:
-		return this->m_MenuColors.m_clrCheckBox;
+		return this->m_MenuColors.m_clrCheckBox.m_clrBackground;
+
+	case MenuColours::XPMC_CHECKBOX_FRAME:
+		return this->m_MenuColors.m_clrCheckBox.m_clrFrame;
+
+	case MenuColours::XPMC_CHECKBOX_TICK:
+		return this->m_MenuColors.m_clrCheckBox.m_clrTick;
 
 	case MenuColours::XPMC_CHECKBOX_DISABLED:
-		return this->m_MenuColors.m_clrDisabledCheckBox;
+		return this->m_MenuColors.m_clrCheckBox.m_clrDisabledBackground;
+
+	case MenuColours::XPMC_CHECKBOX_FRAME_DISABLED:
+		return this->m_MenuColors.m_clrCheckBox.m_clrFrame;
+
+	case MenuColours::XPMC_CHECKBOX_TICK_DISABLED:
+		return this->m_MenuColors.m_clrCheckBox.m_clrTick;
+
+	case MenuColours::XPMC_CHECKBOX_HOT:
+		return this->m_MenuColors.m_clrCheckBox.m_clrHotBackground;
+
+	case MenuColours::XPMC_CHECKBOX_FRAME_HOT:
+		return this->m_MenuColors.m_clrCheckBox.m_clrFrame;
+
+	case MenuColours::XPMC_CHECKBOX_TICK_HOT:
+		return this->m_MenuColors.m_clrCheckBox.m_clrTick;
 
 	case MenuColours::XPMC_SELECTIONBOX_DISABLED:
 		return this->m_MenuColors.m_clrDisabledSelection;
@@ -761,6 +814,9 @@ COLORREF XPopupMenu::getColor(const MenuColours nColor) const noexcept
 
 	case MenuColours::XPMC_SELECTEDTEXT:
 		return this->m_MenuColors.m_clrSelectedText;
+
+	case MenuColours::XPMC_BORDER:
+		return this->m_MenuColors.m_clrBorder;
 
 	case MenuColours::XPMC_MAX:
 	default:
@@ -919,6 +975,13 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam,
 		Dcx::XPopups.setOwnerWindow(mHwnd);
 	}
 	break;
+
+	case WM_INITMENUPOPUP:
+	{
+		XPopupMenuManager::m_isInitPopup = true;
+	}
+	break;
+
 	//case WM_COMMAND:
 	//{
 	//	if ((Dcx::dcxHIWORD(wParam) == 0) && (lParam == 0))
@@ -938,18 +1001,19 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam,
 	//	}
 	//}
 	//break;
+
 	case WM_MENUCOMMAND:
 	{
-			auto hMenu = reinterpret_cast<HMENU>(lParam);
-			if (!hMenu)
-				break;
+		auto hMenu = reinterpret_cast<HMENU>(lParam);
+		if (!hMenu)
+			break;
 
-			auto xItem = Dcx::XPopups.getMenuItemByID(hMenu, wParam);
-			if (!xItem)
-				break;
+		auto xItem = Dcx::XPopups.getMenuItemByID(hMenu, wParam);
+		if (!xItem)
+			break;
 
-			if (auto xMenu = xItem->getParentMenu(); xMenu)
-				mIRCLinker::exec(TEXT("//.signal -n XPopup-% %"), xMenu->getName(), xItem->getCommandID());
+		if (auto xMenu = xItem->getParentMenu(); xMenu)
+			mIRCLinker::exec(TEXT("//.signal -n XPopup-% %"), xMenu->getName(), xItem->getCommandID());
 	}
 	break;
 
@@ -1009,8 +1073,20 @@ LRESULT XPopupMenu::OnMeasureItem(const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis)
 
 LRESULT XPopupMenu::OnDrawItem(const HWND mHwnd, LPDRAWITEMSTRUCT lpdis)
 {
+	//if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpdis->itemData); p_Item)
+	//	p_Item->DrawItem(lpdis);
+
 	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpdis->itemData); p_Item)
+	{
+		//if (XPopupMenuManager::m_isInitPopup)
+		{
+			if (auto pMenu = p_Item->getParentMenu(); pMenu)
+				pMenu->DrawBorder();
+
+			XPopupMenuManager::m_isInitPopup = false;
+		}
 		p_Item->DrawItem(lpdis);
+	}
 
 	return TRUE;
 }
@@ -1531,6 +1607,46 @@ void XPopupMenu::xmlSaveImageList(VectorOfIcons& vIcons, TiXmlElement* xml) cons
 	}
 }
 
+void XPopupMenu::DrawBorder() const
+{
+	const auto clr = getColor(MenuColours::XPMC_BORDER);
+
+	if (clr == CLR_INVALID)
+		return;
+
+	auto hMenuWnd = XPopupMenuManager::getBackWin();
+	if (!IsWindow(hMenuWnd))
+		return;
+
+	Dcx::dcxWindowRect rect(hMenuWnd);
+
+	if (auto menuDc = ::GetWindowDC(hMenuWnd); menuDc)
+	{
+		Auto(ReleaseDC(hMenuWnd, menuDc));
+
+		const Dcx::dcxClientRect rcClient(hMenuWnd, nullptr);
+		const int borderThiness = rcClient.left - rect.left;
+
+		::OffsetRect(&rect, -rect.left, -rect.top);
+
+		::ExcludeClipRect(menuDc, rect.left + borderThiness, rect.top + borderThiness, rect.right - borderThiness, rect.bottom - borderThiness);
+		//Dcx::FillRectColour(menuDc, &rect, getColor(MenuColours::XPMC_BACKGROUND));
+		//dcxDrawBorder(menuDc, &rect, BF_RECT, clr);
+		
+		if (auto hPen = CreatePen(PS_INSIDEFRAME, 1, clr); hPen)
+		{
+			auto hOldPen = SelectPen(menuDc, hPen);
+			if (auto hBrush = CreateSolidBrush(getColor(MenuColours::XPMC_BACKGROUND)); hBrush)
+			{
+				auto hOldBrush = SelectBrush(menuDc, hBrush);
+				Rectangle(menuDc, rect.left, rect.top, rect.right, rect.bottom);
+				SelectBrush(menuDc, hOldBrush);
+			}
+			SelectPen(menuDc, hOldPen);
+		}
+	}
+}
+
 void XPopupMenu::xpop_a(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo)
 {
 	// xpop -a - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS] [ID] [ICON] ItemText (: Command) ([TAB] [TOOLTIP])
@@ -1713,7 +1829,7 @@ void XPopupMenu::xpop_i(HMENU hMenu, int nPos, const TString& path, const TStrin
 	const auto p_Item = getMenuItem(hMenu, nPos);
 	if (!p_Item)
 		throw DcxExceptions::dcxInvalidItem();
-	
+
 	p_Item->setItemIcon(nIcon);
 }
 

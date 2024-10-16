@@ -46,11 +46,14 @@ struct XPMENUCOLORS final
 	COLORREF m_clrDisabledSelection{ RGB(255, 255, 255) };	//!< Menu Item Disabled Selection Box Color
 	COLORREF m_clrText{ RGB(0, 0, 0) };						//!< Menu Item Text Color
 	COLORREF m_clrDisabledText{ RGB(128, 128, 128) };		//!< Menu Item Disabled Text Color
-	COLORREF m_clrCheckBox{ RGB(255, 128, 0) };				//!< Menu Item CheckBox Color
-	COLORREF m_clrDisabledCheckBox{ RGB(200, 200, 200) };	//!< Menu Item Disabled CheckBox Color
+	//COLORREF m_clrCheckBox{ RGB(255, 128, 0) };			//!< Menu Item CheckBox Color
+	//COLORREF m_clrDisabledCheckBox{ RGB(200, 200, 200) };	//!< Menu Item Disabled CheckBox Color
 	COLORREF m_clrSeparatorLine{ RGB(128, 128, 128) };		//!< Menu Item Separator Line Color
 	COLORREF m_clrSelectionBorder{ RGB(0, 0, 0) };			//!< Menu Item Selection Box Border Color
 	COLORREF m_clrSelectedText{ RGB(0, 0, 0) };				//!< Menu Item Selected Text Colour
+	COLORREF m_clrBorder{ CLR_INVALID };					//!< Menu Border colour.
+
+	clrCheckBox m_clrCheckBox;								//!< Menu Item CheckBox Colors
 
 	void toXml(TiXmlElement* xml) const
 	{
@@ -65,8 +68,8 @@ struct XPMENUCOLORS final
 		setColourAttribute(xml, "disabledtext", m_clrDisabledText);
 		setColourAttribute(xml, "selectedtext", m_clrSelectedText);
 
-		setColourAttribute(xml, "checkbox", m_clrCheckBox);
-		setColourAttribute(xml, "disabledcheckbox", m_clrDisabledCheckBox);
+		setColourAttribute(xml, "checkbox", m_clrCheckBox.m_clrBackground);
+		setColourAttribute(xml, "disabledcheckbox", m_clrCheckBox.m_clrDisabledBackground);
 
 		setColourAttribute(xml, "separator", m_clrSeparatorLine);
 		setColourAttribute(xml, "selectionborder", m_clrSelectionBorder);
@@ -98,9 +101,9 @@ struct XPMENUCOLORS final
 		if (const auto tmp = queryColourAttribute(xml, "selectedtext"); tmp != CLR_INVALID)
 			m_clrSelectedText = tmp;
 		if (const auto tmp = queryColourAttribute(xml, "checkbox"); tmp != CLR_INVALID)
-			m_clrCheckBox = tmp;
+			m_clrCheckBox.m_clrBackground = tmp;
 		if (const auto tmp = queryColourAttribute(xml, "disabledcheckbox"); tmp != CLR_INVALID)
-			m_clrDisabledCheckBox = tmp;
+			m_clrCheckBox.m_clrDisabledBackground = tmp;
 		if (const auto tmp = queryColourAttribute(xml, "separator"); tmp != CLR_INVALID)
 			m_clrSeparatorLine = tmp;
 		if (const auto tmp = queryColourAttribute(xml, "selectionborder"); tmp != CLR_INVALID)

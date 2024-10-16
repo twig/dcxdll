@@ -296,8 +296,8 @@ public:
 	/*
 	1  	Menu background color
 	2 	Icon box color
-	3 	Checkbox color
-	4 	Disabled checkbox color
+	3 	Checkbox background color
+	4 	Disabled checkbox background color
 	5 	Disabled selection box color
 	6 	Disabled text color
 	7 	Selection box color
@@ -305,6 +305,14 @@ public:
 	9 	Separator line color
 	10 	Text color
 	11 	Selected text color
+	12	CheckBox Tick color
+	13	CheckBox Frame color
+	14	Disabled CheckBox Tick color
+	15	Disabled CheckBox Frame color
+	16	Hot CheckBox background color
+	17	Hot CheckBox Tick color
+	18	Hot CheckBox Frame color
+	19	Menu Border color
 	*/
 
 	enum class MenuColours : UINT
@@ -321,6 +329,14 @@ public:
 		XPMC_SEPARATOR,
 		XPMC_TEXT,
 		XPMC_SELECTEDTEXT,
+		XPMC_CHECKBOX_TICK,
+		XPMC_CHECKBOX_FRAME,
+		XPMC_CHECKBOX_TICK_DISABLED,
+		XPMC_CHECKBOX_FRAME_DISABLED,
+		XPMC_CHECKBOX_HOT,
+		XPMC_CHECKBOX_TICK_HOT,
+		XPMC_CHECKBOX_FRAME_HOT,
+		XPMC_BORDER,
 		XPMC_MAX
 	};
 
@@ -384,11 +400,39 @@ public:
 			break;
 
 		case MenuColours::XPMC_CHECKBOX:
-			this->m_MenuColors.m_clrCheckBox = RGB(255, 128, 0);
+			this->m_MenuColors.m_clrCheckBox.m_clrBackground = RGB(255, 128, 0);
+			break;
+
+		case MenuColours::XPMC_CHECKBOX_FRAME:
+			this->m_MenuColors.m_clrCheckBox.m_clrFrame = RGB(0, 0, 0);
+			break;
+
+		case MenuColours::XPMC_CHECKBOX_TICK:
+			this->m_MenuColors.m_clrCheckBox.m_clrTick = RGB(0, 0, 0);
 			break;
 
 		case MenuColours::XPMC_CHECKBOX_DISABLED:
-			this->m_MenuColors.m_clrDisabledCheckBox = RGB(200, 200, 200);
+			this->m_MenuColors.m_clrCheckBox.m_clrDisabledBackground = RGB(200, 200, 200);
+			break;
+
+		case MenuColours::XPMC_CHECKBOX_FRAME_DISABLED:
+			this->m_MenuColors.m_clrCheckBox.m_clrDisabledBackground = RGB(200, 200, 200);
+			break;
+
+		case MenuColours::XPMC_CHECKBOX_TICK_DISABLED:
+			this->m_MenuColors.m_clrCheckBox.m_clrDisabledBackground = RGB(128, 128, 128);
+			break;
+
+		case MenuColours::XPMC_CHECKBOX_HOT:
+			this->m_MenuColors.m_clrCheckBox.m_clrHotBackground = RGB(255, 128, 123);
+			break;
+
+		case MenuColours::XPMC_CHECKBOX_FRAME_HOT:
+			this->m_MenuColors.m_clrCheckBox.m_clrHotFrame = RGB(0, 0, 255);
+			break;
+
+		case MenuColours::XPMC_CHECKBOX_TICK_HOT:
+			this->m_MenuColors.m_clrCheckBox.m_clrHotTick = RGB(0, 0, 255);
 			break;
 
 		case MenuColours::XPMC_SELECTIONBOX_DISABLED:
@@ -417,6 +461,10 @@ public:
 
 		case MenuColours::XPMC_SELECTEDTEXT:
 			this->m_MenuColors.m_clrSelectedText = RGB(0, 0, 0);
+			break;
+
+		case MenuColours::XPMC_BORDER:
+			this->m_MenuColors.m_clrBorder = CLR_INVALID;
 			break;
 
 		case MenuColours::XPMC_MAX:
@@ -558,6 +606,8 @@ public:
 	/// <param name="vIcons"></param>
 	/// <param name="xml"></param>
 	void xmlSaveImageList(VectorOfIcons& vIcons, TiXmlElement* xml) const;
+
+	void DrawBorder() const;
 
 	VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects
 
