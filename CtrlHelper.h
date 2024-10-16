@@ -2607,7 +2607,7 @@ namespace Dcx
 	/// <param name="bHide">- Value specifying whether to hide or show the selection. If this parameter is FALSE, the selection is shown. Otherwise, the selection is hidden.</param>
 	inline void dcxRichEdit_HideSelection(_In_ HWND hwnd, _In_ BOOL bHide) noexcept
 	{
-		SendMessage(hwnd, EM_HIDESELECTION, bHide, 0);
+		SendMessage(hwnd, EM_HIDESELECTION, gsl::narrow_cast<WPARAM>(bHide), 0);
 	}
 
 	/// <summary>
@@ -2720,7 +2720,7 @@ namespace Dcx
 	inline bool dcxRichEdit_SetCharFormat(_In_ HWND hwnd, _In_ UINT dwRange, _Inout_ CHARFORMAT2& chrFmt) noexcept
 	{
 		chrFmt.cbSize = sizeof(CHARFORMAT2);
-		return !!SendMessage(hwnd, EM_GETCHARFORMAT, dwRange, reinterpret_cast<LPARAM>(&chrFmt));
+		return !!SendMessage(hwnd, EM_SETCHARFORMAT, dwRange, reinterpret_cast<LPARAM>(&chrFmt));
 	}
 
 	/// <summary>
@@ -2804,7 +2804,7 @@ namespace Dcx
 	/// <returns>The original background color.</returns>
 	inline COLORREF dcxRichEdit_SetBkgndColor(_In_ HWND hwnd, _In_ BOOL bUseSystem, _In_ COLORREF clr) noexcept
 	{
-		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, EM_SETBKGNDCOLOR, bUseSystem, gsl::narrow_cast<LPARAM>(clr)));
+		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, EM_SETBKGNDCOLOR, gsl::narrow_cast<WPARAM>(bUseSystem), gsl::narrow_cast<LPARAM>(clr)));
 	}
 
 	/// <summary>
