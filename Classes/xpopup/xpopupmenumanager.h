@@ -156,7 +156,7 @@ public:
 
 	static void RemoveBackWin();
 
-	static inline bool m_isInitPopup{ false };
+	//static inline bool m_isInitPopup{ false };
 
 	static void TriggerMenuItem(_In_opt_ HWND hOwner, _In_opt_ HMENU hMenu, _In_ UINT mPos, _In_ bool bByPos) noexcept;
 
@@ -196,7 +196,7 @@ protected:
 	static const TString GetMenuAttributeFromXML(const char *const attrib, const TiXmlElement *const popup, const TiXmlElement *const global);
 	static const UINT parseTrackFlags( const TString & flags ) noexcept;
 
-	VectorOfXPopupMenu m_vpXPMenu;	//!< Vector of XPopupMenu Objects
+	VectorOfXPopupMenu m_vpXPMenu;	//!< Vector of XPopupMenu Objects (custom menus only)
 	HWND m_hOwnerWindow{};			//!< Menus owner window. (set in WM_INITMENU)
 
 #if DCX_CUSTOM_MENUS

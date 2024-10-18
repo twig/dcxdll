@@ -328,7 +328,7 @@ HWND XPopupMenuManager::CreateTrackingToolTip(int toolID, HWND hDlg, WCHAR* pTex
 
 LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 {
-	XPopupMenuManager::m_isInitPopup = true;
+	//XPopupMenuManager::m_isInitPopup = true;
 
 	if (const auto isWinMenu = (Dcx::dcxHIWORD(lParam) != FALSE); !isWinMenu)
 	{
@@ -376,7 +376,7 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 		}
 
 		m_bIsSysMenu = false;
-		XPopupMenuManager::m_isInitPopup = true;
+		//XPopupMenuManager::m_isInitPopup = true;
 		return lRes;
 	}
 	else
@@ -1650,7 +1650,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 
 	case WindowMessages::eWM_CREATE:
 	{
-		XPopupMenuManager::m_isInitPopup = true;
+		//XPopupMenuManager::m_isInitPopup = true;
 
 		//{
 		//	dcxlParam(LPCREATESTRUCT, cs);
@@ -1732,6 +1732,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 
 		if (!Dcx::m_CurrentMenuRounded)
 			break;
+
 		if (Dcx::dcxWindowRect rc(mHwnd); rc)
 		{
 			const auto width = rc.Width();
