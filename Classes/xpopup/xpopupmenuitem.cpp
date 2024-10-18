@@ -167,12 +167,6 @@ bool XPopupMenuItem::parseItemText()
 	if (const auto typeHash = m_pXParentMenu->getNameHash(); ((typeHash != TEXT("mirc"_hash)) && (typeHash != TEXT("mircbar"_hash)) && (typeHash != TEXT("dialog"_hash))))
 		return false;
 
-	//// handle icons
-	//if (constexpr TCHAR sepChar = TEXT('\v'); m_tsItemText.numtok(sepChar) > 1)
-	//{
-	//	m_nIcon = m_tsItemText.getfirsttok(1, sepChar).to_int() - 1;	// tok 1, TEXT('\v')	get embeded icon number if any
-	//	m_tsItemText = m_tsItemText.getlasttoks().trim();				// tok 2, TEXT('\v')	get real item text
-	//}
 	// handle icons
 	if (constexpr TCHAR sepChar = TEXT('\v'); m_tsItemText.numtok(sepChar) > 1)	// 11
 	{

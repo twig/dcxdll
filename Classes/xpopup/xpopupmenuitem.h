@@ -58,6 +58,7 @@ struct XPMENUCOLORS final
 	void toXml(TiXmlElement* xml) const
 	{
 		setColourAttribute(xml, "back", m_clrBack);
+		setColourAttribute(xml, "border", m_clrBorder);
 
 		setColourAttribute(xml, "box", m_clrBox);
 		setColourAttribute(xml, "lightbox", m_clrLightBox);
@@ -69,7 +70,14 @@ struct XPMENUCOLORS final
 		setColourAttribute(xml, "selectedtext", m_clrSelectedText);
 
 		setColourAttribute(xml, "checkbox", m_clrCheckBox.m_clrBackground);
+		setColourAttribute(xml, "checkboxframe", m_clrCheckBox.m_clrFrame);
+		setColourAttribute(xml, "checkboxtick", m_clrCheckBox.m_clrTick);
 		setColourAttribute(xml, "disabledcheckbox", m_clrCheckBox.m_clrDisabledBackground);
+		setColourAttribute(xml, "disabledcheckboxframe", m_clrCheckBox.m_clrDisabledFrame);
+		setColourAttribute(xml, "disabledcheckboxtick", m_clrCheckBox.m_clrDisabledTick);
+		setColourAttribute(xml, "hotcheckbox", m_clrCheckBox.m_clrHotBackground);
+		setColourAttribute(xml, "hotcheckboxframe", m_clrCheckBox.m_clrHotFrame);
+		setColourAttribute(xml, "hotcheckboxtick", m_clrCheckBox.m_clrHotTick);
 
 		setColourAttribute(xml, "separator", m_clrSeparatorLine);
 		setColourAttribute(xml, "selectionborder", m_clrSelectionBorder);
@@ -84,6 +92,8 @@ struct XPMENUCOLORS final
 	{
 		if (const auto tmp = queryColourAttribute(xml, "back"); tmp != CLR_INVALID)
 			m_clrBack = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "border"); tmp != CLR_INVALID)
+			m_clrBorder = tmp;
 
 		if (const auto tmp = queryColourAttribute(xml, "box"); tmp != CLR_INVALID)
 			m_clrBox = tmp;
@@ -100,10 +110,26 @@ struct XPMENUCOLORS final
 			m_clrDisabledText = tmp;
 		if (const auto tmp = queryColourAttribute(xml, "selectedtext"); tmp != CLR_INVALID)
 			m_clrSelectedText = tmp;
+
 		if (const auto tmp = queryColourAttribute(xml, "checkbox"); tmp != CLR_INVALID)
 			m_clrCheckBox.m_clrBackground = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "checkboxframe"); tmp != CLR_INVALID)
+			m_clrCheckBox.m_clrFrame = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "checkboxtick"); tmp != CLR_INVALID)
+			m_clrCheckBox.m_clrTick = tmp;
 		if (const auto tmp = queryColourAttribute(xml, "disabledcheckbox"); tmp != CLR_INVALID)
 			m_clrCheckBox.m_clrDisabledBackground = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "disabledcheckboxframe"); tmp != CLR_INVALID)
+			m_clrCheckBox.m_clrDisabledFrame = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "disabledcheckboxtick"); tmp != CLR_INVALID)
+			m_clrCheckBox.m_clrDisabledTick = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "hotcheckbox"); tmp != CLR_INVALID)
+			m_clrCheckBox.m_clrHotBackground = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "hotcheckboxframe"); tmp != CLR_INVALID)
+			m_clrCheckBox.m_clrHotFrame = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "hotcheckboxtick"); tmp != CLR_INVALID)
+			m_clrCheckBox.m_clrHotTick = tmp;
+
 		if (const auto tmp = queryColourAttribute(xml, "separator"); tmp != CLR_INVALID)
 			m_clrSeparatorLine = tmp;
 		if (const auto tmp = queryColourAttribute(xml, "selectionborder"); tmp != CLR_INVALID)
