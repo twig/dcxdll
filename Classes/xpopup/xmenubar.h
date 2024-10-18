@@ -28,11 +28,14 @@ class XMenuBar final
 public:
 	XMenuBar() noexcept = default;
 	XMenuBar(const XMenuBar &other) = delete;	// no copy constructor
+	//XMenuBar(const XMenuBar&& other) = delete;	// no move constructor
 
+#if !defined(XPOPUP_USE_UNIQUEPTR)
 	XMenuBar(const VectorOfXPopupMenu& m_vpXMenuBar, const TString& m_callback)
 		: m_vpXMenuBar(m_vpXMenuBar), m_callback(m_callback)
 	{
 	}
+#endif
 
 	XMenuBar &operator = (const XMenuBar &) = delete;
 

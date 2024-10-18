@@ -127,10 +127,11 @@ void XMenuBar::parseXMenuBarCommand(const TString& input)
 		if (numtok < 2)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto mID = menuName.to_<UINT>();
+		//const auto mID = menuName.to_<UINT>();
+		//// MAKEWPARAM((# = Menu ID), (0 = Menu command));
+		//SendMessage(mIRCLinker::getHWND(), WM_COMMAND, MAKEWPARAM(mID, 0), 0);
 
-		// MAKEWPARAM((# = Menu ID), (0 = Menu command));
-		SendMessage(mIRCLinker::getHWND(), WM_COMMAND, MAKEWPARAM(mID, 0), 0);
+		Dcx::XPopups.TriggerMenuCommand(mIRCLinker::getHWND(), menuName.to_<UINT>());
 		return;
 	}
 
@@ -226,7 +227,11 @@ TString XMenuBar::parseXMenuBarInfo(const TString& input) const
  */
 const bool XMenuBar::addToMenuBar(HMENU menubar, XPopupMenu* const p_Menu, const TString& label)
 {
+#if defined(XPOPUP_USE_UNIQUEPTR)
+	m_vpXMenuBar.emplace_back(p_Menu);
+#else
 	m_vpXMenuBar.push_back(p_Menu);
+#endif
 	return (AppendMenu(menubar, MF_POPUP, (UINT_PTR)p_Menu->getMenuHandle(), label.to_chr()) != 0);
 }
 
