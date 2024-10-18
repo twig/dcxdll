@@ -385,93 +385,7 @@ public:
 	const XPMENUCOLORS& getColors() const noexcept { return m_MenuColors; }
 	void setColor(const MenuColours nColor, const COLORREF clrColor) noexcept;
 	COLORREF getColor(const MenuColours nColor) const noexcept;
-	GSL_SUPPRESS(type.4) constexpr void setDefaultColor(const MenuColours nColor) noexcept
-	{
-		switch (nColor)
-		{
-		case MenuColours::XPMC_BACKGROUND:
-			this->m_MenuColors.m_clrBack = RGB(255, 255, 255);
-			break;
-
-		case MenuColours::XPMC_ICONBOX:
-			m_MenuColors.m_clrBox = RGB(184, 199, 146);
-			//m_MenuColors.m_clrLightBox = XPopupMenuItem::LightenColor(200, m_MenuColors.m_clrBox); // == XPopupMenuItem::LightenColor(200, RGB(184, 199, 146)) == RGB(240, 243, 231)
-			m_MenuColors.m_clrLightBox = RGB(240, 243, 231);
-			break;
-
-		case MenuColours::XPMC_CHECKBOX:
-			this->m_MenuColors.m_clrCheckBox.m_clrBackground = RGB(255, 128, 0);
-			break;
-
-		case MenuColours::XPMC_CHECKBOX_FRAME:
-			this->m_MenuColors.m_clrCheckBox.m_clrFrame = RGB(0, 0, 0);
-			break;
-
-		case MenuColours::XPMC_CHECKBOX_TICK:
-			this->m_MenuColors.m_clrCheckBox.m_clrTick = RGB(0, 0, 0);
-			break;
-
-		case MenuColours::XPMC_CHECKBOX_DISABLED:
-			this->m_MenuColors.m_clrCheckBox.m_clrDisabledBackground = RGB(200, 200, 200);
-			break;
-
-		case MenuColours::XPMC_CHECKBOX_FRAME_DISABLED:
-			this->m_MenuColors.m_clrCheckBox.m_clrDisabledBackground = RGB(200, 200, 200);
-			break;
-
-		case MenuColours::XPMC_CHECKBOX_TICK_DISABLED:
-			this->m_MenuColors.m_clrCheckBox.m_clrDisabledBackground = RGB(128, 128, 128);
-			break;
-
-		case MenuColours::XPMC_CHECKBOX_HOT:
-			this->m_MenuColors.m_clrCheckBox.m_clrHotBackground = RGB(255, 128, 123);
-			break;
-
-		case MenuColours::XPMC_CHECKBOX_FRAME_HOT:
-			this->m_MenuColors.m_clrCheckBox.m_clrHotFrame = RGB(0, 0, 255);
-			break;
-
-		case MenuColours::XPMC_CHECKBOX_TICK_HOT:
-			this->m_MenuColors.m_clrCheckBox.m_clrHotTick = RGB(0, 0, 255);
-			break;
-
-		case MenuColours::XPMC_SELECTIONBOX_DISABLED:
-			this->m_MenuColors.m_clrDisabledSelection = RGB(255, 255, 255);
-			break;
-
-		case MenuColours::XPMC_TEXT_DISABLED:
-			this->m_MenuColors.m_clrDisabledText = RGB(128, 128, 128);
-			break;
-
-		case MenuColours::XPMC_SELECTIONBOX:
-			this->m_MenuColors.m_clrSelection = RGB(255, 229, 179);
-			break;
-
-		case MenuColours::XPMC_SELECTIONBOX_BORDER:
-			this->m_MenuColors.m_clrSelectionBorder = RGB(0, 0, 0);
-			break;
-
-		case MenuColours::XPMC_SEPARATOR:
-			this->m_MenuColors.m_clrSeparatorLine = RGB(128, 128, 128);
-			break;
-
-		case MenuColours::XPMC_TEXT:
-			this->m_MenuColors.m_clrText = RGB(0, 0, 0);
-			break;
-
-		case MenuColours::XPMC_SELECTEDTEXT:
-			this->m_MenuColors.m_clrSelectedText = RGB(0, 0, 0);
-			break;
-
-		case MenuColours::XPMC_BORDER:
-			this->m_MenuColors.m_clrBorder = CLR_INVALID;
-			break;
-
-		case MenuColours::XPMC_MAX:
-		default:
-			break;
-		}
-	}
+	GSL_SUPPRESS(type.4) void setDefaultColor(_In_ const MenuColours nColor) noexcept;
 
 	static LRESULT CALLBACK XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -607,7 +521,8 @@ public:
 	/// <param name="xml"></param>
 	void xmlSaveImageList(VectorOfIcons& vIcons, TiXmlElement* xml) const;
 
-	void DrawBorder() const;
+	bool DrawBorder() const;
+	bool DrawBorder(_In_ HWND hWnd, _In_ HDC hdc) const noexcept;
 
 	VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects
 
