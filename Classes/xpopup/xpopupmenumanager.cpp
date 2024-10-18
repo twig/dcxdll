@@ -363,6 +363,9 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 					m_mIRCMenuBar->convertMenu(menu, TRUE);
 					Dcx::m_CurrentMenuAlpha = m_mIRCMenuBar->IsAlpha();
 					Dcx::m_CurrentMenuRounded = m_mIRCMenuBar->IsRoundedWindow();
+
+					if (!m_vpAllOpenMenus.contains(menu))
+						m_vpAllOpenMenus[menu] = m_mIRCMenuBar.get();
 				}
 			}
 		}
@@ -372,6 +375,9 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 				m_mIRCPopupMenu->convertMenu(menu, FALSE);
 				Dcx::m_CurrentMenuAlpha = m_mIRCPopupMenu->IsAlpha();
 				Dcx::m_CurrentMenuRounded = m_mIRCPopupMenu->IsRoundedWindow();
+
+				if (!m_vpAllOpenMenus.contains(menu))
+					m_vpAllOpenMenus[menu] = m_mIRCPopupMenu.get();
 			}
 		}
 
@@ -395,6 +401,9 @@ LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM l
 
 	if (m_bIsMenuBar && !m_bIsSysMenu && m_bIsActiveMircMenubarPopup)
 		m_mIRCMenuBar->deleteAllItemData(menu);
+
+	if (m_vpAllOpenMenus.contains(menu))
+		m_vpAllOpenMenus.erase(menu);
 
 	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_UNINITMENUPOPUP, wParam, lParam);
 }
@@ -933,7 +942,7 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 		if (!p_Menu)
 			return TEXT("$false");
 
-		return dcx_truefalse(getFirstWin() != nullptr);
+		//return dcx_truefalse(getFirstWin() != nullptr);
 
 		//auto hWnd = getFirstWin();
 		//if (!hWnd)
@@ -956,6 +965,13 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 		//	return TEXT("$true");
 
 		//return TEXT("$false");
+
+		for (auto& hWnd : this->getGlobalMenuWindowList())
+		{
+			if (p_Menu->getMenuHandle() == getWindowsMenu(hWnd))
+				return TEXT("$true");
+	}
+		return TEXT("$false");
 	}
 	break;
 	case 0:
@@ -1151,6 +1167,15 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(_In_opt_ const HMENU hMenu) const
 #endif
 		}
 	}
+
+	//if (auto itGet = m_vpAllOpenMenus.find(hMenu); itGet != m_vpAllOpenMenus.end())
+	//	return itGet->second;
+
+	for (const auto& a : m_vpAllOpenMenus)
+	{
+		if (hMenu == a.first)
+			return a.second;
+	}
 	return nullptr;
 }
 
@@ -1326,6 +1351,16 @@ const bool XPopupMenuManager::isItemValid(_In_opt_ const XPopupMenuItem* const p
 {
 	if (!pItem)
 		return false;
+
+	for (const auto& a : m_vpAllOpenMenus)
+	{
+		if (const auto b = a.second; b)
+		{
+			if (b->isItemValid(pItem))
+				return true;
+		}
+	}
+
 	if (m_mIRCMenuBar && m_mIRCMenuBar->isItemValid(pItem))
 		return true;
 	if (m_mIRCPopupMenu && m_mIRCPopupMenu->isItemValid(pItem))
@@ -2004,10 +2039,54 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 						Dcx::XPopups.setCheckState(hMenu, wParam, TRUE, false);
 						return 0L;
 			}
+					}
+				}
+			}
+			break;
 		}
 	}
 			}
 	break;
+
+	case WindowMessages::eWM_PRINT:
+	{
+		const auto lRes = CallWindowProc(g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+
+		// for debugging
+		//enum class testit
+		//{
+		//	ePRF_CHECKVISIBLE = PRF_CHECKVISIBLE,
+		//	ePRF_NONCLIENT = PRF_NONCLIENT,
+		//	ePRF_CLIENT = PRF_CLIENT,
+		//	ePRF_CHILDREN = PRF_CHILDREN,
+		//	ePRF_ERASEBKGND = PRF_ERASEBKGND,
+		//	ePRF_OWNED = PRF_OWNED
+		//};
+		//const auto tt = gsl::narrow_cast<testit>(lParam);
+
+		if (auto hMenu = getWindowsMenu(mHwnd); hMenu)
+		{
+			if (auto xMenu = Dcx::XPopups.getMenuByHandle(hMenu); xMenu)
+				xMenu->DrawBorder(mHwnd, reinterpret_cast<HDC>(wParam));
+		}
+		return lRes;
+	}
+	break;
+
+	case WindowMessages::eWM_NCPAINT:
+	{
+		if (auto hMenu = getWindowsMenu(mHwnd); hMenu)
+		{
+			if (auto xMenu = Dcx::XPopups.getMenuByHandle(hMenu); xMenu)
+			{
+				if (HDC hdc = GetWindowDC(mHwnd); hdc)
+					//if (HDC hdc = GetDCEx(mHwnd, reinterpret_cast<HRGN>(wParam), DCX_WINDOW | DCX_INTERSECTRGN); hdc) // this fails as wParam == 1 NOT an HRGN
+				{
+					Auto(ReleaseDC(mHwnd, hdc));
+
+					if (xMenu->DrawBorder(mHwnd, hdc))
+						return 0L;
+				}
 			}
 		}
 	}

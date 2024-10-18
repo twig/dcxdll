@@ -2802,6 +2802,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				m_bIsMenuBar = true;
 
 				p_this->m_popup->convertMenu(hMenu, TRUE);
+				if (!XPopupMenuManager::m_vpAllOpenMenus.contains(hMenu))
+					XPopupMenuManager::m_vpAllOpenMenus[hMenu] = p_this->m_popup.get();
 			}
 			m_bIsSysMenu = false;
 		}
@@ -2814,7 +2816,13 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	case WM_UNINITMENUPOPUP:
 	{
 		if (p_this->m_popup && m_bIsMenuBar && !m_bIsSysMenu)
-			p_this->m_popup->deleteAllItemData(reinterpret_cast<HMENU>(wParam));
+		{
+			auto hMenu = reinterpret_cast<HMENU>(wParam);
+			p_this->m_popup->deleteAllItemData(hMenu);
+
+			if (XPopupMenuManager::m_vpAllOpenMenus.contains(hMenu))
+				XPopupMenuManager::m_vpAllOpenMenus.erase(hMenu);
+		}
 		break;
 	}
 

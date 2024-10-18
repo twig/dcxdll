@@ -28,6 +28,9 @@ XPopupMenu::XPopupMenu(const TString& tsMenuName, MenuStyle mStyle)
 	: XPopupMenu(tsMenuName, CreatePopupMenu())
 {
 	m_MenuStyle = mStyle;
+
+	if (!XPopupMenuManager::m_vpAllOpenMenus.contains(m_hMenu))
+		XPopupMenuManager::m_vpAllOpenMenus[m_hMenu] = this;
 }
 
 XPopupMenu::XPopupMenu(const TString& tsMenuName, MenuStyle mStyle, const TString& tsCallback)
@@ -45,6 +48,8 @@ XPopupMenu::XPopupMenu(const TString& tsMenuName, MenuStyle mStyle, const TStrin
 XPopupMenu::XPopupMenu(const TString& tsName, HMENU hMenu)
 	: m_hMenu(hMenu), m_tsMenuName(tsName), m_menuNameHash(std::hash<TString>{}(tsName)), m_bDestroyHMENU(m_menuNameHash != TEXT("mircbar"_hash) && m_menuNameHash != TEXT("dialog"_hash) && m_menuNameHash != TEXT("scriptpopup"_hash))
 {
+	if (!XPopupMenuManager::m_vpAllOpenMenus.contains(m_hMenu))
+		XPopupMenuManager::m_vpAllOpenMenus[m_hMenu] = this;
 }
 
 /*!
@@ -64,6 +69,9 @@ XPopupMenu::~XPopupMenu()
 
 	//if (this->m_hBitmap)
 	//	DeleteBitmap(this->m_hBitmap);
+
+	if (XPopupMenuManager::m_vpAllOpenMenus.contains(m_hMenu))
+		XPopupMenuManager::m_vpAllOpenMenus.erase(m_hMenu);
 
 	//if (m_hMenu && m_menuNameHash != TEXT("mircbar"_hash) && m_menuNameHash != TEXT("dialog"_hash))
 	//	DestroyMenu(this->m_hMenu);
@@ -1066,32 +1074,6 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam,
 	}
 	break;
 
-	//case WM_INITMENUPOPUP:
-	//{
-	//	XPopupMenuManager::m_isInitPopup = true;
-	//}
-	//break;
-
-	//case WM_COMMAND:
-	//{
-	//	if ((Dcx::dcxHIWORD(wParam) == 0) && (lParam == 0))
-	//	{
-	//		// no obvious way to get menu here...
-	//		//auto hMenu = reinterpret_cast<HMENU>(SendMessage(mHwnd, MN_GETHMENU, 0, 0));
-	//		auto hMenu = GetMenu(mHwnd);
-	//		if (!hMenu)
-	//			break;
-	//		auto xItem = Dcx::XPopups.getMenuItemByCommandID(hMenu, wParam);
-	//		if (!xItem)
-	//			break;
-	//		if (auto xMenu = xItem->getParentMenu(); xMenu)
-	//		{
-	//			mIRCLinker::exec(TEXT("//.signal -n XPopup-% %"), xMenu->getName(), Dcx::dcxLOWORD(wParam));
-	//		}
-	//	}
-	//}
-	//break;
-
 	case WM_MENUCOMMAND:
 	{
 		auto hMenu = reinterpret_cast<HMENU>(lParam);
@@ -1165,18 +1147,6 @@ LRESULT XPopupMenu::OnDrawItem(const HWND mHwnd, LPDRAWITEMSTRUCT lpdis)
 {
 	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpdis->itemData); p_Item)
 		p_Item->DrawItem(lpdis);
-
-	//if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpdis->itemData); p_Item)
-	//{
-	//	//if (XPopupMenuManager::m_isInitPopup)
-	//	{
-	//		if (auto pMenu = p_Item->getParentMenu(); pMenu)
-	//			pMenu->DrawBorder();
-
-	//		XPopupMenuManager::m_isInitPopup = false;
-	//	}
-	//	p_Item->DrawItem(lpdis);
-	//}
 
 	return TRUE;
 }
@@ -1749,28 +1719,6 @@ bool XPopupMenu::DrawBorder(_In_ HWND hWnd, _In_ HDC hdc) const noexcept
 		}
 	}
 	return true;
-
-	///////
-
-
-	//{
-	//	const Dcx::dcxClientRect rcClient(hWnd);
-	//	constexpr int borderThiness = 3;
-
-	//	::ExcludeClipRect(hdc, rcClient.left + borderThiness, rcClient.top + borderThiness, rcClient.right - borderThiness, rcClient.bottom - borderThiness);
-
-	//	if (auto hPen = CreatePen(PS_INSIDEFRAME, 1, clr); hPen)
-	//	{
-	//		auto hOldPen = SelectPen(hdc, hPen);
-	//		if (auto hBrush = CreateSolidBrush(getColor(MenuColours::XPMC_BACKGROUND)); hBrush)
-	//		{
-	//			auto hOldBrush = SelectBrush(hdc, hBrush);
-	//			Rectangle(hdc, rcClient.left, rcClient.top, rcClient.right, rcClient.bottom);
-	//			SelectBrush(hdc, hOldBrush);
-	//		}
-	//		SelectPen(hdc, hOldPen);
-	//	}
-	//}
 }
 
 void XPopupMenu::xpop_a(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo)

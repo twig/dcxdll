@@ -156,8 +156,6 @@ public:
 
 	static void RemoveBackWin();
 
-	//static inline bool m_isInitPopup{ false };
-
 	static void TriggerMenuItem(_In_opt_ HWND hOwner, _In_opt_ HMENU hMenu, _In_ UINT mPos, _In_ bool bByPos) noexcept;
 
 	void TriggerMenuPos(_In_opt_ HWND hOwner, _In_opt_ HMENU hMenu, _In_ UINT mPos) noexcept
@@ -187,6 +185,8 @@ public:
 	LRESULT OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 
 	static void RedrawMenuIfOpen() noexcept;
+
+	static inline std::map<HMENU, XPopupMenu*> m_vpAllOpenMenus;	//!< Vector of all open XPopupMenu Objects
 
 private:
 	XPopupMenuItem* _getMenuItemByID(_In_opt_ const HMENU hMenu, _In_ const UINT id, _In_ BOOL bByPos) const noexcept;
