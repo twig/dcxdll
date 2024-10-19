@@ -1699,9 +1699,9 @@ bool XPopupMenu::DrawBorder(_In_ HWND hWnd, _In_ HDC hdc) const noexcept
 		Dcx::dcxWindowRect rect(hWnd);
 		const Dcx::dcxClientRect rcClient(hWnd, nullptr);
 		const int borderThiness = rcClient.left - rect.left;
-
+	
 		::OffsetRect(&rect, -rect.left, -rect.top);
-
+	
 		::ExcludeClipRect(hdc, rect.left + borderThiness, rect.top + borderThiness, rect.right - borderThiness, rect.bottom - borderThiness);
 		//Dcx::FillRectColour(menuDc, &rect, getColor(MenuColours::XPMC_BACKGROUND));
 		//dcxDrawBorder(menuDc, &rect, BF_RECT, clr);

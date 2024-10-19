@@ -328,8 +328,6 @@ HWND XPopupMenuManager::CreateTrackingToolTip(int toolID, HWND hDlg, WCHAR* pTex
 
 LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 {
-	//XPopupMenuManager::m_isInitPopup = true;
-
 	if (const auto isWinMenu = (Dcx::dcxHIWORD(lParam) != FALSE); !isWinMenu)
 	{
 		const auto menu = reinterpret_cast<HMENU>(wParam);
@@ -593,14 +591,6 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
-
-		//const auto nColor = gsl::narrow_cast<XPopupMenu::MenuColours>(input.getnexttok().to_<UINT>());	// tok 3
-		//const auto clr(input.getnexttok());				// tok 4
-		//
-		//if (clr == TEXT("default"))
-		//	p_Menu->setDefaultColor(nColor);
-		//else
-		//	p_Menu->setColor(nColor, clr.to_<COLORREF>());
 
 		const auto nColors(input.getnexttok());
 		const auto clr(input.getnexttok());
@@ -1950,13 +1940,6 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			case L"dialog"_hash:
 			{
 				// This is a dialog menu, send the message back to trigger on dialog events etc..
-				//auto hParent = Dcx::XPopups.getOwnerWindow();
-				//if (!IsWindow(hParent))
-				//	break;
-				//const auto mID = GetMenuItemID(hMenu, wParam);
-				//if (mID == UINT_MAX)
-				//	break;
-				//SendMessage(hParent, WM_COMMAND, MAKEWPARAM(mID, 0), 0);
 
 				Dcx::XPopups.TriggerMenuPos(Dcx::XPopups.getOwnerWindow(), hMenu, wParam);
 
