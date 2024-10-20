@@ -1181,7 +1181,7 @@ XPopupMenuItem* XPopupMenuManager::_getMenuItemByID(_In_opt_ const HMENU hMenu, 
 	{
 		if (auto* p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
 		{
-			//if (Dcx::XPopups.isItemValid(p_Item)) // Ook: no idea why this doesnt match?!?
+			if (Dcx::XPopups.isItemValid(p_Item)) // Ook: no idea why this doesnt match?!?
 				return p_Item;
 		}
 	}
