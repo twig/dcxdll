@@ -127,10 +127,6 @@ void XMenuBar::parseXMenuBarCommand(const TString& input)
 		if (numtok < 2)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		//const auto mID = menuName.to_<UINT>();
-		//// MAKEWPARAM((# = Menu ID), (0 = Menu command));
-		//SendMessage(mIRCLinker::getHWND(), WM_COMMAND, MAKEWPARAM(mID, 0), 0);
-
 		Dcx::XPopups.TriggerMenuCommand(mIRCLinker::getHWND(), menuName.to_<UINT>());
 		return;
 	}

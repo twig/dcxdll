@@ -31,8 +31,8 @@ public:
 	//XMenuBar(const XMenuBar&& other) = delete;	// no move constructor
 
 #if !defined(XPOPUP_USE_UNIQUEPTR)
-	XMenuBar(const VectorOfXPopupMenu& m_vpXMenuBar, const TString& m_callback)
-		: m_vpXMenuBar(m_vpXMenuBar), m_callback(m_callback)
+	XMenuBar(const VectorOfXPopupMenu& vpXMenuBar, const TString& tsCallback)
+		: m_vpXMenuBar(vpXMenuBar), m_callback(tsCallback)
 	{
 	}
 #endif
