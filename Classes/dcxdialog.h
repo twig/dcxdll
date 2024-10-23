@@ -161,6 +161,7 @@ public:
 
 #if DCX_CUSTOM_MENUS
 	void UAHDrawMenuNCBottomLine(HWND hWnd) const noexcept;
+	void UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept;
 #endif
 
 	/// <summary>

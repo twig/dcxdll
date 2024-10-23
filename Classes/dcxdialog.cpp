@@ -570,6 +570,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		// f = load background image (bmp format only atm), [ARGS] = path/filename.bmp or [ARGS] = [ITEM INDEX] path/filename.bmp
 		// s = enable/disable shadow text, [ARGS] = 1 or 0
 		// v = visible/invisible menubar (works with custom or standard menubars)
+		// S = menubar style, [ARGS] = stylename
 		// 
 		// i = item specific. combines with other flags +it = set item text colour.
 		// R = redraw menubar. (can be combined with any flags, or used by its self)
@@ -618,6 +619,11 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		{
 			// enable/disable
 			m_CustomMenuBar.m_bDrawShadowText = (tsArgs == TEXT("1"));
+		}
+		else if (xflags[TEXT('S')])
+		{
+			// style
+			m_CustomMenuBar.m_Style = XPopupMenu::parseStyle(tsArgs);
 		}
 		else if (xflags[TEXT('v')])
 		{
@@ -2010,6 +2016,68 @@ void DcxDialog::UAHDrawMenuNCBottomLine(HWND hWnd) const noexcept
 		ReleaseDC(hWnd, hdc);
 	}
 }
+void DcxDialog::UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept
+{
+	if (!m_CustomMenuBar.m_menuTheme)
+		m_CustomMenuBar.m_menuTheme = Dcx::UXModule.dcxOpenThemeData(mHwnd, L"Menu");
+
+	RECT rc{};
+
+	// get the menubar rect
+	{
+		MENUBARINFO mbi = { sizeof(mbi) };
+		GetMenuBarInfo(mHwnd, OBJID_MENU, 0, &mbi);
+
+		RECT rcWindow;
+		GetWindowRect(mHwnd, &rcWindow);
+
+		// the rcBar is offset by the window rect
+		rc = mbi.rcBar;
+		OffsetRect(&rc, -rcWindow.left, -rcWindow.top);
+	}
+
+	switch (m_CustomMenuBar.m_Style)
+	{
+	case MainMenuStyle::XPMS_ICY:
+	case MainMenuStyle::XPMS_OFFICE2003:
+	case MainMenuStyle::XPMS_GRADE:
+	{
+		const auto clrStart = (m_CustomMenuBar.m_Default.m_Colours.m_clrBack != CLR_INVALID) ? m_CustomMenuBar.m_Default.m_Colours.m_clrBack : RGB(184, 199, 146);
+		const auto clrEnd = (m_CustomMenuBar.m_Default.m_Colours.m_clrHot != CLR_INVALID) ? m_CustomMenuBar.m_Default.m_Colours.m_clrHot : RGB(240, 243, 231);
+		XPopupMenuItem::DrawGradient(pUDM->hdc, &rc, clrStart, clrEnd, false);
+	}
+	break;
+	case MainMenuStyle::XPMS_ICY_REV:
+	case MainMenuStyle::XPMS_OFFICE2003_REV:
+	case MainMenuStyle::XPMS_GRADE_REV:
+	{
+		const auto clrStart = (m_CustomMenuBar.m_Default.m_Colours.m_clrHot != CLR_INVALID) ? m_CustomMenuBar.m_Default.m_Colours.m_clrHot : RGB(240, 243, 231);
+		const auto clrEnd = (m_CustomMenuBar.m_Default.m_Colours.m_clrBack != CLR_INVALID) ? m_CustomMenuBar.m_Default.m_Colours.m_clrBack : RGB(184, 199, 146);
+		XPopupMenuItem::DrawGradient(pUDM->hdc, &rc, clrStart, clrEnd, false);
+	}
+	break;
+	case MainMenuStyle::XPMS_None:
+	case MainMenuStyle::XPMS_CUSTOMBIG:
+		break;
+	case MainMenuStyle::XPMS_OFFICEXP:
+	case MainMenuStyle::XPMS_CUSTOM:
+	case MainMenuStyle::XPMS_NORMAL:
+	default:
+	{
+		if (m_CustomMenuBar.m_Default.m_Colours.m_clrBack != CLR_INVALID)	// if menu colour set, use it
+			Dcx::FillRectColour(pUDM->hdc, &rc, m_CustomMenuBar.m_Default.m_Colours.m_clrBack);
+		else if (m_CustomMenuBar.m_menuTheme)	// otherwise try themed drawing
+			Dcx::UXModule.dcxDrawThemeBackground(m_CustomMenuBar.m_menuTheme, pUDM->hdc, MENU_BARBACKGROUND, (pUDM->dwFlags == 0xa00 ? MB_ACTIVE : MB_INACTIVE), &rc, nullptr);
+		else
+			Dcx::FillRectColour(pUDM->hdc, &rc, GetSysColor(COLOR_MENUBAR));	// if all else fails draw as standard menu colour.
+	}
+	break;
+	}
+
+	// if bitmap set draw it over the background colour.
+	if (m_CustomMenuBar.m_Default.m_hBkg.m_hBitmap)
+		dcxDrawBitMap(pUDM->hdc, &rc, m_CustomMenuBar.m_Default.m_hBkg.m_hBitmap, (m_CustomMenuBar.m_Style != MainMenuStyle::XPMS_CUSTOM), false);
+}
 #endif
 
 /// <summary>
@@ -2178,10 +2246,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			// wParam == 0 means sent by menu.
 			if (dcxlParam(LPMEASUREITEMSTRUCT, lpmis); p_this->m_popup && lpmis->CtlType == ODT_MENU)
 			{
-					bParsed = TRUE;
+				bParsed = TRUE;
 				lRes = XPopupMenu::OnMeasureItem(mHwnd, lpmis);
-				}
 			}
+		}
 		else {
 			if (const auto cHwnd = GetDlgItem(mHwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
 			{
@@ -2205,9 +2273,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		}
 		else if (p_this->m_popup && idata->CtlType == ODT_MENU)
 		{
-				bParsed = TRUE;
+			bParsed = TRUE;
 			lRes = XPopupMenu::OnDrawItem(mHwnd, idata);
-			}
+		}
 		break;
 	}
 
@@ -2284,39 +2352,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case SC_SIZE:
 		{
-			//TCHAR ret[256] = {0};
-			//
-			//if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE)) // mask only controls sending of event, if event isnt sent then DefWindowProc should still be called.
-			//	p_this->evalAlias(ret, Dcx::countof(ret), TEXT("beginsize,0"));
-			//
-			//if (ts_strcmp(TEXT("nosize"), ret) != 0) {
-			//	bParsed = TRUE;
-			//	p_this->m_bInSizing = true;
-			//	lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
-			//}
-
-			//gsl::wstring_span<256> sRet;
-			//
-			//if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE)) // mask only controls sending of event, if event isnt sent then DefWindowProc should still be called.
-			//	p_this->evalAlias(sRet.data(), sRet.length(), TEXT("beginsize,0"));
-			//
-			//if (sRet != TEXT("nosize")) {
-			//	bParsed = TRUE;
-			//	p_this->m_bInSizing = true;
-			//	lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
-			//}
-
-			//stString<256> sRet;
-			//
-			//if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE)) // mask only controls sending of event, if event isnt sent then DefWindowProc should still be called.
-			//	p_this->evalAlias(sRet, static_cast<int>(sRet.size()), TEXT("beginsize,0"));
-			//
-			//if (sRet != TEXT("nosize")) {
-			//	bParsed = TRUE;
-			//	p_this->m_bInSizing = true;
-			//	lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
-			//}
-
 			bool bDoSize = false;
 			if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE)) // mask only controls sending of event, if event isnt sent then DefWindowProc should still be called.
 				bDoSize = (p_this->evalAliasT(TEXT("beginsize,0")).second != TEXT("nosize"));
@@ -2410,17 +2445,30 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		// do not do SizingTypes::Toolbar as this is handled after
 		p_this->HandleChildSizing(SizingTypes::ReBar | SizingTypes::Status | SizingTypes::Panel /*| SizingTypes::MultiCombo*/);
-
+		
 		for (HWND bars = FindWindowEx(mHwnd, nullptr, DCX_TOOLBARCLASS, nullptr); bars; bars = FindWindowEx(mHwnd, bars, DCX_TOOLBARCLASS, nullptr))
 		{
 			if (const auto t = dynamic_cast<DcxToolBar*>(p_this->getControlByHWND(bars)); t)
 				t->autoPosition(Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
 		}
-
+		
 		RECT rc{ 0, 0, Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam) };
-
+		
 		p_this->SetVistaStyleSize();
 		p_this->updateLayout(rc);
+
+		//p_this->SetVistaStyleSize();
+		//if (RECT rc{ 0, 0, Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam) };
+		//	!p_this->updateLayout(rc))
+		//{
+		//	p_this->HandleChildSizing(SizingTypes::ReBar | SizingTypes::Status | SizingTypes::Panel /*| SizingTypes::MultiCombo*/);
+
+		//	for (HWND bars = FindWindowEx(mHwnd, nullptr, DCX_TOOLBARCLASS, nullptr); bars; bars = FindWindowEx(mHwnd, bars, DCX_TOOLBARCLASS, nullptr))
+		//	{
+		//		if (const auto t = dynamic_cast<DcxToolBar*>(p_this->getControlByHWND(bars)); t)
+		//			t->autoPosition(Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
+		//	}
+		//}
 
 		//This is needed (or some other solution) to update the bkg image & transp controls on it
 //#if defined(NDEBUG) && !defined(DCX_DEV_BUILD)
@@ -2490,6 +2538,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		//
 		//SetRect(&rc, 0, 0, (wp->cx - wp->x), (wp->cy - wp->y));
 		//p_this->updateLayout(rc);
+
+		//if (dcx_testflag(wp->flags, SWP_HIDEWINDOW) || dcx_testflag(wp->flags, SWP_NOREDRAW))
+		//	break;
+		//if (dcx_testflag(wp->flags, SWP_NOSIZE) && dcx_testflag(wp->flags, SWP_NOMOVE))
+		//	break;
+		//{
+		//	RECT rc{ 0, 0, wp->cx, wp->cy };
+		//	p_this->updateLayout(rc);
+		//}
 
 		break;
 	}
@@ -2759,40 +2816,42 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		if (!pUDM->hdc)
 			break;
 
-		if (!p_this->m_CustomMenuBar.m_menuTheme)
-			p_this->m_CustomMenuBar.m_menuTheme = Dcx::UXModule.dcxOpenThemeData(mHwnd, L"Menu");
+		p_this->UAHDrawMenuBar(mHwnd, pUDM);
 
-		RECT rc{};
-
-		// get the menubar rect
-		{
-			MENUBARINFO mbi = { sizeof(mbi) };
-			GetMenuBarInfo(mHwnd, OBJID_MENU, 0, &mbi);
-
-			RECT rcWindow;
-			GetWindowRect(mHwnd, &rcWindow);
-
-			// the rcBar is offset by the window rect
-			rc = mbi.rcBar;
-			OffsetRect(&rc, -rcWindow.left, -rcWindow.top);
-		}
-
-		if (p_this->m_CustomMenuBar.m_Default.m_Colours.m_clrBack != CLR_INVALID)	// if menu colour set, use it
-			Dcx::FillRectColour(pUDM->hdc, &rc, p_this->m_CustomMenuBar.m_Default.m_Colours.m_clrBack);
-		else if (p_this->m_CustomMenuBar.m_menuTheme)	// otherwise try themed drawing
-			Dcx::UXModule.dcxDrawThemeBackground(p_this->m_CustomMenuBar.m_menuTheme, pUDM->hdc, MENU_BARBACKGROUND, (pUDM->dwFlags == 0xa00 ? MB_ACTIVE : MB_INACTIVE), &rc, nullptr);
-		else
-			Dcx::FillRectColour(pUDM->hdc, &rc, GetSysColor(COLOR_MENUBAR));	// if all else fails draw as standard menu colour.
-
-		if (p_this->m_CustomMenuBar.m_Default.m_hBkg.m_hBitmap)
-			dcxDrawBitMap(pUDM->hdc, &rc, p_this->m_CustomMenuBar.m_Default.m_hBkg.m_hBitmap, true, false);
-
-		//else if (p_this->m_bGradientFill)
+		//if (!p_this->m_CustomMenuBar.m_menuTheme)
+		//	p_this->m_CustomMenuBar.m_menuTheme = Dcx::UXModule.dcxOpenThemeData(mHwnd, L"Menu");
+		//
+		//RECT rc{};
+		//
+		//// get the menubar rect
 		//{
-		//	const auto clrStart = (p_this->getStartGradientColor() != CLR_INVALID) ? p_this->getStartGradientColor() : GetSysColor(COLOR_3DFACE);
-		//	const auto clrEnd = (p_this->getEndGradientColor() != CLR_INVALID) ? p_this->getEndGradientColor() : GetSysColor(COLOR_GRADIENTACTIVECAPTION);
-		//	XPopupMenuItem::DrawGradient(hdc, &rc, clrStart, clrEnd, p_this->m_bGradientVertical);
+		//	MENUBARINFO mbi = { sizeof(mbi) };
+		//	GetMenuBarInfo(mHwnd, OBJID_MENU, 0, &mbi);
+		//
+		//	RECT rcWindow;
+		//	GetWindowRect(mHwnd, &rcWindow);
+		//
+		//	// the rcBar is offset by the window rect
+		//	rc = mbi.rcBar;
+		//	OffsetRect(&rc, -rcWindow.left, -rcWindow.top);
 		//}
+		//
+		//if (p_this->m_CustomMenuBar.m_Default.m_Colours.m_clrBack != CLR_INVALID)	// if menu colour set, use it
+		//	Dcx::FillRectColour(pUDM->hdc, &rc, p_this->m_CustomMenuBar.m_Default.m_Colours.m_clrBack);
+		//else if (p_this->m_CustomMenuBar.m_menuTheme)	// otherwise try themed drawing
+		//	Dcx::UXModule.dcxDrawThemeBackground(p_this->m_CustomMenuBar.m_menuTheme, pUDM->hdc, MENU_BARBACKGROUND, (pUDM->dwFlags == 0xa00 ? MB_ACTIVE : MB_INACTIVE), &rc, nullptr);
+		//else
+		//	Dcx::FillRectColour(pUDM->hdc, &rc, GetSysColor(COLOR_MENUBAR));	// if all else fails draw as standard menu colour.
+		//
+		//if (p_this->m_CustomMenuBar.m_Default.m_hBkg.m_hBitmap)
+		//	dcxDrawBitMap(pUDM->hdc, &rc, p_this->m_CustomMenuBar.m_Default.m_hBkg.m_hBitmap, true, false);
+		//
+		////else if (p_this->m_bGradientFill)
+		////{
+		////	const auto clrStart = (p_this->getStartGradientColor() != CLR_INVALID) ? p_this->getStartGradientColor() : GetSysColor(COLOR_3DFACE);
+		////	const auto clrEnd = (p_this->getEndGradientColor() != CLR_INVALID) ? p_this->getEndGradientColor() : GetSysColor(COLOR_GRADIENTACTIVECAPTION);
+		////	XPopupMenuItem::DrawGradient(hdc, &rc, clrStart, clrEnd, p_this->m_bGradientVertical);
+		////}
 
 		bParsed = TRUE;
 	}
