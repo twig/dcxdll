@@ -374,7 +374,7 @@ public:
 	TString getItemStyleString() const;
 
 	void deleteMenuItemData(const XPopupMenuItem* const p_Item, LPMENUITEMINFO mii = nullptr) noexcept;
-	void deleteAllItemData(HMENU hMenu);
+	void deleteAllItemData(HMENU hMenu) noexcept;
 
 	const TString& getName() const noexcept { return this->m_tsMenuName; }
 
@@ -535,6 +535,9 @@ private:
 	void xpop_s(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
 	void xpop_t(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
 	void xpop_T(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
+
+	HMENU AddSubMenu();
+	void DeleteSubMenu(HMENU hSubMenu);
 
 protected:
 

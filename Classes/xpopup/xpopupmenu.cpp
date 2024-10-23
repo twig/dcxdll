@@ -29,8 +29,8 @@ XPopupMenu::XPopupMenu(const TString& tsMenuName, MenuStyle mStyle)
 {
 	m_MenuStyle = mStyle;
 
-	if (!XPopupMenuManager::m_vpAllOpenMenus.contains(m_hMenu))
-		XPopupMenuManager::m_vpAllOpenMenus[m_hMenu] = this;
+	if (!XPopupMenuManager::m_vpAllMenus.contains(m_hMenu))
+		XPopupMenuManager::m_vpAllMenus[m_hMenu] = this;
 }
 
 XPopupMenu::XPopupMenu(const TString& tsMenuName, MenuStyle mStyle, const TString& tsCallback)
@@ -48,8 +48,8 @@ XPopupMenu::XPopupMenu(const TString& tsMenuName, MenuStyle mStyle, const TStrin
 XPopupMenu::XPopupMenu(const TString& tsName, HMENU hMenu)
 	: m_hMenu(hMenu), m_tsMenuName(tsName), m_menuNameHash(std::hash<TString>{}(tsName)), m_bDestroyHMENU(m_menuNameHash != TEXT("mircbar"_hash) && m_menuNameHash != TEXT("dialog"_hash) && m_menuNameHash != TEXT("scriptpopup"_hash))
 {
-	if (!XPopupMenuManager::m_vpAllOpenMenus.contains(m_hMenu))
-		XPopupMenuManager::m_vpAllOpenMenus[m_hMenu] = this;
+	if (!XPopupMenuManager::m_vpAllMenus.contains(m_hMenu))
+		XPopupMenuManager::m_vpAllMenus[m_hMenu] = this;
 }
 
 /*!
@@ -70,8 +70,8 @@ XPopupMenu::~XPopupMenu()
 	//if (this->m_hBitmap)
 	//	DeleteBitmap(this->m_hBitmap);
 
-	if (XPopupMenuManager::m_vpAllOpenMenus.contains(m_hMenu))
-		XPopupMenuManager::m_vpAllOpenMenus.erase(m_hMenu);
+	if (XPopupMenuManager::m_vpAllMenus.contains(m_hMenu))
+		XPopupMenuManager::m_vpAllMenus.erase(m_hMenu);
 
 	//if (m_hMenu && m_menuNameHash != TEXT("mircbar"_hash) && m_menuNameHash != TEXT("dialog"_hash))
 	//	DestroyMenu(this->m_hMenu);
@@ -1029,7 +1029,7 @@ void XPopupMenu::deleteMenuItemData(const XPopupMenuItem* const p_Item, LPMENUIT
  * blah
  */
 
-void XPopupMenu::deleteAllItemData(HMENU hMenu)
+void XPopupMenu::deleteAllItemData(HMENU hMenu) noexcept
 {
 	MENUITEMINFO mii{};
 	mii.cbSize = sizeof(MENUITEMINFO);
@@ -1084,6 +1084,7 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam,
 		if (!xItem)
 			break;
 
+		// xMenu should never be null
 		if (auto xMenu = xItem->getParentMenu(); xMenu)
 			mIRCLinker::exec(TEXT("//.signal -n XPopup-% %"), xMenu->getName(), xItem->getCommandID());
 	}
@@ -1783,10 +1784,7 @@ void XPopupMenu::xpop_a(HMENU hMenu, int nPos, const TString& path, const TStrin
 		if (xflags[TEXT('s')])
 		{
 			mii.fMask |= MIIM_SUBMENU;
-			if (mii.hSubMenu)
-				DestroyMenu(mii.hSubMenu);
-
-			mii.hSubMenu = CreatePopupMenu();
+			mii.hSubMenu = AddSubMenu();
 
 			if (!mii.hSubMenu)
 				throw Dcx::dcxException(TEXT("Failed to create submenu."));
@@ -1826,13 +1824,9 @@ void XPopupMenu::xpop_c(HMENU hMenu, int nPos, const TString& path, const TStrin
 	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
 		throw Dcx::dcxException("Unable to get menu item info");
 
-	if (mii.hSubMenu)
-	{
-		this->deleteAllItemData(mii.hSubMenu);
-		DestroyMenu(mii.hSubMenu);
-	}
+	DeleteSubMenu(mii.hSubMenu);
 
-	mii.hSubMenu = CreatePopupMenu();
+	mii.hSubMenu = AddSubMenu();
 
 	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
 		p_Item->setSubMenu(TRUE);
@@ -1854,11 +1848,7 @@ void XPopupMenu::xpop_d(HMENU hMenu, int nPos, const TString& path, const TStrin
 	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
 		throw Dcx::dcxException("Unable to get menu item info");
 
-	if (mii.hSubMenu)
-	{
-		this->deleteAllItemData(mii.hSubMenu);
-		DestroyMenu(mii.hSubMenu);
-	}
+	DeleteSubMenu(mii.hSubMenu);
 
 	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
 		p_Item->setSubMenu(FALSE);
@@ -1881,11 +1871,7 @@ void XPopupMenu::xpop_f(HMENU hMenu, int nPos, const TString& path, const TStrin
 	if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
 		throw Dcx::dcxException("Unable to get menu item info");
 
-	if (mii.hSubMenu)
-	{
-		this->deleteAllItemData(mii.hSubMenu);
-		DestroyMenu(mii.hSubMenu);
-	}
+	DeleteSubMenu(mii.hSubMenu);
 
 	if (const auto* const p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
 		this->deleteMenuItemData(p_Item, nullptr);
@@ -1981,6 +1967,29 @@ void XPopupMenu::xpop_T(HMENU hMenu, int nPos, const TString& path, const TStrin
 
 	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
 		p_Item->setItemTooltip(tsTabTwo);
+}
+
+HMENU XPopupMenu::AddSubMenu()
+{
+	auto hSubMenu = CreatePopupMenu();
+	if (hSubMenu)
+	{
+		if (!XPopupMenuManager::m_vpAllMenus.contains(hSubMenu))
+			XPopupMenuManager::m_vpAllMenus[hSubMenu] = this;
+	}
+	return hSubMenu;
+}
+
+void XPopupMenu::DeleteSubMenu(HMENU hSubMenu)
+{
+	if (!hSubMenu)
+		return;
+
+	this->deleteAllItemData(hSubMenu);
+	DestroyMenu(hSubMenu);
+
+	if (XPopupMenuManager::m_vpAllMenus.contains(hSubMenu))
+		XPopupMenuManager::m_vpAllMenus.erase(hSubMenu);
 }
 
 /*

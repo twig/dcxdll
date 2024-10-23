@@ -158,11 +158,11 @@ public:
 
 	static void TriggerMenuItem(_In_opt_ HWND hOwner, _In_opt_ HMENU hMenu, _In_ UINT mPos, _In_ bool bByPos) noexcept;
 
-	void TriggerMenuPos(_In_opt_ HWND hOwner, _In_opt_ HMENU hMenu, _In_ UINT mPos) noexcept
+	void TriggerMenuPos(_In_opt_ HWND hOwner, _In_opt_ HMENU hMenu, _In_ UINT mPos) const noexcept
 	{
 		TriggerMenuItem(hOwner, hMenu, mPos, true);
 	}
-	void TriggerMenuCommand(_In_opt_ HWND hOwner, _In_ UINT mCmd) noexcept
+	void TriggerMenuCommand(_In_opt_ HWND hOwner, _In_ UINT mCmd) const noexcept
 	{
 		TriggerMenuItem(hOwner, nullptr, mCmd, false);
 	}
@@ -186,7 +186,7 @@ public:
 
 	static void RedrawMenuIfOpen() noexcept;
 
-	static inline std::map<HMENU, XPopupMenu*> m_vpAllOpenMenus;	//!< Vector of all open XPopupMenu Objects
+	static inline std::map<HMENU, XPopupMenu*> m_vpAllMenus;	//!< Vector of all open XPopupMenu Objects
 
 private:
 	XPopupMenuItem* _getMenuItemByID(_In_opt_ const HMENU hMenu, _In_ const UINT id, _In_ BOOL bByPos) const noexcept;

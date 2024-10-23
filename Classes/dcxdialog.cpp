@@ -2127,7 +2127,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				// This stops a crash when someone uses /dialog -x within the callback alias without a /timer
 				// NB: After this is done you must use /xdialog -x to close the dialog, /dialog -x will no longer work.
 				bParsed = TRUE;
-				//mIRCLinker::execex(TEXT("/.timer -m 1 0 xdialog -x %s"), p_this->getName().to_chr());
 				mIRCLinker::exec(TEXT("/.timer -m 1 0 xdialog -x %"), p_this->getName());
 			}
 			else if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_CLOSE))
@@ -2179,16 +2178,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			// wParam == 0 means sent by menu.
 			if (dcxlParam(LPMEASUREITEMSTRUCT, lpmis); p_this->m_popup && lpmis->CtlType == ODT_MENU)
 			{
-				//if (auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpmis->itemData); p_Item)
-				//{
-				//	const auto size = p_Item->getItemSize(mHwnd);
-				//
-				//	lpmis->itemWidth = gsl::narrow_cast<UINT>(size.cx);
-				//	lpmis->itemHeight = gsl::narrow_cast<UINT>(size.cy);
-				//	lRes = TRUE;
-				//	bParsed = TRUE;
-				//}
-
 					bParsed = TRUE;
 				lRes = XPopupMenu::OnMeasureItem(mHwnd, lpmis);
 				}
@@ -2230,24 +2219,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		{
 			if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_MOVE))
 			{
-				//TCHAR ret[256];
-				//p_this->evalAlias(ret, Dcx::countof(ret), TEXT("beginmove,0"));
-				//
-				//if (ts_strcmp(TEXT("nomove"), ret) != 0) {
-				//	bParsed = TRUE;	// Ook: needs looked at as do the other switches here...
-				//	p_this->m_bInMoving = true;
-				//	lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
-				//}
-
-				//stString<256> sRet;
-				//p_this->evalAlias(sRet, Dcx::countof(sRet), TEXT("beginmove,0"));
-				//
-				//if (sRet != TEXT("nomove")) {
-				//	bParsed = TRUE;	// Ook: needs looked at as do the other switches here...
-				//	p_this->m_bInMoving = true;
-				//	lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
-				//}
-
 				if (p_this->evalAliasT(TEXT("beginmove,0")).second != TEXT("nomove"))
 				{
 					bParsed = TRUE;	// Ook: needs looked at as do the other switches here...
@@ -2263,20 +2234,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		{
 			if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_CLOSE))
 			{
-				//TCHAR ret[256];
-				//
-				//p_this->evalAlias(ret, Dcx::countof(ret), TEXT("scclose,0"));
-				//
-				//if (ts_strcmp(TEXT("noclose"), ret) == 0)
-				//	bParsed = TRUE;
-
-				//stString<256> sRet;
-				//
-				//p_this->evalAlias(sRet, Dcx::countof(sRet), TEXT("scclose,0"));
-				//
-				//if (sRet == TEXT("noclose"))
-				//	bParsed = TRUE;
-
 				if (p_this->evalAliasT(TEXT("scclose,0")).second == TEXT("noclose"))
 					bParsed = TRUE;
 			}
@@ -2287,24 +2244,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		{
 			if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE))
 			{
-				//TCHAR ret[256];
-				//
-				//p_this->evalAlias(ret, Dcx::countof(ret), TEXT("min,0"));
-				//
-				//if (ts_strcmp(TEXT("stop"), ret) != 0) {
-				//	bParsed = TRUE;
-				//	lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
-				//}
-
-				//stString<256> sRet;
-				//
-				//p_this->evalAlias(sRet, Dcx::countof(sRet), TEXT("min,0"));
-				//
-				//if (sRet != TEXT("stop")) {
-				//	bParsed = TRUE;
-				//	lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
-				//}
-
 				if (p_this->evalAliasT(TEXT("min,0")).second != TEXT("stop"))
 				{
 					bParsed = TRUE;
@@ -2319,24 +2258,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		{
 			if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE))
 			{
-				//TCHAR ret[256];
-				//
-				//p_this->evalAlias(ret, Dcx::countof(ret), TEXT("max,0"));
-				//
-				//if (ts_strcmp(TEXT("stop"), ret) != 0) {
-				//	bParsed = TRUE;
-				//	lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
-				//}
-
-				//stString<256> sRet;
-				//
-				//p_this->evalAlias(sRet, sRet.size(), TEXT("max,0"));
-				//
-				//if (sRet != TEXT("stop")) {
-				//	bParsed = TRUE;
-				//	lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
-				//}
-
 				if (p_this->evalAliasT(TEXT("max,0")).second != TEXT("stop"))
 				{
 					bParsed = TRUE;
@@ -2787,8 +2708,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	[[fallthrough]];
 	case WM_INITMENUPOPUP:
 	{
-		//XPopupMenuManager::m_isInitPopup = true;
-
 		if (Dcx::dcxHIWORD(lParam) == FALSE && p_this->m_popup)
 		{
 			// let mIRC populate the menus dynamically
@@ -2802,8 +2721,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				m_bIsMenuBar = true;
 
 				p_this->m_popup->convertMenu(hMenu, TRUE);
-				if (!XPopupMenuManager::m_vpAllOpenMenus.contains(hMenu))
-					XPopupMenuManager::m_vpAllOpenMenus[hMenu] = p_this->m_popup.get();
+				if (!XPopupMenuManager::m_vpAllMenus.contains(hMenu))
+					XPopupMenuManager::m_vpAllMenus[hMenu] = p_this->m_popup.get();
 			}
 			m_bIsSysMenu = false;
 		}
@@ -2820,8 +2739,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			auto hMenu = reinterpret_cast<HMENU>(wParam);
 			p_this->m_popup->deleteAllItemData(hMenu);
 
-			if (XPopupMenuManager::m_vpAllOpenMenus.contains(hMenu))
-				XPopupMenuManager::m_vpAllOpenMenus.erase(hMenu);
+			if (XPopupMenuManager::m_vpAllMenus.contains(hMenu))
+				XPopupMenuManager::m_vpAllMenus.erase(hMenu);
 		}
 		break;
 	}

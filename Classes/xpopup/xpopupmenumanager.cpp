@@ -362,8 +362,8 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 					Dcx::m_CurrentMenuAlpha = m_mIRCMenuBar->IsAlpha();
 					Dcx::m_CurrentMenuRounded = m_mIRCMenuBar->IsRoundedWindow();
 
-					if (!m_vpAllOpenMenus.contains(menu))
-						m_vpAllOpenMenus[menu] = m_mIRCMenuBar.get();
+					if (!m_vpAllMenus.contains(menu))
+						m_vpAllMenus[menu] = m_mIRCMenuBar.get();
 				}
 			}
 		}
@@ -374,8 +374,8 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 				Dcx::m_CurrentMenuAlpha = m_mIRCPopupMenu->IsAlpha();
 				Dcx::m_CurrentMenuRounded = m_mIRCPopupMenu->IsRoundedWindow();
 
-				if (!m_vpAllOpenMenus.contains(menu))
-					m_vpAllOpenMenus[menu] = m_mIRCPopupMenu.get();
+				if (!m_vpAllMenus.contains(menu))
+					m_vpAllMenus[menu] = m_mIRCPopupMenu.get();
 			}
 		}
 
@@ -400,8 +400,8 @@ LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM l
 	if (m_bIsMenuBar && !m_bIsSysMenu && m_bIsActiveMircMenubarPopup)
 		m_mIRCMenuBar->deleteAllItemData(menu);
 
-	if (m_vpAllOpenMenus.contains(menu))
-		m_vpAllOpenMenus.erase(menu);
+	if (m_vpAllMenus.contains(menu))
+		m_vpAllMenus.erase(menu);
 
 	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_UNINITMENUPOPUP, wParam, lParam);
 }
@@ -1161,7 +1161,7 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(_In_opt_ const HMENU hMenu) const
 	//if (auto itGet = m_vpAllOpenMenus.find(hMenu); itGet != m_vpAllOpenMenus.end())
 	//	return itGet->second;
 
-	for (const auto& a : m_vpAllOpenMenus)
+	for (const auto& a : m_vpAllMenus)
 	{
 		if (hMenu == a.first)
 			return a.second;
@@ -1181,7 +1181,7 @@ XPopupMenuItem* XPopupMenuManager::_getMenuItemByID(_In_opt_ const HMENU hMenu, 
 	{
 		if (auto* p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
 		{
-			if (Dcx::XPopups.isItemValid(p_Item)) // Ook: no idea why this doesnt match?!?
+			if (Dcx::XPopups.isItemValid(p_Item))
 				return p_Item;
 		}
 	}
@@ -1342,7 +1342,7 @@ const bool XPopupMenuManager::isItemValid(_In_opt_ const XPopupMenuItem* const p
 	if (!pItem)
 		return false;
 
-	for (const auto& a : m_vpAllOpenMenus)
+	for (const auto& a : m_vpAllMenus)
 	{
 		if (const auto b = a.second; b)
 		{
