@@ -135,69 +135,20 @@ void XMenuBar::parseXMenuBarCommand(const TString& input)
 	DrawMenuBar(mIRCLinker::getHWND());
 }
 
-/*
- *
- */
- //void XMenuBar::parseXMenuBarInfo(const TString &input, TCHAR *const szReturnValue) const
- //{
- //	const auto prop(input.getfirsttok(1));
- //
- //	// Iterate through the names of menus added to XMenuBar.
- //	// N = 0 returns total number of menus
- //	// $xmenubar() [menu] [N]
- //	if (prop == TEXT("menu")) {
- //		const auto iSize = m_vpXMenuBar.size();
- //		const auto i = input.getnexttok().to_<VectorOfXPopupMenu::size_type>();	// tok 2
- //
- //		if (i > iSize)
- //			throw Dcx::dcxException(TEXT("Invalid index: %"), i);
- //
- //		// Return number of menus in menubar.
- //		if (i == 0)
- //			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), iSize);
- //		// Return name of specified menu.
- //		else
- //			dcx_strcpyn(szReturnValue, m_vpXMenuBar[i -1]->getName().to_chr(), MIRC_BUFFER_SIZE_CCH);
- //	}
- //}
-
 void XMenuBar::parseXMenuBarInfo(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
-	//const auto prop(input.getfirsttok(1));
-	//
-	//// Iterate through the names of menus added to XMenuBar.
-	//// N = 0 returns total number of menus
-	//// $xmenubar() [menu] [N]
-	//if (prop == TEXT("menu"))
-	//{
-	//	const auto iSize = m_vpXMenuBar.size();
-	//	const auto i = input.getnexttok().to_<VectorOfXPopupMenu::size_type>();	// tok 2
-	//
-	//	if (i > iSize)
-	//		throw Dcx::dcxException(TEXT("Invalid index: %"), i);
-	//
-	//	// Return number of menus in menubar.
-	//	if (i == 0)
-	//		_ts_snprintf(szReturnValue, TEXT("%u"), iSize);
-	//	// Return name of specified menu.
-	//	else
-	//		szReturnValue = gsl::at(m_vpXMenuBar, i - 1)->getName().to_chr();
-	//}
-	//else
-	//	throw Dcx::dcxException(TEXT("Unknown prop \"%\""), prop);
-
 	szReturnValue = parseXMenuBarInfo(input).to_chr();
 }
 
 TString XMenuBar::parseXMenuBarInfo(const TString& input) const
 {
 	TString tsRes;
-	const auto prop(input.getfirsttok(1));
-
+	switch (const auto prop(input.getfirsttok(1)); std::hash<TString>()(prop))
+	{
 	// Iterate through the names of menus added to XMenuBar.
 	// N = 0 returns total number of menus
-	// $xmenubar() [menu] [N]
-	if (prop == TEXT("menu"))
+		// $xmenubar([N]).menu
+	case L"menu"_hash:
 	{
 		const auto iSize = m_vpXMenuBar.size();
 		const auto i = input.getnexttok().to_<VectorOfXPopupMenu::size_type>();	// tok 2
@@ -212,9 +163,39 @@ TString XMenuBar::parseXMenuBarInfo(const TString& input) const
 		else
 			tsRes = gsl::at(m_vpXMenuBar, i - 1)->getName();
 	}
-	else
+	break;
+	// returns total number of menus added.
+	// $xmenubar().count
+	case L"count"_hash:
+	{
+		// Return number of menus in menubar.
+		tsRes += m_vpXMenuBar.size();
+	}
+	break;
+	// returns true/false if menu has been added.
+	// $xmenubar([menu]).ismenu
+	case L"ismenu"_hash:
+	{
+		const auto tsNameHash = std::hash<TString>()(input.getnexttok());
+		for (const auto& a : m_vpXMenuBar)
+		{
+			if (a->getNameHash() == tsNameHash)
+				return L"$true";
+		}
+		return L"$false";
+	}
+	break;
+	// returns the callback alias if any.
+	// $xmenubar().callback
+	case L"callback"_hash:
+	{
+		tsRes = m_callback;
+	}
+	break;
+	default:
 		throw Dcx::dcxException(TEXT("Unknown prop \"%\""), prop);
-
+		break;
+	}
 	return tsRes;
 }
 
@@ -350,8 +331,8 @@ void XMenuBar::validateMenu(const XPopupMenu* const menu, const TString& name)
 		throw Dcx::dcxException(TEXT("Cannot find menu \"%\"."), name);
 
 	// Prevent users from adding special menus.
-	if ((menu == Dcx::XPopups.getmIRCPopup()) || (menu == Dcx::XPopups.getmIRCMenuBar()))
-		throw Dcx::dcxException("Cannot add \"mirc\" or \"mircbar\" menus.");
+	if ((menu == Dcx::XPopups.getmIRCPopup()) || (menu == Dcx::XPopups.getmIRCMenuBar()) || (menu == Dcx::XPopups.getmIRCScriptMenu()))
+		throw Dcx::dcxException("Cannot add \"mirc\" or \"mircbar\" or \"scriptpopup\" menus.");
 }
 
 /*
