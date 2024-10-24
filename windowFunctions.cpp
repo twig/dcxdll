@@ -958,14 +958,15 @@ void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, con
 
 	RECT rc = *rcBox;
 
+	InflateRect(&rc, 0, -1);
+	rc.left += 1;
+	rc.right = rc.left + rc.bottom - rc.top;
+
+	if (getCheckBoxBkgColour(lpcol, dState) != getCheckBoxFrameColour(lpcol, dState))
 	{
 		// draw tick box
 		const auto hOldPenBorder = SelectObject(hDC, hPenBorder);
 		Auto(SelectObject(hDC, hOldPenBorder));
-
-		InflateRect(&rc, 0, -1);
-		rc.left += 1;
-		rc.right = rc.left + rc.bottom - rc.top;
 
 		if (bRounded)
 		{
@@ -1048,14 +1049,15 @@ void dcxDrawRadioBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, con
 
 	InflateRect(&rc, -5, -5);
 
+	InflateRect(&rc, 0, -1);
+	rc.left += 1;
+	rc.right = rc.left + rc.bottom - rc.top;
+
+	if (getCheckBoxBkgColour(lpcol, dState) != getCheckBoxFrameColour(lpcol, dState))
 	{
 		// draw tick box
 		const auto hOldPenBorder = SelectObject(hDC, hPenBorder);
 		Auto(SelectObject(hDC, hOldPenBorder));
-
-		InflateRect(&rc, 0, -1);
-		rc.left += 1;
-		rc.right = rc.left + rc.bottom - rc.top;
 
 		if (bRounded)
 		{
