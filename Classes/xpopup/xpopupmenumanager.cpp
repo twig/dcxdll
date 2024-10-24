@@ -380,7 +380,6 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 		}
 
 		m_bIsSysMenu = false;
-		//XPopupMenuManager::m_isInitPopup = true;
 		return lRes;
 	}
 	else
@@ -389,7 +388,7 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_INITMENUPOPUP, wParam, lParam);
 }
 
-LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam)
+LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
 	auto menu = reinterpret_cast<HMENU>(wParam);
 
@@ -400,7 +399,6 @@ LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM l
 	if (m_bIsMenuBar && !m_bIsSysMenu && m_bIsActiveMircMenubarPopup)
 		m_mIRCMenuBar->deleteAllItemData(menu);
 
-	if (m_vpAllMenus.contains(menu))
 		m_vpAllMenus.erase(menu);
 
 	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_UNINITMENUPOPUP, wParam, lParam);

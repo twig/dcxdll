@@ -180,7 +180,7 @@ public:
 	// following methods are called by dcx's mIRC WinProc
 
 	LRESULT OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam);
-	LRESULT OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 	LRESULT OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 	LRESULT OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 
