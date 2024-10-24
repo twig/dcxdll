@@ -20,7 +20,6 @@
 #include "xpopup/xpopupmenu.h"
 #include "layout/layoutmanager.h"
 #include <map>
-#include "xpopup/UAHMenuBar.h"
 
 #define DBS_BKGCOLOR	0x00000001 //!< Control Background Color
 #define DBS_BKGBITMAP	0x00000002 //!< Control Background Bitmap
@@ -160,8 +159,9 @@ public:
 	void setFocusControl(const UINT mUID);
 
 #if DCX_CUSTOM_MENUS
-	void UAHDrawMenuNCBottomLine(HWND hWnd) const noexcept;
-	void UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept;
+	//void UAHDrawMenuNCBottomLine(HWND hWnd) const noexcept;
+	//void UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept;
+	//void UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept;
 #endif
 
 	/// <summary>

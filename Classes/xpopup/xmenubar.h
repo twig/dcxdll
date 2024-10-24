@@ -54,6 +54,8 @@ public:
 	const bool hasCallback() const noexcept;
 	const bool parseCallback(const UINT menuID);
 
+	XPMENUBAR m_Settings;
+
 protected:
 	VectorOfXPopupMenu m_vpXMenuBar; //!< Vector of XPopupMenu objects added to the menubar.
 	TString m_callback;

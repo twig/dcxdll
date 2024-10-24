@@ -263,6 +263,13 @@ struct XPMENUBAR
 			m_ItemSettings[id] = item;
 		}
 	}
+
+	void UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept;
+	void UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept;
+	void UAHDrawMenuNCBottomLine(HWND hWnd) const noexcept;
+
+	// [+FLAGS] [ARGS]
+	void Setup(HWND mHwnd, const XSwitchFlags &xflags, TString tsArgs);
 };
 
 using VectorOfGroupIDs = VectorOfInts;
@@ -564,7 +571,7 @@ private:
 	void xpop_T(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
 
 	HMENU AddSubMenu();
-	void DeleteSubMenu(HMENU hSubMenu);
+	void DeleteSubMenu(HMENU hSubMenu) noexcept;
 
 protected:
 

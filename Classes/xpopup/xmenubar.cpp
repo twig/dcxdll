@@ -130,7 +130,15 @@ void XMenuBar::parseXMenuBarCommand(const TString& input)
 		Dcx::XPopups.TriggerMenuCommand(mIRCLinker::getHWND(), menuName.to_<UINT>());
 		return;
 	}
+	// xmenubar [-p] [+FLAGS] [ARGS]
+	else if (flags[TEXT('p')])
+	{
+		if (numtok < 2)
+			throw DcxExceptions::dcxInvalidArguments();
 
+		const XSwitchFlags xflags(menuName);
+		m_Settings.Setup(mIRCLinker::getHWND(), xflags, input.getlasttoks());
+	}
 	// Force redraw so the updates are shown.
 	DrawMenuBar(mIRCLinker::getHWND());
 }
@@ -145,8 +153,8 @@ TString XMenuBar::parseXMenuBarInfo(const TString& input) const
 	TString tsRes;
 	switch (const auto prop(input.getfirsttok(1)); std::hash<TString>()(prop))
 	{
-	// Iterate through the names of menus added to XMenuBar.
-	// N = 0 returns total number of menus
+		// Iterate through the names of menus added to XMenuBar.
+		// N = 0 returns total number of menus
 		// $xmenubar([N]).menu
 	case L"menu"_hash:
 	{
@@ -230,26 +238,7 @@ void XMenuBar::removeFromMenuBar(HMENU menubar, const XPopupMenu* const p_Menu) 
 	}
 
 	// Remove the menu from the vector list.
-	{
-		//auto itStart = this->m_vpXMenuBar.begin();
-		//auto itEnd = this->m_vpXMenuBar.end();
-		//
-		//while (itStart != itEnd) {
-		//	if (*itStart == p_Menu) {
-		//		this->m_vpXMenuBar.erase(itStart);
-		//		break;
-		//	}
-		//
-		//	++itStart;
-		//}
-
-		//const auto itEnd = m_vpXMenuBar.end();
-		//const auto itGot = std::find(m_vpXMenuBar.begin(), itEnd, p_Menu);
-		//if (itGot != itEnd)
-		//	m_vpXMenuBar.erase(itGot);
-
-		Dcx::eraseIfFound(m_vpXMenuBar, p_Menu);
-	}
+	Dcx::eraseIfFound(m_vpXMenuBar, p_Menu);
 
 	if (const auto offset = findMenuOffset(menubar, p_Menu); offset > 0)
 		RemoveMenu(menubar, gsl::narrow_cast<UINT>(offset), MF_BYPOSITION);
@@ -264,7 +253,7 @@ const int XMenuBar::findMenuOffset(HMENU menubar, const XPopupMenu* const p_Menu
 {
 	MENUITEMINFO mii{};
 	int offset = 0;					// Use 1 because 0 = the menubar itself when using GetMenuBarInfo()
-									// Changed to 0 to allow pre-increment within while()
+	// Changed to 0 to allow pre-increment within while()
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fMask = MIIM_SUBMENU;
 

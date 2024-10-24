@@ -513,6 +513,48 @@ namespace Dcx {
 			break;
 		}
 #if DCX_CUSTOM_MENUS
+		case WM_UAHDRAWMENU:
+		{
+			if (!XMenubar.m_Settings.m_bEnable)
+				break;
+
+			auto pUDM = reinterpret_cast<UAHMENU*>(lParam);
+			if (!pUDM)
+				break;
+			if (!pUDM->hdc)
+				break;
+
+			XMenubar.m_Settings.UAHDrawMenuBar(mHwnd, pUDM);
+			return 0L;
+		}
+		break;
+
+		case WM_UAHDRAWMENUITEM:
+		{
+			if (!XMenubar.m_Settings.m_bEnable)
+				break;
+
+			auto pUDMI = reinterpret_cast<UAHDRAWMENUITEM*>(lParam);
+			if (!pUDMI)
+				break;
+			if (!pUDMI->um.hdc)
+				break;
+
+			XMenubar.m_Settings.UAHDrawMenuBarItem(mHwnd, pUDMI);
+			return 0L;
+		}
+		break;
+		case WM_NCPAINT:
+		case WM_NCACTIVATE:
+		{
+			if (!XMenubar.m_Settings.m_bEnable)
+				break;
+
+			const auto lRes = mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
+			XMenubar.m_Settings.UAHDrawMenuNCBottomLine(mHwnd);
+			return lRes;
+		}
+		break;
 #endif
 		default:
 			break;
