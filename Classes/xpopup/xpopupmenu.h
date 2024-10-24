@@ -18,6 +18,7 @@
 
 #include "defines.h"
 #include "Classes/xpopup/xpopupmenuitem.h"
+#include "UAHMenuBar.h"
 
 // uncomment this to enable using unique_ptr
 //#define XPOPUP_USE_UNIQUEPTR 1
@@ -26,6 +27,25 @@ constexpr auto XPS_ICON3D = 0x01; //!< Icons have a 3D effect
 constexpr auto XPS_DISABLEDSEL = 0x02; //!< Disabled Items have a selectionbox
 constexpr auto XPS_ICON3DSHADOW = 0x04; //!< Icons have a 3D effect with undershadow
 constexpr auto XPS_DOUBLESEP = 0x08; //!< Seperator items have a double line.
+
+enum class MainMenuStyle : UINT
+{
+	XPMS_None,
+	XPMS_OFFICE2003,
+	XPMS_OFFICE2003_REV,
+	XPMS_OFFICEXP,
+	XPMS_ICY,
+	XPMS_ICY_REV,
+	XPMS_GRADE,
+	XPMS_GRADE_REV,
+	XPMS_NORMAL,
+	XPMS_CUSTOM,
+	XPMS_VERTICAL,
+	XPMS_VERTICAL_REV,
+	XPMS_BUTTON,
+	XPMS_BUTTON_REV,
+	XPMS_CUSTOMBIG
+};
 
 struct XPMENUBARCOLORS final
 {
@@ -156,10 +176,14 @@ struct XPMENUBAR
 {
 	HTHEME m_menuTheme{};
 
+	HMENU m_hMenuBackup{};
+
 	bool m_bEnable{ false };						// Custom draw the dialogs menu bar.
 	bool m_bDrawBorder{ false };					// draw border sound item?
 	bool m_bDrawRoundedBorder{ false };				// draw rounded border?
 	bool m_bDrawShadowText{ false };				// draw text with shadows?
+	MainMenuStyle m_Style{ MainMenuStyle::XPMS_None };
+
 	XPMENUBARITEM m_Default;						// colours for whole menubar (overridden by m_ItemSettings)
 	std::map<int, XPMENUBARITEM> m_ItemSettings;	// item specific colour settings.
 
@@ -167,10 +191,11 @@ struct XPMENUBAR
 
 	bool operator==(const XPMENUBAR& other) const = default;
 
-	XPMENUBAR(bool m_bEnable, bool m_bDrawBorder, bool m_bDrawRoundedBorder, bool m_bDrawShadowText, const XPMENUBARITEM& m_Default, const std::map<int, XPMENUBARITEM>& m_ItemSettings)
-		: m_bEnable(m_bEnable), m_bDrawBorder(m_bDrawBorder), m_bDrawRoundedBorder(m_bDrawRoundedBorder), m_bDrawShadowText(m_bDrawShadowText), m_Default(m_Default), m_ItemSettings(m_ItemSettings)
+	XPMENUBAR(const HTHEME& m_menuTheme, const HMENU& m_hMenuBackup, bool m_bEnable, bool m_bDrawBorder, bool m_bDrawRoundedBorder, bool m_bDrawShadowText, const MainMenuStyle& m_Style, const XPMENUBARITEM& m_Default, const std::map<int, XPMENUBARITEM>& m_ItemSettings)
+		: m_menuTheme(m_menuTheme), m_hMenuBackup(m_hMenuBackup), m_bEnable(m_bEnable), m_bDrawBorder(m_bDrawBorder), m_bDrawRoundedBorder(m_bDrawRoundedBorder), m_bDrawShadowText(m_bDrawShadowText), m_Style(m_Style), m_Default(m_Default), m_ItemSettings(m_ItemSettings)
 	{
 	}
+
 	void toXml(TiXmlElement* xml) const
 	{
 		if (!xml)
@@ -271,26 +296,28 @@ public:
 	/*!
 	* \brief Menu Styles
 	*
-	* Availbale XPopupMenu Styles
+	* Available XPopupMenu Styles
 	*/
-	enum class MenuStyle : UINT
-	{
-		XPMS_None,
-		XPMS_OFFICE2003,
-		XPMS_OFFICE2003_REV,
-		XPMS_OFFICEXP,
-		XPMS_ICY,
-		XPMS_ICY_REV,
-		XPMS_GRADE,
-		XPMS_GRADE_REV,
-		XPMS_NORMAL,
-		XPMS_CUSTOM,
-		XPMS_VERTICAL,
-		XPMS_VERTICAL_REV,
-		XPMS_BUTTON,
-		XPMS_BUTTON_REV,
-		XPMS_CUSTOMBIG
-	};
+	using MenuStyle = MainMenuStyle;
+
+	//enum class MenuStyle : UINT
+	//{
+	//	XPMS_None,
+	//	XPMS_OFFICE2003,
+	//	XPMS_OFFICE2003_REV,
+	//	XPMS_OFFICEXP,
+	//	XPMS_ICY,
+	//	XPMS_ICY_REV,
+	//	XPMS_GRADE,
+	//	XPMS_GRADE_REV,
+	//	XPMS_NORMAL,
+	//	XPMS_CUSTOM,
+	//	XPMS_VERTICAL,
+	//	XPMS_VERTICAL_REV,
+	//	XPMS_BUTTON,
+	//	XPMS_BUTTON_REV,
+	//	XPMS_CUSTOMBIG
+	//};
 
 	// Menu Colors
 	/*
