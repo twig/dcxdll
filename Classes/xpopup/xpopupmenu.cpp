@@ -70,7 +70,6 @@ XPopupMenu::~XPopupMenu()
 	//if (this->m_hBitmap)
 	//	DeleteBitmap(this->m_hBitmap);
 
-	if (XPopupMenuManager::m_vpAllMenus.contains(m_hMenu))
 		XPopupMenuManager::m_vpAllMenus.erase(m_hMenu);
 
 	//if (m_hMenu && m_menuNameHash != TEXT("mircbar"_hash) && m_menuNameHash != TEXT("dialog"_hash))
@@ -1980,7 +1979,7 @@ HMENU XPopupMenu::AddSubMenu()
 	return hSubMenu;
 }
 
-void XPopupMenu::DeleteSubMenu(HMENU hSubMenu)
+void XPopupMenu::DeleteSubMenu(HMENU hSubMenu) noexcept
 {
 	if (!hSubMenu)
 		return;
@@ -1988,7 +1987,6 @@ void XPopupMenu::DeleteSubMenu(HMENU hSubMenu)
 	this->deleteAllItemData(hSubMenu);
 	DestroyMenu(hSubMenu);
 
-	if (XPopupMenuManager::m_vpAllMenus.contains(hSubMenu))
 		XPopupMenuManager::m_vpAllMenus.erase(hSubMenu);
 }
 
