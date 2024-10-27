@@ -383,11 +383,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 			DcxDock::g_wid = DcxDock::getTreebarItemWID(pitem->lParam);
 			TString buf(DcxDock::getTreebarItemType(pitem->lParam));
 
-			// <item type> <item pointer> <data1> <data2>
-			//mIRCLinker::evalex(nullptr, 0, TEXT("$xtreebar_callback(setitem,%s,%ld,%d,%d)"), buf.to_chr(), pitem->hItem, LOWORD(pitem->lParam), HIWORD(pitem->lParam));
 			// <item type> <wid> <status>
-			//mIRCLinker::evalex(nullptr, 0, TEXT("$xtreebar_callback(setitem,%s,%d,%s)"), buf.to_chr(), HIWORD(pitem->lParam), dcx_testflag(LOWORD(pitem->lParam), 256) ? TEXT("selected") : TEXT("deselected"));
-
 			constexpr TCHAR sSel[] = TEXT("selected");
 			constexpr TCHAR sDeSel[] = TEXT("deselected");
 			mIRCLinker::eval(nullptr, TEXT("$xtreebar_callback(setitem,%,%,%)"), buf, Dcx::dcxHIWORD(pitem->lParam), dcx_testflag(Dcx::dcxLOWORD(pitem->lParam), 256) ? &sSel[0] : &sDeSel[0]);
@@ -410,9 +406,6 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 		{
 			DcxDock::g_wid = DcxDock::getTreebarItemWID(pTvis->itemex.lParam);
 			TString buf(DcxDock::getTreebarItemType(pTvis->itemex.lParam));
-
-			//mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_%d %s"), pTvis->itemex.lParam, pTvis->itemex.pszText);
-			//mIRCLinker::tsEvalex(buf, TEXT("$xtreebar_callback(geticons,%s,%%dcx_%d)"), buf.to_chr(), pTvis->itemex.lParam);
 
 			mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), pTvis->itemex.lParam, pTvis->itemex.pszText);
 			mIRCLinker::eval(buf, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), buf, pTvis->itemex.lParam);
@@ -617,20 +610,6 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 							lpntvcd->clrTextBk = GetSysColor(COLOR_HIGHLIGHT);
 					}
 					else {
-						//HTREEITEM hItem = (HTREEITEM)lpntvcd->nmcd.dwItemSpec;
-						//TVITEMEX tvi;
-						//ZeroMemory(&tvi, sizeof(tvi));
-						//tvi.mask = TVIF_CHILDREN|TVIF_STATE;
-						//tvi.hItem = hItem;
-						//tvi.stateMask = TVIS_EXPANDED;
-						//
-						//if (TreeView_GetItem(lpntvcd->nmcd.hdr.hwndFrom, &tvi))
-						//{
-						//	if (tvi.cChildren && !(tvi.state & TVIS_EXPANDED)) { // has children & not expanded
-						//		DcxDock::getTreebarChildState(hItem, &tvi);
-						//	}
-						//}
-
 						TString buf;
 
 						if (const auto wid = DcxDock::getTreebarItemWID(lpntvcd->nmcd.lItemlParam); wid > 0)
@@ -638,15 +617,6 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 
 						if (!buf.empty())
 						{
-							//static const TString sbcolor(TEXT("s s message s event s highlight")); // 's' is used as a spacer.
-							//const auto clr = sbcolor.findtok(buf, 1U);
-							//if ((clr == 0) || (clr >= Dcx::countof(DcxDock::g_clrTreebarColours))) // no match, do normal colours
-							//	break;
-							//if (DcxDock::g_clrTreebarColours[clr - 1] != CLR_INVALID) // text colour
-							//	lpntvcd->clrText = DcxDock::g_clrTreebarColours[clr - 1];
-							//if (DcxDock::g_clrTreebarColours[clr] != CLR_INVALID) // bkg colour
-							//	lpntvcd->clrTextBk = DcxDock::g_clrTreebarColours[clr];
-
 							COLORREF cText = CLR_INVALID, cBkg = CLR_INVALID;
 							switch (std::hash<TString>{}(buf))
 							{
@@ -673,10 +643,14 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 								lpntvcd->clrTextBk = cBkg;
 						}
 					}
-					return CDRF_NEWFONT;
+					// This fixes the dcc progress & custom window -qS:P not showing in treebar
+					return CallWindowProc(pthis->m_OldDockWndProc, mHwnd, uMsg, wParam, lParam);
+					//return CDRF_NEWFONT;
 				}
 				default:
-					return CDRF_DODEFAULT;
+					// This fixes the dcc progress & custom window -qS:P not showing in treebar
+					return CallWindowProc(pthis->m_OldDockWndProc, mHwnd, uMsg, wParam, lParam);
+					//return CDRF_DODEFAULT;
 				}
 			}
 			break;
@@ -700,9 +674,6 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					{
 						DcxDock::g_wid = DcxDock::getTreebarItemWID(item.lParam);
 						const TString tsType(DcxDock::getTreebarItemType(item.lParam));
-
-						//mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_%d %s"), item.lParam, item.pszText); // <- had wrong args causing instant crash when showing tooltips
-						//mIRCLinker::tsEvalex(buf, TEXT("$xtreebar_callback(gettooltip,%s,%%dcx_%d)"), tsType.to_chr(), item.lParam);
 
 						mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), item.lParam, item.pszText); // <- had wrong args causing instant crash when showing tooltips
 						mIRCLinker::eval(buf, TEXT("$xtreebar_callback(gettooltip,%,\\%dcx_%)"), tsType, item.lParam);
