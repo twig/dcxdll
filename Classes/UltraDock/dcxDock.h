@@ -197,19 +197,20 @@ public:
 	//static UINT getTreebarChildState(const HTREEITEM hParent, LPTVITEMEX pitem);
 
 	// statusbar stuff
-	static HWND g_StatusBar; //!< The Statusbar for the main mIRC window.
-	static HIMAGELIST g_hImageList; //!< The Statusbar's image list.
-	static INT g_iDynamicParts[SB_MAX_PARTSD];
-	static INT g_iFixedParts[SB_MAX_PARTSD];
-	static HFONT g_StatusFont; //!< Statusbar font.
-	static VectorOfDParts g_vParts;	//!< Parts info for ownerdraw parts.
+	static inline HWND g_StatusBar{}; //!< The Statusbar for the main mIRC window.
+	static inline HIMAGELIST g_hImageList{}; //!< The Statusbar's image list.
+	static inline INT g_iDynamicParts[SB_MAX_PARTSD]{};
+	static inline INT g_iFixedParts[SB_MAX_PARTSD]{};
+	static inline HFONT g_StatusFont{}; //!< Statusbar font.
+	static inline VectorOfDParts g_vParts;	//!< Parts info for ownerdraw parts.
 	// treebar stuff
-	static bool g_bTakeOverTreebar; //!< take over the drawing of the treebar from mIRC.
+	static inline bool g_bTakeOverTreebar{}; //!< take over the drawing of the treebar from mIRC.
+
 	// 0 = selected, 1 = selected bkg, 2 = message, 3 = message bkg
 	// 4 = event, 5 = event bkg, 6 = highlight, 7 = highlight bkg
-	static COLORREF g_clrTreebarColours[gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MAX) + 1];
-	// currently active wid for the callback alias
-	static WORD g_wid;
+	static inline COLORREF g_clrTreebarColours[gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MAX) + 1]{ CLR_INVALID };
+
+	static inline WORD g_wid{};	// currently active wid for the callback alias
 
 protected:
 	static LRESULT CALLBACK mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

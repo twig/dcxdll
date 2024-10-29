@@ -8,17 +8,17 @@
 #include "Dcx.h"
 
 // statusbar stuff
-HWND DcxDock::g_StatusBar{ nullptr };
-HIMAGELIST DcxDock::g_hImageList{ nullptr };
-INT DcxDock::g_iDynamicParts[SB_MAX_PARTSD] = { 0 };
-INT DcxDock::g_iFixedParts[SB_MAX_PARTSD] = { 0 };
-HFONT DcxDock::g_StatusFont{ nullptr };
-VectorOfDParts DcxDock::g_vParts;
+//HWND DcxDock::g_StatusBar{ nullptr };
+//HIMAGELIST DcxDock::g_hImageList{ nullptr };
+//INT DcxDock::g_iDynamicParts[SB_MAX_PARTSD] = { 0 };
+//INT DcxDock::g_iFixedParts[SB_MAX_PARTSD] = { 0 };
+//HFONT DcxDock::g_StatusFont{ nullptr };
+//VectorOfDParts DcxDock::g_vParts;
 
 // treebar stuff
-bool DcxDock::g_bTakeOverTreebar{ false };
-COLORREF DcxDock::g_clrTreebarColours[gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MAX) + 1] = { CLR_INVALID };
-WORD DcxDock::g_wid{};
+//bool DcxDock::g_bTakeOverTreebar{ false };
+//COLORREF DcxDock::g_clrTreebarColours[gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MAX) + 1] = { CLR_INVALID };
+//WORD DcxDock::g_wid{};
 
 DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType) noexcept
 	: m_OldRefWndProc(nullptr)
@@ -663,12 +663,10 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 
 					TString buf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
 					TVITEMEX item{};
-					//ZeroMemory(&item, sizeof(item));
 
 					item.hItem = tcgit->hItem;
 					item.pszText = buf.to_chr();
 					item.cchTextMax = MIRC_BUFFER_SIZE_CCH;
-					//item.mask = TVIF_TEXT;
 					item.mask = TVIF_TEXT | TVIF_PARAM;
 					if (Dcx::dcxTreeView_GetItem(mIRCLinker::getTreeview(), &item))
 					{
@@ -703,32 +701,6 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 
 			const auto idPart = (reinterpret_cast<LPNMMOUSE>(hdr))->dwItemSpec + 1;
 
-			//switch( hdr->code ) {
-			//	case NM_CLICK:
-			//		{
-			//			mIRCLinker::signalex(dcxSignal.xstatusbar, TEXT("DCXStatusbar sclick %u %u"), hdr->hwndFrom, idPart);
-			//			return TRUE;
-			//		}
-			//		break;
-			//	case NM_DBLCLK:
-			//		{
-			//			mIRCLinker::signalex(dcxSignal.xstatusbar, TEXT("DCXStatusbar dclick %u %u"), hdr->hwndFrom, idPart);
-			//			return TRUE;
-			//		}
-			//		break;
-			//	case NM_RCLICK:
-			//		{
-			//			mIRCLinker::signalex(dcxSignal.xstatusbar, TEXT("DCXStatusbar rclick %u %u"), hdr->hwndFrom, idPart);
-			//			return TRUE;
-			//		}
-			//		break;
-			//	case NM_RDBLCLK:
-			//		{
-			//			mIRCLinker::signalex(dcxSignal.xstatusbar, TEXT("DCXStatusbar rdclick %u %u"), hdr->hwndFrom, idPart);
-			//			return TRUE;
-			//		}
-			//		break;
-			//}
 			switch (hdr->code)
 			{
 			case NM_CLICK:
@@ -790,28 +762,6 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 
 				if (!pPart->m_Text.empty())
 				{
-					//COLORREF oldTxtClr = CLR_INVALID;
-					//if (pPart->m_TxtCol != CLR_INVALID)
-					//	oldTxtClr = SetTextColor(lpDrawItem->hDC, pPart->m_TxtCol);
-					//
-					//const auto oldbkg = SetBkMode(lpDrawItem->hDC, TRANSPARENT);
-					//
-					//mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
-					//
-					//SetBkMode(lpDrawItem->hDC, oldbkg);
-					//if (oldTxtClr != CLR_INVALID)
-					//	SetTextColor(lpDrawItem->hDC, oldTxtClr);
-
-					//const auto oldTxtClr = GetTextColor(lpDrawItem->hDC);
-					//if (pPart->m_TxtCol != CLR_INVALID)
-					//	SetTextColor(lpDrawItem->hDC, pPart->m_TxtCol);
-					//Auto(SetTextColor(lpDrawItem->hDC, oldTxtClr));
-					//
-					//const auto oldbkg = SetBkMode(lpDrawItem->hDC, TRANSPARENT);
-					//Auto(SetBkMode(lpDrawItem->hDC, oldbkg));
-					//
-					//mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
-
 					const auto oldbkg = SetBkMode(lpDrawItem->hDC, TRANSPARENT);
 					Auto(SetBkMode(lpDrawItem->hDC, oldbkg));
 
