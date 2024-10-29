@@ -37,6 +37,10 @@ public:
 	LayoutManager() = default;
 	~LayoutManager() = default;
 
+	/// <summary>
+	/// Constructor to handle the CLA for a specified window.
+	/// </summary>
+	/// <param name="mHwnd"></param>
 	explicit LayoutManager( HWND mHwnd ) noexcept;
 
 	LayoutManager(const LayoutManager &) = delete;
@@ -44,19 +48,68 @@ public:
 	LayoutManager(LayoutManager &&) = delete;
 	LayoutManager &operator =(LayoutManager &&) = delete;
 
+	/// <summary>
+	/// Update the CLA
+	/// </summary>
+	/// <param name="rc"></param>
+	/// <returns></returns>
 	const bool updateLayout(RECT & rc);
 
+	/// <summary>
+	/// Set the root cell.
+	/// </summary>
+	/// <param name="p_Root"></param>
 	void setRoot(std::unique_ptr<LayoutCell> p_Root) noexcept;
+
+	/// <summary>
+	/// Get the root cell.
+	/// </summary>
+	/// <returns></returns>
 	LayoutCell * getRoot() const noexcept { return m_pRoot.get(); }
 
+	/// <summary>
+	/// Get a cell based on a supplied path.
+	/// </summary>
+	/// <param name="path"></param>
+	/// <returns>The LayoutCell requested or nullptr</returns>
 	LayoutCell * getCell( const TString & path ) const;
 
+	/// <summary>
+	/// Add a LayoutCell.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="iOffset"></param>
+	/// <param name="dialog"></param>
 	void AddCell(const TString &input, const UINT iOffset = 3, const DcxDialog * dialog = nullptr);
 
+	/// <summary>
+	/// Get the number of cells.
+	/// </summary>
+	/// <param name=""></param>
+	/// <returns></returns>
 	inline constexpr const size_t &size(void) const noexcept { return m_iCount; }
+
+	/// <summary>
+	/// Is the root cell set?
+	/// </summary>
+	/// <param name=""></param>
+	/// <returns>true/false</returns>
 	inline bool empty(void) const noexcept { return (m_pRoot == nullptr); }
 
+	/// <summary>
+ 	/// Get a cell based on a supplied path.
+	/// </summary>
+	/// <param name="path"></param>
+	/// <param name="hParent"></param>
+	/// <param name="depth"></param>
+	/// <returns></returns>
 	static LayoutCell * parsePath(const TString & path, const LayoutCell *const hParent, const UINT depth);
+
+	/// <summary>
+	/// Convert a flags string into CLATypes
+	/// </summary>
+	/// <param name="flags"></param>
+	/// <returns></returns>
 	static const CLATypes parseLayoutFlags(const TString & flags) noexcept;
 
 	// this is here for reference only

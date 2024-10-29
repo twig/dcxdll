@@ -14,43 +14,10 @@
 #include "defines.h"
 #include "layoutmanager.h"
 
- /*!
-  * \brief Constructor
-  *
-  * blah
-  */
-
-  //LayoutManager::LayoutManager()
-  //: LayoutManager(nullptr)
-  //{
-  //}
-
-  /*!
-   * \brief Constructor
-   *
-   * blah
-   */
-
 LayoutManager::LayoutManager(HWND mHwnd) noexcept
 	: m_Hwnd(mHwnd)
 {
 }
-
-/*!
- * \brief Destructor
- *
- * blah
- */
-
- //LayoutManager::~LayoutManager() {
- //
- //}
-
- /*!
-  * \brief blah
-  *
-  * blah
-  */
 
 const bool LayoutManager::updateLayout(RECT& rc)
 {
@@ -90,12 +57,6 @@ const bool LayoutManager::updateLayout(RECT& rc)
 	return (EndDeferWindowPos(m_pRoot->ExecuteLayout(BeginDeferWindowPos(gsl::narrow_cast<int>(m_iCount)))) != FALSE);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void LayoutManager::setRoot(std::unique_ptr<LayoutCell> p_Root) noexcept
 {
 	// clean memory in case we use more than once
@@ -105,33 +66,10 @@ void LayoutManager::setRoot(std::unique_ptr<LayoutCell> p_Root) noexcept
 	m_pRoot = std::move(p_Root);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
- //LayoutCell * LayoutManager::getRoot() const noexcept {
- //
- //	return m_pRoot;
- //}
-
- /*!
-  * \brief blah
-  *
-  * blah
-  */
-
 LayoutCell* LayoutManager::getCell(const TString& path) const
 {
 	return parsePath(path, m_pRoot.get(), 1);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 LayoutCell* LayoutManager::parsePath(const TString& path, const LayoutCell* const hParent, const UINT depth)
 {
