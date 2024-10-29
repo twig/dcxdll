@@ -7,7 +7,6 @@
 
 GSL_SUPPRESS(type.4)
 static void TraverseChildren(const HTREEITEM hParent, TString& buf, TString& res, LPTVITEMEX pitem)
-//static void TraverseChildren(const HTREEITEM hParent)
 {
 	if (!hParent || !pitem)
 		return;
