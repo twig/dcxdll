@@ -15,35 +15,17 @@
 #include "layoutcellpane.h"
 #include <windowsx.h>
 
- /*!
-  * \brief Constructor
-  *
-  * blah
-  */
-
 LayoutCellPane::LayoutCellPane(const PaneType nType) noexcept
 	: LayoutCell()
 	, m_nType(nType)
 {
 }
 
-/*!
- * \brief Destructor
- *
- * blah
- */
-
 LayoutCellPane::~LayoutCellPane() noexcept
 {
 	for (const auto& x : m_vpCells)
 		delete x.first;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 LayoutCell* LayoutCellPane::addChild(gsl::owner<LayoutCell*> p_Cell, const UINT nWeight)
 {
@@ -68,24 +50,12 @@ LayoutCell* LayoutCellPane::addChild(gsl::owner<LayoutCell*> p_Cell, const UINT 
 	return p_Cell;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 const LayoutCell::CellType LayoutCellPane::getType() const noexcept
 {
 	return CellType::PANE;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
-void LayoutCellPane::LayoutChild()
+void LayoutCellPane::LayoutChild() noexcept
 {
 	UINT nSizeLeft = 0;
 	UINT nTotalWeight = 0;
@@ -108,12 +78,6 @@ void LayoutCellPane::LayoutChild()
 			x.first->LayoutChild();
 	}
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 HDWP LayoutCellPane::ExecuteLayout(const HDWP hdwp)
 {
@@ -305,7 +269,7 @@ void LayoutCellPane::AdjustSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 		{
 			rectNew.right += nAddSize;
 			pChild->setRect(rectNew);
-			pChild->getRect(rectNew);
+			rectNew = pChild->getRect();
 
 			if (rectOld.right != rectNew.right)
 			{
@@ -322,7 +286,7 @@ void LayoutCellPane::AdjustSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 		else {
 			rectNew.bottom += nAddSize;
 			pChild->setRect(rectNew);
-			pChild->getRect(rectNew);
+			rectNew = pChild->getRect();
 
 			if (rectOld.bottom != rectNew.bottom)
 			{

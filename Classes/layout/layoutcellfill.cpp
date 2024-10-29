@@ -100,12 +100,6 @@ HDWP LayoutCellFill::ExecuteLayout(const HDWP hdwp) noexcept
 	return hdwpdef;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void LayoutCellFill::getMinMaxInfo(CellMinMaxInfo* const pCMMI) const noexcept
 {
 	if (!pCMMI)

@@ -48,11 +48,6 @@ class LayoutCell
 {
 public:
 
-	/*!
-	* \brief blah
-	*
-	* blah
-	*/
 	enum class CellType
 		: UINT
 	{
@@ -73,17 +68,15 @@ public:
 
 	virtual ~LayoutCell() noexcept {};
 
-	void setRect(RECT& rc) noexcept;
-	void getRect(RECT& rc) const noexcept;
+	bool setRect(RECT& rc) noexcept;
 	const RECT& getRect() const noexcept;
-	void getClientRect(RECT& rc) const noexcept;
 	RECT getClientRect() const noexcept;
 	void setBorder(const RECT& rc) noexcept;
 	void setBorder(const int& nBorder) noexcept;
 	void getBorder(RECT& rc) const noexcept;
 	const RECT& getBorder() const noexcept;
 
-	virtual void LayoutChild() = 0;
+	virtual void LayoutChild() noexcept = 0;
 	virtual HDWP ExecuteLayout(const HDWP hdwp) = 0;
 	virtual void getMinMaxInfo(CellMinMaxInfo* const pCMMI) const noexcept = 0;
 	virtual void toXml(TiXmlElement* const xml) = 0;

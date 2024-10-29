@@ -14,23 +14,11 @@
 #include "layoutcellfixed.h"
 #include <windowsx.h>
 
- /*!
-  * \brief Constructor
-  *
-  * blah
-  */
-
 LayoutCellFixed::LayoutCellFixed(DcxControl * dcxc, const FixedType nType) noexcept
 	: LayoutCell(dcxc)
 	, m_nType(nType)
 {
 }
-
-/*!
- * \brief Constructor
- *
- * blah
- */
 
 LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const FixedType nType) noexcept
 	: LayoutCell(mHwnd)
@@ -38,23 +26,11 @@ LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const FixedType nType) noexce
 {
 }
 
-/*!
- * \brief Constructor
- *
- * blah
- */
-
 LayoutCellFixed::LayoutCellFixed(const RECT & rc, const FixedType nType) noexcept
 	: LayoutCell(nullptr, rc)
 	, m_nType(nType)
 {
 }
-
-/*!
- * \brief Constructor
- *
- * blah
- */
 
 LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedType nType) noexcept
 	: LayoutCell(mHwnd, rc)
@@ -62,37 +38,10 @@ LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedT
 {
 }
 
-/*!
- * \brief Destructor
- *
- * blah
- */
-
-//LayoutCellFixed::~LayoutCellFixed() noexcept
-//{
-//}
-
-/*!
- * \brief blah
- *
- * blah
- */
-
 const LayoutCell::CellType LayoutCellFixed::getType() const noexcept
 {
 	return CellType::FIXED;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
-
-//void LayoutCellFixed::LayoutChild() noexcept
-//{
-//}
-
 
 TiXmlElement * LayoutCellFixed::toXml(void)
 {
@@ -125,32 +74,19 @@ void LayoutCellFixed::toXml(TiXmlElement *const xml)
 		xml->SetAttribute("width", this->m_rcWindow.right - this->m_rcWindow.left);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 HDWP LayoutCellFixed::ExecuteLayout(const HDWP hdwp) noexcept
 {
 	auto hdwpdef = hdwp;
 
 	if (m_Hwnd && IsWindow(m_Hwnd))
 	{
-		RECT rc{};
-		this->getClientRect(rc);
+		const RECT rc = this->getClientRect();
 
 		hdwpdef = DeferWindowPos(hdwpdef, m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER);
 		//hdwpdef = DeferWindowPos( hdwpdef, m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER );
 	}
 	return hdwpdef;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void LayoutCellFixed::getMinMaxInfo(CellMinMaxInfo *const pCMMI) const noexcept
 {
@@ -159,8 +95,7 @@ void LayoutCellFixed::getMinMaxInfo(CellMinMaxInfo *const pCMMI) const noexcept
 
 	if (this->isVisible())
 	{
-		RECT rc{};
-		getRect(rc);
+		const RECT rc = getRect();
 
 		//pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
 		//pCMMI->m_MinSize.y = this->m_rcBorders.top + this->m_rcBorders.bottom;

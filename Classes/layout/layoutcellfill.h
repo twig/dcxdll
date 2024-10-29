@@ -30,14 +30,6 @@ public:
 
 	using LayoutCell::LayoutCell;
 
-	//LayoutCellFill( );
-	//LayoutCellFill(const LayoutCellFill &) = delete;
-	//explicit LayoutCellFill( const HWND mHwnd );
-	//explicit LayoutCellFill( DcxControl * dcxc );
-	//virtual ~LayoutCellFill( );
-
-	//LayoutCellFill &operator =(const LayoutCellFill &) = delete;	// No assignments!
-
 	void LayoutChild() noexcept final {};
 	HDWP ExecuteLayout( const HDWP hdwp ) noexcept final;
 	void getMinMaxInfo( CellMinMaxInfo *const pCMMI ) const noexcept final;

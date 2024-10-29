@@ -16,34 +16,10 @@
 #include "Classes/dcxdialog.h"
 #include "Dcx.h"
 
- /*!
-  * \brief Constructor
-  *
-  * blah
-  */
-
-  //LayoutCell::LayoutCell()
-  //: m_Hwnd(nullptr)
-  //, m_Parent(nullptr)
-  //, m_FirstChild(nullptr)
-  //, m_NextSibling(nullptr)
-  //, m_BaseControl(nullptr)
-  //, m_iCount(0)
-  //{
-  //	SetRectEmpty(&this->m_rcBorders);
-  //	SetRectEmpty(&this->m_rcWindow);
-  //}
-
 LayoutCell::LayoutCell() noexcept
 	: LayoutCell(HWND())
 {
 }
-
-/*!
- * \brief Constructor
- *
- * blah
- */
 
 LayoutCell::LayoutCell(const HWND mHwnd) noexcept
 	: LayoutCell(mHwnd, RECT())
@@ -51,12 +27,6 @@ LayoutCell::LayoutCell(const HWND mHwnd) noexcept
 	if (m_Hwnd)
 		GetWindowRect(m_Hwnd, &m_rcWindow);
 }
-
-/*!
- * \brief Constructor
- *
- * blah
- */
 
 LayoutCell::LayoutCell(const HWND mHwnd, const RECT& rc) noexcept
 	: m_Hwnd(mHwnd)
@@ -87,78 +57,33 @@ LayoutCell::LayoutCell(DcxControl* dcxc) noexcept
 			GetWindowRect(m_Hwnd, &m_rcWindow);
 	}
 }
-/*!
- * \brief Destructor
- *
- * blah
- */
-
- //LayoutCell::~LayoutCell() noexcept
- //{
- //}
-
- /*!
-  * \brief blah
-  *
-  * blah
-  */
 
 void LayoutCell::setParent(LayoutCell* const p_Cell) noexcept
 {
 	m_Parent = p_Cell;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void LayoutCell::setSibling(LayoutCell* const p_Cell) noexcept
 {
 	m_NextSibling = p_Cell;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 LayoutCell* LayoutCell::getFirstChild() const noexcept
 {
 	return m_FirstChild;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 LayoutCell* LayoutCell::getParent() const noexcept
 {
 	return m_Parent;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 LayoutCell* LayoutCell::getNextSibling() const noexcept
 {
 	return m_NextSibling;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
-void LayoutCell::setRect(RECT& rc) noexcept
+bool LayoutCell::setRect(RECT& rc) noexcept
 {
 	CellMinMaxInfo cmmi{ {0,0},{rc.right - rc.left,rc.bottom - rc.top} };
 
@@ -180,43 +105,26 @@ void LayoutCell::setRect(RECT& rc) noexcept
 		rc.bottom = rc.top + cmmi.m_MaxSize.y;
 
 	if (EqualRect(&rc, &m_rcWindow))
-		return;
+		return false;
 
 	m_rcWindow = rc;
+	return true;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
-void LayoutCell::getRect(RECT& rc) const noexcept
-{
-	rc = m_rcWindow;
-}
+//void LayoutCell::getRect(RECT& rc) const noexcept
+//{
+//	rc = m_rcWindow;
+//}
 
 const RECT& LayoutCell::getRect() const noexcept
 {
 	return m_rcWindow;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
-void LayoutCell::getClientRect(RECT& rc) const noexcept
-{
-	//getRect(rc);
-	//rc.left += this->m_rcBorders.left;
-	//rc.right -= this->m_rcBorders.right;
-	//rc.top += this->m_rcBorders.top;
-	//rc.bottom -= this->m_rcBorders.bottom;
-
-	rc = getClientRect();
-}
+//void LayoutCell::getClientRect(RECT& rc) const noexcept
+//{
+//	rc = getClientRect();
+//}
 
 /// <summary>
 /// Get cells client area rect
@@ -234,12 +142,6 @@ RECT LayoutCell::getClientRect() const noexcept
 	return rc;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void LayoutCell::setBorder(const RECT& rc) noexcept
 {
 	// remove old borders
@@ -254,23 +156,11 @@ void LayoutCell::setBorder(const RECT& rc) noexcept
 	this->m_rcWindow.bottom += this->m_rcBorders.top + this->m_rcBorders.bottom;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void LayoutCell::setBorder(const int& nBorder) noexcept
 {
 	const RECT rc{ nBorder, nBorder, nBorder, nBorder };
 	setBorder(rc);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void LayoutCell::getBorder(RECT& rc) const noexcept
 {
@@ -285,12 +175,6 @@ const RECT& LayoutCell::getBorder() const noexcept
 {
 	return m_rcBorders;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 const bool LayoutCell::isVisible() const noexcept
 {
