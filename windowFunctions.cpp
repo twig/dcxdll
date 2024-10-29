@@ -701,7 +701,7 @@ void ChangeHwndIcon(const HWND hwnd, const TString& flags, const int index, TStr
 
 	HICON iconSmall{ nullptr };
 	HICON iconLarge{ nullptr };
-	
+
 	if (filename == TEXT("none"))
 	{
 		dcxSetWindowExStyle(hwnd, WindowExStyle::DialogModalFrame);
@@ -914,7 +914,7 @@ namespace
 }
 
 /// <summary>
-/// draws a checkbox.
+/// Draw a checkbox.
 /// </summary>
 /// <param name="hDC"></param>
 /// <param name="rcBox"></param>
@@ -1002,16 +1002,86 @@ void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, con
 		const auto x = (rc.right + rc.left) / 2 - 3;
 		const auto y = (rc.bottom + rc.top) / 2 - 3;
 
-		dcxDrawLine(hDC, x, y + 2, x, y + 5);
-		dcxDrawLine(hDC, x + 1, y + 3, x + 1, y + 6);
-		dcxDrawLine(hDC, x + 2, y + 4, x + 2, y + 7);
-		dcxDrawLine(hDC, x + 3, y + 3, x + 3, y + 6);
-		dcxDrawLine(hDC, x + 4, y + 2, x + 4, y + 5);
-		dcxDrawLine(hDC, x + 5, y + 1, x + 5, y + 4);
-		dcxDrawLine(hDC, x + 6, y, x + 6, y + 3);
+		// Draw the tick using DrawLine
+		//dcxDrawLine(hDC, x, y + 2, x, y + 5);
+		//dcxDrawLine(hDC, x + 1, y + 3, x + 1, y + 6);
+		//dcxDrawLine(hDC, x + 2, y + 4, x + 2, y + 7);
+		//dcxDrawLine(hDC, x + 3, y + 3, x + 3, y + 6);
+		//dcxDrawLine(hDC, x + 4, y + 2, x + 4, y + 5);
+		//dcxDrawLine(hDC, x + 5, y + 1, x + 5, y + 4);
+		//dcxDrawLine(hDC, x + 6, y, x + 6, y + 3);
+
+		// Draw the tick using Polyline
+		//const POINT pts[14]{
+		//	{x, y + 2},
+		//	{x, y + 5},
+		//	{x + 1, y + 3},
+		//	{x + 1, y + 6},
+		//	{x + 2, y + 4},
+		//	{x + 2, y + 7},
+		//	{x + 3, y + 3},
+		//	{x + 3, y + 6},
+		//	{x + 4, y + 2},
+		//	{x + 4, y + 5},
+		//	{x + 5, y + 1},
+		//	{x + 5, y + 4},
+		//	{x + 6, y},
+		//	{x + 6, y + 3},
+		//};
+		//Polyline(hDC, &pts[0], std::size(pts));
+
+		// Draw the tick using PolyDraw
+		const POINT pts[14]{
+			{x, y + 2},
+			{x, y + 5},
+
+			{x + 1, y + 3},
+			{x + 1, y + 6},
+
+			{x + 2, y + 4},
+			{x + 2, y + 7},
+
+			{x + 3, y + 3},
+			{x + 3, y + 6},
+
+			{x + 4, y + 2},
+			{x + 4, y + 5},
+
+			{x + 5, y + 1},
+			{x + 5, y + 4},
+
+			{x + 6, y},
+			{x + 6, y + 3},
+		};
+		const static BYTE flags[14]{
+			PT_MOVETO,
+			PT_LINETO,
+			PT_MOVETO,
+			PT_LINETO,
+			PT_MOVETO,
+			PT_LINETO,
+			PT_MOVETO,
+			PT_LINETO,
+			PT_MOVETO,
+			PT_LINETO,
+			PT_MOVETO,
+			PT_LINETO,
+			PT_MOVETO,
+			PT_LINETO
+		};
+		PolyDraw(hDC, &pts[0], &flags[0], std::size(pts));
 	}
 }
 
+/// <summary>
+/// Draw a radio style selector.
+/// </summary>
+/// <param name="hDC"></param>
+/// <param name="rcBox"></param>
+/// <param name="lpcol"></param>
+/// <param name="dState"></param>
+/// <param name="bTicked"></param>
+/// <param name="bRounded"></param>
 void dcxDrawRadioBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, const DWORD dState, const bool bTicked, const bool bRounded) noexcept
 {
 	if (!hDC || !lpcol || !rcBox)
@@ -1092,12 +1162,8 @@ void dcxDrawRadioBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, con
 
 		if (bRounded)
 			Ellipse(hDC, rc.left, rc.top, rc.right, rc.bottom);
-		else {
-			auto hBrush2 = CreateSolidBrush(getCheckBoxTickColour(lpcol, dState));
-			Auto(DeleteObject(hBrush2));
-
-			FillRect(hDC, &rc, hBrush2);
-		}
+		else
+			Dcx::FillRectColour(hDC, &rc, getCheckBoxTickColour(lpcol, dState));
 	}
 }
 
@@ -1156,7 +1222,7 @@ bool dcxDrawTranslucentRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorde
 
 	// 0x7f half of 0xff = 50% transparency
 	// 0xCC = 80% Opaque
-	BLENDFUNCTION ai_bf{ AC_SRC_OVER, 0, 0xC0, 0 };
+	const BLENDFUNCTION ai_bf{ AC_SRC_OVER, 0, 0xC0, 0 };
 	BP_PAINTPARAMS paintParams{ sizeof(BP_PAINTPARAMS),BPPF_ERASE, nullptr, &ai_bf };
 	HDC hdc{};
 
@@ -1165,12 +1231,6 @@ bool dcxDrawTranslucentRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorde
 		return false;
 
 	Auto(Dcx::UXModule.dcxEndBufferedPaint(ai_Buffer, TRUE));
-
-	//Dcx::UXModule.dcxBufferedPaintClear(ai_Buffer, rc);
-
-	//dcxDrawRect(hdc, rc, GetBkColor(hDC), GetBkColor(hDC), false);
-	//const auto oldMode = SetBkMode(hdc, TRANSPARENT);
-	//Auto(SetBkMode(hdc, oldMode));
 
 	return dcxDrawRect(hdc, rc, clr, clrBorder, bRounded);
 }
@@ -1196,9 +1256,7 @@ bool dcxDrawBitMap(HDC hdc, LPCRECT prc, HBITMAP hbm, bool bStretch, bool bAlpha
 			if (bStretch && !bAlpha)
 				StretchBlt(hdc, prc->left, prc->top, (prc->right - prc->left), (prc->bottom - prc->top), hdcMemory, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
 			else {
-				BLENDFUNCTION bf{};
-				bf.AlphaFormat = AC_SRC_OVER;
-				bf.SourceConstantAlpha = 0xC0;
+				const BLENDFUNCTION bf{ AC_SRC_OVER, 0, 0xC0, 0 };
 				AlphaBlend(hdc, prc->left, prc->top, (prc->right - prc->left), (prc->bottom - prc->top), hdcMemory, 0, 0, bm.bmWidth, bm.bmHeight, bf);
 			}
 		}
