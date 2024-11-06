@@ -458,8 +458,9 @@ mIRC(xtreebar)
 			if (numtok < 3)
 				throw DcxExceptions::dcxInvalidArguments();
 
-			const auto cflag(input.getnexttok());						// tok 2
-			const auto clr = input.getnexttok().to_<COLORREF>();	// tok 3
+			const auto cflag(input.getnexttok());
+			const auto tsClr(input.getnexttok());
+			const auto clr = (tsClr == L"default") ? CLR_DEFAULT : tsClr.to_<COLORREF>();
 
 			if (cflag[0] != TEXT('+'))
 				throw DcxExceptions::dcxInvalidFlag();
