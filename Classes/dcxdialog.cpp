@@ -3146,11 +3146,6 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog* const p_this, LPCRECT r
 	if (!p_this->m_BackgroundImage.m_hBitmap)
 		return;
 
-	//BITMAP bmp{};
-	//
-	//if (GetObject(p_this->m_bitmapBg, sizeof(BITMAP), &bmp) == 0)
-	//	return;
-
 	auto [code, bmp] = Dcx::dcxGetObject<BITMAP>(p_this->m_BackgroundImage.m_hBitmap);
 	if (code == 0)
 		return;
@@ -3166,9 +3161,6 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog* const p_this, LPCRECT r
 	// stretch
 	if (dcx_testflag(p_this->m_uStyleBg, DBS_BKGSTRETCH))
 	{
-		//BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
-		//TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
-
 		SetStretchBltMode(hdc, STRETCH_HALFTONE);
 		SetBrushOrgEx(hdc, 0, 0, nullptr);
 		TransparentBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
@@ -3180,7 +3172,6 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog* const p_this, LPCRECT r
 		{
 			for (x = rwnd->left; x < w; x += bmp.bmWidth)
 			{
-				//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
 				TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
 			}
 		}
@@ -3222,9 +3213,6 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog* const p_this, LPCRECT r
 	// stretch
 	if (dcx_testflag(p_this->m_uStyleBg, DBS_BKGSTRETCH))
 	{
-		//BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
-		//TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
-
 		SetStretchBltMode(hdc, STRETCH_HALFTONE);
 		SetBrushOrgEx(hdc, 0, 0, nullptr);
 		TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
@@ -3236,7 +3224,6 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog* const p_this, LPCRECT r
 		{
 			for (x = 0; x < w; x += bmp.bmWidth)
 			{
-				//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
 				TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
 			}
 		}
