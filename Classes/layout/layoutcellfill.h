@@ -17,12 +17,6 @@
 
 #include "Classes/layout/layoutcell.h"
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 class LayoutCellFill final
 	: public LayoutCell
 {

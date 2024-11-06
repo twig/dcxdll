@@ -52,9 +52,14 @@ const bool LayoutManager::updateLayout(RECT& rc)
 	//	return false;
 	//}
 
-	m_pRoot->setRect(rc);
+	//m_pRoot->setRect(rc);
+	//m_pRoot->LayoutChild();
+	//return (EndDeferWindowPos(m_pRoot->ExecuteLayout(BeginDeferWindowPos(gsl::narrow_cast<int>(m_iCount)))) != FALSE);
+
+	const auto bRedraw = m_pRoot->setRect(rc);
 	m_pRoot->LayoutChild();
-	return (EndDeferWindowPos(m_pRoot->ExecuteLayout(BeginDeferWindowPos(gsl::narrow_cast<int>(m_iCount)))) != FALSE);
+	std::ignore = (EndDeferWindowPos(m_pRoot->ExecuteLayout(BeginDeferWindowPos(gsl::narrow_cast<int>(m_iCount)))) != FALSE);
+	return bRedraw;
 }
 
 void LayoutManager::setRoot(std::unique_ptr<LayoutCell> p_Root) noexcept

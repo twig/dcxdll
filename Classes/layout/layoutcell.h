@@ -44,6 +44,61 @@ typedef struct CellMinMaxInfo
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
 #endif
 
+class BaseCell
+{
+public:
+	enum class CellType
+		: UINT
+	{
+		FIXED,
+		FILL,
+		PANE
+	};
+
+	BaseCell() noexcept {};
+	virtual ~BaseCell() {};
+	BaseCell(const BaseCell&) = delete;
+	BaseCell& operator =(const BaseCell&) = delete;
+	BaseCell(BaseCell&&) = delete;
+	BaseCell& operator =(BaseCell&&) = delete;
+
+	virtual bool setRect(RECT& rc) noexcept = 0;
+	virtual const RECT& getRect() const noexcept = 0;
+	virtual RECT getClientRect() const noexcept = 0;
+	virtual void setBorder(const RECT& rc) noexcept = 0;
+	virtual void setBorder(const int& nBorder) noexcept = 0;
+	virtual void getBorder(RECT& rc) const noexcept = 0;
+	virtual const RECT& getBorder() const noexcept = 0;
+	virtual void LayoutChild() noexcept = 0;
+	virtual HDWP ExecuteLayout(const HDWP hdwp) = 0;
+	virtual void getMinMaxInfo(CellMinMaxInfo* const pCMMI) const noexcept = 0;
+	virtual void toXml(TiXmlElement* const xml) = 0;
+	virtual TiXmlElement* toXml(void) = 0;
+	virtual void setSibling(BaseCell* const p_Cell) noexcept = 0;
+	virtual void setParent(BaseCell* const p_Cell) noexcept = 0;
+	virtual const CellType getType() const noexcept = 0;
+	virtual BaseCell* getFirstChild() const noexcept = 0;
+	virtual BaseCell* getParent() const noexcept = 0;
+	virtual BaseCell* getNextSibling() const noexcept = 0;
+	virtual const bool isVisible() const noexcept = 0;
+	virtual const size_t& size(void) const noexcept = 0;
+	virtual const bool		empty(void) const noexcept = 0;
+};
+class TestCell
+	:BaseCell
+{
+public:
+
+	TestCell() = default;
+
+	bool operator==(const TestCell& other) const = default;
+
+	const CellType getType() const noexcept override {
+		return CellType::FIXED;
+	}
+
+};
+
 class LayoutCell
 {
 public:

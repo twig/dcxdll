@@ -15,75 +15,10 @@
 #include "layoutcellfill.h"
 #include <windowsx.h>
 
- /*!
-  * \brief Constructor
-  *
-  * blah
-  */
-
-  //LayoutCellFill::LayoutCellFill()
-  //: LayoutCell()
-  //{
-  //}
-  //
-  ///*!
-  // * \brief Constructor
-  // *
-  // * blah
-  // */
-  //
-  //LayoutCellFill::LayoutCellFill(const HWND mHwnd)
-  //: LayoutCell(mHwnd)
-  //{
-  //}
-  //
-  ///*!
-  // * \brief Constructor
-  // *
-  // * blah
-  // */
-  //
-  //LayoutCellFill::LayoutCellFill(DcxControl * dcxc)
-  //: LayoutCell(dcxc)
-  //{
-  //}
-  //
-  ///*!
-  // * \brief Destructor
-  // *
-  // * blah
-  // */
-  //
-  //LayoutCellFill::~LayoutCellFill() {
-  //
-  //}
-
-  /*!
-   * \brief blah
-   *
-   * blah
-   */
-
 const LayoutCell::CellType LayoutCellFill::getType() const noexcept
 {
 	return CellType::FILL;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
-
- //void LayoutCellFill::LayoutChild()
- //{
- //}
-
- /*!
-  * \brief blah
-  *
-  * blah
-  */
 
 HDWP LayoutCellFill::ExecuteLayout(const HDWP hdwp) noexcept
 {
@@ -93,9 +28,10 @@ HDWP LayoutCellFill::ExecuteLayout(const HDWP hdwp) noexcept
 	{
 		const RECT rc = this->getClientRect();
 
-		hdwpdef = DeferWindowPos(hdwpdef, m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER);
+		//hdwpdef = DeferWindowPos(hdwpdef, m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER);
 		//hdwpdef = DeferWindowPos( hdwpdef, m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER );
-		//hdwpdef = DeferWindowPos( hdwpdef, m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+		//hdwpdef = DeferWindowPos(hdwpdef, m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOREDRAW);
+		hdwpdef = DeferWindowPos( hdwpdef, m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOACTIVATE);
 	}
 	return hdwpdef;
 }
