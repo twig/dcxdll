@@ -757,6 +757,31 @@ std::pair<bool, int> SaveClipboardToFile(const XSwitchFlags& xFlags, const TStri
 	return { SaveClipboardAsBitmap(tsFile), CF_BITMAP };
 }
 
+//Dcx::BoolValue<int> SaveClipboardToFile(const XSwitchFlags& xFlags, const TString& tsFile)
+//{
+//	if (!OpenClipboard(nullptr))
+//		throw Dcx::dcxException(TEXT("SaveClipboardToFile: %"), TEXT("Couldn't open clipboard"));
+//
+//	Auto(CloseClipboard());
+//
+//	if (!xFlags[TEXT('+')])
+//		throw DcxExceptions::dcxInvalidFlag();
+//
+//	// text save only
+//	if (xFlags[TEXT('t')])
+//		return { SaveClipboardAsText(tsFile), CF_UNICODETEXT };
+//
+//	// bitmap save only
+//	if (xFlags[TEXT('b')])
+//		return { SaveClipboardAsBitmap(tsFile), CF_BITMAP };
+//
+//	// otherwise try both...
+//	if (SaveClipboardAsText(tsFile))
+//		return { true, CF_UNICODETEXT };
+//
+//	return { SaveClipboardAsBitmap(tsFile), CF_BITMAP };
+//}
+
 // Turns a command (+flags CHARSET SIZE FONTNAME) into a LOGFONT struct
 GSL_SUPPRESS(bounds.3) bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf)
 {
@@ -2160,6 +2185,27 @@ namespace
 	using LPHDCBuffer = HDCBuffer*;
 }
 
+//LPALPHAINFO
+HPAINTBUFFER CreateHDCBufferNoCopy(HDC hdc, HDC *hdcOut) noexcept
+{
+	if ((!hdc) || (!hdcOut))
+		return nullptr;
+
+	if (!Dcx::UXModule.IsBufferedPaintSupported())
+		return nullptr;
+
+	const RECT rcClient = dcxGetCurrentBitmapRect(hdc);
+
+	BP_PAINTPARAMS paintParams{ sizeof(BP_PAINTPARAMS),BPPF_ERASE, nullptr, nullptr };
+
+	return Dcx::UXModule.dcxBeginBufferedPaint(hdc, &rcClient, BPBF_COMPATIBLEBITMAP, &paintParams, hdcOut);
+}
+
+void DeleteHDCBufferNoCopy(HPAINTBUFFER hBuf) noexcept
+{
+	Dcx::UXModule.dcxEndBufferedPaint(hBuf, TRUE);
+}
+
 gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc)
 {
 	if (!hdc)
@@ -2721,7 +2767,7 @@ COLORREF GetContrastColour(COLORREF sRGB) noexcept
 
 RGBQUAD GetContrastColour(RGBQUAD sRGB) noexcept
 {
-	// (0.21 Ã— R) + (0.72 Ã— G) + (0.07 Ã— B)
+	// (0.21 × R) + (0.72 × G) + (0.07 × B)
 	// (0.2126*R + 0.7152*G + 0.0722*B)
 	// (0.299*R + 0.587*G + 0.114*B)
 	// sqrt( 0.299*R^2 + 0.587*G^2 + 0.114*B^2 )
@@ -2756,15 +2802,15 @@ namespace
 		std::vector<BYTE> data;
 
 		if (str && szLen > 0)
-	{
-		DWORD bLen{};
+		{
+			DWORD bLen{};
 
 			if (CryptStringToBinaryW(str, gsl::narrow_cast<DWORD>(szLen), CRYPT_STRING_BASE64, nullptr, &bLen, nullptr, nullptr))
-		{
-			data.reserve(bLen);
+			{
+				data.reserve(bLen);
 
 				CryptStringToBinaryW(str, gsl::narrow_cast<DWORD>(szLen), CRYPT_STRING_BASE64, data.data(), &bLen, nullptr, nullptr);
-		}
+			}
 		}
 		return data;
 	}
@@ -2773,12 +2819,12 @@ namespace
 		std::vector<BYTE> data;
 
 		if (str && szLen > 0)
-	{
-		DWORD bLen{};
+		{
+			DWORD bLen{};
 
 			if (CryptStringToBinaryA(str, gsl::narrow_cast<DWORD>(szLen), CRYPT_STRING_BASE64, nullptr, &bLen, nullptr, nullptr))
-		{
-			data.reserve(bLen);
+			{
+				data.reserve(bLen);
 
 				CryptStringToBinaryA(str, gsl::narrow_cast<DWORD>(szLen), CRYPT_STRING_BASE64, data.data(), &bLen, nullptr, nullptr);
 			}
@@ -2790,11 +2836,11 @@ namespace
 		TString tsBuf;
 		if (data && nLen > 0)
 		{
-		DWORD szLen{};
+			DWORD szLen{};
 
 			if (CryptBinaryToStringW(data, gsl::narrow_cast<DWORD>(nLen), CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, nullptr, &szLen))
-		{
-			tsBuf.reserve(szLen);
+			{
+				tsBuf.reserve(szLen);
 
 				CryptBinaryToStringW(data, gsl::narrow_cast<DWORD>(nLen), CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, tsBuf.to_wchr(), &szLen);
 			}

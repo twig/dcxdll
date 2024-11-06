@@ -1641,10 +1641,20 @@ namespace Dcx
 	/// <param name="hItem">- Handle to the tree-view item.</param>
 	/// <param name="prc">- Pointer to a RECT structure that receives the bounding rectangle. The coordinates are relative to the upper-left corner of the tree-view control.</param>
 	/// <param name="bCode">- Value specifying the portion of the item for which to retrieve the bounding rectangle. If this parameter is TRUE, the bounding rectangle includes only the text of the item. Otherwise, it includes the entire line that the item occupies in the tree-view control.</param>
-	/// <returns></returns>
+	/// <returns>If the item is visible and the bounding rectangle is successfully retrieved, the return value is TRUE. Otherwise, the TVM_GETITEMRECT message returns FALSE and does not retrieve the bounding rectangle.</returns>
 	inline bool dcxTreeView_GetItemRect(_In_ HWND hwnd, _In_ HTREEITEM hItem, _In_ LPRECT prc, _In_ bool bCode) noexcept
 	{
 		return (TreeView_GetItemRect(hwnd, hItem, prc, bCode) != FALSE);
+	}
+
+	/// <summary>
+	/// Retrieves the current background color of the control.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <returns>Returns a COLORREF value that represents the current background color. If this value is -1, the control is using the system color for the background color.</returns>
+	inline COLORREF dcxTreeView_GetBkColor(_In_ HWND hwnd) noexcept
+	{
+		return TreeView_GetBkColor(hwnd);
 	}
 
 	/// <summary>

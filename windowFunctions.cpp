@@ -1267,3 +1267,119 @@ bool dcxDrawBitMap(HDC hdc, LPCRECT prc, HBITMAP hbm, bool bStretch, bool bAlpha
 
 	return true;
 }
+
+int dcxSetStretchModeHalfTone(HDC hdc) noexcept
+{
+	//SetStretchBltMode(hdc, STRETCH_HALFTONE);
+	//SetBrushOrgEx(hdc, 0, 0, nullptr);
+
+	POINT pt{};
+	GetBrushOrgEx(hdc, &pt);
+	const auto oldMode = SetStretchBltMode(hdc, STRETCH_HALFTONE);
+	SetBrushOrgEx(hdc, pt.x, pt.y, nullptr);
+	return oldMode;
+}
+
+void dcxStretchHalfToneBlt(HDC hdcDest, const RECT &rcDest, HDC hdcSrc, int xSrc, int ySrc, int wSrc, int hSrc) noexcept
+{
+	POINT pt{};
+	GetBrushOrgEx(hdcDest, &pt);
+	const auto oldMode = SetStretchBltMode(hdcDest, STRETCH_HALFTONE);
+	SetBrushOrgEx(hdcDest, pt.x, pt.y, nullptr);
+
+	StretchBlt(hdcDest, rcDest.left, rcDest.top, rcDest.right - rcDest.left, rcDest.bottom - rcDest.top, hdcSrc, xSrc, ySrc, wSrc, hSrc, SRCCOPY);
+	
+	SetStretchBltMode(hdcDest, oldMode);
+	SetBrushOrgEx(hdcDest, pt.x, pt.y, nullptr);
+}
+
+void dcxTransparentHalfToneBlt(HDC hdcDest, const RECT& rcDest, HDC hdcSrc, int xSrc, int ySrc, int wSrc, int hSrc, COLORREF clrTrans) noexcept
+{
+	POINT pt{};
+	GetBrushOrgEx(hdcDest, &pt);
+	const auto oldMode = SetStretchBltMode(hdcDest, STRETCH_HALFTONE);
+	SetBrushOrgEx(hdcDest, pt.x, pt.y, nullptr);
+
+	TransparentBlt(hdcDest, rcDest.left, rcDest.top, rcDest.right - rcDest.left, rcDest.bottom - rcDest.top, hdcSrc, xSrc, ySrc, wSrc, hSrc, clrTrans);
+
+	SetStretchBltMode(hdcDest, oldMode);
+	SetBrushOrgEx(hdcDest, pt.x, pt.y, nullptr);
+}
+
+BITMAP dcxGetCurrentBitmap(HDC hdc) noexcept
+{
+	BITMAP bm{};
+	if (!hdc)
+		return bm;
+
+	auto hObj = Dcx::dcxGetCurrentObject<HBITMAP>(hdc, OBJ_BITMAP);
+	if (!hObj)
+		return bm;
+
+	if (GetObject(hObj, sizeof(BITMAP), &bm) == 0)
+		ZeroMemory(&bm, sizeof(BITMAP));
+
+	return bm;
+}
+
+SIZE dcxGetBitmapDimensions(HBITMAP hBM) noexcept
+{
+	if (!hBM)
+		return {};
+
+	BITMAP bm{};
+	if (GetObject(hBM, sizeof(BITMAP), &bm) == 0)
+		ZeroMemory(&bm, sizeof(BITMAP));
+
+	return { bm.bmWidth, bm.bmHeight };
+}
+
+RECT dcxGetBitmapRect(HBITMAP hBM) noexcept
+{
+	const auto sz = dcxGetBitmapDimensions(hBM);
+	return { 0,0, sz.cx, sz.cy };
+}
+
+SIZE dcxGetCurrentBitmapDimensions(HDC hdc) noexcept
+{
+	const auto bm = dcxGetCurrentBitmap(hdc);
+	return { bm.bmWidth, bm.bmHeight };
+}
+
+RECT dcxGetCurrentBitmapRect(HDC hdc) noexcept
+{
+	const auto bm = dcxGetCurrentBitmap(hdc);
+	return { 0,0, bm.bmWidth, bm.bmHeight };
+}
+
+bool CopyHDCToBitmap(HBITMAP hBm, LONG xDest, LONG yDest, LONG wDest, LONG hDest, HDC hdc, LONG xSrc, LONG ySrc) noexcept
+{
+	if (!hdc || !hBm)
+		return false;
+
+	auto hTmp = CreateCompatibleDC(hdc);
+	if (!hTmp)
+		return false;
+
+	Auto(DeleteDC(hTmp));
+	auto hOld = Dcx::dcxSelectObject(hTmp, hBm);
+	Auto(Dcx::dcxSelectObject(hTmp, hOld));
+
+	return (BitBlt(hTmp, xDest, yDest, wDest, hDest, hdc, xSrc, ySrc, SRCCOPY) != FALSE);
+}
+
+bool CopyBitmapToHDC(HDC hdc, LONG xDest, LONG yDest, LONG wDest, LONG hDest, HBITMAP hBm, LONG xSrc, LONG ySrc) noexcept
+{
+	if (!hdc || !hBm)
+		return false;
+
+	auto hTmp = CreateCompatibleDC(hdc);
+	if (!hTmp)
+		return false;
+
+	Auto(DeleteDC(hTmp));
+	auto hOld = Dcx::dcxSelectObject(hTmp, hBm);
+	Auto(Dcx::dcxSelectObject(hTmp, hOld));
+
+	return (BitBlt(hdc, xDest, yDest, wDest, hDest, hTmp, xSrc, ySrc, SRCCOPY) != FALSE);
+}

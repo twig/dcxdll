@@ -803,6 +803,8 @@ void DrawRotatedText(const TString& strDraw, const LPCRECT rc, const HDC hDC, co
 
 [[nodiscard("Memory Leak")]] gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc);
 void DeleteHDCBuffer(gsl::owner<HDC*> hBuffer) noexcept;
+HPAINTBUFFER CreateHDCBufferNoCopy(HDC hdc, HDC *hdcOut) noexcept;
+void DeleteHDCBufferNoCopy(HPAINTBUFFER hBuf) noexcept;
 
 int TGetWindowText(HWND hwnd, TString& txt);
 TString TGetWindowText(HWND hwnd);
@@ -867,6 +869,17 @@ bool dcxDrawRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorder, bool bRo
 bool dcxDrawTranslucentRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorder, bool bRounded) noexcept;
 
 bool dcxDrawBitMap(HDC hdc, LPCRECT prc, HBITMAP hbm, bool bStretch, bool bAlpha) noexcept;
+
+int dcxSetStretchModeHalfTone(HDC hdc) noexcept;
+void dcxStretchHalfToneBlt(HDC hdcDest, const RECT& rcDest, HDC hdcSrc, int xSrc, int ySrc, int wSrc, int hSrc) noexcept;
+void dcxTransparentHalfToneBlt(HDC hdcDest, const RECT& rcDest, HDC hdcSrc, int xSrc, int ySrc, int wSrc, int hSrc, COLORREF clrTrans) noexcept;
+BITMAP dcxGetCurrentBitmap(HDC hdc) noexcept;
+SIZE dcxGetCurrentBitmapDimensions(HDC hdc) noexcept;
+RECT dcxGetCurrentBitmapRect(HDC hdc) noexcept;
+SIZE dcxGetBitmapDimensions(HBITMAP hBM) noexcept;
+RECT dcxGetBitmapRect(HBITMAP hBM) noexcept;
+bool CopyBitmapToHDC(HDC hdc, LONG xDest, LONG yDest, LONG wDest, LONG hDest, HBITMAP hBm, LONG xSrc, LONG ySrc) noexcept;
+bool CopyHDCToBitmap(HBITMAP hBm, LONG xDest, LONG yDest, LONG wDest, LONG hDest, HDC hdc, LONG xSrc, LONG ySrc) noexcept;
 
 /// <summary>
 /// Get a colour that contrasts nicely with the supplied colour.
