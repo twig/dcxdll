@@ -434,13 +434,13 @@ namespace
 		return nColor;
 	}
 
-	void mIRC_OutText(HDC hdc, TString& txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow) noexcept
+	void mIRC_OutText(HDC hdc, LPCRECT rcBounds, TString& txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow) noexcept
 	{
 		if (txt.empty() || !rcOut || !lf || !hdc)
 			return;
 
 		const auto len = txt.len();
-		auto hNewFont = CreateFontIndirect(lf);
+		auto hNewFont = CreateFontIndirectW(lf);
 		if (!hNewFont)
 			return;
 
@@ -449,24 +449,36 @@ namespace
 
 		if (!dcx_testflag(iStyle, DT_CALCRECT))
 		{	// if DT_CALCRECT flag NOT given then do calcrect here.
-			//DrawText(hdc, txt.to_chr(), len, &rcTmp, iStyle | DT_CALCRECT);
 			if (shadow)
-				dcxDrawShadowText(hdc, txt.to_chr(), gsl::narrow_cast<UINT>(len), std::addressof(rcTmp), iStyle | DT_CALCRECT, clrFG, 0, 5, 5);
+				dcxDrawShadowText(hdc, txt.to_wchr(), gsl::narrow_cast<UINT>(len), std::addressof(rcTmp), iStyle | DT_CALCRECT, clrFG, 0, 5, 5);
 			else
-				DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle | DT_CALCRECT);
+				DrawTextW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle | DT_CALCRECT);
 		}
 		if (shadow)
-			dcxDrawShadowText(hdc, txt.to_chr(), gsl::narrow_cast<UINT>(len), std::addressof(rcTmp), iStyle, clrFG, 0, 5, 5);
+			dcxDrawShadowText(hdc, txt.to_wchr(), gsl::narrow_cast<UINT>(len), std::addressof(rcTmp), iStyle, clrFG, 0, 5, 5);
 		else
-			DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle);
+			DrawTextW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle);
 
-		if (TEXTMETRICW tm{}; GetTextMetrics(hdc, std::addressof(tm)))
+		if (TEXTMETRICW tm{}; GetTextMetricsW(hdc, std::addressof(tm)))
+		{
+			if (!dcx_testflag(iStyle, DT_SINGLELINE))
+			{
+				if ((rcTmp.bottom - rcTmp.top) >= (tm.tmHeight * 2))
+				{
+					rcOut->top += tm.tmHeight;
+					rcOut->left = rcBounds->left;
+				}
+				else
 			rcOut->left += (rcTmp.right - rcTmp.left) - tm.tmOverhang;
+			}
+		else
+				rcOut->left += (rcTmp.right - rcTmp.left) - tm.tmOverhang;
+		}
 		else
 			rcOut->left += (rcTmp.right - rcTmp.left);
 
 		DeleteObject(SelectObject(hdc, hOldFont));
-		txt.clear();	// txt = TEXT("");
+		txt.clear();
 	}
 
 	double sRGBtoLin(double colorChannel) noexcept
@@ -1541,56 +1553,6 @@ constexpr const TCHAR* GetLastStatusStr(Gdiplus::Status status) noexcept
  * NB: What it really does is tell us if we can access the file, it can fail to get access for various reason on XP+.
  * After a false return use GetLastError() to find the actual fail reason if you care.
 */
-//bool IsFile(TString &filename)
-//{
-//	if (filename.empty())
-//		return false;
-//
-//	PathUnquoteSpaces(filename.to_chr()); // Removes any "" around the path.
-//
-//	// try & access the filename as is first.
-//	HANDLE hFile = CreateFile(filename.to_chr(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-//
-//	if (hFile != INVALID_HANDLE_VALUE) {
-//		CloseHandle(hFile);
-//		return true;
-//	}
-//
-//	filename.strip(); // remove ctrl codes from name. this allows ctrl codes to be added to a filename that uses double spaces.
-//
-//	hFile = CreateFile(filename.to_chr(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-//	if (hFile != INVALID_HANDLE_VALUE) {
-//		CloseHandle(hFile);
-//		return true;
-//	}
-//
-//	// if that fails try & search for the file.
-//	TCHAR *buf = nullptr, *f;
-//
-//	// find buffer size needed.
-//	DWORD res = SearchPath(nullptr,filename.to_chr(),nullptr,0,nullptr,nullptr);
-//	if (res > 0) {
-//		// found file, alloc buffer & fill with path/file.
-//		buf = new TCHAR[res + 1];
-//
-//		res = SearchPath(nullptr,filename.to_chr(),nullptr,res,buf,&f);
-//	}
-//	if (res == 0) {// if find failed, exit
-//		delete [] buf;
-//		return false;
-//	}
-//	// now try & access the file we found.
-//	hFile = CreateFile(buf, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-//	if (hFile != INVALID_HANDLE_VALUE) {
-//		CloseHandle(hFile);
-//		filename = buf; // alter the filename to contain the full path.
-//		delete [] buf;
-//		return true;
-//	}
-//	delete [] buf;
-//	return false;
-//}
-
 bool IsFile(TString& filename)
 {
 	PathUnquoteSpaces(filename.to_chr()); // Removes any "" around the path.
@@ -1638,50 +1600,6 @@ bool IsFile(TString& filename)
 	}
 	return false;
 }
-
-//#include <shlwapi.h>
-//
-//DWORD GetDllVersion(LPCTSTR lpszDllName)
-//{
-//    HINSTANCE hinstDll;
-//    DWORD dwVersion = 0;
-//
-//    /* For security purposes, LoadLibrary should be provided with a 
-//       fully-qualified path to the DLL. The lpszDllName variable should be
-//       tested to ensure that it is a fully qualified path before it is used. */
-//    hinstDll = LoadLibrary(lpszDllName);
-//	
-//    if(hinstDll)
-//    {
-//        DLLGETVERSIONPROC pDllGetVersion;
-//        pDllGetVersion = (DLLGETVERSIONPROC)GetProcAddress(hinstDll, 
-//                          TEXT("DllGetVersion"));
-//
-//        /* Because some DLLs might not implement this function, you
-//        must test for it explicitly. Depending on the particular 
-//        DLL, the lack of a DllGetVersion function can be a useful
-//        indicator of the version. */
-//
-//        if(pDllGetVersion)
-//        {
-//            DLLVERSIONINFO dvi;
-//            HRESULT hr;
-//
-//            ZeroMemory(&dvi, sizeof(dvi));
-//            dvi.cbSize = sizeof(dvi);
-//
-//            hr = (*pDllGetVersion)(&dvi);
-//
-//            if(SUCCEEDED(hr))
-//            {
-//               dwVersion = PACKVERSION(dvi.dwMajorVersion, dvi.dwMinorVersion);
-//            }
-//        }
-//
-//        FreeLibrary(hinstDll);
-//    }
-//    return dwVersion;
-//}
 
 // mIRC Colours, only the first 16 of these are changable.
 COLORREF staticPalette[mIRC_PALETTE_SIZE] = {
@@ -1863,8 +1781,7 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 	hdc = *hBuffer;
 	// change rcOut to be zero offset.
 	OffsetRect(&rcOut, -rcOut.left, -rcOut.top);
-
-	//savedDC = SaveDC(hdc);
+	const auto rcBufferBounds = rcOut;
 
 	const COLORREF origFG = GetTextColor(hdc), origBG = GetBkColor(hdc);
 	COLORREF clrFG = origFG, clrBG = origBG;
@@ -1898,16 +1815,13 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 			// strip out ctrl codes to correctly position text.
 			auto rcTmp = *rc;
 			auto t(txt);
+
 			if (dcx_testflag(iStyle, DT_SINGLELINE))
-			{
-				//t.replace(TEXT('\n'), TEXT(' '));
-				//t.replace(TEXT('\r'), TEXT(' '));
-				t.mreplace(TEXT(' '), TEXT("\n\r"));
-			}
-			DrawText(hdc, t.strip().to_chr(), -1, &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/);	// using t.len() gives invalid length (issue with strip())
-			//DrawText(hdc, t.strip().to_chr(), t.len(), &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/);
-			//DrawText(hdc, txt, lstrlen(txt), &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/);
-			//DrawTextEx(hdc, t.strip().to_chr(), t.len(), &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/, &dtp);
+				t.mreplace(TEXT(' '), TEXT("\n\r"));	// replace any \n or \r with a space
+
+			t.strip();	// removes ctrl codes & double spaces & spaces at start & end.
+			DrawTextW(hdc, t.to_wchr(), -1, &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/);
+			//DrawTextW(hdc, t.strip().to_wchr(), -1, &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/);	// using t.len() gives invalid length (issue with strip())
 			// style can be either center or right, not both, but it can be center+vcenter or right+vcenter
 			if (dcx_testflag(style, DT_CENTER))
 			{ // get center text start offset
@@ -1946,7 +1860,7 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 				case 2: // Bold
 				{
 					if (!tmp.empty())
-						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+						mIRC_OutText(hdc, &rcBufferBounds, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 					if (lf.lfWeight == FW_BOLD)
 						lf.lfWeight = origWeight;
 					else
@@ -1956,14 +1870,11 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 				case 3: // Colour
 				{
 					if (!tmp.empty())
-						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+						mIRC_OutText(hdc, &rcBufferBounds, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 
 					while (wtxt[pos + 1] == 3)
 						++pos; // remove multiple consecutive ctrl-k's
 
-					SetBkMode(hdc, TRANSPARENT);
-
-					//usingBGclr = false;
 					if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
 					{
 						{
@@ -2005,15 +1916,14 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 						}
 						if (usingRevTxt)
 						{ // reverse text swap fg & bg colours
-							const auto ct = clrFG;
-							clrFG = clrBG;
-							clrBG = ct;
+							std::swap(clrFG, clrBG);
 							SetBkMode(hdc, OPAQUE);
 						}
 					}
 					else {
 						clrFG = origFG;
 						clrBG = origBG;
+						SetBkMode(hdc, TRANSPARENT);
 					}
 					SetTextColor(hdc, clrFG);
 					SetBkColor(hdc, clrBG);
@@ -2022,13 +1932,15 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 				case 15: // ctrl+o
 				{
 					if (!tmp.empty())
-						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+						mIRC_OutText(hdc, &rcBufferBounds, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 
 					while (wtxt[pos + 1] == 15)
 						++pos; // remove multiple consecutive ctrl-o's
 
 					lf.lfWeight = origWeight;
 					lf.lfUnderline = 0;
+					lf.lfItalic = 0;
+					lf.lfStrikeOut = 0;
 					clrFG = origFG;
 					clrBG = origBG;
 					SetTextColor(hdc, origFG);
@@ -2040,7 +1952,7 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 				case 22: // ctrl+r
 				{
 					if (!tmp.empty())
-						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+						mIRC_OutText(hdc, &rcBufferBounds, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 
 					usingRevTxt = (usingRevTxt ? false : true);
 
@@ -2049,9 +1961,8 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 					else
 						SetBkMode(hdc, TRANSPARENT);
 
-					const COLORREF ct = clrBG;
-					clrBG = clrFG;
-					clrFG = ct;
+					std::swap(clrFG, clrBG);
+
 					SetTextColor(hdc, clrFG);
 					SetBkColor(hdc, clrBG);
 				}
@@ -2059,14 +1970,14 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 				case 29: // ctrl-i Italics
 				{
 					if (!tmp.empty())
-						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+						mIRC_OutText(hdc, &rcBufferBounds, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 					lf.lfItalic = (lf.lfItalic ? 0U : 1U);
 				}
 				break;
 				case 31: // ctrl+u
 				{
 					if (!tmp.empty())
-						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+						mIRC_OutText(hdc, &rcBufferBounds, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 					lf.lfUnderline = (lf.lfUnderline ? 0U : 1U);
 				}
 				break;
@@ -2082,8 +1993,8 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 						if (const auto tlen = tmp.len(); tlen > 0)
 						{
 							SIZE sz{};
-							GetTextExtentPoint32(hdc, tmp.to_chr(), gsl::narrow_cast<int>(tlen), &sz);
-							mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+							GetTextExtentPoint32W(hdc, tmp.to_wchr(), gsl::narrow_cast<int>(tlen), &sz);
+							mIRC_OutText(hdc, &rcBufferBounds, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 							rcOut.top += sz.cy;
 						}
 
@@ -2103,23 +2014,20 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 							SIZE sz{};
 							int nFit{};
 							const auto tlen = gsl::narrow_cast<int>(tmp.len());
-							GetTextExtentExPoint(hdc, txt.to_chr(), tlen, (rcOut.right - rcOut.left), &nFit, nullptr, &sz);
+							GetTextExtentExPointW(hdc, txt.to_wchr(), tlen, (rcOut.right - rcOut.left), &nFit, nullptr, &sz);
 							if (nFit < tlen)
 							{
 								if (nFit > 0)
 								{
 									const auto o = tmp[nFit];
-									//mIRC_OutText(hdc, tmp.wsub(0,nFit), &rcOut, &lf, iStyle, clrFG, shadow);
 									auto tsSub(tmp.sub(0, nFit));
-									mIRC_OutText(hdc, tsSub, &rcOut, &lf, iStyle, clrFG, shadow);
-									//tmp = "";
+									mIRC_OutText(hdc, &rcBufferBounds, tsSub, &rcOut, &lf, iStyle, clrFG, shadow);
 									rcOut.top += sz.cy;
 									rcOut.left = origLeft;
 									tmp = o;
-									//mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 								}
 								else
-									tmp.clear();	// tmp = TEXT("");
+									tmp.clear();
 							}
 						}
 					}
@@ -2130,10 +2038,8 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 			}
 		}
 		if (!tmp.empty())
-			mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+			mIRC_OutText(hdc, &rcBufferBounds, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 	}
-
-	//RestoreDC(hdc, savedDC);
 
 	if (!dcx_testflag(iStyle, DT_CALCRECT))
 		BitBlt(oldHDC, rc->left, rc->top, (rc->right - rc->left), (rc->bottom - rc->top), hdc, 0, 0, SRCCOPY);
@@ -2354,52 +2260,6 @@ void FreeOSCompatibility() noexcept
 	}
 }
 
-// taken from: https://stackoverflow.com/questions/71009055/extract-all-icons-of-a-file
-//BOOL CALLBACK EnumIcons(HMODULE hmodule, LPCTSTR type, LPTSTR lpszName,
-//	LONG_PTR ptr)
-//{
-//	if (!ptr)
-//		return FALSE;
-//	auto pvec = (std::vector<HICON>*)ptr;
-//	auto hRes = FindResource(hmodule, lpszName, type);
-//	if (!hRes)
-//		return TRUE;
-//	auto size = SizeofResource(hmodule, hRes);
-//	auto hg = LoadResource(hmodule, hRes);
-//	if (!hg)
-//		return TRUE;
-//	auto bytes = (BYTE*)LockResource(hg);
-//	auto hicon = CreateIconFromResourceEx(bytes, size, TRUE, 0x00030000,
-//		0, 0, LR_SHARED);
-//	if (hicon)
-//		pvec->push_back(hicon);
-//	return TRUE;
-//}
-//
-//int main()
-//{
-//	std::vector<HICON> vec;
-//	const char* modulepath = "file.exe";
-//	HMODULE hmodule = LoadLibraryEx(modulepath, NULL,
-//		LOAD_LIBRARY_AS_IMAGE_RESOURCE);
-//	if (!hmodule)
-//		return 0;
-//
-//	EnumResourceNames(hmodule, RT_ICON, (ENUMRESNAMEPROC)EnumIcons, (LONG_PTR)&vec);
-//	for (auto e : vec)
-//	{
-//		ICONINFOEX ii = { sizeof(ii) };
-//		if (!GetIconInfoEx(e, &ii) || !ii.hbmColor)
-//			continue;
-//		BITMAP bm;
-//		GetObject(ii.hbmColor, sizeof(bm), &bm);
-//		printf("%d %d %d\n", bm.bmWidth, bm.bmHeight, bm.bmBitsPixel);
-//	}
-//
-//	//free icons...
-//	return 0;
-//}
-
 void AddFileIcons(HIMAGELIST himl, TString& filename, const bool bLarge, const int iIndex, const int iStart, int iEnd)
 {
 	if ((!himl) || (iStart < 0) || (iEnd != -1 && iStart > iEnd))
@@ -2523,35 +2383,6 @@ void DrawRotatedText(const TString& strDraw, const LPCRECT rc, const HDC hDC, co
 		//DrawText(hDC, strDraw.to_chr(), strDraw.len(), rc, styles);
 	}
 }
-
-//void DrawRotatedText(HDC hdc, TCHAR *str, LPRECT rect, double angle, UINT nOptions = 0)
-//{
-//	// convert angle to radian
-//	constexpr double pi = 3.141592654;
-//	double radian = pi * 2 / 360 * angle;
-//
-//	size_t len = lstrlen(str);
-//
-//	// get the center of a not-rotated text
-//	SIZE TextSize;;
-//	GetTextExtentPoint32(hdc, str, len, &TextSize);
-//
-//	POINT center;
-//	center.x = TextSize.cx / 2;
-//	center.y = TextSize.cy / 2;
-//
-//	// now calculate the center of the rotated text
-//	POINT rcenter;
-//	rcenter.x = long(cos(radian) * center.x - sin(radian) * center.y);
-//	rcenter.y = long(sin(radian) * center.x + cos(radian) * center.y);
-//
-//	// finally draw the text and move it to the center of the rectangle
-//	SetTextAlign(hdc, TA_BASELINE);
-//	SetBkMode(hdc, TRANSPARENT);
-//	ExtTextOut(hdc, rect->left + (rect->right - rect->left) / 2 - rcenter.x,
-//		rect->top + (rect->bottom - rect->top) / 2 + rcenter.y,
-//		nOptions, rect, str, len, nullptr);
-//}
 
 const char* queryAttribute(const TiXmlElement* element, const char* attribute, const char* defaultValue) noexcept
 {
