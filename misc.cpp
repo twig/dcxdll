@@ -1929,7 +1929,7 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 					SetBkColor(hdc, clrBG);
 				}
 				break;
-				case 15: // ctrl+o
+				case 15: // ctrl+o end any ctrl codes in effect.
 				{
 					if (!tmp.empty())
 						mIRC_OutText(hdc, &rcBufferBounds, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
@@ -1949,7 +1949,7 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 					usingRevTxt = false;
 				}
 				break;
-				case 22: // ctrl+r
+				case 22: // ctrl+r reverse
 				{
 					if (!tmp.empty())
 						mIRC_OutText(hdc, &rcBufferBounds, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
@@ -1974,7 +1974,14 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 					lf.lfItalic = (lf.lfItalic ? 0U : 1U);
 				}
 				break;
-				case 31: // ctrl+u
+				case 30: // ctrl+e strikethrough
+				{
+					if (!tmp.empty())
+						mIRC_OutText(hdc, rc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+					lf.lfStrikeOut = (lf.lfStrikeOut ? 0U : 1U);
+				}
+				break;
+				case 31: // ctrl+u underline
 				{
 					if (!tmp.empty())
 						mIRC_OutText(hdc, &rcBufferBounds, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
