@@ -337,7 +337,7 @@ void DcxCheck::parseCommandRequest(const TString& input)
 				m_Colours.m_clrHotFrame = clrColor;
 
 			if (dcx_testflag(iFlags, DcxColourFlags::CHECKBOXTICKCOLOR))
-				m_Colours.m_clrTick = clrColor;
+				m_Colours.m_clrHotTick = clrColor;
 		}
 		else {
 			// checkbox is NOT disabled & is NOT hot
