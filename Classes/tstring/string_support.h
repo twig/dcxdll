@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.29
+// v1.30
 
 #include <tchar.h>
 #include <cstdlib>
@@ -1692,7 +1692,7 @@ std::vector<T> _ts_SortString(_In_ const std::vector<T>&str)
 {
 	std::vector<T> out(str);
 
-	std::sort(out.begin(), out.end(), std::less<T>);
+	std::sort(out.begin(), out.end(), std::less<T>());
 
 	return out;
 }
