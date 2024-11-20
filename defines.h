@@ -796,24 +796,20 @@ constexpr const TCHAR* GetLastStatusStr(Gdiplus::Status status) noexcept;
 
 bool IsFile(TString& filename);
 
-void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT* pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset) noexcept;
-//void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
-void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, const bool shadow);
-void DrawRotatedText(const TString& strDraw, const LPCRECT rc, const HDC hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0) noexcept;
-void dcxDrawGradientText(HDC hdc, LPCTSTR txt, int len, LPRECT pRC, UINT fmt, COLORREF clrStart, COLORREF clrEnd, bool bHoriz, bool bCtrlCodes, bool bShadow);
-void dcxDrawOutlineText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, bool bCtrlCodes, bool bShadow, bool bFill, UINT uOulineSize);
-
 struct dcxTextOptions
 {
-	bool m_bGradient{};
-	bool m_bHorizGradient{};
+	bool m_bGradientFill{};
+	bool m_bHorizGradientFill{};
 	bool m_bOutline{};
 	bool m_bFilledOutline{};
+	bool m_bDoubleOutline{};
 	bool m_bGradientOutline{};
 	bool m_bHorizGradientOutline{};
 	bool m_bShadow{};
 	bool m_bCtrlCodes{ true };
 	bool m_bTransparent{};
+	bool m_bGlow{};
+	bool m_bNoColours{};
 
 	COLORREF m_clrText{ CLR_INVALID };
 	COLORREF m_clrTextBackground{ CLR_INVALID };
@@ -823,10 +819,35 @@ struct dcxTextOptions
 	COLORREF m_clrGradientOutlineEnd{ CLR_INVALID };
 	COLORREF m_clrOutline{ CLR_INVALID };
 	COLORREF m_clrShadow{ CLR_INVALID };
+	COLORREF m_clrGlow{ CLR_INVALID };
 
 	UINT m_uOutlineSize{ 1 };
+	UINT m_uShadowXOffset{ 5 };
+	UINT m_uShadowYOffset{ 5 };
+	BYTE m_uShadowAlpha{ 192 };
+	BYTE m_nShadowThickness{ 1 };
 };
 
+struct dcxTextBreakdown
+{
+	LOGFONT m_log{};
+	COLORREF m_clrText{ CLR_INVALID };
+	COLORREF m_clrBack{ CLR_INVALID };
+	TString m_str;
+	bool m_bTransparent{ true };
+};
+std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const TString& txt);
+std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const LPCWSTR txt, UINT len);
+RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPCRECT rc, const UINT uStyle, const dcxTextOptions& dTO) noexcept;
+void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPRECT rc, const UINT uStyle, const dcxTextOptions& dTO) noexcept;
+
+void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT* pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset) noexcept;
+void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, const bool shadow);
+void mIRC_DrawTextNoBuffer(HDC hdc, const TString& txt, LPRECT rc, const UINT style, const bool shadow, const dcxTextOptions *dTO = nullptr);
+void DrawRotatedText(const TString& strDraw, const LPCRECT rc, const HDC hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0) noexcept;
+void dcxDrawGradientText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, const dcxTextOptions& dTO);
+void dcxDrawGradientTextMasked(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, const dcxTextOptions& dTO);
+void dcxDrawOutlineText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, const dcxTextOptions& dTO);
 void dcxDrawTextOptions(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT mStyle, const dcxTextOptions& dTO);
 
 [[nodiscard("Memory Leak")]] gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc);

@@ -427,6 +427,72 @@ namespace
 
 	void mIRC_OutText(HDC hdc, LPCRECT rcBounds, TString& txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow) noexcept
 	{
+		//if (txt.empty() || !rcOut || !lf || !hdc)
+		//	return;
+		//
+		//const auto len = txt.len();
+		//auto hNewFont = CreateFontIndirectW(lf);
+		//if (!hNewFont)
+		//	return;
+		//
+		//const auto hOldFont = SelectObject(hdc, hNewFont);
+		//auto rcTmp = *rcOut;
+		//
+		//TEXTMETRICW tm{};
+		//GetTextMetricsW(hdc, std::addressof(tm));
+		//
+		//if (!dcx_testflag(iStyle, DT_CALCRECT))
+		//{	// if DT_CALCRECT flag NOT given then do calcrect here.
+		//	//if (shadow)
+		//	//	dcxDrawShadowText(hdc, txt.to_wchr(), gsl::narrow_cast<UINT>(len), std::addressof(rcTmp), iStyle | DT_CALCRECT, clrFG, 0, 5, 5);
+		//	//else
+		//	//	DrawTextW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle | DT_CALCRECT);
+		//	DRAWTEXTPARAMS params{};
+		//	params.cbSize = sizeof(DRAWTEXTPARAMS);
+		//	params.iTabLength = 4;
+		//
+		//	DrawTextExW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle | DT_CALCRECT, &params);
+		//
+		//	if (params.uiLengthDrawn < len)
+		//	{
+		//		if (rcTmp.left != rcBounds->left)
+		//		{
+		//			rcTmp.left = rcBounds->left;
+		//			rcTmp.top += tm.tmHeight;
+		//			rcOut->left = rcBounds->left;
+		//			rcOut->top = rcTmp.top;
+		//
+		//			DrawTextExW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle | DT_CALCRECT, &params);
+		//		}
+		//	}
+		//}
+		//if (shadow)
+		//	dcxDrawShadowText(hdc, txt.to_wchr(), gsl::narrow_cast<UINT>(len), std::addressof(rcTmp), iStyle, clrFG, 0, 5, 5);
+		//else
+		//	DrawTextW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle);
+		//
+		//if (tm.tmHeight != 0)
+		//{
+		//	if (!dcx_testflag(iStyle, DT_SINGLELINE))
+		//	{
+		//		if ((rcTmp.bottom - rcTmp.top) >= (tm.tmHeight * 2))
+		//		{
+		//			//rcOut->top += tm.tmHeight;
+		//			rcOut->top += (rcTmp.bottom - rcTmp.top);
+		//			rcOut->left = rcBounds->left;
+		//		}
+		//		else
+		//			rcOut->left += (rcTmp.right - rcTmp.left) - tm.tmOverhang;
+		//	}
+		//	else
+		//		rcOut->left += (rcTmp.right - rcTmp.left) - tm.tmOverhang;
+		//}
+		//else
+		//	rcOut->left += (rcTmp.right - rcTmp.left);
+		//
+		//DeleteObject(SelectObject(hdc, hOldFont));
+		//txt.clear();
+
 		if (txt.empty() || !rcOut || !lf || !hdc)
 			return;
 
@@ -438,31 +504,72 @@ namespace
 		const auto hOldFont = SelectObject(hdc, hNewFont);
 		auto rcTmp = *rcOut;
 
-		if (!dcx_testflag(iStyle, DT_CALCRECT))
-		{	// if DT_CALCRECT flag NOT given then do calcrect here.
-			if (shadow)
-				dcxDrawShadowText(hdc, txt.to_wchr(), gsl::narrow_cast<UINT>(len), std::addressof(rcTmp), iStyle | DT_CALCRECT, clrFG, 0, 5, 5);
-			else
-				DrawTextW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle | DT_CALCRECT);
-		}
-		if (shadow)
-			dcxDrawShadowText(hdc, txt.to_wchr(), gsl::narrow_cast<UINT>(len), std::addressof(rcTmp), iStyle, clrFG, 0, 5, 5);
-		else
-			DrawTextW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle);
+		TEXTMETRICW tm{};
+		GetTextMetricsW(hdc, std::addressof(tm));
 
-		if (TEXTMETRICW tm{}; GetTextMetricsW(hdc, std::addressof(tm)))
+		DRAWTEXTPARAMS params{};
+		params.cbSize = sizeof(DRAWTEXTPARAMS);
+		params.iTabLength = 4;
+		WCHAR* pText = txt.to_wchr();
+
+		for (UINT uCharsDrawn{}; uCharsDrawn < len; uCharsDrawn += params.uiLengthDrawn)
+		{
+			params.uiLengthDrawn = 0;
+			// see if text fits...
+			DrawTextExW(hdc, pText, gsl::narrow_cast<int>(len - uCharsDrawn), std::addressof(rcTmp), iStyle | DT_CALCRECT, &params);
+
+			// doesnt all fit on this line
+			if (params.uiLengthDrawn < (len - uCharsDrawn))
+			{
+				// if not at the start of the line, dropdown to the next & try again.
+				if (rcTmp.left != rcBounds->left)
+				{
+					rcTmp = *rcOut;
+					rcTmp.left = rcBounds->left;
+					rcTmp.top += tm.tmHeight;
+					rcOut->left = rcBounds->left;
+					rcOut->top = rcTmp.top;
+
+					DrawTextExW(hdc, pText, gsl::narrow_cast<int>(len - uCharsDrawn), std::addressof(rcTmp), iStyle | DT_CALCRECT, &params);
+				}
+			}
+
+			if (shadow)
+				dcxDrawShadowText(hdc, pText, gsl::narrow_cast<UINT>(params.uiLengthDrawn), std::addressof(rcTmp), iStyle, clrFG, 0, 5, 5);
+			else
+				DrawTextW(hdc, pText, gsl::narrow_cast<int>(params.uiLengthDrawn), std::addressof(rcTmp), iStyle);
+
+			// check if all characters were drawn
+			if ((params.uiLengthDrawn + uCharsDrawn) < len)
+			{
+				//if (rcTmp.left != rcBounds->left)
+				{
+					rcTmp.left = rcBounds->left;
+					rcTmp.top += tm.tmHeight;
+					rcOut->left = rcBounds->left;
+					rcOut->top = rcTmp.top;
+				}
+				pText += params.uiLengthDrawn;
+			}
+
+			if (rcTmp.bottom > rcBounds->bottom)
+				break;
+		}
+
+		if (tm.tmHeight != 0)
 		{
 			if (!dcx_testflag(iStyle, DT_SINGLELINE))
 			{
 				if ((rcTmp.bottom - rcTmp.top) >= (tm.tmHeight * 2))
 				{
-					rcOut->top += tm.tmHeight;
+					//rcOut->top += tm.tmHeight;
+					rcOut->top += (rcTmp.bottom - rcTmp.top);
 					rcOut->left = rcBounds->left;
 				}
 				else
-			rcOut->left += (rcTmp.right - rcTmp.left) - tm.tmOverhang;
+					rcOut->left += (rcTmp.right - rcTmp.left) - tm.tmOverhang;
 			}
-		else
+			else
 				rcOut->left += (rcTmp.right - rcTmp.left) - tm.tmOverhang;
 		}
 		else
@@ -970,7 +1077,7 @@ TString ParseLogfontToCommand(const LPLOGFONT lf)
 
 	Auto(ReleaseDC(nullptr, hdc));
 
-	const auto hf = CreateFontIndirect(lf);
+	const auto hf = CreateFontIndirectW(lf);
 
 	if (!hf)
 		return tmp;
@@ -981,7 +1088,7 @@ TString ParseLogfontToCommand(const LPLOGFONT lf)
 
 	Auto(SelectObject(hdc, oldhf));
 
-	if (TEXTMETRIC tm{}; GetTextMetrics(hdc, &tm))
+	if (TEXTMETRIC tm{}; GetTextMetricsW(hdc, &tm))
 	{
 		//auto ptSize = (int) (-1 * (lfCurrent.lfHeight * 72 / GetDeviceCaps(hdc, LOGPIXELSY)));
 		const auto ptSize = MulDiv(tm.tmHeight - tm.tmInternalLeading, 72, GetDeviceCaps(hdc, LOGPIXELSY));
@@ -1175,9 +1282,9 @@ HICON dcxLoadIcon(const int index, TString& filename, const bool large, const TS
 	}
 	else {
 		if (large)
-			ExtractIconEx(filename.to_chr(), index, &icon, nullptr, 1);
+			ExtractIconExW(filename.to_wchr(), index, &icon, nullptr, 1);
 		else
-			ExtractIconEx(filename.to_chr(), index, nullptr, &icon, 1);
+			ExtractIconExW(filename.to_wchr(), index, nullptr, &icon, 1);
 	}
 
 	if (xflags[TEXT('g')])
@@ -1684,57 +1791,646 @@ int unfoldColor(const WCHAR* color) noexcept
 	return unfoldColor(_ts_atoi(color));
 }
 
-//void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft)
-//{
-//	if (!ignoreleft || (dcx_testflag(style, DT_CENTER)) || (dcx_testflag(style, DT_RIGHT))) {
-//		TString stripped_txt;
-//		const WCHAR *wtxt = txt.to_chr();
-//		UINT pos = 0, len = (UINT)txt.len();
-//
-//		if ((len == 0) || (wtxt == nullptr))
-//			return;
-//
-//		// strip out ctrl codes to correctly position text.
-//		for (WCHAR c = wtxt[pos]; pos < len; c = wtxt[++pos]) {
-//			switch (c)
-//			{
-//			case 2:  // ctrl-b Bold
-//			case 15: // ctrl-o
-//			case 22: // ctrl-r Reverse
-//			case 29: // ctrl-i Italics
-//			case 31: // ctrl-u Underline
-//				break;
-//			case 3: // ctrl-k Colour
-//				{
-//					while (wtxt[pos+1] == 3) pos++; // remove multiple consecutive ctrl-k's
-//					if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
-//						++pos;
-//
-//						if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
-//							pos++;
-//
-//						// maybe a background color
-//						if (wtxt[pos+1] == L',') {
-//							++pos;
-//
-//							if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
-//								pos++;
-//
-//								if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
-//									++pos;
-//							}
-//						}
-//					}
-//				}
-//				break;
-//			default:
-//				stripped_txt += c;
-//				break;
-//			}
-//		}
-//		DrawText(hdc, stripped_txt.to_chr(), (int)stripped_txt.len(), rc, style | DT_CALCRECT);
-//	}
-//}
+/// <summary>
+/// Pre proccessed the mIRC text. To be used any time the text changes.
+/// </summary>
+/// <param name="txt"></param>
+/// <param name="len"></param>
+/// <returns></returns>
+std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const LPCWSTR txt, UINT len)
+{
+	std::vector<dcxTextBreakdown> vec;
+
+	const auto wtxt = txt;
+	bool usingRevTxt = false;
+	UINT pos = 0;
+
+	constexpr COLORREF origFG = CLR_INVALID /*RGB(0,0,0)*/, origBG = CLR_INVALID /*RGB(255,255,255)*/;
+	COLORREF cPalette[mIRC_PALETTE_SIZE] = { CLR_INVALID }; // mIRC palette
+
+	getmIRCPalette(gsl::span<COLORREF>(cPalette), false); // get mIRC palette
+
+	dcxTextBreakdown tmp;
+
+	for (auto c = wtxt[pos]; pos < len; c = wtxt[++pos])
+	{
+		switch (c)
+		{
+		case 2: // Bold
+		{
+			if (!tmp.m_str.empty())
+			{
+				vec.push_back(tmp);
+				tmp.m_str.clear();
+			}
+			if (tmp.m_log.lfWeight == FW_BOLD)
+				tmp.m_log.lfWeight = FW_NORMAL;
+			else
+				tmp.m_log.lfWeight = FW_BOLD;
+		}
+		break;
+		case 3: // Colour
+		{
+			if (!tmp.m_str.empty())
+			{
+				vec.push_back(tmp);
+				tmp.m_str.clear();
+			}
+
+			while (wtxt[pos + 1] == 3)
+				++pos; // remove multiple consecutive ctrl-k's
+
+			if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
+			{
+				{
+					UINT umIRCColour = (wtxt[pos + 1] - L'0'); // must be => 0 <= 9
+					++pos;
+
+					if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
+					{
+						umIRCColour *= 10;	// becomes a max of 90
+						umIRCColour += (wtxt[pos + 1] - L'0');	// becomes a max of 99
+						++pos;
+					}
+
+					// color code number
+					tmp.m_clrText = gsl::at(cPalette, umIRCColour);
+				}
+
+				// maybe a background color
+				if (wtxt[pos + 1] == L',')
+				{
+					++pos;
+
+					if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
+					{
+						UINT umIRCColour = (wtxt[pos + 1] - L'0'); // must be => 0 <= 9
+						++pos;
+
+						if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
+						{
+							umIRCColour *= 10;	// becomes a max of 90
+							umIRCColour += (wtxt[pos + 1] - L'0');	// becomes a max of 99
+							++pos;
+						}
+
+						// color code number
+						tmp.m_clrBack = gsl::at(cPalette, umIRCColour);
+						tmp.m_bTransparent = false;
+					}
+				}
+				if (usingRevTxt)
+				{ // reverse text swap fg & bg colours
+					std::swap(tmp.m_clrText, tmp.m_clrBack);
+					tmp.m_bTransparent = false;
+				}
+			}
+			else {
+				tmp.m_clrText = origFG;
+				tmp.m_clrBack = origBG;
+				tmp.m_bTransparent = true;
+			}
+		}
+		break;
+		case 15: // ctrl+o cancel all ctrl codes in effect.
+		{
+			if (!tmp.m_str.empty())
+			{
+				vec.push_back(tmp);
+				tmp.m_str.clear();
+			}
+
+			while (wtxt[pos + 1] == 15)
+				++pos; // remove multiple consecutive ctrl-o's
+
+			tmp.m_log.lfWeight = FW_NORMAL;
+			tmp.m_log.lfUnderline = 0;
+			tmp.m_log.lfItalic = 0;
+			tmp.m_log.lfStrikeOut = 0;
+			tmp.m_clrText = origFG;
+			tmp.m_clrBack = origBG;
+			tmp.m_bTransparent = true;
+			usingRevTxt = false;
+		}
+		break;
+		case 22: // ctrl+r reverse
+		{
+			if (!tmp.m_str.empty())
+			{
+				vec.push_back(tmp);
+				tmp.m_str.clear();
+			}
+
+			usingRevTxt = (usingRevTxt ? false : true);
+
+			if (usingRevTxt)
+				tmp.m_bTransparent = false;
+			else
+				tmp.m_bTransparent = true;
+
+			std::swap(tmp.m_clrText, tmp.m_clrBack);
+		}
+		break;
+		case 29: // ctrl-i Italics
+		{
+			if (!tmp.m_str.empty())
+			{
+				vec.push_back(tmp);
+				tmp.m_str.clear();
+			}
+			tmp.m_log.lfItalic = (tmp.m_log.lfItalic ? 0U : 1U);
+		}
+		break;
+		case 30: // ctrl+e strikethrough
+		{
+			if (!tmp.m_str.empty())
+			{
+				vec.push_back(tmp);
+				tmp.m_str.clear();
+			}
+			tmp.m_log.lfStrikeOut = (tmp.m_log.lfStrikeOut ? 0U : 1U);
+		}
+		break;
+		case 31: // ctrl+u underline
+		{
+			if (!tmp.m_str.empty())
+			{
+				vec.push_back(tmp);
+				tmp.m_str.clear();
+			}
+			tmp.m_log.lfUnderline = (tmp.m_log.lfUnderline ? 0U : 1U);
+		}
+		break;
+		case 10:
+		case 13:
+		default: // normal TCHAR
+		{
+			tmp.m_str += c;
+		}
+		break;
+		}
+	}
+	if (!tmp.m_str.empty())
+		vec.push_back(tmp);
+
+	return vec;
+}
+
+/// <summary>
+/// Pre proccessed the mIRC text. To be used any time the text changes.
+/// </summary>
+/// <param name="txt"></param>
+/// <returns></returns>
+std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const TString& txt)
+{
+	return dcxBreakdownmIRCText(txt.to_wchr(), txt.len());
+}
+
+RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPCRECT rc, const UINT uStyle, const dcxTextOptions& dTO) noexcept
+{
+	RECT rcResult{ *rc };
+
+	const UINT uNewStyle = uStyle | DT_CALCRECT;
+
+	TString txt;
+	for (const auto& tbd : vec)
+	{
+		txt += tbd.m_str;
+	}
+	DrawTextW(hdc, txt.to_wchr(), txt.len(), &rcResult, uNewStyle);
+
+	return rcResult;
+}
+void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPRECT rc, const UINT uStyle, const dcxTextOptions& dTO) noexcept
+{
+	if (!hdc || !rc || (vec.empty()) || IsRectEmpty(rc))
+		return;
+
+	const RECT rcCalc = dcxBreakdownCalcRect(hdc, vec, rc, uStyle, dTO);
+	if (dcx_testflag(uStyle, DT_CALCRECT))
+	{
+		*rc = rcCalc;
+		return;
+	}
+	RECT rcArea = *rc;
+	if (dcx_testflag(uStyle, DT_CENTER))
+	{
+		const auto halfXArea = (rcCalc.right - rcCalc.left) / 2;
+		rcArea.left = rc->left + (((rc->right - rc->left) / 2) - halfXArea);
+		rcArea.right = rc->right - (((rc->right - rc->left) / 2) - halfXArea);
+	}
+	if (dcx_testflag(uStyle, DT_VCENTER))
+	{
+		const auto halfYArea = (rcCalc.bottom - rcCalc.top) / 2;
+		rcArea.top = rc->top + (((rc->bottom - rc->top) / 2) - halfYArea);
+		rcArea.bottom = rc->bottom - (((rc->bottom - rc->top) / 2) - halfYArea);
+	}
+	if (dcx_testflag(uStyle, DT_RIGHT))
+	{
+		const auto XArea = (rcCalc.right - rcCalc.left);
+		rcArea.left = rc->right - XArea;
+	}
+	int xPos{ rcArea.left }, yPos{ rcArea.top };
+
+	auto _DrawBreakdown = [&xPos, &yPos, &uStyle, &rcArea, &hdc, &dTO](const TString& txt) noexcept -> bool {
+		TEXTMETRICW tm{};
+		GetTextMetricsW(hdc, std::addressof(tm));
+
+		int iFit{};
+		const WCHAR* pText{ txt.to_wchr() };
+		const auto len = txt.len();
+
+		if (xPos >= rcArea.right)
+		{
+			xPos = rcArea.left;
+			yPos += tm.tmHeight;
+		}
+		for (std::remove_const_t<decltype(len)> iDrawnChars{}; iDrawnChars < len; iDrawnChars += iFit)
+		{
+			SIZE sz{};
+			GetTextExtentExPointW(hdc, pText, gsl::narrow_cast<int>(len - iDrawnChars), (rcArea.right - xPos), &iFit, nullptr, &sz);
+
+			if (iFit != 0)
+			{
+				//if (dTO.m_bShadow)
+				//{
+				//	const auto clrShadow = (dTO.m_clrShadow != CLR_INVALID) ? dTO.m_clrShadow : RGB(0, 0, 0);
+				//	const auto oldClr = SetTextColor(hdc, clrShadow);
+				//	TextOutW(hdc, xPos + dTO.m_uShadowXOffset, yPos + dTO.m_uShadowYOffset, pText, iFit);
+				//	SetTextColor(hdc, oldClr);
+				//}
+				//TextOutW(hdc, xPos, yPos, pText, iFit);
+
+				RECT rcTxt{};
+				rcTxt.top = yPos;
+				rcTxt.bottom = yPos + sz.cy;
+				rcTxt.left = xPos;
+				rcTxt.right = rcArea.right;
+
+				const UINT uNewStyle = uStyle | DT_SINGLELINE;
+
+				if (dTO.m_bShadow)
+				{
+					const auto clrShadow = (dTO.m_clrShadow != CLR_INVALID) ? dTO.m_clrShadow : RGB(0, 0, 0);
+					dcxDrawShadowText(hdc, pText, iFit, &rcTxt, uNewStyle, GetTextColor(hdc), clrShadow, dTO.m_uShadowXOffset, dTO.m_uShadowYOffset);
+				}
+				else
+					DrawTextW(hdc, pText, iFit, &rcTxt, uNewStyle);
+			}
+
+			if ((iFit + iDrawnChars) < len)
+			{
+				if (dcx_testflag(uStyle, DT_SINGLELINE))
+					return false;
+				xPos = rcArea.left;
+				yPos += sz.cy;
+				pText += iFit;
+			}
+			else {
+				xPos += sz.cx - tm.tmOverhang;
+			}
+		}
+		return (iFit != 0);
+	};
+
+	if (dTO.m_bCtrlCodes)
+	{
+		const COLORREF origFG = GetTextColor(hdc), origBG = GetBkColor(hdc);
+
+		auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT));
+		if (code == 0)
+			return;
+
+		for (const auto& tbd : vec)
+		{
+			if (tbd.m_str.empty())
+				continue;
+
+			if (yPos >= rcArea.bottom)
+				break;
+
+			lf.lfWeight = tbd.m_log.lfWeight;
+			lf.lfItalic = tbd.m_log.lfItalic;
+			lf.lfStrikeOut = tbd.m_log.lfStrikeOut;
+			lf.lfUnderline = tbd.m_log.lfUnderline;
+
+			if (!dTO.m_bNoColours)
+			{
+				if (tbd.m_clrText != CLR_INVALID)
+					SetTextColor(hdc, tbd.m_clrText);
+				else
+					SetTextColor(hdc, origFG);
+
+				if (tbd.m_clrBack != CLR_INVALID)
+					SetBkColor(hdc, tbd.m_clrBack);
+				else
+					SetBkColor(hdc, origBG);
+			}
+
+			SetBkMode(hdc, (tbd.m_bTransparent) ? TRANSPARENT : OPAQUE);
+
+			auto hNewFont = CreateFontIndirectW(&lf);
+			if (!hNewFont)
+				return;
+			Auto(DeleteObject(hNewFont));
+
+			const auto hOldFont = SelectObject(hdc, hNewFont);
+			Auto(SelectObject(hdc, hOldFont));
+
+			if (!_DrawBreakdown(tbd.m_str))
+				break;
+		}
+		SetTextColor(hdc, origFG);
+		SetBkColor(hdc, origBG);
+	}
+	else {
+		for (const auto& tbd : vec)
+		{
+			if (tbd.m_str.empty())
+				continue;
+
+			if (yPos >= rcArea.bottom)
+				break;
+
+			SetBkMode(hdc, (tbd.m_bTransparent) ? TRANSPARENT : OPAQUE);
+
+			if (!_DrawBreakdown(tbd.m_str))
+				break;
+		}
+	}
+}
+
+/// <summary>
+/// Draw text using mIRC's control codes (including colours)
+/// </summary>
+/// <param name="hdc">- The HDC to draw to.</param>
+/// <param name="txt">- The text to draw.</param>
+/// <param name="rc">- A RECT defining the draw area.</param>
+/// <param name="style">- The DrawText() styles to use.</param>
+/// <param name="shadow">- Give the text a shadow?</param>
+void mIRC_DrawTextNoBuffer(HDC hdc, const TString& txt, LPRECT rc, const UINT style, const bool shadow, const dcxTextOptions* pdTO)
+{
+	if (!hdc || !rc || (txt.empty()) || IsRectEmpty(rc))
+		return;
+
+	auto rcOut = *rc;
+
+	const COLORREF origFG = GetTextColor(hdc), origBG = GetBkColor(hdc);
+	COLORREF clrFG = origFG, clrBG = origBG;
+	COLORREF cPalette[mIRC_PALETTE_SIZE] = { CLR_INVALID }; // mIRC palette
+
+	getmIRCPalette(gsl::span<COLORREF>(cPalette), false); // get mIRC palette
+
+	auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT));
+	if (code == 0)
+		return;
+
+	const auto origWeight = lf.lfWeight;
+	auto origLeft = rc->left;
+
+	SetBkMode(hdc, TRANSPARENT);
+
+	const UINT iStyle = (style & ~(DT_CENTER | DT_RIGHT | DT_VCENTER)) | DT_LEFT; // make sure its to left
+
+	if (!dcx_testflag(iStyle, DT_CALCRECT))
+	{ // if NOT doing DT_CALCRECT calc rect needed here.
+		if (dcx_testflag(style, DT_CENTER) || dcx_testflag(style, DT_RIGHT) || dcx_testflag(style, DT_VCENTER))
+		{
+			// strip out ctrl codes to correctly position text.
+			auto rcTmp = *rc;
+			auto t(txt);
+			if (dcx_testflag(iStyle, DT_SINGLELINE))
+			{
+				t.mreplace(TEXT(' '), TEXT("\n\r"));
+			}
+			t.strip();	// removes ctrl codes & double spaces & spaces at start & end.
+			DrawTextW(hdc, t.to_wchr(), -1, &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/);	// using t.len() gives invalid length (issue with strip())
+			// style can be either center or right, not both, but it can be center+vcenter or right+vcenter
+			if (dcx_testflag(style, DT_CENTER))
+			{ // get center text start offset
+				// (total width) - (required width) / 2 = equal space to each side.
+				origLeft = rcOut.left = rcOut.left + (((rcOut.right - rcOut.left) - (rcTmp.right - rcTmp.left)) / 2);
+			}
+			else if (dcx_testflag(style, DT_RIGHT))
+			{ // get right text start offset
+				// adjust start to right
+				origLeft = rcOut.left = (rcOut.right - (rcTmp.right - rcTmp.left));
+			}
+			if (dcx_testflag(style, DT_VCENTER))
+			{ // get Veritcal center text start offset
+				rcOut.top += (((rcOut.bottom - rcOut.top) - (rcTmp.bottom - rcTmp.top)) / 2);
+			}
+		}
+	}
+
+	{
+		TString tmp;
+		{
+			const auto wtxt = txt.to_wchr();
+			const auto len = txt.len();
+			bool usingRevTxt = false;
+			UINT pos = 0;
+
+			for (auto c = wtxt[pos]; pos < len; c = wtxt[++pos])
+			{
+				switch (c)
+				{
+				case 2: // Bold
+				{
+					if (!tmp.empty())
+						mIRC_OutText(hdc, rc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+					if (lf.lfWeight == FW_BOLD)
+						lf.lfWeight = origWeight;
+					else
+						lf.lfWeight = FW_BOLD;
+				}
+				break;
+				case 3: // Colour
+				{
+					if (!tmp.empty())
+						mIRC_OutText(hdc, rc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+
+					while (wtxt[pos + 1] == 3)
+						++pos; // remove multiple consecutive ctrl-k's
+
+					if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
+					{
+						{
+							UINT umIRCColour = (wtxt[pos + 1] - L'0'); // must be => 0 <= 9
+							++pos;
+
+							if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
+							{
+								umIRCColour *= 10;	// becomes a max of 90
+								umIRCColour += (wtxt[pos + 1] - L'0');	// becomes a max of 99
+								++pos;
+							}
+
+							// color code number
+							clrFG = gsl::at(cPalette, umIRCColour);
+						}
+
+						// maybe a background color
+						if (wtxt[pos + 1] == L',')
+						{
+							++pos;
+
+							if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
+							{
+								UINT umIRCColour = (wtxt[pos + 1] - L'0'); // must be => 0 <= 9
+								++pos;
+
+								if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
+								{
+									umIRCColour *= 10;	// becomes a max of 90
+									umIRCColour += (wtxt[pos + 1] - L'0');	// becomes a max of 99
+									++pos;
+								}
+
+								// color code number
+								clrBG = gsl::at(cPalette, umIRCColour);
+								SetBkMode(hdc, OPAQUE);
+							}
+						}
+						if (usingRevTxt)
+						{ // reverse text swap fg & bg colours
+							std::swap(clrFG, clrBG);
+							SetBkMode(hdc, OPAQUE);
+						}
+					}
+					else {
+						clrFG = origFG;
+						clrBG = origBG;
+						SetBkMode(hdc, TRANSPARENT);
+					}
+					SetTextColor(hdc, clrFG);
+					SetBkColor(hdc, clrBG);
+				}
+				break;
+				case 15: // ctrl+o cancel all ctrl codesin effect.
+				{
+					if (!tmp.empty())
+						mIRC_OutText(hdc, rc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+
+					while (wtxt[pos + 1] == 15)
+						++pos; // remove multiple consecutive ctrl-o's
+
+					lf.lfWeight = origWeight;
+					lf.lfUnderline = 0;
+					lf.lfItalic = 0;
+					lf.lfStrikeOut = 0;
+					clrFG = origFG;
+					clrBG = origBG;
+					SetTextColor(hdc, origFG);
+					SetBkColor(hdc, origBG);
+					SetBkMode(hdc, TRANSPARENT);
+					usingRevTxt = false;
+				}
+				break;
+				case 22: // ctrl+r reverse
+				{
+					if (!tmp.empty())
+						mIRC_OutText(hdc, rc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+
+					usingRevTxt = (usingRevTxt ? false : true);
+
+					if (usingRevTxt)
+						SetBkMode(hdc, OPAQUE);
+					else
+						SetBkMode(hdc, TRANSPARENT);
+
+					std::swap(clrFG, clrBG);
+
+					SetTextColor(hdc, clrFG);
+					SetBkColor(hdc, clrBG);
+				}
+				break;
+				case 29: // ctrl-i Italics
+				{
+					if (!tmp.empty())
+						mIRC_OutText(hdc, rc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+					lf.lfItalic = (lf.lfItalic ? 0U : 1U);
+				}
+				break;
+				case 30: // ctrl+e strikethrough
+				{
+					if (!tmp.empty())
+						mIRC_OutText(hdc, rc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+					lf.lfStrikeOut = (lf.lfStrikeOut ? 0U : 1U);
+				}
+				break;
+				case 31: // ctrl+u underline
+				{
+					if (!tmp.empty())
+						mIRC_OutText(hdc, rc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+					lf.lfUnderline = (lf.lfUnderline ? 0U : 1U);
+				}
+				break;
+				case 10:
+				case 13:
+				{
+					if (dcx_testflag(iStyle, DT_SINGLELINE))
+					{ // when single line, replace with a space or ignore?
+						//while ((wtxt[pos+1] == 13) || (wtxt[pos+1] == 10)) pos++; // remove multiple consecutive line feeds (causes exception??)
+						tmp += TEXT(' '); //" ";
+					}
+					else {
+						if (const auto tlen = tmp.len(); tlen > 0)
+						{
+							SIZE sz{};
+							GetTextExtentPoint32W(hdc, tmp.to_wchr(), gsl::narrow_cast<int>(tlen), &sz);
+							mIRC_OutText(hdc, rc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+							rcOut.top += sz.cy;
+						}
+
+						if (dcx_testflag(style, DT_RIGHT))
+							rcOut.left = origLeft;
+						else
+							rcOut.left = rc->left;
+					}
+				}
+				break;
+				default: // normal TCHAR
+				{
+					if (!dcx_testflag(iStyle, DT_SINGLELINE))
+					{ // don't bother if a single line.
+						if (!tmp.empty())
+						{
+							SIZE sz{};
+							int nFit{};
+							const auto tlen = gsl::narrow_cast<int>(tmp.len());
+							GetTextExtentExPointW(hdc, txt.to_wchr(), tlen, (rcOut.right - rcOut.left), &nFit, nullptr, &sz);
+							if (nFit < tlen)
+							{
+								if (nFit > 0)
+								{
+									const auto o = tmp[nFit];
+									auto tsSub(tmp.sub(0, nFit));
+									mIRC_OutText(hdc, rc, tsSub, &rcOut, &lf, iStyle, clrFG, shadow);
+									rcOut.top += sz.cy;
+									rcOut.left = origLeft;
+									tmp = o;
+								}
+								else
+									tmp.clear();
+							}
+						}
+					}
+					tmp += c;
+				}
+				break;
+				}
+			}
+		}
+		if (!tmp.empty())
+			mIRC_OutText(hdc, rc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+	}
+
+	if (dcx_testflag(iStyle, DT_CALCRECT))
+	{ // calc rect only
+		CopyRect(rc, &rcOut);
+	}
+}
 
 /// <summary>
 /// Draw text using mIRC's control codes (including colours)
@@ -1746,7 +2442,7 @@ int unfoldColor(const WCHAR* color) noexcept
 /// <param name="shadow">- Give the text a shadow?</param>
 void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, const bool shadow)
 {
-	if (!hdc || !rc || (txt.empty()))
+	if (!hdc || !rc || (txt.empty()) || IsRectEmpty(rc))
 		return;
 
 	// create an hdc buffer to avoid flicker during drawing.
@@ -2351,7 +3047,7 @@ void DrawRotatedText(const TString& strDraw, const LPCRECT rc, const HDC hDC, co
 	Auto(SetGraphicsMode(hDC, nOldGMode));
 
 	// Select the new font created
-	if (const auto hFont = CreateFontIndirect(&lf); hFont)
+	if (const auto hFont = CreateFontIndirectW(&lf); hFont)
 	{
 		Auto(DeleteObject(hFont));
 
