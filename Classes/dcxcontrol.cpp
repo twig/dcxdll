@@ -485,9 +485,11 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 			if (xflags[TEXT('c')])
 				this->m_tsToolTip.clear();
 
+			// set the tooltip text
 			if (xflags[TEXT('t')])
 				this->m_tsToolTip = tsText.getlasttoks().trim();
 
+			// open the tooltip
 			if (xflags[TEXT('O')])
 				this->OpenToolTip();
 		}
@@ -682,29 +684,50 @@ const DcxColourFlags DcxControl::parseColorFlags(const TString& flags) noexcept
 	if (!xflags[TEXT('+')])
 		return iFlags;
 
+	// background colours
 	if (xflags[TEXT('b')])
 		iFlags |= DcxColourFlags::BKGCOLOR;
-	if (xflags[TEXT('k')])
-		iFlags |= DcxColourFlags::TEXTBKGCOLOR;
-	if (xflags[TEXT('t')])
-		iFlags |= DcxColourFlags::TEXTCOLOR;
-	if (xflags[TEXT('r')])
-		iFlags |= DcxColourFlags::BORDERCOLOR;
 	if (xflags[TEXT('g')])
 		iFlags |= DcxColourFlags::GRADSTARTCOLOR;
 	if (xflags[TEXT('G')])
 		iFlags |= DcxColourFlags::GRADENDCOLOR;
 
+	// text colours.
+	if (xflags[TEXT('k')])
+		iFlags |= DcxColourFlags::TEXTBKGCOLOR;
+	if (xflags[TEXT('t')])
+		iFlags |= DcxColourFlags::TEXTCOLOR;
+	if (xflags[TEXT('e')])
+		iFlags |= DcxColourFlags::TEXTGRADSTARTCOLOR;
+	if (xflags[TEXT('E')])
+		iFlags |= DcxColourFlags::TEXTGRADENDCOLOR;
+	if (xflags[TEXT('o')])
+		iFlags |= DcxColourFlags::TEXTOUTLINECOLOR;
+	if (xflags[TEXT('p')])
+		iFlags |= DcxColourFlags::TEXTOUTLINEGRADSTARTCOLOR;
+	if (xflags[TEXT('P')])
+		iFlags |= DcxColourFlags::TEXTOUTLINEGRADENDCOLOR;
+	if (xflags[TEXT('s')])
+		iFlags |= DcxColourFlags::TEXTSHADOWCOLOR;
+	if (xflags[TEXT('S')])
+		iFlags |= DcxColourFlags::TEXTGLOWCOLOR;
+
+	// border colour.
+	if (xflags[TEXT('r')])
+		iFlags |= DcxColourFlags::BORDERCOLOR;
+
 	// for checkboxes
+	// checkbox background colours.
 	if (xflags[TEXT('h')])
 		iFlags |= DcxColourFlags::CHECKBOXHOT;	// when control is hot.
 	if (xflags[TEXT('d')])
 		iFlags |= DcxColourFlags::CHECKBOXDISABLED;	// when control is disabled.
-
 	if (xflags[TEXT('c')])
 		iFlags |= DcxColourFlags::CHECKBOXBGCOLOR;
+    // checkbox frame colour.
 	if (xflags[TEXT('f')])
 		iFlags |= DcxColourFlags::CHECKBOXFRAMECOLOR;
+	// checkbox tick colour.
 	if (xflags[TEXT('C')])
 		iFlags |= DcxColourFlags::CHECKBOXTICKCOLOR;
 
@@ -2039,8 +2062,8 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT* const rcBounds
 	//	}
 	//	DeleteDC( hdcbkg );
 	//}
-	// make a new HDC for background rendering
 
+	// make a new HDC for background rendering
 	RECT rcParentWin{}, rcWin{};
 	if (!GetClientRect(m_pParentHWND, &rcParentWin))
 		return;
@@ -2720,9 +2743,9 @@ void DcxControl::calcTextRect(HDC hdc, const TString& txt, LPRECT rc, const UINT
 	if (this->IsControlCodeTextEnabled())
 		t.strip();
 	if (this->IsShadowTextEnabled())
-		dcxDrawShadowText(hdc, t.to_chr(), gsl::narrow_cast<UINT>(t.len()), rc, style | DT_CALCRECT, this->m_clrText, 0, 5, 5);
+		dcxDrawShadowText(hdc, t.to_wchr(), gsl::narrow_cast<UINT>(t.len()), rc, style | DT_CALCRECT, this->m_TextOptions.m_clrText, this->m_TextOptions.m_clrShadow, this->m_TextOptions.m_uShadowXOffset, this->m_TextOptions.m_uShadowYOffset);
 	else
-		DrawText(hdc, t.to_chr(), gsl::narrow_cast<int>(t.len()), rc, style | DT_CALCRECT);
+		DrawTextW(hdc, t.to_wchr(), gsl::narrow_cast<int>(t.len()), rc, style | DT_CALCRECT);
 }
 
 void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, const UINT style) const
