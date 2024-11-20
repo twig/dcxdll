@@ -349,11 +349,6 @@ namespace
 		ICONINFO   icInfo{};
 		ICONINFO   icGrayInfo{};
 
-		//LPDWORD    lpBits         = nullptr;
-		//LPBYTE     lpBitsPtr      = nullptr;
-		//SIZE sz;
-		//DWORD c1 = 0;
-
 		BITMAPINFO bmpInfo = { 0 };
 		bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 
@@ -365,10 +360,6 @@ namespace
 
 				if (::GetDIBits(hdc, icInfo.hbmColor, 0, 0, nullptr, &bmpInfo, DIB_RGB_COLORS) != 0)
 				{
-					//SIZE sz = { 0 };
-					//sz.cx = bmpInfo.bmiHeader.biWidth;
-					//sz.cy = bmpInfo.bmiHeader.biHeight;
-
 					const SIZE sz{ bmpInfo.bmiHeader.biWidth, bmpInfo.bmiHeader.biHeight };
 
 					bmpInfo.bmiHeader.biCompression = BI_RGB;
@@ -847,11 +838,6 @@ GSL_SUPPRESS(bounds.3) bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT 
 	return true;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 dcxFontFlags parseFontFlags(const TString& flags) noexcept
 {
 	dcxFontFlags iFlags{};
@@ -876,11 +862,6 @@ dcxFontFlags parseFontFlags(const TString& flags) noexcept
 	return iFlags;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 UINT parseFontCharSet(const TString& charset)
 {
 	const static std::map<std::hash<TString>::result_type, UINT> charset_map{
@@ -1821,7 +1802,6 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 
 			t.strip();	// removes ctrl codes & double spaces & spaces at start & end.
 			DrawTextW(hdc, t.to_wchr(), -1, &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/);
-			//DrawTextW(hdc, t.strip().to_wchr(), -1, &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/);	// using t.len() gives invalid length (issue with strip())
 			// style can be either center or right, not both, but it can be center+vcenter or right+vcenter
 			if (dcx_testflag(style, DT_CENTER))
 			{ // get center text start offset
@@ -2099,7 +2079,7 @@ namespace
 }
 
 //LPALPHAINFO
-HPAINTBUFFER CreateHDCBufferNoCopy(HDC hdc, HDC *hdcOut) noexcept
+HPAINTBUFFER CreateHDCBufferNoCopy(HDC hdc, HDC* hdcOut) noexcept
 {
 	if ((!hdc) || (!hdcOut))
 		return nullptr;
@@ -2345,19 +2325,13 @@ void DrawRotatedText(const TString& strDraw, const LPCRECT rc, const HDC hDC, co
 
 	if ((nAngleLine == 0) && (!bEnableAngleChar))
 	{
-		TextOut(hDC, rc->left, rc->bottom, strDraw.to_chr(), gsl::narrow_cast<int>(strDraw.len()));
-		//DrawText(hDC, strDraw.to_chr(), strDraw.len(), rc, styles);
+		TextOutW(hDC, rc->left, rc->bottom, strDraw.to_wchr(), gsl::narrow_cast<int>(strDraw.len()));
 		return;
 	}
 
 	auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(Dcx::dcxGetCurrentObject<HFONT>(hDC, OBJ_FONT));
 	if (code == 0)
 		return;
-
-	//// Set the background mode to transparent for the
-	//// text-output operation.
-	//const auto nOldBkMode = SetBkMode(hDC, TRANSPARENT);
-	//Auto(SetBkMode(hDC, nOldBkMode));
 
 	// Specify the angle to draw line
 	lf.lfEscapement = nAngleLine * 10;
@@ -2385,9 +2359,7 @@ void DrawRotatedText(const TString& strDraw, const LPCRECT rc, const HDC hDC, co
 		Auto(SelectObject(hDC, hPrevFont));
 
 		// Draw text to screen
-		//TextOut(hDC, rc->right / 2, rc->bottom / 2, strDraw.to_chr(), strDraw.len());
-		TextOut(hDC, rc->left, rc->bottom, strDraw.to_chr(), gsl::narrow_cast<int>(strDraw.len()));
-		//DrawText(hDC, strDraw.to_chr(), strDraw.len(), rc, styles);
+		TextOutW(hDC, rc->left, rc->bottom, strDraw.to_wchr(), gsl::narrow_cast<int>(strDraw.len()));
 	}
 }
 
