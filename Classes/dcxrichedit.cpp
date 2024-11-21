@@ -54,7 +54,7 @@ DcxRichEdit::DcxRichEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 
 	setNoThemed(ws.m_NoTheme);
 
-	this->setBackColor(GetSysColor(COLOR_WINDOW));
+	this->setTextBackColor(GetSysColor(COLOR_WINDOW));
 	this->setTextColor(GetSysColor(COLOR_WINDOWTEXT));
 
 	getmIRCPalette(gsl::span<COLORREF>(m_aColorPalette), false);
@@ -642,12 +642,12 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		if (clrColor == CLR_INVALID)
 		{
 			Dcx::dcxRichEdit_SetBkgndColor(m_Hwnd, TRUE, 0);
-			this->setBackColor(GetSysColor(COLOR_WINDOWTEXT));
+			this->setTextBackColor(GetSysColor(COLOR_WINDOWTEXT));
 		}
 		else
 		{
 			Dcx::dcxRichEdit_SetBkgndColor(m_Hwnd, 0, clrColor);
-			this->setBackColor(clrColor);
+			this->setTextBackColor(clrColor);
 		}
 		this->redrawWindow();
 	}
@@ -903,8 +903,8 @@ void DcxRichEdit::setContentsFont() noexcept
 	chrf.cbSize = sizeof(CHARFORMAT2);
 	chrf.dwMask = CFM_BACKCOLOR | CFM_BOLD | CFM_COLOR | CFM_FACE | CFM_SIZE | CFM_ITALIC | CFM_UNDERLINE | CFM_STRIKEOUT | CFM_CHARSET;
 	chrf.yHeight = gsl::narrow_cast<LONG>(this->m_iFontSize);
-	chrf.crTextColor = this->m_clrText;
-	chrf.crBackColor = this->m_clrBackText;
+	chrf.crTextColor = this->m_TextOptions.m_clrText;
+	chrf.crBackColor = this->m_TextOptions.m_clrTextBackground;
 	chrf.bCharSet = this->m_byteCharset;
 
 	if (this->m_bFontBold)
@@ -1501,8 +1501,8 @@ void DcxRichEdit::setRicheditFont(const TString& tsFlags, const TString& tsChars
 
 	if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_DEFAULT))
 	{
-		this->m_clrBackText = GetSysColor(COLOR_WINDOW);
-		this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
+		this->m_TextOptions.m_clrTextBackground = GetSysColor(COLOR_WINDOW);
+		this->m_TextOptions.m_clrText = GetSysColor(COLOR_WINDOWTEXT);
 		this->m_iFontSize = 10 * 20;
 		this->m_bFontBold = false;
 		this->m_bFontItalic = false;
@@ -1655,6 +1655,8 @@ DWORD DcxRichEdit::getCharFormat(const UINT iType, CHARFORMAT2* const cfm) const
 
 bool DcxRichEdit::setCharFormat(const UINT iType, CHARFORMAT2* const cfm) noexcept
 {
+	if (!cfm)
+		return false;
 	return Dcx::dcxRichEdit_SetCharFormat(m_Hwnd, iType, *cfm);
 }
 

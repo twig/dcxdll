@@ -21,7 +21,7 @@ public:
 	GSL_SUPPRESS(c.128) DcxWebControl2& operator =(const DcxWebControl2&) = delete;	// No assignments!
 	DcxWebControl2(DcxWebControl2&&) = delete;
 	GSL_SUPPRESS(c.128) DcxWebControl2& operator =(DcxWebControl2&&) = delete;
-	bool operator==(const DcxWebControl2& other) const = default;
+	GSL_SUPPRESS(c.128) bool operator==(const DcxWebControl2& other) const = delete;
 
 	DcxWebControl2(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxWebControl2() noexcept;

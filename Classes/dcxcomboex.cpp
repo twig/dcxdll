@@ -933,11 +933,6 @@ const TString DcxComboEx::getStyles(void) const
 	return styles;
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
 LRESULT DcxComboEx::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)

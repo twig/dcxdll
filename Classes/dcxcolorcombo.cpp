@@ -17,8 +17,6 @@
 #include "Classes/dcxdialog.h"
 #include "Dcx.h"
 
-
-
  /*!
   * \brief Constructor
   *
@@ -50,61 +48,13 @@ DcxColorCombo::DcxColorCombo(const UINT ID, gsl::strict_not_null<DcxDialog* cons
 
 	setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 
-//#ifdef DEBUG
-//	if (m_bGridLayout)
-//	{
-//		COMBOBOXINFO cbi{ sizeof(COMBOBOXINFO) };
-//		SendMessage(m_Hwnd, CB_GETCOMBOBOXINFO, 0, (LPARAM)&cbi);
-//		if (cbi.hwndList)
-//		{
-//			//auto data = GetWindowLongPtr(m_Hwnd, 18); // 21
-//
-//			SetProp(cbi.hwndList, TEXT("dcxListProc"), this);
-//			this->m_hListProc = SubclassWindow(cbi.hwndList, DcxColorCombo::ListProc);
-//
-//			this->m_hGrid = dcxCreateWindow(
-//				dcxGetWindowExStyle(cbi.hwndList) & ~(WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_STATICEDGE | WS_EX_TOOLWINDOW | WS_EX_WINDOWEDGE),
-//				TEXT("ComboLBox") /*WC_LISTBOX*/,
-//				//(dcxGetWindowStyle(cbi.hwndList) & ~(WS_BORDER|WS_DLGFRAME)) | WindowStyle::Child | WS_VISIBLE | LBS_MULTICOLUMN | LBS_OWNERDRAWFIXED | /*LBS_NODATA |*/ LBS_NOTIFY,
-//				(dcxGetWindowStyle(cbi.hwndList) & ~(WS_BORDER | WS_DLGFRAME /*| LBS_COMBOBOX*/)) | LBS_MULTICOLUMN /*| LBS_NODATA*/,
-//				rc,
-//				cbi.hwndList,
-//				ID + 1,
-//				nullptr);
-//			if (m_hGrid)
-//			{
-//				Dcx::UXModule.dcxSetWindowTheme(m_hGrid, L" ", L" ");
-//
-//				SetWindowFont(m_hGrid, GetWindowFont(m_Hwnd), FALSE);
-//				//SetWindowFont(m_hGrid, Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
-//
-//				//((PCBOX)GetWindowLongPtr(m_Hwnd, 0))->pww = (PWW)m_hGrid;
-//			}
-//
-//			GetWindowLongPtr(m_Hwnd, GWLP_USERDATA);
-//		}
-//	}
-//#endif
-
 	setNoThemed(ws.m_NoTheme);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 DcxColorCombo::~DcxColorCombo() noexcept
 {
 	this->resetContent();
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 dcxWindowStyles DcxColorCombo::parseControlStyles(const TString& tsStyles)
 {
@@ -116,11 +66,6 @@ dcxWindowStyles DcxColorCombo::parseControlStyles(const TString& tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
-//#ifdef DEBUG
-//		case L"grid"_hash:
-//			m_bGridLayout = true;
-//			break;
-//#endif
 		case L"shownumbers"_hash:
 			m_bShowNumbers = true;
 			break;
@@ -180,11 +125,6 @@ void DcxColorCombo::parseInfoRequest(const TString& input, const refString<TCHAR
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 void DcxColorCombo::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
@@ -207,9 +147,6 @@ void DcxColorCombo::parseCommandRequest(const TString& input)
 
 		if (const auto clrItem = input.getnexttok().to_<COLORREF>(); nItem > -2)
 		{
-			//if (const auto item = new DCXCCOMBOITEM(clrItem); this->insertItem(nItem, item) < 0)
-			//	delete item;
-
 			const auto item = new DCXCCOMBOITEM(clrItem);
 
 			// if optional text supplied, set it.
@@ -290,12 +227,6 @@ void DcxColorCombo::parseCommandRequest(const TString& input)
 		this->parseGlobalCommandRequest(input, flags);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void DcxColorCombo::setmIRCPalette()
 {
 	//static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
@@ -338,12 +269,6 @@ void DcxColorCombo::setmIRCPalette()
 #endif
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 int DcxColorCombo::insertItem(const int nPos, const DCXCCOMBOITEM* dci) noexcept
 {
 	if (!m_Hwnd)
@@ -351,12 +276,6 @@ int DcxColorCombo::insertItem(const int nPos, const DCXCCOMBOITEM* dci) noexcept
 
 	return ComboBox_InsertString(m_Hwnd, nPos, dci);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 int DcxColorCombo::getCount() const noexcept
 {
@@ -366,12 +285,6 @@ int DcxColorCombo::getCount() const noexcept
 	return ComboBox_GetCount(m_Hwnd);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 int DcxColorCombo::setCurSel(const int nPos) noexcept
 {
 	if (!m_Hwnd)
@@ -379,12 +292,6 @@ int DcxColorCombo::setCurSel(const int nPos) noexcept
 
 	return ComboBox_SetCurSel(m_Hwnd, nPos);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 LPDCXCCOMBOITEM DcxColorCombo::getItemData(const int nItem) const noexcept
 {
@@ -394,12 +301,6 @@ LPDCXCCOMBOITEM DcxColorCombo::getItemData(const int nItem) const noexcept
 	return reinterpret_cast<LPDCXCCOMBOITEM>(ComboBox_GetItemData(m_Hwnd, nItem));
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 int DcxColorCombo::getCurSel() const noexcept
 {
 	if (!m_Hwnd)
@@ -408,12 +309,6 @@ int DcxColorCombo::getCurSel() const noexcept
 	return ComboBox_GetCurSel(m_Hwnd);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 int DcxColorCombo::deleteItem(const int nItem) noexcept
 {
 	if (!m_Hwnd)
@@ -421,12 +316,6 @@ int DcxColorCombo::deleteItem(const int nItem) noexcept
 
 	return ComboBox_DeleteString(m_Hwnd, nItem);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 int DcxColorCombo::resetContent() noexcept
 {
@@ -441,7 +330,6 @@ BOOL DcxColorCombo::DrawItem(LPDRAWITEMSTRUCT lpdis)
 	if (!lpdis || !lpdis->hDC)
 		return FALSE;
 
-	//const auto lpdcxcci = ListProcData->getItemData(lpdis->itemID);
 	const auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(lpdis->itemData);
 
 	if (!lpdcxcci)
@@ -582,11 +470,6 @@ const TString DcxColorCombo::getStyles(void) const
 	return tsStyles;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
@@ -600,31 +483,6 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 			bParsed = TRUE;
 			return 0L;
 		}
-
-		//if (m_bGridLayout)
-		//{
-		//	if (Dcx::dcxHIWORD(wParam) == CBN_CLOSEUP)
-		//	{
-		//		if (dcx_testflag(this->getEventMask(), DCX_EVENT_CLICK))
-		//			execAliasEx(TEXT("sclick,%u,%d"), getUserID(), getCurSel() + 1);
-		//		bParsed = TRUE;
-		//		return 0L;
-		//	}
-		//	//else if (Dcx::dcxHIWORD(wParam) == CBN_DROPDOWN)
-		//	//{
-		//	//	bParsed = TRUE;
-		//	//	return 1L;
-		//	//}
-		//}
-		//else {
-		//	if (Dcx::dcxHIWORD(wParam) == CBN_SELENDOK)
-		//	{
-		//		if (dcx_testflag(this->getEventMask(), DCX_EVENT_CLICK))
-		//			execAliasEx(TEXT("sclick,%u,%d"), getUserID(), getCurSel() + 1);
-		//		bParsed = TRUE;
-		//		return 0L;
-		//	}
-		//}
 	}
 	break;
 	case WM_DELETEITEM:
@@ -655,15 +513,6 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 		if (!lpdcxcci)
 			break;
 
-//#ifdef DEBUG
-//		// dont bother drawing anything except the editbox when in grid style.
-//		if (m_bGridLayout && !dcx_testflag(lpdis->itemState, ODS_COMBOBOXEDIT))
-//		{
-//			bParsed = TRUE;
-//			return TRUE;
-//		}
-//#endif
-
 		bParsed = TRUE;
 
 		return DrawItem(lpdis);
@@ -676,19 +525,6 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 		if (!lpmis)
 			break;
-
-//#ifdef DEBUG
-//		if (m_bGridLayout)
-//		{
-//			lpmis->itemHeight = DCX_COLORCOMBO_ITEM_HEIGHT;
-//			//if (lpmis->itemID != 1)
-//			lpmis->itemWidth = DCX_COLORCOMBO_ITEM_HEIGHT * 2;
-//		}
-//		else
-//			lpmis->itemHeight = DCX_COLORCOMBO_ITEM_HEIGHT;
-//#else
-//		lpmis->itemHeight = DCX_COLORCOMBO_ITEM_HEIGHT;
-//#endif
 
 		lpmis->itemHeight = DCX_COLORCOMBO_ITEM_HEIGHT;
 		bParsed = TRUE;
@@ -708,66 +544,6 @@ LRESULT DcxColorCombo::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 	switch (uMsg)
 	{
-		//case WM_CREATE:
-		//{
-		//	bParsed = TRUE;
-		//	
-		//	const auto lRes = this->CallDefaultClassProc(uMsg, wParam, lParam);
-		//	if (m_bGridLayout)
-		//	{
-		//		COMBOBOXINFO cbi{};
-		//		cbi.cbSize = sizeof(COMBOBOXINFO);
-		//		SendMessage(m_Hwnd, CB_GETCOMBOBOXINFO, 0, (LPARAM)&cbi);
-		//		if (auto data = (PCBOX)GetWindowLongPtr(m_Hwnd, 0); data)
-		//		{
-		//			HWND listwin = (HWND)data->pww;
-		//			if (IsWindow(listwin))
-		//			{
-		//				const auto styles = dcxGetWindowStyle(listwin) | LBS_MULTICOLUMN;
-		//				const auto exstyles = dcxGetWindowExStyle(listwin);
-		//				RECT rc{};
-		//				GetWindowRect(listwin, &rc);
-		//				const auto list_id = GetWindowID(listwin);
-		//				const auto parent = GetParent(listwin);
-		//				//TCHAR buf[128]{};
-		//				//GetClassName(listwin, &buf[0], std::size(buf));
-		//				SetParent(listwin, nullptr);
-		//	
-		//				DestroyWindow(listwin);
-		//				data->pww = nullptr;
-		//	
-		//				data->pww = (PWW)dcxCreateWindow(exstyles, TEXT("ComboLBox") /*WC_LISTBOX*/, styles, &rc, parent, list_id);
-		//			}
-		//		}
-		//	
-		//		//COMBOBOXINFO cbi{};
-		//		//cbi.cbSize = sizeof(COMBOBOXINFO);
-		//		//SendMessage(m_Hwnd, CB_GETCOMBOBOXINFO, 0, (LPARAM)&cbi);
-		//		//if (cbi.hwndList)
-		//		//{
-		//		//	auto styles = dcxGetWindowStyle(cbi.hwndList);
-		//		//	auto exstyles = dcxGetWindowExStyle(cbi.hwndList);
-		//		//	DestroyWindow(cbi.hwndList);
-		//		//}
-		//	}
-		//	
-		//	return lRes;
-		//}
-		//case WM_MEASUREITEM:
-		//{
-		//	if (m_bGridLayout)
-		//	{
-		//		dcxlParam(LPMEASUREITEMSTRUCT, lpmis);
-		//		if (!lpmis)
-		//			break;
-		//		bParsed = TRUE;
-		//		lpmis->itemHeight = DCX_COLORCOMBO_ITEM_HEIGHT;
-		//		lpmis->itemWidth = DCX_COLORCOMBO_ITEM_HEIGHT * 2;
-		//		return TRUE;
-		//	}
-		//}
-		//break;
-
 	case WM_LBUTTONUP:
 	{
 		if (dcx_testflag(this->getEventMask(), DCX_EVENT_CLICK))
@@ -788,135 +564,6 @@ LRESULT DcxColorCombo::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 	return 0L;
 }
-
-//#ifdef DEBUG
-//LRESULT CALLBACK DcxColorCombo::ListProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-//{
-//	auto ListProcData = Dcx::dcxGetProp<DcxColorCombo*>(mHwnd, TEXT("dcxListProc"));
-//	if (!ListProcData)
-//		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
-//
-//	switch (uMsg)
-//	{
-//		//case LB_INSERTSTRING:
-//		//case LB_ADDSTRING:
-//		//case LB_DELETESTRING:
-//		//case LB_RESETCONTENT:
-//		//case LB_SETSEL:
-//		//case LB_SETCURSEL:
-//		//case LB_ITEMFROMPOINT:
-//		//case LB_SETLOCALE:
-//		//case LB_SETTABSTOPS:
-//		//case LB_SETTOPINDEX:
-//		//case LB_SETCOLUMNWIDTH:
-//		//case LB_SELITEMRANGE:
-//		//case LB_SELITEMRANGEEX:
-//		//case LB_SELECTSTRING:
-//		//case LB_SETCARETINDEX:
-//		//case WM_MOUSEMOVE:
-//		//{
-//		//	if (ListProcData->m_hGrid)
-//		//	{
-//		//		auto lRes = CallWindowProc(ListProcData->m_hListProc, mHwnd, uMsg, wParam, lParam);
-//		//		return SendMessage(ListProcData->m_hGrid, uMsg, wParam, lParam);
-//		//	}
-//		//}
-//		//break;
-//
-//	case WM_WINDOWPOSCHANGING:
-//	{
-//		dcxlParam(LPWINDOWPOS, wp);
-//		wp->cx = 300;
-//		wp->cy = 200;
-//		return 0L;
-//	}
-//	break;
-//
-//	case WM_WINDOWPOSCHANGED:
-//	{
-//		if (ListProcData->m_hGrid)
-//		{
-//			dcxlParam(LPWINDOWPOS, wp);
-//			SetWindowPos(ListProcData->m_hGrid, HWND_TOP, 0, 0, wp->cx, wp->cy, SWP_SHOWWINDOW);
-//		}
-//	}
-//	break;
-//
-//	case WM_MEASUREITEM:
-//	{
-//		dcxlParam(LPMEASUREITEMSTRUCT, lpmis);
-//
-//		if (!lpmis)
-//			break;
-//
-//		lpmis->itemHeight = DCX_COLORCOMBO_ITEM_HEIGHT;
-//		lpmis->itemWidth = DCX_COLORCOMBO_ITEM_HEIGHT * 2;
-//
-//		return TRUE;
-//	}
-//	break;
-//
-//	//case WM_DELETEITEM:
-//	//{
-//	//	return TRUE;
-//	//}
-//	//break;
-//
-//	case WM_DRAWITEM:
-//	{
-//		dcxlParam(LPDRAWITEMSTRUCT, lpdis);
-//
-//		if (!lpdis || lpdis->itemID == -1)
-//			break;
-//
-//		//const auto lpdcxcci = ListProcData->getItemData(lpdis->itemID);
-//		const auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(lpdis->itemData);
-//
-//		if (!lpdcxcci)
-//			break;
-//
-//		return ListProcData->DrawItem(lpdis);
-//	}
-//	break;
-//
-//	case WM_LBUTTONUP:
-//	case WM_CTLCOLOR:
-//	case WM_CTLCOLORBTN:
-//	case WM_CTLCOLORDLG:
-//	case WM_CTLCOLOREDIT:
-//	case WM_CTLCOLORLISTBOX:
-//	case WM_CTLCOLORMSGBOX:
-//	case WM_CTLCOLORSCROLLBAR:
-//	case WM_CTLCOLORSTATIC:
-//	case WM_NOTIFY:
-//	case WM_COMMAND:
-//	{
-//		return SendMessage(GetParent(mHwnd), uMsg, wParam, lParam);
-//	}
-//	break;
-//
-//	case WM_NCDESTROY:
-//	{
-//		RemoveProp(mHwnd, TEXT("dcxListProc"));
-//	}
-//	break;
-//
-//	//case LBCB_STARTTRACK:
-//	//case LBCB_ENDTRACK:
-//	case WM_SHOWWINDOW:
-//	case WM_NCPAINT:
-//	case WM_PAINT:
-//	case WM_DESTROY:
-//		break;
-//
-//	default:
-//		if (ListProcData->m_hGrid)
-//			return SendMessage(ListProcData->m_hGrid, uMsg, wParam, lParam);
-//		break;
-//	}
-//	return CallWindowProc(ListProcData->m_hListProc, mHwnd, uMsg, wParam, lParam);
-//}
-//#endif
 
 LRESULT DcxColorCombo::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {

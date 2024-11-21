@@ -5377,8 +5377,8 @@ void DcxListView::DrawEmpty(HDC hdc, const TString& tsBuf)
 		{
 			//const COLORREF clrText = ListView_GetTextColor(m_Hwnd);
 			//const COLORREF clrTextBk = ListView_GetTextBkColor(m_Hwnd);
-			const COLORREF clrText = (m_clrText == CLR_INVALID) ? GetSysColor(COLOR_WINDOWTEXT) : m_clrText;
-			const COLORREF clrTextBk = (m_clrBackText == CLR_INVALID) ? GetSysColor(COLOR_WINDOW) : m_clrBackText;
+			const COLORREF clrText = (m_TextOptions.m_clrText == CLR_INVALID) ? GetSysColor(COLOR_WINDOWTEXT) : m_TextOptions.m_clrText;
+			const COLORREF clrTextBk = (m_TextOptions.m_clrTextBackground == CLR_INVALID) ? GetSysColor(COLOR_WINDOW) : m_TextOptions.m_clrTextBackground;
 
 			SetTextColor(hdc, clrText);
 			SetBkColor(hdc, clrTextBk);

@@ -993,9 +993,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 
 		if (filename != TEXT("none"))
 		{
-			if (!Dcx::GDIModule.isUseable())
-				throw Dcx::dcxException("GDI+ Not Supported On This Machine");
-
 			LoadGDIPlusImage(flag, filename);
 
 			if (!this->m_bTransparent)
@@ -2206,16 +2203,6 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						Dcx::dcxSelectObject(lpntvcd->nmcd.hdc, m_hFont); // if no item font, set to controls font if it exists.
 
 					const auto bSelected = (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED));
-					//TVITEMEX tvitem{};
-					//TCHAR buf[MIRC_BUFFER_SIZE_CCH]{};
-					//auto hItem = reinterpret_cast<HTREEITEM>(lpntvcd->nmcd.dwItemSpec);
-					//tvitem.hItem = hItem;
-					//tvitem.mask = TVIF_TEXT;
-					//tvitem.pszText = &buf[0];
-					//tvitem.cchTextMax = std::size(buf);
-					//if (TreeView_GetItem(m_Hwnd, &tvitem))
-					//{
-					//	TString tsItem(tvitem.pszText);
 
 					{
 						auto hItem = reinterpret_cast<HTREEITEM>(lpntvcd->nmcd.dwItemSpec);
@@ -2499,8 +2486,6 @@ void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	Auto(FinishAlphaBlend(ai));
 
 	CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
-
-	//CallDefaultClassProc(WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT | PRF_CHILDREN | PRF_ERASEBKGND);
 }
 
 // clears existing image and icon data and sets pointers to null
@@ -2516,6 +2501,9 @@ void DcxTreeView::PreloadData() noexcept
 GSL_SUPPRESS(Enum.3)
 void DcxTreeView::LoadGDIPlusImage(const TString& flags, TString& filename)
 {
+	if (!Dcx::GDIModule.isUseable())
+		throw Dcx::dcxException("GDI+ Not Supported On This Machine");
+
 	if (!IsFile(filename))
 		throw Dcx::dcxException(TEXT("LoadGDIPlusImage() - Unable to Access File: %"), filename);
 
@@ -2557,13 +2545,8 @@ void DcxTreeView::LoadGDIPlusImage(const TString& flags, TString& filename)
 
 void DcxTreeView::DrawGDIPlusImage(HDC hdc)
 {
-	if (!hdc || !m_Hwnd)
+	if (!hdc || !m_Hwnd || !Dcx::GDIModule.isUseable())
 		return;
-
-	//RECT rc{};
-	//if (!GetClientRect(m_Hwnd, &rc))
-	//	return;
-	//const auto w = (rc.right - rc.left), h = (rc.bottom - rc.top), x = rc.left, y = rc.top;
 
 	Dcx::dcxClientRect rc(m_Hwnd);
 	if (!rc)
