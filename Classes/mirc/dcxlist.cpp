@@ -1044,7 +1044,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 			//TString txt(gsl::narrow_cast<TString::size_type>(len + 1));
 			//ListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID, txt.to_chr());
 
-			const auto txt (Dcx::dcxListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID));
+			const auto txt(Dcx::dcxListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID));
 
 			rc.left += 2;
 
@@ -1091,6 +1091,7 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		break;
 
 	case WM_VSCROLL:
+	{
 		if (Dcx::dcxLOWORD(wParam) == SB_ENDSCROLL)
 			this->execAliasEx(TEXT("scrollend,%u"), getUserID());
 #ifdef USE_FIX_SCROLL
@@ -1127,6 +1128,7 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		//	return lRes;
 		//}
 #endif
+	}
 		break;
 
 #ifdef USE_FIX_01
@@ -1698,7 +1700,7 @@ void DcxList::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 		for (auto xItem = xThis->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
 		{
 			const TString tsArgs(queryAttribute(xItem, "text"));
-			const TString tsFlags(queryAttribute(xItem, "flags","+"));
+			const TString tsFlags(queryAttribute(xItem, "flags", "+"));
 
 			nPos = addItems(nPos, tsFlags, tsArgs);
 		}

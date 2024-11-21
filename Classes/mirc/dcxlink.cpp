@@ -578,8 +578,8 @@ void DcxLink::DrawClientArea(HDC hdc)
 			else
 				setTextColor(this->m_aColors[0]);
 
-			if (m_clrText != CLR_INVALID)
-				SetTextColor(hdc, m_clrText);
+			if (m_TextOptions.m_clrText != CLR_INVALID)
+				SetTextColor(hdc, m_TextOptions.m_clrText);
 
 			const TString wtext(TGetWindowText(m_Hwnd));
 			this->ctrlDrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER);

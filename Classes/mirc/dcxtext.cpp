@@ -233,12 +233,17 @@ LRESULT DcxText::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 	case WM_PAINT:
 	{
 		bParsed = TRUE;
+		if (!wParam)
+		{
 		PAINTSTRUCT ps{};
 
 		auto hdc = BeginPaint(m_Hwnd, &ps);
 		Auto(EndPaint(m_Hwnd, &ps));
 
 		this->DrawClientArea(hdc);
+	}
+		else
+			this->DrawClientArea(reinterpret_cast<HDC>(wParam));
 	}
 	break;
 
@@ -328,7 +333,7 @@ void DcxText::DrawClientArea(HDC hdc)
 	{
 		if (const auto clr = this->getTextColor(); clr != CLR_INVALID)
 			SetTextColor(hdc, clr);
-		if (const auto clr = this->getBackColor(); clr != CLR_INVALID)
+		if (const auto clr = this->getBackTextColor(); clr != CLR_INVALID)
 			SetBkColor(hdc, clr);
 	}
 	else { // disabled controls colouring

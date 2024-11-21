@@ -732,8 +732,8 @@ void DcxBox::DrawClientArea(HDC hdc)
 		if (const auto f = getControlFont(); f)
 			Dcx::dcxSelectObject<HFONT>(hdc, f);
 
-		if (m_clrText != CLR_INVALID)
-			SetTextColor(hdc, m_clrText);
+		if (m_TextOptions.m_clrText != CLR_INVALID)
+			SetTextColor(hdc, m_TextOptions.m_clrText);
 		else
 			SetTextColor(hdc, GetSysColor(IsWindowEnabled(m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT));
 
