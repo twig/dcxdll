@@ -2043,7 +2043,8 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 		int iFit{};
 		const WCHAR* pText{ txt.to_wchr() };
 		const auto len = txt.len();
-		const UINT uNewStyle = uStyle | DT_SINGLELINE;
+		//const UINT uNewStyle = uStyle | DT_SINGLELINE;
+		const UINT uNewStyle = (uStyle & ~(DT_CENTER | DT_RIGHT | DT_VCENTER)) | DT_LEFT | DT_SINGLELINE; // make sure its to left
 
 		if (xPos >= rcArea.right)
 		{
