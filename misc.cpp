@@ -2043,6 +2043,7 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 		int iFit{};
 		const WCHAR* pText{ txt.to_wchr() };
 		const auto len = txt.len();
+		const UINT uNewStyle = uStyle | DT_SINGLELINE;
 
 		if (xPos >= rcArea.right)
 		{
@@ -2070,8 +2071,6 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 				rcTxt.bottom = yPos + sz.cy;
 				rcTxt.left = xPos;
 				rcTxt.right = rcArea.right;
-
-				const UINT uNewStyle = uStyle | DT_SINGLELINE;
 
 				if (dTO.m_bShadow)
 				{
