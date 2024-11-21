@@ -1079,7 +1079,7 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam,
 		if (!hMenu)
 			break;
 
-		auto xItem = Dcx::XPopups.getMenuItemByID(hMenu, wParam);
+		auto xItem = Dcx::XPopups.getMenuItemByID(hMenu, gsl::narrow_cast<int>(wParam));
 		if (!xItem)
 			break;
 
@@ -2072,7 +2072,7 @@ void XPMENUBAR::UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept
 	{
 		const auto clrStart = (m_Default.m_Colours.m_clrBack != CLR_INVALID) ? m_Default.m_Colours.m_clrBack : RGB(184, 199, 146);
 		const auto clrEnd = (m_Default.m_Colours.m_clrHot != CLR_INVALID) ? m_Default.m_Colours.m_clrHot : RGB(240, 243, 231);
-		XPopupMenuItem::DrawGradient(pUDM->hdc, &rc, clrStart, clrEnd, false);
+		XPopupMenuItem::DrawGradient(pUDM->hdc, &rc, clrStart, clrEnd, true);
 	}
 	break;
 	case MainMenuStyle::XPMS_ICY_REV:
@@ -2081,7 +2081,7 @@ void XPMENUBAR::UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept
 	{
 		const auto clrStart = (m_Default.m_Colours.m_clrHot != CLR_INVALID) ? m_Default.m_Colours.m_clrHot : RGB(240, 243, 231);
 		const auto clrEnd = (m_Default.m_Colours.m_clrBack != CLR_INVALID) ? m_Default.m_Colours.m_clrBack : RGB(184, 199, 146);
-		XPopupMenuItem::DrawGradient(pUDM->hdc, &rc, clrStart, clrEnd, false);
+		XPopupMenuItem::DrawGradient(pUDM->hdc, &rc, clrStart, clrEnd, true);
 	}
 	break;
 	case MainMenuStyle::XPMS_None:

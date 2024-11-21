@@ -1921,7 +1921,7 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl* const p_thi
 		const auto clrStart = (p_this->getStartGradientColor() != CLR_INVALID) ? p_this->getStartGradientColor() : GetSysColor(COLOR_3DFACE);
 		const auto clrEnd = (p_this->getEndGradientColor() != CLR_INVALID) ? p_this->getEndGradientColor() : GetSysColor(COLOR_GRADIENTACTIVECAPTION);
 
-		XPopupMenuItem::DrawGradient(hdc, &rc, clrStart, clrEnd, p_this->m_bGradientVertical);
+		XPopupMenuItem::DrawGradient(hdc, &rc, clrStart, clrEnd, !p_this->m_bGradientVertical);
 	}
 	else {
 		auto hBrush = p_this->getBackClrBrush();

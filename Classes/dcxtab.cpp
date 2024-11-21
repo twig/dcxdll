@@ -1029,9 +1029,9 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 		{
 			if (this->m_TextOptions.m_clrTextBackground == CLR_INVALID)
 				// Gives a nice silver/gray gradient
-				XPopupMenuItem::DrawGradient(idata->hDC, &rect, GetSysColor(COLOR_BTNHIGHLIGHT), GetSysColor(COLOR_BTNFACE), TRUE);
+				XPopupMenuItem::DrawGradient(idata->hDC, &rect, GetSysColor(COLOR_BTNHIGHLIGHT), GetSysColor(COLOR_BTNFACE), !this->m_bGradientVertical);
 			else
-				XPopupMenuItem::DrawGradient(idata->hDC, &rect, GetSysColor(COLOR_BTNHIGHLIGHT), this->m_clrBackText, TRUE);
+				XPopupMenuItem::DrawGradient(idata->hDC, &rect, GetSysColor(COLOR_BTNHIGHLIGHT), this->m_TextOptions.m_clrTextBackground, !this->m_bGradientVertical);
 		}
 		else
 			DcxControl::DrawCtrlBackground(idata->hDC, this, &rect);

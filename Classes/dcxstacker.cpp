@@ -588,7 +588,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		if (clrStart == CLR_INVALID)
 			clrStart = GetSysColor(COLOR_BTNFACE);
 
-		XPopupMenuItem::DrawGradient(memDC, &rcText, clrStart, clrEnd, FALSE);
+		XPopupMenuItem::DrawGradient(memDC, &rcText, clrStart, clrEnd, true);
 	}
 	else if (sitem->clrBack != CLR_INVALID)
 	{

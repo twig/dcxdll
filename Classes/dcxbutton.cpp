@@ -992,7 +992,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 					const auto clrStart = (getStartGradientColor() != CLR_INVALID) ? getStartGradientColor() : GetSysColor(COLOR_3DFACE);
 					const auto clrEnd = (getEndGradientColor() != CLR_INVALID) ? getEndGradientColor() : GetSysColor(COLOR_GRADIENTACTIVECAPTION);
 
-					XPopupMenuItem::DrawGradient(hdc, &rc, clrStart, clrEnd, IsGradientFillVertical());
+					XPopupMenuItem::DrawGradient(hdc, &rc, clrStart, clrEnd, !IsGradientFillVertical());
 				}
 			}
 		}

@@ -637,11 +637,11 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		if (isStyle(WindowStyle::PBS_Vertical))
 		{
 			rcGrad.top += (rc.bottom - rc.top) - (CalculatePosition() * (rc.bottom - rc.top)) / 100;
-			XPopupMenuItem::DrawGradient(hdc, &rcGrad, clrStart, clrEnd, TRUE);
+			XPopupMenuItem::DrawGradient(hdc, &rcGrad, clrStart, clrEnd, false);
 		}
 		else {
 			rcGrad.right = (CalculatePosition() * rc.right) / 100;
-			XPopupMenuItem::DrawGradient(hdc, &rcGrad, clrStart, clrEnd, FALSE);
+			XPopupMenuItem::DrawGradient(hdc, &rcGrad, clrStart, clrEnd, true);
 		}
 	}
 	else

@@ -191,7 +191,7 @@ void XPopupMenuManager::load(void)
 #if DCX_CUSTOM_MENUS
 	if (HWND tmp_hwnd = CreateWindowEx(0, TEXT("#32768"), nullptr, WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, hInst, nullptr); tmp_hwnd)
 	{
-		g_OldmIRCMenusWindowProc = (WNDPROC)SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, (ULONG_PTR)XPopupMenuManager::mIRCMenusWinProc);
+		g_OldmIRCMenusWindowProc = reinterpret_cast<WNDPROC>(SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, (ULONG_PTR)XPopupMenuManager::mIRCMenusWinProc));
 		DestroyWindow(tmp_hwnd);
 		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Subclassed Menu Class"));
 	}
@@ -1779,7 +1779,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 
 				if (auto hMenu = getWindowsMenu(mHwnd); hMenu)
 				{
-					if (auto p_Item = Dcx::XPopups.getMenuItemByID(hMenu, wParam); p_Item)
+					if (auto p_Item = Dcx::XPopups.getMenuItemByID(hMenu, gsl::narrow_cast<int>(wParam)); p_Item)
 					{
 						if (p_Item->IsTooltipsEnabled())
 						{
@@ -1924,7 +1924,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		if (!hMenu)
 			break;
 
-		auto xItem = Dcx::XPopups.getMenuItemByID(hMenu, wParam);
+		auto xItem = Dcx::XPopups.getMenuItemByID(hMenu, gsl::narrow_cast<int>(wParam));
 		if (!xItem)
 			break;
 
@@ -1939,7 +1939,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			{
 				// This is a dialog menu, send the message back to trigger on dialog events etc..
 
-				Dcx::XPopups.TriggerMenuPos(Dcx::XPopups.getOwnerWindow(), hMenu, wParam);
+				Dcx::XPopups.TriggerMenuPos(Dcx::XPopups.getOwnerWindow(), hMenu, gsl::narrow_cast<UINT>(wParam));
 
 				// redraw menu to update the visible state incase this command changes something in the menu its self.
 				RedrawMenuIfOpen();
@@ -1972,7 +1972,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					// if the alias returns "msg" then send the menu selection back to the menus owner & halt menu closing.
 					case L"msg"_hash:
 					{
-						Dcx::XPopups.TriggerMenuPos(Dcx::XPopups.getOwnerWindow(), hMenu, wParam);
+						Dcx::XPopups.TriggerMenuPos(Dcx::XPopups.getOwnerWindow(), hMenu, gsl::narrow_cast<UINT>(wParam));
 
 						// redraw menu to update the visible state incase this command changes something in the menu its self.
 						RedrawMenuIfOpen();
@@ -1994,7 +1994,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 									Dcx::XPopups.setCheckState(hMenu, gID, TRUE, false);
 								}
 							}
-							Dcx::XPopups.setCheckState(hMenu, wParam, TRUE, true);
+							Dcx::XPopups.setCheckState(hMenu, gsl::narrow_cast<UINT>(wParam), TRUE, true);
 						}
 							break;
 						case 2:
@@ -2003,13 +2003,13 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 							const auto nFirst = tsIDs.getfirsttok(1).to_<UINT>() - 1;
 							const auto nLast = tsIDs.getnexttok().to_<UINT>() - 1;
 
-							CheckMenuRadioItem(hMenu, nFirst, nLast, wParam, MF_BYPOSITION);
+							CheckMenuRadioItem(hMenu, nFirst, nLast, gsl::narrow_cast<UINT>(wParam), MF_BYPOSITION);
 						}
 							break;
 						default:
 						{
 							// no ids, just check this item.
-							Dcx::XPopups.setCheckState(hMenu, wParam, TRUE, true);
+							Dcx::XPopups.setCheckState(hMenu, gsl::narrow_cast<UINT>(wParam), TRUE, true);
 						}
 								break;
 						}
@@ -2017,7 +2017,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 						}
 					case L"uncheck"_hash:
 					{
-						Dcx::XPopups.setCheckState(hMenu, wParam, TRUE, false);
+						Dcx::XPopups.setCheckState(hMenu, gsl::narrow_cast<UINT>(wParam), TRUE, false);
 						return 0L;
 			}
 					}
