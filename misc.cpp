@@ -1983,7 +1983,7 @@ std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const LPCWSTR txt, UINT len)
 /// <returns></returns>
 std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const TString& txt)
 {
-	return dcxBreakdownmIRCText(txt.to_wchr(), txt.len());
+	return dcxBreakdownmIRCText(txt.to_wchr(), gsl::narrow_cast<UINT>(txt.len()));
 }
 
 RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPCRECT rc, const UINT uStyle, const dcxTextOptions& dTO) noexcept
@@ -1997,7 +1997,7 @@ RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPC
 	{
 		txt += tbd.m_str;
 	}
-	DrawTextW(hdc, txt.to_wchr(), txt.len(), &rcResult, uNewStyle);
+	DrawTextW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), &rcResult, uNewStyle);
 
 	return rcResult;
 }
@@ -2016,19 +2016,23 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 	if (dcx_testflag(uStyle, DT_CENTER))
 	{
 		const auto halfXArea = (rcCalc.right - rcCalc.left) / 2;
-		rcArea.left = rc->left + (((rc->right - rc->left) / 2) - halfXArea);
-		rcArea.right = rc->right - (((rc->right - rc->left) / 2) - halfXArea);
+		const auto halfXrc = ((rc->right - rc->left) / 2);
+		const auto totalX = (halfXrc - halfXArea);
+		rcArea.left = rc->left + totalX;
+		rcArea.right = rc->right - totalX;
+	}
+	else if (dcx_testflag(uStyle, DT_RIGHT))	// cant be both center & right
+	{
+		const auto XArea = (rcCalc.right - rcCalc.left);
+		rcArea.left = rc->right - XArea;
 	}
 	if (dcx_testflag(uStyle, DT_VCENTER))
 	{
 		const auto halfYArea = (rcCalc.bottom - rcCalc.top) / 2;
-		rcArea.top = rc->top + (((rc->bottom - rc->top) / 2) - halfYArea);
-		rcArea.bottom = rc->bottom - (((rc->bottom - rc->top) / 2) - halfYArea);
-	}
-	if (dcx_testflag(uStyle, DT_RIGHT))
-	{
-		const auto XArea = (rcCalc.right - rcCalc.left);
-		rcArea.left = rc->right - XArea;
+		const auto halfYrc = ((rc->bottom - rc->top) / 2);
+		const auto totalY = (halfYrc - halfYArea);
+		rcArea.top = rc->top + totalY;
+		rcArea.bottom = rc->bottom - totalY;
 	}
 	int xPos{ rcArea.left }, yPos{ rcArea.top };
 
