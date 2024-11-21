@@ -709,21 +709,21 @@ void ChangeHwndIcon(const HWND hwnd, const TString& flags, const int index, TStr
 		//SetClassLongW(hwnd, GCL_HICON, 0);
 		//SetClassLongW(hwnd, GCL_HICONSM, 0);
 
-		iconSmall = (HICON)SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)iconSmall);
-		iconLarge = (HICON)SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)iconLarge);
+		iconSmall = Dcx::dcxSetWindowIcon(hwnd, ICON_SMALL, iconSmall);
+		iconLarge = Dcx::dcxSetWindowIcon(hwnd, ICON_BIG, iconLarge);
 	}
 	else if (filename == TEXT("default"))
 	{
 		if ((!xflags[TEXT('s')]) && (!xflags[TEXT('b')]))
 		{
-			iconSmall = (HICON)SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)iconSmall);
-			iconLarge = (HICON)SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)iconLarge);
+			iconSmall = Dcx::dcxSetWindowIcon(hwnd, ICON_SMALL, iconSmall);
+			iconLarge = Dcx::dcxSetWindowIcon(hwnd, ICON_BIG, iconLarge);
 		}
 		else {
 			if (xflags[TEXT('s')])
-				iconSmall = (HICON)SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)iconSmall);
+				iconSmall = Dcx::dcxSetWindowIcon(hwnd, ICON_SMALL, iconSmall);
 			if (xflags[TEXT('b')])
-				iconLarge = (HICON)SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)iconLarge);
+				iconLarge = Dcx::dcxSetWindowIcon(hwnd, ICON_BIG, iconLarge);
 		}
 	}
 	else {
@@ -749,9 +749,9 @@ void ChangeHwndIcon(const HWND hwnd, const TString& flags, const int index, TStr
 		}
 		// set the new icons, get back the current icon
 		if (iconSmall)
-			iconSmall = (HICON)SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)iconSmall);
+			iconSmall = Dcx::dcxSetWindowIcon(hwnd, ICON_SMALL, iconSmall);
 		if (iconLarge)
-			iconLarge = (HICON)SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)iconLarge);
+			iconLarge = Dcx::dcxSetWindowIcon(hwnd, ICON_BIG, iconLarge);
 	}
 
 	// delete the old icons

@@ -1560,6 +1560,11 @@ namespace Dcx
 		return static_cast<T>(SelectObject(hdc, obj));
 	}
 
+	inline HICON dcxSetWindowIcon(HWND mHwnd, int iType, HICON hIcon) noexcept
+	{
+		return reinterpret_cast<HICON>(SendMessage(mHwnd, WM_SETICON, iType, reinterpret_cast<LPARAM>(hIcon)));
+	}
+
 	template <DcxConcepts::IsNumeric T>
 	constexpr inline WORD dcxLOWORD(T&& data) noexcept
 	{
