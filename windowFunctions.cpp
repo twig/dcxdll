@@ -552,7 +552,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 
 	Auto(GlobalFree(hData));
 
-	auto pData = (RGNDATA*)GlobalLock(hData);
+	auto pData = static_cast<RGNDATA*>(GlobalLock(hData));
 
 	Auto(GlobalUnlock(hData));
 
@@ -562,7 +562,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	SetRect(&pData->rdh.rcBound, MAXLONG, MAXLONG, 0, 0);
 
 	// We study each pixel on the bitmap...
-	auto Pixeles = (BYTE*)bmNewBitmap.bmBits + (bmNewBitmap.bmHeight - 1) * bmNewBitmap.bmWidthBytes;
+	auto Pixeles = reinterpret_cast<BYTE*>(bmNewBitmap.bmBits) + (bmNewBitmap.bmHeight - 1) * bmNewBitmap.bmWidthBytes;
 
 	// Main loop
 	for (auto Row = 0; Row < bmBitmap.bmHeight; ++Row)
@@ -605,7 +605,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 					GlobalUnlock(hData);
 					maxRect += NUMRECT;
 					hData = GlobalReAlloc(hData, sizeof(RGNDATAHEADER) + (sizeof(RECT) * maxRect), GMEM_MOVEABLE);
-					pData = (RGNDATA*)GlobalLock(hData);
+					pData = static_cast<RGNDATA*>(GlobalLock(hData));
 				}	// if (pData->rdh.nCount>=maxRect)
 
 				const auto pRect = (RECT*)&pData->Buffer[0];
@@ -1069,7 +1069,7 @@ void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, con
 			PT_MOVETO,
 			PT_LINETO
 		};
-		PolyDraw(hDC, &pts[0], &flags[0], std::size(pts));
+		PolyDraw(hDC, &pts[0], &flags[0], gsl::narrow_cast<int>(std::size(pts)));
 	}
 }
 
@@ -1434,6 +1434,9 @@ void dcxDrawGradientText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, co
 		return;
 	Auto(DeleteHDCBuffer(hBufTxt));
 	HDC hdcTxt = *hBufTxt;
+	if (!hdcTxt)
+		return;
+
 	RECT rcTxt = *pRC;
 	OffsetRect(&rcTxt, -rcTxt.left, -rcTxt.top);
 
@@ -1458,6 +1461,9 @@ void dcxDrawGradientText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, co
 		return;
 	Auto(DeleteHDCBuffer(hBufGrad));
 	HDC hdcGrad = *hBufGrad;
+	if (!hdcGrad)
+		return;
+
 	XPopupMenuItem::DrawGradient(hdcGrad, &rcTxt, dTO.m_clrGradientTextStart, dTO.m_clrGradientTextEnd, dTO.m_bHorizGradientFill);
 
 	//GetDIBits();
@@ -1505,6 +1511,9 @@ void dcxDrawGradientTextMasked(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT f
 		return;
 	Auto(DeleteHDCBuffer(hBufTxt));
 	HDC hdcTxt = *hBufTxt;
+	if (!hdcTxt)
+		return;
+
 	RECT rcTxt = *pRC;
 	OffsetRect(&rcTxt, -rcTxt.left, -rcTxt.top);
 
@@ -1513,6 +1522,8 @@ void dcxDrawGradientTextMasked(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT f
 		return;
 	Auto(DeleteHDCBuffer(hBufGrad));
 	HDC hdcGrad = *hBufGrad;
+	if (!hdcGrad)
+		return;
 
 	auto hbmMask = CreateBitmap(sz.cx, sz.cy, 1, 1, nullptr);
 	if (!hbmMask)
@@ -1564,8 +1575,12 @@ void dcxDrawOutlineText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, con
 		return;
 
 	const auto hBufTxt = CreateHDCBuffer(hdc, pRC);
+	if (!hBufTxt)
+		return;
 	Auto(DeleteHDCBuffer(hBufTxt));
 	HDC hdcTxt = *hBufTxt;
+	if (!hdcTxt)
+		return;
 
 	if (!BeginPath(hdcTxt))
 		return;
@@ -1574,7 +1589,6 @@ void dcxDrawOutlineText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, con
 	OffsetRect(&rcTxt, -rcTxt.left, -rcTxt.top);
 
 	const auto clrTxt = (dTO.m_clrText != CLR_INVALID) ? dTO.m_clrText : GetTextColor(hdc);
-	const auto clrOutline = (dTO.m_clrOutline != CLR_INVALID) ? dTO.m_clrOutline : GetContrastColour(clrTxt);
 
 	if (!dTO.m_bCtrlCodes)
 	{
@@ -1592,6 +1606,8 @@ void dcxDrawOutlineText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, con
 		mIRC_DrawTextNoBuffer(hdcTxt, txt, &rcTxt, fmt, dTO.m_bShadow);
 
 	EndPath(hdcTxt);
+
+	const auto clrOutline = (dTO.m_clrOutline != CLR_INVALID) ? dTO.m_clrOutline : GetContrastColour(clrTxt);
 
 	if (auto hPen = CreatePen(PS_SOLID, dTO.m_uOutlineSize, clrOutline); hPen)
 	{
@@ -1644,6 +1660,9 @@ void dcxDrawTextOptions(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT mStyle, 
 
 	Auto(DeleteHDCBuffer(hBufTxt));
 	HDC hdcTxt = *hBufTxt;
+	if (!hdcTxt)
+		return;
+
 	RECT rcTxt = *pRC;
 	OffsetRect(&rcTxt, -rcTxt.left, -rcTxt.top);
 
@@ -1730,6 +1749,8 @@ void dcxDrawTextOptions(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT mStyle, 
 				return;
 			Auto(DeleteHDCBuffer(hBufGrad));
 			HDC hdcGrad = *hBufGrad;
+			if (!hdcGrad)
+				return;
 
 			auto hbmMask = CreateBitmap(rcTxt.right, rcTxt.bottom, 1, 1, nullptr);
 			if (!hbmMask)
