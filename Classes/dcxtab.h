@@ -95,7 +95,7 @@ protected:
 	LRESULT DrawClientArea(HDC hdc, UINT uMsg, LPARAM lParam);
 
 	bool m_bClosable{ false };	//!< Does tab have a close button.
-	bool m_bGradient{ false };	//!< Does tab have a gradient fill. (only closeable)
+	//bool m_bGradient{ false };	//!< Does tab have a gradient fill. (only closeable)
 };
 
 #endif // _DCXTAB_H_

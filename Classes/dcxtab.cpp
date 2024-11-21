@@ -130,9 +130,9 @@ dcxWindowStyles DcxTab::parseControlStyles(const TString& tsStyles)
 			//Styles |= TCS_OWNERDRAWFIXED;
 		}
 		break;
-		case L"gradient"_hash:
-			m_bGradient = true;
-			break;
+		//case L"gradient"_hash:
+		//	m_bGradient = true;
+		//	break;
 		default:
 			break;
 		}
@@ -821,8 +821,8 @@ const TString DcxTab::getStyles(void) const
 		styles.addtok(TEXT("flatseps"));
 	if (this->m_bClosable)
 		styles.addtok(TEXT("closable"));
-	if (this->m_bGradient)
-		styles.addtok(TEXT("gradient"));
+	//if (this->m_bGradient)
+	//	styles.addtok(TEXT("gradient"));
 	return styles;
 }
 
@@ -1025,7 +1025,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 
 		//DcxControl::DrawCtrlBackground(idata->hDC, this, &rect);
 
-		if (this->m_bGradient)
+		if (this->m_bGradientFill)
 		{
 			if (this->m_TextOptions.m_clrTextBackground == CLR_INVALID)
 				// Gives a nice silver/gray gradient
