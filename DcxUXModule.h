@@ -4,33 +4,119 @@
 
 #include "dcxmodule.h"
 
+//SetWindowTheme
 typedef HRESULT(WINAPI* PFNSETTHEME)(_In_ HWND hwnd, _In_opt_ LPCWSTR pszSubAppName, _In_opt_ LPCWSTR pszSubIdList);
+//IsThemeActive
 typedef BOOL(WINAPI* PFNISTHEMEACTIVE)();
+//OpenThemeData
 typedef HTHEME(WINAPI* PFNOPENTHEMEDATA)(_In_opt_ HWND, _In_ LPCWSTR);
+//CloseThemeData
 typedef HRESULT(WINAPI* PFNCLOSETHEMEDATA)(_In_ HTHEME);
+//DrawThemeBackground
 typedef HRESULT(WINAPI* PFNDRAWTHEMEBACKGROUND)(_In_ HTHEME, _In_ HDC, _In_ int, _In_ int, _In_ LPCRECT, _In_opt_ LPCRECT);
+//GetThemeBackgroundContentRect
 typedef HRESULT(WINAPI* PFNGETTHEMEBACKGROUNDCONTENTRECT)(_In_ HTHEME, _In_opt_ HDC, _In_ int, _In_ int, _In_ LPCRECT, _Out_ LPRECT);
+//IsThemeBackgroundPartiallyTransparent
 typedef BOOL(WINAPI* PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT)(_In_ HTHEME, _In_ int, _In_ int);
+//DrawThemeParentBackground
 typedef HRESULT(WINAPI* PFNDRAWTHEMEPARENTBACKGROUND)(_In_ HWND, _In_ HDC, _In_opt_ LPCRECT);
+//DrawThemeText
 typedef HRESULT(WINAPI* PFNDRAWTHEMETEXT)(_In_ HTHEME, _In_ HDC, _In_ int, _In_ int, _In_reads_(cchText) LPCWSTR, _In_ int cchText, _In_ DWORD, _In_ DWORD, _In_ LPCRECT);
+//DrawThemeTextEx
 typedef HRESULT(WINAPI* PFNDRAWTHEMETEXTEX)(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_reads_(cchText) LPCWSTR pszText, _In_ int cchText, _In_ DWORD dwTextFlags, _Inout_ LPRECT pRect, _In_opt_ const DTTOPTS* pOptions);
+//GetThemeBackgroundRegion
 typedef HRESULT(WINAPI* PFNGETTHEMEBACKGROUNDREGION)(_In_ HTHEME, _In_opt_ HDC, _In_ int, _In_ int, _In_ LPCRECT, _Out_ HRGN*);
+//GetWindowTheme
 typedef HTHEME(WINAPI* PFNGETWINDOWTHEME)(_In_ HWND);
+//DrawThemeEdge
 typedef HRESULT(WINAPI* PFNDRAWTHEMEEDGE)(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT pDestRect, _In_ UINT uEdge, _In_ UINT uFlags, _Out_opt_ LPRECT pContentRect);
+//GetThemeColor
 typedef HRESULT(WINAPI* PFNGETTHEMECOLOR)(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ COLORREF* pColor);
+//GetThemeFont
 typedef HRESULT(WINAPI* PFNGETTHEMEFONT)(_In_ HTHEME hTheme, _In_opt_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ LPLOGFONT plog);
+//GetThemeTextExtent
 typedef HRESULT(WINAPI* PFNGETTHEMETEXTEXTENT)(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_reads_(cchCharCount) LPCWSTR pszText, _In_ int cchCharCount, _In_ DWORD dwTextFlags, _In_opt_ LPCRECT pBoundingRect, _Out_ LPRECT pExtentRect);
+//DrawThemeParentBackgroundEx
 typedef HRESULT(WINAPI* PFNDRAWTHEMEPARENTBACKGROUNDEX)(_In_ HWND, _In_ HDC, _In_ DWORD, _In_opt_ LPCRECT);
+//GetThemeBitmap
 //typedef HRESULT (WINAPI *PFNGETTHEMEBITMAP)(HTHEME hTheme,int iPartId,int iStateId,int iPropId,ULONG dwFlags,HBITMAP *phBitmap);
+
 // Vista Function pointers.
+//BufferedPaintInit
 typedef HRESULT(WINAPI* PFNBUFFEREDPAINTINIT)(VOID);
+//BufferedPaintUnInit
 typedef HRESULT(WINAPI* PFNBUFFEREDPAINTUNINIT)(VOID);
+//BeginBufferedPaint
 typedef HPAINTBUFFER(WINAPI* PFNBEGINBUFFEREDPAINT)(_In_ HDC hdcTarget, _In_ LPCRECT prcTarget, _In_ BP_BUFFERFORMAT dwFormat, _In_opt_ BP_PAINTPARAMS* pPaintParams, _Out_ HDC* phdc);
+//EndBufferedPaint
 typedef HRESULT(WINAPI* PFNENDBUFFEREDPAINT)(_In_ HPAINTBUFFER hBufferedPaint, _In_ BOOL fUpdateTarget);
+//BufferedPaintSetAlpha
 typedef HRESULT(WINAPI* PFNBUFFEREDPAINTSETALPHA)(_In_ HPAINTBUFFER hBufferedPaint, _In_opt_ LPCRECT prc, _In_ BYTE alpha);
+//BufferedPaintClear
 typedef HRESULT(WINAPI* PFNBUFFEREDPAINTCLEAR)(_In_ HPAINTBUFFER hBufferedPaint, _In_opt_ LPCRECT prc);
+//HitTestThemeBackground
 typedef HRESULT(WINAPI* PFNHITTESTTHEMEBACKGROUND)(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ DWORD dwOptions, _In_ LPCRECT pRect, _In_ HRGN hrgn, _In_ POINT ptTest, _Out_ WORD* pwHitTestCode);
+//GetThemeRect
 typedef HRESULT(WINAPI* PFNGETTHEMERECT)(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ LPRECT pRect);
+
+//BeginBufferedAnimation
+//BeginPanningFeedback
+//BufferedPaintRenderAnimation
+//BufferedPaintStopAllAnimations
+//DllCanUnloadNow
+//DllGetActivationFactory
+//DllGetClassObject
+//DrawThemeBackgroundEx
+//DrawThemeIcon
+//EnableThemeDialogTexture
+//EnableTheming
+//EndBufferedAnimation
+//EndPanningFeedback
+//GetBufferedPaintBits
+//GetBufferedPaintDC
+//GetBufferedPaintTargetDC
+//GetBufferedPaintTargetRect
+//GetColorFromPreference
+//GetCurrentThemeName
+//GetImmersiveColorFromColorSetEx
+//GetImmersiveUserColorSetPreference
+//GetThemeAnimationProperty
+//GetThemeAnimationTransform
+//GetThemeAppProperties
+//GetThemeBackgroundExtent
+//GetThemeBool
+//GetThemeDocumentationProperty
+//GetThemeEnumValue
+//GetThemeFilename
+//GetThemeInt
+//GetThemeIntList
+//GetThemeMargins
+//GetThemeMetric
+//GetThemePartSize
+//GetThemePosition
+//GetThemePropertyOrigin
+//GetThemeStream
+//GetThemeString
+//GetThemeSysBool
+//GetThemeSysColor
+//GetThemeSysColorBrush
+//GetThemeSysFont
+//GetThemeSysInt
+//GetThemeSysSize
+//GetThemeSysString
+//GetThemeTextMetrics
+//GetThemeTimingFunction
+//GetThemeTransitionDuration
+//GetUserColorPreference
+//IsAppThemed
+//IsCompositionActive
+//IsThemeDialogTextureEnabled
+//IsThemePartDefined
+//SetThemeAppProperties
+//SetWindowThemeAttribute
+//ThemeInitApiHook
+//UpdatePanningFeedback
+//OpenThemeDataEx
 
 class DcxUXModule final
 	: public DcxModule
