@@ -155,13 +155,38 @@ dcxWindowStyles DcxControl::parseGeneralControlStyles(const TString& styles, dcx
 			m_bAlphaBlend = true;
 			break;
 		case L"shadow"_hash:
-			m_bShadowText = true;
+			m_TextOptions.m_bShadow = true;
 			break;
 		case L"noformat"_hash:
-			m_bCtrlCodeText = false;
+			m_TextOptions.m_bCtrlCodes = false;
+			break;
+		case L"textgrad"_hash:
+			m_TextOptions.m_bGradientFill = true;
+			m_TextOptions.m_bHorizGradientFill = false;
+			break;
+		case L"texthgrad"_hash:
+			m_TextOptions.m_bGradientFill = true;
+			m_TextOptions.m_bHorizGradientFill = true;
+			break;
+		case L"textoutline"_hash:
+			m_TextOptions.m_bOutline = true;
+			m_TextOptions.m_bFilledOutline = false;
+			break;
+		case L"textfilledoutline"_hash:
+			m_TextOptions.m_bOutline = false;
+			m_TextOptions.m_bFilledOutline = true;
+			break;
+		case L"textoutlinegrad"_hash:
+			m_TextOptions.m_bGradientOutline = true;
+			m_TextOptions.m_bHorizGradientOutline = false;
+			break;
+		case L"textoutlinehgrad"_hash:
+			m_TextOptions.m_bGradientOutline = true;
+			m_TextOptions.m_bHorizGradientOutline = true;
 			break;
 		case L"hgradient"_hash:
 			m_bGradientFill = true;
+			m_bGradientVertical = false;
 			break;
 		case L"vgradient"_hash:
 		{
@@ -295,6 +320,8 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		const auto iFlags = this->parseColorFlags(input.getfirsttok(4));
 		const auto clrColor = input.getnexttok().to_<COLORREF>();	// tok 5
 
+		{
+			// Background colour options.
 		if (dcx_testflag(iFlags, DcxColourFlags::BKGCOLOR))
 		{
 			if (this->m_hBackBrush)
@@ -310,13 +337,41 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 				this->m_clrBackground = clrColor;
 			}
 		}
+			if (dcx_testflag(iFlags, DcxColourFlags::GRADSTARTCOLOR))
+				this->m_clrStartGradient = clrColor;
 
+			if (dcx_testflag(iFlags, DcxColourFlags::GRADENDCOLOR))
+				this->m_clrEndGradient = clrColor;
+		}
+		{
+			// Text colour options.
 		if (dcx_testflag(iFlags, DcxColourFlags::TEXTCOLOR))
-			this->m_clrText = clrColor;
+				this->m_TextOptions.m_clrText = clrColor;
 
 		if (dcx_testflag(iFlags, DcxColourFlags::TEXTBKGCOLOR))
-			this->m_clrBackText = clrColor;
+				this->m_TextOptions.m_clrTextBackground = clrColor;
 
+			if (dcx_testflag(iFlags, DcxColourFlags::TEXTOUTLINEGRADENDCOLOR))
+				this->m_TextOptions.m_clrGradientOutlineEnd = clrColor;
+
+			if (dcx_testflag(iFlags, DcxColourFlags::TEXTOUTLINEGRADSTARTCOLOR))
+				this->m_TextOptions.m_clrGradientOutlineStart = clrColor;
+
+			if (dcx_testflag(iFlags, DcxColourFlags::TEXTGRADENDCOLOR))
+				this->m_TextOptions.m_clrGradientTextEnd = clrColor;
+
+			if (dcx_testflag(iFlags, DcxColourFlags::TEXTGRADSTARTCOLOR))
+				this->m_TextOptions.m_clrGradientTextStart = clrColor;
+
+			if (dcx_testflag(iFlags, DcxColourFlags::TEXTOUTLINECOLOR))
+				this->m_TextOptions.m_clrOutline = clrColor;
+
+			if (dcx_testflag(iFlags, DcxColourFlags::TEXTSHADOWCOLOR))
+				this->m_TextOptions.m_clrShadow = clrColor;
+
+			if (dcx_testflag(iFlags, DcxColourFlags::TEXTGLOWCOLOR))
+				this->m_TextOptions.m_clrGlow = clrColor;
+		}
 		if (dcx_testflag(iFlags, DcxColourFlags::BORDERCOLOR))
 		{
 			if (this->m_hBorderBrush)
@@ -328,12 +383,6 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 			if (clrColor != CLR_INVALID)
 				this->m_hBorderBrush = CreateSolidBrush(clrColor);
 		}
-
-		if (dcx_testflag(iFlags, DcxColourFlags::GRADSTARTCOLOR))
-			this->m_clrStartGradient = clrColor;
-
-		if (dcx_testflag(iFlags, DcxColourFlags::GRADENDCOLOR))
-			this->m_clrEndGradient = clrColor;
 
 		// force a control redraw
 		this->redrawWindow();
@@ -1068,14 +1117,50 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 	case L"textcolour"_hash:
 	case L"textcolor"_hash:
 	{
-		tsResult += m_clrText;
+		tsResult += m_TextOptions.m_clrText;
 	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"textbgcolour"_hash:
 	case L"textbgcolor"_hash:
 	{
-		tsResult += m_clrBackText;
+		tsResult += m_TextOptions.m_clrTextBackground;
+	}
+	break;
+	case L"textoutlinecolour"_hash:
+	case L"textoutlinecolor"_hash:
+	{
+		tsResult += m_TextOptions.m_clrOutline;
+	}
+	break;
+	case L"textoutlinegradientstartcolour"_hash:
+	case L"textoutlinegradientstartcolor"_hash:
+	{
+		tsResult += m_TextOptions.m_clrGradientOutlineStart;
+	}
+	break;
+	case L"textoutlinegradientendcolour"_hash:
+	case L"textoutlinegradientendcolor"_hash:
+	{
+		tsResult += m_TextOptions.m_clrGradientOutlineEnd;
+	}
+	break;
+	case L"textgradientstartcolour"_hash:
+	case L"textgradientstartcolor"_hash:
+	{
+		tsResult += m_TextOptions.m_clrGradientTextStart;
+	}
+	break;
+	case L"textgradientendcolour"_hash:
+	case L"textgradientendcolor"_hash:
+	{
+		tsResult += m_TextOptions.m_clrGradientTextEnd;
+	}
+	break;
+	case L"textshadowcolour"_hash:
+	case L"textshadowcolor"_hash:
+	{
+		tsResult += m_TextOptions.m_clrShadow;
 	}
 	break;
 	// [NAME] [ID] [PROP]
@@ -2769,18 +2854,57 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, cons
 	//else
 	//	mIRC_DrawText(hdc, txt, rc, style, this->IsShadowTextEnabled());
 
-	if (!this->IsControlCodeTextEnabled())
+	dcxTextOptions dTO = this->m_TextOptions;
+	dTO.m_bTransparent = !dTO.m_bCtrlCodes;
+	dTO.m_clrTextBackground = this->getBackTextColor();
+	if (!IsWindowEnabled(m_Hwnd))
 	{
-		const auto oldBkgMode = SetBkMode(hdc, TRANSPARENT);
-		Auto(SetBkMode(hdc, oldBkgMode));
-
-		if (this->IsShadowTextEnabled())
-			dcxDrawShadowText(hdc, txt.to_chr(), gsl::narrow_cast<UINT>(txt.len()), rc, style, GetTextColor(hdc), 0, 5, 5);
-		else
-			DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(txt.len()), rc, style);
+		dTO.m_bCtrlCodes = false;
+		dTO.m_clrText = GetSysColor(COLOR_GRAYTEXT);
+		//dTO.m_clrTextBackground = GetSysColor(COLOR_BACKGROUND);
 	}
-	else
-		mIRC_DrawText(hdc, txt, rc, style, this->IsShadowTextEnabled());
+
+	if (dTO.m_bGradientFill)
+	{
+		//dTO.m_bCtrlCodes = false;
+		dTO.m_bNoColours = true;
+	}
+	dcxDrawTextOptions(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), rc, style, dTO);
+
+	//dcxDrawGradientTextMasked(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), rc, style, dTO);
+
+	//dcxDrawGradientText(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), rc, style, dTO);
+
+	//const auto vec = dcxBreakdownmIRCText(txt);
+	//if (vec.empty())
+	//	return;
+	//mIRC_DrawBreakdown(hdc, vec, rc, style, dTO);
+
+	//if (!this->IsControlCodeTextEnabled())
+	//{
+	//	const auto oldBkgMode = SetBkMode(hdc, TRANSPARENT);
+	//	Auto(SetBkMode(hdc, oldBkgMode));
+	// 
+	//	if (this->IsShadowTextEnabled())
+	//		dcxDrawShadowText(hdc, txt.to_wchr(), gsl::narrow_cast<UINT>(txt.len()), rc, style, GetTextColor(hdc), dTO.m_clrShadow, 5, 5);
+	//	else
+	//		DrawTextW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), rc, style);
+	//}
+	//else
+	//	mIRC_DrawText(hdc, txt, rc, style, this->IsShadowTextEnabled());
+
+	//if (!this->IsControlCodeTextEnabled())
+	//{
+	//	const auto oldBkgMode = SetBkMode(hdc, TRANSPARENT);
+	//	Auto(SetBkMode(hdc, oldBkgMode));
+	//
+	//	if (this->IsShadowTextEnabled())
+	//		dcxDrawShadowText(hdc, txt.to_wchr(), gsl::narrow_cast<UINT>(txt.len()), rc, style, GetTextColor(hdc), 0, 5, 5);
+	//	else
+	//		DrawTextW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), rc, style);
+	//}
+	//else
+	//	mIRC_DrawText(hdc, txt, rc, style, this->IsShadowTextEnabled());
 }
 
 void DcxControl::loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc)
@@ -2850,10 +2974,10 @@ void DcxControl::toXml(TiXmlElement* const xml) const
 		setColourAttribute(xml, "bgcolour", this->m_clrBackground);
 	if (this->m_hBorderBrush)
 		setColourAttribute(xml, "bordercolour", Dcx::BrushToColour(this->m_hBorderBrush));
-	if (this->m_clrText != CLR_INVALID)
-		setColourAttribute(xml, "textcolour", this->m_clrText);
-	if (this->m_clrBackText != CLR_INVALID)
-		setColourAttribute(xml, "textbgcolour", this->m_clrBackText);
+	if (this->m_TextOptions.m_clrText != CLR_INVALID)
+		setColourAttribute(xml, "textcolour", this->m_TextOptions.m_clrText);
+	if (this->m_TextOptions.m_clrTextBackground != CLR_INVALID)
+		setColourAttribute(xml, "textbgcolour", this->m_TextOptions.m_clrTextBackground);
 	if (this->m_clrStartGradient != CLR_INVALID)
 		setColourAttribute(xml, "gradientstart", this->m_clrStartGradient);
 	if (this->m_clrEndGradient != CLR_INVALID)
@@ -3101,9 +3225,9 @@ void DcxControl::xmlSetStyle(const TiXmlElement* xStyle)
 		this->m_hBorderBrush = CreateSolidBrush(clr);
 	}
 	if (const auto clr = queryColourAttribute(xStyle, "textcolour"); clr != CLR_INVALID)
-		this->m_clrText = clr;
+		this->m_TextOptions.m_clrText = clr;
 	if (const auto clr = queryColourAttribute(xStyle, "textbgcolour"); clr != CLR_INVALID)
-		this->m_clrBackText = clr;
+		this->m_TextOptions.m_clrTextBackground = clr;
 	if (const auto clr = queryColourAttribute(xStyle, "gradientstart"); clr != CLR_INVALID)
 		this->m_clrStartGradient = clr;
 	if (const auto clr = queryColourAttribute(xStyle, "gradientend"); clr != CLR_INVALID)

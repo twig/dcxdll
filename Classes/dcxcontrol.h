@@ -285,8 +285,8 @@ public:
 	void setControlFont(const HFONT hFont, const BOOL fRedraw) noexcept;
 	LRESULT setRedraw(const BOOL fView) noexcept;
 	void setBackClrBrush(const HBRUSH c) noexcept { m_hBackBrush = c; }
-	void setBackColor(const COLORREF c) noexcept { m_clrBackText = c; }
-	void setTextColor(const COLORREF c) noexcept { m_clrText = c; }
+	void setTextBackColor(const COLORREF c) noexcept { m_TextOptions.m_clrTextBackground = c; }
+	void setTextColor(const COLORREF c) noexcept { m_TextOptions.m_clrText = c; }
 	void setStartGradientColor(const COLORREF c) noexcept { m_clrStartGradient = c; }
 	void setEndGradientColor(const COLORREF c) noexcept { m_clrEndGradient = c; }
 
@@ -294,8 +294,8 @@ public:
 	void setNoThemed(const bool b) noexcept { m_bNoThemed = b; }
 	void setAlphaBlended(const bool b) noexcept { m_bAlphaBlend = b; }
 	void setControlCursor(const HCURSOR c) noexcept { m_hCursor.cursor = c; }
-	void setShadowTextState(const bool b) noexcept { m_bShadowText = b; }
-	void setControlCodeTextState(const bool b) noexcept { m_bCtrlCodeText = b; }
+	void setShadowTextState(const bool b) noexcept { m_TextOptions.m_bShadow = b; }
+	void setControlCodeTextState(const bool b) noexcept { m_TextOptions.m_bCtrlCodes = b; }
 	void setCursor(const TString& tsFlags, TString& tsFilename);
 	void setRegion(const TString& tsFlags, const TString& tsArgs);
 
@@ -314,11 +314,11 @@ public:
 	}
 	[[nodiscard]] const COLORREF& getBackTextColor() const noexcept
 	{
-		return this->m_clrBackText;
+		return this->m_TextOptions.m_clrTextBackground;
 	}
 	[[nodiscard]] const COLORREF& getTextColor() const noexcept
 	{
-		return this->m_clrText;
+		return this->m_TextOptions.m_clrText;
 	}
 	[[nodiscard]] const COLORREF& getStartGradientColor() const noexcept
 	{
@@ -359,14 +359,54 @@ public:
 	{
 		return !m_bNoThemed;
 	}
+
+	// text options
 	[[nodiscard]] const inline bool& IsShadowTextEnabled() const noexcept
 	{
-		return m_bShadowText;
+		return m_TextOptions.m_bShadow;
 	}
 	[[nodiscard]] const inline bool& IsControlCodeTextEnabled() const noexcept
 	{
-		return m_bCtrlCodeText;
+		return m_TextOptions.m_bCtrlCodes;
 	}
+	[[nodiscard]] const inline bool& IsFilledOutlineTextEnabled() const noexcept
+	{
+		return m_TextOptions.m_bFilledOutline;
+	}
+	[[nodiscard]] const inline bool& IsOutlineTextEnabled() const noexcept
+	{
+		return m_TextOptions.m_bOutline;
+	}
+	[[nodiscard]] const inline bool& IsDoubleOutlineTextEnabled() const noexcept
+	{
+		return m_TextOptions.m_bDoubleOutline;
+	}
+	[[nodiscard]] const inline bool& IsGradientTextEnabled() const noexcept
+	{
+		return m_TextOptions.m_bGradientFill;
+	}
+	[[nodiscard]] const inline bool& IsGlowTextEnabled() const noexcept
+	{
+		return m_TextOptions.m_bGlow;
+	}
+	[[nodiscard]] const inline bool& IsGradientOutlineTextEnabled() const noexcept
+	{
+		return m_TextOptions.m_bGradientOutline;
+	}
+	[[nodiscard]] const inline bool& IsHorizontalGradientTextEnabled() const noexcept
+	{
+		return m_TextOptions.m_bHorizGradientFill;
+	}
+	[[nodiscard]] const inline bool& IsHorizontalGradientOutlineTextEnabled() const noexcept
+	{
+		return m_TextOptions.m_bHorizGradientOutline;
+	}
+	[[nodiscard]] const inline bool& IsTransparentTextEnabled() const noexcept
+	{
+		return m_TextOptions.m_bTransparent;
+	}
+
+	// background options
 	[[nodiscard]] const inline bool& IsGradientFillEnabled() const noexcept
 	{
 		return m_bGradientFill;
@@ -429,12 +469,14 @@ protected:
 
 	//DcxTextRender m_Render;
 
-	COLORREF m_clrText{ CLR_INVALID };				//!< Font color
-	COLORREF m_clrBackText{ CLR_INVALID };			//!< Font Back Color (not supported)
+	//COLORREF m_clrText{ CLR_INVALID };				//!< Font color
+	//COLORREF m_clrBackText{ CLR_INVALID };			//!< Font Back Color (not supported)
 	COLORREF m_colTransparentBg{ CLR_INVALID };		//!< Colour thats transparent when doing colour key.
 	COLORREF m_clrBackground{ CLR_INVALID };		//!< Background Colour. (used to make m_hBackBrush)
 	COLORREF m_clrStartGradient{ CLR_INVALID };		//!< Start colour for gradient fill background.
 	COLORREF m_clrEndGradient{ CLR_INVALID };		//!< End colour for gradient fill background.
+
+	dcxTextOptions m_TextOptions;
 
 	HBRUSH m_hBackBrush{ nullptr };			//!< Background control color
 	HBRUSH m_hBorderBrush{ nullptr };		//!< Controls Border Colour.
@@ -455,8 +497,8 @@ protected:
 	bool m_bGradientFill{ false };			//!< Gradient fill the background.
 	bool m_bGradientVertical{ false };		//!< Draw gradient vertically.
 	bool m_bInPrint{ false };				//!< Are we in the middle of a WM_PRINTCLIENT ?
-	bool m_bShadowText{ false };			//!< Text is drawn with a shadow.
-	bool m_bCtrlCodeText{ true };			//!< mIRC's ctrl codes are used to change the text's appearance.
+	//bool m_bShadowText{ false };			//!< Text is drawn with a shadow.
+	//bool m_bCtrlCodeText{ true };			//!< mIRC's ctrl codes are used to change the text's appearance.
 	bool m_bNoThemed{ true };				//!< Is Control themed.
 
 	/* ***** */
