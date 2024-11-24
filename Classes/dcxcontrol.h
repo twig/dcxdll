@@ -433,6 +433,15 @@ public:
 	void DrawParentsBackground(const HDC hdc, const RECT* const rcBounds = nullptr, const HWND dHwnd = nullptr);
 	[[nodiscard("Memory Leak")]] LPALPHAINFO SetupAlphaBlend(HDC* hdc, const bool DoubleBuffer = false);
 	void FinishAlphaBlend(LPALPHAINFO ai) noexcept;
+	void MoveFocusToNext() const noexcept
+	{
+		PostMessage(m_Hwnd, WM_NEXTDLGCTL, FALSE, FALSE);
+	};
+	void MoveFocusToPrev() const noexcept
+	{
+		PostMessage(m_Hwnd, WM_NEXTDLGCTL, FALSE, TRUE);
+	};
+
 	void showError(const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const err) const;
 	template <typename Format, typename Value, typename... Arguments>
 	void showError(const TCHAR* const prop, const TCHAR* const cmd, const Format& fmt, const Value& val, Arguments&& ... args) const
