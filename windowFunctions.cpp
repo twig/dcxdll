@@ -9,7 +9,7 @@
 *
 * \b Revisions
 *
-* © ScriptsDB.org - 2007-2008
+* Â© ScriptsDB.org - 2007-2008
 */
 #include "defines.h"
 #include "Dcx.h"
@@ -324,9 +324,9 @@ void AddStyles(const HWND hwnd, const int parm, const long AddStyles) noexcept
 //						{
 //							HRGN hNewRegion = ExtCreateRegion(nullptr, sizeof(RGNDATAHEADER) + (sizeof(RECT) * maxRect), pData);
 //							if (hNewRegion != nullptr) {
-//								// Si ya existe la región principal,sumamos la nueva,
+//								// Si ya existe la regiÃ³n principal,sumamos la nueva,
 //								// si no,entonces de momento la principal coincide con
-//								// la nueva región.
+//								// la nueva regiÃ³n.
 //								if (hRegion) {
 //									CombineRgn(hRegion, hRegion, hNewRegion, RGN_OR);
 //									DeleteObject(hNewRegion);
@@ -336,7 +336,7 @@ void AddStyles(const HWND hwnd, const int parm, const long AddStyles) noexcept
 //
 //
 //							}	// if (hNewRegion != nullptr)
-//							// Volvemos a comenzar la suma de rectángulos
+//							// Volvemos a comenzar la suma de rectÃ¡ngulos
 //							pData->rdh.nCount = 0;
 //							SetRect(&pData->rdh.rcBound, MAXLONG, MAXLONG, 0, 0);
 //						}	// if(pData->rdh.nCount==2000)
@@ -344,15 +344,15 @@ void AddStyles(const HWND hwnd, const int parm, const long AddStyles) noexcept
 //					} // if (Column > Xo)
 //				} // for (int  Column ...)
 //
-//				// Nueva Row. Lo del negativo se debe a que el bitmap está invertido
+//				// Nueva Row. Lo del negativo se debe a que el bitmap estÃ¡ invertido
 //				// verticalmente.
 //				Pixeles -= bmNewBitmap.bmWidthBytes;
 //
 //			} // for (int Row...)			
 //
 //			if (pData->rdh.nCount > 0) {
-//				// Una vez finalizado el proceso,procedemos a la fusión de la
-//				// región remanente desde la última fusión hasta el final			
+//				// Una vez finalizado el proceso,procedemos a la fusiÃ³n de la
+//				// regiÃ³n remanente desde la Ãºltima fusiÃ³n hasta el final			
 //				HRGN hNewRegion = ExtCreateRegion(nullptr, sizeof(RGNDATAHEADER) + (sizeof(RECT)*maxRect), pData);
 //
 //				if (hNewRegion != nullptr)
@@ -635,9 +635,9 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 				{
 					if (auto hNewRegion = ExtCreateRegion(nullptr, sizeof(RGNDATAHEADER) + (sizeof(RECT) * maxRect), pData); hNewRegion)
 					{
-						// Si ya existe la región principal,sumamos la nueva,
+						// Si ya existe la regiÃ³n principal,sumamos la nueva,
 						// si no,entonces de momento la principal coincide con
-						// la nueva región.
+						// la nueva regiÃ³n.
 						if (hRegion)
 						{
 							CombineRgn(hRegion, hRegion, hNewRegion, RGN_OR);
@@ -648,7 +648,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 
 
 					}	// if (hNewRegion != nullptr)
-					// Volvemos a comenzar la suma de rectángulos
+					// Volvemos a comenzar la suma de rectÃ¡ngulos
 					pData->rdh.nCount = 0;
 					SetRect(&pData->rdh.rcBound, MAXLONG, MAXLONG, 0, 0);
 				}	// if(pData->rdh.nCount==2000)
@@ -656,7 +656,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 			} // if (Column > Xo)
 		} // for (int  Column ...)
 
-		// Nueva Row. Lo del negativo se debe a que el bitmap está invertido
+		// Nueva Row. Lo del negativo se debe a que el bitmap estÃ¡ invertido
 		// verticalmente.
 		Pixeles -= bmNewBitmap.bmWidthBytes;
 
@@ -664,8 +664,8 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 
 	if (pData->rdh.nCount > 0)
 	{
-		// Una vez finalizado el proceso,procedemos a la fusión de la
-		// región remanente desde la última fusión hasta el final			
+		// Una vez finalizado el proceso,procedemos a la fusiÃ³n de la
+		// regiÃ³n remanente desde la Ãºltima fusiÃ³n hasta el final			
 		if (auto hNewRegion = ExtCreateRegion(nullptr, sizeof(RGNDATAHEADER) + (sizeof(RECT) * maxRect), pData); hNewRegion)
 		{
 			// If the main region does already exist, we add the new one,
@@ -1408,7 +1408,6 @@ bool CopyBitmapToHDC(HDC hdc, LONG xDest, LONG yDest, LONG wDest, LONG hDest, HB
 	return (BitBlt(hdc, xDest, yDest, wDest, hDest, hTmp, xSrc, ySrc, SRCCOPY) != FALSE);
 }
 
-void dcxDrawGradientText(HDC hdc, LPCTSTR txt, int len, LPRECT pRC, UINT fmt, COLORREF clrStart, COLORREF clrEnd, bool bHoriz, bool bCtrlCodes, bool bShadow)
 /// <summary>
 /// <para>Draw text using a gradient effect.</para>
 /// <para>NB: can NOT be used with BeginPath/EndPath etc...</para>
