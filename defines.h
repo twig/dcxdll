@@ -551,12 +551,13 @@ enum class CLATypes
 enum class dcxFontFlags
 	: UINT
 {
-	DCF_ANTIALIASE = 0x01, //!< Control Font Anti-Aliase Style
-	DCF_BOLD = 0x02, //!< Control Font Bold Style
-	DCF_ITALIC = 0x04, //!< Control Font Italic Style
-	DCF_STRIKEOUT = 0x08, //!< Control Font Strikeout Style
-	DCF_UNDERLINE = 0x10, //!< Control Font Underline Style
-	DCF_DEFAULT = 0x20	//!< Control Font Default Style
+	DCF_ANTIALIASE = 0x01,	//!< Control Font Anti-Aliase Style
+	DCF_BOLD = 0x02,		//!< Control Font Bold Style
+	DCF_ITALIC = 0x04,		//!< Control Font Italic Style
+	DCF_STRIKEOUT = 0x08,	//!< Control Font Strikeout Style
+	DCF_UNDERLINE = 0x10,	//!< Control Font Underline Style
+	DCF_DEFAULT = 0x20,		//!< Control Font Default Style
+	DCF_LIGHT = 0x40		//!< Control Font Light Style (opposite of bold)
 };
 
 // --------------------------------------------------
@@ -806,7 +807,7 @@ struct dcxTextOptions
 	bool m_bGradientOutline{};
 	bool m_bHorizGradientOutline{};
 	bool m_bShadow{};
-	bool m_bCtrlCodes{ true };
+	bool m_bNoCtrlCodes{};
 	bool m_bTransparent{};
 	bool m_bGlow{};
 	bool m_bNoColours{};
@@ -821,11 +822,11 @@ struct dcxTextOptions
 	COLORREF m_clrShadow{ CLR_INVALID };
 	COLORREF m_clrGlow{ CLR_INVALID };
 
-	UINT m_uOutlineSize{ 1 };
-	UINT m_uShadowXOffset{ 5 };
-	UINT m_uShadowYOffset{ 5 };
+	BYTE m_uOutlineSize{ 1 };
+	BYTE m_uShadowXOffset{ 5 };
+	BYTE m_uShadowYOffset{ 5 };
 	BYTE m_uShadowAlpha{ 192 };
-	BYTE m_nShadowThickness{ 1 };
+	BYTE m_uShadowThickness{ 1 };
 };
 
 struct dcxTextBreakdown
@@ -838,8 +839,8 @@ struct dcxTextBreakdown
 };
 std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const TString& txt);
 std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const LPCWSTR txt, UINT len);
-RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPCRECT rc, const UINT uStyle, const dcxTextOptions& dTO) noexcept;
-void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPRECT rc, const UINT uStyle, const dcxTextOptions& dTO) noexcept;
+RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPCRECT rc, const UINT uStyle, const dcxTextOptions& dTO);
+void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPRECT rc, const UINT uStyle, const dcxTextOptions& dTO);
 
 void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT* pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset) noexcept;
 void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, const bool shadow);

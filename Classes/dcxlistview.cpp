@@ -5394,10 +5394,10 @@ void DcxListView::DrawEmpty(HDC hdc, const TString& tsBuf)
 		if (m_hFont)
 			Dcx::dcxSelectObject(hdc, m_hFont);
 
-		if (IsControlCodeTextEnabled())
-			mIRC_DrawText(hdc, tsBuf, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP, false);
-		else
+		if (IsControlCodeTextDisabled())
 			DrawText(hdc, tsBuf.to_chr(), -1, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP);
+		else
+			mIRC_DrawText(hdc, tsBuf, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP, false);
 
 		DrawMargin(hdc);
 	}
@@ -5467,7 +5467,7 @@ void DcxListView::DrawClientArea(HDC hdc)
 	auto ai = SetupAlphaBlend(&hdc);
 	Auto(FinishAlphaBlend(ai));
 
-	if (IsControlCodeTextEnabled())
+	if (!IsControlCodeTextDisabled())
 	{
 		// only allow this rendering if control code text is enabled atm (may change)
 		if (Dcx::dcxListView_GetItemCount(m_Hwnd) <= 0)
@@ -5762,7 +5762,7 @@ LRESULT DcxListView::DrawGroup(LPNMLVCUSTOMDRAW lplvcd)
 		// setup text flags
 		constexpr UINT iTextFlags = DT_LEFT | DT_SINGLELINE | DT_NOPREFIX | DT_VCENTER;
 
-		const bool bCustomText = (this->IsControlCodeTextEnabled() || !this->IsThemed());
+		const bool bCustomText = (!this->IsControlCodeTextDisabled() || !this->IsThemed());
 
 		if (bCustomText)
 		{

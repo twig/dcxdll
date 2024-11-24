@@ -158,31 +158,7 @@ dcxWindowStyles DcxControl::parseGeneralControlStyles(const TString& styles, dcx
 			m_TextOptions.m_bShadow = true;
 			break;
 		case L"noformat"_hash:
-			m_TextOptions.m_bCtrlCodes = false;
-			break;
-		case L"textgrad"_hash:
-			m_TextOptions.m_bGradientFill = true;
-			m_TextOptions.m_bHorizGradientFill = false;
-			break;
-		case L"texthgrad"_hash:
-			m_TextOptions.m_bGradientFill = true;
-			m_TextOptions.m_bHorizGradientFill = true;
-			break;
-		case L"textoutline"_hash:
-			m_TextOptions.m_bOutline = true;
-			m_TextOptions.m_bFilledOutline = false;
-			break;
-		case L"textfilledoutline"_hash:
-			m_TextOptions.m_bOutline = false;
-			m_TextOptions.m_bFilledOutline = true;
-			break;
-		case L"textoutlinegrad"_hash:
-			m_TextOptions.m_bGradientOutline = true;
-			m_TextOptions.m_bHorizGradientOutline = false;
-			break;
-		case L"textoutlinehgrad"_hash:
-			m_TextOptions.m_bGradientOutline = true;
-			m_TextOptions.m_bHorizGradientOutline = true;
+			m_TextOptions.m_bNoCtrlCodes = true;
 			break;
 		case L"hgradient"_hash:
 			m_bGradientFill = true;
@@ -263,14 +239,91 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 	const auto numtok = input.numtok();
 
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
+	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME] $chr(9) [TEXT STYLES] $chr(9) [TEXT SYLES MASK]
 	if (flags[TEXT('f')])
 	{
-		if (numtok < 7)
+		//if (numtok < 7)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//if (LOGFONT lf{ }; ParseCommandToLogfont(input.gettok(4, -1), &lf))
+		//	setControlFont(CreateFontIndirect(&lf), FALSE);
+		//redrawWindow();
+
+		const TString tsArgs(input.gettok(4, -1).strip());
+		const TString tsFontArgs(tsArgs.getfirsttok(1, TSTABCHAR));
+		const TString tsStyleArgs(tsArgs.getnexttok(TSTABCHAR));
+		const TString tsStyleMaskArgs(tsArgs.getnexttok(TSTABCHAR));
+
+		if (!tsFontArgs.empty())
+		{
+			if (tsFontArgs.numtok() < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		if (LOGFONT lf{ }; ParseCommandToLogfont(input.gettok(4, -1), &lf))
+			if (LOGFONT lf{ }; ParseCommandToLogfont(tsFontArgs, &lf))
 			setControlFont(CreateFontIndirect(&lf), FALSE);
+		}
+		if (!tsStyleArgs.empty())
+		{
+			const dcxTextStyles ts = parseTextStyles(tsStyleArgs);
+			const dcxTextStyles tsMask = parseTextStyles(tsStyleMaskArgs);
 
+			if (dcx_testflag(ts, dcxTextStyles::NoCtrlCodes))
+				m_TextOptions.m_bNoCtrlCodes = dcx_testflag(tsMask, dcxTextStyles::NoCtrlCodes);
+			if (dcx_testflag(ts, dcxTextStyles::DblOutline))
+				m_TextOptions.m_bDoubleOutline = dcx_testflag(tsMask, dcxTextStyles::DblOutline);
+			if (dcx_testflag(ts, dcxTextStyles::OutlineFilled))
+				m_TextOptions.m_bFilledOutline = dcx_testflag(tsMask, dcxTextStyles::OutlineFilled);
+			if (dcx_testflag(ts, dcxTextStyles::Glow))
+				m_TextOptions.m_bGlow = dcx_testflag(tsMask, dcxTextStyles::Glow);
+			if ((dcx_testflag(ts, dcxTextStyles::HorizGradientText) || dcx_testflag(ts, dcxTextStyles::VertGradientText)))
+				m_TextOptions.m_bGradientFill = (dcx_testflag(tsMask, dcxTextStyles::HorizGradientText) || dcx_testflag(tsMask, dcxTextStyles::VertGradientText));
+			if ((dcx_testflag(ts, dcxTextStyles::HorizGradientOutline) || dcx_testflag(ts, dcxTextStyles::VertGradientOutline)))
+				m_TextOptions.m_bGradientOutline = (dcx_testflag(tsMask, dcxTextStyles::HorizGradientOutline) || dcx_testflag(tsMask, dcxTextStyles::VertGradientOutline));
+			if (dcx_testflag(ts, dcxTextStyles::HorizGradientText))
+				m_TextOptions.m_bHorizGradientFill = dcx_testflag(tsMask, dcxTextStyles::HorizGradientText);
+			if (dcx_testflag(ts, dcxTextStyles::HorizGradientOutline))
+				m_TextOptions.m_bHorizGradientOutline = dcx_testflag(tsMask, dcxTextStyles::HorizGradientOutline);
+			if (dcx_testflag(ts, dcxTextStyles::NoColours))
+				m_TextOptions.m_bNoColours = dcx_testflag(tsMask, dcxTextStyles::NoColours);
+			if (dcx_testflag(ts, dcxTextStyles::OutlineOnly))
+				m_TextOptions.m_bOutline = dcx_testflag(tsMask, dcxTextStyles::OutlineOnly);
+			if (dcx_testflag(ts, dcxTextStyles::Shadow))
+				m_TextOptions.m_bShadow = dcx_testflag(tsMask, dcxTextStyles::Shadow);
+			if (dcx_testflag(ts, dcxTextStyles::Transparent))
+				m_TextOptions.m_bTransparent = dcx_testflag(tsMask, dcxTextStyles::Transparent);
+
+			if (const auto tsPen(tsStyleArgs.wildtok(L"outlinesize=*",1)); !tsPen.empty())
+			{
+				if (const auto iPen = tsPen.gettok(2, L'=').to_<UINT>(); (iPen > 0 && iPen <= 20))
+				{
+					m_TextOptions.m_uOutlineSize = gsl::narrow_cast<BYTE>(iPen);
+				}
+			}
+			if (const auto tsPen(tsStyleArgs.wildtok(L"shadowoffsetx=*", 1)); !tsPen.empty())
+			{
+				if (const auto iPen = tsPen.gettok(2, L'=').to_<UINT>(); (iPen > 0 && iPen <= 20))
+				{
+					m_TextOptions.m_uShadowXOffset = gsl::narrow_cast<BYTE>(iPen);
+				}
+			}
+			if (const auto tsPen(tsStyleArgs.wildtok(L"shadowoffsety=*", 1)); !tsPen.empty())
+			{
+				if (const auto iPen = tsPen.gettok(2, L'=').to_<UINT>(); (iPen > 0 && iPen <= 20))
+				{
+					m_TextOptions.m_uShadowYOffset = gsl::narrow_cast<BYTE>(iPen);
+				}
+			}
+			if (const auto tsPen(tsStyleArgs.wildtok(L"shadowalpha=*", 1)); !tsPen.empty())
+			{
+				m_TextOptions.m_uShadowAlpha = gsl::narrow_cast<BYTE>(tsPen.gettok(2, L'=').to_<UINT>());
+			}
+			if (const auto tsPen(tsStyleArgs.wildtok(L"shadowsize=*", 1)); !tsPen.empty())
+			{
+				if (const auto iPen = tsPen.gettok(2, L'=').to_<UINT>(); (iPen > 0 && iPen <= 20))
+				{
+					m_TextOptions.m_uShadowThickness = gsl::narrow_cast<BYTE>(iPen);
+				}
+			}
+		}
 		redrawWindow();
 	}
 	// xdid -p [NAME] [ID] [SWITCH] [X] [Y] [W] [H]
@@ -1594,6 +1647,7 @@ void DcxControl::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xCtrl)
 
 		setCursor(tsFlags, tsCursor);
 	}
+
 	// Load region data
 	// NB: cant save region data yet.
 	if (auto xRegion = xCtrl->FirstChildElement("region"); xRegion)
@@ -1878,6 +1932,58 @@ TString DcxControl::FontToCommand() const
 		}
 	}
 	return tsResult;
+}
+
+dcxTextStyles DcxControl::parseTextStyles(const TString& tsStyles)
+{
+	dcxTextStyles ts{};
+
+	for (const auto& tsStyle : tsStyles)
+	{
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case L"shadow"_hash:
+			ts |= dcxTextStyles::Shadow;
+			break;
+		case L"noformat"_hash:
+			ts |= dcxTextStyles::NoCtrlCodes;
+			break;
+		case L"vgtext"_hash:
+			ts |= dcxTextStyles::VertGradientText;
+			break;
+		case L"hgtext"_hash:
+			ts |= dcxTextStyles::HorizGradientText;
+			break;
+		case L"outlineonly"_hash:
+			ts |= dcxTextStyles::OutlineOnly;
+			break;
+		case L"filledoutline"_hash:
+			ts |= dcxTextStyles::OutlineFilled;
+			break;
+		case L"vgoutline"_hash:
+			ts |= dcxTextStyles::VertGradientOutline;
+			break;
+		case L"hgoutline"_hash:
+			ts |= dcxTextStyles::HorizGradientOutline;
+			break;
+		case L"nocolours"_hash:
+		case L"nocolors"_hash:
+			ts |= dcxTextStyles::NoColours;
+			break;
+		case L"glow"_hash:
+			ts |= dcxTextStyles::Glow;
+			break;
+		case L"dbloutline"_hash:
+			ts |= dcxTextStyles::DblOutline;
+			break;
+		case L"transparent"_hash:
+			ts |= dcxTextStyles::Transparent;
+			break;
+		default:
+			break;
+		}
+	}
+	return ts;
 }
 
 void DcxControl::updateParentCtrl() noexcept
@@ -2825,7 +2931,7 @@ void DcxControl::calcTextRect(HDC hdc, const TString& txt, LPRECT rc, const UINT
 		return;
 
 	auto t(txt);
-	if (this->IsControlCodeTextEnabled())
+	if (!this->IsControlCodeTextDisabled())
 		t.strip();
 	if (this->IsShadowTextEnabled())
 		dcxDrawShadowText(hdc, t.to_wchr(), gsl::narrow_cast<UINT>(t.len()), rc, style | DT_CALCRECT, this->m_TextOptions.m_clrText, this->m_TextOptions.m_clrShadow, this->m_TextOptions.m_uShadowXOffset, this->m_TextOptions.m_uShadowYOffset);
@@ -2855,11 +2961,11 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, cons
 	//	mIRC_DrawText(hdc, txt, rc, style, this->IsShadowTextEnabled());
 
 	dcxTextOptions dTO = this->m_TextOptions;
-	dTO.m_bTransparent = !dTO.m_bCtrlCodes;
-	dTO.m_clrTextBackground = this->getBackTextColor();
+	dTO.m_bTransparent = dTO.m_bNoCtrlCodes;
+	//dTO.m_clrTextBackground = this->getBackTextColor();
 	if (!IsWindowEnabled(m_Hwnd))
 	{
-		dTO.m_bCtrlCodes = false;
+		dTO.m_bNoCtrlCodes = true;
 		dTO.m_clrText = GetSysColor(COLOR_GRAYTEXT);
 		//dTO.m_clrTextBackground = GetSysColor(COLOR_BACKGROUND);
 	}
@@ -2937,7 +3043,7 @@ const TString DcxControl::getStyles(void) const
 		result.addtok(TEXT("alpha"));
 	if (this->IsShadowTextEnabled())
 		result.addtok(TEXT("shadow"));
-	if (!this->IsControlCodeTextEnabled())
+	if (this->IsControlCodeTextDisabled())
 		result.addtok(TEXT("noformat"));
 	if (this->IsGradientFillEnabled())
 	{
@@ -3009,6 +3115,50 @@ void DcxControl::toXml(TiXmlElement* const xml) const
 		xCursor.SetAttribute("flags", (this->m_hCursor.flags.empty() ? "+r" : this->m_hCursor.flags.c_str()));
 
 		xml->InsertEndChild(xCursor);
+	}
+
+	{
+		TiXmlElement xTextOptions("textoptions");
+
+		xTextOptions.SetAttribute("noformat", m_TextOptions.m_bNoCtrlCodes);
+		xTextOptions.SetAttribute("dbloutline", m_TextOptions.m_bDoubleOutline);
+		xTextOptions.SetAttribute("filloutline", m_TextOptions.m_bFilledOutline);
+		xTextOptions.SetAttribute("glow", m_TextOptions.m_bGlow);
+		if (m_TextOptions.m_bGradientFill)
+		{
+			if (m_TextOptions.m_bHorizGradientFill)
+				xTextOptions.SetAttribute("gtext", "Horizontal");
+			else
+				xTextOptions.SetAttribute("gtext", "Vertical");
+}
+		if (m_TextOptions.m_bGradientOutline)
+		{
+			if (m_TextOptions.m_bHorizGradientOutline)
+				xTextOptions.SetAttribute("goutline", "Horizontal");
+			else
+				xTextOptions.SetAttribute("goutline", "Vertical");
+		}
+		xTextOptions.SetAttribute("nocolours", m_TextOptions.m_bNoColours);
+		xTextOptions.SetAttribute("outlineonly", m_TextOptions.m_bOutline);
+		xTextOptions.SetAttribute("shadow", m_TextOptions.m_bShadow);
+		xTextOptions.SetAttribute("transparent", m_TextOptions.m_bTransparent);
+
+		{
+			TiXmlElement xTextColours("colours");
+
+			setColourAttribute(&xTextColours, "glow", m_TextOptions.m_clrGlow);
+			setColourAttribute(&xTextColours, "goutlinestart", m_TextOptions.m_clrGradientOutlineStart);
+			setColourAttribute(&xTextColours, "goutlineend", m_TextOptions.m_clrGradientOutlineEnd);
+			setColourAttribute(&xTextColours, "gtextstart", m_TextOptions.m_clrGradientOutlineStart);
+			setColourAttribute(&xTextColours, "gtextend", m_TextOptions.m_clrGradientOutlineEnd);
+			setColourAttribute(&xTextColours, "outline", m_TextOptions.m_clrOutline);
+			setColourAttribute(&xTextColours, "shadow", m_TextOptions.m_clrShadow);
+			setColourAttribute(&xTextColours, "text", m_TextOptions.m_clrText);
+			setColourAttribute(&xTextColours, "textbkg", m_TextOptions.m_clrTextBackground);
+
+			xTextOptions.InsertEndChild(xTextColours);
+		}
+		xml->InsertEndChild(xTextOptions);
 	}
 }
 
@@ -3240,6 +3390,41 @@ void DcxControl::xmlSetStyle(const TiXmlElement* xStyle)
 			Dcx::dcxToolTip_SetTipBkColor(hTip, clr);
 		if (const auto clr = queryColourAttribute(xStyle, "tooltiptextcolour"); clr != CLR_INVALID)
 			Dcx::dcxToolTip_SetTipTextColor(hTip, clr);
+	}
+	if (auto xTextOptions = xStyle->FirstChildElement("textoptions"); xTextOptions)
+	{
+		m_TextOptions.m_bNoCtrlCodes = (xTextOptions->Attribute("noformat") != nullptr);
+		m_TextOptions.m_bDoubleOutline = (xTextOptions->Attribute("dbloutline") != nullptr);
+		m_TextOptions.m_bFilledOutline = (xTextOptions->Attribute("filledoutline") != nullptr);
+		m_TextOptions.m_bGlow = (xTextOptions->Attribute("glow") != nullptr);
+		if (const TString tmp(queryAttribute(xTextOptions, "gtext")); !_ts_isEmpty(tmp))
+		{
+			m_TextOptions.m_bHorizGradientFill = (tmp == L"Horizontal");
+			m_TextOptions.m_bGradientFill = true;
+		}
+		if (const TString tmp(queryAttribute(xTextOptions, "goutline")); !_ts_isEmpty(tmp))
+		{
+			m_TextOptions.m_bHorizGradientOutline = (tmp == L"Horizontal");
+			m_TextOptions.m_bGradientOutline = true;
+		}
+		m_TextOptions.m_bNoColours = (queryIntAttribute(xTextOptions, "nocolours") == 0);
+		m_TextOptions.m_bOutline = (queryIntAttribute(xTextOptions, "outlineonly") == 0);
+		m_TextOptions.m_bShadow = (queryIntAttribute(xTextOptions, "shadow") == 0);
+		m_TextOptions.m_bTransparent = (queryIntAttribute(xTextOptions, "transparent") == 0);
+
+		if (auto xColours = dynamic_cast<const TiXmlElement*>(xTextOptions->FirstChild("colours")); xColours)
+		{
+			m_TextOptions.m_clrGlow = queryColourAttribute(xColours, "glow", m_TextOptions.m_clrGlow);
+			m_TextOptions.m_clrGradientOutlineEnd = queryColourAttribute(xColours, "goutlineend", m_TextOptions.m_clrGradientOutlineEnd);
+			m_TextOptions.m_clrGradientOutlineStart = queryColourAttribute(xColours, "goutlinestart", m_TextOptions.m_clrGradientOutlineStart);
+			m_TextOptions.m_clrGradientTextEnd = queryColourAttribute(xColours, "gtextend", m_TextOptions.m_clrGradientTextEnd);
+			m_TextOptions.m_clrGradientTextStart = queryColourAttribute(xColours, "gtextstart", m_TextOptions.m_clrGradientTextStart);
+			m_TextOptions.m_clrOutline = queryColourAttribute(xColours, "outline", m_TextOptions.m_clrOutline);
+			m_TextOptions.m_clrShadow = queryColourAttribute(xColours, "shadow", m_TextOptions.m_clrShadow);
+			// these two may have been set by old option above.
+			m_TextOptions.m_clrText = queryColourAttribute(xColours, "text", m_TextOptions.m_clrText);
+			m_TextOptions.m_clrTextBackground = queryColourAttribute(xColours, "textbkg", m_TextOptions.m_clrTextBackground);
+		}
 	}
 }
 

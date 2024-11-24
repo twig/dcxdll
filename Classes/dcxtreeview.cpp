@@ -2247,7 +2247,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						{
 							constexpr UINT TextSyles = /*DT_WORD_ELLIPSIS |*/ DT_LEFT | DT_SINGLELINE | DT_VCENTER;
 
-							if (!this->IsControlCodeTextEnabled())
+							if (this->IsControlCodeTextDisabled())
 								tsItem.strip();
 
 							calcTextRect(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles);

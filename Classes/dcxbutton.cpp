@@ -1009,7 +1009,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		{
 			//calcTextRect(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE);
 			auto t(m_tsCaption);
-			if (IsControlCodeTextEnabled())
+			if (!IsControlCodeTextDisabled())
 				t.strip();
 			if (!m_bSelected && IsShadowTextEnabled())
 				dcxDrawShadowText(hdc, t.to_wchr(), gsl::narrow_cast<UINT>(t.len()), &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_CALCRECT, gsl::at(m_aColors, nState), 0, 5, 5);
@@ -1060,13 +1060,14 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			const auto oldClr = SetTextColor(hdc, gsl::at(m_aColors, nState));
 			Auto(SetTextColor(hdc, oldClr));
 
-			//ctrlDrawText(hdc,m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
-			if (!IsControlCodeTextEnabled())
+			//ctrlDrawText(hdc, m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
+
+			if (IsControlCodeTextDisabled())
 			{
 				if (!m_bSelected && IsShadowTextEnabled())
 					dcxDrawShadowText(hdc, m_tsCaption.to_wchr(), gsl::narrow_cast<UINT>(m_tsCaption.len()), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, gsl::at(m_aColors, nState), 0, 5, 5);
 				else
-					DrawText(hdc, m_tsCaption.to_chr(), gsl::narrow_cast<int>(m_tsCaption.len()), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
+					DrawTextW(hdc, m_tsCaption.to_wchr(), gsl::narrow_cast<int>(m_tsCaption.len()), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
 			}
 			else
 				mIRC_DrawText(hdc, m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, (!m_bSelected && IsShadowTextEnabled()));

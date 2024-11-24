@@ -104,6 +104,24 @@ enum class DcxControlTypes
 	TRACKBAR, TREEVIEW, UPDOWN, WEBCTRL, MULTIBUTTON, MULTICOMBO, GRID, WEB2CTRL
 };
 
+enum class dcxTextStyles
+	: UINT
+{
+	Unknown = 0x00000000,
+	HorizGradientText = 0x00000001,
+	VertGradientText = 0x00000002,
+	Shadow = 0x00000004,
+	OutlineOnly = 0x00000008,
+	OutlineFilled = 0x00000010,
+	HorizGradientOutline = 0x00000020,
+	VertGradientOutline = 0x00000040,
+	NoCtrlCodes = 0x00000080,
+	NoColours = 0x00000100,
+	Glow = 0x00000200,
+	DblOutline = 0x00000400,
+	Transparent = 0x00000800
+};
+
 // icon sizes...
 enum class DcxIconSizes
 	: int
@@ -295,7 +313,7 @@ public:
 	void setAlphaBlended(const bool b) noexcept { m_bAlphaBlend = b; }
 	void setControlCursor(const HCURSOR c) noexcept { m_hCursor.cursor = c; }
 	void setShadowTextState(const bool b) noexcept { m_TextOptions.m_bShadow = b; }
-	void setControlCodeTextState(const bool b) noexcept { m_TextOptions.m_bCtrlCodes = b; }
+	void setControlCodeTextState(const bool b) noexcept { m_TextOptions.m_bNoCtrlCodes = b; }
 	void setCursor(const TString& tsFlags, TString& tsFilename);
 	void setRegion(const TString& tsFlags, const TString& tsArgs);
 
@@ -361,13 +379,15 @@ public:
 	}
 
 	// text options
+	[[nodiscard]] static dcxTextStyles parseTextStyles(const TString& tsStyles);
+
 	[[nodiscard]] const inline bool& IsShadowTextEnabled() const noexcept
 	{
 		return m_TextOptions.m_bShadow;
 	}
-	[[nodiscard]] const inline bool& IsControlCodeTextEnabled() const noexcept
+	[[nodiscard]] const inline bool& IsControlCodeTextDisabled() const noexcept
 	{
-		return m_TextOptions.m_bCtrlCodes;
+		return m_TextOptions.m_bNoCtrlCodes;
 	}
 	[[nodiscard]] const inline bool& IsFilledOutlineTextEnabled() const noexcept
 	{

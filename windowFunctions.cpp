@@ -1444,7 +1444,7 @@ void dcxDrawGradientText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, co
 	const auto bkgclr = GetContrastColour(clrTxt);
 	Dcx::FillRectColour(hdcTxt, pRC, bkgclr);
 
-	if (!dTO.m_bCtrlCodes)
+	if (dTO.m_bNoCtrlCodes)
 	{
 		SetBkMode(hdcTxt, (dTO.m_bTransparent) ? TRANSPARENT : OPAQUE);
 
@@ -1590,7 +1590,7 @@ void dcxDrawOutlineText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, con
 
 	const auto clrTxt = (dTO.m_clrText != CLR_INVALID) ? dTO.m_clrText : GetTextColor(hdc);
 
-	if (!dTO.m_bCtrlCodes)
+	if (dTO.m_bNoCtrlCodes)
 	{
 		const auto oldBkgMode = SetBkMode(hdcTxt, TRANSPARENT);
 		Auto(SetBkMode(hdcTxt, oldBkgMode));

@@ -927,6 +927,8 @@ GSL_SUPPRESS(bounds.3) bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT 
 
 	if (dcx_testflag(flags, dcxFontFlags::DCF_BOLD))
 		lf->lfWeight = FW_BOLD;
+	else if (dcx_testflag(flags, dcxFontFlags::DCF_LIGHT))
+		lf->lfWeight = FW_LIGHT;
 	else
 		lf->lfWeight = FW_NORMAL;
 
@@ -961,6 +963,8 @@ dcxFontFlags parseFontFlags(const TString& flags) noexcept
 		iFlags |= dcxFontFlags::DCF_DEFAULT;
 	if (xflags[TEXT('i')])
 		iFlags |= dcxFontFlags::DCF_ITALIC;
+	if (xflags[TEXT('l')])
+		iFlags |= dcxFontFlags::DCF_LIGHT;
 	if (xflags[TEXT('s')])
 		iFlags |= dcxFontFlags::DCF_STRIKEOUT;
 	if (xflags[TEXT('u')])
@@ -1986,13 +1990,15 @@ std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const TString& txt)
 	return dcxBreakdownmIRCText(txt.to_wchr(), gsl::narrow_cast<UINT>(txt.len()));
 }
 
-RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPCRECT rc, const UINT uStyle, const dcxTextOptions& dTO) noexcept
+RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPCRECT rc, const UINT uStyle, const dcxTextOptions& dTO)
 {
 	RECT rcResult{ *rc };
 
 	const UINT uNewStyle = uStyle | DT_CALCRECT;
 
 	TString txt;
+	txt.reserve(64 * vec.size());	// reserve 64 characters for each string (should be enuf for most cases)
+
 	for (const auto& tbd : vec)
 	{
 		txt += tbd.m_str;
@@ -2001,7 +2007,7 @@ RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPC
 
 	return rcResult;
 }
-void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPRECT rc, const UINT uStyle, const dcxTextOptions& dTO) noexcept
+void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPRECT rc, const UINT uStyle, const dcxTextOptions& dTO)
 {
 	if (!hdc || !rc || (vec.empty()) || IsRectEmpty(rc))
 		return;
@@ -2097,8 +2103,23 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 		return (iFit != 0);
 	};
 
-	if (dTO.m_bCtrlCodes)
+	if (dTO.m_bNoCtrlCodes)
 	{
+		for (const auto& tbd : vec)
+		{
+			if (tbd.m_str.empty())
+				continue;
+
+			if (yPos >= rcArea.bottom)
+				break;
+
+			SetBkMode(hdc, (tbd.m_bTransparent) ? TRANSPARENT : OPAQUE);
+
+			if (!_DrawBreakdown(tbd.m_str))
+				break;
+		}
+	}
+	else {
 		const COLORREF origFG = GetTextColor(hdc), origBG = GetBkColor(hdc);
 
 		auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT));
@@ -2138,6 +2159,8 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 				return;
 			Auto(DeleteObject(hNewFont));
 
+			//Dcx::dcxFontResource ff(&lf);
+
 			const auto hOldFont = SelectObject(hdc, hNewFont);
 			Auto(SelectObject(hdc, hOldFont));
 
@@ -2146,21 +2169,6 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 		}
 		SetTextColor(hdc, origFG);
 		SetBkColor(hdc, origBG);
-	}
-	else {
-		for (const auto& tbd : vec)
-		{
-			if (tbd.m_str.empty())
-				continue;
-
-			if (yPos >= rcArea.bottom)
-				break;
-
-			SetBkMode(hdc, (tbd.m_bTransparent) ? TRANSPARENT : OPAQUE);
-
-			if (!_DrawBreakdown(tbd.m_str))
-				break;
-		}
 	}
 }
 
