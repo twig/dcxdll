@@ -410,11 +410,11 @@ mIRC(xtreebar)
 					tvexstylef &= ~TVS_EX_DOUBLEBUFFER;
 					tvexstylemask |= TVS_EX_DOUBLEBUFFER;
 					break;
-				case L"autoscroll"_hash: // autohscroll
+				case L"autohscroll"_hash: // autohscroll
 					tvexstylef |= TVS_EX_AUTOHSCROLL;
 					tvexstylemask |= TVS_EX_AUTOHSCROLL;
 					break;
-				case L"noautoscroll"_hash: // noautohscroll
+				case L"noautohscroll"_hash: // noautohscroll
 					tvexstylef &= ~TVS_EX_AUTOHSCROLL;
 					tvexstylemask |= TVS_EX_AUTOHSCROLL;
 					break;
@@ -508,6 +508,12 @@ mIRC(xtreebar)
 				break;
 			case TEXT('H'): // hot bkg colour
 				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)) = clr;
+				break;
+			case TEXT('p'): // hot bkg colour
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR)) = clr;
+				break;
+			case TEXT('P'): // hot bkg colour
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG)) = clr;
 				break;
 			default:
 				throw DcxExceptions::dcxInvalidFlag();

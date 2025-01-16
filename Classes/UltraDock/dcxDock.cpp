@@ -302,12 +302,12 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 	switch (uMsg)
 	{
-	//case WM_SIZE:
-	//{
-	//	if (dcxSignal.xdock)
-	//		mIRCLinker::signal(TEXT("size ref % % %"), reinterpret_cast<DWORD>(mHwnd), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
-	//}
-	//break;
+		//case WM_SIZE:
+		//{
+		//	if (dcxSignal.xdock)
+		//		mIRCLinker::signal(TEXT("size ref % % %"), reinterpret_cast<DWORD>(mHwnd), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
+		//}
+		//break;
 
 	case WM_WINDOWPOSCHANGING:
 	{
@@ -368,6 +368,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 		//return ((GetWindowLong(mHwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) ? TRUE : FALSE);
 	}
 	break;
+
 	case TVM_SETITEM:
 	{
 		if (pthis->m_iType != DockTypes::DOCK_TYPE_TREE || !DcxDock::g_bTakeOverTreebar)
@@ -381,7 +382,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 		if (Dcx::dcxHIWORD(pitem->lParam) != 0)
 		{
 			DcxDock::g_wid = DcxDock::getTreebarItemWID(pitem->lParam);
-			TString buf(DcxDock::getTreebarItemType(pitem->lParam));
+			const TString buf(DcxDock::getTreebarItemType(pitem->lParam));
 
 			// <item type> <wid> <status>
 			constexpr TCHAR sSel[] = TEXT("selected");
@@ -392,6 +393,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 		}
 	}
 	break;
+
 	case TVM_INSERTITEM:
 	{
 		if (!DcxDock::g_bTakeOverTreebar)
@@ -583,8 +585,8 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 			{
 				switch (dcxlParam(LPNMTVCUSTOMDRAW, lpntvcd); lpntvcd->nmcd.dwDrawStage)
 				{
-				case CDDS_PREPAINT:
-					return CDRF_NOTIFYITEMDRAW;
+					//case CDDS_PREPAINT:
+					//	return CDRF_NOTIFYITEMDRAW;
 				case CDDS_ITEMPREPAINT:
 				{
 					if (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_HOT))
@@ -643,12 +645,52 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 								lpntvcd->clrTextBk = cBkg;
 						}
 					}
-					// This fixes the dcc progress & custom window -qS:P not showing in treebar
-					return CallWindowProc(pthis->m_OldDockWndProc, mHwnd, uMsg, wParam, lParam);
+					// mIRC default return is CDRF_SKIPDEFAULT
+
 					//return CDRF_NEWFONT;
+
+					return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
 				}
-				default:
+
+				case CDDS_ITEMPOSTPAINT:
+				{
 					// This fixes the dcc progress & custom window -qS:P not showing in treebar
+					if (const auto wid = DcxDock::getTreebarItemWID(lpntvcd->nmcd.lItemlParam); wid > 0)
+					{
+						TString buf;
+						mIRCLinker::eval(buf, TEXT("$window(@%).pbstate"), wid);
+
+						if (buf.to_<int>() > 0)
+						{
+							mIRCLinker::eval(buf, TEXT("$window(@%).pbpercent"), wid);
+							const int perc = buf.to_<int>();
+
+							COLORREF clr = RGB(0, 255, 0);
+							if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR)) != CLR_INVALID)
+								clr = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR));
+							COLORREF clrbkg = RGB(0, 0, 0);
+							if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG)) != CLR_INVALID)
+								clrbkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG));
+
+							RECT rcTxt{};
+							auto hItem = reinterpret_cast<HTREEITEM>(lpntvcd->nmcd.dwItemSpec);
+
+							Dcx::dcxTreeView_GetItemRect(lpntvcd->nmcd.hdr.hwndFrom, hItem, &rcTxt, true);
+							RECT rcBar{ rcTxt };
+							rcBar.top = rcBar.bottom - 2;
+							rcBar.right = lpntvcd->nmcd.rc.right;
+
+							if (perc < 100)
+							{
+								Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcBar, clrbkg);
+								rcBar.right = rcBar.left + gsl::narrow_cast<LONG>(((gsl::narrow_cast<double>(rcBar.right) - gsl::narrow_cast<double>(rcBar.left)) / 100.0) * gsl::narrow_cast<double>(perc));
+							}
+							Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcBar, clr);
+						}
+					}
+				}
+				[[fallthrough]];
+				default:
 					return CallWindowProc(pthis->m_OldDockWndProc, mHwnd, uMsg, wParam, lParam);
 					//return CDRF_DODEFAULT;
 				}
