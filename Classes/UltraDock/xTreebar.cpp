@@ -687,6 +687,93 @@ mIRC(_xtreebar)
 			}
 		}
 		break;
+		case TEXT("style"_hash):
+		{
+			const auto stylef = dcxGetWindowStyle(mIRCLinker::getTreeview());
+			const auto exstylef = dcxGetWindowExStyle(mIRCLinker::getTreeview());
+
+			DWORD tvexstylef = 0;
+			if (Dcx::DwmModule.isUseable())
+				tvexstylef = Dcx::dcxTreeView_GetExtendedStyle(mIRCLinker::getTreeview());
+			WindowStyle tipstylef{};
+			if (const auto tips = Dcx::dcxTreeView_GetToolTips(mIRCLinker::getTreeview()); tips)
+				tipstylef = dcxGetWindowStyle(tips);
+
+			TString tsRes;
+			if (dcx_testflag(stylef, TVS_FULLROWSELECT))
+				tsRes.addtok(TEXT("fullrowselect"));
+			else
+				tsRes.addtok(TEXT("nofullrowselect"));
+			if (dcx_testflag(stylef, TVS_HASLINES))
+				tsRes.addtok(TEXT("haslines"));
+			else
+				tsRes.addtok(TEXT("nohaslines"));
+			if (dcx_testflag(stylef, TVS_TRACKSELECT))
+				tsRes.addtok(TEXT("trackselect"));
+			else
+				tsRes.addtok(TEXT("notrackselect"));
+			if (dcx_testflag(stylef, TVS_NOTOOLTIPS))
+				tsRes.addtok(TEXT("notooltips"));
+			else
+				tsRes.addtok(TEXT("tooltips"));
+			if (dcx_testflag(stylef, TVS_INFOTIP))
+				tsRes.addtok(TEXT("infotip"));
+			else
+				tsRes.addtok(TEXT("noinfotip"));
+			if (dcx_testflag(stylef, TVS_HASBUTTONS))
+				tsRes.addtok(TEXT("hasbuttons"));
+			else
+				tsRes.addtok(TEXT("nohasbuttons"));
+			if (dcx_testflag(stylef, TVS_LINESATROOT))
+				tsRes.addtok(TEXT("rootlines"));
+			else
+				tsRes.addtok(TEXT("norootlines"));
+			if (dcx_testflag(stylef, TVS_SINGLEEXPAND))
+				tsRes.addtok(TEXT("singleexpand"));
+			else
+				tsRes.addtok(TEXT("nosingleexpand"));
+			if (dcx_testflag(stylef, TVS_NOSCROLL))
+				tsRes.addtok(TEXT("noscroll"));
+			else
+				tsRes.addtok(TEXT("scroll"));
+			if (dcx_testflag(stylef, TVS_SHOWSELALWAYS))
+				tsRes.addtok(TEXT("showselalways"));
+			else
+				tsRes.addtok(TEXT("noshowselalways"));
+			if (dcx_testflag(exstylef, WS_EX_TRANSPARENT))
+				tsRes.addtok(TEXT("transparent"));
+			else
+				tsRes.addtok(TEXT("notransparent"));
+
+			if (dcx_testflag(tvexstylef, TVS_EX_FADEINOUTEXPANDOS))
+				tsRes.addtok(TEXT("fadebuttons"));
+			else
+				tsRes.addtok(TEXT("nofadebuttons"));
+			if (dcx_testflag(tvexstylef, TVS_EX_NOINDENTSTATE))
+				tsRes.addtok(TEXT("noindent"));
+			else
+				tsRes.addtok(TEXT("indent"));
+			if (dcx_testflag(tvexstylef, TVS_EX_DOUBLEBUFFER))
+				tsRes.addtok(TEXT("buffer"));
+			else
+				tsRes.addtok(TEXT("nobuffer"));
+			if (dcx_testflag(tvexstylef, TVS_EX_AUTOHSCROLL))
+				tsRes.addtok(TEXT("autohscroll"));
+			else
+				tsRes.addtok(TEXT("noautohscroll"));
+			if (dcx_testflag(tvexstylef, TVS_EX_RICHTOOLTIP))
+				tsRes.addtok(TEXT("richtooltip"));
+			else
+				tsRes.addtok(TEXT("norichtooltip"));
+			if (dcx_testflag(tipstylef, TTS_BALLOON))
+				tsRes.addtok(TEXT("balloon"));
+			else
+				tsRes.addtok(TEXT("noballoon"));
+
+			if (!tsRes.empty())
+				dcx_strcpyn(data, tsRes.to_chr(), mIRCLinker::m_dwCharacters);
+		}
+		break;
 		default:	// error
 			throw Dcx::dcxException(TEXT("Invalid prop ().%"), d.gettok(2));
 		}
