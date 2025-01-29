@@ -846,13 +846,14 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
 
 		TString tsRes;
-		_ts_sprintf(tsRes, TEXT("% % % % % % % % % % % % % % % % % % %"), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_BACKGROUND), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_ICONBOX),
+		_ts_sprintf(tsRes, TEXT("% % % % % % % % % % % % % % % % % % % %"), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_BACKGROUND), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_ICONBOX),
 			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_DISABLED),
 			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_BORDER),
 			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SEPARATOR), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTEDTEXT),
 			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_TICK), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_FRAME), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_TICK_DISABLED),
 			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_FRAME_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_HOT),
-			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_TICK_HOT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_FRAME_HOT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_BORDER)
+			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_TICK_HOT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_FRAME_HOT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_BORDER),
+			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_VSEPARATOR)
 		);
 		return tsRes;
 	}

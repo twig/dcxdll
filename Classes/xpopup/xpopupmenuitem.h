@@ -36,7 +36,6 @@ class XPopupMenu;
 *
 * Structure containing the menu item colors
 */
-
 struct XPMENUCOLORS final
 {
 	COLORREF m_clrBack{ RGB(255, 255, 255) };				//!< Menu Item BackGround Color
@@ -49,6 +48,7 @@ struct XPMENUCOLORS final
 	//COLORREF m_clrCheckBox{ RGB(255, 128, 0) };			//!< Menu Item CheckBox Color
 	//COLORREF m_clrDisabledCheckBox{ RGB(200, 200, 200) };	//!< Menu Item Disabled CheckBox Color
 	COLORREF m_clrSeparatorLine{ RGB(128, 128, 128) };		//!< Menu Item Separator Line Color
+	COLORREF m_clrVerticalSeparatorLine{ RGB(128, 128, 128) };	//!< Menu Item Vertical Separator Line Color
 	COLORREF m_clrSelectionBorder{ RGB(0, 0, 0) };			//!< Menu Item Selection Box Border Color
 	COLORREF m_clrSelectedText{ RGB(0, 0, 0) };				//!< Menu Item Selected Text Colour
 	COLORREF m_clrBorder{ CLR_INVALID };					//!< Menu Border colour.
@@ -80,6 +80,7 @@ struct XPMENUCOLORS final
 		setColourAttribute(xml, "hotcheckboxtick", m_clrCheckBox.m_clrHotTick);
 
 		setColourAttribute(xml, "separator", m_clrSeparatorLine);
+		setColourAttribute(xml, "vseparator", m_clrVerticalSeparatorLine);
 		setColourAttribute(xml, "selectionborder", m_clrSelectionBorder);
 	}
 	TiXmlElement* toXml() const
@@ -132,17 +133,13 @@ struct XPMENUCOLORS final
 
 		if (const auto tmp = queryColourAttribute(xml, "separator"); tmp != CLR_INVALID)
 			m_clrSeparatorLine = tmp;
+		if (const auto tmp = queryColourAttribute(xml, "vseparator"); tmp != CLR_INVALID)
+			m_clrVerticalSeparatorLine = tmp;
 		if (const auto tmp = queryColourAttribute(xml, "selectionborder"); tmp != CLR_INVALID)
 			m_clrSelectionBorder = tmp;
 	}
 };
 using LPXPMENUCOLORS = XPMENUCOLORS*;
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 class XPopupMenuItem final
 {
@@ -167,6 +164,7 @@ public:
 	void DrawItemText(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const bool bDis = false);
 	void DrawItemIcon(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const UINT iExStyles, const bool bSel = false, const bool bDis = false) noexcept;
 	void DrawItemSeparator(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol) noexcept;
+	void DrawItemVerticalSeparator(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol) noexcept;
 
 	SIZE getItemSize(const HWND mHwnd);
 

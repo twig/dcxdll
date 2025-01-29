@@ -23,7 +23,6 @@
   *
   * blah
   */
-
 XPopupMenu::XPopupMenu(const TString& tsMenuName, MenuStyle mStyle)
 	: XPopupMenu(tsMenuName, CreatePopupMenu())
 {
@@ -740,6 +739,10 @@ void XPopupMenu::setColor(const MenuColours nColor, const COLORREF clrColor) noe
 		this->m_MenuColors.m_clrSeparatorLine = clrColor;
 		break;
 
+	case MenuColours::XPMC_VSEPARATOR:
+		this->m_MenuColors.m_clrVerticalSeparatorLine = clrColor;
+		break;
+
 	case MenuColours::XPMC_TEXT:
 		this->m_MenuColors.m_clrText = clrColor;
 		break;
@@ -757,12 +760,6 @@ void XPopupMenu::setColor(const MenuColours nColor, const COLORREF clrColor) noe
 		break;
 	}
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 COLORREF XPopupMenu::getColor(const MenuColours nColor) const noexcept
 {
@@ -815,6 +812,9 @@ COLORREF XPopupMenu::getColor(const MenuColours nColor) const noexcept
 
 	case MenuColours::XPMC_SEPARATOR:
 		return this->m_MenuColors.m_clrSeparatorLine;
+
+	case MenuColours::XPMC_VSEPARATOR:
+		return this->m_MenuColors.m_clrVerticalSeparatorLine;
 
 	case MenuColours::XPMC_TEXT:
 		return this->m_MenuColors.m_clrText;
@@ -902,6 +902,10 @@ void XPopupMenu::setDefaultColor(_In_ const MenuColours nColor) noexcept
 		this->m_MenuColors.m_clrSeparatorLine = RGB(128, 128, 128);
 		break;
 
+	case MenuColours::XPMC_VSEPARATOR:
+		this->m_MenuColors.m_clrVerticalSeparatorLine = RGB(128, 128, 128);
+		break;
+
 	case MenuColours::XPMC_TEXT:
 		this->m_MenuColors.m_clrText = RGB(0, 0, 0);
 		break;
@@ -921,12 +925,6 @@ void XPopupMenu::setDefaultColor(_In_ const MenuColours nColor) noexcept
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 HMENU XPopupMenu::parsePath(const TString& path, const HMENU hParent, const UINT depth)
 {
 	if (!hParent)
@@ -942,12 +940,6 @@ HMENU XPopupMenu::parsePath(const TString& path, const HMENU hParent, const UINT
 
 	return nullptr;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void XPopupMenu::setItemStyleString(const TString& tsFlags)
 {
@@ -965,6 +957,8 @@ void XPopupMenu::setItemStyleString(const TString& tsFlags)
 		iStyles |= XPS_ICON3DSHADOW;
 	if (xflags[TEXT('D')])
 		iStyles |= XPS_DOUBLESEP;
+	if (xflags[TEXT('v')])
+		iStyles |= XPS_VERTICALSEP;
 
 	setItemStyle(iStyles);
 }
@@ -982,6 +976,8 @@ TString XPopupMenu::getItemStyleString() const
 		szStyles += TEXT('p');
 	if (dcx_testflag(iExStyles, XPS_DOUBLESEP))
 		szStyles += TEXT('D');
+	if (dcx_testflag(iExStyles, XPS_VERTICALSEP))
+		szStyles += TEXT('v');
 
 	return szStyles;
 }

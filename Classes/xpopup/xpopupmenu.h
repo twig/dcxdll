@@ -27,6 +27,7 @@ constexpr auto XPS_ICON3D = 0x01; //!< Icons have a 3D effect
 constexpr auto XPS_DISABLEDSEL = 0x02; //!< Disabled Items have a selectionbox
 constexpr auto XPS_ICON3DSHADOW = 0x04; //!< Icons have a 3D effect with undershadow
 constexpr auto XPS_DOUBLESEP = 0x08; //!< Seperator items have a double line.
+constexpr auto XPS_VERTICALSEP = 0x10; //!< Seperator items have a double line.
 
 enum class MainMenuStyle : UINT
 {
@@ -371,6 +372,7 @@ public:
 		XPMC_CHECKBOX_TICK_HOT,
 		XPMC_CHECKBOX_FRAME_HOT,
 		XPMC_BORDER,
+		XPMC_VSEPARATOR,
 		XPMC_MAX
 	};
 
