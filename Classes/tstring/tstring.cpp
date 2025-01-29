@@ -2215,8 +2215,12 @@ void TString::reserve(const size_type tsSize)
 		return;
 
 	TString tmp(tsSize);
-	if ((this->m_pString) && (tmp.m_pString))
-		ts_strcpy_throw(tmp.m_pString, this->m_pString);
+	//if ((this->m_pString) && (tmp.m_pString))
+	//	ts_strcpy_throw(tmp.m_pString, this->m_pString);
+
+	if (!this->empty() && (tmp.m_pString))
+		ts_strcpyn_throw(tmp.m_pString, this->m_pString, tsSize);
+
 	this->swap(tmp);
 }
 
