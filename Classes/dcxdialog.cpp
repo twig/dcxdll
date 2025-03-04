@@ -2465,7 +2465,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case SC_SIZE:
 		{
-			bool bDoSize = false;
+			bool bDoSize = true;
 			if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE)) // mask only controls sending of event, if event isnt sent then DefWindowProc should still be called.
 				bDoSize = (p_this->evalAliasT(TEXT("beginsize,0")).second != TEXT("nosize"));
 
