@@ -158,6 +158,27 @@ alias tab {
   }
   return %tab
 }
+; $1 = wid
+; returns: pbstate pbpercent
+; Used by custom xTreebar drawing.
+alias _dcx_WIDtoPercent {
+  if ($window(@ $+ $1).pbstate) return 1 $window(@ $+ $1).pbpercent
+  if ($send(0)) {
+    var %c = 1
+    while ($send(%c).wid) {
+      if ($v1 == $1) return 1 $send(%c).pc
+      inc %c
+    }
+  }
+  if ($get(0)) {
+    var %c = 1
+    while ($get(%c).wid) {
+      if ($v1 == $1) return 1 $get(%c).pc
+      inc %c
+    }
+  }
+  return 0 0
+}
 on *:start: {
   unset %dcx_conflict
   if ($dll(dcx.dll) != $null) {
