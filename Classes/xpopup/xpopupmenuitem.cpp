@@ -742,6 +742,7 @@ void XPopupMenuItem::DrawItemSeparator(const LPDRAWITEMSTRUCT lpdis, const XPMEN
 	auto x1 = lpdis->rcItem.left;
 	const auto x2 = lpdis->rcItem.right;
 	const auto y = (lpdis->rcItem.bottom + lpdis->rcItem.top) / 2;
+	const auto& iItemStyle = this->m_pXParentMenu->getItemStyle();
 
 	switch (this->getStyle())
 	{
@@ -749,7 +750,11 @@ void XPopupMenuItem::DrawItemSeparator(const LPDRAWITEMSTRUCT lpdis, const XPMEN
 	case XPopupMenu::MenuStyle::XPMS_ICY_REV:
 	case XPopupMenu::MenuStyle::XPMS_NORMAL:
 	case XPopupMenu::MenuStyle::XPMS_BUTTON:
-		break;
+	{
+		if (dcx_testflag(iItemStyle, XPS_VERTICALSEP))
+			x1 = XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
+	}
+	break;
 
 	case XPopupMenu::MenuStyle::XPMS_OFFICEXP:
 	case XPopupMenu::MenuStyle::XPMS_OFFICE2003_REV:
@@ -775,13 +780,10 @@ void XPopupMenuItem::DrawItemSeparator(const LPDRAWITEMSTRUCT lpdis, const XPMEN
 		const auto oldPen = SelectObject(lpdis->hDC, hPen);
 		Auto(SelectObject(lpdis->hDC, oldPen));
 
-		//MoveToEx(lpdis->hDC, x1, y, nullptr);
-		//LineTo(lpdis->hDC, x2, y);
-
 		dcxDrawLine(lpdis->hDC, x1, y, x2, y);
 	}
 
-	if (dcx_testflag(this->m_pXParentMenu->getItemStyle(), XPS_DOUBLESEP))
+	if (dcx_testflag(iItemStyle, XPS_DOUBLESEP))
 	{
 		const auto hContrastPen = CreatePen(PS_SOLID, 1, GetContrastColour(lpcol->m_clrSeparatorLine));
 		if (!hContrastPen)
@@ -790,9 +792,6 @@ void XPopupMenuItem::DrawItemSeparator(const LPDRAWITEMSTRUCT lpdis, const XPMEN
 
 		const auto oldPen = SelectObject(lpdis->hDC, hContrastPen);
 		Auto(SelectObject(lpdis->hDC, oldPen));
-
-		//MoveToEx(lpdis->hDC, x1, y + 1, nullptr);
-		//LineTo(lpdis->hDC, x2, y + 1);
 
 		dcxDrawLine(lpdis->hDC, x1, y + 1, x2, y + 1);
 	}

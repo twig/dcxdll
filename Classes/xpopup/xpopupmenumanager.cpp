@@ -337,6 +337,12 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 			(currentMenubar != g_OriginalMenuBar) &&					// The menubar is our generated menubar,
 			(g_OriginalMenuBar != nullptr);								// And ensure it has been generated.
 
+		//if (const auto wID = Dcx::dcxLOWORD(lParam); wID > 5)
+		//{
+		//	if (Dcx::XMenubar.parseCallback(wID))
+		//		return 0L;
+		//}
+
 		if (switchMenu)
 			SetMenu(mIRCLinker::getHWND(), g_OriginalMenuBar);
 
