@@ -8,8 +8,8 @@ alias dcxmenus {
 
   ; normal style menu
   ;_dcx_setmenustyle mirc normal
-  _dcx_setmenustyle mirc darknormal
-  _dcx_setmenustyle mircbar normal
+  ;_dcx_setmenustyle mirc darknormal
+  ;_dcx_setmenustyle mircbar darknormal
 
   ; load icons & images used in menus
   var %f = $mircdirimages\dcx_ppac.png
@@ -36,7 +36,37 @@ alias dcxmenus {
   xpopup -R mircbar +t 1
 
   ;
+  _setupmircmenubar
+
+  _dcx_setdarkmode
+
   ;
+  ;
+}
+; $1 = cmd id
+alias _mircmenubar_callback {
+  echo -s _mircmenubar_callback: $1-
+  ; dont allow View->Menu to kill menubar as we have a custom item added use /xmenubar -p +v 0 instead as this preserves our custom addon.
+  if ($1 == 110) return $true
+}
+alias _setupmircmenubar {
+  var %m = mircmenubar_switch
+  if ($xpopup(%m).ismenu) {
+    if ($xmenubar(%m).ismenu) xmenubar -d %m
+    xpopup -d %m
+  }
+  xpopup -c %m normal $chr(9) _mircmenubar_callback
+  xpop -a %m -1 $chr(9) + 1 2 Add Browser Tab $chr(9) Open new Browser tab.
+
+  _dcx_setmenustyle %m darknormal
+
+  xmenubar -M _mircmenubar_callback
+  xmenubar -a %m >|
+
+  xmenubar -p +S normal
+  xmenubar -p +HowWbtTBh $rgb(188,188,188) $rgb(188,188,188) $rgb(188,188,188) $color(88) $rgb(54,54,54) $rgb(54,54,54) 0 $rgb(19,19,19) $rgb(19,19,19)
+  xmenubar -p +O 0
+  xmenubar -p +e 1
 }
 ; changes the menu to a random style.
 ; $1 = menu
@@ -116,6 +146,10 @@ alias _dcx_setmenustyle {
   elseif ($2 == notooltips) xpopup -R $1 +t 0
   elseif ($2 == alpha) xpopup -R $1 +a 192
   elseif ($2 == noalpha) xpopup -R $1 +a 255
+  elseif ($2 == vsep) xpopup -x $1 $xpopup($1).exstyle $+ v
+  elseif ($2 == novsep) xpopup -x $1 $remove($xpopup($1).exstyle,v)
+  elseif ($2 == doublesep) xpopup -x $1 $xpopup($1).exstyle $+ D
+  elseif ($2 == nodoublesep) xpopup -x $1 $remove($xpopup($1).exstyle,D)
 
   if ($1 == mircbar) .timer 1 0 _dcx_setmenustyle scriptpopup $2
 }
@@ -157,7 +191,7 @@ alias _dcx_mircmenu_callback {
       return check 1 16
     }
     ; 616-619 sets additional effects
-    elseif ($2 isnum 616-619) {
+    elseif ($2 isnum 616-621) {
       if ($2 == 616) {
         _dcx_setmenustyle mircbar $iif($xpopup(mircbar).isrounded,square,rounded)
         if ($1 == mircbar) xpopup -r $1
@@ -178,6 +212,16 @@ alias _dcx_mircmenu_callback {
         _dcx_setmenustyle mircbar $iif($xpopup(mircbar).alpha != 255,noalpha,alpha)
         if ($1 == mircbar) xpopup -r $1
         return $iif($xpopup(mircbar).alpha != 255,uncheck,check)
+      }
+      elseif ($2 == 620) {
+        _dcx_setmenustyle mircbar $iif(v isincs $xpopup(mircbar).exstyle,novsep,vsep)
+        if ($1 == mircbar) xpopup -r $1
+        return $iif(v !isincs $xpopup(mircbar).exstyle,uncheck,check)
+      }
+      elseif ($2 == 621) {
+        _dcx_setmenustyle mirc $iif(D isincs $xpopup(mirc).exstyle,nodoublesep,doublesep)
+        if ($1 == mirc) xpopup -r $1
+        return $iif(D !isincs $xpopup(mirc).exstyle,uncheck,check)
       }
     }
     elseif ($2 isnum 700-715) {
@@ -201,8 +245,8 @@ alias _dcx_mircmenu_callback {
       if ($1 == mirc) xpopup -r $1
       return check 1 16
     }
-    ; 716-719 sets additional effects
-    elseif ($2 isnum 716-719) {
+    ; 716-720 sets additional effects
+    elseif ($2 isnum 716-721) {
       if ($2 == 716) {
         _dcx_setmenustyle mirc $iif($xpopup(mirc).isrounded,square,rounded)
         if ($1 == mirc) xpopup -r $1
@@ -224,13 +268,62 @@ alias _dcx_mircmenu_callback {
         if ($1 == mirc) xpopup -r $1
         return $iif($xpopup(mirc).alpha != 255,uncheck,check)
       }
+      elseif ($2 == 720) {
+        _dcx_setmenustyle mirc $iif(v isincs $xpopup(mirc).exstyle,novsep,vsep)
+        if ($1 == mirc) xpopup -r $1
+        return $iif(v !isincs $xpopup(mirc).exstyle,uncheck,check)
+      }
+      elseif ($2 == 721) {
+        _dcx_setmenustyle mirc $iif(D isincs $xpopup(mirc).exstyle,nodoublesep,doublesep)
+        if ($1 == mirc) xpopup -r $1
+        return $iif(D !isincs $xpopup(mirc).exstyle,uncheck,check)
+      }
     }
   }
+}
+alias -l _dcx_setdarkmode {
+  _dcx_setmenustyle mircbar darknormal
+  _dcx_setmenustyle mirc darknormal
+  _dcx_setmenustyle mircmenubar_switch darknormal
+
+  xmenubar -p +e 1
+  set %dcx_darkmode_enabled 1
+  set %dcx_darkmode_bkgdark_colour $color(88)
+  set %dcx_darkmode_bkglight_colour $rgb(54,54,54)
+  set %dcx_darkmode_txt_colour $rgb(188,188,188)
+  var %f = $qt($mircdirdarkmodebkg.bmp)
+  if (!$isfile(%f)) {
+    if ($window(@bkgtmp)) window -c $v1
+    window -hp +d @bkgtmp 0 0 100 10
+    drawfill -r @bkgtmp %dcx_darkmode_bkgdark_colour 0 0 0
+    drawsave @bkgtmp %f
+    window -c @bkgtmp
+  }
+  background -lr %f
+  background -br %f
+  background -hr %f
+  color treebar 95
+  color treebar text 97
+}
+alias -l _dcx_setlightmode {
+  _dcx_setmenustyle mircbar normal
+  _dcx_setmenustyle mirc normal
+  _dcx_setmenustyle mircmenubar_switch normal
+
+  xmenubar -p +e 0
+  set %dcx_darkmode_enabled 0
+  background -lx
+  background -bx
+  background -hx
+  color treebar 0
+  color treebar text 1
 }
 menu status,menubar {
   DCX
   .Unload DCX:udcx
   .Settings
+  ..Set Dark Mode: _dcx_setdarkmode
+  ..Set Light Mode: _dcx_setlightmode
   ..Menu Options
   ...Menubar
   ....Menu Styles
@@ -254,6 +347,8 @@ menu status,menubar {
   ....$iif($xpopup(mircbar).isroundedmenu,$style(1)) Rounded Window $+($chr(14),617) $chr(9) Make menus rounded rects: _dcx_setmenustyle mircbar $iif($xpopup(mircbar).isroundedmenu,squaremenu,roundedmenu)
   ....$iif($xpopup(mircbar).istooltips,$style(1)) Tooltips $+($chr(14),618) $chr(9) Enable tooltips like this one!: _dcx_setmenustyle mircbar $iif($xpopup(mircbar).istooltips,notooltips,tooltips)
   ....$iif($xpopup(mircbar).alpha != 255,$style(1)) Alpha Blend $+($chr(14),619) $chr(9) Set the menus to be translucent: _dcx_setmenustyle mircbar $iif($xpopup(mircbar).alpha != 255,noalpha,alpha)
+  ....$iif(v isincs $xpopup(mircbar).exstyle,$style(1)) Vertical Sep $+($chr(14),620) $chr(9) Draw a vertical seperator: _dcx_setmenustyle mircbar $iif(v isincs $xpopup(mircbar).exstyle,novsep,vsep)
+  ....$iif(D isincs $xpopup(mircbar).exstyle,$style(1)) Double Sep $+($chr(14),621) $chr(9) Draw a double seperator: _dcx_setmenustyle mircbar $iif(D isincs $xpopup(mircbar).exstyle,nodoublesep,doublesep)
   ...Popups
   ....Menu Styles
   .....$iif($_dcx_ismenustyle(mirc,normal),$style(1)) $chr(12) Normal $+($chr(14),700) $chr(9) Normal looking menu: _dcx_setmenustyle mirc normal
@@ -276,6 +371,8 @@ menu status,menubar {
   ....$iif($xpopup(mirc).isroundedmenu,$style(1)) Rounded Window $+($chr(14),717) $chr(9) Make menus rounded rects: _dcx_setmenustyle mirc $iif($xpopup(mirc).isroundedmenu,squaremenu,roundedmenu)
   ....$iif($xpopup(mirc).istooltips,$style(1)) Tooltips $+($chr(14),718) $chr(9) Enable tooltips like this one!: _dcx_setmenustyle mirc $iif($xpopup(mirc).istooltips,notooltips,tooltips)
   ....$iif($xpopup(mirc).alpha != 255,$style(1)) Alpha Blend $+($chr(14),719) $chr(9) Set the menus to be translucent: _dcx_setmenustyle mirc $iif($xpopup(mirc).alpha != 255,noalpha,alpha)
+  ....$iif(v isincs $xpopup(mirc).exstyle,$style(1)) Vertical Sep $+($chr(14),720) $chr(9) Draw a vertical seperator: _dcx_setmenustyle mirc $iif(v isincs $xpopup(mirc).exstyle,novsep,vsep)
+  ....$iif(D isincs $xpopup(mirc).exstyle,$style(1)) Double Sep $+($chr(14),721) $chr(9) Draw a double seperator: _dcx_setmenustyle mirc $iif(D isincs $xpopup(mirc).exstyle,nodoublesep,doublesep)
   ...$iif($dcx(GetDCXSettings,StaticColours),$style(1)) Static Colours $chr(9) Fix the colours used by DCX (faster): {
     if ($dcx(GetDCXSettings,StaticColours)) dcx SetDCXSettings StaticColours 0
     else dcx SetDCXSettings StaticColours 1
