@@ -35,6 +35,18 @@ namespace Dcx
 		return reinterpret_cast<HICON>(SendMessage(hwnd, WM_GETICON, uType, DcxDPIModule::dcxGetDpiForWindow(hwnd)));
 	}
 
+	/// <summary>
+	/// Set a windows icon.
+	/// </summary>
+	/// <param name="mHwnd">- A handle to a window.</param>
+	/// <param name="iType">- The icon type to set ICON_SMALL, ICON_BIG, etc...</param>
+	/// <param name="hIcon">- The icon to set.</param>
+	/// <returns>The previous icon, if any.</returns>
+	inline HICON dcxWindow_SetIcon(HWND mHwnd, UINT iType, HICON hIcon) noexcept
+	{
+		return reinterpret_cast<HICON>(SendMessage(mHwnd, WM_SETICON, iType, reinterpret_cast<LPARAM>(hIcon)));
+	}
+
 	// Listview
 #ifndef LVSIL_FOOTER
 #define LVSIL_FOOTER 4	// The image list for the footer. (undocumented)
@@ -1050,6 +1062,27 @@ namespace Dcx
 	inline bool dcxListBox_GetItemRect(_In_ HWND hwnd, _In_ int nPos, _Out_ LPRECT prc) noexcept
 	{
 		return (ListBox_GetItemRect(hwnd, nPos, prc) != LB_ERR);
+	}
+
+	/// <summary>
+	/// Get the length of an items text.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="nPos"></param>
+	/// <returns></returns>
+	inline int dcxListBox_GetTextLen(_In_ HWND hwnd, _In_ int nPos) noexcept
+	{
+		return ListBox_GetTextLen(hwnd, nPos);
+	}
+
+	inline int dcxListBox_GetHorizontalExtent(_In_ HWND hwnd) noexcept
+	{
+		return ListBox_GetHorizontalExtent(hwnd);
+	}
+
+	inline void dcxListBox_SetHorizontalExtent(_In_ HWND hwnd, _In_ int nExtent) noexcept
+	{
+		ListBox_SetHorizontalExtent(hwnd, nExtent);
 	}
 
 	/// <summary>
