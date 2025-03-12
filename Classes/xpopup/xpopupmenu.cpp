@@ -1416,7 +1416,7 @@ XPopupMenuItem* XPopupMenu::getMenuItem(_In_ UINT mID) const noexcept
 {
 	for (auto xItem : m_vpMenuItem)
 	{
-		if (mID == xItem->getCommandID())
+		if (xItem && (mID == xItem->getCommandID()))
 			return xItem;
 	}
 	return nullptr;
@@ -1473,9 +1473,9 @@ const bool XPopupMenu::isItemValid(const XPopupMenuItem* const pItem) const noex
 	if (!pItem)
 		return false;
 
-	for (const auto& a : m_vpMenuItem)
+	for (const XPopupMenuItem* const a : m_vpMenuItem)
 	{
-		if (a == pItem)
+		if ((a) && (a == pItem))
 			return true;
 	}
 	return false;
