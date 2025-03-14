@@ -1663,6 +1663,10 @@ void XPopupMenu::xmlSaveImageList(VectorOfIcons& vIcons, TiXmlElement* xml) cons
 	}
 }
 
+/// <summary>
+/// Draw the menu border on the topmost menu window.
+/// </summary>
+/// <returns></returns>
 bool XPopupMenu::DrawBorder() const
 {
 	if (getColor(MenuColours::XPMC_BORDER) == CLR_INVALID)
@@ -1681,6 +1685,12 @@ bool XPopupMenu::DrawBorder() const
 	return false;
 }
 
+/// <summary>
+/// Draw the menu border.
+/// </summary>
+/// <param name="hWnd">- Menus HWND</param>
+/// <param name="hdc">- Windows HDC</param>
+/// <returns></returns>
 bool XPopupMenu::DrawBorder(_In_ HWND hWnd, _In_ HDC hdc) const noexcept
 {
 	const auto clr = getColor(MenuColours::XPMC_BORDER);
@@ -1710,8 +1720,10 @@ bool XPopupMenu::DrawBorder(_In_ HWND hWnd, _In_ HDC hdc) const noexcept
 				auto hOldBrush = SelectBrush(hdc, hBrush);
 				Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
 				SelectBrush(hdc, hOldBrush);
+				DeleteBrush(hBrush);
 			}
 			SelectPen(hdc, hOldPen);
+			DeletePen(hPen);
 		}
 	}
 	return true;
