@@ -866,6 +866,43 @@ void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept
 	DeleteObject(SelectObject(hdc, hOld));
 }
 
+void dcxDrawArrow(HDC hdc, LPCRECT lprc, COLORREF clr) noexcept
+{
+	if (!hdc || !lprc)
+		return;
+
+	const auto hPen = CreatePen(PS_SOLID, 1, clr);
+
+	if (!hPen)
+		return;
+	Auto(DeleteObject(hPen));
+
+	const auto hOldPen = SelectObject(hdc, hPen);
+	Auto(SelectObject(hdc, hOldPen));
+
+	const auto x = lprc->right - XPMI_SUBARROW_WIDTH;
+	const auto y = ((lprc->bottom + lprc->top) / 2) - (XPMI_SUBARROW_HEIGHT / 2);
+
+	MoveToEx(hdc, x, y, nullptr);
+	LineTo(hdc, x + 1, y);
+	MoveToEx(hdc, x, y + 1, nullptr);
+	LineTo(hdc, x + 2, y + 1);
+	MoveToEx(hdc, x, y + 2, nullptr);
+	LineTo(hdc, x + 3, y + 2);
+	MoveToEx(hdc, x, y + 3, nullptr);
+	LineTo(hdc, x + 4, y + 3);
+	MoveToEx(hdc, x, y + 4, nullptr);
+	LineTo(hdc, x + 5, y + 4);
+	MoveToEx(hdc, x, y + 5, nullptr);
+	LineTo(hdc, x + 4, y + 5);
+	MoveToEx(hdc, x, y + 6, nullptr);
+	LineTo(hdc, x + 3, y + 6);
+	MoveToEx(hdc, x, y + 7, nullptr);
+	LineTo(hdc, x + 2, y + 7);
+	MoveToEx(hdc, x, y + 8, nullptr);
+	LineTo(hdc, x + 1, y + 8);
+}
+
 namespace
 {
 	COLORREF getCheckBoxBkgColour(const clrCheckBox* lpcol, DWORD dState) noexcept

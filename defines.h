@@ -896,6 +896,7 @@ void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, con
 void dcxDrawRadioBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, const DWORD dState, const bool bTicked, const bool bRounded) noexcept;
 void dcxDrawEdge(HDC hdc, const LPRECT rc, COLORREF clr) noexcept;
 void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept;
+void dcxDrawArrow(HDC hdc, LPCRECT lprc, COLORREF clr) noexcept;
 HWND dcxGetRealParent(HWND hWnd) noexcept;
 
 /// <summary>
