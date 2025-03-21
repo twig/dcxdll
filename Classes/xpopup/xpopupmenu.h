@@ -412,15 +412,48 @@ public:
 	void deleteMenuItemData(const XPopupMenuItem* const p_Item, LPMENUITEMINFO mii = nullptr) noexcept;
 	void deleteAllItemData(HMENU hMenu) noexcept;
 
+	/// <summary>
+	/// Get this menus name.
+	/// </summary>
+	/// <returns></returns>
 	const TString& getName() const noexcept { return this->m_tsMenuName; }
 
+	/// <summary>
+	/// Get the hash of this menus name.
+	/// </summary>
+	/// <returns></returns>
 	const size_t& getNameHash() const noexcept { return m_menuNameHash; }
 
+	/// <summary>
+	/// Get this menus HMENU handle.
+	/// </summary>
+	/// <returns></returns>
 	const inline HMENU& getMenuHandle() const noexcept { return this->m_hMenu; };
 
+	/// <summary>
+	/// Get all colour data.
+	/// </summary>
+	/// <returns>XPMENUCOLORS</returns>
 	const XPMENUCOLORS& getColors() const noexcept { return m_MenuColors; }
+
+	/// <summary>
+	/// Set specified colours value.
+	/// </summary>
+	/// <param name="nColor"></param>
+	/// <param name="clrColor"></param>
 	void setColor(const MenuColours nColor, const COLORREF clrColor) noexcept;
+
+	/// <summary>
+	/// Get specified colours current setting.
+	/// </summary>
+	/// <param name="nColor"></param>
+	/// <returns></returns>
 	COLORREF getColor(const MenuColours nColor) const noexcept;
+
+	/// <summary>
+	/// Set specified colour to default setting.
+	/// </summary>
+	/// <param name="nColor"></param>
 	GSL_SUPPRESS(type.4) void setDefaultColor(_In_ const MenuColours nColor) noexcept;
 
 	static LRESULT CALLBACK XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -428,38 +461,147 @@ public:
 	static LRESULT OnMeasureItem(const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis);
 	static LRESULT OnDrawItem(const HWND mHwnd, LPDRAWITEMSTRUCT lpdis);
 
+	/// <summary>
+	/// Convert an mIRC menu to an XPopupMenu.
+	/// </summary>
+	/// <param name="hMenu"></param>
+	/// <param name="bForce"></param>
 	void convertMenu(HMENU hMenu, const BOOL bForce);
+
+	/// <summary>
+	/// Removes custom data & sets menu as non-ownerdraw.
+	/// </summary>
+	/// <param name="hMenu"></param>
 	static void cleanMenu(HMENU hMenu) noexcept;
+
+	/// <summary>
+	/// Deletes all menu items.
+	/// </summary>
 	void clearAllMenuItems() noexcept;
 
+	/// <summary>
+	/// Get the menus background image.
+	/// </summary>
+	/// <returns></returns>
 	const HBITMAP& getBackBitmap() const noexcept { return m_hBitmap.m_hBitmap; }
+
+	/// <summary>
+	/// Get the filename of the menus current background image.
+	/// </summary>
+	/// <returns></returns>
 	const TString& getBackBitmapFilename() const noexcept { return m_hBitmap.m_tsFilename; }
+
+	/// <summary>
+	/// Set the menus background image.
+	/// </summary>
+	/// <param name="hBitmap"></param>
+	/// <param name="tsFilename"></param>
 	void setBackBitmap(HBITMAP hBitmap, const TString& tsFilename) noexcept;
 
+	/// <summary>
+	/// Check if menu is using a rounded selector.
+	/// </summary>
+	/// <param name=""></param>
+	/// <returns>true/false</returns>
 	const inline bool& IsRoundedSelector(void) const noexcept { return this->m_bRoundedSel; };
+
+	/// <summary>
+	/// Check if menu is using a rounded window.
+	/// </summary>
+	/// <param name=""></param>
+	/// <returns>true/false</returns>
 	const inline bool& IsRoundedWindow(void) const noexcept { return this->m_bRoundedWindow; };
+
+	/// <summary>
+	/// Check if menu alpha blended.
+	/// </summary>
+	/// <param name=""></param>
+	/// <returns>0 - 255 alpha value</returns>
 	const inline std::byte& IsAlpha(void) const noexcept { return this->m_uiAlpha; };
+
+	/// <summary>
+	/// Set the menu to use a rounded selector.
+	/// </summary>
+	/// <param name="rounded"></param>
 	constexpr void SetRoundedSelector(const bool rounded) noexcept { this->m_bRoundedSel = rounded; };
+
+	/// <summary>
+	/// Set the menus alpha value.
+	/// </summary>
+	/// <param name="alpha"></param>
 	constexpr void SetAlpha(const std::byte alpha) noexcept { this->m_uiAlpha = alpha; };
+
+	/// <summary>
+	/// Set the menu to use a rounded window.
+	/// </summary>
+	/// <param name="rounded"></param>
 	constexpr void SetRoundedWindow(const bool rounded) noexcept { this->m_bRoundedWindow = rounded; };
 
+	/// <summary>
+	/// Check if menu is destrucible.
+	/// </summary>
+	/// <param name=""></param>
+	/// <returns>true/false</returns>
 	const inline bool& IsHMENUDestrucible(void) const noexcept { return this->m_bDestroyHMENU; };
 	//constexpr void SetHMENUDestructible(const bool boom) noexcept { this->m_bDestroyHMENU = boom; };
 
-	// Methods to attach and detach from mIRC menu.
+	/// <summary>
+	/// Attach menu to mIRC's menubar.
+	/// </summary>
+	/// <param name="menubar"></param>
+	/// <param name="label"></param>
+	/// <returns>true/false</returns>
 	bool attachToMenuBar(HMENU menubar, const TString& label);
+
+	/// <summary>
+	/// Detach menu from mIRC's menubar.
+	/// </summary>
+	/// <param name="menubar"></param>
 	void detachFromMenuBar(HMENU menubar) noexcept;
 
-	// Methods to access marked text.
+	/// <summary>
+	/// Set the menus marked text.
+	/// </summary>
+	/// <param name="text"></param>
 	void setMarkedText(const TString& text) { this->m_tsMarkedText = text; }
+
+	/// <summary>
+	/// Get the menus marked text.
+	/// </summary>
+	/// <returns></returns>
 	const TString& getMarkedText() const noexcept { return this->m_tsMarkedText; }
 
+	/// <summary>
+	/// Set the callback alias.
+	/// </summary>
+	/// <param name="tsCallback"></param>
 	void setCallback(const TString& tsCallback) { m_tsCallback = tsCallback; }
+
+	/// <summary>
+	/// Get the callback alias.
+	/// </summary>
+	/// <returns>The current callback alias if any.</returns>
 	const TString& getCallback() const noexcept { return this->m_tsCallback; }
 
+	/// <summary>
+	/// Check if tooltips are enabled.
+	/// </summary>
+	/// <returns>true/false</returns>
 	const bool& IsToolTipsEnabled() const noexcept { return m_bEnableTooltips; }
+
+	/// <summary>
+	/// Set tooltips enabled/disabled.
+	/// </summary>
+	/// <param name="a"></param>
 	void setTooltipsState(bool a) noexcept { m_bEnableTooltips = a; }
 
+	/// <summary>
+	/// Get the info on a menu item at the supplied path.
+	/// </summary>
+	/// <param name="iMask"></param>
+	/// <param name="path"></param>
+	/// <param name="mii"></param>
+	/// <returns>true/false</returns>
 	bool getMenuInfo(_In_ const UINT iMask, _In_ const TString& path, _In_ MENUITEMINFO& mii) const;
 
 	/// <summary>
@@ -496,17 +638,12 @@ public:
 	/// <returns>const VectorOfMenuItemGroups&amp;</returns>
 	const VectorOfMenuItemGroups& getGroups() const noexcept { return m_Groups; }
 
-	const DcxMenuItemGroup &getGroup(UINT nID) const noexcept
-	{
-		static DcxMenuItemGroup gEmpty;
-		const auto& grps = getGroups();
-		for (auto& a : grps)
-		{
-			if (nID == a.m_ID)
-				return a;
-		}
-		return gEmpty;
-	}
+	/// <summary>
+	/// Get an item group from a group id.
+	/// </summary>
+	/// <param name="nID"></param>
+	/// <returns>The item group requested or an empty group.</returns>
+	const DcxMenuItemGroup &getGroup(UINT nID) const noexcept;
 
 	/// <summary>
 	/// Converts a CommandID to a menu &amp; path.
@@ -517,6 +654,11 @@ public:
 	/// <returns>a matching menu or nullptr</returns>
 	HMENU CommandIDToPath(_In_ UINT mID, _Out_ TString& tsPath, _In_opt_ HMENU hMenu = nullptr) const;
 
+	/// <summary>
+	/// Set an items Check state. (unused atm)
+	/// </summary>
+	/// <param name="nPos"></param>
+	/// <param name="bEnable"></param>
 	void setItemCheckToggle(UINT nPos, bool bEnable);
 
 	/// <summary>
@@ -557,7 +699,18 @@ public:
 	/// <param name="xml"></param>
 	void xmlSaveImageList(VectorOfIcons& vIcons, TiXmlElement* xml) const;
 
+	/// <summary>
+	/// Draw the menu border on the topmost menu window.
+	/// </summary>
+	/// <returns></returns>
 	bool DrawBorder() const;
+
+	/// <summary>
+	/// Draw the menu border.
+	/// </summary>
+	/// <param name="hWnd">- Menus HWND</param>
+	/// <param name="hdc">- Windows HDC</param>
+	/// <returns></returns>
 	bool DrawBorder(_In_ HWND hWnd, _In_ HDC hdc) const noexcept;
 
 	VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects

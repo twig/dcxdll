@@ -18,11 +18,6 @@
 
  // menu class name is "#32768"
 
- /*!
-  * \brief Constructor
-  *
-  * blah
-  */
 XPopupMenu::XPopupMenu(const TString& tsMenuName, MenuStyle mStyle)
 	: XPopupMenu(tsMenuName, CreatePopupMenu())
 {
@@ -38,24 +33,12 @@ XPopupMenu::XPopupMenu(const TString& tsMenuName, MenuStyle mStyle, const TStrin
 	m_tsCallback = tsCallback;
 }
 
-/*!
- * \brief Constructor
- *
- * Default constructor for testing
- */
-
 XPopupMenu::XPopupMenu(const TString& tsName, HMENU hMenu)
 	: m_hMenu(hMenu), m_tsMenuName(tsName), m_menuNameHash(std::hash<TString>{}(tsName)), m_bDestroyHMENU(m_menuNameHash != TEXT("mircbar"_hash) && m_menuNameHash != TEXT("dialog"_hash) && m_menuNameHash != TEXT("scriptpopup"_hash))
 {
 	if (!XPopupMenuManager::m_vpAllMenus.contains(m_hMenu))
 		XPopupMenuManager::m_vpAllMenus[m_hMenu] = this;
 }
-
-/*!
- * \brief Destructor
- *
- * blah
- */
 
 XPopupMenu::~XPopupMenu()
 {
@@ -83,12 +66,6 @@ XPopupMenu::~XPopupMenu()
 
 	destroyImageList();
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void XPopupMenu::parseXPopCommand(const TString& input)
 {
@@ -553,12 +530,6 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void XPopupMenu::parseXPopIdentifier(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	const auto numtok = input.numtok();
@@ -636,12 +607,6 @@ void XPopupMenu::parseXPopIdentifier(const TString& input, const refString<TCHAR
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 HIMAGELIST& XPopupMenu::getImageList() noexcept
 {
 	if (!m_hImageList)
@@ -650,12 +615,6 @@ HIMAGELIST& XPopupMenu::getImageList() noexcept
 	return m_hImageList;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void XPopupMenu::destroyImageList() noexcept
 {
 	if (this->m_hImageList)
@@ -663,12 +622,6 @@ void XPopupMenu::destroyImageList() noexcept
 
 	this->m_hImageList = nullptr;
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 void XPopupMenu::setColor(const MenuColours nColor, const COLORREF clrColor) noexcept
 {
@@ -1018,12 +971,6 @@ void XPopupMenu::deleteMenuItemData(const XPopupMenuItem* const p_Item, LPMENUIT
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void XPopupMenu::deleteAllItemData(HMENU hMenu) noexcept
 {
 	MENUITEMINFO mii{};
@@ -1110,12 +1057,6 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam,
 	return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 LRESULT XPopupMenu::OnMeasureItem(const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis)
 {
 	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpmis->itemData); p_Item)
@@ -1133,12 +1074,6 @@ LRESULT XPopupMenu::OnMeasureItem(const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis)
 	return TRUE;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 LRESULT XPopupMenu::OnDrawItem(const HWND mHwnd, LPDRAWITEMSTRUCT lpdis)
 {
 	if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpdis->itemData); p_Item)
@@ -1146,12 +1081,6 @@ LRESULT XPopupMenu::OnDrawItem(const HWND mHwnd, LPDRAWITEMSTRUCT lpdis)
 
 	return TRUE;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 {
@@ -1275,12 +1204,6 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void XPopupMenu::cleanMenu(HMENU hMenu) noexcept
 {
 	MENUITEMINFO mii{};
@@ -1306,12 +1229,6 @@ void XPopupMenu::cleanMenu(HMENU hMenu) noexcept
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void XPopupMenu::clearAllMenuItems() noexcept
 {
 	for (const auto& a : this->m_vpMenuItem)
@@ -1319,12 +1236,6 @@ void XPopupMenu::clearAllMenuItems() noexcept
 
 	this->m_vpMenuItem.clear();
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 void XPopupMenu::setBackBitmap(HBITMAP hBitmap, const TString& tsFilename) noexcept
 {
@@ -1334,9 +1245,6 @@ void XPopupMenu::setBackBitmap(HBITMAP hBitmap, const TString& tsFilename) noexc
 	this->m_hBitmap.m_tsFilename = tsFilename;
 }
 
-/**
- * Attaches the XPopupMenu to the mIRC MenuBar.
- */
 bool XPopupMenu::attachToMenuBar(HMENU menubar, const TString& label)
 {
 	// Already attached
@@ -1348,9 +1256,6 @@ bool XPopupMenu::attachToMenuBar(HMENU menubar, const TString& label)
 	return this->m_bAttachedToMenuBar;
 }
 
-/**
- * Detaches the XPopupMenu from the mIRC MenuBar.
- */
 void XPopupMenu::detachFromMenuBar(HMENU menubar) noexcept
 {
 	// Not attached, dont bother
@@ -1420,6 +1325,25 @@ XPopupMenuItem* XPopupMenu::getMenuItem(_In_ UINT mID) const noexcept
 			return xItem;
 	}
 	return nullptr;
+}
+
+
+/// <summary>
+/// Get an item group from a group id.
+/// </summary>
+/// <param name="nID"></param>
+/// <returns>The item group requested or an empty group.</returns>
+
+const DcxMenuItemGroup& XPopupMenu::getGroup(UINT nID) const noexcept
+{
+	const static DcxMenuItemGroup gEmpty;
+	const auto& grps = getGroups();
+	for (const auto& a : grps)
+	{
+		if (nID == a.m_ID)
+			return a;
+	}
+	return gEmpty;
 }
 
 HMENU XPopupMenu::CommandIDToPath(_In_ UINT mID, _Out_ TString& tsPath, _In_opt_ HMENU hMenu) const
@@ -1663,10 +1587,6 @@ void XPopupMenu::xmlSaveImageList(VectorOfIcons& vIcons, TiXmlElement* xml) cons
 	}
 }
 
-/// <summary>
-/// Draw the menu border on the topmost menu window.
-/// </summary>
-/// <returns></returns>
 bool XPopupMenu::DrawBorder() const
 {
 	if (getColor(MenuColours::XPMC_BORDER) == CLR_INVALID)
@@ -1685,12 +1605,6 @@ bool XPopupMenu::DrawBorder() const
 	return false;
 }
 
-/// <summary>
-/// Draw the menu border.
-/// </summary>
-/// <param name="hWnd">- Menus HWND</param>
-/// <param name="hdc">- Windows HDC</param>
-/// <returns></returns>
 bool XPopupMenu::DrawBorder(_In_ HWND hWnd, _In_ HDC hdc) const noexcept
 {
 	const auto clr = getColor(MenuColours::XPMC_BORDER);
@@ -1709,8 +1623,6 @@ bool XPopupMenu::DrawBorder(_In_ HWND hWnd, _In_ HDC hdc) const noexcept
 		::OffsetRect(&rect, -rect.left, -rect.top);
 	
 		::ExcludeClipRect(hdc, rect.left + borderThiness, rect.top + borderThiness, rect.right - borderThiness, rect.bottom - borderThiness);
-		//Dcx::FillRectColour(menuDc, &rect, getColor(MenuColours::XPMC_BACKGROUND));
-		//dcxDrawBorder(menuDc, &rect, BF_RECT, clr);
 		
 		if (auto hPen = CreatePen(PS_INSIDEFRAME, 1, clr); hPen)
 		{
