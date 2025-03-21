@@ -208,6 +208,14 @@ void LayoutManager::AddCell(const TString& input, const UINT iOffset, const DcxD
 		if (!p_Cell)
 			throw Dcx::dcxException("Unable to Create Cell");
 
+		if (dcx_testflag(iflags, CLATypes::LAYOUTMIN))
+		{
+			const RECT rc = p_Cell->getClientRect();
+			const SIZE sz{ (rc.right - rc.left), (rc.bottom - rc.top) };
+
+			p_Cell->setMinSize(sz);
+		}
+
 		//if (com == TEXT("root"_hash))
 		//	setRoot(p_Cell.release());
 		if (com == TEXT("root"_hash))
@@ -246,6 +254,21 @@ void LayoutManager::AddCell(const TString& input, const UINT iOffset, const DcxD
 
 		const auto _left = tsID.to_<int>();
 		const RECT rc{ _left, gsl::narrow_cast<int>(WGT), W, H };
+
+		if (dcx_testflag(iflags, CLATypes::LAYOUTMIN))
+		{
+			SIZE szOld = p_GetCell->getMinSize();
+			const auto& rcOld = p_GetCell->getBorder();
+			if (szOld.cx > 0)
+				szOld.cx -= (rcOld.left + rcOld.right);
+			if (szOld.cy > 0)
+				szOld.cy -= (rcOld.bottom + rcOld.top);
+
+			const SIZE sz{ (szOld.cx + rc.left + rc.right), (szOld.cy + rc.bottom + rc.top) };
+
+			p_GetCell->setMinSize(sz);
+		}
+
 		p_GetCell->setBorder(rc);
 	} // else if ( com == TEXT("space") )
 	else
@@ -275,6 +298,10 @@ const CLATypes LayoutManager::parseLayoutFlags(const TString& flags) noexcept
 		iFlags |= CLATypes::LAYOUTVERT;
 	if (xflags[TEXT('w')])
 		iFlags |= CLATypes::LAYOUTDIM;
+	if (xflags[TEXT('P')])
+		iFlags |= CLATypes::LAYOUTFIXEDPOS;
+	if (xflags[TEXT('M')])
+		iFlags |= CLATypes::LAYOUTMIN;
 
 	return iFlags;
 }

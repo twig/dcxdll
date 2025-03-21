@@ -46,8 +46,8 @@ void LayoutCellFill::getMinMaxInfo(CellMinMaxInfo* const pCMMI) const noexcept
 		pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
 		pCMMI->m_MinSize.y = this->m_rcBorders.top + this->m_rcBorders.bottom;
 
-		pCMMI->m_MinSize.x = std::max(pCMMI->m_MinSize.x, 0L);
-		pCMMI->m_MinSize.y = std::max(pCMMI->m_MinSize.y, 0L);
+		pCMMI->m_MinSize.x = std::max(pCMMI->m_MinSize.x, this->m_szMin.cx);
+		pCMMI->m_MinSize.y = std::max(pCMMI->m_MinSize.y, this->m_szMin.cy);
 		//pCMMI->m_MaxSize.x = std::min(pCMMI->m_MaxSize.x, gsl::narrow_cast<LONG>(GetSystemMetrics(SM_CXMAXTRACK)));
 		//pCMMI->m_MaxSize.y = std::min(pCMMI->m_MaxSize.y, gsl::narrow_cast<LONG>(GetSystemMetrics(SM_CYMAXTRACK)));
 		pCMMI->m_MaxSize.x = std::min(pCMMI->m_MaxSize.x, gsl::narrow_cast<LONG>(Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CXMAXTRACK)));

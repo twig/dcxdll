@@ -25,7 +25,12 @@ LayoutCell::LayoutCell(const HWND mHwnd) noexcept
 	: LayoutCell(mHwnd, RECT())
 {
 	if (m_Hwnd)
-		GetWindowRect(m_Hwnd, &m_rcWindow);
+	{
+		//GetWindowRect(m_Hwnd, &m_rcWindow);
+
+		const Dcx::dcxWindowRect rc(m_Hwnd, GetParent(m_Hwnd));
+		m_rcWindow = rc.CopyRect();
+	}
 }
 
 LayoutCell::LayoutCell(const HWND mHwnd, const RECT& rc) noexcept
@@ -54,7 +59,12 @@ LayoutCell::LayoutCell(DcxControl* dcxc) noexcept
 		m_Hwnd = dcxc->getHwnd();
 
 		if (m_Hwnd)
-			GetWindowRect(m_Hwnd, &m_rcWindow);
+		{
+			//GetWindowRect(m_Hwnd, &m_rcWindow);
+
+			const Dcx::dcxWindowRect rc(m_Hwnd, GetParent(m_Hwnd));
+			m_rcWindow = rc.CopyRect();
+		}
 	}
 }
 
@@ -111,25 +121,11 @@ bool LayoutCell::setRect(RECT& rc) noexcept
 	return true;
 }
 
-//void LayoutCell::getRect(RECT& rc) const noexcept
-//{
-//	rc = m_rcWindow;
-//}
-
 const RECT& LayoutCell::getRect() const noexcept
 {
 	return m_rcWindow;
 }
 
-//void LayoutCell::getClientRect(RECT& rc) const noexcept
-//{
-//	rc = getClientRect();
-//}
-
-/// <summary>
-/// Get cells client area rect
-/// </summary>
-/// <returns></returns>
 RECT LayoutCell::getClientRect() const noexcept
 {
 	RECT rc = getRect();
@@ -162,15 +158,11 @@ void LayoutCell::setBorder(const int& nBorder) noexcept
 	setBorder(rc);
 }
 
-void LayoutCell::getBorder(RECT& rc) const noexcept
-{
-	rc = m_rcBorders;
-}
+//void LayoutCell::getBorder(RECT& rc) const noexcept
+//{
+//	rc = m_rcBorders;
+//}
 
-/// <summary>
-/// Get cells border.
-/// </summary>
-/// <returns></returns>
 const RECT& LayoutCell::getBorder() const noexcept
 {
 	return m_rcBorders;

@@ -17,28 +17,19 @@
 
 #include "Classes/layout/layoutcell.h"
 
- /*!
-  * \brief blah
-  *
-  * blah
-  */
-
 class LayoutCellFixed final
 	: public LayoutCell
 {
 public:
 
-	/*!
-	* \brief blah
-	*
-	* blah
-	*/
 	enum class FixedType
 		: UINT
 	{
 		HEIGHT = 1,         //!< Fixed Size in Height
 		WIDTH = HEIGHT << 1,  //!< Fixed Size in Width
-		BOTH = HEIGHT | WIDTH //!< Fixed Size in Both
+		BOTH = HEIGHT | WIDTH, //!< Fixed Size in Both
+		POS = 0x04,
+		ALL = BOTH | POS
 	};
 	template <typename T>
 	friend constexpr FixedType operator &(const FixedType& eStyle, const T& dStyle) noexcept

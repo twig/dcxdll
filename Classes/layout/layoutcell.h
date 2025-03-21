@@ -123,12 +123,43 @@ public:
 
 	virtual ~LayoutCell() noexcept {};
 
+	/// <summary>
+	/// Set this cells size.
+	/// </summary>
+	/// <param name="rc"></param>
+	/// <returns></returns>
 	bool setRect(RECT& rc) noexcept;
+
+	/// <summary>
+	/// Get this cells size.
+	/// </summary>
+	/// <returns></returns>
 	const RECT& getRect() const noexcept;
+
+	/// <summary>
+	/// Get cells client area rect (adjusted to included borders)
+	/// </summary>
+	/// <returns></returns>
 	RECT getClientRect() const noexcept;
+
+	/// <summary>
+	/// Set this cells border sizes.
+	/// </summary>
+	/// <param name="rc"></param>
 	void setBorder(const RECT& rc) noexcept;
+
+	/// <summary>
+	/// Set this cells border size.
+	/// </summary>
+	/// <param name="nBorder"></param>
 	void setBorder(const int& nBorder) noexcept;
-	void getBorder(RECT& rc) const noexcept;
+
+	//void getBorder(RECT& rc) const noexcept;
+
+	/// <summary>
+	/// Get this cells border sizes.
+	/// </summary>
+	/// <returns></returns>
 	const RECT& getBorder() const noexcept;
 
 	virtual void LayoutChild() noexcept = 0;
@@ -137,33 +168,88 @@ public:
 	virtual void toXml(TiXmlElement* const xml) = 0;
 	virtual TiXmlElement* toXml(void) = 0;
 
+	/// <summary>
+	/// Set sibling for this cells.
+	/// </summary>
+	/// <param name="p_Cell"></param>
 	void setSibling(LayoutCell* const p_Cell) noexcept;
+
+	/// <summary>
+	/// Set this cells parent cell.
+	/// </summary>
+	/// <param name="p_Cell"></param>
 	void setParent(LayoutCell* const p_Cell) noexcept;
 
+	/// <summary>
+	/// Get this cells type.
+	/// </summary>
+	/// <returns></returns>
 	virtual const CellType getType() const noexcept = 0;
 
+	/// <summary>
+	/// Get this cells first child cell.
+	/// </summary>
+	/// <returns></returns>
 	LayoutCell* getFirstChild() const noexcept;
+
+	/// <summary>
+	/// Get this cells parent cell.
+	/// </summary>
+	/// <returns></returns>
 	LayoutCell* getParent() const noexcept;
+
+	/// <summary>
+	/// Get the next sibling.
+	/// </summary>
+	/// <returns></returns>
 	LayoutCell* getNextSibling() const noexcept;
 
+	/// <summary>
+	/// Is this cell visible?
+	/// </summary>
+	/// <returns>true/false</returns>
 	const bool isVisible() const noexcept;
 
+	/// <summary>
+	/// Get the number of child cells this cell has.
+	/// </summary>
+	/// <param name=""></param>
+	/// <returns></returns>
 	const size_t& size(void) const noexcept { return m_iCount; }
+
+	/// <summary>
+	/// Is this cell empty (has no children).
+	/// </summary>
+	/// <param name=""></param>
+	/// <returns></returns>
 	const bool		empty(void) const noexcept { return (m_iCount == 0); }
+
+	/// <summary>
+	/// Get this cells minimum size.
+	/// </summary>
+	/// <returns></returns>
+	const SIZE& getMinSize() const noexcept { return m_szMin; }
+
+	/// <summary>
+	/// Set this cells minimum size.
+	/// </summary>
+	/// <param name="sz"></param>
+	void setMinSize(const SIZE& sz) noexcept { m_szMin = sz; }
 
 protected:
 
-	HWND m_Hwnd; //!< Cell Control Window Handle (nullptr if Container Cell)
+	HWND m_Hwnd{}; //!< Cell Control Window Handle (nullptr if Container Cell)
 
-	RECT m_rcBorders; //!< Border defining rectangle
-	RECT m_rcWindow;  //!< Available Window defining rectangle including Borders
+	RECT m_rcBorders{}; //!< Border defining rectangle
+	RECT m_rcWindow{};  //!< Available Window defining rectangle including Borders
+	SIZE m_szMin{};		//!< Min Width & height for this element.
 	DcxControl* m_BaseControl{ nullptr };
 
 	LayoutCell* m_Parent{ nullptr }; //!< Used for navigation
 	LayoutCell* m_FirstChild{ nullptr }; //!< Used for navigation
 	LayoutCell* m_NextSibling{ nullptr }; //!< Used for navigation
 
-	size_t		m_iCount{};
+	size_t		m_iCount{};	//!< Total number of child cells for this cell.
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

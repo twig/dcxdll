@@ -535,13 +535,15 @@ using mIRCResultString = refString<TCHAR, MIRC_BUFFER_SIZE_CCH>;
 enum class CLATypes
 	: UINT
 {
-	LAYOUTFIXED = 0x01,  //!< Layout Cell Fixed Type
-	LAYOUTFILL = 0x02,  //!< Layout Cell Fill Type
-	LAYOUTPANE = 0x04,  //!< Layout Cell Pane Type
-	LAYOUTID = 0x08,  //!< Layout Control ID is Valid
-	LAYOUTDIM = 0x10,  //!< Layout Control Dimensions are Valid (Only works with LayoutCellFixed)
-	LAYOUTVERT = 0x20,  //!< Layout Cell Vertical Style (LayoutCellPane and LayoutCellFixed)
-	LAYOUTHORZ = 0x40  //!< Layout Cell Horizontal Style (LayoutCellPane and LayoutCellFixed)
+	LAYOUTFIXED		= 0x001,  //!< Layout Cell Fixed Type
+	LAYOUTFILL		= 0x002,  //!< Layout Cell Fill Type
+	LAYOUTPANE		= 0x004,  //!< Layout Cell Pane Type
+	LAYOUTID		= 0x008,  //!< Layout Control ID is Valid
+	LAYOUTDIM		= 0x010,  //!< Layout Control Dimensions are Valid (Only works with LayoutCellFixed)
+	LAYOUTVERT		= 0x020,  //!< Layout Cell Vertical Style (LayoutCellPane and LayoutCellFixed)
+	LAYOUTHORZ		= 0x040,  //!< Layout Cell Horizontal Style (LayoutCellPane and LayoutCellFixed)
+	LAYOUTFIXEDPOS	= 0x080,  //!< Layout Cell Fixed Position Style (LayoutCellPane and LayoutCellFixed)
+	LAYOUTMIN		= 0x100
 };
 
 
