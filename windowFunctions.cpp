@@ -418,7 +418,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 
 	// With the previous information, we create the new bitmap!
 
-	const Dcx::dcxBitmapResource hNewBitmap(hMemDC, (BITMAPINFO*)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
+	const Dcx::dcxBitmapResource hNewBitmap(hMemDC, &RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
 
 	GdiFlush();
 	// We select the bitmap onto the created memory context
@@ -554,6 +554,9 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 
 	auto pData = static_cast<RGNDATA*>(GlobalLock(hData));
 
+	if (!pData)
+		throw Dcx::dcxException("BitmapRegion() - GlobalLock() failed");
+
 	Auto(GlobalUnlock(hData));
 
 	pData->rdh.dwSize = sizeof(RGNDATAHEADER);
@@ -562,7 +565,8 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	SetRect(&pData->rdh.rcBound, MAXLONG, MAXLONG, 0, 0);
 
 	// We study each pixel on the bitmap...
-	auto Pixeles = reinterpret_cast<BYTE*>(bmNewBitmap.bmBits) + (bmNewBitmap.bmHeight - 1) * bmNewBitmap.bmWidthBytes;
+	//auto Pixeles = reinterpret_cast<BYTE*>(bmNewBitmap.bmBits) + (bmNewBitmap.bmHeight - 1) * bmNewBitmap.bmWidthBytes;
+	auto Pixeles = static_cast<BYTE*>(bmNewBitmap.bmBits) + (bmNewBitmap.bmHeight - 1) * bmNewBitmap.bmWidthBytes;
 
 	// Main loop
 	for (auto Row = 0; Row < bmBitmap.bmHeight; ++Row)
