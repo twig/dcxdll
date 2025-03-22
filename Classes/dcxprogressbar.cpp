@@ -24,7 +24,6 @@
   * \param rc Window Rectangle
   * \param styles Window Style Tokenized List
   */
-
 DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ gsl::strict_not_null<DcxDialog* const> p_Dialog, _In_ const HWND mParentHwnd, _In_ const RECT* const rc, _In_ const TString& styles)
 	: DcxControl(ID, p_Dialog)
 	, m_tsText(TEXT("%d %%"_ts))
@@ -59,12 +58,6 @@ DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ gsl::strict_not_null<Dcx
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 DcxProgressBar::~DcxProgressBar() noexcept
 {
 	if (m_hfontVertical)
@@ -86,12 +79,6 @@ const TString DcxProgressBar::getStyles(void) const
 		styles.addtok(TEXT("gradient"));
 	return styles;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 dcxWindowStyles DcxProgressBar::parseControlStyles(const TString& tsStyles)
 {
@@ -301,44 +288,20 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 		parseGlobalCommandRequest(input, flags);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 LRESULT DcxProgressBar::setPosition(const int nNewPos) noexcept
 {
 	return SendMessage(m_Hwnd, PBM_SETPOS, gsl::narrow_cast<WPARAM>(nNewPos), 0);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 LRESULT DcxProgressBar::setRange(const int iLowLim, const int iHighLim) noexcept
 {
 	return SendMessage(m_Hwnd, PBM_SETRANGE32, gsl::narrow_cast<WPARAM>(iLowLim), gsl::narrow_cast<LPARAM>(iHighLim));
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 LRESULT DcxProgressBar::getPosition() const noexcept
 {
 	return SendMessage(m_Hwnd, PBM_GETPOS, gsl::narrow_cast<WPARAM>(0), 0);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 LRESULT DcxProgressBar::getRange(const BOOL fWhichLimit, const PPBRANGE ppBRange) const noexcept
 {
@@ -360,55 +323,26 @@ COLORREF DcxProgressBar::getBKColor() const noexcept
 	return gsl::narrow_cast<COLORREF>(SendMessage(m_Hwnd, PBM_GETBKCOLOR, 0U, 0));
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 LRESULT DcxProgressBar::setMarquee(const BOOL fStart, const int fTime) noexcept
 {
 	return SendMessage(m_Hwnd, PBM_SETMARQUEE, gsl::narrow_cast<WPARAM>(fStart), gsl::narrow_cast<LPARAM>(fTime));
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 LRESULT DcxProgressBar::stepIt() noexcept
 {
 	return SendMessage(m_Hwnd, PBM_STEPIT, gsl::narrow_cast<WPARAM>(0), 0);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 LRESULT DcxProgressBar::setStep(const int nStepInc) noexcept
 {
 	return SendMessage(m_Hwnd, PBM_SETSTEP, gsl::narrow_cast<WPARAM>(nStepInc), 0);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 LRESULT DcxProgressBar::setBarColor(const COLORREF clrBar) noexcept
 {
 	setStartGradientColor(clrBar);
 	return SendMessage(m_Hwnd, PBM_SETBARCOLOR, 0U, gsl::narrow_cast<LPARAM>(clrBar));
 }
-/*!
- * \brief blah
- *
- * blah
- */
 
 LRESULT DcxProgressBar::setBKColor(const COLORREF clrBk) noexcept
 {
@@ -472,11 +406,6 @@ void DcxProgressBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xTh
 		this->setBKColor(tmp);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 LRESULT DcxProgressBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
 {
 	return 0L;
@@ -590,7 +519,6 @@ LRESULT DcxProgressBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	return 0L;
 }
 
-
 int DcxProgressBar::CalculatePosition() const noexcept
 {
 	const auto iPos = getPosition();
@@ -600,8 +528,13 @@ int DcxProgressBar::CalculatePosition() const noexcept
 
 	const auto iLower = getRange(TRUE, nullptr);
 	const auto iHigher = getRange(FALSE, nullptr);
+	const auto iDiff = (iHigher - iLower);
 
-	return dcx_round(gsl::narrow_cast<float>((iPos - iLower) * 100) / (iHigher - iLower));
+	// avoid div by zero.
+	if (iDiff < 1)
+		return 0;
+
+	return dcx_round(gsl::narrow_cast<float>((iPos - iLower) * 100) / iDiff);
 }
 
 void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
