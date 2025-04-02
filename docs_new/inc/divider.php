@@ -46,8 +46,13 @@ function get_xdid_divider(&$XDID) {
 		),
 		'Q' => array(
 	        '__desc' => "This command lets you set the colour of the positioning bar.",
-	        '__cmd' => '[COLOUR] [SELECTED COLOUR]',
-	        '__eg' => '$rgb(255,0,0) $rgb(0,123,32)',
+	        '__cmd' => '[COLOUR] (SELECTED COLOUR) (SELECTED BKG COLOUR) (HOVER COLOUR)',
+	        '__eg' => '$rgb(255,0,0) $rgb(0,123,32) -1 $rgb(255,0,0)',
+		),
+		'L' => array(
+	        '__desc' => "This command lets you lock the positioning bar so it can no longer be dragged.",
+	        '__cmd' => '[1|0]',
+	        '__eg' => '1',
 		),
 	);
 }
@@ -58,6 +63,13 @@ function get_xdidprops_divider(&$XDIDPROPS) {
 		"isvertical" => 'This property lets you retrieve the alignment of the divider.',
 		"barcolours" => 'This property lets you retrieve the positioning bars colours.',
 		"barwidth" => 'This property lets you retrieve the positioning bars width.',
+		"barstate" => array(
+			'__desc' => 'This property lets you retrieve the positioning bars active state.',
+			'__return' => array(
+				'dragging' => '- Control is being dragged.',
+				'locked' => '- Control is locked.',
+			),
+		),
 	);
 }
 

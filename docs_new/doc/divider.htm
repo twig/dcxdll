@@ -156,15 +156,29 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.L"></a>/xdid -L	</td></tr>
+	<tr><td colspan="2">This command lets you lock the positioning bar so it can no longer be dragged.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -L [DNAME] [ID] [1|0]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -L dcx 4 1</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.big.Q"></a>/xdid -Q	</td></tr>
 	<tr><td colspan="2">This command lets you set the colour of the positioning bar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -Q [DNAME] [ID] [COLOUR] [SELECTED COLOUR]</div></td>
+		<td><div class="syntax">/xdid -Q [DNAME] [ID] [COLOUR] (SELECTED COLOUR) (SELECTED BKG COLOUR) (HOVER COLOUR)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -Q dcx 4 $rgb(255,0,0) $rgb(0,123,32)</div></td>
+		<td><div class="example">/xdid -Q dcx 4 $rgb(255,0,0) $rgb(0,123,32) -1 $rgb(255,0,0)</div></td>
 	</tr>
 </table>
 <br />
@@ -199,6 +213,20 @@
 		<td><div class="example">$xdid(dcx, 4).barcolours</div></td>
 	</tr>
 </table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.barstate"></a>$xdid().barstate	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the positioning bars active state.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).barstate</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).barstate</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">dragging</a> - Control is being dragged.<br /><a class="returnevent">locked</a> - Control is locked.</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -538,12 +566,14 @@
 	<a class='header' href="#xdid"><div style='background:#6A7CB0;'>/xdid Flags</div></a>
 		<a class='flag' href="#xdid.l|-r"><div>-l|-r</div></a>
 		<a class='flag' href="#xdid.v"><div>-v</div></a>
+		<a class='flag' href="#xdid.big.L"><div>-L</div></a>
 		<a class='flag' href="#xdid.big.Q"><div>-Q</div></a>
 		<a class='flag' href="#xdid.big.W"><div>-W</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
 		<a class='flag' href="#xdidprop.barcolours"><div>barcolours</div></a>
+		<a class='flag' href="#xdidprop.barstate"><div>barstate</div></a>
 		<a class='flag' href="#xdidprop.barwidth"><div>barwidth</div></a>
 		<a class='flag' href="#xdidprop.isvertical"><div>isvertical</div></a>
 		<a class='flag' href="#xdidprop.position"><div>position</div></a>
@@ -562,8 +592,8 @@
 <table class="bar">
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
-		<td style="text-align: center;">© 2005-2024</td>
-		<td style="text-align: right;">Last Updated: 30th August, 24</td>
+		<td style="text-align: center;">© 2005-2025</td>
+		<td style="text-align: right;">Last Updated: 2nd April, 25</td>
 	</tr>
 </table>
 <div style="text-align: center;">

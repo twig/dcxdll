@@ -9,14 +9,33 @@ General
 	5: fix flicker of controls.
 	6: look into TileWindows() for arranging non cla controls...
 	7: fix any mem leaks.
+	8: improve text rendering.
 
-Dialog
-	1: <Wims> Ook: can't remove the main dialog icon with /xdialog -w, mdx can (done)
+Dialogs
+	8: add ability to open tooltips on demand at any location we want with any contents we want. (maybe, not urgent)
+
+CLA
+	1: updown controls not handled correcly, exp when in buddy mode.
+
+xml
+	1: add ability to save dcxml data from current state of dialog or control. (working on it)
+	2: not all controls save correctly when doing toXml() (mostly done)
+	3: toXml() requires cla to work, needs fixed. (done)
+	4: doesnt handle multicombo yet. (mostly done)
+	5: various other things im sure!
+	6: finish listview & treeview (mostly done)
+
+TrackBar
+	1: add auto updating of buddy control as trackbar moves.
 
 WebCtrl
-	1: WebCtrl has an odd crash, when the object is destroyed & the browser is set as IE11, but not when its set as IE7 (the default). Doesnt crash every time tho, sometimes only on the third try.
-	2: webctrl fails with msft edge installed. (fixed?)
-		Maybe use WebView2 for msft Edge.
+	1: WebCtrl has an odd crash, when the object is destroyed & the browser is set as IE11, but not when its set as IE7 (the default). Doesnt crash every time tho, sometimes only on the third try. (seems fixed?)
+		Prefer use of web2ctrl instead.
+
+Web2Ctrl
+	1: Add ability to add filters to allow blocking some page elements etc..
+	2: Add ability to edit/add context menus.
+	3: add drag & drop / droptarget support.
 
 RichEdit
 	1: change how control loads text to allow loading from xml.
@@ -26,6 +45,7 @@ RichEdit
 
 Edit
 	1: add a $xdid().find (mostly done)
+	2: fix how control handles saved data to be consistant.
 
 Button
 	1: rewrite button/check/radio controls to be a single button control that supports diff styles.
@@ -55,6 +75,7 @@ Listview
 	6: fix item position when drag&drop & groups are enabled.
 	7: add drag & drop between diff listviews.
 	8: Look for mem leak...
+	9: fix subitems with controls not hiding controls when group minimized.
 
 TreeView
 	1: Look for mem leak... (fixed?)
@@ -64,4 +85,19 @@ TreeView
 		[01:07] <Wims> code to demonstrate can be provided.
 
 Rebar
-	1: change commands to support N-Nx (A,d,i,j,k,l,n,t,u,v,w)
+	1: change n command to support N-Nx (maybe?)(not urgent)
+
+UpDown
+	1: when CLA is used the updown buddy control doesnt resize or move correctly.
+
+xDock
+	1: add a method to have an embeded control in a channel style window that sits between the editbox & the text area
+
+xTreebar
+	1: Fix display of progress in treeview as seen in mIRC V7.77+ (done)
+	2: add custom tooltip drawing (colours etc..)
+
+xpopups
+	1: finish new xml code to load items & add menu.
+	2: add support for radio check items. (mostly done)
+	3: add support for item ranges and/or multiple paths (mostly done)
