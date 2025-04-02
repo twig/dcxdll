@@ -377,7 +377,16 @@ void DcxDivider::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	setBarWidth(queryIntAttribute(xThis, "barwidth", 2));
 
-	setBarColor(queryColourAttribute(xThis, "barcolour"), queryColourAttribute(xThis, "barselectedcolour"));
+	//setBarColor(queryColourAttribute(xThis, "barcolour"), queryColourAttribute(xThis, "barselectedcolour"));
+
+	{
+		DVBARCOLORS dbc;
+		dbc.clrBar = queryColourAttribute(xThis, "barcolour");
+		dbc.clrSelBarFg = queryColourAttribute(xThis, "barselectedcolour");
+		dbc.clrSelBarBg = queryColourAttribute(xThis, "barselectedbgcolour");
+		dbc.clrBarHover = queryColourAttribute(xThis, "barhovercolour");
+		setBarColor(dbc);
+	}
 
 	for (auto xItem = xThis->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement())
 	{
