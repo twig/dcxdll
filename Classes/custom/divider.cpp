@@ -14,12 +14,6 @@
 #include "defines.h"
 #include "divider.h"
 
- /*!
-  * \brief blah
-  *
-  * blah
-  */
-
 LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
@@ -66,18 +60,8 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 	case WM_SETCURSOR:
 	{
-		if (Dcx::dcxLOWORD(lParam) == HTCLIENT && to_hwnd(wParam) == mHwnd)
-		{
-			HCURSOR hCursor{ nullptr };
-
-			if (dcx_testflag(dcxGetWindowStyle(mHwnd), DVS_VERT))
-				hCursor = LoadCursor(nullptr, IDC_SIZEWE);
-			else
-				hCursor = LoadCursor(nullptr, IDC_SIZENS);
-			if (GetCursor() != hCursor)
-				SetCursor(hCursor);
+		if (Divider_SetCursor(mHwnd, wParam, lParam))
 			return TRUE;
-		}
 	}
 	break;
 
@@ -236,29 +220,62 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	//}
 	//break;
 
-	// wParam == clr unselected, lParam == clr selected.
+	// wParam == clr unselected, lParam == clr selected. (old way)
+	// wParam == 0, lParam == DVBARCOLORS*
 	case DV_SETBARCOLOR:
 	{
+		//if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
+		//{
+		//	if (auto cTmp = gsl::narrow_cast<COLORREF>(wParam); cTmp != CLR_INVALID)
+		//		lpdvdata->clrBar.clrBar = cTmp;
+		//	if (auto cTmp = gsl::narrow_cast<COLORREF>(lParam); cTmp != CLR_INVALID)
+		//		lpdvdata->clrBar.clrSelBarFg = cTmp;
+		//	return TRUE;
+		//}
+		//return FALSE;
+
+		if (!lParam)
+			return FALSE;
+
 		if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
 		{
-			lpdvdata->clrBar.clrBar = gsl::narrow_cast<COLORREF>(wParam);
-			lpdvdata->clrBar.clrSelBarFg = gsl::narrow_cast<COLORREF>(lParam);
+			const DVBARCOLORS* dbc = reinterpret_cast<DVBARCOLORS*>(lParam);
+
+			if (dbc->clrBar != CLR_INVALID)
+				lpdvdata->clrBar.clrBar = dbc->clrBar;
+			if (dbc->clrSelBarFg != CLR_INVALID)
+				lpdvdata->clrBar.clrSelBarFg = dbc->clrSelBarFg;
+			if (dbc->clrSelBarBg != CLR_INVALID)
+				lpdvdata->clrBar.clrSelBarBg = dbc->clrSelBarBg;
+			if (dbc->clrBarHover != CLR_INVALID)
+				lpdvdata->clrBar.clrBarHover = dbc->clrBarHover;
 			return TRUE;
 		}
 		return FALSE;
 	}
 	break;
 
-	// wParam == (OUT) clr, lParam == (OUT) clr selected.
+	// wParam == (OUT) clr, lParam == (OUT) clr selected. (old way)
+	// wParam == 0, lParam == DVBARCOLORS*
 	case DV_GETBARCOLOR:
 	{
-		if (!wParam || !lParam)
+		//if (!wParam || !lParam)
+		//	return FALSE;
+		//
+		//if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
+		//{
+		//	*(reinterpret_cast<COLORREF*>(wParam)) = lpdvdata->clrBar.clrBar;
+		//	*(reinterpret_cast<COLORREF*>(lParam)) = lpdvdata->clrBar.clrSelBarFg;
+		//	return TRUE;
+		//}
+		//return FALSE;
+
+		if (!lParam)
 			return FALSE;
 
 		if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
 		{
-			*(reinterpret_cast<COLORREF*>(wParam)) = lpdvdata->clrBar.clrBar;
-			*(reinterpret_cast<COLORREF*>(lParam)) = lpdvdata->clrBar.clrSelBarFg;
+			*reinterpret_cast<DVBARCOLORS*>(lParam) = lpdvdata->clrBar;
 			return TRUE;
 		}
 		return FALSE;
@@ -289,6 +306,36 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			return TRUE;
 		}
 		return FALSE;
+	}
+	break;
+
+	// wParam == TRUE/FALSE, lParam == (OUT) previous lock state. (optional, BOOL* or nullptr)
+	case DV_LOCKBAR:
+	{
+		if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
+		{
+			if (lParam)
+				*(reinterpret_cast<BOOL*>(lParam)) = gsl::narrow_cast<BOOL>(lpdvdata->m_bLocked);
+			lpdvdata->m_bLocked = gsl::narrow_cast<bool>(wParam);
+			return TRUE;
+		}
+		return FALSE;
+	}
+	break;
+
+	// wParam == 0, lParam == 0
+	// returns bitmask of states.
+	case DV_GETBARSTATE:
+	{
+		LRESULT lRes{};
+		if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
+		{
+			if (lpdvdata->m_bDragging)
+				lRes |= DVBS_DRAGGING;
+			if (lpdvdata->m_bLocked)
+				lRes |= DVBS_LOCKED;
+		}
+		return lRes;
 	}
 	break;
 
@@ -342,12 +389,6 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	}
 	return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void Divider_SizeWindowContents(HWND mHwnd, const int nWidth, const int nHeight) noexcept
 {
@@ -416,12 +457,6 @@ namespace
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 GSL_SUPPRESS(type.4)
 void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int height, COLORREF clrFg, COLORREF clrBg) noexcept
 {
@@ -478,12 +513,6 @@ void Divider_GetChildControl(HWND mHwnd, const UINT pane, const LPDVPANEINFO res
 	SendMessage(mHwnd, DV_GETPANE, pane, reinterpret_cast<LPARAM>(result));
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void Divider_CalcBarPos(HWND mHwnd, POINT* pt, RECT* rect) noexcept
 {
 	if (!mHwnd || !pt || !rect)
@@ -527,12 +556,6 @@ void Divider_CalcBarPos(HWND mHwnd, POINT* pt, RECT* rect) noexcept
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
 	if (!mHwnd)
@@ -540,6 +563,9 @@ LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM
 
 	const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data"));
 	if (!lpdvdata)
+		return 0L;
+
+	if (lpdvdata->m_bLocked)
 		return 0L;
 
 	// horizontal position of cursor 
@@ -571,12 +597,6 @@ LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM
 
 	return 0L;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
@@ -632,12 +652,6 @@ LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 	SendMessage(mHwnd, DV_CHANGEPOS, gsl::narrow_cast<WPARAM>(DVNM_DRAG_END), reinterpret_cast<LPARAM>(&pt));
 	return 0L;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
@@ -718,4 +732,27 @@ void Divider_RemoveBar(HWND mHwnd, LPCRECT rc) noexcept
 		else
 			DrawXorBar(hdc, 1, lpdvdata->m_iOldPos - 2, rc->right - 2, 4, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
 	}
+}
+
+bool Divider_SetCursor(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (Dcx::dcxLOWORD(lParam) != HTCLIENT || to_hwnd(wParam) != mHwnd)
+		return false;
+
+	const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data"));
+	if (!lpdvdata)
+		return false;
+
+	if (lpdvdata->m_bLocked)
+		return false;
+
+	HCURSOR hCursor{ nullptr };
+
+	if (dcx_testflag(dcxGetWindowStyle(mHwnd), DVS_VERT))
+		hCursor = LoadCursor(nullptr, IDC_SIZEWE);
+	else
+		hCursor = LoadCursor(nullptr, IDC_SIZENS);
+	if (GetCursor() != hCursor)
+		SetCursor(hCursor);
+	return true;
 }

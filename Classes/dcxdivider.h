@@ -51,11 +51,12 @@ public:
 	LRESULT setDivPos( const UINT iDivPos ) noexcept;
 
 	BOOL setBarColor(COLORREF clrUnselected, COLORREF clrSelected) noexcept;
+	BOOL setBarColor(const DVBARCOLORS& dbc) noexcept;
 	BOOL setBarWidth(UINT nWidth) noexcept;
 
 	UINT getDivPos() const noexcept;
 	UINT getBarWidth() const noexcept;
-	std::pair<COLORREF, COLORREF> getBarColours() const noexcept;
+	DVBARCOLORS getBarColours() const noexcept;
 
 	inline const TString getType() const final { return TEXT("divider"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::DIVIDER; }

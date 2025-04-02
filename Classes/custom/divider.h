@@ -32,6 +32,12 @@
 #define DV_SETBARWIDTH   (WM_USER + 7) //!< Divder Set position bar width
 #define DV_GETBARCOLOR   (WM_USER + 8) //!< Divder Colour of position bar
 #define DV_GETBARWIDTH   (WM_USER + 9) //!< Divder Set position bar width
+#define DV_LOCKBAR       (WM_USER + 10) //!< Divder (un)Lock position bar
+#define DV_GETBARSTATE   (WM_USER + 11) //!< Divder Get position bar state (dragging, locked, ...)
+
+// Position bar states.
+#define DVBS_DRAGGING	0x01
+#define DVBS_LOCKED		0x02
 
 // Divider Pane IDs
 #define DVF_PANELEFT  0x01  //!< Left/Top Pane Identifier
@@ -83,7 +89,6 @@ using LPNMDIVIDER = NMDIVIDER*;
 /*!
  * \brief Divider Pane Info Structure
  */
-
 struct DVPANEINFO
 {
 	UINT cbSize{ sizeof(DVPANEINFO) };    //!< DVPANEINFO Structure Size
@@ -104,12 +109,12 @@ struct DVBARCOLORS
 	COLORREF clrBar{ CLR_INVALID };			// bars normal colour
 	COLORREF clrSelBarFg{ CLR_INVALID };	// bars foreground colour when selected.
 	COLORREF clrSelBarBg{ CLR_INVALID };	// bars background colour when selected.
+	COLORREF clrBarHover{ CLR_INVALID };	// bars hover colour
 };
 
 /*!
  * \brief Divider Control Data Structure
  */
-
 struct DVCONTROLDATA
 {
 	DVPANEINFO m_LeftTopPane;		//!< Divider Panes
@@ -118,6 +123,7 @@ struct DVCONTROLDATA
 	UINT m_iBarPos{ 100 };			//!< Position of the bar
 	int m_iOldPos{};				//!< Moving Old Position
 	bool m_bDragging{ false };		//!< Are We Dragging The Bar?
+	bool m_bLocked{};				//!< Is bar locked & unmoveable?
 	DVBARCOLORS clrBar;
 };
 using LPDVCONTROLDATA = DVCONTROLDATA*;
@@ -132,5 +138,6 @@ LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT uMsg, WPARAM wParam, LPARAM l
 void Divider_CalcBarPos(HWND mHwnd, POINT* pt, RECT* rect) noexcept;
 void Divider_GetChildControl(HWND mHwnd, const UINT pane, const LPDVPANEINFO result) noexcept;
 void Divider_RemoveBar(HWND mHwnd, LPCRECT rc) noexcept;
+bool Divider_SetCursor(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
 #endif // _DIVIDER_H_

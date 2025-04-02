@@ -24,8 +24,7 @@
   * \param rc Window Rectangle
   * \param styles Window Style Tokenized List
   */
-
-DcxDivider::DcxDivider(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+DcxDivider::DcxDivider(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -48,21 +47,9 @@ DcxDivider::DcxDivider(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_D
 	setNoThemed(ws.m_NoTheme);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 DcxDivider::~DcxDivider() noexcept
 {
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 const TString DcxDivider::getStyles(void) const
 {
@@ -75,7 +62,7 @@ const TString DcxDivider::getStyles(void) const
 	return styles;
 }
 
-dcxWindowStyles DcxDivider::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxDivider::parseControlStyles(const TString& tsStyles)
 {
 	dcxWindowStyles ws;
 
@@ -95,7 +82,7 @@ dcxWindowStyles DcxDivider::parseControlStyles(const TString & tsStyles)
  *
  * \return > void
  */
-void DcxDivider::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxDivider::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	if (!m_Hwnd)
 		return;
@@ -116,8 +103,8 @@ void DcxDivider::parseInfoRequest(const TString & input, const refString<TCHAR, 
 	case TEXT("barcolours"_hash):
 	case TEXT("barcolors"_hash):
 	{
-		const auto [clr, clrSel] = getBarColours();
-		_ts_snprintf(szReturnValue, TEXT("%u %u"), clr, clrSel);
+		const auto dbc = getBarColours();
+		_ts_snprintf(szReturnValue, TEXT("%u %u %u %u"), dbc.clrBar, dbc.clrSelBarFg, dbc.clrSelBarBg, dbc.clrBarHover);
 	}
 	break;
 
@@ -127,19 +114,23 @@ void DcxDivider::parseInfoRequest(const TString & input, const refString<TCHAR, 
 	}
 	break;
 
+	case TEXT("barstate"_hash):
+	{
+		const auto mask = SendMessage(m_Hwnd, DV_GETBARSTATE, 0, 0);
+		if (dcx_testflag(mask, DVBS_DRAGGING))
+			szReturnValue += TEXT("dragging ");
+		if (dcx_testflag(mask, DVBS_LOCKED))
+			szReturnValue += TEXT("locked ");
+	}
+	break;
+
 	default:
 		this->parseGlobalInfoRequest(input, szReturnValue);
 		break;
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
-void DcxDivider::parseCommandRequest(const TString & input)
+void DcxDivider::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
 
@@ -187,7 +178,7 @@ void DcxDivider::parseCommandRequest(const TString & input)
 
 			redrawWindow();
 		}
-		catch (const std::exception &e)
+		catch (const std::exception& e)
 		{
 			showError(nullptr, TEXT("-l|r"), TEXT("Unable To Create Control %(%) (%)"), tsID, ID - mIRC_ID_OFFSET, e.what());
 			throw;
@@ -211,38 +202,42 @@ void DcxDivider::parseCommandRequest(const TString & input)
 		if (!setBarWidth(input.getnexttok().to_<UINT>()))	// tok 4
 			throw DcxExceptions::dcxInvalidArguments();
 	}
-	// xdid -Q [NAME] [ID] [SWITCH] [COLOUR] [SELECTED COLOUR]
+	// xdid -Q [NAME] [ID] [SWITCH] [COLOUR] [SELECTED COLOUR] [SELECTED BKG COLOUR] [HOVER COLOUR]
 	else if (flags[TEXT('Q')])
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto clrFg = input.getnexttok().to_<COLORREF>();
-		const auto clrBg = input.getnexttok().to_<COLORREF>();
+		DVBARCOLORS dbc;
+		dbc.clrBar = input.getnexttok().to_<COLORREF>();
+		if (numtok > 4)
+			dbc.clrSelBarFg = input.getnexttok().to_<COLORREF>();
+		if (numtok > 5)
+			dbc.clrSelBarBg = input.getnexttok().to_<COLORREF>();
+		if (numtok > 6)
+			dbc.clrBarHover = input.getnexttok().to_<COLORREF>();
 
-		if (!setBarColor(clrFg, clrBg))
+		if (!setBarColor(dbc))
 			throw DcxExceptions::dcxInvalidArguments();
+	}
+	// xdid -L [NAME] [ID] [SWITCH] [LOCK STATE]
+	else if (flags[TEXT('L')])
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const BOOL bState = ((input.getnexttok().to_<int>() > 0) ? TRUE : FALSE);
+
+		SendMessage(m_Hwnd, DV_LOCKBAR, bState, 0L);
 	}
 	else
 		parseGlobalCommandRequest(input, flags);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 LRESULT DcxDivider::setPane(const UINT iPaneId, const LPDVPANEINFO lpdvpi) noexcept
 {
 	return SendMessage(m_Hwnd, DV_SETPANE, gsl::narrow_cast<WPARAM>(iPaneId), reinterpret_cast<LPARAM>(lpdvpi));
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 LRESULT DcxDivider::setDivPos(const UINT iDivPos) noexcept
 {
@@ -251,7 +246,15 @@ LRESULT DcxDivider::setDivPos(const UINT iDivPos) noexcept
 
 BOOL DcxDivider::setBarColor(COLORREF clrUnselected, COLORREF clrSelected) noexcept
 {
-	return gsl::narrow_cast<BOOL>(SendMessage(m_Hwnd, DV_SETBARCOLOR, gsl::narrow_cast<WPARAM>(clrUnselected), gsl::narrow_cast<LPARAM>(clrSelected)));
+	DVBARCOLORS dbc;
+	dbc.clrBar = clrUnselected;
+	dbc.clrSelBarFg = clrSelected;
+	return setBarColor(dbc);
+}
+
+BOOL DcxDivider::setBarColor(const DVBARCOLORS& dbc) noexcept
+{
+	return gsl::narrow_cast<BOOL>(SendMessage(m_Hwnd, DV_SETBARCOLOR, 0, reinterpret_cast<LPARAM>(&dbc)));
 }
 
 BOOL DcxDivider::setBarWidth(UINT nWidth) noexcept
@@ -276,18 +279,21 @@ UINT DcxDivider::getBarWidth() const noexcept
 	return iPos;
 }
 
-std::pair<COLORREF, COLORREF> DcxDivider::getBarColours() const noexcept
+DVBARCOLORS DcxDivider::getBarColours() const noexcept
 {
-	COLORREF clr{ CLR_INVALID };
-	COLORREF selclr{ CLR_INVALID };
+	//COLORREF clr{ CLR_INVALID };
+	//COLORREF selclr{ CLR_INVALID };
+	//if (m_Hwnd)
+	//	SendMessage(m_Hwnd, DV_GETBARCOLOR, reinterpret_cast<WPARAM>(&clr), reinterpret_cast<LPARAM>(&selclr));
+	//return { clr, selclr };
 
+	DVBARCOLORS dbc;
 	if (m_Hwnd)
-		SendMessage(m_Hwnd, DV_GETBARCOLOR, reinterpret_cast<WPARAM>(&clr), reinterpret_cast<LPARAM>(&selclr));
-
-	return { clr, selclr };
+		SendMessage(m_Hwnd, DV_GETBARCOLOR, 0, reinterpret_cast<LPARAM>(&dbc));
+	return dbc;
 }
 
-void DcxDivider::toXml(TiXmlElement *const xml) const
+void DcxDivider::toXml(TiXmlElement* const xml) const
 {
 	if (!xml)
 		return;
@@ -303,9 +309,11 @@ void DcxDivider::toXml(TiXmlElement *const xml) const
 	xml->SetAttribute("pos", getDivPos());
 	xml->SetAttribute("barwidth", getBarWidth());
 	{
-		const auto [clr, selclr] = getBarColours();
-		setColourAttribute(xml, "barcolour", clr);
-		setColourAttribute(xml, "barselectedcolour", selclr);
+		const auto dbc = getBarColours();
+		setColourAttribute(xml, "barcolour", dbc.clrBar);
+		setColourAttribute(xml, "barselectedcolour", dbc.clrSelBarFg);
+		setColourAttribute(xml, "barselectedbgcolour", dbc.clrSelBarBg);
+		setColourAttribute(xml, "barhovercolour", dbc.clrBarHover);
 	}
 
 	{
@@ -346,7 +354,7 @@ void DcxDivider::toXml(TiXmlElement *const xml) const
 	}
 }
 
-TiXmlElement * DcxDivider::toXml(void) const
+TiXmlElement* DcxDivider::toXml(void) const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
@@ -370,7 +378,7 @@ void DcxDivider::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	setBarWidth(queryIntAttribute(xThis, "barwidth", 2));
 
 	setBarColor(queryColourAttribute(xThis, "barcolour"), queryColourAttribute(xThis, "barselectedcolour"));
-	
+
 	for (auto xItem = xThis->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement())
 	{
 		const auto szSide = queryAttribute(xItem, "side");
@@ -423,12 +431,12 @@ void DcxDivider::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
  *
  * blah
  */
-LRESULT DcxDivider::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept
+LRESULT DcxDivider::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
 {
 	return 0L;
 }
 
-LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	LRESULT lRes = 0L;
 	switch (uMsg)
@@ -442,7 +450,7 @@ LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 		if (IsWindow(hdr->hwndFrom))
 		{
-			if (const auto c_this = Dcx::dcxGetProp<DcxControl *>(hdr->hwndFrom, TEXT("dcx_cthis")); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(hdr->hwndFrom, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
