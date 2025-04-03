@@ -680,8 +680,6 @@ namespace
 * \brief Read File Contents
 *
 */
-//std::unique_ptr<BYTE[]> readFile(const PTCHAR filename)
-
 auto readFile(const TString& filename)
 -> std::unique_ptr<BYTE[]>
 {
@@ -747,13 +745,6 @@ auto readFile(const TString& filename)
 */
 TString readTextFile(const TString& tFile)
 {
-	//auto data = readFile(tFile);
-	//
-	//if (data == nullptr)
-	//	return TString();
-	//
-	//return Normalise(data.get());
-
 	const auto data(readFile(tFile));
 
 	return Normalise(data.get());
@@ -2005,6 +1996,9 @@ RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPC
 	}
 	DrawTextW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), &rcResult, uNewStyle);
 
+	// Ook: This is a quick fix for the last letter not always being drawn.
+	rcResult.right++;
+
 	return rcResult;
 }
 void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPRECT rc, const UINT uStyle, const dcxTextOptions& dTO)
@@ -2919,10 +2913,10 @@ TString TGetWindowText(HWND hwnd)
 		return txt;
 
 	// NB: needs to include space for end 0
-	if (const auto nText = GetWindowTextLength(hwnd) + 2; nText > 2)
+	if (const auto nText = GetWindowTextLengthW(hwnd) + 2; nText > 2)
 	{
 		txt.reserve(gsl::narrow_cast<UINT>(nText));
-		GetWindowText(hwnd, txt.to_chr(), nText);
+		GetWindowTextW(hwnd, txt.to_chr(), nText);
 	}
 	return txt;
 }

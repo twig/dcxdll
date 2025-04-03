@@ -1467,6 +1467,10 @@ void dcxDrawGradientText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, co
 	if (!hdc || !pRC || !txt || len <= 0 || IsRectEmpty(pRC))
 		return;
 
+	const auto vec = dcxBreakdownmIRCText(txt, gsl::narrow_cast<UINT>(len));
+	if (vec.empty())
+		return;
+
 	const SIZE sz{ (pRC->right - pRC->left), (pRC->bottom - pRC->top) };
 
 	const auto hBufTxt = CreateHDCBuffer(hdc, pRC);
@@ -1484,17 +1488,19 @@ void dcxDrawGradientText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, co
 	const auto bkgclr = GetContrastColour(clrTxt);
 	Dcx::FillRectColour(hdcTxt, pRC, bkgclr);
 
-	if (dTO.m_bNoCtrlCodes)
-	{
-		SetBkMode(hdcTxt, (dTO.m_bTransparent) ? TRANSPARENT : OPAQUE);
+	//if (dTO.m_bNoCtrlCodes)
+	//{
+	//	SetBkMode(hdcTxt, (dTO.m_bTransparent) ? TRANSPARENT : OPAQUE);
 
-		if (dTO.m_bShadow)
-			dcxDrawShadowText(hdcTxt, txt, gsl::narrow_cast<UINT>(len), &rcTxt, fmt, clrTxt, dTO.m_clrShadow, dTO.m_uShadowXOffset, dTO.m_uShadowYOffset);
-		else
-			DrawTextW(hdcTxt, txt, gsl::narrow_cast<int>(len), &rcTxt, fmt);
-	}
-	else
-		mIRC_DrawText(hdcTxt, txt, &rcTxt, fmt, dTO.m_bShadow);
+	//	if (dTO.m_bShadow)
+	//		dcxDrawShadowText(hdcTxt, txt, gsl::narrow_cast<UINT>(len), &rcTxt, fmt, clrTxt, dTO.m_clrShadow, dTO.m_uShadowXOffset, dTO.m_uShadowYOffset);
+	//	else
+	//		DrawTextW(hdcTxt, txt, gsl::narrow_cast<int>(len), &rcTxt, fmt);
+	//}
+	//else
+	//	mIRC_DrawText(hdcTxt, txt, &rcTxt, fmt, dTO.m_bShadow);
+
+	mIRC_DrawBreakdown(hdcTxt, vec, &rcTxt, fmt, dTO);
 
 	const auto hBufGrad = CreateHDCBuffer(hdc, pRC);
 	if (!hBufGrad)
@@ -1544,6 +1550,10 @@ void dcxDrawGradientTextMasked(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT f
 	if (!hdc || !pRC || !txt || len <= 0 || IsRectEmpty(pRC))
 		return;
 
+	const auto vec = dcxBreakdownmIRCText(txt, gsl::narrow_cast<UINT>(len));
+	if (vec.empty())
+		return;
+
 	const SIZE sz{ (pRC->right - pRC->left), (pRC->bottom - pRC->top) };
 
 	const auto hBufTxt = CreateHDCBuffer(hdc, pRC);
@@ -1572,9 +1582,6 @@ void dcxDrawGradientTextMasked(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT f
 
 	//DrawTextW(hdcTxt, txt, len, &rcTxt, fmt);
 
-	const auto vec = dcxBreakdownmIRCText(txt, gsl::narrow_cast<UINT>(len));
-	if (vec.empty())
-		return;
 	mIRC_DrawBreakdown(hdcTxt, vec, &rcTxt, fmt, dTO);
 
 	// create mask
@@ -1614,6 +1621,10 @@ void dcxDrawOutlineText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, con
 	if (!hdc || !pRC || !txt || len <= 0 || IsRectEmpty(pRC))
 		return;
 
+	const auto vec = dcxBreakdownmIRCText(txt, gsl::narrow_cast<UINT>(len));
+	if (vec.empty())
+		return;
+
 	const auto hBufTxt = CreateHDCBuffer(hdc, pRC);
 	if (!hBufTxt)
 		return;
@@ -1628,25 +1639,26 @@ void dcxDrawOutlineText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, con
 	RECT rcTxt = *pRC;
 	OffsetRect(&rcTxt, -rcTxt.left, -rcTxt.top);
 
-	const auto clrTxt = (dTO.m_clrText != CLR_INVALID) ? dTO.m_clrText : GetTextColor(hdc);
+	//const auto clrTxt = (dTO.m_clrText != CLR_INVALID) ? dTO.m_clrText : GetTextColor(hdc);
+	//if (dTO.m_bNoCtrlCodes)
+	//{
+	//	const auto oldBkgMode = SetBkMode(hdcTxt, TRANSPARENT);
+	//	Auto(SetBkMode(hdcTxt, oldBkgMode));
+	//	if (dTO.m_bShadow)
+	//		dcxDrawShadowText(hdcTxt, txt, gsl::narrow_cast<UINT>(len), &rcTxt, fmt, clrTxt, dTO.m_clrShadow, dTO.m_uShadowXOffset, dTO.m_uShadowYOffset);
+	//	else {
+	//		SetTextColor(hdcTxt, clrTxt);
+	//		DrawTextW(hdcTxt, txt, gsl::narrow_cast<int>(len), &rcTxt, fmt);
+	//	}
+	//}
+	//else
+	//	mIRC_DrawTextNoBuffer(hdcTxt, txt, &rcTxt, fmt, dTO.m_bShadow);
 
-	if (dTO.m_bNoCtrlCodes)
-	{
-		const auto oldBkgMode = SetBkMode(hdcTxt, TRANSPARENT);
-		Auto(SetBkMode(hdcTxt, oldBkgMode));
-
-		if (dTO.m_bShadow)
-			dcxDrawShadowText(hdcTxt, txt, gsl::narrow_cast<UINT>(len), &rcTxt, fmt, clrTxt, dTO.m_clrShadow, dTO.m_uShadowXOffset, dTO.m_uShadowYOffset);
-		else {
-			SetTextColor(hdcTxt, clrTxt);
-			DrawTextW(hdcTxt, txt, gsl::narrow_cast<int>(len), &rcTxt, fmt);
-	}
-	}
-	else
-		mIRC_DrawTextNoBuffer(hdcTxt, txt, &rcTxt, fmt, dTO.m_bShadow);
+	mIRC_DrawBreakdown(hdcTxt, vec, &rcTxt, fmt, dTO);
 
 	EndPath(hdcTxt);
 
+	const auto clrTxt = (dTO.m_clrText != CLR_INVALID) ? dTO.m_clrText : GetTextColor(hdc);
 	const auto clrOutline = (dTO.m_clrOutline != CLR_INVALID) ? dTO.m_clrOutline : GetContrastColour(clrTxt);
 
 	if (auto hPen = CreatePen(PS_SOLID, dTO.m_uOutlineSize, clrOutline); hPen)
@@ -1756,8 +1768,14 @@ void dcxDrawTextOptions(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT mStyle, 
 				WidenPath(hdcTxt);
 
 			// TODO: fix shadow look for gradient and outlines...
-			// TODO: get gradient outlines working...
+			// TODO: get gradient outlines working... mostly done?
 
+
+			if (dTO.m_bFilledOutline)
+				StrokeAndFillPath(hdcTxt);
+			else if (dTO.m_bOutline)
+				StrokePath(hdcTxt);
+			else
 			FillPath(hdcTxt);
 
 		//if (HRGN hRgn = PathToRegion(hdcTxt); hRgn)
@@ -1808,8 +1826,11 @@ void dcxDrawTextOptions(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT mStyle, 
 		}
 			XPopupMenuItem::DrawGradient(hdcGrad, &rcTxt, dTO.m_clrGradientTextStart, dTO.m_clrGradientTextEnd, dTO.m_bHorizGradientFill);
 
-				if (dTO.m_bFilledOutline)
+			if (dTO.m_bGradientOutline)
 				StrokePath(hdcTxt);
+
+			//if (dTO.m_bFilledOutline)
+			//	StrokePath(hdcTxt);
 
 			//constexpr DWORD DSTCOPY = 0x00AA0029;
 			//constexpr DWORD hafs = MAKEROP4(SRCCOPY, DSTCOPY);
