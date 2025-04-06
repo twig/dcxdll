@@ -291,7 +291,7 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 			if (dcx_testflag(ts, dcxTextStyles::Transparent))
 				m_TextOptions.m_bTransparent = dcx_testflag(tsMask, dcxTextStyles::Transparent);
 
-			if (const auto tsPen(tsStyleArgs.wildtok(L"outlinesize=*",1)); !tsPen.empty())
+			if (const auto tsPen(tsStyleArgs.wildtok(L"outlinesize=*", 1)); !tsPen.empty())
 			{
 				if (const auto iPen = tsPen.gettok(2, L'=').to_<UINT>(); (iPen > 0 && iPen <= 20))
 				{
@@ -332,19 +332,32 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		if (numtok < 7)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto x = input.getfirsttok(4).to_int();
-		const auto y = input.getnexttok().to_int();	// tok 5
-		const auto w = input.getnexttok().to_int();	// tok 6
-		const auto h = input.getnexttok().to_int();	// tok 7
+		//const auto x = input.getfirsttok(4).to_int();
+		//const auto y = input.getnexttok().to_int();	// tok 5
+		//const auto w = input.getnexttok().to_int();	// tok 6
+		//const auto h = input.getnexttok().to_int();	// tok 7
+		//
+		//MoveWindow(m_Hwnd, x, y, w, h, TRUE);
+		//redrawBufferedWindow();
+
+		auto x = input.getfirsttok(4).to_int();
+		auto y = input.getnexttok().to_int();	// tok 5
+		auto w = input.getnexttok().to_int();	// tok 6
+		auto h = input.getnexttok().to_int();	// tok 7
+
+		const Dcx::dcxWindowRect rc(m_Hwnd, getParentHWND());
+
+		if (x == -1)
+			x = rc.left;
+		if (y == -1)
+			y = rc.top;
+		if (w == -1)
+			w = rc.Width();
+		if (h == -1)
+			h = rc.Height();
 
 		MoveWindow(m_Hwnd, x, y, w, h, TRUE);
 		redrawBufferedWindow();
-
-		//this->InvalidateParentRect( m_Hwnd);
-		//InvalidateRect( GetParent( m_Hwnd ), nullptr, TRUE );
-		//this->redrawWindow( );
-		//this->getParentDialog()->redrawBufferedWindow();
-		//SendMessage( m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
 	}
 	// xdid -x [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('x')])
@@ -2766,7 +2779,16 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 				for (auto i = decltype(count){0}; i < count; ++i)
 				{
 					if (DragQueryFile(files, i, sFilename, gsl::narrow_cast<UINT>(std::size(sFilename))))
-						execAliasEx(TEXT("dragfile,%u,%s"), getUserID(), sFilename.data());
+					{
+						//execAliasEx(TEXT("dragfile,%u,%s"), getUserID(), sFilename.data());
+
+						if (const auto pd = getParentDialog(); pd)
+						{
+							TString tsBuf;
+							mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), sFilename.data());
+							mIRCLinker::eval(tsBuf, TEXT("$%(%,dragfile,%,%dcx_text)"), pd->getAliasName(), pd->getName(), getUserID());
+						}
+					}
 				}
 
 				execAliasEx(TEXT("dragfinish,%u"), getUserID());
