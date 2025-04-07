@@ -55,9 +55,29 @@ bool DcxUXModule::load()
 		BufferedPaintClearUx = (PFNBUFFEREDPAINTCLEAR)GetProcAddress(m_hModule, "BufferedPaintClear");
 		HitTestThemeBackgroundUx = (PFNHITTESTTHEMEBACKGROUND)GetProcAddress(m_hModule, "HitTestThemeBackground");
 
-		// Win10+
-		OpenThemeDataForDpiUx = reinterpret_cast<decltype(::OpenThemeDataForDpi)*>(::GetProcAddress(m_hModule, "OpenThemeDataForDpi"));
+		if (Dcx::VersInfo.isWin10())
+		{
+			// Win10+
+			OpenThemeDataForDpiUx = reinterpret_cast<decltype(::OpenThemeDataForDpi)*>(::GetProcAddress(m_hModule, "OpenThemeDataForDpi"));
+			OpenNcThemeDataUx = reinterpret_cast<PFNOPENNCTHEMEDATA>(GetProcAddress(m_hModule, MAKEINTRESOURCEA(49)));
+			RefreshImmersiveColorPolicyStateUx = reinterpret_cast<PFNREFRESHIMMERSIVECOLORPOLICYSTATE>(GetProcAddress(m_hModule, MAKEINTRESOURCEA(104)));
+			GetIsImmersiveColorUsingHighContrastUx = reinterpret_cast<PFNGETISIMMERSIVECOLORUSINGHIGHCONTRAST>(GetProcAddress(m_hModule, MAKEINTRESOURCEA(106)));
+			ShouldAppsUseDarkModeUx = reinterpret_cast<PFNSHOULDAPPSUSEDARKMODE>(GetProcAddress(m_hModule, MAKEINTRESOURCEA(132)));
+			AllowDarkModeForWindowUx = reinterpret_cast<PFNALLOWDARKMODEFORWINDOW>(GetProcAddress(m_hModule, MAKEINTRESOURCEA(133)));
+			IsDarkModeAllowedForWindowUx = reinterpret_cast<PFNISDARKMODEALLOWEDFORWINDOW>(GetProcAddress(m_hModule, MAKEINTRESOURCEA(137)));
 
+			//auto ord135 = GetProcAddress(m_hModule, MAKEINTRESOURCEA(135));
+			//if (dcxGetWindows10Build() < 18362)
+			//	AllowDarkModeForAppUx = reinterpret_cast<PFNALLOWDARKMODEFORAPP>(ord135);
+			//else
+			//	SetPreferredAppModeUx = reinterpret_cast<PFNSETPREFERREDAPPMODE>(ord135);
+
+			auto ord135 = GetProcAddress(m_hModule, MAKEINTRESOURCEA(135));
+			if (Dcx::VersInfo.isWin10Build18362())
+				SetPreferredAppModeUx = reinterpret_cast<PFNSETPREFERREDAPPMODE>(ord135);
+			else
+				AllowDarkModeForAppUx = reinterpret_cast<PFNALLOWDARKMODEFORAPP>(ord135);
+		}
 #pragma warning(pop)
 
 		// NB: DONT count vista functions in XP+ check.
@@ -73,6 +93,27 @@ bool DcxUXModule::load()
 				DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Found Vista Theme Functions"));
 				if (!m_bBufferedPaintEnabled)
 					m_bBufferedPaintEnabled = SUCCEEDED(dcxBufferedPaintInit());
+#ifdef DCX_DEBUG_OUTPUT
+				if (OpenThemeDataForDpiUx)
+				{
+					DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Found Win10+ Theme Functions"));
+					if (OpenNcThemeDataUx && RefreshImmersiveColorPolicyStateUx &&
+						GetIsImmersiveColorUsingHighContrastUx && ShouldAppsUseDarkModeUx &&
+						AllowDarkModeForWindowUx && IsDarkModeAllowedForWindowUx)
+					{
+						DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Found Win10 undocumented Theme Functions"));
+						m_bDarkModeSupported = true;
+
+						//dcxAllowDarkModeForApp(true);
+						//dcxRefreshImmersiveColorPolicyState();
+
+						//m_bDarkModeEnabled = dcxShouldAppsUseDarkMode() && !dcxIsHighContrast();
+
+						//dcxFixDarkScrollBar();
+
+					}
+				}
+#endif
 			}
 		}
 		else {
@@ -119,6 +160,15 @@ bool DcxUXModule::unload() noexcept
 		BufferedPaintSetAlphaUx = nullptr;
 		BufferedPaintClearUx = nullptr;
 		HitTestThemeBackgroundUx = nullptr;
+		OpenThemeDataForDpiUx = nullptr;
+		OpenNcThemeDataUx = nullptr;
+		RefreshImmersiveColorPolicyStateUx = nullptr;
+		GetIsImmersiveColorUsingHighContrastUx = nullptr;
+		ShouldAppsUseDarkModeUx = nullptr;
+		AllowDarkModeForWindowUx = nullptr;
+		IsDarkModeAllowedForWindowUx = nullptr;
+		AllowDarkModeForAppUx = nullptr;
+		SetPreferredAppModeUx = nullptr;
 	}
 	return isUseable();
 }
@@ -321,9 +371,122 @@ HRESULT DcxUXModule::dcxGetThemeRect(_In_ HTHEME hTheme, _In_ int iPartId, _In_ 
 	return E_NOTIMPL;
 }
 
-HTHEME DcxUXModule::dcxOpenThemeDataForDpi(HWND hwnd, LPCWSTR pszClassList, UINT dpi) noexcept
+HTHEME DcxUXModule::dcxOpenThemeDataForDpi(_In_opt_ HWND hwnd, _In_ LPCWSTR pszClassList, _In_ UINT dpi) noexcept
 {
 	if (OpenThemeDataForDpiUx)
 		return OpenThemeDataForDpiUx(hwnd, pszClassList, dpi);
 	return nullptr;
+}
+
+bool DcxUXModule::dcxShouldAppsUseDarkMode() noexcept
+{
+	if (ShouldAppsUseDarkModeUx)
+		return ShouldAppsUseDarkModeUx();
+	return false;
+}
+
+bool DcxUXModule::dcxAllowDarkModeForWindow(HWND hWnd, bool allow) noexcept
+{
+	if (AllowDarkModeForWindowUx)
+		return AllowDarkModeForWindowUx(hWnd, allow);
+	return false;
+}
+
+void DcxUXModule::dcxRefreshImmersiveColorPolicyState() noexcept
+{
+	if (RefreshImmersiveColorPolicyStateUx)
+		RefreshImmersiveColorPolicyStateUx();
+}
+
+bool DcxUXModule::dcxIsDarkModeAllowedForWindow(HWND hWnd) noexcept
+{
+	if (IsDarkModeAllowedForWindowUx)
+		return IsDarkModeAllowedForWindowUx(hWnd);
+	return false;
+}
+
+bool DcxUXModule::dcxGetIsImmersiveColorUsingHighContrast(IMMERSIVE_HC_CACHE_MODE mode) noexcept
+{
+	if (GetIsImmersiveColorUsingHighContrastUx)
+		return GetIsImmersiveColorUsingHighContrastUx(mode);
+	return false;
+}
+
+HTHEME DcxUXModule::dcxOpenNcThemeData(HWND hWnd, LPCWSTR pszClassList) noexcept
+{
+	if (OpenNcThemeDataUx)
+		return OpenNcThemeDataUx(hWnd, pszClassList);
+	return nullptr;
+}
+
+bool DcxUXModule::dcxShouldSystemUseDarkMode() noexcept
+{
+	if (ShouldSystemUseDarkModeUx)
+		return ShouldSystemUseDarkModeUx();
+	return false;
+}
+
+PreferredAppMode DcxUXModule::dcxSetPreferredAppMode(PreferredAppMode appMode) noexcept
+{
+	if (SetPreferredAppModeUx)
+		return SetPreferredAppModeUx(appMode);
+	return PreferredAppMode::Default;
+}
+
+bool DcxUXModule::dcxIsDarkModeAllowedForApp() noexcept
+{
+	if (IsDarkModeAllowedForAppUx)
+		return IsDarkModeAllowedForAppUx();
+	return false;
+}
+
+DWORD DcxUXModule::dcxGetWindows10Build() noexcept
+{
+	if (m_dwBuildNumber > 0)
+		return m_dwBuildNumber;
+
+	auto hNTModule = GetModuleHandleW(L"ntdll.dll");
+	if (!hNTModule)
+		return 0;
+
+	using pfnRtlGetNtVersionNumbers = void (WINAPI*)(LPDWORD major, LPDWORD minor, LPDWORD build);
+
+	auto RtlGetNtVersionNumbers = reinterpret_cast<pfnRtlGetNtVersionNumbers>(GetProcAddress(hNTModule, "RtlGetNtVersionNumbers"));
+	if (RtlGetNtVersionNumbers)
+	{
+		DWORD major{}, minor{};
+		RtlGetNtVersionNumbers(&major, &minor, &m_dwBuildNumber);
+		m_dwBuildNumber &= ~0xF0000000;
+		if (major == 10 && minor == 0)
+			return m_dwBuildNumber;
+	}
+	return 0;
+}
+
+void DcxUXModule::dcxAllowDarkModeForApp(_In_ bool allow) noexcept
+{
+	if (AllowDarkModeForAppUx)
+		AllowDarkModeForAppUx(allow);
+	else if (SetPreferredAppModeUx)
+		SetPreferredAppModeUx(allow ? PreferredAppMode::AllowDark : PreferredAppMode::Default);
+}
+
+bool DcxUXModule::dcxIsHighContrast() noexcept
+{
+	HIGHCONTRASTW highContrast = { sizeof(highContrast) };
+	if (SystemParametersInfoW(SPI_GETHIGHCONTRAST, sizeof(highContrast), &highContrast, FALSE))
+		return highContrast.dwFlags & HCF_HIGHCONTRASTON;
+	return false;
+}
+
+void DcxUXModule::dcxRefreshTitleBarThemeColor(_In_opt_ HWND mHwnd) noexcept
+{
+	BOOL dark = FALSE;
+	if (Dcx::UXModule.dcxIsDarkModeAllowedForWindow(mHwnd) &&
+		Dcx::UXModule.dcxShouldAppsUseDarkMode() &&
+		!Dcx::UXModule.dcxIsHighContrast())
+	{
+		dark = TRUE;
+	}
+	Dcx::DwmModule.dcxDwmSetWindowAttribute(mHwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof(dark));
 }

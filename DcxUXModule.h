@@ -118,6 +118,76 @@ typedef HRESULT(WINAPI* PFNGETTHEMERECT)(_In_ HTHEME hTheme, _In_ int iPartId, _
 //UpdatePanningFeedback
 //OpenThemeDataEx
 
+// Win10+ pointers...
+enum class IMMERSIVE_HC_CACHE_MODE : UINT
+{
+	IHCM_USE_CACHED_VALUE,
+	IHCM_REFRESH
+};
+
+// 1903 18362
+enum class PreferredAppMode : UINT
+{
+	Default,
+	AllowDark,
+	ForceDark,
+	ForceLight,
+	Max
+};
+
+//enum WINDOWCOMPOSITIONATTRIB
+//{
+//	WCA_UNDEFINED = 0,
+//	WCA_NCRENDERING_ENABLED = 1,
+//	WCA_NCRENDERING_POLICY = 2,
+//	WCA_TRANSITIONS_FORCEDISABLED = 3,
+//	WCA_ALLOW_NCPAINT = 4,
+//	WCA_CAPTION_BUTTON_BOUNDS = 5,
+//	WCA_NONCLIENT_RTL_LAYOUT = 6,
+//	WCA_FORCE_ICONIC_REPRESENTATION = 7,
+//	WCA_EXTENDED_FRAME_BOUNDS = 8,
+//	WCA_HAS_ICONIC_BITMAP = 9,
+//	WCA_THEME_ATTRIBUTES = 10,
+//	WCA_NCRENDERING_EXILED = 11,
+//	WCA_NCADORNMENTINFO = 12,
+//	WCA_EXCLUDED_FROM_LIVEPREVIEW = 13,
+//	WCA_VIDEO_OVERLAY_ACTIVE = 14,
+//	WCA_FORCE_ACTIVEWINDOW_APPEARANCE = 15,
+//	WCA_DISALLOW_PEEK = 16,
+//	WCA_CLOAK = 17,
+//	WCA_CLOAKED = 18,
+//	WCA_ACCENT_POLICY = 19,
+//	WCA_FREEZE_REPRESENTATION = 20,
+//	WCA_EVER_UNCLOAKED = 21,
+//	WCA_VISUAL_OWNER = 22,
+//	WCA_HOLOGRAPHIC = 23,
+//	WCA_EXCLUDED_FROM_DDA = 24,
+//	WCA_PASSIVEUPDATEMODE = 25,
+//	WCA_USEDARKMODECOLORS = 26,
+//	WCA_LAST = 27
+//};
+
+//struct WINDOWCOMPOSITIONATTRIBDATA
+//{
+//	WINDOWCOMPOSITIONATTRIB Attrib;
+//	PVOID pvData;
+//	SIZE_T cbData;
+//};
+
+// 1809 17763
+using PFNSHOULDAPPSUSEDARKMODE = bool (WINAPI*)(); // ordinal 132
+using PFNALLOWDARKMODEFORWINDOW = bool (WINAPI*)(HWND hWnd, bool allow); // ordinal 133
+using PFNALLOWDARKMODEFORAPP = bool (WINAPI*)(bool allow); // ordinal 135, in 1809
+//using fnFlushMenuThemes = void (WINAPI*)(); // ordinal 136
+using PFNREFRESHIMMERSIVECOLORPOLICYSTATE = void (WINAPI*)(); // ordinal 104
+using PFNISDARKMODEALLOWEDFORWINDOW = bool (WINAPI*)(HWND hWnd); // ordinal 137
+using PFNGETISIMMERSIVECOLORUSINGHIGHCONTRAST = bool (WINAPI*)(IMMERSIVE_HC_CACHE_MODE mode); // ordinal 106
+using PFNOPENNCTHEMEDATA = HTHEME(WINAPI*)(HWND hWnd, LPCWSTR pszClassList); // ordinal 49
+// 1903 18362
+using PFNSHOULDSYSTEMUSEDARKMODE = bool (WINAPI*)(); // ordinal 138
+using PFNSETPREFERREDAPPMODE = PreferredAppMode(WINAPI*)(PreferredAppMode appMode); // ordinal 135, in 1903
+using PFNISDARKMODEALLOWEDFORAPP = bool (WINAPI*)(); // ordinal 139
+
 class DcxUXModule final
 	: public DcxModule
 {
@@ -149,8 +219,25 @@ class DcxUXModule final
 	static inline PFNHITTESTTHEMEBACKGROUND HitTestThemeBackgroundUx = nullptr;
 	// Win10+ functions
 	static inline decltype(::OpenThemeDataForDpi)* OpenThemeDataForDpiUx = nullptr;
+	// undocumented...
+	// 1809 17763
+	static inline PFNSHOULDAPPSUSEDARKMODE ShouldAppsUseDarkModeUx = nullptr;
+	static inline PFNALLOWDARKMODEFORWINDOW AllowDarkModeForWindowUx = nullptr;
+	static inline PFNALLOWDARKMODEFORAPP AllowDarkModeForAppUx = nullptr;
+	//static inline fnFlushMenuThemes FlushMenuThemesUx = nullptr;
+	static inline PFNREFRESHIMMERSIVECOLORPOLICYSTATE RefreshImmersiveColorPolicyStateUx = nullptr;
+	static inline PFNISDARKMODEALLOWEDFORWINDOW IsDarkModeAllowedForWindowUx = nullptr;
+	static inline PFNGETISIMMERSIVECOLORUSINGHIGHCONTRAST GetIsImmersiveColorUsingHighContrastUx = nullptr;
+	static inline PFNOPENNCTHEMEDATA OpenNcThemeDataUx = nullptr;
+	// 1903 18362
+	static inline PFNSHOULDSYSTEMUSEDARKMODE ShouldSystemUseDarkModeUx = nullptr;
+	static inline PFNSETPREFERREDAPPMODE SetPreferredAppModeUx = nullptr;
+	static inline PFNISDARKMODEALLOWEDFORAPP IsDarkModeAllowedForAppUx = nullptr;
 
 	static inline bool m_bBufferedPaintEnabled = false;
+	static inline bool m_bDarkModeSupported = false;
+	static inline bool m_bDarkModeEnabled = false;
+	static inline DWORD m_dwBuildNumber{};
 
 public:
 	constexpr DcxUXModule(void) noexcept
@@ -165,6 +252,26 @@ public:
 
 	bool load(void) final;
 	bool unload(void) noexcept final;
+
+	/// <summary>
+	/// This function performs a quick calculation of the perceived brightness of a color, and takes into consideration ways that different channels in an RGB color value contribute to how bright it looks to the human eye.
+	/// See: https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/ui/apply-windows-themes#know-when-dark-mode-is-enabled
+	/// </summary>
+	/// <param name="clr"></param>
+	/// <returns></returns>
+	inline bool IsColorLight(_In_ COLORREF clr) noexcept
+	{
+		return (((5 * GetGValue(clr)) + (2 * GetRValue(clr)) + GetBValue(clr)) > (8 * 128));
+	}
+
+	/// <summary>
+	/// Check if dark mode is currently enabled.
+	/// </summary>
+	/// <returns></returns>
+	inline bool dcxIsDarkModeEnabled() noexcept
+	{
+		return dcxShouldAppsUseDarkMode() && !dcxIsHighContrast() && dcxIsDarkModeAllowedForApp();
+	}
 
 	static BOOL dcxIsThemeActive(void) noexcept;
 	static HRESULT dcxSetWindowTheme(_In_ const HWND hwnd, _In_opt_ const LPCWSTR pszSubAppName, _In_opt_ const LPCWSTR pszSubIdList) noexcept;
@@ -192,7 +299,21 @@ public:
 	static HRESULT dcxBufferedPaintClear(_In_ HPAINTBUFFER hBufferedPaint, _In_opt_ LPCRECT prc) noexcept;
 	static HRESULT dcxHitTestThemeBackground(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ DWORD dwOptions, _In_ LPCRECT pRect, _In_ HRGN hrgn, _In_ POINT ptTest, _Out_ WORD* pwHitTestCode) noexcept;
 	static HRESULT dcxGetThemeRect(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ LPRECT pRect) noexcept;
-	[[nodiscard("Memory Leak")]] static HTHEME dcxOpenThemeDataForDpi(HWND hwnd, LPCWSTR pszClassList, UINT dpi) noexcept;
+	[[nodiscard("Memory Leak")]] static HTHEME dcxOpenThemeDataForDpi(_In_opt_ HWND hwnd, _In_ LPCWSTR pszClassList, _In_ UINT dpi) noexcept;
+	static bool dcxShouldAppsUseDarkMode() noexcept;
+	static bool dcxAllowDarkModeForWindow(_In_opt_ HWND hWnd, _In_ bool allow) noexcept;
+	//static void dcxFlushMenuThemes() noexcept;
+	static void dcxRefreshImmersiveColorPolicyState() noexcept;
+	static bool dcxIsDarkModeAllowedForWindow(_In_opt_ HWND hWnd) noexcept;
+	static bool dcxGetIsImmersiveColorUsingHighContrast(_In_ IMMERSIVE_HC_CACHE_MODE mode) noexcept;
+	[[nodiscard("Memory Leak")]] static HTHEME dcxOpenNcThemeData(_In_opt_ HWND hWnd, _In_z_ LPCWSTR pszClassList) noexcept;
+	static bool dcxShouldSystemUseDarkMode() noexcept;
+	static PreferredAppMode dcxSetPreferredAppMode(_In_ PreferredAppMode appMode) noexcept;
+	static bool dcxIsDarkModeAllowedForApp() noexcept;
+	static DWORD dcxGetWindows10Build() noexcept;
+	static void dcxAllowDarkModeForApp(_In_ bool allow) noexcept;
+	static bool dcxIsHighContrast() noexcept;
+	static void dcxRefreshTitleBarThemeColor(_In_opt_ HWND mHwnd) noexcept;
 
 };
 #endif // _DCXUXMODULES_H_
