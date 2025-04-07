@@ -74,5 +74,15 @@ public:
 
 	static BOOL dcxSystemParametersInfoForDpi(_In_ UINT uiAction,_In_ UINT uiParam,_Inout_ PVOID pvParam,_In_ UINT fWinIni,_In_ UINT dpi) noexcept;
 	static UINT dcxGetWindowMetrics(_In_opt_ HWND hwnd, _In_ int nIndex) noexcept;
+
+	/// <summary>
+	/// Get mIRC's dpi awareness.
+	/// either:
+	///  DPI_AWARENESS_INVALID = -1,
+	///  DPI_AWARENESS_UNAWARE = 0,
+	///  DPI_AWARENESS_SYSTEM_AWARE = 1,
+	///	 DPI_AWARENESS_PER_MONITOR_AWARE = 2
+	/// </summary>
+	static DPI_AWARENESS dcxGetProcessDpiAwareness() noexcept;
 };
 #endif // _DCXUXMODULES_H_

@@ -344,6 +344,11 @@ UINT DcxDPIModule::dcxGetWindowMetrics(_In_opt_ HWND hwnd, _In_ int nIndex) noex
 	return dcxGetSystemMetricsForDpi(nIndex, dpi);
 }
 
+DPI_AWARENESS DcxDPIModule::dcxGetProcessDpiAwareness() noexcept
+{
+	return dcxGetAwarenessFromDpiAwarenessContext(dcxGetThreadDpiAwarenessContext());
+}
+
 BOOL DcxDPIModule::dcxSetDialogDpiChangeBehavior(HWND hDlg, _In_ DIALOG_DPI_CHANGE_BEHAVIORS mask, _In_ DIALOG_DPI_CHANGE_BEHAVIORS values) noexcept
 {
 	if (SetDialogDpiChangeBehaviorUx)
