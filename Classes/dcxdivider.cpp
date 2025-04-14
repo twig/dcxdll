@@ -435,11 +435,6 @@ void DcxDivider::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 LRESULT DcxDivider::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
 {
 	return 0L;
@@ -530,21 +525,6 @@ LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 	}
 	break;
 
-	//case WM_ERASEBKGND:
-	//{
-	//	// wParam == HDC
-	//	if (this->m_clrBackground != CLR_INVALID)
-	//	{
-	//		// this allows drawing a custom coloured positioning bar.
-	//		RECT rc{};
-	//		if (GetClientRect(m_Hwnd, &rc))
-	//			Dcx::FillRectColour((HDC)wParam, &rc, this->m_clrBackground);
-	//		bParsed = TRUE;
-	//		lRes = TRUE;
-	//	}
-	//}
-	//break;
-
 	case DV_CHANGEPOS:
 	{
 		if (dcx_testflag(getEventMask(), DCX_EVENT_DRAG))
@@ -556,7 +536,11 @@ LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 			constexpr TCHAR szdrag_begin[] = TEXT("dragbegin");
 			constexpr TCHAR szdrag[] = TEXT("drag");
 			constexpr TCHAR szdrag_finish[] = TEXT("dragfinish");
-			this->execAliasEx(TEXT("%s,%u,%d,%d"), (phase == DVNM_DRAG_START ? &szdrag_begin[0] : (phase == DVNM_DRAG_END ? &szdrag_finish[0] : &szdrag[0])), this->getUserID(), pt->x, pt->y);
+			if (!this->execAliasEx(TEXT("%s,%u,%d,%d"), (phase == DVNM_DRAG_START ? &szdrag_begin[0] : (phase == DVNM_DRAG_END ? &szdrag_finish[0] : &szdrag[0])), this->getUserID(), pt->x, pt->y))
+			{
+				bParsed = TRUE;
+				return TRUE;
+			}
 		}
 	}
 	break;

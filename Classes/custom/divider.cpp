@@ -58,6 +58,27 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	}
 	break;
 
+	case WM_MOUSELEAVE:
+	{
+		if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
+		{
+			lpdvdata->m_bMouseOver = false;
+			if (lpdvdata->clrBar.clrBar != CLR_INVALID)
+			{
+				// this allows drawing a custom coloured positioning bar.
+				if (RECT rc{}; GetClientRect(mHwnd, &rc))
+				{
+					if (dcx_testflag(dcxGetWindowStyle(mHwnd), DVS_VERT))
+						DrawSolidBar(mHwnd, true, lpdvdata->m_iBarPos, rc.bottom, lpdvdata->m_iLineWidth, lpdvdata->clrBar.clrBar);
+					else
+						DrawSolidBar(mHwnd, false, lpdvdata->m_iBarPos, rc.right, lpdvdata->m_iLineWidth, lpdvdata->clrBar.clrBar);
+				}
+				return 0L;
+			}
+		}
+	}
+	break;
+
 	case WM_SETCURSOR:
 	{
 		if (Divider_SetCursor(mHwnd, wParam, lParam))
@@ -347,10 +368,11 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			if (lpdvdata->clrBar.clrBar != CLR_INVALID)
 			{
 				// this allows drawing a custom coloured positioning bar.
-				RECT rc{};
-				if (GetClientRect(mHwnd, &rc))
-					Dcx::FillRectColour((HDC)wParam, &rc, lpdvdata->clrBar.clrBar);
-
+				if (RECT rc{}; GetClientRect(mHwnd, &rc))
+				{
+					const auto clr = (lpdvdata->m_bMouseOver ? lpdvdata->clrBar.clrBarHover : lpdvdata->clrBar.clrBar);
+					Dcx::FillRectColour((HDC)wParam, &rc, clr);
+				}
 				return TRUE;
 			}
 		}
@@ -508,6 +530,54 @@ void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int 
 	}
 }
 
+void DrawXorBar(HWND mHwnd, const int x1, const int y1, const int width, const int height, COLORREF clrFg, COLORREF clrBg) noexcept
+{
+	if (!mHwnd)
+		return;
+
+	if (const auto hdc = GetWindowDC(mHwnd); hdc)
+	{
+		Auto(ReleaseDC(mHwnd, hdc));
+
+		DrawXorBar(hdc, x1, y1, width, height, clrFg, clrBg);
+	}
+}
+
+void DrawSolidBar(HDC hdc, bool bVert, UINT uPos, int iLength, int iLineWidth, COLORREF clrFg) noexcept
+{
+	if (!hdc)
+		return;
+
+	RECT rcBar{};
+	if (bVert)
+	{
+		rcBar.left = uPos;
+		rcBar.top = 0;
+		rcBar.right = rcBar.left + iLineWidth;
+		rcBar.bottom = iLength;
+	}
+	else {
+		rcBar.left = 0;
+		rcBar.top = uPos;
+		rcBar.right = iLength;
+		rcBar.bottom = rcBar.top + iLineWidth;
+	}
+	Dcx::FillRectColour(hdc, &rcBar, clrFg);
+}
+
+void DrawSolidBar(HWND mHwnd, bool bVert, UINT uPos, int iLength, int iLineWidth, COLORREF clrFg) noexcept
+{
+	if (!mHwnd)
+		return;
+
+	if (const auto hdc = GetWindowDC(mHwnd); hdc)
+	{
+		Auto(ReleaseDC(mHwnd, hdc));
+
+		DrawSolidBar(hdc, bVert, uPos, iLength, iLineWidth, clrFg);
+	}
+}
+
 void Divider_GetChildControl(HWND mHwnd, const UINT pane, const LPDVPANEINFO result) noexcept
 {
 	SendMessage(mHwnd, DV_GETPANE, pane, reinterpret_cast<LPARAM>(result));
@@ -571,6 +641,10 @@ LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM
 	// horizontal position of cursor 
 	POINT pt{ Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam) };
 
+	// if TRUE is returned then dont drag.
+	if (gsl::narrow_cast<BOOL>(SendMessage(mHwnd, DV_CHANGEPOS, gsl::narrow_cast<WPARAM>(DVNM_DRAG_START), reinterpret_cast<LPARAM>(&pt))) != FALSE)
+		return 0L;
+
 	RECT rect{};
 
 	Divider_CalcBarPos(mHwnd, &pt, &rect);
@@ -593,7 +667,7 @@ LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM
 			lpdvdata->m_iOldPos = pt.y;
 		}
 	}
-	SendMessage(mHwnd, DV_CHANGEPOS, gsl::narrow_cast<WPARAM>(DVNM_DRAG_START), reinterpret_cast<LPARAM>(&pt));
+	//SendMessage(mHwnd, DV_CHANGEPOS, gsl::narrow_cast<WPARAM>(DVNM_DRAG_START), reinterpret_cast<LPARAM>(&pt));
 
 	return 0L;
 }
@@ -629,6 +703,13 @@ LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 
 	lpdvdata->m_bDragging = false;
 
+	// if TRUE is returned then dont drag.
+	if (gsl::narrow_cast<BOOL>(SendMessage(mHwnd, DV_CHANGEPOS, gsl::narrow_cast<WPARAM>(DVNM_DRAG_END), reinterpret_cast<LPARAM>(&pt))) != FALSE)
+	{
+		ReleaseCapture();
+		return 0L;
+	}
+
 	//convert the divider position back to screen coords.
 	if (GetWindowRect(mHwnd, &rect))
 	{
@@ -649,7 +730,7 @@ LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 		}
 	}
 	ReleaseCapture();
-	SendMessage(mHwnd, DV_CHANGEPOS, gsl::narrow_cast<WPARAM>(DVNM_DRAG_END), reinterpret_cast<LPARAM>(&pt));
+	//SendMessage(mHwnd, DV_CHANGEPOS, gsl::narrow_cast<WPARAM>(DVNM_DRAG_END), reinterpret_cast<LPARAM>(&pt));
 	return 0L;
 }
 
@@ -657,15 +738,35 @@ LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 {
 	const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data"));
 
-	if (!lpdvdata || !lpdvdata->m_bDragging)
+	if (!lpdvdata)
 		return 0L;
 
-	//RECT rect{};
+	if (!lpdvdata->m_bDragging)
+	{
+		if ((lpdvdata->clrBar.clrBarHover != CLR_INVALID) && !lpdvdata->m_bMouseOver)
+		{
+			RECT rect{};
 
-	//// horizontal position of cursor 
-	//POINT pt{ Dcx::dcxLOWORD(lParam),Dcx::dcxHIWORD(lParam) };
+			// horizontal position of cursor
+			const POINT pt{ Dcx::dcxLOWORD(lParam),Dcx::dcxHIWORD(lParam) };
 
-	//Divider_CalcBarPos(mHwnd, &pt, &rect);
+			GetClientRect(mHwnd, &rect);
+			if (!PtInRect(&rect, pt))
+				return 0L;
+
+			if (dcx_testflag(dcxGetWindowStyle(mHwnd), DVS_VERT))
+				DrawSolidBar(mHwnd, true, lpdvdata->m_iBarPos, rect.bottom, lpdvdata->m_iLineWidth, lpdvdata->clrBar.clrBarHover);
+			else
+				DrawSolidBar(mHwnd, false, lpdvdata->m_iBarPos, rect.right, lpdvdata->m_iLineWidth, lpdvdata->clrBar.clrBarHover);
+
+			TRACKMOUSEEVENT tme{};
+			tme.cbSize = sizeof(TRACKMOUSEEVENT);
+			tme.hwndTrack = mHwnd;
+			tme.dwFlags = TME_LEAVE;
+			lpdvdata->m_bMouseOver = gsl::narrow_cast<bool>(_TrackMouseEvent(&tme));
+		}
+		return 0L;
+	}
 
 	if (dcx_testflag(wParam, MK_LBUTTON))
 	{
@@ -684,6 +785,10 @@ LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 		{
 			if (pt.x != lpdvdata->m_iOldPos)
 			{
+				// if TRUE is returned then dont drag.
+				if (gsl::narrow_cast<BOOL>(SendMessage(mHwnd, DV_CHANGEPOS, gsl::narrow_cast<WPARAM>(DVNM_DRAG_DRAG), reinterpret_cast<LPARAM>(&pt))) != FALSE)
+					return 0L;
+
 				if (const auto hdc = GetWindowDC(mHwnd); hdc)
 				{
 					Auto(ReleaseDC(mHwnd, hdc));
@@ -692,11 +797,14 @@ LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 					DrawXorBar(hdc, pt.x - 2, 1, 4, rect.bottom - 2, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
 				}
 				lpdvdata->m_iOldPos = pt.x;
-				SendMessage(mHwnd, DV_CHANGEPOS, gsl::narrow_cast<WPARAM>(DVNM_DRAG_DRAG), reinterpret_cast<LPARAM>(&pt));
 			}
 		}
 		else if (pt.y != lpdvdata->m_iOldPos)
 		{
+			// if TRUE is returned then dont drag.
+			if (gsl::narrow_cast<BOOL>(SendMessage(mHwnd, DV_CHANGEPOS, gsl::narrow_cast<WPARAM>(DVNM_DRAG_DRAG), reinterpret_cast<LPARAM>(&pt))) != FALSE)
+				return 0L;
+
 			if (const auto hdc = GetWindowDC(mHwnd); hdc)
 			{
 				Auto(ReleaseDC(mHwnd, hdc));
@@ -705,11 +813,8 @@ LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 				DrawXorBar(hdc, 1, pt.y - 2, rect.right - 2, 4, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
 			}
 			lpdvdata->m_iOldPos = pt.y;
-			SendMessage(mHwnd, DV_CHANGEPOS, gsl::narrow_cast<WPARAM>(DVNM_DRAG_DRAG), reinterpret_cast<LPARAM>(&pt));
 		}
 	}
-	// Ook: only send update when pos actually changes?
-	//SendMessage(mHwnd, DV_CHANGEPOS, gsl::narrow_cast<WPARAM>(DVNM_DRAG_DRAG), reinterpret_cast<LPARAM>(&pt));
 
 	return 0L;
 }
@@ -723,15 +828,20 @@ void Divider_RemoveBar(HWND mHwnd, LPCRECT rc) noexcept
 	if (!lpdvdata)
 		return;
 
-	if (const auto hdc = GetWindowDC(mHwnd); hdc)
-	{
-		Auto(ReleaseDC(mHwnd, hdc));
+	//if (const auto hdc = GetWindowDC(mHwnd); hdc)
+	//{
+	//	Auto(ReleaseDC(mHwnd, hdc));
+	//
+	//	if (dcx_testflag(dcxGetWindowStyle(mHwnd), DVS_VERT))
+	//		DrawXorBar(hdc, lpdvdata->m_iOldPos - 2, 1, 4, rc->bottom - 2, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
+	//	else
+	//		DrawXorBar(hdc, 1, lpdvdata->m_iOldPos - 2, rc->right - 2, 4, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
+	//}
 
-		if (dcx_testflag(dcxGetWindowStyle(mHwnd), DVS_VERT))
-			DrawXorBar(hdc, lpdvdata->m_iOldPos - 2, 1, 4, rc->bottom - 2, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
-		else
-			DrawXorBar(hdc, 1, lpdvdata->m_iOldPos - 2, rc->right - 2, 4, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
-	}
+	if (dcx_testflag(dcxGetWindowStyle(mHwnd), DVS_VERT))
+		DrawXorBar(mHwnd, lpdvdata->m_iOldPos - 2, 1, 4, rc->bottom - 2, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
+	else
+		DrawXorBar(mHwnd, 1, lpdvdata->m_iOldPos - 2, rc->right - 2, 4, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
 }
 
 bool Divider_SetCursor(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept

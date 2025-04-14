@@ -124,6 +124,7 @@ struct DVCONTROLDATA
 	int m_iOldPos{};				//!< Moving Old Position
 	bool m_bDragging{ false };		//!< Are We Dragging The Bar?
 	bool m_bLocked{};				//!< Is bar locked & unmoveable?
+	bool m_bMouseOver{};			//!< Is mouse currently over control?
 	DVBARCOLORS clrBar;
 };
 using LPDVCONTROLDATA = DVCONTROLDATA*;
@@ -133,6 +134,9 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 void Divider_SizeWindowContents(HWND mHwnd, const int nWidth, const int nHeight) noexcept;
 LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int height, COLORREF clrFg, COLORREF clrBg) noexcept;
+void DrawXorBar(HWND mHwnd, const int x1, const int y1, const int width, const int height, COLORREF clrFg, COLORREF clrBg) noexcept;
+void DrawSolidBar(HDC hdc, bool bVert, UINT uPos, int iLength, int iLineWidth, COLORREF clrFg) noexcept;
+void DrawSolidBar(HWND mHwnd, bool bVert, UINT uPos, int iLength, int iLineWidth, COLORREF clrFg) noexcept;
 LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 void Divider_CalcBarPos(HWND mHwnd, POINT* pt, RECT* rect) noexcept;
