@@ -150,9 +150,9 @@ void MultiCombo_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
 void MultiCombo_Drop_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
-void MultiCombo_RemoveChild(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
+void MultiCombo_RemoveChild(HWND mHwnd) noexcept;
 
-HWND MultiCombo_GetChild(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
+HWND MultiCombo_GetChild(HWND mHwnd) noexcept;
 
 BOOL MultiCombo_DrawItem(HWND mHwnd, LPDRAWITEMSTRUCT lpdis);
 

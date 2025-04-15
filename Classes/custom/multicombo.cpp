@@ -7,6 +7,14 @@
 
 namespace
 {
+	/// <summary>
+	/// The window proc for the dropdown control portion.
+	/// </summary>
+	/// <param name="mHwnd">- HWND of lpmcdata->m_hDropCtrl</param>
+	/// <param name="uMsg"></param>
+	/// <param name="wParam"></param>
+	/// <param name="lParam"></param>
+	/// <returns></returns>
 	LRESULT CALLBACK MultiComboDropWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		switch (uMsg)
@@ -271,6 +279,14 @@ namespace
 	}
 }
 
+/// <summary>
+/// The window proc of the main parent control.
+/// </summary>
+/// <param name="mHwnd">- The editbox and button are children of this HWND.</param>
+/// <param name="uMsg"></param>
+/// <param name="wParam"></param>
+/// <param name="lParam"></param>
+/// <returns></returns>
 LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
@@ -460,7 +476,7 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	{
 		// wParam = zero
 		// lParam = HWND of child
-		MultiCombo_RemoveChild(mHwnd, wParam, lParam);
+		MultiCombo_RemoveChild(mHwnd);
 
 		if (dcxlParam(HWND, hChild); IsWindow(hChild))
 		{
@@ -481,7 +497,7 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	{
 		// wParam = zero
 		// lParam = zero
-		MultiCombo_RemoveChild(mHwnd, wParam, lParam);
+		MultiCombo_RemoveChild(mHwnd);
 		return 0L;
 	}
 	break;
@@ -490,7 +506,7 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	{
 		// wParam = zero
 		// lParam = zero
-		return reinterpret_cast<LRESULT>(MultiCombo_GetChild(mHwnd, wParam, lParam));
+		return reinterpret_cast<LRESULT>(MultiCombo_GetChild(mHwnd));
 	}
 	break;
 
@@ -760,6 +776,20 @@ void MultiCombo_OnLButtonUp(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 			SetWindowPos(lpmcdata->m_hDropCtrl, HWND_TOPMOST, lpmcdata->m_rcDrop.left, lpmcdata->m_rcDrop.top, (lpmcdata->m_rcDrop.right - lpmcdata->m_rcDrop.left), (lpmcdata->m_rcDrop.bottom - lpmcdata->m_rcDrop.top), SWP_NOACTIVATE);
 			ShowWindow(lpmcdata->m_hDropCtrl, SW_SHOWNA);
+
+			{
+				// If the resize of the child window to match the drop window for some reason failed (usually due to INTEGRALHEIGHT style in listbox)
+				// then resize drop window to match actual child size.
+				RECT rcDrop{};
+				RECT rcChild{};
+				GetWindowRect(lpmcdata->m_hDropCtrl, &rcDrop);
+				GetWindowRect(lpmcdata->m_hDropChild, &rcChild);
+				if (!EqualRect(&rcDrop, &rcChild))
+				{
+					lpmcdata->m_rcDrop = rcChild;
+					SetWindowPos(lpmcdata->m_hDropCtrl, HWND_TOPMOST, lpmcdata->m_rcDrop.left, lpmcdata->m_rcDrop.top, (lpmcdata->m_rcDrop.right - lpmcdata->m_rcDrop.left), (lpmcdata->m_rcDrop.bottom - lpmcdata->m_rcDrop.top), SWP_NOACTIVATE);
+				}
+			}
 		}
 		else {
 			ShowWindow(lpmcdata->m_hDropCtrl, SW_HIDE);
@@ -923,7 +953,7 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		{
 			WNDCLASSEX wc{};
 			wc.cbSize = sizeof(WNDCLASSEX);
-			if (!GetClassInfoEx(cs->hInstance, MCOMBO_DROPCLASS, &wc))
+			if (!GetClassInfoExW(cs->hInstance, MCOMBO_DROPCLASS, &wc))
 			{
 				wc.cbSize = sizeof(WNDCLASSEX);
 				wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -937,7 +967,7 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 				wc.lpszMenuName = nullptr;
 				wc.lpszClassName = MCOMBO_DROPCLASS;
 				wc.hIconSm = nullptr;
-				RegisterClassEx(&wc);
+				RegisterClassExW(&wc);
 			}
 
 			lpmcdata->m_hDropCtrl = CreateWindowExW(WS_EX_NOACTIVATE, MCOMBO_DROPCLASS, nullptr, WS_POPUP | WS_CLIPCHILDREN, lpmcdata->m_rcDrop.left, lpmcdata->m_rcDrop.top, (lpmcdata->m_rcDrop.right - lpmcdata->m_rcDrop.left), (lpmcdata->m_rcDrop.bottom - lpmcdata->m_rcDrop.top), mHwnd, nullptr, cs->hInstance, nullptr);
@@ -954,10 +984,10 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		{
 			Dcx::UXModule.dcxSetWindowTheme(lpmcdata->m_hDropCtrl, WC_COMBOBOXW, nullptr);
 
-			SetProp(lpmcdata->m_hDropCtrl, TEXT("mc_data"), lpmcdata.get());
+			SetPropW(lpmcdata->m_hDropCtrl, TEXT("mc_data"), lpmcdata.get());
 		}
 
-		SetProp(mHwnd, TEXT("mc_data"), lpmcdata.release());
+		SetPropW(mHwnd, TEXT("mc_data"), lpmcdata.release());
 	}
 	{
 		const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
@@ -965,29 +995,32 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		if (!mHwnd || !lpmcdata)
 			return -1L;
 
-		switch (lpmcdata->m_Styles)
+		if (RECT rcDrop{}; GetClientRect(lpmcdata->m_hDropCtrl, &rcDrop))
 		{
-		default:
-			break;
+			switch (lpmcdata->m_Styles)
+			{
+			default:
+				break;
 
-		case MCS_COLOUR:
-			lpmcdata->m_hDropChild = CreateWindowExW(WS_EX_CLIENTEDGE, WC_LISTBOX, nullptr, WS_CHILD | WS_VISIBLE | LBS_NOTIFY | LBS_WANTKEYBOARDINPUT | LBS_OWNERDRAWFIXED | LBS_MULTICOLUMN, 0, 0, (rc.right - rc.left), (rc.bottom - lpmcdata->m_rcDrop.top), lpmcdata->m_hDropCtrl, reinterpret_cast<HMENU>(MC_ID_DROPCHILD), cs->hInstance, nullptr);
-			break;
+			case MCS_COLOUR:
+				lpmcdata->m_hDropChild = CreateWindowExW(WS_EX_CLIENTEDGE, WC_LISTBOX, nullptr, WS_CHILD | WS_VISIBLE | LBS_NOTIFY | LBS_WANTKEYBOARDINPUT | LBS_OWNERDRAWFIXED | LBS_MULTICOLUMN /*| LBS_NOINTEGRALHEIGHT*/, 0, 0, (rcDrop.right - rcDrop.left), (rcDrop.bottom - rcDrop.top), lpmcdata->m_hDropCtrl, reinterpret_cast<HMENU>(MC_ID_DROPCHILD), cs->hInstance, nullptr);
+				break;
 
-		case MCS_LISTBOX:
-			lpmcdata->m_hDropChild = CreateWindowExW(WS_EX_CLIENTEDGE, WC_LISTBOX, nullptr, WS_CHILD | WS_VISIBLE | LBS_NOTIFY | LBS_WANTKEYBOARDINPUT | LBS_HASSTRINGS, 0, 0, (rc.right - rc.left), (rc.bottom - lpmcdata->m_rcDrop.top), lpmcdata->m_hDropCtrl, reinterpret_cast<HMENU>(MC_ID_DROPCHILD), cs->hInstance, nullptr);
-			break;
+			case MCS_LISTBOX:
+				lpmcdata->m_hDropChild = CreateWindowExW(WS_EX_CLIENTEDGE, WC_LISTBOX, nullptr, WS_CHILD | WS_VISIBLE | LBS_NOTIFY | LBS_WANTKEYBOARDINPUT | LBS_HASSTRINGS /*| LBS_NOINTEGRALHEIGHT*/, 0, 0, (rcDrop.right - rcDrop.left), (rcDrop.bottom - rcDrop.top), lpmcdata->m_hDropCtrl, reinterpret_cast<HMENU>(MC_ID_DROPCHILD), cs->hInstance, nullptr);
+				break;
 
-			//case MCS_LISTVIEW:
-			//	lpmcdata->m_hDropChild = CreateWindowExW(WS_EX_CLIENTEDGE, WC_LISTVIEW, nullptr, WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS, 0, 0, (rc.right - rc.left), (rc.bottom - lpmcdata->m_rcDrop.top), lpmcdata->m_hDropCtrl, (HMENU)MC_ID_DROPCHILD, cs->hInstance, nullptr);
-			//	break;
-			//case MCS_TREEVIEW:
-			//	lpmcdata->m_hDropChild = CreateWindowExW(WS_EX_CLIENTEDGE, WC_TREEVIEW, nullptr, WS_CHILD | WS_VISIBLE | TVS_SHOWSELALWAYS, 0, 0, (rc.right - rc.left), (rc.bottom - lpmcdata->m_rcDrop.top), lpmcdata->m_hDropCtrl, (HMENU)MC_ID_DROPCHILD, cs->hInstance, nullptr);
-			//	break;
+				//case MCS_LISTVIEW:
+				//	lpmcdata->m_hDropChild = CreateWindowExW(WS_EX_CLIENTEDGE, WC_LISTVIEW, nullptr, WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS, 0, 0, (rc.right - rc.left), (rc.bottom - lpmcdata->m_rcDrop.top), lpmcdata->m_hDropCtrl, (HMENU)MC_ID_DROPCHILD, cs->hInstance, nullptr);
+				//	break;
+				//case MCS_TREEVIEW:
+				//	lpmcdata->m_hDropChild = CreateWindowExW(WS_EX_CLIENTEDGE, WC_TREEVIEW, nullptr, WS_CHILD | WS_VISIBLE | TVS_SHOWSELALWAYS, 0, 0, (rc.right - rc.left), (rc.bottom - lpmcdata->m_rcDrop.top), lpmcdata->m_hDropCtrl, (HMENU)MC_ID_DROPCHILD, cs->hInstance, nullptr);
+				//	break;
+			}
+
+			if (lpmcdata->m_hDropChild)
+				Dcx::UXModule.dcxSetWindowTheme(lpmcdata->m_hDropChild, WC_COMBOBOXW, nullptr);
 		}
-
-		if (lpmcdata->m_hDropChild)
-			Dcx::UXModule.dcxSetWindowTheme(lpmcdata->m_hDropChild, WC_COMBOBOXW, nullptr);
 	}
 
 	return 0L;
@@ -1003,37 +1036,6 @@ void MultiCombo_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 		return;
 
 	// maybe add support for HDC being supplied in wParam
-
-	//PAINTSTRUCT ps{};
-	//auto hdc = BeginPaint(mHwnd, &ps);
-	//
-	//if (lpmcdata->m_hTheme)
-	//{
-	//	int iStateId{ CBXS_NORMAL };
-	//
-	//	if (lpmcdata->m_bButtonPressed)
-	//	{
-	//		iStateId = CBXS_PRESSED;
-	//	}
-	//	else if (!IsWindowEnabled(mHwnd))
-	//	{
-	//		iStateId = CBXS_DISABLED;
-	//	}
-	//	else if (lpmcdata->m_bButtonHotTracked)
-	//	{
-	//		iStateId = CBXS_HOT;
-	//	}
-	//
-	//	Dcx::UXModule.dcxDrawThemeBackground(lpmcdata->m_hTheme, hdc, CP_DROPDOWNBUTTON, iStateId, &lpmcdata->m_rcButton, 0);
-	//}
-	//else {
-	//	DrawFrameControl(hdc, &lpmcdata->m_rcButton, DFC_SCROLL,
-	//		DFCS_SCROLLCOMBOBOX |
-	//		(lpmcdata->m_bButtonPressed ? DFCS_PUSHED | DFCS_FLAT : 0) |
-	//		(dcx_testflag(dcxGetWindowStyle(mHwnd), WS_DISABLED) ? DFCS_INACTIVE : 0) |
-	//		(lpmcdata->m_bButtonHotTracked ? DFCS_HOT : 0));
-	//}
-	//EndPaint(mHwnd, &ps);
 
 	dcxwParam(HDC, hdc);
 
@@ -1188,6 +1190,8 @@ void MultiCombo_Drop_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexce
 		//
 		//if (dcx_testflag(lpmcdata->m_Styles, MCS_COLOUR))
 		//	SendMessage(lpmcdata->m_hDropChild, LBCB_STARTTRACK, TRUE, 0);
+
+		//MultiCombo_SizeBaseWindowContents(mHwnd, 0, 0);
 	}
 	else {
 		//if (lpmcdata->m_bButtonHotTracked)
@@ -1212,7 +1216,7 @@ void MultiCombo_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 		ShowWindow(lpmcdata->m_hDropCtrl, SW_HIDE);
 }
 
-void MultiCombo_RemoveChild(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
+void MultiCombo_RemoveChild(HWND mHwnd) noexcept
 {
 	if (!mHwnd)
 		return;
@@ -1229,7 +1233,7 @@ void MultiCombo_RemoveChild(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 		DestroyWindow(hChild);
 }
 
-HWND MultiCombo_GetChild(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
+HWND MultiCombo_GetChild(HWND mHwnd) noexcept
 {
 	if (!mHwnd)
 		return nullptr;
@@ -1353,7 +1357,7 @@ BOOL MultiCombo_FillColours(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		return FALSE;
 
 	const auto clrs = reinterpret_cast<COLORREF*>(lParam);
-	for (UINT i{}; i < wParam; i++)
+	for (UINT i{}; i < wParam; ++i)
 	{
 		LPMCOMBO_ITEM lpdata = new MCOMBO_ITEM;
 
@@ -1548,11 +1552,11 @@ BOOL MultiCombo_AddItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		if ((lpinput->m_Size != sizeof(MCOMBO_ITEM)) || (lpinput->m_Type != MCS_COLOUR))
 			return FALSE;
 
-		LPMCOMBO_ITEM lpdata = new MCOMBO_ITEM;
+		LPMCOMBO_ITEM lpdata = new MCOMBO_ITEM(*lpinput);
 
-		lpdata->m_clrItem = lpinput->m_clrItem;
-		lpdata->m_clrText = lpinput->m_clrText;
-		lpdata->m_tsItemText = lpinput->m_tsItemText;
+		//lpdata->m_clrItem = lpinput->m_clrItem;
+		//lpdata->m_clrText = lpinput->m_clrText;
+		//lpdata->m_tsItemText = lpinput->m_tsItemText;
 
 		ListBox_AddItemData(lpmcdata->m_hDropChild, lpdata);
 
@@ -1632,11 +1636,11 @@ BOOL MultiCombo_InsertItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		if ((lpinput->m_Size != sizeof(MCOMBO_ITEM)) || (lpinput->m_Type != MCS_COLOUR))
 			return FALSE;
 
-		LPMCOMBO_ITEM lpdata = new MCOMBO_ITEM;
+		LPMCOMBO_ITEM lpdata = new MCOMBO_ITEM(*lpinput);
 
-		lpdata->m_clrItem = lpinput->m_clrItem;
-		lpdata->m_clrText = lpinput->m_clrText;
-		lpdata->m_tsItemText = lpinput->m_tsItemText;
+		//lpdata->m_clrItem = lpinput->m_clrItem;
+		//lpdata->m_clrText = lpinput->m_clrText;
+		//lpdata->m_tsItemText = lpinput->m_tsItemText;
 
 		ListBox_InsertItemData(lpmcdata->m_hDropChild, wParam, lpdata);
 
