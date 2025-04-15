@@ -520,6 +520,8 @@ LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 
 	case WM_DESTROY:
 	{
+		this->CallDefaultClassProc(uMsg, wParam, lParam);
+
 		delete this;
 		bParsed = TRUE;
 	}

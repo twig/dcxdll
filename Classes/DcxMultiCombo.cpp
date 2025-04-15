@@ -108,6 +108,8 @@ LRESULT DcxMultiCombo::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 	case WM_DESTROY:
 	{
+		this->CallDefaultClassProc(uMsg, wParam, lParam);
+
 		delete this;
 		bParsed = TRUE;
 	}

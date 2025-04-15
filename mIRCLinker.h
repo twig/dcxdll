@@ -138,14 +138,15 @@ namespace mIRCLinker
 			if (mIRC_SndMsg(WM_MEVALUATE))
 			{
 				res = m_pData;
-				return (m_pData != &cFalse[0]);
+				//return (m_pData != &cFalse[0]);
+				return !m_pData.compare(&cFalse[0]);
 			}
 		}
 		m_pData.clear();
 		return false;
 	}
 	template <typename Input>
-	bool eval(nullptr_t res, const Input& data) noexcept
+	bool eval(const Input& data) noexcept
 	{
 		if constexpr (std::is_array_v<Input> && Dcx::is_pod_v<Input>)
 			m_pData = &data[0];
@@ -153,7 +154,9 @@ namespace mIRCLinker
 			m_pData = data;
 		{
 			if (mIRC_SndMsg(WM_MEVALUATE))
-				return (m_pData != &cFalse[0]);
+				//return (m_pData != &cFalse[0]);
+				return !m_pData.compare(&cFalse[0]);
+
 		}
 		m_pData.clear();
 		return false;
@@ -168,7 +171,7 @@ namespace mIRCLinker
 	bool eval(nullptr_t res, const Input& fmt, const Value& val, Arguments&& ... args)
 	{
 		TString line;
-		return eval(res, _ts_sprintf(line, fmt, val, args...));
+		return eval(_ts_sprintf(line, fmt, val, args...));
 	}
 
 	template <typename Output, typename Input>

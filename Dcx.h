@@ -185,6 +185,7 @@ namespace Dcx
 	using dcxBitmap_t = std::unique_ptr<HBITMAP__, void(*)(HBITMAP)>;
 	using dcxBSTR_t = std::unique_ptr<OLECHAR, void(*)(BSTR)>;
 	using dcxBRUSH_t = std::unique_ptr<HBRUSH__, void(*)(HBRUSH)>;
+	using dcxFONT_t = std::unique_ptr<HFONT__, void(*)(HFONT)>;
 
 	/// <summary>
 	/// Make a cursor resource
@@ -1197,6 +1198,87 @@ namespace Dcx
 		}
 	};
 
+	struct dcxFont final
+	{
+		dcxFont() noexcept = default;
+		dcxFont(dcxFont&& other) = default;
+		dcxFont(const dcxFont&) = delete;
+
+		dcxFont(const HFONT& m_data) noexcept
+			: m_data(m_data)
+		{
+		}
+
+		dcxFont& operator =(dcxFont& other) = delete;
+		dcxFont& operator =(dcxFont&& other) noexcept = default;
+
+		~dcxFont()
+		{
+			if (m_data)
+				DeleteFont(m_data);
+		}
+
+		bool operator==(const dcxFont& other) const noexcept = default;
+
+		operator HFONT () const noexcept
+		{
+			return m_data;
+		}
+
+		explicit operator bool() const noexcept
+		{
+			return (m_data != nullptr);
+		}
+
+		dcxFont& operator =(HFONT other) noexcept
+		{
+			if (m_data)
+				DeleteFont(m_data);
+
+			m_data = other;
+
+			return *this;
+		}
+
+	private:
+		HFONT m_data{};
+	};
+
+	struct dcxFontResource final
+		: dcxResource < dcxFONT_t >
+	{
+		dcxFontResource() = delete;														// no default!
+		dcxFontResource(const dcxFontResource&) = delete;									// no copy!
+		GSL_SUPPRESS(c.128) dcxFontResource& operator =(const dcxFontResource&) = delete;	// No copy assignments!
+		dcxFontResource(dcxFontResource&&) = delete;										// no move
+		GSL_SUPPRESS(c.128) dcxFontResource& operator =(dcxFontResource&&) = delete;		// no move assignment
+
+		//calls CreateFontIndirectA()
+		dcxFontResource(LPLOGFONTA lf)
+			: dcxResource(make_resource(CreateFontIndirectA, [](HFONT obj) noexcept { if (obj) DeleteFont(obj); }, lf))
+		{
+		}
+
+		//calls CreateFontIndirectW()
+		dcxFontResource(LPLOGFONTW lf)
+			: dcxResource(make_resource(CreateFontIndirectW, [](HFONT obj) noexcept { if (obj) DeleteFont(obj); }, lf))
+		{
+		}
+
+		//calls CreateFontA()
+		dcxFontResource(int    cHeight, int    cWidth, int    cEscapement, int    cOrientation, int    cWeight, DWORD  bItalic, DWORD  bUnderline, DWORD  bStrikeOut, DWORD  iCharSet, DWORD  iOutPrecision, DWORD  iClipPrecision, DWORD  iQuality, DWORD  iPitchAndFamily, LPCSTR pszFaceName)
+			: dcxResource(make_resource(CreateFontA, [](HFONT obj) noexcept { if (obj) DeleteFont(obj); }, cHeight, cWidth, cEscapement, cOrientation, cWeight, bItalic, bUnderline, bStrikeOut, iCharSet, iOutPrecision, iClipPrecision, iQuality, iPitchAndFamily, pszFaceName))
+		{
+		}
+
+		//calls CreateFontW()
+		dcxFontResource(int    cHeight, int    cWidth, int    cEscapement, int    cOrientation, int    cWeight, DWORD  bItalic, DWORD  bUnderline, DWORD  bStrikeOut, DWORD  iCharSet, DWORD  iOutPrecision, DWORD  iClipPrecision, DWORD  iQuality, DWORD  iPitchAndFamily, LPCWSTR pszFaceName)
+			: dcxResource(make_resource(CreateFontW, [](HFONT obj) noexcept { if (obj) DeleteFont(obj); }, cHeight, cWidth, cEscapement, cOrientation, cWeight, bItalic, bUnderline, bStrikeOut, iCharSet, iOutPrecision, iClipPrecision, iQuality, iPitchAndFamily, pszFaceName))
+		{
+		}
+
+	};
+
 	using MapOfCursors = std::map<HCURSOR, HCURSOR>;
 	using MapOfAreas = std::map<UINT, HCURSOR>;
 
@@ -1558,11 +1640,6 @@ namespace Dcx
 	inline T dcxSelectObject(_In_ HDC hdc, _In_ T obj) noexcept
 	{
 		return static_cast<T>(SelectObject(hdc, obj));
-	}
-
-	inline HICON dcxSetWindowIcon(HWND mHwnd, int iType, HICON hIcon) noexcept
-	{
-		return reinterpret_cast<HICON>(SendMessage(mHwnd, WM_SETICON, iType, reinterpret_cast<LPARAM>(hIcon)));
 	}
 
 	template <DcxConcepts::IsNumeric T>

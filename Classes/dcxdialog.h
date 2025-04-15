@@ -78,6 +78,7 @@ public:
 	//bool evalAlias( TCHAR *const szReturn, const int maxlen, const TCHAR *const szArgs);
 	bool evalAliasEx(_Out_ const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const;
 	bool evalAlias(_Out_ const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _In_z_ const TCHAR* const szArgs) const;
+	bool evalAlias(_In_z_ const TCHAR* const szArgs) const;
 	bool execAliasEx(_In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const;
 	bool execAlias(_In_z_ const TCHAR* const szArgs) const;
 

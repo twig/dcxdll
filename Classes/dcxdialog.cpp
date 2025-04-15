@@ -1898,6 +1898,14 @@ bool DcxDialog::evalAlias(_Out_ const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& sz
 	return mIRCLinker::eval(szReturn, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(szArgs));
 }
 
+bool DcxDialog::evalAlias(_In_z_ const TCHAR* const szArgs) const
+{
+	incRef();
+	Auto(decRef());
+
+	return mIRCLinker::eval(nullptr, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(szArgs));
+}
+
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
 GSL_SUPPRESS(lifetime.1)
@@ -1916,7 +1924,7 @@ bool DcxDialog::execAliasEx(_In_z_ _Printf_format_string_ const TCHAR* const szF
 
 bool DcxDialog::execAlias(_In_z_ const TCHAR* const szArgs) const
 {
-	return evalAlias(nullptr, 0, szArgs);
+	return evalAlias(szArgs);
 }
 
 /// <summary>
@@ -3004,7 +3012,13 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				for (auto i = decltype(count){0}; i < count; ++i)
 				{
 					if (DragQueryFile(files, i, stFilename, gsl::narrow_cast<UINT>(stFilename.size())))
-						p_this->execAliasEx(TEXT("dragfile,0,%s"), stFilename.data());
+					{
+						//p_this->execAliasEx(TEXT("dragfile,0,%s"), stFilename.data());
+
+						TString tsBuf;
+						mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), stFilename.data());
+						mIRCLinker::eval(tsBuf, TEXT("$%(%,dragfile,0,%dcx_text)"), p_this->getAliasName(), p_this->getName());
+					}
 				}
 
 				p_this->execAlias(TEXT("dragfinish,0"));

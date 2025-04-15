@@ -33,6 +33,7 @@ public:
 	using size_type = std::size_t;
 	using ptrdiff_type = std::ptrdiff_t;
 	using pointer = std::add_pointer_t<value_type>;
+	using const_pointer_const = std::add_const_t<std::add_pointer_t<const_value_type>>;
 	using const_pointer = std::add_const_t<pointer>;
 	using reference = std::add_lvalue_reference_t<value_type>;
 	using const_reference = std::add_const_t<reference>;
@@ -110,7 +111,7 @@ public:
 	}
 	template <std::size_t otherSize>
 	const refString& operator +=(const_value_type(&other)[otherSize]) const noexcept { return (*this += &other[0]); }
-	template <typename otherT, typename = std::enable_if_t<std::is_same_v<otherT::value_type, value_type>&& std::is_member_function_pointer_v<decltype(&otherT::data)>> >
+	template <typename otherT, typename = std::enable_if_t<std::is_same_v<typename otherT::value_type, value_type>&& std::is_member_function_pointer_v<decltype(&otherT::data)>> >
 	const refString<T, N>& operator +=(const otherT& other) const noexcept
 	{
 		const size_type nLen = length();
@@ -123,15 +124,31 @@ public:
 		return *this;
 	}
 
-	template <std::size_t otherSize>
-	constexpr bool operator ==(const_value_type(&other)[otherSize]) const noexcept { return (*this == &other[0]); }
-	constexpr bool operator ==(const refString<T, N>& other) const noexcept { return (*this == other.data()); }
-	constexpr bool operator ==(const_pointer other) const noexcept { return (_ts_strncmp(m_data, other, N) == 0); }
+	bool compare(const_pointer_const other) const noexcept {
+		return (_ts_strncmp(m_data, other, N) == 0);
+	}
 
 	template <std::size_t otherSize>
-	constexpr bool operator !=(const_value_type(&other)[otherSize]) const noexcept { return !(*this == &other[0]); }
-	constexpr bool operator !=(const refString<T, N>& other) const noexcept { return !(*this == other); }
-	constexpr bool operator !=(const_pointer other) const noexcept { return !(*this == other); }
+	constexpr bool operator ==(const_value_type(&other)[otherSize]) const noexcept {
+		return compare(&other[0]);
+	}
+	constexpr bool operator ==(const refString<T, N>& other) const noexcept {
+		return compare(other.data());
+	}
+	//constexpr bool operator ==(const_pointer_const other) const noexcept {
+	//	return compare(other);
+	//}
+
+	template <std::size_t otherSize>
+	constexpr bool operator !=(const_value_type(&other)[otherSize]) const noexcept {
+		return !compare(&other[0]);
+	}
+	constexpr bool operator !=(const refString<T, N>& other) const noexcept {
+		return !compare(other.data());
+	}
+	//constexpr bool operator !=(const_pointer_const other) const noexcept {
+	//	return !compare(other);
+	//}
 
 	constexpr explicit operator bool() const noexcept { return !empty(); }
 	constexpr operator const_pointer() const noexcept { return m_data; }

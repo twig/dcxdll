@@ -824,21 +824,6 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 	break;
 	case TEXT("exstyle"_hash):
 	{
-		//if (!p_Menu)
-		//	throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
-		//
-		//TString szStyles(TEXT('+'));
-		//const auto iExStyles = p_Menu->getItemStyle();
-		//
-		//if (dcx_testflag(iExStyles, XPS_ICON3D))
-		//	szStyles += TEXT('i');
-		//if (dcx_testflag(iExStyles, XPS_DISABLEDSEL))
-		//	szStyles += TEXT('d');
-		//if (dcx_testflag(iExStyles, XPS_ICON3DSHADOW))
-		//	szStyles += TEXT('p');
-		//
-		//return szStyles;
-
 		if (!p_Menu)
 			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
 
