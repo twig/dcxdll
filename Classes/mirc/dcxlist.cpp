@@ -27,7 +27,6 @@
  * \param rc Window Rectangle
  * \param styles Window Style Tokenized List
  */
-
 DcxList::DcxList(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
@@ -70,12 +69,6 @@ DcxList::DcxList(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog,
 	DragAcceptFiles(m_Hwnd, TRUE);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 DcxList::~DcxList()
 {
 	if (const auto pd = this->getParentDialog(); pd)
@@ -114,12 +107,6 @@ const TString DcxList::getStyles(void) const
 
 	return styles;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 dcxWindowStyles DcxList::parseControlStyles(const TString& tsStyles)
 {
@@ -185,12 +172,6 @@ dcxWindowStyles DcxList::parseControlStyles(const TString& tsStyles)
  *
  * \return > void
  */
-
- //TString DcxList::parseInfoRequest(const TString& input) const
- //{
- //	return TString();
- //}
-
 void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	switch (const auto numtok = input.numtok(); std::hash<TString>{}(input.getfirsttok(3)))
@@ -382,12 +363,6 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		break;
 	}
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void DcxList::parseCommandRequest(const TString& input)
 {
@@ -787,11 +762,6 @@ void DcxList::parseCommandRequest(const TString& input)
 		this->parseGlobalCommandRequest(input, flags);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	if (uMsg == m_iDragList)
@@ -1249,8 +1219,12 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 	return 0L;
 }
 
-// Draws a horizontal line to insert rather than the arrow
-// Ported from http://www.vb-hellfire.de/knowlib/draglist.php
+
+/// <summary>
+/// Draws a horizontal line to insert rather than the arrow
+/// Ported from http://www.vb-hellfire.de/knowlib/draglist.php
+/// </summary>
+/// <param name="location"></param>
 void DcxList::DrawDragLine(const int location) noexcept
 {
 	RECT rc{};
