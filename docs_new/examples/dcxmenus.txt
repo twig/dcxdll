@@ -82,15 +82,13 @@ alias _dcx_randommenustyle {
 ; $1 = menu name, $2 = style name
 alias _dcx_setmenustyle {
   if ($istok(normal darknormal vertical verticalrev button buttonrev grade graderev custom custombig officexp office2003 office2003rev icy icyrev,$2,32)) {
-    xpopup -l $1 1-19 default
-    if ($2 == normal) {
-      ;xpopup -t $1 normal
-      ;xpopup -l $1 1 $rgb(240,240,240)
-      ;xpopup -l $1 7 $color(83)
-      ;xpopup -l $1 8 $color(59)
+    xpopup -l $1 1-20 default
 
+    if ($2 == darknormal) xpopup -t $1 normal
+    else xpopup -t $1 $2
+
+    if ($2 == normal) {
       set $+(%,dcx_darkmode_,$1) 0
-      xpopup -t $1 normal
       xpopup -l $1 1 $rgb(240,240,240)
       xpopup -l $1 3,7 $color(83)
       xpopup -l $1 8,13 $color(59)
@@ -98,45 +96,30 @@ alias _dcx_setmenustyle {
     }
     elseif ($2 == darknormal) {
       set $+(%,dcx_darkmode_,$1) 1
-      xpopup -t $1 normal
 
       xpopup -l $1 1,3,13 $rgb(54,54,54) ;color(91)
       xpopup -l $1 4 $rgb(19,19,19) ;color(89)
-      xpopup -l $1 6,7,9,19 $rgb(77,77,77) ;color(92)
+      xpopup -l $1 6,7,9,19,20 $rgb(77,77,77) ;color(92)
       xpopup -l $1 8,10,11,12 $rgb(188,188,188) ;color(96)
     }
-    elseif ($2 == vertical) xpopup -t $1 vertical
-    elseif ($2 == verticalrev) xpopup -t $1 verticalrev
-    elseif ($2 == button) {
-      xpopup -t $1 button
-      xpopup -l $1 7 $rgb(13,180,242)
-    }
-    elseif ($2 == buttonrev) {
-      xpopup -t $1 buttonrev
-      xpopup -l $1 7 $rgb(13,180,242)
-    }
-    elseif ($2 == grade) {
-      xpopup -t $1 grade
-      xpopup -l $1 1 $rgb(255,192,34)
-    }
-    elseif ($2 == graderev) xpopup -t $1 graderev
+    elseif ($2 == button) xpopup -l $1 7 $rgb(13,180,242)
+    elseif ($2 == buttonrev) xpopup -l $1 7 $rgb(13,180,242)
+    elseif ($2 == grade) xpopup -l $1 1 $rgb(255,192,34)
     elseif ($2 == custom) {
-      xpopup -t $1 custom
       var %f = $mircdirtop_bg.jpg
       if ($isfile(%f)) xpopup -b $1 %f
     }
     elseif ($2 == custombig) {
-      xpopup -t $1 custombig
       var %f = $mircdirtop_bg.jpg
       if ($isfile(%f)) xpopup -b $1 %f
       ; NB: this colour is only seen when alpha draw code is enabled in DrawMenuBitmap() when compiling dll.
       xpopup -l $1 1 $rgb(255,192,34)
     }
-    elseif ($2 == officexp) xpopup -t $1 officexp
-    elseif ($2 == office2003) xpopup -t $1 office2003
-    elseif ($2 == office2003rev) xpopup -t $1 office2003rev
-    elseif ($2 == icy) xpopup -t $1 icy
-    elseif ($2 == icyrev) xpopup -t $1 icyrev
+
+    if ($xpopup($1).isroundedmenu) {
+      ; set border colour to match background colour
+      xpopup -l $1 19 $xpopup($1,1).color
+    }
   }
   elseif ($2 == rounded) xpopup -R $1 +r 1
   elseif ($2 == square) xpopup -R $1 +r 0
