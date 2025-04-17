@@ -641,42 +641,13 @@ void XPopupMenuItem::DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const XPMENU
 		return;
 
 	//#ifdef DCX_USE_GDIPLUS
-	//	const auto x = lpdis->rcItem.right - XPMI_SUBARROW_WIDTH;
-	//	const auto y = ((lpdis->rcItem.bottom + lpdis->rcItem.top) / 2) - (XPMI_SUBARROW_HEIGHT / 2);
-	//
 	//	if (!Dcx::GDIModule.isUseable())
-	//	{
-	//		auto hPen = CreatePen(PS_SOLID, 1, bDis ? lpcol->m_clrDisabledText : lpcol->m_clrText);
-	//
-	//		if (hPen == nullptr)
-	//			return;
-	//		Auto(DeletePen(hPen));
-	//
-	//		const auto hOldPen = SelectPen(lpdis->hDC, hPen);
-	//		Auto(SelectPen(lpdis->hDC, hOldPen));
-	//
-	//		MoveToEx(lpdis->hDC, x, y, nullptr);
-	//		LineTo(lpdis->hDC, x + 1, y);
-	//		MoveToEx(lpdis->hDC, x, y + 1, nullptr);
-	//		LineTo(lpdis->hDC, x + 2, y + 1);
-	//		MoveToEx(lpdis->hDC, x, y + 2, nullptr);
-	//		LineTo(lpdis->hDC, x + 3, y + 2);
-	//		MoveToEx(lpdis->hDC, x, y + 3, nullptr);
-	//		LineTo(lpdis->hDC, x + 4, y + 3);
-	//		MoveToEx(lpdis->hDC, x, y + 4, nullptr);
-	//		LineTo(lpdis->hDC, x + 5, y + 4);
-	//		MoveToEx(lpdis->hDC, x, y + 5, nullptr);
-	//		LineTo(lpdis->hDC, x + 4, y + 5);
-	//		MoveToEx(lpdis->hDC, x, y + 6, nullptr);
-	//		LineTo(lpdis->hDC, x + 3, y + 6);
-	//		MoveToEx(lpdis->hDC, x, y + 7, nullptr);
-	//		LineTo(lpdis->hDC, x + 2, y + 7);
-	//		MoveToEx(lpdis->hDC, x, y + 8, nullptr);
-	//		LineTo(lpdis->hDC, x + 1, y + 8);
-	//	}
+	//		dcxDrawArrow(lpdis->hDC, &lpdis->rcItem, bDis ? lpcol->m_clrDisabledText : lpcol->m_clrText);
 	//	else {
 	//		Gdiplus::Graphics gfx( lpdis->hDC );
 	//		const COLORREF clrShape = bDis?lpcol->m_clrDisabledText:lpcol->m_clrText;
+	//		const auto x = lpdis->rcItem.right - XPMI_SUBARROW_WIDTH;
+	//		const auto y = ((lpdis->rcItem.bottom + lpdis->rcItem.top) / 2) - (XPMI_SUBARROW_HEIGHT / 2);
 	//		const RECT rc{ x,y,x + 5,y + 8 };
 	//
 	//		gfx.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias8x8);
@@ -699,36 +670,7 @@ void XPopupMenuItem::DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const XPMENU
 	//	ExcludeClipRect( lpdis->hDC, lpdis->rcItem.right - 11, lpdis->rcItem.top, lpdis->rcItem.right, lpdis->rcItem.bottom );
 	//#else
 
-	const auto hPen = CreatePen(PS_SOLID, 1, bDis ? lpcol->m_clrDisabledText : lpcol->m_clrText);
-
-	if (!hPen)
-		return;
-	Auto(DeleteObject(hPen));
-
-	const auto hOldPen = SelectObject(lpdis->hDC, hPen);
-	Auto(SelectObject(lpdis->hDC, hOldPen));
-
-	const auto x = lpdis->rcItem.right - XPMI_SUBARROW_WIDTH;
-	const auto y = ((lpdis->rcItem.bottom + lpdis->rcItem.top) / 2) - (XPMI_SUBARROW_HEIGHT / 2);
-
-	MoveToEx(lpdis->hDC, x, y, nullptr);
-	LineTo(lpdis->hDC, x + 1, y);
-	MoveToEx(lpdis->hDC, x, y + 1, nullptr);
-	LineTo(lpdis->hDC, x + 2, y + 1);
-	MoveToEx(lpdis->hDC, x, y + 2, nullptr);
-	LineTo(lpdis->hDC, x + 3, y + 2);
-	MoveToEx(lpdis->hDC, x, y + 3, nullptr);
-	LineTo(lpdis->hDC, x + 4, y + 3);
-	MoveToEx(lpdis->hDC, x, y + 4, nullptr);
-	LineTo(lpdis->hDC, x + 5, y + 4);
-	MoveToEx(lpdis->hDC, x, y + 5, nullptr);
-	LineTo(lpdis->hDC, x + 4, y + 5);
-	MoveToEx(lpdis->hDC, x, y + 6, nullptr);
-	LineTo(lpdis->hDC, x + 3, y + 6);
-	MoveToEx(lpdis->hDC, x, y + 7, nullptr);
-	LineTo(lpdis->hDC, x + 2, y + 7);
-	MoveToEx(lpdis->hDC, x, y + 8, nullptr);
-	LineTo(lpdis->hDC, x + 1, y + 8);
+	dcxDrawArrow(lpdis->hDC, &lpdis->rcItem, bDis ? lpcol->m_clrDisabledText : lpcol->m_clrText);
 
 	ExcludeClipRect(lpdis->hDC, lpdis->rcItem.right - (XPMI_SUBARROW_WIDTH + XPMI_SUBARROW_XPAD), lpdis->rcItem.top, lpdis->rcItem.right, lpdis->rcItem.bottom);
 	//#endif

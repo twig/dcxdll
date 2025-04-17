@@ -175,12 +175,6 @@ namespace
 	}
 #endif
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void XPopupMenuManager::load(void)
 {
 	/***** XPopup Stuff *****/
@@ -1653,26 +1647,12 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	{
 		dcxlParam(LPCREATESTRUCT, cs);
 
-		//cs->style &= ~(WS_BORDER | WS_DLGFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_SIZEBOX | WS_CAPTION);
-		//cs->dwExStyle &= ~(WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_CONTEXTHELP | WS_EX_TOOLWINDOW | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
-		//
-		//if (Dcx::m_CurrentMenuAlpha == std::byte{ 255 })
-		//	break;
-
 		cs->dwExStyle |= WS_EX_LAYERED | WS_EX_COMPOSITED;
 	}
 	break;
 
 	case WindowMessages::eWM_CREATE:
 	{
-		//XPopupMenuManager::m_isInitPopup = true;
-
-		//{
-		//	dcxlParam(LPCREATESTRUCT, cs);
-		//	cs->style &= ~(WS_BORDER | WS_DLGFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_SIZEBOX | WS_CAPTION);
-		//	cs->dwExStyle &= ~(WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_CONTEXTHELP | WS_EX_TOOLWINDOW | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
-		//}
-		//if (Dcx::m_CurrentMenuAlpha != std::byte{ 255 })
 		{
 			dcxlParam(LPCREATESTRUCT, cs);
 			cs->dwExStyle |= WS_EX_LAYERED | WS_EX_COMPOSITED;
@@ -1689,9 +1669,6 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					// make sure previous menu is layered.
 					if (const auto dwStyle = dcxGetWindowExStyle(parent); !dcx_testflag(dwStyle, WS_EX_LAYERED))
 						dcxSetWindowExStyle(parent, dwStyle | WS_EX_LAYERED);
-
-					// set alpha for previous menu.
-					//SetLayeredWindowAttributes(parent, 0, Dcx::setting_CustomMenusAlpha, LWA_ALPHA); // 0xCC = 80% Opaque, 0xC0
 				}
 			}
 		}
@@ -2053,7 +2030,6 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			if (auto xMenu = Dcx::XPopups.getMenuByHandle(hMenu); xMenu)
 			{
 				if (HDC hdc = GetWindowDC(mHwnd); hdc)
-					//if (HDC hdc = GetDCEx(mHwnd, reinterpret_cast<HRGN>(wParam), DCX_WINDOW | DCX_INTERSECTRGN); hdc) // this fails as wParam == 1 NOT an HRGN
 				{
 					Auto(ReleaseDC(mHwnd, hdc));
 

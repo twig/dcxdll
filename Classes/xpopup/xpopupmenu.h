@@ -287,11 +287,6 @@ struct DcxMenuItemGroup
 
 using VectorOfMenuItemGroups = std::vector<DcxMenuItemGroup>;
 
-/*!
- * \brief blah
- *
- * blah
- */
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( push )
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not

@@ -1002,7 +1002,6 @@ void XPopupMenu::deleteAllItemData(HMENU hMenu) noexcept
  *
  * Only called for custom xpopup menus, NOT mIRC menus.
  */
-
 LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	// for use when debugging.
@@ -1609,6 +1608,10 @@ bool XPopupMenu::DrawBorder(_In_ HWND hWnd, _In_ HDC hdc) const noexcept
 {
 	const auto clr = getColor(MenuColours::XPMC_BORDER);
 
+	//// if using rounded menu windows then draw border in background colour.
+	//if (this->IsRoundedWindow())
+	//	clr = getColor(MenuColours::XPMC_BACKGROUND);
+
 	if (clr == CLR_INVALID)
 		return false;
 
@@ -1616,14 +1619,20 @@ bool XPopupMenu::DrawBorder(_In_ HWND hWnd, _In_ HDC hdc) const noexcept
 		return false;
 
 	{
+		// get the menu windows rect
 		Dcx::dcxWindowRect rect(hWnd);
+		// get its client area
 		const Dcx::dcxClientRect rcClient(hWnd, nullptr);
+		// get the border width as the diff between the window rect left edge & the client rect left edge.
 		const int borderThiness = rcClient.left - rect.left;
-	
+
+		// make window rect zero based.
 		::OffsetRect(&rect, -rect.left, -rect.top);
 	
+		//exclude non border area from drawing.
 		::ExcludeClipRect(hdc, rect.left + borderThiness, rect.top + borderThiness, rect.right - borderThiness, rect.bottom - borderThiness);
-		
+
+		// draw border.
 		if (auto hPen = CreatePen(PS_INSIDEFRAME, 1, clr); hPen)
 		{
 			auto hOldPen = SelectPen(hdc, hPen);
