@@ -24,7 +24,8 @@ namespace Dcx {
 	// static colours enabled by default.
 	bool setting_bStaticColours{ true };
 
-	std::byte m_CurrentMenuAlpha{ 255 };
+	std::byte m_CurrentMenuAlphaInactive{ 255 };
+	std::byte m_CurrentMenuAlphaDefault{ 255 };
 	bool m_CurrentMenuRounded{ false };
 
 	MapOfCursors	m_vMapOfCursors;

@@ -70,7 +70,8 @@ namespace Dcx
 	extern bool setting_bStaticColours;
 
 	// global menu settings (only applies to currently displayed menu, used internally only)
-	extern std::byte m_CurrentMenuAlpha;
+	extern std::byte m_CurrentMenuAlphaInactive;
+	extern std::byte m_CurrentMenuAlphaDefault;
 	extern bool m_CurrentMenuRounded;
 
 	/// <summary>
