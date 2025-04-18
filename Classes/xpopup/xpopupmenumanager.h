@@ -124,6 +124,7 @@ public:
 	XPopupMenu* getMenuByHash(_In_ const std::size_t uHash, _In_ const bool bCheckSpecial) const noexcept;
 	XPopupMenu* getMenuByName(_In_ const TString &tsName, _In_ const bool bCheckSpecial) const noexcept;
 	XPopupMenu* getMenuByHandle(_In_opt_ const HMENU hMenu) const noexcept;
+	XPopupMenu* getMenuByHWND(_In_opt_ const HWND mHwnd) const noexcept;
 
 	XPopupMenuItem* getMenuItemByID(_In_opt_ const HMENU hMenu, _In_ const int id) const noexcept;
 	XPopupMenuItem* getMenuItemByCommandID(_In_opt_ const HMENU hMenu, _In_ const UINT id) const noexcept;
@@ -132,36 +133,109 @@ public:
 	XPopupMenu* getmIRCMenuBar(void) const noexcept { return m_mIRCMenuBar.get(); }
 	XPopupMenu* getmIRCScriptMenu(void) const noexcept { return m_mIRCScriptMenu.get(); };
 
+	/// <summary>
+	/// Set the current menus owner.
+	/// </summary>
+	/// <param name="mHwnd"></param>
 	void setOwnerWindow(HWND mHwnd) noexcept {
 		m_hOwnerWindow = mHwnd;
 	}
+
+	/// <summary>
+	/// Get the current menus owner.
+	/// </summary>
+	/// <returns></returns>
 	HWND getOwnerWindow() const noexcept {
 		return m_hOwnerWindow;
 	}
+
+	/// <summary>
+	/// Get the HMENU for the supplied menus HWND.
+	/// </summary>
+	/// <param name="mHwnd"></param>
+	/// <returns></returns>
 	static HMENU getWindowsMenu(HWND mHwnd) noexcept;
 
-	// Get list of open menu windows.
+	/// <summary>
+	/// Get list of open menu windows.
+	/// </summary>
+	/// <returns></returns>
 	static std::vector<HWND>& getGlobalMenuWindowList() noexcept;
 
+	/// <summary>
+	/// Get the topmost menus HWND
+	/// </summary>
+	/// <returns></returns>
 	static HWND getBackWin();
 
+	/// <summary>
+	/// Get the first menus HWND
+	/// </summary>
+	/// <returns></returns>
 	static HWND getFirstWin();
 
+	/// <summary>
+	/// Add a new topmost menu to the list.
+	/// </summary>
+	/// <param name="hwnd"></param>
 	static void AddBackWin(HWND hwnd);
 
+	/// <summary>
+	/// Remove the topmost menu.
+	/// </summary>
 	static void RemoveBackWin();
 
+	/// <summary>
+	/// Trigger a specific menu item.
+	/// </summary>
+	/// <param name="hOwner"></param>
+	/// <param name="hMenu"></param>
+	/// <param name="mPos"></param>
+	/// <param name="bByPos"></param>
 	static void TriggerMenuItem(_In_opt_ HWND hOwner, _In_opt_ HMENU hMenu, _In_ UINT mPos, _In_ bool bByPos) noexcept;
 
-	void TriggerMenuPos(_In_opt_ HWND hOwner, _In_opt_ HMENU hMenu, _In_ UINT mPos) const noexcept
+	/// <summary>
+	/// Trigger a specific menu item, based on its position.
+	/// </summary>
+	/// <param name="hOwner"></param>
+	/// <param name="hMenu"></param>
+	/// <param name="mPos"></param>
+	static void TriggerMenuPos(_In_opt_ HWND hOwner, _In_opt_ HMENU hMenu, _In_ UINT mPos) noexcept
 	{
 		TriggerMenuItem(hOwner, hMenu, mPos, true);
 	}
-	void TriggerMenuCommand(_In_opt_ HWND hOwner, _In_ UINT mCmd) const noexcept
+
+	/// <summary>
+	/// Trigger a specific menu item, based onm its command id.
+	/// </summary>
+	/// <param name="hOwner"></param>
+	/// <param name="mCmd"></param>
+	static void TriggerMenuCommand(_In_opt_ HWND hOwner, _In_ UINT mCmd) noexcept
 	{
 		TriggerMenuItem(hOwner, nullptr, mCmd, false);
 	}
 
+	/// <summary>
+	/// Set the menu to its default alpha value.
+	/// This is the alpha value used when no other effects are being applied.
+	/// </summary>
+	/// <param name="mHwnd"></param>
+	static void SetMenuAlphaToDefault(_In_opt_ HWND mHwnd) noexcept;
+
+	/// <summary>
+	/// Set the menus to its inactive alpha value.
+	/// This is the alpha used when the mouse pointer is not over this menu, but is over some other menu.
+	/// </summary>
+	/// <param name="mHwnd"></param>
+	static void SetMenuAlphaToInactive(_In_opt_ HWND mHwnd) noexcept;
+
+	/// <summary>
+	/// Set a menu items check state.
+	/// </summary>
+	/// <param name="hMenu"></param>
+	/// <param name="mPos"></param>
+	/// <param name="bByPos"></param>
+	/// <param name="bCheck"></param>
 	static void setCheckState(_In_opt_ HMENU hMenu, _In_ UINT mPos, _In_ BOOL bByPos, _In_ bool bCheck) noexcept;
 
 	const bool isCustomMenu(_In_opt_ const HMENU hMenu) const noexcept;
@@ -179,6 +253,9 @@ public:
 	LRESULT OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 	LRESULT OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 
+	/// <summary>
+	/// Redraw all open menus.
+	/// </summary>
 	static void RedrawMenuIfOpen() noexcept;
 
 	static inline std::map<HMENU, XPopupMenu*> m_vpAllMenus;	//!< Vector of all open XPopupMenu Objects

@@ -1066,7 +1066,8 @@ LRESULT XPopupMenu::OnMeasureItem(const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis)
 
 		if (auto p_Menu = p_Item->getParentMenu(); p_Menu)
 		{
-			Dcx::m_CurrentMenuAlpha = p_Menu->IsAlpha();
+			Dcx::m_CurrentMenuAlphaInactive = p_Menu->IsAlphaInactive();
+			Dcx::m_CurrentMenuAlphaDefault = p_Menu->IsAlphaDefault();
 			Dcx::m_CurrentMenuRounded = p_Menu->IsRoundedWindow();
 		}
 	}
@@ -1475,8 +1476,11 @@ void XPopupMenu::toXml(VectorOfIcons& vIcons, TiXmlElement* const xml) const
 	if (this->IsToolTipsEnabled())
 		xml->SetAttribute("tooltips", "1");
 
-	if (auto alpha = gsl::narrow_cast<int>(this->IsAlpha()); alpha < 255)
-		xml->SetAttribute("alpha", alpha);
+	if (auto alpha = gsl::narrow_cast<int>(this->IsAlphaInactive()); alpha < 255)
+		xml->SetAttribute("alpha-inactive", alpha);
+
+	if (auto alpha = gsl::narrow_cast<int>(this->IsAlphaDefault()); alpha < 255)
+		xml->SetAttribute("alpha-default", alpha);
 
 	if (auto tsCallback(getCallback()); !tsCallback.empty())
 		xml->SetAttribute("callback", tsCallback.c_str());
@@ -1514,8 +1518,10 @@ void XPopupMenu::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, 
 		this->SetRoundedWindow(true);
 	if (const auto tmp = queryIntAttribute(xThis, "tooltips"); tmp)
 		this->setTooltipsState(true);
-	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "alpha")); tmp < 255)
-		this->SetAlpha(std::byte{ tmp });
+	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "alpha-inactive")); tmp < 255)
+		this->SetAlphaInactive(std::byte{ tmp });
+	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "alpha-default")); tmp < 255)
+		this->SetAlphaDefault(std::byte{ tmp });
 
 	if (const TString tsCallback(queryAttribute(xThis, "callback")); !tsCallback.empty())
 		this->setCallback(tsCallback);
@@ -1591,21 +1597,28 @@ bool XPopupMenu::DrawBorder() const
 	if (getColor(MenuColours::XPMC_BORDER) == CLR_INVALID)
 		return false;
 
-	auto hMenuWnd = XPopupMenuManager::getBackWin();
-	if (!IsWindow(hMenuWnd))
+	return DrawBorder(XPopupMenuManager::getBackWin());
+}
+
+bool XPopupMenu::DrawBorder(_In_opt_ HWND hWnd) const noexcept
+{
+	if (!IsWindow(hWnd))
 		return false;
 
-	if (auto menuDc = ::GetWindowDC(hMenuWnd); menuDc)
+	if (auto menuDc = ::GetWindowDC(hWnd); menuDc)
 	{
-		Auto(ReleaseDC(hMenuWnd, menuDc));
+		Auto(ReleaseDC(hWnd, menuDc));
 
-		return DrawBorder(hMenuWnd, menuDc);
+		return DrawBorder(hWnd, menuDc);
 	}
 	return false;
 }
 
-bool XPopupMenu::DrawBorder(_In_ HWND hWnd, _In_ HDC hdc) const noexcept
+bool XPopupMenu::DrawBorder(_In_opt_ HWND hWnd, _In_opt_ HDC hdc) const noexcept
 {
+	if (!IsWindow(hWnd) || !hdc)
+		return false;
+
 	const auto clr = getColor(MenuColours::XPMC_BORDER);
 
 	//// if using rounded menu windows then draw border in background colour.
@@ -1613,9 +1626,6 @@ bool XPopupMenu::DrawBorder(_In_ HWND hWnd, _In_ HDC hdc) const noexcept
 	//	clr = getColor(MenuColours::XPMC_BACKGROUND);
 
 	if (clr == CLR_INVALID)
-		return false;
-
-	if (!IsWindow(hWnd))
 		return false;
 
 	{

@@ -512,7 +512,9 @@ public:
 	/// </summary>
 	/// <param name=""></param>
 	/// <returns>0 - 255 alpha value</returns>
-	const inline std::byte& IsAlpha(void) const noexcept { return this->m_uiAlpha; };
+	const inline std::byte& IsAlphaInactive(void) const noexcept { return this->m_uiAlphaInactive; };
+
+	const inline std::byte& IsAlphaDefault(void) const noexcept { return this->m_uiAlphaDefault; };
 
 	/// <summary>
 	/// Set the menu to use a rounded selector.
@@ -524,7 +526,13 @@ public:
 	/// Set the menus alpha value.
 	/// </summary>
 	/// <param name="alpha"></param>
-	constexpr void SetAlpha(const std::byte alpha) noexcept { this->m_uiAlpha = alpha; };
+	constexpr void SetAlphaInactive(const std::byte alpha) noexcept { this->m_uiAlphaInactive = alpha; };
+
+	/// <summary>
+	/// Set the menus alpha value.
+	/// </summary>
+	/// <param name="alpha"></param>
+	constexpr void SetAlphaDefault(const std::byte alpha) noexcept { this->m_uiAlphaDefault = alpha; };
 
 	/// <summary>
 	/// Set the menu to use a rounded window.
@@ -704,9 +712,16 @@ public:
 	/// Draw the menu border.
 	/// </summary>
 	/// <param name="hWnd">- Menus HWND</param>
+	/// <returns></returns>
+	bool DrawBorder(_In_opt_ HWND hWnd) const noexcept;
+
+	/// <summary>
+	/// Draw the menu border.
+	/// </summary>
+	/// <param name="hWnd">- Menus HWND</param>
 	/// <param name="hdc">- Windows HDC</param>
 	/// <returns></returns>
-	bool DrawBorder(_In_ HWND hWnd, _In_ HDC hdc) const noexcept;
+	bool DrawBorder(_In_opt_ HWND hWnd, _In_opt_ HDC hdc) const noexcept;
 
 	VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects
 
@@ -741,7 +756,8 @@ protected:
 
 	VectorOfMenuItemGroups m_Groups;
 
-	std::byte m_uiAlpha{ 255 };			//!< Menu is alpha blended. 0 -> 255
+	std::byte m_uiAlphaInactive{ 255 };			//!< Menus alpha level when inactive. 0 -> 255
+	std::byte m_uiAlphaDefault{ 255 };			//!< Menu alpha level when in its default state. 0 -> 255
 
 	bool m_bRoundedSel{ false };		//!< Menu has rounded selection box.
 	bool m_bAttachedToMenuBar{ false }; //!< Is the menu attached to the mIRC window menubar?
