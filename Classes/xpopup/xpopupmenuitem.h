@@ -245,6 +245,8 @@ public:
 	/// <param name="vIcons"></param>
 	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, const VectorOfIcons& vIcons);
 
+	void DrawButton(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, bool bReversed) noexcept;
+
 protected:
 
 	TString m_tsItemText;					//!< Menu Item Text

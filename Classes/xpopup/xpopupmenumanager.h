@@ -154,7 +154,9 @@ public:
 	/// </summary>
 	/// <param name="mHwnd"></param>
 	/// <returns></returns>
-	static HMENU getWindowsMenu(HWND mHwnd) noexcept;
+	static HMENU getWindowsMenu(_In_ HWND mHwnd) noexcept;
+
+	static HWND getHWNDfromHMENU(_In_ HMENU hMenu) noexcept;
 
 	/// <summary>
 	/// Get list of open menu windows.

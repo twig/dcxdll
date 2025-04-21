@@ -16,12 +16,12 @@
 #include "Classes/xpopup/xpopupmenu.h"
 #include "Dcx.h"
 
-/// <summary>
-/// Construct a menu item.
-/// </summary>
-/// <param name="Parent"></param>
-/// <param name="bSep"></param>
-/// <param name="dwDataBackup"></param>
+ /// <summary>
+ /// Construct a menu item.
+ /// </summary>
+ /// <param name="Parent"></param>
+ /// <param name="bSep"></param>
+ /// <param name="dwDataBackup"></param>
 XPopupMenuItem::XPopupMenuItem(XPopupMenu* Parent, const bool bSep, ULONG_PTR dwDataBackup) noexcept
 	: m_pXParentMenu(Parent), m_bSep(bSep), m_nIcon(-1), m_dwItemDataBackup(dwDataBackup)
 {
@@ -234,11 +234,66 @@ void XPopupMenuItem::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xTh
 {
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
+void XPopupMenuItem::DrawButton(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, bool bReversed) noexcept
+{
+	const auto bGrayed = dcx_testflag(lpdis->itemState, ODS_GRAYED);
+	const auto bSelected = dcx_testflag(lpdis->itemState, ODS_SELECTED);
+
+	bool bDoDraw{ true };
+
+	if (auto hCurrentMenu = (HMENU)lpdis->hwndItem; hCurrentMenu)
+	{
+		if (const auto hMenuWin = Dcx::XPopups.getHWNDfromHMENU(hCurrentMenu); IsWindow(hMenuWin))
+		{
+			if (auto hMenuStyleTheme = Dcx::UXModule.dcxOpenThemeData(hMenuWin, L"Button"); hMenuStyleTheme)
+			{
+				int iStyle{ PBS_NORMAL };
+				if (bReversed)
+					iStyle = PBS_PRESSED;
+				if (bSelected)
+					iStyle = PBS_HOT;	// DrawItemSelection() not needed as this state handles it.
+				if (bGrayed)
+					iStyle = PBS_DISABLED;
+
+				Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, lpdis->hDC, BP_PUSHBUTTON, iStyle, &lpdis->rcItem, nullptr);
+
+				Dcx::UXModule.dcxCloseThemeData(hMenuStyleTheme);
+
+				bDoDraw = false;
+			}
+		}
+	}
+
+	if (bDoDraw)
+	{
+		const RECT rc = lpdis->rcItem;
+
+		UINT uiStyle = DFCS_BUTTONPUSH | DFCS_ADJUSTRECT;
+
+		if (bSelected)
+			uiStyle |= DFCS_PUSHED;
+		if (bGrayed)
+			uiStyle |= DFCS_INACTIVE;
+
+		if (bReversed)
+		{
+			if (bSelected)
+			{
+				DrawFrameControl(lpdis->hDC, &lpdis->rcItem, DFC_BUTTON, uiStyle);
+				this->DrawItemSelection(lpdis, lpcol, bGrayed, false);
+			}
+		}
+		else
+		{
+			DrawFrameControl(lpdis->hDC, &lpdis->rcItem, DFC_BUTTON, uiStyle);
+
+			if (bSelected)
+				this->DrawItemSelection(lpdis, lpcol, bGrayed, false);
+		}
+
+		lpdis->rcItem = rc;
+	}
+}
 
 SIZE XPopupMenuItem::getItemSize(const HWND mHwnd)
 {
@@ -288,12 +343,6 @@ SIZE XPopupMenuItem::getItemSize(const HWND mHwnd)
 	return size;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void XPopupMenuItem::DrawItem(const LPDRAWITEMSTRUCT lpdis)
 {
 	if ((!lpdis) || (!this->m_pXParentMenu))
@@ -312,27 +361,27 @@ void XPopupMenuItem::DrawItem(const LPDRAWITEMSTRUCT lpdis)
 	if (dcx_testflag(iItemStyle, XPS_VERTICALSEP))
 		DrawItemVerticalSeparator(lpdis, lpcol);
 
-	// Item is selected
-	if (this->getStyle() != XPopupMenu::MenuStyle::XPMS_BUTTON)
-	{
-		if (bSelected)
-		{
-			if (bGrayed)
-			{
-				// only draw selection box if XPS_DISABLEDSEL
-				if (dcx_testflag(iItemStyle, XPS_DISABLEDSEL))
-					this->DrawItemSelection(lpdis, lpcol, true, this->m_pXParentMenu->IsRoundedSelector());
-			}
-			else
-				this->DrawItemSelection(lpdis, lpcol, false, this->m_pXParentMenu->IsRoundedSelector());
-		}
-	}
-
 	// Separator
 	if (this->m_bSep)
 		this->DrawItemSeparator(lpdis, lpcol);
 	// Regular Item
 	else {
+		// Item is selected
+		if (this->getStyle() != XPopupMenu::MenuStyle::XPMS_BUTTON)
+		{
+			if (bSelected)
+			{
+				if (bGrayed)
+				{
+					// only draw selection box if XPS_DISABLEDSEL
+					if (dcx_testflag(iItemStyle, XPS_DISABLEDSEL))
+						this->DrawItemSelection(lpdis, lpcol, true, this->m_pXParentMenu->IsRoundedSelector());
+				}
+				else
+					this->DrawItemSelection(lpdis, lpcol, false, this->m_pXParentMenu->IsRoundedSelector());
+			}
+		}
+
 		if (bChecked)
 		{
 			if (this->IsRadioCheck())
@@ -450,22 +499,7 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 		if (this->m_bSep)
 			break;
 
-		const RECT rc = lpdis->rcItem;
-
-		UINT uiStyle = DFCS_BUTTONPUSH | DFCS_ADJUSTRECT;
-		const auto bGrayed = dcx_testflag(lpdis->itemState, ODS_GRAYED);
-		const auto bSelected = dcx_testflag(lpdis->itemState, ODS_SELECTED);
-
-		if (bSelected)
-			uiStyle |= DFCS_PUSHED;
-		if (bGrayed)
-			uiStyle |= DFCS_INACTIVE;
-
-		DrawFrameControl(lpdis->hDC, &lpdis->rcItem, DFC_BUTTON, uiStyle);
-		if (bSelected)
-			this->DrawItemSelection(lpdis, lpcol, bGrayed, false);
-
-		lpdis->rcItem = rc;
+		this->DrawButton(lpdis, lpcol, false);
 	}
 	break;
 
@@ -474,24 +508,26 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 		if (this->m_bSep)
 			break;
 
-		const RECT rc = lpdis->rcItem;
+		//const RECT rc = lpdis->rcItem;
+		//
+		//UINT uiStyle = DFCS_BUTTONPUSH | DFCS_ADJUSTRECT;
+		//const auto bGrayed = dcx_testflag(lpdis->itemState, ODS_GRAYED);
+		//const auto bSelected = dcx_testflag(lpdis->itemState, ODS_SELECTED);
+		//
+		//if (bSelected)
+		//	uiStyle |= DFCS_PUSHED;
+		//if (bGrayed)
+		//	uiStyle |= DFCS_INACTIVE;
+		//
+		//if (bSelected)
+		//{
+		//	DrawFrameControl(lpdis->hDC, &lpdis->rcItem, DFC_BUTTON, uiStyle);
+		//	this->DrawItemSelection(lpdis, lpcol, bGrayed, false);
+		//}
+		//
+		//lpdis->rcItem = rc;
 
-		UINT uiStyle = DFCS_BUTTONPUSH | DFCS_ADJUSTRECT;
-		const auto bGrayed = dcx_testflag(lpdis->itemState, ODS_GRAYED);
-		const auto bSelected = dcx_testflag(lpdis->itemState, ODS_SELECTED);
-
-		if (bSelected)
-			uiStyle |= DFCS_PUSHED;
-		if (bGrayed)
-			uiStyle |= DFCS_INACTIVE;
-
-		if (bSelected)
-		{
-			DrawFrameControl(lpdis->hDC, &lpdis->rcItem, DFC_BUTTON, uiStyle);
-			this->DrawItemSelection(lpdis, lpcol, bGrayed, false);
-		}
-
-		lpdis->rcItem = rc;
+		this->DrawButton(lpdis, lpcol, true);
 	}
 	break;
 
@@ -897,7 +933,7 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const XPMENUC
 
 		// copy the box we want from the whole gradient bar
 		BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, *hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
-}
+	}
 	else {
 		// buffer create failed, try unbuffered.
 		if (bReversed)
@@ -1050,12 +1086,12 @@ bool XPopupMenuItem::DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBi
 				SetBrushOrgEx(*hdcBuffer, 0, 0, nullptr);
 
 				StretchBlt(*hdcBuffer, rcBar.left, rcBar.top, rcBar.right - rcBar.left, rcBar.bottom - rcBar.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
-		}
+			}
 
 			// copy the box we want from the whole gradient bar
 			BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, *hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
+		}
 	}
-}
 	return true;
 #endif
 }

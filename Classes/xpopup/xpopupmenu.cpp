@@ -23,7 +23,7 @@ XPopupMenu::XPopupMenu(const TString& tsMenuName, MenuStyle mStyle)
 {
 	m_MenuStyle = mStyle;
 
-	if (!XPopupMenuManager::m_vpAllMenus.contains(m_hMenu))
+	if (!XPopupMenuManager::m_vpAllMenus.contains(m_hMenu)) //this shouldnt be needed? as this is done in constructor below.
 		XPopupMenuManager::m_vpAllMenus[m_hMenu] = this;
 }
 

@@ -1213,9 +1213,20 @@ XPopupMenuItem* XPopupMenuManager::getMenuItemByCommandID(_In_opt_ const HMENU h
 }
 
 
-HMENU XPopupMenuManager::getWindowsMenu(HWND mHwnd) noexcept
+HMENU XPopupMenuManager::getWindowsMenu(_In_ HWND mHwnd) noexcept
 {
 	return reinterpret_cast<HMENU>(SendMessage(mHwnd, MN_GETHMENU, 0, 0));
+}
+
+HWND XPopupMenuManager::getHWNDfromHMENU(_In_ HMENU hMenu) noexcept
+{
+	std::scoped_lock lk(g_ListLock);
+	for (auto& m : getGlobalMenuWindowList())
+	{
+		if (hMenu == getWindowsMenu(m))
+			return m;
+	}
+	return nullptr;
 }
 
 std::vector<HWND>& XPopupMenuManager::getGlobalMenuWindowList() noexcept
@@ -1776,18 +1787,6 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 
 		if (!getGlobalMenuWindowList().empty())
 		{
-			//if (Dcx::m_CurrentMenuAlpha != std::byte{ 255 })
-			//{
-			//	// get previous menu window.
-			//	if (auto parent = getBackWin(); parent)
-			//	{
-			//		if (const auto dwStyle = dcxGetWindowExStyle(parent); !dcx_testflag(dwStyle, WS_EX_LAYERED))
-			//			break;
-			//
-			//		SetLayeredWindowAttributes(parent, 0, 0xFFU, LWA_ALPHA); // 0xCC = 80% Opaque
-			//	}
-			//}
-
 				// get previous menu window.
 				if (auto parent = getBackWin(); parent)
 				SetMenuAlphaToDefault(parent);
@@ -1798,6 +1797,8 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 				DestroyWindow(g_toolTipWin);
 				g_toolTipWin = nullptr;
 			}
+			//if (Dcx::m_CurrentMenuRounded)
+			//SetWindowRgn(mHwnd, nullptr, FALSE);
 		}
 	}
 	break;
@@ -1835,7 +1836,13 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		if (!Dcx::m_CurrentMenuRounded)
 			break;
 
-		if (Dcx::dcxWindowRect rc(mHwnd); rc)
+		if (Dcx::VersInfo.isWin11())
+		{
+			// Ook: this needs testing on win11+
+			const DWM_WINDOW_CORNER_PREFERENCE preference = DWMWCP_ROUNDSMALL;
+			Dcx::DwmModule.dcxDwmSetWindowAttribute(mHwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(preference));
+		}
+		else if (const Dcx::dcxWindowRect rc(mHwnd); rc)
 		{
 			const auto width = rc.Width();
 			const auto height = rc.Height();
@@ -1961,36 +1968,6 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	break;
 
 	// This enables halting the menu closing &/or item selection.
-	//case WindowMessages::eMN_BUTTONUP:
-	//{
-	//	auto hParent = Dcx::m_MenuParent;
-	//	if (!IsWindow(hParent))
-	//		break;
-	//
-	//	auto hMenu = getWindowsMenu(mHwnd);
-	//	if (!hMenu)
-	//		break;
-	//	//LockWindowUpdate();
-	//	//std::dynamic_pointer_cast<>;
-	//
-	//	MENUINFO mi{};
-	//	mi.cbSize = sizeof(MENUINFO);
-	//	mi.fMask = MIM_STYLE;
-	//	GetMenuInfo(hMenu, &mi);
-	//	if (dcx_testflag(mi.dwStyle, MNS_NOTIFYBYPOS))
-	//		SendMessage(hParent, WM_MENUCOMMAND, wParam, reinterpret_cast<LPARAM>(hMenu));
-	//	else {
-	//		const auto mID = GetMenuItemID(hMenu, wParam);
-	//		if (mID == UINT_MAX)
-	//			break;
-	//
-	//		SendMessage(hParent, WM_COMMAND, MAKEWPARAM(mID, 0), 0);
-	//	}
-	//	RedrawMenuIfOpen();
-	//	return 0L;
-	//}
-	//break;
-
 	case WindowMessages::eMN_BUTTONUP:
 	{
 		// detect item selection.
@@ -2024,6 +2001,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			// the command id's change every time the menu changes, making it hard to determine which item was clicked.
 			// and we can only send a single command back
 			// could embed an id in the item text allowing a constant id to send to a callback alias.
+			// Edit: solved by embedding an id in the text which can be sent back.
 			//case L"mirc"_hash:
 			//case L"mircbar"_hash:
 			//case L"scriptpopup"_hash:
@@ -2036,9 +2014,10 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 
 					// notify callback alias that an item has been clicked that has the toggle setting.
 					mIRCLinker::eval(tsRes, L"$%(%,%,checksel)", tsCallback, xMenu->getName(), xItem->getCommandID());
-					// if alias returns "$true" then simply halt menu closing (its assumed the script has donme whatever needed doing)
+
 					switch (std::hash<TString>()(tsRes.getfirsttok(1)))
 					{
+						// if alias returns "$true" then simply halt menu closing (its assumed the script has done whatever needed doing)
 					case L"$true"_hash:
 					return 0L;
 					default:
@@ -2119,31 +2098,20 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		//};
 		//const auto tt = gsl::narrow_cast<testit>(lParam);
 
-		if (auto hMenu = getWindowsMenu(mHwnd); hMenu)
-		{
-			if (auto xMenu = Dcx::XPopups.getMenuByHandle(hMenu); xMenu)
+		//if (auto hMenu = getWindowsMenu(mHwnd); hMenu)
+		//{
+		//	if (auto xMenu = Dcx::XPopups.getMenuByHandle(hMenu); xMenu)
+		//		xMenu->DrawBorder(mHwnd, reinterpret_cast<HDC>(wParam));
+		//}
+
+		if (auto xMenu = Dcx::XPopups.getMenuByHWND(mHwnd); xMenu)
 				xMenu->DrawBorder(mHwnd, reinterpret_cast<HDC>(wParam));
-		}
 		return lRes;
 	}
 	break;
 
 	case WindowMessages::eWM_NCPAINT:
 	{
-		//if (auto hMenu = getWindowsMenu(mHwnd); hMenu)
-		//{
-		//	if (auto xMenu = Dcx::XPopups.getMenuByHandle(hMenu); xMenu)
-		//	{
-		//		if (HDC hdc = GetWindowDC(mHwnd); hdc)
-		//		{
-		//			Auto(ReleaseDC(mHwnd, hdc));
-		//
-		//			if (xMenu->DrawBorder(mHwnd, hdc))
-		//				return 0L;
-		//		}
-		//	}
-		//}
-
 		if (const auto xMenu = Dcx::XPopups.getMenuByHWND(mHwnd); xMenu)
 				{
 			if (xMenu->DrawBorder(mHwnd))
