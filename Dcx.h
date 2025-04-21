@@ -801,7 +801,7 @@ namespace Dcx
 
 		~dcxWindowRect() noexcept = default;
 
-		explicit operator bool() noexcept { return m_ok; }
+		explicit operator bool() const noexcept { return m_ok; }
 		bool	m_ok{ false };
 	};
 
@@ -831,7 +831,7 @@ namespace Dcx
 
 		~dcxClientRect() noexcept = default;
 
-		explicit operator bool() noexcept { return m_ok; }
+		explicit operator bool() const noexcept { return m_ok; }
 		bool	m_ok{ false };
 	};
 
