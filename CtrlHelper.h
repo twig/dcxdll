@@ -1053,6 +1053,18 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Allocates memory for storing list box items. This message is used before an application adds a large number of items to a list box.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="nItems"></param>
+	/// <param name="nMem"></param>
+	/// <returns></returns>
+	inline int dcxListBox_InitStorge(_In_ HWND hwnd, _In_ int nItems, _In_ UINT nMem) noexcept
+	{
+		return gsl::narrow_cast<int>(SendMessage(hwnd, LB_INITSTORAGE, nItems, nMem));
+	}
+
+	/// <summary>
 	/// Get an items rect.
 	/// </summary>
 	/// <param name="hwnd"></param>
