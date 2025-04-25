@@ -258,10 +258,17 @@ mIRC(Version)
 			rData = tmp.to_chr();
 			Ensures(!rData.empty());
 			Ensures(rData == tmp.to_chr());
-			Ensures(rData.length() == tmp.length());
+			Ensures(rData.compare(tmp.to_chr()));
+
+			{
+				const auto l1 = rData.length();
+				const auto l2 = tmp.length();
+				Ensures(l1 == l2);
+			}
 
 			rData += TEXT("other");
 			Ensures(rData != tmp.to_chr());
+			Ensures(!rData.compare(tmp.to_chr()));
 			Ensures(rData.length() == tmp.length() + 5U);
 
 			rData += TEXT('a');
@@ -494,11 +501,22 @@ mIRC(Version)
 			mIRCLinker::echo(TEXT("Success: iterator - all tests passed"));
 		}
 
-		{	// test join()
+		{	// test expand()/join()
+			//"putter a token put string 100 chars putted e_put"
+			std::vector<TString> vec;
+			//std::vector<std::wstring> vec;
+			tmp.expand(vec);
+			Ensures(vec.size() == 9);
+
 			tok.join(tmp, TEXT('!'));
 			Ensures(tok == TEXT("blah2!putter!a!token!put!string!100!chars!putted!e_put"_ts));
 
-			mIRCLinker::echo(TEXT("Success: join() - all tests passed"));
+			tok = L"blah2"_ts;
+
+			tok.join(vec, TEXT('!'));
+			Ensures(tok == TEXT("blah2!putter!a!token!put!string!100!chars!putted!e_put"_ts));
+
+			mIRCLinker::echo(TEXT("Success: expand()/join() - all tests passed"));
 		}
 
 		{	// test parse_string()
@@ -558,7 +576,7 @@ mIRC(Version)
 #endif
 
 		{	// test std::to_string() overload for std::wstring -> std::string
-			std::wstring str(TEXT("test"));
+			std::wstring str(L"test");
 			auto str2 = std::to_string(str);
 			Ensures(str2 == "test");
 
@@ -930,7 +948,7 @@ mIRC(Version)
 #endif
 
 /*!
-* \brief DCX DLL is DcxDirectShow supported?
+* \brief Is DcxDirectShow supported?
 */
 mIRC(IsUsingDirectX)
 {
@@ -948,7 +966,7 @@ mIRC(IsUsingDirectX)
 }
 
 /*!
-* \brief DCX DLL is GDI+ supported?
+* \brief Is GDI+ supported?
 */
 mIRC(IsUsingGDI) noexcept
 {
@@ -2125,7 +2143,6 @@ mIRC(SetSystemCursors)
 *
 * Argument \b data contains -> [area ID,...] (filename)
 */
-
 mIRC(SetmIRCCursors)
 {
 	TString d(data);

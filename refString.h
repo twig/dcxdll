@@ -132,9 +132,15 @@ public:
 	constexpr bool operator ==(const_value_type(&other)[otherSize]) const noexcept {
 		return compare(&other[0]);
 	}
+
 	constexpr bool operator ==(const refString<T, N>& other) const noexcept {
 		return compare(other.data());
 	}
+
+	constexpr bool operator ==(const_pointer other) const noexcept {
+		return compare(other);
+	}
+
 	//constexpr bool operator ==(const_pointer_const other) const noexcept {
 	//	return compare(other);
 	//}
@@ -143,9 +149,15 @@ public:
 	constexpr bool operator !=(const_value_type(&other)[otherSize]) const noexcept {
 		return !compare(&other[0]);
 	}
+
 	constexpr bool operator !=(const refString<T, N>& other) const noexcept {
 		return !compare(other.data());
 	}
+
+	constexpr bool operator !=(const_pointer other) const noexcept {
+		return !compare(other);
+	}
+
 	//constexpr bool operator !=(const_pointer_const other) const noexcept {
 	//	return !compare(other);
 	//}
