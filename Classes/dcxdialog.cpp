@@ -3763,14 +3763,6 @@ void DcxDialog::UpdateVistaStyle(const RECT* const rcUpdate)
 	//}
 
 	// Draw all the controls
-	//auto hwndChild = ::GetWindow(m_Hwnd, GW_CHILD);
-	//while(hwndChild)
-	//{
-	//	DrawCtrl( graph, hDC, hwndChild);
-	//	hwndChild = ::GetWindow( hwndChild, GW_HWNDNEXT);
-	//}
-
-	// Draw all the controls
 	for (auto hwndChild = ::GetWindow(m_Hwnd, GW_CHILD); hwndChild; hwndChild = ::GetWindow(hwndChild, GW_HWNDNEXT))
 		DrawCtrl(graph, hDC, hwndChild);
 
