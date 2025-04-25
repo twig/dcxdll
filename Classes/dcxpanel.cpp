@@ -393,7 +393,7 @@ void DcxPanel::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		SetWindowText(m_Hwnd, input.getlasttoks().to_chr());	// tok 4, -1
+		SetWindowTextW(m_Hwnd, input.getlasttoks().to_wchr());	// tok 4, -1
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
