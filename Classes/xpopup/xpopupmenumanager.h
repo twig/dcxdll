@@ -154,9 +154,9 @@ public:
 	/// </summary>
 	/// <param name="mHwnd"></param>
 	/// <returns></returns>
-	static HMENU getWindowsMenu(_In_ HWND mHwnd) noexcept;
+	static HMENU getWindowsMenu(_In_opt_ HWND mHwnd) noexcept;
 
-	static HWND getHWNDfromHMENU(_In_ HMENU hMenu) noexcept;
+	static HWND getHWNDfromHMENU(_In_opt_ HMENU hMenu) noexcept;
 
 	/// <summary>
 	/// Get list of open menu windows.
@@ -259,6 +259,10 @@ public:
 	/// Redraw all open menus.
 	/// </summary>
 	static void RedrawMenuIfOpen() noexcept;
+
+	static void setMenuRegion(_In_opt_ HWND win) noexcept;
+
+	static void setMenuRegionIfOpen() noexcept;
 
 	static inline std::map<HMENU, XPopupMenu*> m_vpAllMenus;	//!< Vector of all open XPopupMenu Objects
 

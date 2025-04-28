@@ -556,20 +556,6 @@ void XPopupMenuItem::DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const XPMENU
 	if (!lpdis || !lpcol || !lpdis->hDC)
 		return;
 
-	//GetSystemMetrics(SM_CXMENUCHECK)
-	//GetSystemMetrics(SM_CYMENUCHECK)
-	//GetMenuState
-
-	//clrCheckBox cols;
-	//cols.m_clrBackground = lpcol->m_clrCheckBox;
-	//cols.m_clrDisabledBackground = lpcol->m_clrDisabledCheckBox;
-	//cols.m_clrDisabledFrame = lpcol->m_clrSelectionBorder;
-	//cols.m_clrFrame = lpcol->m_clrSelectionBorder;
-	//cols.m_clrTick = lpcol->m_clrText;
-	//cols.m_clrHotTick = lpcol->m_clrSelectedText;
-	//cols.m_clrDisabledTick = lpcol->m_clrDisabledText;
-	//dcxDrawCheckBox(lpdis->hDC, std::addressof(lpdis->rcItem), std::addressof(cols), lpdis->itemState, true, bRounded);
-
 	dcxDrawCheckBox(lpdis->hDC, std::addressof(lpdis->rcItem), std::addressof(lpcol->m_clrCheckBox), lpdis->itemState, true, bRounded);
 }
 
@@ -577,16 +563,6 @@ void XPopupMenuItem::DrawItemRadioCheck(const LPDRAWITEMSTRUCT lpdis, const XPME
 {
 	if (!lpdis || !lpcol || !lpdis->hDC)
 		return;
-
-	//clrCheckBox cols;
-	//cols.m_clrBackground = lpcol->m_clrCheckBox;
-	//cols.m_clrDisabledBackground = lpcol->m_clrDisabledCheckBox;
-	//cols.m_clrDisabledFrame = lpcol->m_clrSelectionBorder;
-	//cols.m_clrFrame = lpcol->m_clrSelectionBorder;
-	//cols.m_clrTick = lpcol->m_clrText;
-	//cols.m_clrHotTick = lpcol->m_clrSelectedText;
-	//cols.m_clrDisabledTick = lpcol->m_clrDisabledText;
-	//dcxDrawRadioBox(lpdis->hDC, std::addressof(lpdis->rcItem), std::addressof(cols), lpdis->itemState, true, bRounded);
 
 	dcxDrawRadioBox(lpdis->hDC, std::addressof(lpdis->rcItem), std::addressof(lpcol->m_clrCheckBox), lpdis->itemState, true, bRounded);
 }
@@ -602,7 +578,7 @@ void XPopupMenuItem::DrawItemText(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLO
 	const auto oldBkg = SetBkMode(lpdis->hDC, TRANSPARENT);
 	Auto(SetBkMode(lpdis->hDC, oldBkg));
 
-	RECT rc = lpdis->rcItem;
+	RECT rc{ lpdis->rcItem };
 	rc.left += XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
 
 	if (m_tsItemText.numtok(TSTABCHAR) > 1)
@@ -703,7 +679,7 @@ void XPopupMenuItem::DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const XPMENU
 	//		// Fill the polygon.
 	//		gfx.FillPolygon(&blackBrush, &points[0], 3);
 	//	}
-	//	ExcludeClipRect( lpdis->hDC, lpdis->rcItem.right - 11, lpdis->rcItem.top, lpdis->rcItem.right, lpdis->rcItem.bottom );
+	//	ExcludeClipRect( lpdis->hDC, lpdis->rcItem.right - (XPMI_SUBARROW_WIDTH + XPMI_SUBARROW_XPAD), lpdis->rcItem.top, lpdis->rcItem.right, lpdis->rcItem.bottom );
 	//#else
 
 	dcxDrawArrow(lpdis->hDC, &lpdis->rcItem, bDis ? lpcol->m_clrDisabledText : lpcol->m_clrText);

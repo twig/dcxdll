@@ -470,6 +470,45 @@ void XPopupMenuManager::RedrawMenuIfOpen() noexcept
 		RedrawWindow(win, nullptr, nullptr, RDW_UPDATENOW | RDW_FRAME | RDW_INTERNALPAINT | RDW_INVALIDATE | RDW_ERASE);
 	}
 
+void XPopupMenuManager::setMenuRegion(_In_opt_ HWND win) noexcept
+{
+	if (!win)
+		return;
+
+	auto xMenu = Dcx::XPopups.getMenuByHWND(win);
+	if (!xMenu)
+		return;
+
+	if (Dcx::VersInfo.isWin11())
+	{
+		// Ook: this needs testing on win11+
+		DWM_WINDOW_CORNER_PREFERENCE preference = DWMWCP_DEFAULT;
+		if (xMenu->IsRoundedWindow())
+			preference = DWMWCP_ROUNDSMALL;
+		Dcx::DwmModule.dcxDwmSetWindowAttribute(win, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(preference));
+
+	}
+	else if (const Dcx::dcxWindowRect rc(win); rc)
+	{
+		if (xMenu->IsRoundedWindow())
+		{
+			const auto width = rc.Width();
+			const auto height = rc.Height();
+			constexpr int radius = 10;
+			if (auto m_Region = CreateRoundRectRgn(0, 0, width, height, radius, radius); m_Region)
+				SetWindowRgn(win, m_Region, TRUE);
+		}
+		else
+			SetWindowRgn(win, nullptr, TRUE);
+	}
+}
+
+void XPopupMenuManager::setMenuRegionIfOpen() noexcept
+{
+	for (auto& win : getGlobalMenuWindowList())
+		setMenuRegion(win);
+}
+
 void XPopupMenuManager::parseCommand(const TString& input)
 {
 	parseCommand(input, getMenuByName(input.getfirsttok(1), true));
@@ -729,7 +768,10 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 		else if (xflags[TEXT('r')]) // Set Rounded Selector on/off
 			p_Menu->SetRoundedSelector((input.getnexttok().to_int() > 0));	// tok 4
 		else if (xflags[TEXT('R')]) // Set Rounded menu window on/off
+		{
 			p_Menu->SetRoundedWindow((input.getnexttok().to_int() > 0));	// tok 4
+			//Dcx::XPopups.setMenuRegion(Dcx::XPopups.getHWNDfromHMENU(p_Menu->getMenuHandle()));
+		}
 		else if (xflags[TEXT('t')]) // enable/disable tooltips for menu
 		{
 			p_Menu->setTooltipsState((input.getnexttok().to_int() ? true : false));
@@ -1213,13 +1255,19 @@ XPopupMenuItem* XPopupMenuManager::getMenuItemByCommandID(_In_opt_ const HMENU h
 }
 
 
-HMENU XPopupMenuManager::getWindowsMenu(_In_ HWND mHwnd) noexcept
+HMENU XPopupMenuManager::getWindowsMenu(_In_opt_ HWND mHwnd) noexcept
 {
+	if (!mHwnd)
+		return nullptr;
+
 	return reinterpret_cast<HMENU>(SendMessage(mHwnd, MN_GETHMENU, 0, 0));
 }
 
-HWND XPopupMenuManager::getHWNDfromHMENU(_In_ HMENU hMenu) noexcept
+HWND XPopupMenuManager::getHWNDfromHMENU(_In_opt_ HMENU hMenu) noexcept
 {
+	if (!hMenu)
+		return nullptr;
+
 	std::scoped_lock lk(g_ListLock);
 	for (auto& m : getGlobalMenuWindowList())
 	{
@@ -1833,23 +1881,25 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 
 		//SetMenuAlphaToDefault(mHwnd);
 
-		if (!Dcx::m_CurrentMenuRounded)
-			break;
+		//if (!Dcx::m_CurrentMenuRounded)
+		//	break;
 
-		if (Dcx::VersInfo.isWin11())
-		{
-			// Ook: this needs testing on win11+
-			const DWM_WINDOW_CORNER_PREFERENCE preference = DWMWCP_ROUNDSMALL;
-			Dcx::DwmModule.dcxDwmSetWindowAttribute(mHwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(preference));
-		}
-		else if (const Dcx::dcxWindowRect rc(mHwnd); rc)
-		{
-			const auto width = rc.Width();
-			const auto height = rc.Height();
-			constexpr int radius = 10;
-			if (auto m_Region = CreateRoundRectRgn(0, 0, width, height, radius, radius); m_Region)
-				SetWindowRgn(mHwnd, m_Region, TRUE);
-		}
+		//if (Dcx::VersInfo.isWin11())
+		//{
+		//	// Ook: this needs testing on win11+
+		//	const DWM_WINDOW_CORNER_PREFERENCE preference = DWMWCP_ROUNDSMALL;
+		//	Dcx::DwmModule.dcxDwmSetWindowAttribute(mHwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(preference));
+		//}
+		//else if (const Dcx::dcxWindowRect rc(mHwnd); rc)
+		//{
+		//	const auto width = rc.Width();
+		//	const auto height = rc.Height();
+		//	constexpr int radius = 10;
+		//	if (auto m_Region = CreateRoundRectRgn(0, 0, width, height, radius, radius); m_Region)
+		//		SetWindowRgn(mHwnd, m_Region, TRUE);
+		//}
+
+		Dcx::XPopups.setMenuRegion(mHwnd);
 	}
 	break;
 
