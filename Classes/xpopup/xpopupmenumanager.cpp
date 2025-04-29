@@ -740,6 +740,7 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	// xpopup -r -> [MENU] [SWITCH]
 	else if (flags[TEXT('r')])
 	{
+		setMenuRegionIfOpen();
 		RedrawMenuIfOpen();
 	}
 	// xpopup -R -> [MENU] [SWITCH] [+FLAGS] (FLAG OPTIONS)
