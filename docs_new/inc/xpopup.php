@@ -284,12 +284,14 @@ function get_xpopup(&$XPOPUP) {
 				'You can specify [v]default[/v] in [p]COLORS[/p] to reset it to the default value.',
 			),
 		),
+		'r' => 'This command redraws the menus if its open. (This allows the menu looks to be changed in realtime while the menus open)',
 		'R' => array(
 			'__desc' => 'This command lets you add more visual styles to your XPopup',
 			'__cmd' => '[+FLAG] [ARGS]',
 			'__eg' => array(
 				'+r 1',
 				'+a 150',
+				'+A 240',
 				'+t 1',
 				'+R 1',
 			),
@@ -301,6 +303,7 @@ function get_xpopup(&$XPOPUP) {
 						'r' => 'This gives the menu selection indicator a rounded look.',
 						'R' => 'This gives the menu itself a rounded look.',
 						'a' => 'This sets the menu alpha value.',
+						'A' => "This sets the menu's default alpha value.",
 						't' => 'This enables/disables displaying tooltips for menu items.',
 					)
                 ),
@@ -312,6 +315,12 @@ function get_xpopup(&$XPOPUP) {
 						'__cmd' => '[1|0]',
 					),
 					'a' => array(
+						'__cmd' => '[VALUE]',
+						'__params' => array(
+						'VALUE' => 'The opacity to apply. Values range from [v]0[/v] (transparent) to [v]255[/v] (opaque).',
+						),
+					),
+					'A' => array(
 						'__cmd' => '[VALUE]',
 						'__params' => array(
 						'VALUE' => 'The opacity to apply. Values range from [v]0[/v] (transparent) to [v]255[/v] (opaque).',
@@ -380,7 +389,7 @@ function get_xpopupprops(&$XPOPUPPROPS) {
 		'istooltips' => 'Returns wether tooltips are enabled (see [cmd]xpopup -R[/cmd])',
 		'alpha' => 'Returns the current alpha level of the menu (see [cmd]xpopup -R[/cmd])',
 		"style" => 'This property retrieves the menu style.',
-		"alpha" => 'This property retrieves the transparency value.',
+		"alpha-default" => 'This property retrieves the default transparency value of the menu. (see [cmd]xpopup -R[/cmd])',
 		'marked' => 'This property lets you get the marked text.',
 		'imagefile' => 'This property lets you get the background image filename.',
 		"isrounded" => 'Is the rounded style enabled?',
@@ -396,6 +405,9 @@ function get_xpopupprops(&$XPOPUPPROPS) {
 			'__cmd' => 'N',
 			'__eg' => '3',
 		),
+		#"menubar" => 'Is the rounded style enabled?',
+		"callback" => 'Returns the menus callback alias.',
+		"isopen" => 'Is the menu currently open?',
 	);
 }
 

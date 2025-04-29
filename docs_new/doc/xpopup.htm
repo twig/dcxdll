@@ -495,6 +495,20 @@ ON *:SIGNAL:Xpopup-*: {
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.r"></a>/xpopup -r	</td></tr>
+	<tr><td colspan="2">This command redraws the menus if its open. (This allows the menu looks to be changed in realtime while the menus open)</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -r [MENU] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -r mymenu</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
 			<a name="xpopup.s"></a>/xpopup -s	</td></tr>
 	<tr><td colspan="2">This command lets you display a menu.</td></tr>
 	<tr>
@@ -625,7 +639,7 @@ ON *:SIGNAL:Xpopup-*: {
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpopup -R mymenu +r 1<br />/xpopup -R mymenu +a 150<br />/xpopup -R mymenu +t 1<br />/xpopup -R mymenu +R 1<br /></div></td>
+		<td><div class="example">/xpopup -R mymenu +r 1<br />/xpopup -R mymenu +a 150<br />/xpopup -R mymenu +A 240<br />/xpopup -R mymenu +t 1<br />/xpopup -R mymenu +R 1<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -649,6 +663,10 @@ ON *:SIGNAL:Xpopup-*: {
 		<td>This sets the menu alpha value.</td>
 	</tr>
 	<tr>
+		<td class="value">A</td>
+		<td>This sets the menu's default alpha value.</td>
+	</tr>
+	<tr>
 		<td class="value">t</td>
 		<td>This enables/disables displaying tooltips for menu items.</td>
 	</tr>
@@ -670,6 +688,14 @@ ON *:SIGNAL:Xpopup-*: {
 		<td>The opacity to apply. Values range from <a class="value">0</a> (transparent) to <a class="value">255</a> (opaque).</td>
 	</tr>
 	<tr>
+		<td class="param">A</td>
+		<td><div class="syntax">[VALUE]</div></td>
+	</tr>
+	<tr>
+		<td class="value">VALUE</td>
+		<td>The opacity to apply. Values range from <a class="value">0</a> (transparent) to <a class="value">255</a> (opaque).</td>
+	</tr>
+	<tr>
 		<td class="param">t</td>
 		<td><div class="syntax">[1|0]</div></td>
 	</tr>
@@ -682,7 +708,7 @@ ON *:SIGNAL:Xpopup-*: {
 <table class="xpopupprop">
 	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
 			<a name="xpopupprop.alpha"></a>$xpopup().alpha	</td></tr>
-	<tr><td colspan="2">This property retrieves the transparency value.</td></tr>
+	<tr><td colspan="2">Returns the current alpha level of the menu (see <a class='value' href='xpopup.htm#xpopup.big.R'>xpopup -R</a>)</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xpopup(MENU).alpha</div></td>
@@ -690,6 +716,34 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xpopup(mymenu).alpha</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.alpha-default"></a>$xpopup().alpha-default	</td></tr>
+	<tr><td colspan="2">This property retrieves the default transparency value of the menu. (see <a class='value' href='xpopup.htm#xpopup.big.R'>xpopup -R</a>)</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).alpha-default</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).alpha-default</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.callback"></a>$xpopup().callback	</td></tr>
+	<tr><td colspan="2">Returns the menus callback alias.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).callback</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).callback</div></td>
 	</tr>
 </table>
 <br />
@@ -760,6 +814,20 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xpopup(mymenu).ismenu</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.isopen"></a>$xpopup().isopen	</td></tr>
+	<tr><td colspan="2">Is the menu currently open?</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).isopen</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).isopen</div></td>
 	</tr>
 </table>
 <br />
@@ -1485,6 +1553,7 @@ The only difference is that you can load multiple icons by seperating the indexe
 		<a class='flag' href="#xpopup.l"><div>-l</div></a>
 		<a class='flag' href="#xpopup.m"><div>-m</div></a>
 		<a class='flag' href="#xpopup.p"><div>-p</div></a>
+		<a class='flag' href="#xpopup.r"><div>-r</div></a>
 		<a class='flag' href="#xpopup.s"><div>-s</div></a>
 		<a class='flag' href="#xpopup.t"><div>-t</div></a>
 		<a class='flag' href="#xpopup.x"><div>-x</div></a>
@@ -1494,11 +1563,14 @@ The only difference is that you can load multiple icons by seperating the indexe
 <div class='rightmenu' style='border:1px solid #CCACC7'>
 	<a class='header' href="#xpopupprop"><div style='background:#CCACC7;'>$xpopup() Properties</div></a>
 		<a class='flag' href="#xpopupprop.alpha"><div>alpha</div></a>
+		<a class='flag' href="#xpopupprop.alpha-default"><div>alpha-default</div></a>
+		<a class='flag' href="#xpopupprop.callback"><div>callback</div></a>
 		<a class='flag' href="#xpopupprop.color"><div>color</div></a>
 		<a class='flag' href="#xpopupprop.colors"><div>colors</div></a>
 		<a class='flag' href="#xpopupprop.exstyle"><div>exstyle</div></a>
 		<a class='flag' href="#xpopupprop.imagefile"><div>imagefile</div></a>
 		<a class='flag' href="#xpopupprop.ismenu"><div>ismenu</div></a>
+		<a class='flag' href="#xpopupprop.isopen"><div>isopen</div></a>
 		<a class='flag' href="#xpopupprop.isPatched"><div>isPatched</div></a>
 		<a class='flag' href="#xpopupprop.isrounded"><div>isrounded</div></a>
 		<a class='flag' href="#xpopupprop.isroundedmenu"><div>isroundedmenu</div></a>
@@ -1535,7 +1607,7 @@ The only difference is that you can load multiple icons by seperating the indexe
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2025</td>
-		<td style="text-align: right;">Last Updated: 17th April, 25</td>
+		<td style="text-align: right;">Last Updated: 29th April, 25</td>
 	</tr>
 </table>
 <div style="text-align: center;">
