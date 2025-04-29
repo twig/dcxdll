@@ -1012,6 +1012,14 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam,
 	case WM_INITMENU:
 	{
 		Dcx::XPopups.setOwnerWindow(mHwnd);
+
+		auto hMenu = reinterpret_cast<HMENU>(wParam);
+		if (auto xMenu = Dcx::XPopups.getMenuByHandle(hMenu); xMenu)
+		{
+			Dcx::m_CurrentMenuAlphaInactive = xMenu->IsAlphaInactive();
+			Dcx::m_CurrentMenuAlphaDefault = xMenu->IsAlphaDefault();
+			Dcx::m_CurrentMenuRounded = xMenu->IsRoundedWindow();
+	}
 	}
 	break;
 
