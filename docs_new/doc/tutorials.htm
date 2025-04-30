@@ -662,6 +662,8 @@ alias _dcx_setmenustyle {
       if ($isfile(%f)) xpopup -b $1 %f
       ; NB: this colour is only seen when alpha draw code is enabled in DrawMenuBitmap() when compiling dll.
       xpopup -l $1 1 $rgb(255,192,34)
+
+      ;xpop -t $1 :700 $chr(9) Test
     }
 
     if ($xpopup($1).isroundedmenu) {
@@ -810,6 +812,8 @@ alias _dcx_mircmenu_callback {
         return $iif(D !isincs $xpopup(mirc).exstyle,uncheck,check)
       }
     }
+    elseif ($2 == 800) return value $+(,$base($r(0,88),10,10,2),Button)
+    elseif ($2 isnum 801-802) return value $r(0,100)
   }
 }
 alias -l _dcx_setdarkmode {
@@ -853,70 +857,70 @@ menu status,menubar {
   DCX
   .Unload DCX:udcx
   .Menu Item Types
-  ..$xstyle(11,button) 88Button $xstyle(9,Button style item): noop
-  ..$xstyle(11,progress) 88Progress $xstyle(9,Progressbar style item): noop
-  ..$xstyle(11,track) 88Track $xstyle(9,Trackbar style item): noop
-  ..$xstyle(11,grade) 88Gradient $xstyle(9,Gradient style item): noop
-  ..$xstyle(11,custom) 88Custom $xstyle(9,Custom style item): noop
-  ..$xstyle(11,icy) 88Icy $xstyle(9,Icy style item): noop
-  ..$xstyle(11,Normal) 88Normal $xstyle(9,Normal style item): noop
+  ..$xstyle(11,button) 88Button $xstyle(14,800) $xstyle(1,Button style item): noop
+  ..$xstyle(11,progress) 88Progress $xstyle(14,801) $xstyle(1,Progressbar style item): noop
+  ..$xstyle(11,track) 88Track $xstyle(14,802) $xstyle(1,Trackbar style item): noop
+  ..$xstyle(11,grade) 88Gradient $xstyle(1,Gradient style item): noop
+  ..$xstyle(11,custom) 88Custom $xstyle(1,Custom style item): noop
+  ..$xstyle(11,icy) 88Icy $xstyle(1,Icy style item): noop
+  ..$xstyle(11,Normal) 88Normal $xstyle(1,Normal style item): noop
   .Settings
   ..Set Dark Mode: _dcx_setdarkmode
   ..Set Light Mode: _dcx_setlightmode
   ..Menu Options
   ...Menubar
   ....Menu Styles
-  .....$iif($_dcx_ismenustyle(mircbar,normal),$style(1)) $xstyle(12) Normal $xstyle(14,600) $xstyle(9,Normal looking menu): _dcx_setmenustyle mircbar normal
-  .....$iif($_dcx_ismenustyle(mircbar,darknormal),$style(1)) $xstyle(12) Dark Normal $xstyle(14,601) $xstyle(9,Dark Normal looking menu): _dcx_setmenustyle mircbar darknormal
-  .....$iif($_dcx_ismenustyle(mircbar,vertical),$style(1)) $xstyle(12) Vertical $xstyle(14,602) $xstyle(9,Vertical Gradient): _dcx_setmenustyle mircbar vertical
-  .....$iif($_dcx_ismenustyle(mircbar,verticalrev),$style(1)) $xstyle(12) VerticalRev $xstyle(14,603) $xstyle(9,Reverse Vertical Gradient): _dcx_setmenustyle mircbar verticalrev
-  .....$iif($_dcx_ismenustyle(mircbar,button),$style(1)) $xstyle(12) Button $xstyle(14,604) $xstyle(9,Items are buttons): _dcx_setmenustyle mircbar button
-  .....$iif($_dcx_ismenustyle(mircbar,buttonrev),$style(1)) $xstyle(12) ButtonRev $xstyle(14,605) $xstyle(9,Items are sunken buttons): _dcx_setmenustyle mircbar buttonrev
-  .....$iif($_dcx_ismenustyle(mircbar,grade),$style(1)) $xstyle(12) Gradient $xstyle(14,606) $xstyle(9,Gradient): _dcx_setmenustyle mircbar grade
-  .....$iif($_dcx_ismenustyle(mircbar,graderev),$style(1)) $xstyle(12) GradientRev $xstyle(14,607) $xstyle(9,Reverse Gradient): _dcx_setmenustyle mircbar graderev
-  .....$iif($_dcx_ismenustyle(mircbar,custom),$style(1)) $xstyle(12) Custom $xstyle(14,608) $xstyle(9,Each item is a custom bitmap): _dcx_setmenustyle mircbar custom
-  .....$iif($_dcx_ismenustyle(mircbar,custombig),$style(1)) $xstyle(12) CustomBig $xstyle(14,609) $xstyle(9,Custom bitmap covers whole menu): _dcx_setmenustyle mircbar custombig
-  .....$iif($_dcx_ismenustyle(mircbar,officexp),$style(1)) $xstyle(12) OfficeXP $xstyle(14,610) $xstyle(9,OfficeXP style): _dcx_setmenustyle mircbar officexp
-  .....$iif($_dcx_ismenustyle(mircbar,office2003),$style(1)) $xstyle(12) Office2003 $xstyle(14,611) $xstyle(9,Office2003 style): _dcx_setmenustyle mircbar office2003
-  .....$iif($_dcx_ismenustyle(mircbar,office2003rev),$style(1)) $xstyle(12) Office2003rev $xstyle(14,612) $xstyle(9,Reverse Office2003 style): _dcx_setmenustyle mircbar office2003rev
-  .....$iif($_dcx_ismenustyle(mircbar,icy),$style(1)) $xstyle(12) Icy $xstyle(14,613) $xstyle(9,Ice effect): _dcx_setmenustyle mircbar icy
-  .....$iif($_dcx_ismenustyle(mircbar,icyrev),$style(1)) $xstyle(12) IcyRev $xstyle(14,614) $xstyle(9,Reverse Ice effect): _dcx_setmenustyle mircbar icyrev
+  .....$iif($_dcx_ismenustyle(mircbar,normal),$style(1)) $xstyle(12) Normal $xstyle(14,600) $xstyle(1,Normal looking menu): _dcx_setmenustyle mircbar normal
+  .....$iif($_dcx_ismenustyle(mircbar,darknormal),$style(1)) $xstyle(12) Dark Normal $xstyle(14,601) $xstyle(1,Dark Normal looking menu): _dcx_setmenustyle mircbar darknormal
+  .....$iif($_dcx_ismenustyle(mircbar,vertical),$style(1)) $xstyle(12) Vertical $xstyle(14,602) $xstyle(1,Vertical Gradient): _dcx_setmenustyle mircbar vertical
+  .....$iif($_dcx_ismenustyle(mircbar,verticalrev),$style(1)) $xstyle(12) VerticalRev $xstyle(14,603) $xstyle(1,Reverse Vertical Gradient): _dcx_setmenustyle mircbar verticalrev
+  .....$iif($_dcx_ismenustyle(mircbar,button),$style(1)) $xstyle(12) Button $xstyle(14,604) $xstyle(1,Items are buttons): _dcx_setmenustyle mircbar button
+  .....$iif($_dcx_ismenustyle(mircbar,buttonrev),$style(1)) $xstyle(12) ButtonRev $xstyle(14,605) $xstyle(1,Items are sunken buttons): _dcx_setmenustyle mircbar buttonrev
+  .....$iif($_dcx_ismenustyle(mircbar,grade),$style(1)) $xstyle(12) Gradient $xstyle(14,606) $xstyle(1,Gradient): _dcx_setmenustyle mircbar grade
+  .....$iif($_dcx_ismenustyle(mircbar,graderev),$style(1)) $xstyle(12) GradientRev $xstyle(14,607) $xstyle(1,Reverse Gradient): _dcx_setmenustyle mircbar graderev
+  .....$iif($_dcx_ismenustyle(mircbar,custom),$style(1)) $xstyle(12) Custom $xstyle(14,608) $xstyle(1,Each item is a custom bitmap): _dcx_setmenustyle mircbar custom
+  .....$iif($_dcx_ismenustyle(mircbar,custombig),$style(1)) $xstyle(12) CustomBig $xstyle(14,609) $xstyle(1,Custom bitmap covers whole menu): _dcx_setmenustyle mircbar custombig
+  .....$iif($_dcx_ismenustyle(mircbar,officexp),$style(1)) $xstyle(12) OfficeXP $xstyle(14,610) $xstyle(1,OfficeXP style): _dcx_setmenustyle mircbar officexp
+  .....$iif($_dcx_ismenustyle(mircbar,office2003),$style(1)) $xstyle(12) Office2003 $xstyle(14,611) $xstyle(1,Office2003 style): _dcx_setmenustyle mircbar office2003
+  .....$iif($_dcx_ismenustyle(mircbar,office2003rev),$style(1)) $xstyle(12) Office2003rev $xstyle(14,612) $xstyle(1,Reverse Office2003 style): _dcx_setmenustyle mircbar office2003rev
+  .....$iif($_dcx_ismenustyle(mircbar,icy),$style(1)) $xstyle(12) Icy $xstyle(14,613) $xstyle(1,Ice effect): _dcx_setmenustyle mircbar icy
+  .....$iif($_dcx_ismenustyle(mircbar,icyrev),$style(1)) $xstyle(12) IcyRev $xstyle(14,614) $xstyle(1,Reverse Ice effect): _dcx_setmenustyle mircbar icyrev
   .....Randomize $xstyle(14,615): _dcx_randommenustyle mircbar
-  ....$iif($xpopup(mircbar).isrounded,$style(1)) Rounded Selector $xstyle(14,616) $xstyle(9,Makes menu selection a rounded rect): _dcx_setmenustyle mircbar $iif($xpopup(mircbar).isrounded,square,rounded)
-  ....$iif($xpopup(mircbar).isroundedmenu,$style(1)) Rounded Window $xstyle(14,617) $xstyle(9,Make menus rounded rects): _dcx_setmenustyle mircbar $iif($xpopup(mircbar).isroundedmenu,squaremenu,roundedmenu)
-  ....$iif($xpopup(mircbar).istooltips,$style(1)) Tooltips $xstyle(14,618) $xstyle(9,Enable tooltips like this one!): _dcx_setmenustyle mircbar $iif($xpopup(mircbar).istooltips,notooltips,tooltips)
-  ....$iif($xpopup(mircbar).alpha != 255,$style(1)) Alpha Blend $xstyle(14,619) $xstyle(9,Set the menus to be translucent): _dcx_setmenustyle mircbar $iif($xpopup(mircbar).alpha != 255,noalpha,alpha)
-  ....$iif(v isincs $xpopup(mircbar).exstyle,$style(1)) Vertical Sep $xstyle(14,620) $xstyle(9,Draw a vertical seperator): _dcx_setmenustyle mircbar $iif(v isincs $xpopup(mircbar).exstyle,novsep,vsep)
-  ....$iif(D isincs $xpopup(mircbar).exstyle,$style(1)) Double Sep $xstyle(14,621) $xstyle(9,Draw a double seperator): _dcx_setmenustyle mircbar $iif(D isincs $xpopup(mircbar).exstyle,nodoublesep,doublesep)
+  ....$iif($xpopup(mircbar).isrounded,$style(1)) Rounded Selector $xstyle(14,616) $xstyle(1,Makes menu selection a rounded rect): _dcx_setmenustyle mircbar $iif($xpopup(mircbar).isrounded,square,rounded)
+  ....$iif($xpopup(mircbar).isroundedmenu,$style(1)) Rounded Window $xstyle(14,617) $xstyle(1,Make menus rounded rects): _dcx_setmenustyle mircbar $iif($xpopup(mircbar).isroundedmenu,squaremenu,roundedmenu)
+  ....$iif($xpopup(mircbar).istooltips,$style(1)) Tooltips $xstyle(14,618) $xstyle(1,Enable tooltips like this one!): _dcx_setmenustyle mircbar $iif($xpopup(mircbar).istooltips,notooltips,tooltips)
+  ....$iif($xpopup(mircbar).alpha != 255,$style(1)) Alpha Blend $xstyle(14,619) $xstyle(1,Set the menus to be translucent): _dcx_setmenustyle mircbar $iif($xpopup(mircbar).alpha != 255,noalpha,alpha)
+  ....$iif(v isincs $xpopup(mircbar).exstyle,$style(1)) Vertical Sep $xstyle(14,620) $xstyle(1,Draw a vertical seperator): _dcx_setmenustyle mircbar $iif(v isincs $xpopup(mircbar).exstyle,novsep,vsep)
+  ....$iif(D isincs $xpopup(mircbar).exstyle,$style(1)) Double Sep $xstyle(14,621) $xstyle(1,Draw a double seperator): _dcx_setmenustyle mircbar $iif(D isincs $xpopup(mircbar).exstyle,nodoublesep,doublesep)
   ...Popups
   ....Menu Styles
-  .....$iif($_dcx_ismenustyle(mirc,normal),$style(1)) $xstyle(12) Normal $xstyle(14,700) $xstyle(9,Normal looking menu): _dcx_setmenustyle mirc normal
-  .....$iif($_dcx_ismenustyle(mirc,darknormal),$style(1)) $xstyle(12) Dark Normal $xstyle(14,701) $xstyle(9,Dark Normal looking menu): _dcx_setmenustyle mirc darknormal
-  .....$iif($_dcx_ismenustyle(mirc,vertical),$style(1)) $xstyle(12) Vertical $xstyle(14,702) $xstyle(9,Vertical Gradient): _dcx_setmenustyle mirc vertical
-  .....$iif($_dcx_ismenustyle(mirc,verticalrev),$style(1)) $xstyle(12) VerticalRev $xstyle(14,703) $xstyle(9,Reverse Vertical Gradient): _dcx_setmenustyle mirc verticalrev
-  .....$iif($_dcx_ismenustyle(mirc,button),$style(1)) $xstyle(12) Button $xstyle(14,704) $xstyle(9,Items are buttons): _dcx_setmenustyle mirc button
-  .....$iif($_dcx_ismenustyle(mirc,buttonrev),$style(1)) $xstyle(12) ButtonRev $xstyle(14,705) $xstyle(9,Items are sunken buttons): _dcx_setmenustyle mirc buttonrev
-  .....$iif($_dcx_ismenustyle(mirc,grade),$style(1)) $xstyle(12) Gradient $xstyle(14,706) $xstyle(9,Gradient): _dcx_setmenustyle mirc grade
-  .....$iif($_dcx_ismenustyle(mirc,graderev),$style(1)) $xstyle(12) GradientRev $xstyle(14,707) $xstyle(9,Reverse Gradient): _dcx_setmenustyle mirc graderev
-  .....$iif($_dcx_ismenustyle(mirc,custom),$style(1)) $xstyle(12) Custom $xstyle(14,708) $xstyle(9,Each item is a custom bitmap): _dcx_setmenustyle mirc custom
-  .....$iif($_dcx_ismenustyle(mirc,custombig),$style(1)) $xstyle(12) CustomBig $xstyle(14,709) $xstyle(9,Custom bitmap covers whole menu): _dcx_setmenustyle mirc custombig
-  .....$iif($_dcx_ismenustyle(mirc,officexp),$style(1)) $xstyle(12) OfficeXP $xstyle(14,710) $xstyle(9,OfficeXP style): _dcx_setmenustyle mirc officexp
-  .....$iif($_dcx_ismenustyle(mirc,office2003),$style(1)) $xstyle(12) Office2003 $xstyle(14,711) $xstyle(9,Office2003 style): _dcx_setmenustyle mirc office2003
-  .....$iif($_dcx_ismenustyle(mirc,office2003rev),$style(1)) $xstyle(12) Office2003rev $xstyle(14,712) $xstyle(9,Reverse Office2003 style): _dcx_setmenustyle mirc office2003rev
-  .....$iif($_dcx_ismenustyle(mirc,icy),$style(1)) $xstyle(12) Icy $xstyle(14,713) $xstyle(9,Ice effect): _dcx_setmenustyle mirc icy
-  .....$iif($_dcx_ismenustyle(mirc,icyrev),$style(1)) $xstyle(12) IcyRev $xstyle(14,714) $xstyle(9,Reverse Ice effect): _dcx_setmenustyle mirc icyrev
+  .....$iif($_dcx_ismenustyle(mirc,normal),$style(1)) $xstyle(12) Normal $xstyle(14,700) $xstyle(1,Normal looking menu): _dcx_setmenustyle mirc normal
+  .....$iif($_dcx_ismenustyle(mirc,darknormal),$style(1)) $xstyle(12) Dark Normal $xstyle(14,701) $xstyle(1,Dark Normal looking menu): _dcx_setmenustyle mirc darknormal
+  .....$iif($_dcx_ismenustyle(mirc,vertical),$style(1)) $xstyle(12) Vertical $xstyle(14,702) $xstyle(1,Vertical Gradient): _dcx_setmenustyle mirc vertical
+  .....$iif($_dcx_ismenustyle(mirc,verticalrev),$style(1)) $xstyle(12) VerticalRev $xstyle(14,703) $xstyle(1,Reverse Vertical Gradient): _dcx_setmenustyle mirc verticalrev
+  .....$iif($_dcx_ismenustyle(mirc,button),$style(1)) $xstyle(12) Button $xstyle(14,704) $xstyle(1,Items are buttons): _dcx_setmenustyle mirc button
+  .....$iif($_dcx_ismenustyle(mirc,buttonrev),$style(1)) $xstyle(12) ButtonRev $xstyle(14,705) $xstyle(1,Items are sunken buttons): _dcx_setmenustyle mirc buttonrev
+  .....$iif($_dcx_ismenustyle(mirc,grade),$style(1)) $xstyle(12) Gradient $xstyle(14,706) $xstyle(1,Gradient): _dcx_setmenustyle mirc grade
+  .....$iif($_dcx_ismenustyle(mirc,graderev),$style(1)) $xstyle(12) GradientRev $xstyle(14,707) $xstyle(1,Reverse Gradient): _dcx_setmenustyle mirc graderev
+  .....$iif($_dcx_ismenustyle(mirc,custom),$style(1)) $xstyle(12) Custom $xstyle(14,708) $xstyle(1,Each item is a custom bitmap): _dcx_setmenustyle mirc custom
+  .....$iif($_dcx_ismenustyle(mirc,custombig),$style(1)) $xstyle(12) CustomBig $xstyle(14,709) $xstyle(1,Custom bitmap covers whole menu): _dcx_setmenustyle mirc custombig
+  .....$iif($_dcx_ismenustyle(mirc,officexp),$style(1)) $xstyle(12) OfficeXP $xstyle(14,710) $xstyle(1,OfficeXP style): _dcx_setmenustyle mirc officexp
+  .....$iif($_dcx_ismenustyle(mirc,office2003),$style(1)) $xstyle(12) Office2003 $xstyle(14,711) $xstyle(1,Office2003 style): _dcx_setmenustyle mirc office2003
+  .....$iif($_dcx_ismenustyle(mirc,office2003rev),$style(1)) $xstyle(12) Office2003rev $xstyle(14,712) $xstyle(1,Reverse Office2003 style): _dcx_setmenustyle mirc office2003rev
+  .....$iif($_dcx_ismenustyle(mirc,icy),$style(1)) $xstyle(12) Icy $xstyle(14,713) $xstyle(1,Ice effect): _dcx_setmenustyle mirc icy
+  .....$iif($_dcx_ismenustyle(mirc,icyrev),$style(1)) $xstyle(12) IcyRev $xstyle(14,714) $xstyle(1,Reverse Ice effect): _dcx_setmenustyle mirc icyrev
   .....Randomize $xstyle(14,715): _dcx_randommenustyle mirc
-  ....$iif($xpopup(mirc).isrounded,$style(1)) Rounded Selector $xstyle(14,716) $xstyle(9,Makes menu selection a rounded rect): _dcx_setmenustyle mirc $iif($xpopup(mirc).isrounded,square,rounded)
-  ....$iif($xpopup(mirc).isroundedmenu,$style(1)) Rounded Window $xstyle(14,717) $xstyle(9,Make menus rounded rects): _dcx_setmenustyle mirc $iif($xpopup(mirc).isroundedmenu,squaremenu,roundedmenu)
-  ....$iif($xpopup(mirc).istooltips,$style(1)) Tooltips $xstyle(14,718) $xstyle(9,Enable tooltips like this one!): _dcx_setmenustyle mirc $iif($xpopup(mirc).istooltips,notooltips,tooltips)
-  ....$iif($xpopup(mirc).alpha != 255,$style(1)) Alpha Blend $xstyle(14,719) $xstyle(9,Set the menus to be translucent): _dcx_setmenustyle mirc $iif($xpopup(mirc).alpha != 255,noalpha,alpha)
-  ....$iif(v isincs $xpopup(mirc).exstyle,$style(1)) Vertical Sep $xstyle(14,720) $xstyle(9,Draw a vertical seperator): _dcx_setmenustyle mirc $iif(v isincs $xpopup(mirc).exstyle,novsep,vsep)
-  ....$iif(D isincs $xpopup(mirc).exstyle,$style(1)) Double Sep $xstyle(14,721) $xstyle(9,Draw a double seperator): _dcx_setmenustyle mirc $iif(D isincs $xpopup(mirc).exstyle,nodoublesep,doublesep)
-  ...$iif($dcx(GetDCXSettings,StaticColours),$style(1)) Static Colours $xstyle(9,Fix the colours used by DCX (faster)): {
+  ....$iif($xpopup(mirc).isrounded,$style(1)) Rounded Selector $xstyle(14,716) $xstyle(1,Makes menu selection a rounded rect): _dcx_setmenustyle mirc $iif($xpopup(mirc).isrounded,square,rounded)
+  ....$iif($xpopup(mirc).isroundedmenu,$style(1)) Rounded Window $xstyle(14,717) $xstyle(1,Make menus rounded rects): _dcx_setmenustyle mirc $iif($xpopup(mirc).isroundedmenu,squaremenu,roundedmenu)
+  ....$iif($xpopup(mirc).istooltips,$style(1)) Tooltips $xstyle(14,718) $xstyle(1,Enable tooltips like this one!): _dcx_setmenustyle mirc $iif($xpopup(mirc).istooltips,notooltips,tooltips)
+  ....$iif($xpopup(mirc).alpha != 255,$style(1)) Alpha Blend $xstyle(14,719) $xstyle(1,Set the menus to be translucent): _dcx_setmenustyle mirc $iif($xpopup(mirc).alpha != 255,noalpha,alpha)
+  ....$iif(v isincs $xpopup(mirc).exstyle,$style(1)) Vertical Sep $xstyle(14,720) $xstyle(1,Draw a vertical seperator): _dcx_setmenustyle mirc $iif(v isincs $xpopup(mirc).exstyle,novsep,vsep)
+  ....$iif(D isincs $xpopup(mirc).exstyle,$style(1)) Double Sep $xstyle(14,721) $xstyle(1,Draw a double seperator): _dcx_setmenustyle mirc $iif(D isincs $xpopup(mirc).exstyle,nodoublesep,doublesep)
+  ...$iif($dcx(GetDCXSettings,StaticColours),$style(1)) Static Colours $xstyle(1,Fix the colours used by DCX (faster)): {
     if ($dcx(GetDCXSettings,StaticColours)) dcx SetDCXSettings StaticColours 0
     else dcx SetDCXSettings StaticColours 1
   }
-  ...UpdateColours $xstyle(9,Force DCX to update the colours to match mIRC's): dcx SetDCXSettings UpdateColours
+  ...UpdateColours $xstyle(1,Force DCX to update the colours to match mIRC's): dcx SetDCXSettings UpdateColours
 }
 </pre></td></tr></table></td></tr>
 </table>
@@ -1248,8 +1252,8 @@ alias -l dcx_webbrowser_setmenustyle {
   if ($istok(normal darknormal vertical verticalrev button buttonrev grade graderev custom custombig officexp office2003 office2003rev icy icyrev,$1,32)) {
     set %dcx_browser_menustyle $1
     set $+(%,dcx_darkmode_menu_,%d) 0
-    xpopup -l %m 1-19 default
-    xdialog -P %d -l 1-19 default
+    xpopup -l %m 1-20 default
+    xdialog -P %d -l 1-20 default
     xdialog -P %d
     if ($1 == normal) {
       xdialog -p %d +e 0
@@ -1831,7 +1835,7 @@ ON *:SIGNAL:XPopup-_dcx_webbrowser: {
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2025</td>
-		<td style="text-align: right;">Last Updated: 29th April, 25</td>
+		<td style="text-align: right;">Last Updated: 30th April, 25</td>
 	</tr>
 </table>
 <div style="text-align: center;">
