@@ -276,7 +276,7 @@ public:
 	static BOOL dcxIsThemeActive(void) noexcept;
 	static HRESULT dcxSetWindowTheme(_In_ const HWND hwnd, _In_opt_ const LPCWSTR pszSubAppName, _In_opt_ const LPCWSTR pszSubIdList) noexcept;
 	GSL_SUPPRESS(lifetime) static HTHEME dcxGetWindowTheme(_In_ HWND hWnd) noexcept;
-	GSL_SUPPRESS(lifetime) [[nodiscard("Memory Leak")]] static gsl::owner<HTHEME> dcxOpenThemeData(_In_ HWND hwnd, _In_ LPCWSTR pszClassList) noexcept;
+	GSL_SUPPRESS(lifetime) [[nodiscard("Memory Leak")]] static gsl::owner<HTHEME> dcxOpenThemeData(_In_opt_ HWND hwnd, _In_ LPCWSTR pszClassList) noexcept;
 	static HRESULT dcxCloseThemeData(_In_ gsl::owner<HTHEME> hTheme) noexcept;
 	static BOOL dcxIsThemeBackgroundPartiallyTransparent(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId) noexcept;
 	static HRESULT dcxDrawThemeBackground(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT pRect, _In_opt_ LPCRECT pClipRect) noexcept;

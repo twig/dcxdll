@@ -204,7 +204,7 @@ HRESULT DcxUXModule::dcxSetWindowTheme(_In_ const HWND hwnd, _In_opt_ const LPCW
 	return nullptr;
 }
 
-[[gsl::suppress(lifetime)]] gsl::owner<HTHEME> DcxUXModule::dcxOpenThemeData(_In_ HWND hwnd, _In_ LPCWSTR pszClassList) noexcept
+[[gsl::suppress(lifetime)]] gsl::owner<HTHEME> DcxUXModule::dcxOpenThemeData(_In_opt_ HWND hwnd, _In_ LPCWSTR pszClassList) noexcept
 {
 	if (OpenThemeDataUx)
 		return OpenThemeDataUx(hwnd, pszClassList);
