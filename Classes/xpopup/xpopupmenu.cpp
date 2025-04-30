@@ -1019,7 +1019,7 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam,
 			Dcx::m_CurrentMenuAlphaInactive = xMenu->IsAlphaInactive();
 			Dcx::m_CurrentMenuAlphaDefault = xMenu->IsAlphaDefault();
 			Dcx::m_CurrentMenuRounded = xMenu->IsRoundedWindow();
-	}
+		}
 	}
 	break;
 
@@ -1984,6 +1984,15 @@ XPopupMenu::MenuStyle XPopupMenu::parseStyle(const TString& tsStyle) noexcept
 		break;
 	case TEXT("custombig"_hash):
 		style = MenuStyle::XPMS_CUSTOMBIG;
+		break;
+	case TEXT("progress"_hash):
+		style = MenuStyle::XPMS_PROGRESS;
+		break;
+	case TEXT("track"_hash):
+		style = MenuStyle::XPMS_TRACK;
+		break;
+	case TEXT("themed"_hash):
+		style = MenuStyle::XPMS_THEMED;
 		break;
 	default:
 		break;

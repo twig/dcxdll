@@ -211,6 +211,7 @@ public:
 	const XPopupMenu* getParentMenu() const noexcept { return m_pXParentMenu; }
 	const ULONG_PTR& getItemDataBackup() const noexcept { return m_dwItemDataBackup; }
 	auto getStyle() const noexcept;
+	UINT getStyle2() const noexcept;
 
 	bool IsTooltipsEnabled() const noexcept;
 	const bool& IsCheckToggle() const noexcept { return m_bCheckToggle; };
@@ -245,7 +246,11 @@ public:
 	/// <param name="vIcons"></param>
 	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, const VectorOfIcons& vIcons);
 
-	void DrawButton(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, bool bReversed) noexcept;
+	void DrawButton(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XPMENUCOLORS* const lpcol, _In_ bool bReversed, _In_ LPCRECT rc) noexcept;
+	void DrawProgress(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, LPCRECT rc) noexcept;
+	void DrawTrackbar(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc) noexcept;
+
+	UINT m_uProgressValue{};
 
 protected:
 

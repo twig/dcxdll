@@ -682,6 +682,47 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 			++i;
 		}
 	}
+	// xpopup -r -> [MENU] [SWITCH]
+	else if (flags[TEXT('r')])
+	{
+		setMenuRegionIfOpen();
+		RedrawMenuIfOpen();
+	}
+	// xpopup -R -> [MENU] [SWITCH] [+FLAGS] (FLAG OPTIONS)
+	else if (flags[TEXT('R')])
+	{
+		if (numtok < 3)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const XSwitchFlags xflags(input.getnexttok());	// tok 3
+
+		if (!xflags[TEXT('+')])
+			throw DcxExceptions::dcxInvalidFlag();
+
+		if (xflags[TEXT('a')]) // Set Alpha value of menu. 0-255 (when menu is non active but mouse is still over another submenu)
+		{
+			const std::byte alpha{ (input.getnexttok().to_<UINT>() & 0xFF) };	// tok 4
+
+			p_Menu->SetAlphaInactive(alpha);
+		}
+		else if (xflags[TEXT('A')]) // Set Alpha value of menu. 0-255 (for any time the conditions for +a are not met)
+		{
+			const std::byte alpha{ (input.getnexttok().to_<UINT>() & 0xFF) };	// tok 4
+
+			p_Menu->SetAlphaDefault(alpha);
+	}
+		else if (xflags[TEXT('r')]) // Set Rounded Selector on/off
+			p_Menu->SetRoundedSelector((input.getnexttok().to_int() > 0));	// tok 4
+		else if (xflags[TEXT('R')]) // Set Rounded menu window on/off
+		{
+			p_Menu->SetRoundedWindow((input.getnexttok().to_int() > 0));	// tok 4
+			//Dcx::XPopups.setMenuRegion(Dcx::XPopups.getHWNDfromHMENU(p_Menu->getMenuHandle()));
+		}
+		else if (xflags[TEXT('t')]) // enable/disable tooltips for menu
+		{
+			p_Menu->setTooltipsState((input.getnexttok().to_int() ? true : false));
+		}
+	}
 	// xpopup -s -> [MENU] [SWITCH] [+FLAGS] [X] [Y] (OVER HWND)
 	else if (flags[TEXT('s')])
 	{
@@ -737,48 +778,7 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 
 		p_Menu->setItemStyleString(input.getnexttok());
 	}
-	// xpopup -r -> [MENU] [SWITCH]
-	else if (flags[TEXT('r')])
-	{
-		setMenuRegionIfOpen();
-		RedrawMenuIfOpen();
-	}
-	// xpopup -R -> [MENU] [SWITCH] [+FLAGS] (FLAG OPTIONS)
-	else if (flags[TEXT('R')])
-	{
-		if (numtok < 3)
-			throw DcxExceptions::dcxInvalidArguments();
-
-		const XSwitchFlags xflags(input.getnexttok());	// tok 3
-
-		if (!xflags[TEXT('+')])
-			throw DcxExceptions::dcxInvalidFlag();
-
-		if (xflags[TEXT('a')]) // Set Alpha value of menu. 0-255 (when menu is non active but mouse is still over another submenu)
-		{
-			const std::byte alpha{ (input.getnexttok().to_<UINT>() & 0xFF) };	// tok 4
-
-			p_Menu->SetAlphaInactive(alpha);
 		}
-		else if (xflags[TEXT('A')]) // Set Alpha value of menu. 0-255 (for any time the conditions for +a are not met)
-		{
-			const std::byte alpha{ (input.getnexttok().to_<UINT>() & 0xFF) };	// tok 4
-
-			p_Menu->SetAlphaDefault(alpha);
-		}
-		else if (xflags[TEXT('r')]) // Set Rounded Selector on/off
-			p_Menu->SetRoundedSelector((input.getnexttok().to_int() > 0));	// tok 4
-		else if (xflags[TEXT('R')]) // Set Rounded menu window on/off
-		{
-			p_Menu->SetRoundedWindow((input.getnexttok().to_int() > 0));	// tok 4
-			//Dcx::XPopups.setMenuRegion(Dcx::XPopups.getHWNDfromHMENU(p_Menu->getMenuHandle()));
-		}
-		else if (xflags[TEXT('t')]) // enable/disable tooltips for menu
-		{
-			p_Menu->setTooltipsState((input.getnexttok().to_int() ? true : false));
-		}
-	}
-}
 
 /*!
  * \brief blah
@@ -2041,7 +2041,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			{
 				// This is a dialog menu, send the message back to trigger on dialog events etc..
 
-				Dcx::XPopups.TriggerMenuPos(Dcx::XPopups.getOwnerWindow(), hMenu, gsl::narrow_cast<UINT>(wParam));
+				TriggerMenuPos(Dcx::XPopups.getOwnerWindow(), hMenu, gsl::narrow_cast<UINT>(wParam));
 
 				// redraw menu to update the visible state incase this command changes something in the menu its self.
 				RedrawMenuIfOpen();
@@ -2076,10 +2076,36 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					// if the alias returns "msg" then send the menu selection back to the menus owner & halt menu closing.
 					case L"msg"_hash:
 					{
-						Dcx::XPopups.TriggerMenuPos(Dcx::XPopups.getOwnerWindow(), hMenu, gsl::narrow_cast<UINT>(wParam));
+						TriggerMenuPos(Dcx::XPopups.getOwnerWindow(), hMenu, gsl::narrow_cast<UINT>(wParam));
 
 						// redraw menu to update the visible state incase this command changes something in the menu its self.
 						RedrawMenuIfOpen();
+						return 0L;
+					}
+					// change items value to match returned text
+					// if item type is set as progress or track then change pos of bar instead.
+					case L"value"_hash:
+					{
+						const auto tsText(tsRes.getlasttoks());
+
+						switch (gsl::narrow_cast<MainMenuStyle>(xItem->getStyle2()))
+						{
+						case MainMenuStyle::XPMS_PROGRESS:
+						case MainMenuStyle::XPMS_TRACK:
+							xItem->m_uProgressValue = tsText.to_<UINT>();
+							break;
+						default:
+							xItem->setItemText(tsText);
+							break;
+						}
+
+						if (RECT rcItem{}; GetMenuItemRect(mHwnd, hMenu, gsl::narrow_cast<UINT>(wParam), &rcItem))
+						{
+							MapWindowRect(nullptr, mHwnd, &rcItem);
+							RedrawWindow(mHwnd, &rcItem, nullptr, RDW_UPDATENOW | RDW_FRAME | RDW_INTERNALPAINT | RDW_INVALIDATE | RDW_ERASE);
+						}
+						else
+							RedrawWindow(mHwnd,  nullptr, nullptr, RDW_UPDATENOW | RDW_FRAME | RDW_INTERNALPAINT | RDW_INVALIDATE | RDW_ERASE);
 						return 0L;
 					}
 					case L"check"_hash:
@@ -2095,10 +2121,10 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 							{
 								for (const auto gID : grp.m_GroupIDs)
 					{
-									Dcx::XPopups.setCheckState(hMenu, gID, TRUE, false);
+									setCheckState(hMenu, gID, TRUE, false);
 								}
 							}
-							Dcx::XPopups.setCheckState(hMenu, gsl::narrow_cast<UINT>(wParam), TRUE, true);
+							setCheckState(hMenu, gsl::narrow_cast<UINT>(wParam), TRUE, true);
 						}
 							break;
 						case 2:
@@ -2113,7 +2139,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 						default:
 						{
 							// no ids, just check this item.
-							Dcx::XPopups.setCheckState(hMenu, gsl::narrow_cast<UINT>(wParam), TRUE, true);
+							setCheckState(hMenu, gsl::narrow_cast<UINT>(wParam), TRUE, true);
 						}
 								break;
 						}
@@ -2121,7 +2147,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 						}
 					case L"uncheck"_hash:
 					{
-						Dcx::XPopups.setCheckState(hMenu, gsl::narrow_cast<UINT>(wParam), TRUE, false);
+						setCheckState(hMenu, gsl::narrow_cast<UINT>(wParam), TRUE, false);
 						return 0L;
 			}
 					}
@@ -2148,12 +2174,6 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		//	ePRF_OWNED = PRF_OWNED
 		//};
 		//const auto tt = gsl::narrow_cast<testit>(lParam);
-
-		//if (auto hMenu = getWindowsMenu(mHwnd); hMenu)
-		//{
-		//	if (auto xMenu = Dcx::XPopups.getMenuByHandle(hMenu); xMenu)
-		//		xMenu->DrawBorder(mHwnd, reinterpret_cast<HDC>(wParam));
-		//}
 
 		if (auto xMenu = Dcx::XPopups.getMenuByHWND(mHwnd); xMenu)
 				xMenu->DrawBorder(mHwnd, reinterpret_cast<HDC>(wParam));
