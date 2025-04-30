@@ -63,14 +63,48 @@ alias dcxml {
   dcx dcxml $1-
 }
 
+; check the version of the loaded dcx.dll
 ; $1 = required version (3.1), $2 = required build (1067)
 alias dcx_check_version {
-  var %v = $gettok($dcx(Version),4,32)
-  if ($gettok(%v,1,45) < $1) return 0
-  if ($gettok(%v,2,45) < $2) return 0
+  if ($dll(dcx.dll) == $null) return 0
+
+  var %v = $file($dll(dcx.dll)).version
+  if ($gettok(%v,1-2,46) < $1) return 0
+  if ($gettok(%v,3,46) < $2) return 0
+
+  ;var %v = $gettok($dcx(Version),4,32)
+  ;if ($gettok(%v,1,45) < $1) return 0
+  ;if ($gettok(%v,2,45) < $2) return 0
   return 1
 }
-
+; for use in dcx menus to embed styles & commands.
+; 1 = set a tooltip for an item. (must be last style & after the item text)
+; 11 = set an icon and/or style override for the item. (must be before the item text)
+; 12 = set as radio item (can be anywhere in text)
+; 14 = cause menu to stay open when item is selected, & callback alias is called
+;   If callback doesnt exist or gives an invalid result then menu item is selected as normal & menu closes.
+;   (can be anywhere)
+; $1 = style id code, $2- any style args
+alias xstyle {
+  ; set tooltip (tooltip could be blank)
+  if ($1 == 1) return $+($chr(1),$2-)
+  ; set icon, and/or style override
+  if ($1 == 11) {
+    ; return if only the code is given
+    if ($0 == 1) return
+    ; $2 is an icon number
+    ; $3 could be a style override
+    var %t = $2-
+    if ($2 isnum 0-) return $regsubex($str($chr(11),$calc($0 -1)),/(?=.)/g,$gettok(%t,\n,32))
+    ; no icon number supplied. set icon to disabled.
+    ; $2 could be a style override
+    return $+(0,$chr(11),$regsubex($str($chr(11),$calc($0 -1)),/(?=.)/g,$gettok(%t,\n,32)))
+  }
+  ; set item as a radio style
+  if ($1 == 12) return $chr(12)
+  ; force menu to stay open & possibly set special command id (needed for mIRC's command menu as the id's change all the time)
+  if (($1 == 14) && ($dcx_check_version(3.1,1132))) return $+($chr(14),$2)
+}
 ;xdidtok dialog ID N C Item Text[[C]Item Text[C]Item Text]...
 ;xdidtok $dname 1 0 44 SomeText1,SomeText2
 ;$xdidtok($dname,1,0,44)

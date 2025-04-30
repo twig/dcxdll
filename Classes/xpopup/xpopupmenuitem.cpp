@@ -191,8 +191,8 @@ bool XPopupMenuItem::parseItemText()
 		}
 		m_tsItemText = m_tsItemText.getlasttoks().trim();				// tok last, TEXT('\v')	get real item text
 	}
-	// handles tooltips
-	if (constexpr TCHAR sepChar = TEXT('\t'); m_tsItemText.numtok(sepChar) > 1)
+	// handles tooltips (possible conflict with right hand text tab(9) char)
+	if (constexpr TCHAR sepChar = 1; m_tsItemText.numtok(sepChar) > 1)
 	{
 		const TString tsTmp(m_tsItemText);						// copy item text
 		m_tsItemText = tsTmp.getfirsttok(1, sepChar).trim();	// tok 1, get real item text
@@ -220,11 +220,13 @@ bool XPopupMenuItem::parseItemText()
 		setCheckToggle(true);
 
 	}
-	//check if the first char is $chr(12), if so then the text is utf8 (this is kept for compatability with old script only)
-	if (m_tsItemText[0] == 12)
+	//check for $chr(12), if so then the item is a radio check item.
+	//if (m_tsItemText[0] == 12)
+	if (const auto nPos = m_tsItemText.find(L'\x0c', 1); nPos != -1)	// $chr(12)
 	{
 		// remove $chr(12) from text and trim whitespaces
-		m_tsItemText = m_tsItemText.right(-1).trim();
+		m_tsItemText.remove(L'\x0c').trim();
+
 		setRadioCheck(true);
 	}
 	return true;
@@ -379,13 +381,13 @@ SIZE XPopupMenuItem::getItemSize(const HWND mHwnd)
 	{
 		mIRCLinker::eval(m_tsItemText, m_tsItemText);
 
-		//check if the first char is $chr(12), if so then the text is utf8 (this is kept for compatability with old script only)
-		if (m_tsItemText[0] == 12)
-		{
-			// remove $chr(12) from text and trim whitespaces
-			m_tsItemText = m_tsItemText.right(-1).trim();
-			setRadioCheck(true);
-		}
+		////check if the first char is $chr(12), if so then the text is utf8 (this is kept for compatability with old script only)
+		//if (m_tsItemText[0] == 12)
+		//{
+		//	// remove $chr(12) from text and trim whitespaces
+		//	m_tsItemText = m_tsItemText.right(-1).trim();
+		//	setRadioCheck(true);
+		//}
 	}
 
 	SIZE size{ XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD, XPMI_HEIGHT };
@@ -400,7 +402,7 @@ SIZE XPopupMenuItem::getItemSize(const HWND mHwnd)
 		RECT rc{};
 		TString tsStripped(m_tsItemText);
 		tsStripped.strip();
-		DrawText(hdc, tsStripped.to_chr(), gsl::narrow_cast<int>(tsStripped.len()), &rc, DT_CALCRECT | DT_LEFT | DT_SINGLELINE | DT_VCENTER);
+		DrawTextW(hdc, tsStripped.to_wchr(), gsl::narrow_cast<int>(tsStripped.len()), &rc, DT_CALCRECT | DT_LEFT | DT_SINGLELINE | DT_VCENTER);
 		size.cx += std::max<long>((rc.right - rc.left), XPMI_MINSTRING);
 
 		//size.cx = XPMI_BOXLPAD + XPMI_BOXRPAD + std::max<long>((rc.right - rc.left), XPMI_MINSTRING);
@@ -413,6 +415,12 @@ SIZE XPopupMenuItem::getItemSize(const HWND mHwnd)
 		//tsStripped.Normalize();
 		//GetTextExtentPoint32(hdc, tsStripped.to_chr(), tsStripped.len(), &size);
 		//size.cx += std::max<long>(size.cx, XPMI_MINSTRING);
+
+		//SIZE sz{};
+		//TString tsStripped(m_tsItemText);
+		//tsStripped.strip();
+		//GetTextExtentPointW(hdc, tsStripped.to_wchr(), gsl::narrow_cast<int>(tsStripped.len()), &sz);
+		//size.cx += std::max<long>(sz.cx, XPMI_MINSTRING);
 	}
 
 	return size;

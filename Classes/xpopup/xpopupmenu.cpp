@@ -1363,6 +1363,9 @@ HMENU XPopupMenu::CommandIDToPath(_In_ UINT mID, _Out_ TString& tsPath, _In_opt_
 	if (!hMenu)
 		hMenu = m_hMenu;
 
+	if (!hMenu)
+		return nullptr;
+
 	const auto nCnt = GetMenuItemCount(hMenu);
 	for (int i{}; i < nCnt; ++i)
 	{
