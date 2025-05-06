@@ -632,6 +632,21 @@ public:
 	/// <returns>XPopupMenuItem*</returns>
 	XPopupMenuItem* getMenuItem(_In_ UINT mID) const noexcept;
 
+	static RECT getMenuItemRect(_In_opt_ HWND mHwnd, _In_ HMENU hMenu, _In_ UINT mID) noexcept;
+	RECT getMenuItemRect(_In_opt_ HWND mHwnd, _In_ UINT mID) const noexcept
+	{
+		return getMenuItemRect(mHwnd, this->getMenuHandle(), mID);
+	}
+	static RECT getMenuItemTextRect(_In_opt_ HWND mHwnd, _In_ HMENU hMenu, _In_ UINT mID) noexcept;
+	RECT getMenuItemTextRect(_In_opt_ HWND mHwnd, _In_ UINT mID) const noexcept
+	{
+		return getMenuItemTextRect(mHwnd, this->getMenuHandle(), mID);
+	}
+
+	RECT getMenuItemValueRect(_In_opt_ HWND mHwnd, _In_ HMENU hMenu, _In_ UINT mID) const noexcept;
+
+	int getMenuItemPossibleValue(_In_opt_ HWND mHwnd, _In_ HMENU hMenu, _In_ UINT mID) const noexcept;
+
 	/// <summary>
 	/// Gets groups data.
 	/// </summary>

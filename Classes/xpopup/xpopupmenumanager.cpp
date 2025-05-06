@@ -1846,8 +1846,6 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 				DestroyWindow(g_toolTipWin);
 				g_toolTipWin = nullptr;
 			}
-			//if (Dcx::m_CurrentMenuRounded)
-			//SetWindowRgn(mHwnd, nullptr, FALSE);
 		}
 	}
 	break;
@@ -1880,25 +1878,8 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		// message is sent AFTER the window is resized.
 		// this is client area size, we need window rect
 
-		//SetMenuAlphaToDefault(mHwnd);
-
 		//if (!Dcx::m_CurrentMenuRounded)
 		//	break;
-
-		//if (Dcx::VersInfo.isWin11())
-		//{
-		//	// Ook: this needs testing on win11+
-		//	const DWM_WINDOW_CORNER_PREFERENCE preference = DWMWCP_ROUNDSMALL;
-		//	Dcx::DwmModule.dcxDwmSetWindowAttribute(mHwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(preference));
-		//}
-		//else if (const Dcx::dcxWindowRect rc(mHwnd); rc)
-		//{
-		//	const auto width = rc.Width();
-		//	const auto height = rc.Height();
-		//	constexpr int radius = 10;
-		//	if (auto m_Region = CreateRoundRectRgn(0, 0, width, height, radius, radius); m_Region)
-		//		SetWindowRgn(mHwnd, m_Region, TRUE);
-		//}
 
 		Dcx::XPopups.setMenuRegion(mHwnd);
 	}
@@ -1933,10 +1914,46 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					}
 				}
 		}
+			if (GetKeyState(VK_LBUTTON) < 0)
+			{
+				if (auto hMenu = getWindowsMenu(mHwnd); hMenu)
+				{
+					const auto id = gsl::narrow_cast<int>(wParam);
+					if (auto xItem = Dcx::XPopups.getMenuItemByID(hMenu, id); xItem)
+					{
+						switch (auto eStyle = gsl::narrow_cast<MainMenuStyle>(xItem->getStyle2()); eStyle)
+						{
+						case MainMenuStyle::XPMS_TRACK:
+						{
+							auto xMenu = xItem->getParentMenu();
+							if (!xMenu)
+								break;
+
+							if (RECT rcItem = xMenu->getMenuItemValueRect(mHwnd, hMenu, id); !IsRectEmpty(&rcItem))
+							{
+								if (const Dcx::dcxCursorPos pos(mHwnd); PtInRect(&rcItem, pos))
+								{
+									auto xDiff = pos.x;
+									if (dcx_testflag(xMenu->getItemStyle(), XPS_VERTICALSEP))
+										xDiff += XPMI_BOXRPAD;
+
+									xItem->m_uProgressValue = gsl::narrow_cast<UINT>((gsl::narrow_cast<double>(xDiff) - rcItem.left) / ((gsl::narrow_cast<double>(rcItem.right) - rcItem.left) / 100.0));
+
+									// redraw item.
+									RedrawWindow(mHwnd, &rcItem, nullptr, RDW_UPDATENOW | RDW_FRAME | RDW_INTERNALPAINT | RDW_INVALIDATE /*| RDW_ERASE*/);
+		}
+							}
+						}
+						break;
+						default:
+							break;
+						}
+					}
+				}
+			}
 		}
 		else
-		// if cursor NOT over menu, make all menus solid.
-		//if (wParam == UINT_MAX)
+			// if cursor NOT over menu, make all menus default alpha.
 		{
 			if (const auto dwStyle = dcxGetWindowExStyle(mHwnd); !dcx_testflag(dwStyle, WS_EX_LAYERED))
 				dcxSetWindowExStyle(mHwnd, dwStyle | WS_EX_LAYERED);
@@ -1944,7 +1961,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			if (Dcx::m_CurrentMenuAlphaInactive == Dcx::m_CurrentMenuAlphaDefault)
 				break;
 
-			// iterate through all saved hwnds & make all solid.
+			// iterate through all saved hwnds & make all default alpha.
 			for (const auto& win : getGlobalMenuWindowList())
 				SetMenuAlphaToDefault(win);
 		}
@@ -2064,7 +2081,22 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 				TString tsRes;
 
 					// notify callback alias that an item has been clicked that has the toggle setting.
+					switch (gsl::narrow_cast<MainMenuStyle>(xItem->getStyle2()))
+					{
+					case MainMenuStyle::XPMS_PROGRESS:
+					case MainMenuStyle::XPMS_TRACK:
+					{
+						const auto uValue = xMenu->getMenuItemPossibleValue(mHwnd, hMenu, gsl::narrow_cast<UINT>(wParam));
+
+						mIRCLinker::eval(tsRes, L"$%(%,%,checksel,%)", tsCallback, xMenu->getName(), xItem->getCommandID(), uValue);
+					}
+					break;
+					default:
+					{
 					mIRCLinker::eval(tsRes, L"$%(%,%,checksel)", tsCallback, xMenu->getName(), xItem->getCommandID());
+					}
+					break;
+					}
 
 					switch (std::hash<TString>()(tsRes.getfirsttok(1)))
 					{
@@ -2099,13 +2131,14 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 							break;
 						}
 
+						// If possible only redraw this item.
 						if (RECT rcItem{}; GetMenuItemRect(mHwnd, hMenu, gsl::narrow_cast<UINT>(wParam), &rcItem))
 						{
 							MapWindowRect(nullptr, mHwnd, &rcItem);
 							RedrawWindow(mHwnd, &rcItem, nullptr, RDW_UPDATENOW | RDW_FRAME | RDW_INTERNALPAINT | RDW_INVALIDATE | RDW_ERASE);
 						}
 						else
-							RedrawWindow(mHwnd,  nullptr, nullptr, RDW_UPDATENOW | RDW_FRAME | RDW_INTERNALPAINT | RDW_INVALIDATE | RDW_ERASE);
+							RedrawWindow(mHwnd, nullptr, nullptr, RDW_UPDATENOW | RDW_FRAME | RDW_INTERNALPAINT | RDW_INVALIDATE | RDW_ERASE);
 						return 0L;
 					}
 					case L"check"_hash:

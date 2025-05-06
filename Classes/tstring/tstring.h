@@ -123,6 +123,9 @@ namespace TStringConcepts
 	concept IsTString = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, TString>;
 
 	template <class T>
+	concept IsSTDString = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, std::string> || std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, std::wstring>;
+
+	template <class T>
 	concept IsPointer = std::is_pointer_v<T>;
 
 	template <class T>
@@ -169,7 +172,7 @@ namespace TStringConcepts
 	concept IsSupportedCompareType = IsPODText<T> || IsPODTextPointer<T> || IsTString<T> || std::is_convertible_v<std::remove_cvref_t<T>, wchar_t> || std::is_convertible_v<std::remove_cvref_t<T>, char> || std::is_convertible_v<std::remove_cv_t<T>, wchar_t*> || std::is_convertible_v<std::remove_cv_t<T>, char*>;
 
 	template <class T>
-	concept IsSupportedAddType = IsNumeric<T> || IsSupportedCompareType<T>;
+	concept IsSupportedAddType = IsSTDString<T> || IsNumeric<T> || IsSupportedCompareType<T>;
 
 	template <class T>
 	concept IsSupportedRemoveType = IsSupportedCompareType<T>;
@@ -889,7 +892,6 @@ public:
 	/// <param name="tString">- TString to append</param>
 	/// <returns></returns>
 	TString& append(const TString& tString);
-	// append a string thats limited to iChars characters.
 
 	/// <summary>
 	/// Append a character limited string.
@@ -898,6 +900,12 @@ public:
 	/// <param name="iChars">- The number of characters to append.</param>
 	/// <returns></returns>
 	TString& append(const_pointer_const cString, const size_type iChars);
+
+	template <TStringConcepts::IsSTDString T>
+	TString& append(const T& tString)
+	{
+		return append(tString.c_str());
+	};
 
 	/// <summary>
 	/// Test if the string is empty.
@@ -1103,6 +1111,28 @@ public:
 	{
 		const_value_type sTmp[2]{};
 		replace(str, &sTmp[0]);
+		return *this;
+	}
+
+	TString& remove_range(size_type startPos, size_type endPos)
+	{
+		if ((startPos < 0) || (endPos < startPos) || (endPos == 0))
+			return *this;
+
+		const auto uLen = this->len();
+		if (startPos == uLen)
+			return *this;
+		if (endPos > uLen)
+			endPos = uLen;
+
+		TString tmp;
+		if (startPos > 0)
+			tmp = this->sub(0, startPos);
+		if (endPos != uLen)
+			tmp += this->sub(endPos, uLen);
+
+		this->swap(tmp);
+
 		return *this;
 	}
 

@@ -545,6 +545,7 @@ namespace Dcx {
 			return 0L;
 		}
 		break;
+
 		case WM_NCPAINT:
 		case WM_NCACTIVATE:
 		{

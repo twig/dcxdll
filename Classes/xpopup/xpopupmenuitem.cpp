@@ -191,7 +191,7 @@ bool XPopupMenuItem::parseItemText()
 		}
 		m_tsItemText = m_tsItemText.getlasttoks().trim();				// tok last, TEXT('\v')	get real item text
 	}
-	// handles tooltips (possible conflict with right hand text tab(9) char)
+	// handles tooltips (conflict with right hand text tab(9) char, changed to char(1))
 	if (constexpr TCHAR sepChar = 1; m_tsItemText.numtok(sepChar) > 1)
 	{
 		const TString tsTmp(m_tsItemText);						// copy item text
@@ -208,7 +208,8 @@ bool XPopupMenuItem::parseItemText()
 		if ((nEnd - nPos) > 1)
 		{
 			auto tsID(m_tsItemText.sub(nPos, nEnd));
-			m_tsItemText.remove(tsID.to_chr());
+			//m_tsItemText.remove(tsID.to_chr());
+			m_tsItemText.remove_range(nPos, nEnd);
 			tsID.remove(L'\x0e');
 			if (!tsID.empty())
 				setCommandID(tsID.to_<UINT>());
@@ -228,6 +229,26 @@ bool XPopupMenuItem::parseItemText()
 		m_tsItemText.remove(L'\x0c').trim();
 
 		setRadioCheck(true);
+	}
+	if (const auto nPos = m_tsItemText.find(L'\x10', 1); nPos != -1)	// $chr(16)
+	{
+		ptrdiff_t nEnd{ nPos + 1 };
+		while (m_tsItemText[nEnd] >= L'0' && m_tsItemText[nEnd] <= L'9')
+		{
+			++nEnd;
+		}
+		if ((nEnd - nPos) > 1)
+		{
+			auto tsID(m_tsItemText.sub(nPos, nEnd));
+			//m_tsItemText.remove(tsID.to_chr());
+			m_tsItemText.remove_range(nPos, nEnd);
+			tsID.remove(L'\x10');
+			if (!tsID.empty())
+				this->m_uProgressValue = std::clamp(tsID.to_<UINT>(),0u,100u);
+		}
+		else
+			m_tsItemText.remove(L'\x10');
+		m_tsItemText.trim();
 	}
 	return true;
 }
@@ -308,12 +329,8 @@ void XPopupMenuItem::DrawButton(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XP
 	}
 }
 
-void XPopupMenuItem::DrawProgress(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc) noexcept
+void XPopupMenuItem::DrawProgress(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc) noexcept
 {
-	auto hCurrentMenu = reinterpret_cast<HMENU>(lpdis->hwndItem);
-	if (!hCurrentMenu)
-		return;
-
 	const auto hMenuWin = Dcx::XPopups.getHWNDfromHMENU(hCurrentMenu);
 	if (!IsWindow(hMenuWin))
 		return;
@@ -325,21 +342,17 @@ void XPopupMenuItem::DrawProgress(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const 
 
 	constexpr int iStyle{ PBFS_NORMAL };
 
-	Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, lpdis->hDC, PP_BAR, iStyle, rc, nullptr);
+	Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, hdc, PP_BAR, iStyle, rc, nullptr);
 
 	RECT rcContents{};
-	Dcx::UXModule.dcxGetThemeBackgroundContentRect(hMenuStyleTheme, lpdis->hDC, PP_BAR, iStyle, rc, &rcContents);
+	Dcx::UXModule.dcxGetThemeBackgroundContentRect(hMenuStyleTheme, hdc, PP_BAR, iStyle, rc, &rcContents);
 
 	rcContents.right = rcContents.left + gsl::narrow_cast<LONG>(((rcContents.right - rcContents.left) / 100.0) * std::clamp(iPos, 0, 100));
-	Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, lpdis->hDC, PP_FILL, iStyle, &rcContents, nullptr);
+	Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, hdc, PP_FILL, iStyle, &rcContents, nullptr);
 }
 
-void XPopupMenuItem::DrawTrackbar(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc) noexcept
+void XPopupMenuItem::DrawTrackbar(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ UINT uState, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc) noexcept
 {
-	auto hCurrentMenu = reinterpret_cast<HMENU>(lpdis->hwndItem);
-	if (!hCurrentMenu)
-		return;
-
 	const auto hMenuWin = Dcx::XPopups.getHWNDfromHMENU(hCurrentMenu);
 	if (!IsWindow(hMenuWin))
 		return;
@@ -349,15 +362,15 @@ void XPopupMenuItem::DrawTrackbar(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const 
 		return;
 	Auto(Dcx::UXModule.dcxCloseThemeData(hMenuStyleTheme));
 
-	const auto bGrayed = dcx_testflag(lpdis->itemState, ODS_GRAYED);
-	const auto bSelected = dcx_testflag(lpdis->itemState, ODS_SELECTED);
+	const auto bGrayed = dcx_testflag(uState, ODS_GRAYED);
+	const auto bSelected = dcx_testflag(uState, ODS_SELECTED);
 
 	int iStyle{ TKS_NORMAL };
 
-	Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, lpdis->hDC, TKP_TRACK, iStyle, &lpdis->rcItem, nullptr);
+	Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, hdc, TKP_TRACK, iStyle, rc, nullptr);
 
 	RECT rcContents{};
-	Dcx::UXModule.dcxGetThemeBackgroundContentRect(hMenuStyleTheme, lpdis->hDC, TKP_TRACK, iStyle, &lpdis->rcItem, &rcContents);
+	Dcx::UXModule.dcxGetThemeBackgroundContentRect(hMenuStyleTheme, hdc, TKP_TRACK, iStyle, rc, &rcContents);
 
 	iStyle = TUBS_NORMAL;
 	if (bGrayed)
@@ -369,7 +382,7 @@ void XPopupMenuItem::DrawTrackbar(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const 
 
 	rcContents.left += offset - 5;
 	rcContents.right = rcContents.left + 10;
-	Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, lpdis->hDC, TKP_THUMB, iStyle, &rcContents, &lpdis->rcItem);
+	Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, hdc, TKP_THUMB, iStyle, &rcContents, rc);
 }
 
 SIZE XPopupMenuItem::getItemSize(const HWND mHwnd)
@@ -450,7 +463,7 @@ void XPopupMenuItem::DrawItem(const LPDRAWITEMSTRUCT lpdis)
 	// Regular Item
 	else {
 		// Item is selected
-		if (this->getStyle() != XPopupMenu::MenuStyle::XPMS_BUTTON)
+		if (const auto eStyle = this->getStyle(); (eStyle != XPopupMenu::MenuStyle::XPMS_BUTTON) && (eStyle != XPopupMenu::MenuStyle::XPMS_TRACK))
 		{
 			if (bSelected)
 			{
@@ -612,7 +625,7 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 		if (const auto iItemStyle = this->m_pXParentMenu->getItemStyle(); dcx_testflag(iItemStyle, XPS_VERTICALSEP))
 			rc.left += XPMI_BOXLPAD + XPMI_BOXWIDTH;
 
-		this->DrawProgress(lpdis, lpcol, m_uProgressValue, &rc);
+		this->DrawProgress(lpdis->hDC, reinterpret_cast<HMENU>(lpdis->hwndItem), lpcol, m_uProgressValue, &rc);
 	}
 	break;
 
@@ -625,7 +638,7 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 		if (const auto iItemStyle = this->m_pXParentMenu->getItemStyle(); dcx_testflag(iItemStyle, XPS_VERTICALSEP))
 			rc.left += XPMI_BOXLPAD + XPMI_BOXWIDTH;
 
-		this->DrawTrackbar(lpdis, lpcol, m_uProgressValue, &rc);
+		this->DrawTrackbar(lpdis->hDC, reinterpret_cast<HMENU>(lpdis->hwndItem), lpdis->itemState, lpcol, m_uProgressValue, &rc);
 	}
 	break;
 

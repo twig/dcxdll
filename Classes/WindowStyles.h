@@ -1092,6 +1092,7 @@ enum class WindowStyle
 	// Treeview
 	TVS_CheckBoxes = TVS_CHECKBOXES,
 	TVS_FullRowSelect = TVS_FULLROWSELECT,
+	TVS_TrackSelect = TVS_TRACKSELECT,
 
 	// ?
 	CCS_NoParentAlign = CCS_NOPARENTALIGN,

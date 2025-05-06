@@ -1335,6 +1335,58 @@ XPopupMenuItem* XPopupMenu::getMenuItem(_In_ UINT mID) const noexcept
 	return nullptr;
 }
 
+RECT XPopupMenu::getMenuItemRect(HWND mHwnd, HMENU hMenu, UINT mID) noexcept
+{
+	RECT rcItem{};
+	if (!IsWindow(mHwnd) || !hMenu)
+		return rcItem;
+
+	GetMenuItemRect(mHwnd, hMenu, mID, &rcItem);
+
+	MapWindowRect(nullptr, mHwnd, &rcItem);
+
+	return rcItem;
+}
+
+RECT XPopupMenu::getMenuItemTextRect(HWND mHwnd, HMENU hMenu, UINT mID) noexcept
+{
+	RECT rcItem = getMenuItemRect(mHwnd, hMenu, mID);
+	if (IsRectEmpty(&rcItem))
+		return rcItem;
+
+	rcItem.left = XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
+	return rcItem;
+}
+
+RECT XPopupMenu::getMenuItemValueRect(HWND mHwnd, HMENU hMenu, UINT mID) const noexcept
+{
+	RECT rcItem = getMenuItemRect(mHwnd, hMenu, mID);
+	if (IsRectEmpty(&rcItem))
+		return rcItem;
+
+	if (dcx_testflag(this->getItemStyle(), XPS_VERTICALSEP))
+		rcItem.left = XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
+
+	return rcItem;
+}
+
+int XPopupMenu::getMenuItemPossibleValue(HWND mHwnd, HMENU hMenu, UINT mID) const noexcept
+{
+	int uValue{ -1 };
+	if (RECT rcItem = this->getMenuItemValueRect(mHwnd, hMenu, mID); !IsRectEmpty(&rcItem))
+	{
+		if (const Dcx::dcxCursorPos pos(mHwnd); PtInRect(&rcItem, pos))
+		{
+			auto xDiff = pos.x;
+			if (dcx_testflag(this->getItemStyle(), XPS_VERTICALSEP))
+				xDiff += XPMI_BOXRPAD;
+
+			uValue = gsl::narrow_cast<int>((gsl::narrow_cast<double>(xDiff) - rcItem.left) / ((gsl::narrow_cast<double>(rcItem.right) - rcItem.left) / 100.0));
+		}
+	}
+	return uValue;
+}
+
 
 /// <summary>
 /// Get an item group from a group id.
@@ -1358,7 +1410,7 @@ HMENU XPopupMenu::CommandIDToPath(_In_ UINT mID, _Out_ TString& tsPath, _In_opt_
 {
 	MENUITEMINFO mii{};
 	mii.cbSize = sizeof(MENUITEMINFO);
-	mii.fMask = MIIM_ID | MIIM_SUBMENU;
+	mii.fMask = MIIM_ID | MIIM_SUBMENU | MIIM_DATA;
 
 	if (!hMenu)
 		hMenu = m_hMenu;
@@ -1369,11 +1421,19 @@ HMENU XPopupMenu::CommandIDToPath(_In_ UINT mID, _Out_ TString& tsPath, _In_opt_
 	const auto nCnt = GetMenuItemCount(hMenu);
 	for (int i{}; i < nCnt; ++i)
 	{
-		GetMenuItemInfo(hMenu, i, TRUE, &mii);
+		GetMenuItemInfoW(hMenu, i, TRUE, &mii);
 		if (mii.wID == mID)
 		{
 			tsPath.addtok(++i);
 			return hMenu;
+		}
+		if (auto xItem = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); xItem)
+		{
+			if (xItem->getCommandID() == mID)
+			{
+				tsPath.addtok(++i);
+				return hMenu;
+			}
 		}
 		if (mii.hSubMenu)
 		{
@@ -1642,30 +1702,52 @@ bool XPopupMenu::DrawBorder(_In_opt_ HWND hWnd, _In_opt_ HDC hdc) const noexcept
 	{
 		// get the menu windows rect
 		Dcx::dcxWindowRect rect(hWnd);
-		// get its client area
+		// get its client area (mapped to screen)
 		const Dcx::dcxClientRect rcClient(hWnd, nullptr);
 		// get the border width as the diff between the window rect left edge & the client rect left edge.
-		const int borderThiness = rcClient.left - rect.left;
-
-		// make window rect zero based.
-		::OffsetRect(&rect, -rect.left, -rect.top);
-	
-		//exclude non border area from drawing.
-		::ExcludeClipRect(hdc, rect.left + borderThiness, rect.top + borderThiness, rect.right - borderThiness, rect.bottom - borderThiness);
+		const int borderXThiness = rcClient.left - rect.left;
+		const int borderYThiness = rcClient.top - rect.top;
 
 		// draw border.
-		if (auto hPen = CreatePen(PS_INSIDEFRAME, 1, clr); hPen)
+		if (this->IsRoundedWindow())
 		{
-			auto hOldPen = SelectPen(hdc, hPen);
-			if (auto hBrush = CreateSolidBrush(getColor(MenuColours::XPMC_BACKGROUND)); hBrush)
+			if (auto hrgn = CreateRectRgn(0, 0, 0, 0); hrgn)
 			{
-				auto hOldBrush = SelectBrush(hdc, hBrush);
-				Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
-				SelectBrush(hdc, hOldBrush);
-				DeleteBrush(hBrush);
+				if (GetWindowRgn(hWnd, hrgn) != ERROR)
+				{
+					if (auto hBrush = CreateSolidBrush(clr); hBrush)
+					{
+						FrameRgn(hdc, hrgn, hBrush, borderXThiness, borderYThiness);
+
+						DeleteBrush(hBrush);
+					}
+				}
+				DeleteRgn(hrgn);
 			}
-			SelectPen(hdc, hOldPen);
-			DeletePen(hPen);
+		}
+		else {
+			// make window rect zero based.
+			::OffsetRect(&rect, -rect.left, -rect.top);
+
+			//exclude non border area from drawing.
+			::ExcludeClipRect(hdc, rect.left + borderXThiness, rect.top + borderYThiness, rect.right - borderXThiness, rect.bottom - borderYThiness);
+
+			if (auto hPen = CreatePen(PS_INSIDEFRAME, 1, clr); hPen)
+			{
+				auto hOldPen = SelectPen(hdc, hPen);
+				if (auto hBrush = CreateSolidBrush(getColor(MenuColours::XPMC_BACKGROUND)); hBrush)
+				{
+					auto hOldBrush = SelectBrush(hdc, hBrush);
+					//if (this->IsRoundedWindow())
+					//	RoundRect(hdc, rect.left, rect.top, rect.right, rect.bottom, 5, 5);
+					//else
+						Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
+					SelectBrush(hdc, hOldBrush);
+					DeleteBrush(hBrush);
+				}
+				SelectPen(hdc, hOldPen);
+				DeletePen(hPen);
+			}
 		}
 	}
 	return true;
@@ -1874,12 +1956,15 @@ void XPopupMenu::xpop_s(HMENU hMenu, int nPos, const TString& path, const TStrin
 			CheckMenuRadioItem(hMenu, nFirst, nLast, nPos, MF_BYPOSITION);
 		}
 		if (xflags[TEXT('R')])
+		{
+			Dcx::XPopups.setMenuRegionIfOpen();
 			Dcx::XPopups.RedrawMenuIfOpen();
+		}
 	}
 	else
 		p_Item->setCheckToggle(false);
 
-	SetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
+	SetMenuItemInfoW(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
 }
 
 void XPopupMenu::xpop_t(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo)

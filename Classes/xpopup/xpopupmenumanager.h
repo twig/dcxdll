@@ -86,7 +86,6 @@ private:
 	bool m_bIsActiveMircPopup{ false };
 	bool m_bIsActiveMircMenubarPopup{ false };
 
-
 	HMENU m_hMenuCustom{ nullptr };
 	HWND m_hMenuOwner{ nullptr }; //!< Menu Owner Window Which Processes WM_ Menu Messages 
 
