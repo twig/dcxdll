@@ -2,6 +2,10 @@
 ; see https://vsthemes.org/en/icon/ for icons
 ;
 alias dcxmenus {
+
+  if (!$var(%dcxmenus_value_801,0)) set %dcxmenus_value_801 25
+  if (!$var(%dcxmenus_value_802,0)) set %dcxmenus_value_802 25
+
   ; NB: The callback alias is ONLY used for special items that have $chr(14) in the item text, these items can trigger without closing the menu.
   mpopup mirc 1 _dcx_mircmenu_callback
   mpopup mircbar 1 _dcx_mircmenu_callback
@@ -27,15 +31,17 @@ alias dcxmenus {
   xpopup -R mirc +r 1
   xpopup -R mircbar +r 1
 
-  ; set menu as alpha blended.
+  ; set menu as alpha blended when not under mouse.
   xpopup -R mirc +a 192
-  xpopup -R mirc +A 240
   xpopup -R mircbar +a 192
-  xpopup -R mircbar +A 240
+
+  ; set menus default alpha.
+  ;xpopup -R mirc +A 240
+  ;xpopup -R mircbar +A 240
 
   ; enable tooltips
-  xpopup -R mirc +t 1
-  xpopup -R mircbar +t 1
+  ;xpopup -R mirc +t 1
+  ;xpopup -R mircbar +t 1
 
   ;
   _setupmircmenubar
@@ -102,7 +108,7 @@ alias _dcx_setmenustyle {
       xpopup -l $1 1,3,13 $rgb(54,54,54) ;color(91)
       xpopup -l $1 4 $rgb(19,19,19) ;color(89)
       xpopup -l $1 6,7,9,19,20 $rgb(77,77,77) ;color(92)
-      xpopup -l $1 8,10,11,12 $rgb(188,188,188) ;color(96)
+      xpopup -l $1 8,10-12 $rgb(188,188,188) ;color(96)
     }
     elseif ($2 == button) xpopup -l $1 7 $rgb(13,180,242)
     elseif ($2 == buttonrev) xpopup -l $1 7 $rgb(13,180,242)
@@ -119,11 +125,6 @@ alias _dcx_setmenustyle {
 
       ;xpop -t $1 :700 $chr(9) Test
     }
-
-    if ($xpopup($1).isroundedmenu) {
-      ; set border colour to match background colour
-      xpopup -l $1 19 $xpopup($1,1).color
-    }
   }
   elseif ($2 == rounded) xpopup -R $1 +r 1
   elseif ($2 == square) xpopup -R $1 +r 0
@@ -137,6 +138,11 @@ alias _dcx_setmenustyle {
   elseif ($2 == novsep) xpopup -x $1 $remove($xpopup($1).exstyle,v)
   elseif ($2 == doublesep) xpopup -x $1 $xpopup($1).exstyle $+ D
   elseif ($2 == nodoublesep) xpopup -x $1 $remove($xpopup($1).exstyle,D)
+
+  if ($xpopup($1).isroundedmenu) {
+    ; if menu is rounded, set border colour to match background colour
+    xpopup -l $1 19 $xpopup($1,1).color
+  }
 
   if ($1 == mircbar) .timer 1 0 _dcx_setmenustyle scriptpopup $2
 }
@@ -267,7 +273,11 @@ alias _dcx_mircmenu_callback {
       }
     }
     elseif ($2 == 800) return value $+(,$base($r(0,88),10,10,2),Button)
-    elseif ($2 isnum 801-802) return value $r(0,100)
+    elseif ($2 isnum 801-802) {
+      set $+(%,dcxmenus_value_,$2) $4
+      ;return $true
+      return value $4
+    }
   }
 }
 alias -l _dcx_setdarkmode {
@@ -312,8 +322,8 @@ menu status,menubar {
   .Unload DCX:udcx
   .Menu Item Types
   ..$xstyle(11,button) 88Button $xstyle(14,800) $xstyle(1,Button style item): noop
-  ..$xstyle(11,progress) 88Progress $xstyle(14,801) $xstyle(1,Progressbar style item): noop
-  ..$xstyle(11,track) 88Track $xstyle(14,802) $xstyle(1,Trackbar style item): noop
+  ..$xstyle(11,progress) 88Progress $xstyle(14,801) $xstyle(16,%dcxmenus_value_801) $xstyle(1,Progressbar style item): noop
+  ..$xstyle(11,track) 88Track $xstyle(14,802) $xstyle(16,%dcxmenus_value_802) $xstyle(1,Trackbar style item): noop
   ..$xstyle(11,grade) 88Gradient $xstyle(1,Gradient style item): noop
   ..$xstyle(11,custom) 88Custom $xstyle(1,Custom style item): noop
   ..$xstyle(11,icy) 88Icy $xstyle(1,Icy style item): noop

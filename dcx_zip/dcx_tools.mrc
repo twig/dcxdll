@@ -84,6 +84,7 @@ alias dcx_check_version {
 ; 14 = cause menu to stay open when item is selected, & callback alias is called
 ;   If callback doesnt exist or gives an invalid result then menu item is selected as normal & menu closes.
 ;   (can be anywhere)
+; 16 = set a starting value for a progressbar or trackbar item.
 ; $1 = style id code, $2- any style args
 alias xstyle {
   ; set tooltip (tooltip could be blank)
@@ -104,6 +105,7 @@ alias xstyle {
   if ($1 == 12) return $chr(12)
   ; force menu to stay open & possibly set special command id (needed for mIRC's command menu as the id's change all the time)
   if (($1 == 14) && ($dcx_check_version(3.1,1132))) return $+($chr(14),$2)
+  if (($1 == 16) && ($dcx_check_version(3.1,1257))) return $+($chr(16),$2)
 }
 ;xdidtok dialog ID N C Item Text[[C]Item Text[C]Item Text]...
 ;xdidtok $dname 1 0 44 SomeText1,SomeText2
