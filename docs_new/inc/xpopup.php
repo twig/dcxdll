@@ -100,11 +100,14 @@ There are two special reserved menu names in XPopup. They are for mIRC's regular
 <table>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/mpopup [mirc|mircbar] [ENABLED]</div></td>
+		<td><div class="syntax">/mpopup [mirc|mircbar] [ENABLED] (callback)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/mpopup mirc 1</div></td>
+		<td><div class="example">/mpopup mirc 1 _dcx_menus_callback_alias</div></td>
+	</tr>
+	<tr>
+		<td colspan="2">[n](callback) is an optional alias used for special $xstyle(14) menu items only.[/n]</td>
 	</tr>
 </table>
 <br />
@@ -250,7 +253,7 @@ function get_xpopup(&$XPOPUP) {
 		),
 		'p' => array(
 	        '__desc' => 'This command lets you set the whole menu color palette in one command where [p]COLORS[/p] is a space separated list of RGB colors.',
-	        '__cmd' => '[COLOR1] [COLOR2] [COLOR...] [COLOR10]',
+	        '__cmd' => '[COLOR1] [COLOR2] [COLOR...] [COLOR20]',
 	        '__eg' => '$rgb(255,0,0) $rgb(0,0,255) ... $rgb(0,255,0)',
                 '__params' => array(
                     'COLORS' => array(
@@ -371,6 +374,8 @@ function get_xpopup(&$XPOPUP) {
 						'd' => 'Disabled items display a selection box.',
 						'i' => 'Icons have a 3D shadow effect when menu item is selected.',
 						'p' => 'Icons have a plain 3D effect when menu item is selected.',
+						'D' => 'Seperators have a double width.',
+						'v' => 'Display a vertical separator between the icon area and the item text.',
 				    ),
 				),
 			),
@@ -405,7 +410,7 @@ function get_xpopupprops(&$XPOPUPPROPS) {
 			'__cmd' => 'N',
 			'__eg' => '3',
 		),
-		#"menubar" => 'Is the rounded style enabled?',
+		#"menubar" => '?',
 		"callback" => 'Returns the menus callback alias.',
 		"isopen" => 'Is the menu currently open?',
 	);
@@ -519,6 +524,9 @@ ON *:SIGNAL:Xpopup-*: {
         }
 }
 [/code]
+<br />
+Events can also be sent to a callback alias from +C custom menu items or $xstyle(14) mirc menu items.<br />
+see [cmd]/xpopup -c[/cmd] and /mpopup
 <?php
 	//'
 	return ob_get_clean();
@@ -527,28 +535,98 @@ ON *:SIGNAL:Xpopup-*: {
 
 function xpopup_paths() {
 	ob_start();
-?>The XPopup menus have an engine that parses the given item "path" data to know where to insert/delete/modify a given item in the menu structure. The parameters you supply are a space separated numerical token list of the menu submenus that lead to the menu item position:<br />
-<br/>
-
-<table>
-	<tr>
-		<td class="syntax">Format:</td>
-		<td><div class="syntax">N N N ... N</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">2 3</div></td>
-	</tr>
-</table>
-<br />
-This position represents the 3rd menu item of the of the second menu item submenu as shown by the selected item in the picture below:<br />
-<br />
-<div style="text-align: center;"><img src="images/xpopup2.png" alt="XPopup Item Path Example" /></div>
-
-[n][/n]
+?>The XPopup menus have an engine that parses the given item "path" data to know where to insert/delete/modify a given item in the menu structure.<br />
+The parameters you supply can take three basic forms<br />
 <ul>
-	<li>If you specify a path that does not exist, parsing halts and an error is displayed.</li>
-	<li>You can use [v]0[/v] for the last value when inserting a menu item to insert it at the end of the menu.</li>
+	<li>
+		A space separated numerical token list of the menu submenus that lead to the menu item position:<br />
+		<br/>
+
+		<table>
+			<tr>
+				<td class="syntax">Format:</td>
+				<td><div class="syntax">N N N ... N</div></td>
+			</tr>
+			<tr>
+				<td class="example">Example:</td>
+				<td><div class="example">2 3</div></td>
+			</tr>
+		</table>
+		<br />
+		This position represents the 3rd menu item of the of the second menu item submenu as shown by the selected item in the picture below:<br />
+		<br />
+		<div style="text-align: center;"><img src="images/xpopup2.png" alt="XPopup Item Path Example" /></div>
+
+		[n][/n]
+		<ul>
+			<li>If you specify a path that does not exist, parsing halts and an error is displayed.</li>
+			<li>You can use [v]0[/v] for the last value when inserting a menu item to insert it at the end of the menu.</li>
+		</ul>
+	</li>
+	<br/>
+	<li>
+		A single command ID belonging to a specific item in the menu:<br />
+		<br/>
+
+		<table>
+			<tr>
+				<td class="syntax">Format:</td>
+				<td><div class="syntax">:N</div></td>
+			</tr>
+			<tr>
+				<td class="example">Example:</td>
+				<td><div class="example">:300</div></td>
+			</tr>
+		</table>
+		<br />
+		This position represents the 3rd menu item of the of the second menu item submenu as shown by the selected item in the picture below:<br />
+		<br />
+		<div style="text-align: center;"><img src="images/xpopup2.png" alt="XPopup Item Path Example" /></div>
+
+		[n][/n]
+		<ul>
+			<li>If you specify an ID that does not exist, parsing halts and an error is displayed.</li>
+			<li>This method can only be used to access a pre-existing item, so can't be used with [cmd]/xpop -a[/cmd].</li>
+		</ul>
+	</li>
+	<br/>
+	<li>
+		A singal group ID which has been pre defined by [cmd]/xpop -g[/cmd] this can contain any number of item id's:<br />
+		<br/>
+
+		<table>
+			<tr>
+				<td class="syntax">Format:</td>
+				<td><div class="syntax">=N</div></td>
+			</tr>
+			<tr>
+				<td class="example">Example:</td>
+				<td><div class="example">=2</div></td>
+			</tr>
+		</table>
+
+		[n][/n]
+		<ul>
+			<li>If you specify a group that does not exist, parsing halts and an error is displayed.</li>
+			<li>This method can only be used to access a pre-existing item, so can't be used with [cmd]/xpop -a[/cmd].</li>
+		</ul>
+	</li>
+	<br/>
+	<li>
+		And finally these can be combined:<br />
+		<br/>
+
+		<table>
+			<tr>
+				<td class="syntax">Format:</td>
+				<td><div class="syntax">N N N,=N,:N</div></td>
+			</tr>
+			<tr>
+				<td class="example">Example:</td>
+				<td><div class="example">1 2 3,=2,:300</div></td>
+			</tr>
+		</table>
+	</li>
 </ul>
 <?php
 	return ob_get_clean();

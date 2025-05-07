@@ -78,11 +78,14 @@
 <table>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/mpopup [mirc|mircbar] [ENABLED]</div></td>
+		<td><div class="syntax">/mpopup [mirc|mircbar] [ENABLED] (callback)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/mpopup mirc 1</div></td>
+		<td><div class="example">/mpopup mirc 1 _dcx_menus_callback_alias</div></td>
+	</tr>
+	<tr>
+		<td colspan="2"><a class="note">Note:</a> (callback) is an optional alias used for special $xstyle(14) menu items only.</td>
 	</tr>
 </table>
 <br />
@@ -142,28 +145,98 @@ The image below is an example of a mIRC menubar popup menu skinned with XPopup w
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>XPopup Item Path</td></tr>
-	<tr><td>The XPopup menus have an engine that parses the given item "path" data to know where to insert/delete/modify a given item in the menu structure. The parameters you supply are a space separated numerical token list of the menu submenus that lead to the menu item position:<br />
-<br/>
-
-<table>
-	<tr>
-		<td class="syntax">Format:</td>
-		<td><div class="syntax">N N N ... N</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">2 3</div></td>
-	</tr>
-</table>
-<br />
-This position represents the 3rd menu item of the of the second menu item submenu as shown by the selected item in the picture below:<br />
-<br />
-<div style="text-align: center;"><img src="images/xpopup2.png" alt="XPopup Item Path Example" /></div>
-
-<a class="note">Note:</a> 
+	<tr><td>The XPopup menus have an engine that parses the given item "path" data to know where to insert/delete/modify a given item in the menu structure.<br />
+The parameters you supply can take three basic forms<br />
 <ul>
-	<li>If you specify a path that does not exist, parsing halts and an error is displayed.</li>
-	<li>You can use <a class="value">0</a> for the last value when inserting a menu item to insert it at the end of the menu.</li>
+	<li>
+		A space separated numerical token list of the menu submenus that lead to the menu item position:<br />
+		<br/>
+
+		<table>
+			<tr>
+				<td class="syntax">Format:</td>
+				<td><div class="syntax">N N N ... N</div></td>
+			</tr>
+			<tr>
+				<td class="example">Example:</td>
+				<td><div class="example">2 3</div></td>
+			</tr>
+		</table>
+		<br />
+		This position represents the 3rd menu item of the of the second menu item submenu as shown by the selected item in the picture below:<br />
+		<br />
+		<div style="text-align: center;"><img src="images/xpopup2.png" alt="XPopup Item Path Example" /></div>
+
+		<a class="note">Note:</a> 
+		<ul>
+			<li>If you specify a path that does not exist, parsing halts and an error is displayed.</li>
+			<li>You can use <a class="value">0</a> for the last value when inserting a menu item to insert it at the end of the menu.</li>
+		</ul>
+	</li>
+	<br/>
+	<li>
+		A single command ID belonging to a specific item in the menu:<br />
+		<br/>
+
+		<table>
+			<tr>
+				<td class="syntax">Format:</td>
+				<td><div class="syntax">:N</div></td>
+			</tr>
+			<tr>
+				<td class="example">Example:</td>
+				<td><div class="example">:300</div></td>
+			</tr>
+		</table>
+		<br />
+		This position represents the 3rd menu item of the of the second menu item submenu as shown by the selected item in the picture below:<br />
+		<br />
+		<div style="text-align: center;"><img src="images/xpopup2.png" alt="XPopup Item Path Example" /></div>
+
+		<a class="note">Note:</a> 
+		<ul>
+			<li>If you specify an ID that does not exist, parsing halts and an error is displayed.</li>
+			<li>This method can only be used to access a pre-existing item, so can't be used with <a class='value' href='xpopup.htm#xpop.a'>/xpop -a</a>.</li>
+		</ul>
+	</li>
+	<br/>
+	<li>
+		A singal group ID which has been pre defined by <a class='value' href='xpopup.htm#xpop.g'>/xpop -g</a> this can contain any number of item id's:<br />
+		<br/>
+
+		<table>
+			<tr>
+				<td class="syntax">Format:</td>
+				<td><div class="syntax">=N</div></td>
+			</tr>
+			<tr>
+				<td class="example">Example:</td>
+				<td><div class="example">=2</div></td>
+			</tr>
+		</table>
+
+		<a class="note">Note:</a> 
+		<ul>
+			<li>If you specify a group that does not exist, parsing halts and an error is displayed.</li>
+			<li>This method can only be used to access a pre-existing item, so can't be used with <a class='value' href='xpopup.htm#xpop.a'>/xpop -a</a>.</li>
+		</ul>
+	</li>
+	<br/>
+	<li>
+		And finally these can be combined:<br />
+		<br/>
+
+		<table>
+			<tr>
+				<td class="syntax">Format:</td>
+				<td><div class="syntax">N N N,=N,:N</div></td>
+			</tr>
+			<tr>
+				<td class="example">Example:</td>
+				<td><div class="example">1 2 3,=2,:300</div></td>
+			</tr>
+		</table>
+	</li>
 </ul>
 </td></tr>
 </table>
@@ -196,6 +269,9 @@ ON *:SIGNAL:Xpopup-*: {
         }
 }
 </pre>
+<br />
+Events can also be sent to a callback alias from +C custom menu items or $xstyle(14) mirc menu items.<br />
+see <a class='value' href='xpopup.htm#xpopup.c'>/xpopup -c</a> and /mpopup
 </td></tr>
 </table>
 <table class="description">
@@ -400,7 +476,7 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr><td colspan="2">This command lets you set the whole menu color palette in one command where <a class="param">COLORS</a> is a space separated list of RGB colors.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xpopup -p [MENU] [COLOR1] [COLOR2] [COLOR...] [COLOR10]</div></td>
+		<td><div class="syntax">/xpopup -p [MENU] [COLOR1] [COLOR2] [COLOR...] [COLOR20]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -612,6 +688,14 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 		<td class="value">p</td>
 		<td>Icons have a plain 3D effect when menu item is selected.</td>
+	</tr>
+	<tr>
+		<td class="value">D</td>
+		<td>Seperators have a double width.</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Display a vertical separator between the icon area and the item text.</td>
 	</tr>
 </table>
 <br />
@@ -1607,7 +1691,7 @@ The only difference is that you can load multiple icons by seperating the indexe
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2025</td>
-		<td style="text-align: right;">Last Updated: 30th April, 25</td>
+		<td style="text-align: right;">Last Updated: 7th May, 25</td>
 	</tr>
 </table>
 <div style="text-align: center;">
