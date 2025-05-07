@@ -16,9 +16,6 @@
 #include "Classes/xpopup/xpopupmenumanager.h"
 #include "Dcx.h"
 
- /*
-  *
-  */
 void XMenuBar::parseXMenuBarCommand(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(1));

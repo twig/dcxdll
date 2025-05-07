@@ -509,6 +509,21 @@ void XPopupMenuManager::setMenuRegionIfOpen() noexcept
 		setMenuRegion(win);
 }
 
+void XPopupMenuManager::RedrawMenuItem(_In_opt_ HWND mHwnd, _In_opt_ HMENU hMenu, _In_ UINT mID) noexcept
+{
+	if (!IsWindow(mHwnd) || !hMenu)
+		return;
+
+	// If possible only redraw this item.
+	if (RECT rcItem{}; GetMenuItemRect(mHwnd, hMenu, mID, &rcItem))
+	{
+		MapWindowRect(nullptr, mHwnd, &rcItem);
+		RedrawWindow(mHwnd, &rcItem, nullptr, RDW_UPDATENOW | RDW_FRAME | RDW_INTERNALPAINT | RDW_INVALIDATE /*| RDW_ERASE*/);
+	}
+	else
+		RedrawWindow(mHwnd, nullptr, nullptr, RDW_UPDATENOW | RDW_FRAME | RDW_INTERNALPAINT | RDW_INVALIDATE | RDW_ERASE);
+}
+
 void XPopupMenuManager::parseCommand(const TString& input)
 {
 	parseCommand(input, getMenuByName(input.getfirsttok(1), true));
@@ -714,10 +729,7 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 		else if (xflags[TEXT('r')]) // Set Rounded Selector on/off
 			p_Menu->SetRoundedSelector((input.getnexttok().to_int() > 0));	// tok 4
 		else if (xflags[TEXT('R')]) // Set Rounded menu window on/off
-		{
 			p_Menu->SetRoundedWindow((input.getnexttok().to_int() > 0));	// tok 4
-			//Dcx::XPopups.setMenuRegion(Dcx::XPopups.getHWNDfromHMENU(p_Menu->getMenuHandle()));
-		}
 		else if (xflags[TEXT('t')]) // enable/disable tooltips for menu
 		{
 			p_Menu->setTooltipsState((input.getnexttok().to_int() ? true : false));
@@ -1123,12 +1135,6 @@ void XPopupMenuManager::clearMenus() noexcept
 
 	this->m_vpXPMenu.clear();
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 XPopupMenu* XPopupMenuManager::getMenuByHash(_In_ const std::size_t uHash, _In_ const bool bCheckSpecial) const noexcept
 {
@@ -2124,21 +2130,16 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 						{
 						case MainMenuStyle::XPMS_PROGRESS:
 						case MainMenuStyle::XPMS_TRACK:
-							xItem->m_uProgressValue = tsText.to_<UINT>();
+							xItem->m_uProgressValue = tsText.getfirsttok(1).to_<UINT>();
+							if (tsText.numtok() > 1)
+								xItem->setItemText(tsText.getlasttoks());
 							break;
 						default:
 							xItem->setItemText(tsText);
 							break;
 						}
 
-						// If possible only redraw this item.
-						if (RECT rcItem{}; GetMenuItemRect(mHwnd, hMenu, gsl::narrow_cast<UINT>(wParam), &rcItem))
-						{
-							MapWindowRect(nullptr, mHwnd, &rcItem);
-							RedrawWindow(mHwnd, &rcItem, nullptr, RDW_UPDATENOW | RDW_FRAME | RDW_INTERNALPAINT | RDW_INVALIDATE | RDW_ERASE);
-						}
-						else
-							RedrawWindow(mHwnd, nullptr, nullptr, RDW_UPDATENOW | RDW_FRAME | RDW_INTERNALPAINT | RDW_INVALIDATE | RDW_ERASE);
+						RedrawMenuItem(mHwnd, hMenu, gsl::narrow_cast<UINT>(wParam));
 						return 0L;
 					}
 					case L"check"_hash:

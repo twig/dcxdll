@@ -263,6 +263,8 @@ public:
 
 	static void setMenuRegionIfOpen() noexcept;
 
+	static void RedrawMenuItem(_In_opt_ HWND mHwnd, _In_opt_ HMENU hMenu, _In_ UINT mID) noexcept;
+
 	static inline std::map<HMENU, XPopupMenu*> m_vpAllMenus;	//!< Vector of all open XPopupMenu Objects
 
 private:
