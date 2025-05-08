@@ -473,11 +473,34 @@ TString TString::sub(ptrdiff_t N, ptrdiff_t M) const
 	return TString(temp, (temp + M));
 }
 
+TString& TString::remove_range(size_type startPos, size_type endPos)
+{
+	if ((startPos < 0) || (endPos < startPos) || (endPos == 0))
+		return *this;
+
+	const auto uLen = this->len();
+	if (startPos == uLen)
+		return *this;
+	if (endPos > uLen)
+		endPos = uLen;
+
+	TString tmp;
+	if (startPos > 0)
+		tmp = this->sub(0, startPos);
+	if (endPos != uLen)
+		tmp += this->sub(endPos, uLen);
+
+	this->swap(tmp);
+
+	return *this;
+}
+
 #if !TSTRING_TESTCODE
 /*
 remove function, called by the other remove()/-/-= functions.
 Ook
 */
+
 
 // NB: This needs looked at!!!! doesnt remove all instances of substring correctly!
 TString& TString::remove(const_pointer_const subString)

@@ -1114,27 +1114,7 @@ public:
 		return *this;
 	}
 
-	TString& remove_range(size_type startPos, size_type endPos)
-	{
-		if ((startPos < 0) || (endPos < startPos) || (endPos == 0))
-			return *this;
-
-		const auto uLen = this->len();
-		if (startPos == uLen)
-			return *this;
-		if (endPos > uLen)
-			endPos = uLen;
-
-		TString tmp;
-		if (startPos > 0)
-			tmp = this->sub(0, startPos);
-		if (endPos != uLen)
-			tmp += this->sub(endPos, uLen);
-
-		this->swap(tmp);
-
-		return *this;
-	}
+	TString& remove_range(size_type startPos, size_type endPos);
 
 #else
 	// remove sub string from string
