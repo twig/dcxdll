@@ -24,12 +24,12 @@ function xpopup_layout($page, $pagelabel) {
 
 	dcxdoc_print_intro($page);
 
-        $SECTION = SECTION_GENERAL;
+    $SECTION = SECTION_GENERAL;
 	dcxdoc_print_description("Special Menus", xpopup_special());
-        dcxdoc_print_description('XPopup Item Path', xpopup_paths());
+    dcxdoc_print_description('XPopup Item Path', xpopup_paths());
 
-        $SECTION = SECTION_EVENTS;
-        dcxdoc_print_description('XPopup Events', xpopup_events());
+    $SECTION = SECTION_EVENTS;
+    dcxdoc_print_description('XPopup Events', xpopup_events());
 
 	// /xpopup commands
 	if ($XPOPUP) {
@@ -97,7 +97,7 @@ function xpopup_special() {
 ?>
 There are two special reserved menu names in XPopup. They are for mIRC's regular popup menus [v]mirc[/v] (channel, statusbar, query and nicklist) and mIRC's menubar popup menu [v]mircbar[/v] (the menubar). Their appearance can be changed by XPopup and activated with the following command:<br />
 <br />
-<table>
+<table class="mpopup">
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/mpopup [mirc|mircbar] [ENABLED] (callback)</div></td>
@@ -526,7 +526,72 @@ ON *:SIGNAL:Xpopup-*: {
 [/code]
 <br />
 Events can also be sent to a callback alias from +C custom menu items or $xstyle(14) mirc menu items.<br />
-see [cmd]/xpopup -c[/cmd] and /mpopup
+see [cmd]/xpopup -c[/cmd] and /mpopup<br/>
+These are special items that you want to select without closing the menu for some reason (for example they change the menu style).<br/>
+This alias takes the form of:
+[code]
+; This is a much reduced version, for a full version see the dcxmenus example.
+; $1 = menu name, $2 = menu item id, $3 = command, $4- = command args, if any
+alias _dcx_mircmenu_callback {
+  ; changes made to the menu here are done while the menu is still open.
+  ; only the "checksel" command is supported atm.
+  if ($3 != checksel) return
+  if ($2 isnum 600-615) {
+    ; change style of mircbar
+    if ($2 == 600) _dcx_setmenustyle mircbar normal
+
+    ; if this was called by an item in mircbar then redraw menu.
+    if ($1 == mircbar) xpopup -r mircbar
+
+    return check 1 16
+  }
+}
+[/code]
+<table class="xpopupcallbackresults">The supported return codes are:
+	<tr>
+		<td class="return"></td>
+		<td>No return value, menu closes as normal.</td>
+	</tr>
+	<tr>
+		<td class="return">$true</td>
+		<td>Simply stops menu from closing.</td>
+	</tr>
+	<tr>
+		<td class="return">check</td>
+		<td>Stops menu from closing and checks this item.</td>
+	</tr>
+	<tr>
+		<td class="return">uncheck</td>
+		<td>Stops menu from closing and unchecks this item.</td>
+	</tr>
+	<tr>
+		<td class="return">check [GID]</td>
+		<td>Stops menu from closing, and checks this item, and unchecks all other members of teh supplied group.</td>
+	</tr>
+	<tr>
+		<td class="return">check [id1] [id2]</td>
+		<td>Stops menu from closing, and checks this item, and unchecks a range of other items from [id1] to [id2] inclusive.</td>
+	</tr>
+	<tr>
+		<td class="return">msg</td>
+		<td>Stops menu from closing, and send the menu selection back to the menus owner for proccessing.</td>
+	</tr>
+	<tr>
+		<td class="return">value [text]</td>
+		<td>Stops menu from closing, and changes the menu item text to [text]</td>
+		<td>This only applies to normal items, NOT progressbar or Trackbar style items</td>
+	</tr>
+	<tr>
+		<td class="return">value [value] (text)</td>
+		<td>Stops menu from closing, and sets the progressbar or trackbar value to [value], and optionally changes the menu item text to (text)</td>
+		<td>This only applies to progressbar or Trackbar style items</td>
+	</tr>
+</table>
+<br/>
+[n]
+Any changes to the value or text of an item only applies while the menu is open, this data will be lost when the menu is closed.<br/>
+If this data needs to be reloaded when the menu is opened then save it to a %var.<br/>
+[/n]
 <?php
 	//'
 	return ob_get_clean();

@@ -75,7 +75,7 @@
 	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>Special Menus</td></tr>
 	<tr><td>There are two special reserved menu names in XPopup. They are for mIRC's regular popup menus <a class="value">mirc</a> (channel, statusbar, query and nicklist) and mIRC's menubar popup menu <a class="value">mircbar</a> (the menubar). Their appearance can be changed by XPopup and activated with the following command:<br />
 <br />
-<table>
+<table class="mpopup">
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/mpopup [mirc|mircbar] [ENABLED] (callback)</div></td>
@@ -271,7 +271,72 @@ ON *:SIGNAL:Xpopup-*: {
 </pre>
 <br />
 Events can also be sent to a callback alias from +C custom menu items or $xstyle(14) mirc menu items.<br />
-see <a class='value' href='xpopup.htm#xpopup.c'>/xpopup -c</a> and /mpopup
+see <a class='value' href='xpopup.htm#xpopup.c'>/xpopup -c</a> and /mpopup<br/>
+These are special items that you want to select without closing the menu for some reason (for example they change the menu style).<br/>
+This alias takes the form of:
+<pre class="code">
+; This is a much reduced version, for a full version see the dcxmenus example.
+; $1 = menu name, $2 = menu item id, $3 = command, $4- = command args, if any
+alias _dcx_mircmenu_callback {
+  ; changes made to the menu here are done while the menu is still open.
+  ; only the "checksel" command is supported atm.
+  if ($3 != checksel) return
+  if ($2 isnum 600-615) {
+    ; change style of mircbar
+    if ($2 == 600) _dcx_setmenustyle mircbar normal
+
+    ; if this was called by an item in mircbar then redraw menu.
+    if ($1 == mircbar) xpopup -r mircbar
+
+    return check 1 16
+  }
+}
+</pre>
+<table class="xpopupcallbackresults">The supported return codes are:
+	<tr>
+		<td class="return"></td>
+		<td>No return value, menu closes as normal.</td>
+	</tr>
+	<tr>
+		<td class="return">$true</td>
+		<td>Simply stops menu from closing.</td>
+	</tr>
+	<tr>
+		<td class="return">check</td>
+		<td>Stops menu from closing and checks this item.</td>
+	</tr>
+	<tr>
+		<td class="return">uncheck</td>
+		<td>Stops menu from closing and unchecks this item.</td>
+	</tr>
+	<tr>
+		<td class="return">check [GID]</td>
+		<td>Stops menu from closing, and checks this item, and unchecks all other members of teh supplied group.</td>
+	</tr>
+	<tr>
+		<td class="return">check [id1] [id2]</td>
+		<td>Stops menu from closing, and checks this item, and unchecks a range of other items from [id1] to [id2] inclusive.</td>
+	</tr>
+	<tr>
+		<td class="return">msg</td>
+		<td>Stops menu from closing, and send the menu selection back to the menus owner for proccessing.</td>
+	</tr>
+	<tr>
+		<td class="return">value [text]</td>
+		<td>Stops menu from closing, and changes the menu item text to [text]</td>
+		<td>This only applies to normal items, NOT progressbar or Trackbar style items</td>
+	</tr>
+	<tr>
+		<td class="return">value [value] (text)</td>
+		<td>Stops menu from closing, and sets the progressbar or trackbar value to [value], and optionally changes the menu item text to (text)</td>
+		<td>This only applies to progressbar or Trackbar style items</td>
+	</tr>
+</table>
+<br/>
+<a class="note">Note:</a> 
+Any changes to the value or text of an item only applies while the menu is open, this data will be lost when the menu is closed.<br/>
+If this data needs to be reloaded when the menu is opened then save it to a %var.<br/>
+
 </td></tr>
 </table>
 <table class="description">
@@ -1691,7 +1756,7 @@ The only difference is that you can load multiple icons by seperating the indexe
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2025</td>
-		<td style="text-align: right;">Last Updated: 7th May, 25</td>
+		<td style="text-align: right;">Last Updated: 8th May, 25</td>
 	</tr>
 </table>
 <div style="text-align: center;">
