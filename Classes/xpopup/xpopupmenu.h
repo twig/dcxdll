@@ -351,6 +351,7 @@ public:
 	17	Hot CheckBox Tick color
 	18	Hot CheckBox Frame color
 	19	Menu Border color
+	20	Vertical separator color.
 	*/
 
 	enum class MenuColours : UINT
@@ -637,19 +638,63 @@ public:
 	/// <returns>XPopupMenuItem*</returns>
 	XPopupMenuItem* getMenuItem(_In_ UINT mID) const noexcept;
 
+	/// <summary>
+	/// Get the specified menu item's rect.
+	/// </summary>
+	/// <param name="mHwnd"></param>
+	/// <param name="hMenu"></param>
+	/// <param name="mID"></param>
+	/// <returns></returns>
 	static RECT getMenuItemRect(_In_opt_ HWND mHwnd, _In_ HMENU hMenu, _In_ UINT mID) noexcept;
+
+	/// <summary>
+	/// Get the specified menu item's rect.
+	/// </summary>
+	/// <param name="mHwnd"></param>
+	/// <param name="mID"></param>
+	/// <returns></returns>
 	RECT getMenuItemRect(_In_opt_ HWND mHwnd, _In_ UINT mID) const noexcept
 	{
 		return getMenuItemRect(mHwnd, this->getMenuHandle(), mID);
 	}
+
+	/// <summary>
+	/// Get the specified menu item's text rect.
+	/// </summary>
+	/// <param name="mHwnd"></param>
+	/// <param name="hMenu"></param>
+	/// <param name="mID"></param>
+	/// <returns></returns>
 	static RECT getMenuItemTextRect(_In_opt_ HWND mHwnd, _In_ HMENU hMenu, _In_ UINT mID) noexcept;
+
+	/// <summary>
+	/// Get the specified menu item's text rect.
+	/// </summary>
+	/// <param name="mHwnd"></param>
+	/// <param name="mID"></param>
+	/// <returns></returns>
 	RECT getMenuItemTextRect(_In_opt_ HWND mHwnd, _In_ UINT mID) const noexcept
 	{
 		return getMenuItemTextRect(mHwnd, this->getMenuHandle(), mID);
 	}
 
+	/// <summary>
+	/// Get the specified menu item's value rect.
+	/// This is the area used to display progressbars & trackbars
+	/// </summary>
+	/// <param name="mHwnd"></param>
+	/// <param name="hMenu"></param>
+	/// <param name="mID"></param>
+	/// <returns></returns>
 	RECT getMenuItemValueRect(_In_opt_ HWND mHwnd, _In_ HMENU hMenu, _In_ UINT mID) const noexcept;
 
+	/// <summary>
+	/// Get an items possible value.
+	/// </summary>
+	/// <param name="mHwnd"></param>
+	/// <param name="hMenu"></param>
+	/// <param name="mID"></param>
+	/// <returns></returns>
 	int getMenuItemPossibleValue(_In_opt_ HWND mHwnd, _In_ HMENU hMenu, _In_ UINT mID) const noexcept;
 
 	/// <summary>

@@ -807,7 +807,30 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 	{
 	case TEXT("ismenu"_hash):
 	{
-		return dcx_truefalse(p_Menu != nullptr);
+		bool bValid{ false };
+		if (p_Menu)
+		{
+			switch (p_Menu->getNameHash())
+			{
+			case L"mirc"_hash:
+			{
+				bValid = m_bIsActiveMircPopup;
+			}
+			break;
+			case L"mircbar"_hash:
+			case L"scriptpopup"_hash:
+			{
+				bValid = m_bIsActiveMircMenubarPopup;
+			}
+			break;
+			default:
+			{
+				bValid = (p_Menu->getMenuHandle() != nullptr);
+			}
+			break;
+			}
+		}
+		return dcx_truefalse(bValid);
 	}
 	break;
 	case TEXT("istooltips"_hash):
