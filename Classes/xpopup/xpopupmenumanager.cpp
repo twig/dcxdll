@@ -871,6 +871,12 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 			return TEXT("custom");
 		case XPopupMenu::MenuStyle::XPMS_BUTTON:
 			return TEXT("button");
+		case XPopupMenu::MenuStyle::XPMS_BUTTON_REV:
+			return TEXT("buttonrev");
+		case XPopupMenu::MenuStyle::XPMS_BUTTON_THEMED:
+			return TEXT("button_themed");
+		case XPopupMenu::MenuStyle::XPMS_BUTTON_REV_THEMED:
+			return TEXT("buttonrev_themed");
 		case XPopupMenu::MenuStyle::XPMS_CUSTOMBIG:
 			return TEXT("custombig");
 		default:
@@ -1061,12 +1067,6 @@ const int XPopupMenuManager::parseMPopup(const TString& input)
 	return 3;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void XPopupMenuManager::addMenu(XPopupMenu* const p_Menu)
 {
 #if defined(XPOPUP_USE_UNIQUEPTR)
@@ -1077,12 +1077,6 @@ void XPopupMenuManager::addMenu(XPopupMenu* const p_Menu)
 		this->m_vpXPMenu.push_back(p_Menu);
 #endif
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void XPopupMenuManager::deleteMenu(const XPopupMenu* const p_Menu) noexcept
 {
@@ -1119,12 +1113,6 @@ void XPopupMenuManager::deleteMenu(const XPopupMenu* const p_Menu) noexcept
 		delete p_Menu;
 #endif
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void XPopupMenuManager::clearMenus() noexcept
 {
@@ -1895,6 +1883,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	{
 		if (wParam != UINT_MAX)
 		{
+			const auto id = gsl::narrow_cast<int>(wParam);
 		if (!dcxHoverTimer.is_running())
 		{
 			// hide any current tooltip
@@ -1903,7 +1892,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 
 				if (auto hMenu = getWindowsMenu(mHwnd); hMenu)
 				{
-					if (auto p_Item = Dcx::XPopups.getMenuItemByID(hMenu, gsl::narrow_cast<int>(wParam)); p_Item)
+					if (auto p_Item = Dcx::XPopups.getMenuItemByID(hMenu, id); p_Item)
 					{
 						if (p_Item->IsTooltipsEnabled())
 						{
@@ -1920,15 +1909,19 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					}
 				}
 		}
+			// popup menus for menu items...
+			// message sent to owner window for menu?
+			//WM_MENURBUTTONUP
+			//TrackPopupMenuEx(? , TPM_RECURSE | TPM_RETURNCMD, ? , ? , ? , ? );
 			if (GetKeyState(VK_LBUTTON) < 0)
 			{
 				if (auto hMenu = getWindowsMenu(mHwnd); hMenu)
 				{
-					const auto id = gsl::narrow_cast<int>(wParam);
 					if (auto xItem = Dcx::XPopups.getMenuItemByID(hMenu, id); xItem)
 					{
 						switch (auto eStyle = gsl::narrow_cast<MainMenuStyle>(xItem->getStyle2()); eStyle)
 						{
+						case MainMenuStyle::XPMS_TRACK_THEMED:
 						case MainMenuStyle::XPMS_TRACK:
 						{
 							auto xMenu = xItem->getParentMenu();
@@ -2091,6 +2084,8 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					{
 					case MainMenuStyle::XPMS_PROGRESS:
 					case MainMenuStyle::XPMS_TRACK:
+					case MainMenuStyle::XPMS_PROGRESS_THEMED:
+					case MainMenuStyle::XPMS_TRACK_THEMED:
 					{
 						const auto uValue = xMenu->getMenuItemPossibleValue(mHwnd, hMenu, gsl::narrow_cast<UINT>(wParam));
 
@@ -2126,18 +2121,23 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					{
 						const auto tsText(tsRes.getlasttoks());
 
-						switch (gsl::narrow_cast<MainMenuStyle>(xItem->getStyle2()))
-						{
-						case MainMenuStyle::XPMS_PROGRESS:
-						case MainMenuStyle::XPMS_TRACK:
+						//switch (gsl::narrow_cast<MainMenuStyle>(xItem->getStyle2()))
+						//{
+						//case MainMenuStyle::XPMS_PROGRESS:
+						//case MainMenuStyle::XPMS_TRACK:
+						//case MainMenuStyle::XPMS_PROGRESS_THEMED:
+						//case MainMenuStyle::XPMS_TRACK_THEMED:
+						//	xItem->m_uProgressValue = tsText.getfirsttok(1).to_<UINT>();
+						//	if (tsText.numtok() > 1)
+						//		xItem->setItemText(tsText.getlasttoks());
+						//	break;
+						//default:
+						//	xItem->setItemText(tsText);
+						//	break;
+						//}
+
 							xItem->m_uProgressValue = tsText.getfirsttok(1).to_<UINT>();
-							if (tsText.numtok() > 1)
 								xItem->setItemText(tsText.getlasttoks());
-							break;
-						default:
-							xItem->setItemText(tsText);
-							break;
-						}
 
 						RedrawMenuItem(mHwnd, hMenu, gsl::narrow_cast<UINT>(wParam));
 						return 0L;

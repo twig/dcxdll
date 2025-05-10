@@ -385,7 +385,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 	//	1: a normal path - 3 4 3
 	//		same as the old version, menu is gotten by parsePath()
 	//	2: a command id - :455
-	//		menu is gotten bu CommandIDToPath()
+	//		menu is gotten by CommandIDToPath()
 	//		path var is adjusted to be normal 3 4 3 style
 	//	3: a group id - =4
 	//		menu can have many diff values depending on the grouped items
@@ -1520,6 +1520,12 @@ void XPopupMenu::toXml(VectorOfIcons& vIcons, TiXmlElement* const xml) const
 		case XPopupMenu::MenuStyle::XPMS_BUTTON_REV:
 			xml->SetAttribute("style", "buttonrev");
 			break;
+		case XPopupMenu::MenuStyle::XPMS_BUTTON_THEMED:
+			xml->SetAttribute("style", "button_themed");
+			break;
+		case XPopupMenu::MenuStyle::XPMS_BUTTON_REV_THEMED:
+			xml->SetAttribute("style", "buttonrev_themed");
+			break;
 		case XPopupMenu::MenuStyle::XPMS_CUSTOMBIG:
 			xml->SetAttribute("style", "custombig");
 			break;
@@ -2070,6 +2076,12 @@ XPopupMenu::MenuStyle XPopupMenu::parseStyle(const TString& tsStyle) noexcept
 	case TEXT("buttonrev"_hash):
 		style = MenuStyle::XPMS_BUTTON_REV;
 		break;
+	case TEXT("button_themed"_hash):
+		style = MenuStyle::XPMS_BUTTON_THEMED;
+		break;
+	case TEXT("buttonrev_themed"_hash):
+		style = MenuStyle::XPMS_BUTTON_REV_THEMED;
+		break;
 	case TEXT("custombig"_hash):
 		style = MenuStyle::XPMS_CUSTOMBIG;
 		break;
@@ -2078,6 +2090,12 @@ XPopupMenu::MenuStyle XPopupMenu::parseStyle(const TString& tsStyle) noexcept
 		break;
 	case TEXT("track"_hash):
 		style = MenuStyle::XPMS_TRACK;
+		break;
+	case TEXT("progress_themed"_hash):
+		style = MenuStyle::XPMS_PROGRESS_THEMED;
+		break;
+	case TEXT("track_themed"_hash):
+		style = MenuStyle::XPMS_TRACK_THEMED;
 		break;
 	case TEXT("themed"_hash):
 		style = MenuStyle::XPMS_THEMED;

@@ -246,9 +246,9 @@ public:
 	/// <param name="vIcons"></param>
 	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, const VectorOfIcons& vIcons);
 
-	void DrawButton(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XPMENUCOLORS* const lpcol, _In_ bool bReversed, _In_ LPCRECT rc) noexcept;
-	void DrawProgress(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc) noexcept;
-	void DrawTrackbar(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ UINT uState, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc) noexcept;
+	void DrawButton(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XPMENUCOLORS* const lpcol, _In_ bool bReversed, _In_ LPCRECT rc, _In_ bool bThemed) noexcept;
+	void DrawProgress(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc, _In_ bool bThemed) noexcept;
+	void DrawTrackbar(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ UINT uState, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc, _In_ bool bThemed) noexcept;
 
 	UINT m_uProgressValue{};
 

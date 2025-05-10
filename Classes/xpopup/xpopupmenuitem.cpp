@@ -198,6 +198,8 @@ bool XPopupMenuItem::parseItemText()
 		m_tsItemText = tsTmp.getfirsttok(1, sepChar).trim();	// tok 1, get real item text
 		m_tsTooltipText = tsTmp.getlasttoks().trim();			// tok 2-, get tooltip text
 	}
+	// check for $chr(14), this sets the item as a special item that can be selected without closing the menu.
+	// this can optionally be followed by an ID number which is used in the callback alias.
 	if (const auto nPos = m_tsItemText.find(L'\x0e', 1); nPos != -1)	// $chr(14)
 	{
 		ptrdiff_t nEnd{ nPos + 1 };
@@ -208,7 +210,6 @@ bool XPopupMenuItem::parseItemText()
 		if ((nEnd - nPos) > 1)
 		{
 			auto tsID(m_tsItemText.sub(nPos, nEnd));
-			//m_tsItemText.remove(tsID.to_chr());
 			m_tsItemText.remove_range(nPos, nEnd);
 			tsID.remove(L'\x0e');
 			if (!tsID.empty())
@@ -222,7 +223,6 @@ bool XPopupMenuItem::parseItemText()
 
 	}
 	//check for $chr(12), if so then the item is a radio check item.
-	//if (m_tsItemText[0] == 12)
 	if (const auto nPos = m_tsItemText.find(L'\x0c', 1); nPos != -1)	// $chr(12)
 	{
 		// remove $chr(12) from text and trim whitespaces
@@ -230,6 +230,7 @@ bool XPopupMenuItem::parseItemText()
 
 		setRadioCheck(true);
 	}
+	// check for $chr(16), if found then next chars should be a number 0-100.
 	if (const auto nPos = m_tsItemText.find(L'\x10', 1); nPos != -1)	// $chr(16)
 	{
 		ptrdiff_t nEnd{ nPos + 1 };
@@ -240,7 +241,6 @@ bool XPopupMenuItem::parseItemText()
 		if ((nEnd - nPos) > 1)
 		{
 			auto tsID(m_tsItemText.sub(nPos, nEnd));
-			//m_tsItemText.remove(tsID.to_chr());
 			m_tsItemText.remove_range(nPos, nEnd);
 			tsID.remove(L'\x10');
 			if (!tsID.empty())
@@ -268,32 +268,35 @@ void XPopupMenuItem::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xTh
 {
 }
 
-void XPopupMenuItem::DrawButton(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XPMENUCOLORS* const lpcol, _In_ bool bReversed, _In_ LPCRECT rc) noexcept
+void XPopupMenuItem::DrawButton(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XPMENUCOLORS* const lpcol, _In_ bool bReversed, _In_ LPCRECT rc, _In_ bool bThemed) noexcept
 {
 	const auto bGrayed = dcx_testflag(lpdis->itemState, ODS_GRAYED);
 	const auto bSelected = dcx_testflag(lpdis->itemState, ODS_SELECTED);
 
 	bool bDoDraw{ true };
 
-	if (auto hCurrentMenu = reinterpret_cast<HMENU>(lpdis->hwndItem); hCurrentMenu)
+	if (bThemed)
 	{
-		if (const auto hMenuWin = Dcx::XPopups.getHWNDfromHMENU(hCurrentMenu); IsWindow(hMenuWin))
+		if (auto hCurrentMenu = reinterpret_cast<HMENU>(lpdis->hwndItem); hCurrentMenu)
 		{
-			if (auto hMenuStyleTheme = Dcx::UXModule.dcxOpenThemeData(hMenuWin, VSCLASS_BUTTON); hMenuStyleTheme)
+			if (const auto hMenuWin = Dcx::XPopups.getHWNDfromHMENU(hCurrentMenu); IsWindow(hMenuWin))
 			{
-				int iStyle{ PBS_NORMAL };
-				if (bReversed)
-					iStyle = PBS_PRESSED;
-				if (bSelected)
-					iStyle = PBS_HOT;	// DrawItemSelection() not needed as this state handles it.
-				if (bGrayed)
-					iStyle = PBS_DISABLED;
+				if (auto hMenuStyleTheme = Dcx::UXModule.dcxOpenThemeData(hMenuWin, VSCLASS_BUTTON); hMenuStyleTheme)
+				{
+					int iStyle{ PBS_NORMAL };
+					if (bReversed)
+						iStyle = PBS_PRESSED;
+					if (bSelected)
+						iStyle = PBS_HOT;	// DrawItemSelection() not needed as this state handles it.
+					if (bGrayed)
+						iStyle = PBS_DISABLED;
 
-				Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, lpdis->hDC, BP_PUSHBUTTON, iStyle, rc, nullptr);
+					Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, lpdis->hDC, BP_PUSHBUTTON, iStyle, rc, nullptr);
 
-				Dcx::UXModule.dcxCloseThemeData(hMenuStyleTheme);
+					Dcx::UXModule.dcxCloseThemeData(hMenuStyleTheme);
 
-				bDoDraw = false;
+					bDoDraw = false;
+				}
 			}
 		}
 	}
@@ -329,60 +332,102 @@ void XPopupMenuItem::DrawButton(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XP
 	}
 }
 
-void XPopupMenuItem::DrawProgress(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc) noexcept
+void XPopupMenuItem::DrawProgress(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc, _In_ bool bThemed) noexcept
 {
-	const auto hMenuWin = Dcx::XPopups.getHWNDfromHMENU(hCurrentMenu);
-	if (!IsWindow(hMenuWin))
-		return;
+	bool bDoDraw{ true };
+	//WindowFromDC
 
-	auto hMenuStyleTheme = Dcx::UXModule.dcxOpenThemeData(hMenuWin, VSCLASS_PROGRESS);
-	if (!hMenuStyleTheme)
-		return;
-	Auto(Dcx::UXModule.dcxCloseThemeData(hMenuStyleTheme));
+	if (bThemed)
+	{
+		if (const auto hMenuWin = Dcx::XPopups.getHWNDfromHMENU(hCurrentMenu); IsWindow(hMenuWin))
+		{
+			if (auto hMenuStyleTheme = Dcx::UXModule.dcxOpenThemeData(hMenuWin, VSCLASS_PROGRESS); hMenuStyleTheme)
+			{
+				Auto(Dcx::UXModule.dcxCloseThemeData(hMenuStyleTheme));
 
-	constexpr int iStyle{ PBFS_NORMAL };
+				constexpr int iStyle{ PBFS_NORMAL };
 
-	Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, hdc, PP_BAR, iStyle, rc, nullptr);
+				Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, hdc, PP_BAR, iStyle, rc, nullptr);
 
-	RECT rcContents{};
-	Dcx::UXModule.dcxGetThemeBackgroundContentRect(hMenuStyleTheme, hdc, PP_BAR, iStyle, rc, &rcContents);
+				RECT rcContents{};
+				Dcx::UXModule.dcxGetThemeBackgroundContentRect(hMenuStyleTheme, hdc, PP_BAR, iStyle, rc, &rcContents);
 
-	rcContents.right = rcContents.left + gsl::narrow_cast<LONG>(((rcContents.right - rcContents.left) / 100.0) * std::clamp(iPos, 0, 100));
-	Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, hdc, PP_FILL, iStyle, &rcContents, nullptr);
+				rcContents.right = rcContents.left + gsl::narrow_cast<LONG>(((rcContents.right - rcContents.left) / 100.0) * std::clamp(iPos, 0, 100));
+				Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, hdc, PP_FILL, iStyle, &rcContents, nullptr);
+
+				bDoDraw = false;
+			}
+		}
+	}
+
+	if (bDoDraw)
+	{
+		dcxDrawRect(hdc, rc, lpcol->m_clrBack, lpcol->m_clrBorder, false);
+
+		RECT rcContents{ *rc };
+		rcContents.top++;
+		rcContents.bottom--;
+		rcContents.left++;
+		rcContents.right = rcContents.left + gsl::narrow_cast<LONG>(((rcContents.right - rcContents.left) / 100.0) * std::clamp(iPos, 0, 100));
+		dcxDrawRect(hdc, &rcContents, lpcol->m_clrLightBox, lpcol->m_clrLightBox, false);
+	}
 }
 
-void XPopupMenuItem::DrawTrackbar(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ UINT uState, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc) noexcept
+void XPopupMenuItem::DrawTrackbar(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ UINT uState, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc, _In_ bool bThemed) noexcept
 {
-	const auto hMenuWin = Dcx::XPopups.getHWNDfromHMENU(hCurrentMenu);
-	if (!IsWindow(hMenuWin))
-		return;
-
-	auto hMenuStyleTheme = Dcx::UXModule.dcxOpenThemeData(hMenuWin, VSCLASS_TRACKBAR);
-	if (!hMenuStyleTheme)
-		return;
-	Auto(Dcx::UXModule.dcxCloseThemeData(hMenuStyleTheme));
+	bool bDoDraw{ true };
 
 	const auto bGrayed = dcx_testflag(uState, ODS_GRAYED);
 	const auto bSelected = dcx_testflag(uState, ODS_SELECTED);
 
-	int iStyle{ TKS_NORMAL };
+	if (bThemed)
+	{
+		if (const auto hMenuWin = Dcx::XPopups.getHWNDfromHMENU(hCurrentMenu); IsWindow(hMenuWin))
+		{
+			if (auto hMenuStyleTheme = Dcx::UXModule.dcxOpenThemeData(hMenuWin, VSCLASS_TRACKBAR); hMenuStyleTheme)
+			{
+				Auto(Dcx::UXModule.dcxCloseThemeData(hMenuStyleTheme));
 
-	Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, hdc, TKP_TRACK, iStyle, rc, nullptr);
+				int iStyle{ TKS_NORMAL };
 
-	RECT rcContents{};
-	Dcx::UXModule.dcxGetThemeBackgroundContentRect(hMenuStyleTheme, hdc, TKP_TRACK, iStyle, rc, &rcContents);
+				Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, hdc, TKP_TRACK, iStyle, rc, nullptr);
 
-	iStyle = TUBS_NORMAL;
-	if (bGrayed)
-		iStyle = TUBS_DISABLED;
-	else if (bSelected)
-		iStyle = TUBS_HOT;
+				RECT rcContents{};
+				Dcx::UXModule.dcxGetThemeBackgroundContentRect(hMenuStyleTheme, hdc, TKP_TRACK, iStyle, rc, &rcContents);
 
-	const auto offset = gsl::narrow_cast<LONG>(((rcContents.right - rcContents.left) / 100.0) * std::clamp(iPos, 0, 100));
+				iStyle = TUBS_NORMAL;
+				if (bGrayed)
+					iStyle = TUBS_DISABLED;
+				else if (bSelected)
+					iStyle = TUBS_HOT;
 
-	rcContents.left += offset - 5;
-	rcContents.right = rcContents.left + 10;
-	Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, hdc, TKP_THUMB, iStyle, &rcContents, rc);
+				const auto offset = gsl::narrow_cast<LONG>(((rcContents.right - rcContents.left) / 100.0) * std::clamp(iPos, 0, 100));
+
+				rcContents.left += offset - 5;
+				rcContents.right = rcContents.left + 10;
+				Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, hdc, TKP_THUMB, iStyle, &rcContents, rc);
+
+				bDoDraw = false;
+			}
+		}
+	}
+
+	if (bDoDraw)
+	{
+		dcxDrawRect(hdc, rc, lpcol->m_clrBack, lpcol->m_clrBorder, false);
+
+		RECT rcThumb{ *rc };
+		const auto offset = gsl::narrow_cast<LONG>(((rcThumb.right - rcThumb.left) / 100.0) * std::clamp(iPos, 0, 100));
+		rcThumb.left += offset - 5;
+		rcThumb.right = rcThumb.left + 10;
+
+		if (bGrayed)
+			dcxDrawRect(hdc, &rcThumb, lpcol->m_clrDisabledSelection, lpcol->m_clrBorder, false);
+		else if (bSelected)
+			dcxDrawRect(hdc, &rcThumb, lpcol->m_clrSelection, lpcol->m_clrSelectionBorder, false);
+		else
+			dcxDrawRect(hdc, &rcThumb, lpcol->m_clrBox, lpcol->m_clrBorder, false);
+	}
 }
 
 SIZE XPopupMenuItem::getItemSize(const HWND mHwnd)
@@ -463,7 +508,16 @@ void XPopupMenuItem::DrawItem(const LPDRAWITEMSTRUCT lpdis)
 	// Regular Item
 	else {
 		// Item is selected
-		if (const auto eStyle = this->getStyle(); (eStyle != XPopupMenu::MenuStyle::XPMS_BUTTON) && (eStyle != XPopupMenu::MenuStyle::XPMS_TRACK))
+		switch (const auto eStyle = this->getStyle(); eStyle)
+		{
+		case XPopupMenu::MenuStyle::XPMS_BUTTON:
+		case XPopupMenu::MenuStyle::XPMS_BUTTON_REV:
+		case XPopupMenu::MenuStyle::XPMS_BUTTON_THEMED:
+		case XPopupMenu::MenuStyle::XPMS_BUTTON_REV_THEMED:
+		case XPopupMenu::MenuStyle::XPMS_TRACK:
+		case XPopupMenu::MenuStyle::XPMS_TRACK_THEMED:
+			break;
+		default:
 		{
 			if (bSelected)
 			{
@@ -476,6 +530,8 @@ void XPopupMenuItem::DrawItem(const LPDRAWITEMSTRUCT lpdis)
 				else
 					this->DrawItemSelection(lpdis, lpcol, false, this->m_pXParentMenu->IsRoundedSelector());
 			}
+		}
+		break;
 		}
 
 		if (bChecked)
@@ -532,14 +588,16 @@ void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const XPME
 	}
 	// fall through when unable to draw bitmap (no bitmap or error)
 	[[fallthrough]];
-	case XPopupMenu::MenuStyle::XPMS_OFFICEXP:
-	case XPopupMenu::MenuStyle::XPMS_NORMAL:
-	case XPopupMenu::MenuStyle::XPMS_OFFICE2003_REV:
-	case XPopupMenu::MenuStyle::XPMS_OFFICE2003:
-	case XPopupMenu::MenuStyle::XPMS_BUTTON:
-	case XPopupMenu::MenuStyle::XPMS_BUTTON_REV:
-	case XPopupMenu::MenuStyle::XPMS_VERTICAL:
-	case XPopupMenu::MenuStyle::XPMS_VERTICAL_REV:
+	//case XPopupMenu::MenuStyle::XPMS_OFFICEXP:
+	//case XPopupMenu::MenuStyle::XPMS_NORMAL:
+	//case XPopupMenu::MenuStyle::XPMS_OFFICE2003_REV:
+	//case XPopupMenu::MenuStyle::XPMS_OFFICE2003:
+	//case XPopupMenu::MenuStyle::XPMS_BUTTON:
+	//case XPopupMenu::MenuStyle::XPMS_BUTTON_REV:
+	//case XPopupMenu::MenuStyle::XPMS_BUTTON_THEMED:
+	//case XPopupMenu::MenuStyle::XPMS_BUTTON_REV_THEMED:
+	//case XPopupMenu::MenuStyle::XPMS_VERTICAL:
+	//case XPopupMenu::MenuStyle::XPMS_VERTICAL_REV:
 	default:
 	{
 		Dcx::FillRectColour(lpdis->hDC, &lpdis->rcItem, lpcol->m_clrBack);
@@ -558,6 +616,9 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 	if (!lpdis || !lpcol || !lpdis->hDC || !this->m_pXParentMenu)
 		return;
 
+	bool bThemed{ false };
+	bool bRev{ false };
+
 	switch (this->getStyle())
 	{
 	case XPopupMenu::MenuStyle::XPMS_OFFICE2003_REV:
@@ -575,10 +636,13 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 		break;
 	}
 
-
-	case XPopupMenu::MenuStyle::XPMS_VERTICAL:
 	case XPopupMenu::MenuStyle::XPMS_VERTICAL_REV:
-		XPopupMenuItem::DrawVerticalBar(lpdis, lpcol, (this->getStyle() == XPopupMenu::MenuStyle::XPMS_VERTICAL_REV));
+	{
+		bRev = true;
+	}
+	[[fallthrough]];
+	case XPopupMenu::MenuStyle::XPMS_VERTICAL:
+		XPopupMenuItem::DrawVerticalBar(lpdis, lpcol, bRev);
 		break;
 
 	case XPopupMenu::MenuStyle::XPMS_ICY:
@@ -590,6 +654,16 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 	case XPopupMenu::MenuStyle::XPMS_NORMAL:
 		break;
 
+	case XPopupMenu::MenuStyle::XPMS_BUTTON_REV_THEMED:
+	{
+		bRev = true;
+	}
+	[[fallthrough]];
+	case XPopupMenu::MenuStyle::XPMS_BUTTON_THEMED:
+	{
+		bThemed = true;
+	}
+	[[fallthrough]];
 	case XPopupMenu::MenuStyle::XPMS_BUTTON:
 	{
 		if (this->m_bSep)
@@ -599,7 +673,7 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 		if (const auto iItemStyle = this->m_pXParentMenu->getItemStyle(); dcx_testflag(iItemStyle, XPS_VERTICALSEP))
 			rc.left += XPMI_BOXLPAD + XPMI_BOXWIDTH;
 
-		this->DrawButton(lpdis, lpcol, false, &rc);
+		this->DrawButton(lpdis, lpcol, bRev, &rc, bThemed);
 	}
 	break;
 
@@ -612,10 +686,15 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 		if (const auto iItemStyle = this->m_pXParentMenu->getItemStyle(); dcx_testflag(iItemStyle, XPS_VERTICALSEP))
 			rc.left += XPMI_BOXLPAD + XPMI_BOXWIDTH;
 
-		this->DrawButton(lpdis, lpcol, true, &rc);
+		this->DrawButton(lpdis, lpcol, true, &rc, bThemed);
 	}
 	break;
 
+	case XPopupMenu::MenuStyle::XPMS_PROGRESS_THEMED:
+	{
+		bThemed = true;
+	}
+	[[fallthrough]];
 	case XPopupMenu::MenuStyle::XPMS_PROGRESS:
 	{
 		if (this->m_bSep)
@@ -625,10 +704,15 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 		if (const auto iItemStyle = this->m_pXParentMenu->getItemStyle(); dcx_testflag(iItemStyle, XPS_VERTICALSEP))
 			rc.left += XPMI_BOXLPAD + XPMI_BOXWIDTH;
 
-		this->DrawProgress(lpdis->hDC, reinterpret_cast<HMENU>(lpdis->hwndItem), lpcol, m_uProgressValue, &rc);
+		this->DrawProgress(lpdis->hDC, reinterpret_cast<HMENU>(lpdis->hwndItem), lpcol, m_uProgressValue, &rc, bThemed);
 	}
 	break;
 
+	case XPopupMenu::MenuStyle::XPMS_TRACK_THEMED:
+	{
+		bThemed = true;
+	}
+	[[fallthrough]];
 	case XPopupMenu::MenuStyle::XPMS_TRACK:
 	{
 		if (this->m_bSep)
@@ -638,7 +722,7 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 		if (const auto iItemStyle = this->m_pXParentMenu->getItemStyle(); dcx_testflag(iItemStyle, XPS_VERTICALSEP))
 			rc.left += XPMI_BOXLPAD + XPMI_BOXWIDTH;
 
-		this->DrawTrackbar(lpdis->hDC, reinterpret_cast<HMENU>(lpdis->hwndItem), lpdis->itemState, lpcol, m_uProgressValue, &rc);
+		this->DrawTrackbar(lpdis->hDC, reinterpret_cast<HMENU>(lpdis->hwndItem), lpdis->itemState, lpcol, m_uProgressValue, &rc, bThemed);
 	}
 	break;
 
@@ -815,6 +899,9 @@ void XPopupMenuItem::DrawItemSeparator(const LPDRAWITEMSTRUCT lpdis, const XPMEN
 	case XPopupMenu::MenuStyle::XPMS_ICY_REV:
 	case XPopupMenu::MenuStyle::XPMS_NORMAL:
 	case XPopupMenu::MenuStyle::XPMS_BUTTON:
+	case XPopupMenu::MenuStyle::XPMS_BUTTON_REV:
+	case XPopupMenu::MenuStyle::XPMS_BUTTON_THEMED:
+	case XPopupMenu::MenuStyle::XPMS_BUTTON_REV_THEMED:
 	{
 		if (dcx_testflag(iItemStyle, XPS_VERTICALSEP))
 			x1 = XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;

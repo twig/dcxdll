@@ -566,7 +566,7 @@ alias _dcx_mircmenu_callback {
 	</tr>
 	<tr>
 		<td class="return">check [GID]</td>
-		<td>Stops menu from closing, and checks this item, and unchecks all other members of teh supplied group.</td>
+		<td>Stops menu from closing, and checks this item, and unchecks all other members of the supplied group.</td>
 	</tr>
 	<tr>
 		<td class="return">check [id1] [id2]</td>
@@ -577,14 +577,8 @@ alias _dcx_mircmenu_callback {
 		<td>Stops menu from closing, and send the menu selection back to the menus owner for proccessing.</td>
 	</tr>
 	<tr>
-		<td class="return">value [text]</td>
-		<td>Stops menu from closing, and changes the menu item text to [text]</td>
-		<td>This only applies to normal items, NOT progressbar or Trackbar style items</td>
-	</tr>
-	<tr>
-		<td class="return">value [value] (text)</td>
-		<td>Stops menu from closing, and sets the progressbar or trackbar value to [value], and optionally changes the menu item text to (text)</td>
-		<td>This only applies to progressbar or Trackbar style items</td>
+		<td class="return">value [value] [text]</td>
+		<td>Stops menu from closing, and sets the progressbar or trackbar value to [value], and changes the menu item text to [text]</td>
 	</tr>
 </table>
 <br/>
