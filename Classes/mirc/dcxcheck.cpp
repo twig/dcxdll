@@ -27,7 +27,6 @@
   * \param rc Window Rectangle
   * \param styles Window Style Tokenized List
   */
-
 DcxCheck::DcxCheck(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
@@ -476,6 +475,8 @@ LRESULT DcxCheck::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 						ctrlDrawText(lpcd->hdc, tsText, std::addressof(rcText), DT_LEFT | DT_SINGLELINE /*| DT_VCENTER*/);
 					}
 				}
+				if (dcx_testflag(lpcd->uItemState, CDIS_FOCUS))
+					DrawFocusRect(lpcd->hdc, &rc);
 				return CDRF_SKIPDEFAULT;
 			}
 			break;
