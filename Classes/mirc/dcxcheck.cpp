@@ -441,7 +441,7 @@ LRESULT DcxCheck::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 				// square
 				constexpr int iCheckSize = 16;
 
-				rcCheck.left = rc.left + 1;
+				rcCheck.left = rc.left /*+ 1*/;
 				rcCheck.right = rcCheck.left + iCheckSize;
 				// center checkbox vertically in control
 				rcCheck.top = ((rc.bottom - rc.top) / 2) - (iCheckSize / 2);
