@@ -16,8 +16,6 @@
 #include "Classes/dcxdialog.h"
 #include "Dcx.h"
 
-
-
  /*!
   * \brief Constructor
   *
