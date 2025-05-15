@@ -1981,11 +1981,15 @@ std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const TString& txt)
 	return dcxBreakdownmIRCText(txt.to_wchr(), gsl::narrow_cast<UINT>(txt.len()));
 }
 
-RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPCRECT rc, const UINT uStyle, const dcxTextOptions& dTO)
+RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPCRECT rc, const UINT uStyle, const dcxTextOptions& dTO) noexcept
 {
 	RECT rcResult{ *rc };
 
-	const UINT uNewStyle = uStyle | DT_CALCRECT;
+	if (!hdc || !rc)
+		return rcResult;
+
+	try {
+		//const UINT uNewStyle = uStyle | DT_CALCRECT;
 
 	TString txt;
 	txt.reserve(64 * vec.size());	// reserve 64 characters for each string (should be enuf for most cases)
@@ -1994,19 +1998,28 @@ RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPC
 	{
 		txt += tbd.m_str;
 	}
-	DrawTextW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), &rcResult, uNewStyle);
-
+		//DrawTextW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), &rcResult, uNewStyle);
 	// Ook: This is a quick fix for the last letter not always being drawn.
-	rcResult.right++;
+		//rcResult.right++;
 
+		SIZE sz{};
+		//GetTextExtentExPointW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), 0, nullptr, nullptr, &sz);
+		GetTextExtentPoint32W(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), &sz);
+		sz.cx++;
+		rcResult.right = rcResult.left + sz.cx;
+		rcResult.bottom = rcResult.top + sz.cy;
+	}
+	catch (...) {}
 	return rcResult;
 }
-void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPRECT rc, const UINT uStyle, const dcxTextOptions& dTO)
+
+void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPRECT rc, const UINT uStyle, const dcxTextOptions& dTO) noexcept
 {
 	if (!hdc || !rc || (vec.empty()) || IsRectEmpty(rc))
 		return;
 
 	const RECT rcCalc = dcxBreakdownCalcRect(hdc, vec, rc, uStyle, dTO);
+	//const RECT rcCalc = *rc;
 	if (dcx_testflag(uStyle, DT_CALCRECT))
 	{
 		*rc = rcCalc;
@@ -2036,7 +2049,7 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 	}
 	int xPos{ rcArea.left }, yPos{ rcArea.top };
 
-	auto _DrawBreakdown = [&xPos, &yPos, &uStyle, &rcArea, &hdc, &dTO](const TString& txt) noexcept -> bool {
+	auto _DrawBreakdown = [&xPos, &yPos, &uStyle, &rcArea, &hdc, &dTO, &rc](const TString& txt) noexcept -> bool {
 		TEXTMETRICW tm{};
 		GetTextMetricsW(hdc, std::addressof(tm));
 
@@ -2045,6 +2058,14 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 		const auto len = txt.len();
 		//const UINT uNewStyle = uStyle | DT_SINGLELINE;
 		const UINT uNewStyle = (uStyle & ~(DT_CENTER | DT_RIGHT | DT_VCENTER)) | DT_LEFT | DT_SINGLELINE; // make sure its to left
+		const bool bDoPath = (dTO.m_bFilledOutline || dTO.m_bOutline || dTO.m_bGradientFill);
+
+		//const auto clrTxt = (dTO.m_clrText != CLR_INVALID) ? dTO.m_clrText : GetTextColor(hdc);
+		const auto clrTxt = GetTextColor(hdc);
+		const auto clrOutline = (dTO.m_clrOutline != CLR_INVALID) ? dTO.m_clrOutline : GetContrastColour(clrTxt);
+
+		if (bDoPath)
+			BeginPath(hdc);
 
 		if (xPos >= rcArea.right)
 		{
@@ -2058,25 +2079,22 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 
 			if (iFit != 0)
 			{
-				//if (dTO.m_bShadow)
-				//{
-				//	const auto clrShadow = (dTO.m_clrShadow != CLR_INVALID) ? dTO.m_clrShadow : RGB(0, 0, 0);
-				//	const auto oldClr = SetTextColor(hdc, clrShadow);
-				//	TextOutW(hdc, xPos + dTO.m_uShadowXOffset, yPos + dTO.m_uShadowYOffset, pText, iFit);
-				//	SetTextColor(hdc, oldClr);
-				//}
-				//TextOutW(hdc, xPos, yPos, pText, iFit);
-
 				RECT rcTxt{};
 				rcTxt.top = yPos;
 				rcTxt.bottom = yPos + sz.cy;
 				rcTxt.left = xPos;
 				rcTxt.right = rcArea.right;
 
+				// apply glow effect before drawing text.
+				if (dTO.m_bGlow)
+				{
+					const auto clrGlow = (dTO.m_clrGlow != CLR_INVALID) ? dTO.m_clrGlow : RGB(255, 255, 255);
+					dcxDrawShadowText(hdc, pText, iFit, &rcTxt, uNewStyle, clrTxt, clrGlow, 0, 0);
+				}
 				if (dTO.m_bShadow)
 				{
 					const auto clrShadow = (dTO.m_clrShadow != CLR_INVALID) ? dTO.m_clrShadow : RGB(0, 0, 0);
-					dcxDrawShadowText(hdc, pText, iFit, &rcTxt, uNewStyle, GetTextColor(hdc), clrShadow, dTO.m_uShadowXOffset, dTO.m_uShadowYOffset);
+					dcxDrawShadowText(hdc, pText, iFit, &rcTxt, uNewStyle, clrTxt, clrShadow, dTO.m_uShadowXOffset, dTO.m_uShadowYOffset);
 				}
 				else
 					DrawTextW(hdc, pText, iFit, &rcTxt, uNewStyle);
@@ -2094,6 +2112,93 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 				xPos += sz.cx - tm.tmOverhang;
 			}
 		}
+
+		if (bDoPath)
+		{
+			EndPath(hdc);
+
+			auto hOutlinePen = CreatePen(PS_SOLID, dTO.m_uOutlineSize, clrOutline);
+			if (!hOutlinePen)
+				return false;
+			Auto(DeletePen(hOutlinePen));
+
+			auto hOldPen = SelectPen(hdc, hOutlinePen);
+			Auto(SelectPen(hdc, hOldPen));
+
+			auto hFillBrush = CreateSolidBrush(clrTxt);
+			if (!hFillBrush)
+				return false;
+			Auto(DeleteBrush(hFillBrush));
+
+			auto hOldBrush = SelectBrush(hdc, hFillBrush);
+			Auto(SelectBrush(hdc, hOldBrush));
+
+			if (!dTO.m_bGradientFill || dTO.m_bOutline)
+			{
+				// not a gradient so must be an outline
+				if (dTO.m_bFilledOutline)
+					StrokeAndFillPath(hdc);
+				else
+					StrokePath(hdc);
+			}
+			else {
+				if (dTO.m_bGradientOutline)
+					WidenPath(hdc);
+
+				// TODO: fix shadow look for gradient and outlines...
+				// TODO: get gradient outlines working... mostly done?
+
+
+				if (dTO.m_bFilledOutline)
+					StrokeAndFillPath(hdc);
+				else if (dTO.m_bOutline)
+					StrokePath(hdc);
+				else
+					FillPath(hdc);
+
+				const auto hBufGrad = CreateHDCBuffer(hdc, rc);
+				if (!hBufGrad)
+					return false;
+				Auto(DeleteHDCBuffer(hBufGrad));
+				HDC hdcGrad = *hBufGrad;
+				if (!hdcGrad)
+					return false;
+
+				auto hbmMask = CreateBitmap(rc->right, rc->bottom, 1, 1, nullptr);
+				if (!hbmMask)
+					return false;
+				Auto(DeleteBitmap(hbmMask));
+
+				// create mask
+				{
+					const auto oldbm = SelectBitmap(hdcGrad, hbmMask);
+					Auto(SelectBitmap(hdcGrad, oldbm));
+
+					const auto oldClr = SetBkColor(hdc, clrTxt);
+					BitBlt(hdcGrad, 0, 0, rc->right, rc->bottom, hdc, 0, 0, SRCCOPY);
+					SetBkColor(hdc, oldClr);
+				}
+				XPopupMenuItem::DrawGradient(hdcGrad, rc, dTO.m_clrGradientTextStart, dTO.m_clrGradientTextEnd, dTO.m_bHorizGradientFill);
+
+				if (dTO.m_bGradientOutline)
+					StrokePath(hdc);
+
+				//if (dTO.m_bFilledOutline)
+				//	StrokePath(hdc);
+
+				//constexpr DWORD DSTCOPY = 0x00AA0029;
+				//constexpr DWORD hafs = MAKEROP4(SRCCOPY, DSTCOPY);
+				//constexpr DWORD hafs = 0xAACC0000;
+				//MaskBlt(hdc, pRC->left, pRC->top, rcTxt.right, rcTxt.bottom, hdcGrad, 0, 0, hbmMask, 0, 0, hafs);
+
+				// these points are the wrong way round, BUT they cause the text to be flipped, which is a nice effect for the future.
+				//const POINT pts[3]{ {rcTxt.top,rcTxt.left }, { rcTxt.top, rcTxt.right }, { rcTxt.bottom, rcTxt.left } };
+
+				const POINT pts[3]{ { rc->left,rc->top }, { rc->right,rc->top }, { rc->left,rc->bottom } };
+				PlgBlt(hdc, &pts[0], hdcGrad, 0, 0, rc->right, rc->bottom, hbmMask, 0, 0);
+			}
+		}
+
 		return (iFit != 0);
 	};
 

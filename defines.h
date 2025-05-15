@@ -829,6 +829,7 @@ struct dcxTextOptions
 	BYTE m_uShadowYOffset{ 5 };
 	BYTE m_uShadowAlpha{ 192 };
 	BYTE m_uShadowThickness{ 1 };
+	BYTE m_uGlowSize{ 12 };
 };
 
 struct dcxTextBreakdown
@@ -841,8 +842,8 @@ struct dcxTextBreakdown
 };
 std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const TString& txt);
 std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const LPCWSTR txt, UINT len);
-RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPCRECT rc, const UINT uStyle, const dcxTextOptions& dTO);
-void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPRECT rc, const UINT uStyle, const dcxTextOptions& dTO);
+RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPCRECT rc, const UINT uStyle, const dcxTextOptions& dTO) noexcept;
+void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPRECT rc, const UINT uStyle, const dcxTextOptions& dTO) noexcept;
 
 void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT* pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset) noexcept;
 void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, const bool shadow);
