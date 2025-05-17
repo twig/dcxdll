@@ -625,7 +625,7 @@ struct dcxImage
 	HBITMAP m_hBitmap{};
 	HICON m_hIcon{};
 #ifdef DCX_USE_GDIPLUS
-	Gdiplus::Image *m_pImage{ nullptr }; //!< GDI+ Image Object
+	Gdiplus::Image* m_pImage{ nullptr }; //!< GDI+ Image Object
 
 	explicit operator bool() const noexcept { return (!m_tsFilename.empty() && (m_hBitmap || m_hIcon || m_pImage)); }
 #else
@@ -847,7 +847,7 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 
 void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT* pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset) noexcept;
 void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, const bool shadow);
-void mIRC_DrawTextNoBuffer(HDC hdc, const TString& txt, LPRECT rc, const UINT style, const bool shadow, const dcxTextOptions *dTO = nullptr);
+void mIRC_DrawTextNoBuffer(HDC hdc, const TString& txt, LPRECT rc, const UINT style, const bool shadow, const dcxTextOptions* dTO = nullptr);
 void DrawRotatedText(const TString& strDraw, const LPCRECT rc, const HDC hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0) noexcept;
 void dcxDrawGradientText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, const dcxTextOptions& dTO);
 void dcxDrawGradientTextMasked(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, const dcxTextOptions& dTO);
@@ -856,7 +856,7 @@ void dcxDrawTextOptions(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT mStyle, 
 
 [[nodiscard("Memory Leak")]] gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc);
 void DeleteHDCBuffer(gsl::owner<HDC*> hBuffer) noexcept;
-HPAINTBUFFER CreateHDCBufferNoCopy(HDC hdc, HDC *hdcOut) noexcept;
+HPAINTBUFFER CreateHDCBufferNoCopy(HDC hdc, HDC* hdcOut) noexcept;
 void DeleteHDCBufferNoCopy(HPAINTBUFFER hBuf) noexcept;
 
 int TGetWindowText(HWND hwnd, TString& txt);
@@ -897,8 +897,19 @@ void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, con
 void dcxDrawRadioBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, const DWORD dState, const bool bTicked, const bool bRounded) noexcept;
 void dcxDrawEdge(HDC hdc, const LPRECT rc, COLORREF clr) noexcept;
 void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept;
-void dcxDrawArrow(HDC hdc, LPCRECT lprc, COLORREF clr) noexcept;
+
+enum class dcxArrowFlags
+	: UINT
+{
+	Left =		0x01,
+	Right =		0x02,
+	Up =		0x04,
+	Down =		0x08,
+	Themed =	0x10
+};
+void dcxDrawArrow(_In_ HDC hdc, _In_ LPCRECT lprc, _In_ COLORREF clr, _In_ dcxArrowFlags eFlags = dcxArrowFlags::Right) noexcept;
 HWND dcxGetRealParent(HWND hWnd) noexcept;
+HBITMAP dcxCreateMask(HDC hdc, LPRECT rc, COLORREF clrMask) noexcept;
 
 /// <summary>
 /// Draws a solid rect of the specified size and colour

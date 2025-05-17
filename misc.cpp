@@ -2085,13 +2085,13 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 				rcTxt.left = xPos;
 				rcTxt.right = rcArea.right;
 
-				// apply glow effect before drawing text.
+				// apply glow effect.
 				if (dTO.m_bGlow)
 				{
 					const auto clrGlow = (dTO.m_clrGlow != CLR_INVALID) ? dTO.m_clrGlow : RGB(255, 255, 255);
 					dcxDrawShadowText(hdc, pText, iFit, &rcTxt, uNewStyle, clrTxt, clrGlow, 0, 0);
 				}
-				if (dTO.m_bShadow)
+				else if (dTO.m_bShadow)
 				{
 					const auto clrShadow = (dTO.m_clrShadow != CLR_INVALID) ? dTO.m_clrShadow : RGB(0, 0, 0);
 					dcxDrawShadowText(hdc, pText, iFit, &rcTxt, uNewStyle, clrTxt, clrShadow, dTO.m_uShadowXOffset, dTO.m_uShadowYOffset);
@@ -2147,7 +2147,7 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 
 				// TODO: fix shadow look for gradient and outlines...
 				// TODO: get gradient outlines working... mostly done?
-
+				// TODO: look into SelectClipPath()
 
 				if (dTO.m_bFilledOutline)
 					StrokeAndFillPath(hdc);
@@ -2164,20 +2164,27 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 				if (!hdcGrad)
 					return false;
 
-				auto hbmMask = CreateBitmap(rc->right, rc->bottom, 1, 1, nullptr);
+				//auto hbmMask = CreateBitmap(rc->right, rc->bottom, 1, 1, nullptr);
+				//if (!hbmMask)
+				//	return false;
+				//Auto(DeleteBitmap(hbmMask));
+				//
+				//// create mask
+				//{
+				//	const auto oldbm = SelectBitmap(hdcGrad, hbmMask);
+				//	Auto(SelectBitmap(hdcGrad, oldbm));
+				//
+				//	const auto oldClr = SetBkColor(hdc, clrTxt);
+				//	BitBlt(hdcGrad, 0, 0, rc->right, rc->bottom, hdc, 0, 0, SRCCOPY);
+				//	SetBkColor(hdc, oldClr);
+				//}
+
+				// create mask
+				auto hbmMask = dcxCreateMask(hdc, rc, clrTxt);
 				if (!hbmMask)
 					return false;
 				Auto(DeleteBitmap(hbmMask));
 
-				// create mask
-				{
-					const auto oldbm = SelectBitmap(hdcGrad, hbmMask);
-					Auto(SelectBitmap(hdcGrad, oldbm));
-
-					const auto oldClr = SetBkColor(hdc, clrTxt);
-					BitBlt(hdcGrad, 0, 0, rc->right, rc->bottom, hdc, 0, 0, SRCCOPY);
-					SetBkColor(hdc, oldClr);
-				}
 				XPopupMenuItem::DrawGradient(hdcGrad, rc, dTO.m_clrGradientTextStart, dTO.m_clrGradientTextEnd, dTO.m_bHorizGradientFill);
 
 				if (dTO.m_bGradientOutline)
@@ -2201,6 +2208,9 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 
 		return (iFit != 0);
 	};
+
+	auto oldBkMode = GetBkMode(hdc);
+	Auto(SetBkMode(hdc, oldBkMode));
 
 	if (dTO.m_bNoCtrlCodes)
 	{

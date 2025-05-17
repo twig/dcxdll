@@ -877,7 +877,10 @@ void XPopupMenuItem::DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const XPMENU
 	//	ExcludeClipRect( lpdis->hDC, lpdis->rcItem.right - (XPMI_SUBARROW_WIDTH + XPMI_SUBARROW_XPAD), lpdis->rcItem.top, lpdis->rcItem.right, lpdis->rcItem.bottom );
 	//#else
 
-	dcxDrawArrow(lpdis->hDC, &lpdis->rcItem, bDis ? lpcol->m_clrDisabledText : lpcol->m_clrText);
+	if (dcx_testflag(lpdis->itemState, CDIS_SELECTED))
+		dcxDrawArrow(lpdis->hDC, &lpdis->rcItem, bDis ? lpcol->m_clrDisabledText : lpcol->m_clrSelectedText, dcxArrowFlags::Right /*| dcxArrowFlags::Themed*/);
+	else
+		dcxDrawArrow(lpdis->hDC, &lpdis->rcItem, bDis ? lpcol->m_clrDisabledText : lpcol->m_clrText, dcxArrowFlags::Down /*| dcxArrowFlags::Themed*/);
 
 	ExcludeClipRect(lpdis->hDC, lpdis->rcItem.right - (XPMI_SUBARROW_WIDTH + XPMI_SUBARROW_XPAD), lpdis->rcItem.top, lpdis->rcItem.right, lpdis->rcItem.bottom);
 	//#endif

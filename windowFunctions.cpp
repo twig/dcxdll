@@ -866,7 +866,7 @@ void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept
 	DeleteObject(SelectObject(hdc, hOld));
 }
 
-void dcxDrawArrow(HDC hdc, LPCRECT lprc, COLORREF clr) noexcept
+void dcxDrawArrow(_In_ HDC hdc, _In_ LPCRECT lprc, _In_ COLORREF clr, _In_ dcxArrowFlags eFlags) noexcept
 {
 	if (!hdc || !lprc)
 		return;
@@ -883,24 +883,75 @@ void dcxDrawArrow(HDC hdc, LPCRECT lprc, COLORREF clr) noexcept
 	const auto x = lprc->right - XPMI_SUBARROW_WIDTH;
 	const auto y = ((lprc->bottom + lprc->top) / 2) - (XPMI_SUBARROW_HEIGHT / 2);
 
-	MoveToEx(hdc, x, y, nullptr);
-	LineTo(hdc, x + 1, y);
-	MoveToEx(hdc, x, y + 1, nullptr);
-	LineTo(hdc, x + 2, y + 1);
-	MoveToEx(hdc, x, y + 2, nullptr);
-	LineTo(hdc, x + 3, y + 2);
-	MoveToEx(hdc, x, y + 3, nullptr);
-	LineTo(hdc, x + 4, y + 3);
-	MoveToEx(hdc, x, y + 4, nullptr);
-	LineTo(hdc, x + 5, y + 4);
-	MoveToEx(hdc, x, y + 5, nullptr);
-	LineTo(hdc, x + 4, y + 5);
-	MoveToEx(hdc, x, y + 6, nullptr);
-	LineTo(hdc, x + 3, y + 6);
-	MoveToEx(hdc, x, y + 7, nullptr);
-	LineTo(hdc, x + 2, y + 7);
-	MoveToEx(hdc, x, y + 8, nullptr);
-	LineTo(hdc, x + 1, y + 8);
+	//MoveToEx(hdc, x, y, nullptr);
+	//LineTo(hdc, x + 1, y);
+	//MoveToEx(hdc, x, y + 1, nullptr);
+	//LineTo(hdc, x + 2, y + 1);
+	//MoveToEx(hdc, x, y + 2, nullptr);
+	//LineTo(hdc, x + 3, y + 2);
+	//MoveToEx(hdc, x, y + 3, nullptr);
+	//LineTo(hdc, x + 4, y + 3);
+	//MoveToEx(hdc, x, y + 4, nullptr);
+	//LineTo(hdc, x + 5, y + 4);
+	//MoveToEx(hdc, x, y + 5, nullptr);
+	//LineTo(hdc, x + 4, y + 5);
+	//MoveToEx(hdc, x, y + 6, nullptr);
+	//LineTo(hdc, x + 3, y + 6);
+	//MoveToEx(hdc, x, y + 7, nullptr);
+	//LineTo(hdc, x + 2, y + 7);
+	//MoveToEx(hdc, x, y + 8, nullptr);
+	//LineTo(hdc, x + 1, y + 8);
+
+	// Draw the arrow using PolyDraw
+	const POINT pts[]{
+		{x, y},
+		{x + 1, y},
+
+		{x, y + 1},
+		{x + 2, y + 1},
+
+		{x, y + 2},
+		{x + 3, y + 2},
+
+		{x, y + 3},
+		{x + 4, y + 3},
+
+		{x, y + 4},
+		{x + 5, y + 4},
+
+		{x, y + 5},
+		{x + 4, y + 5},
+
+		{x, y + 6},
+		{x + 3, y + 6},
+
+		{x, y + 7},
+		{x + 2, y + 7},
+
+		{x, y + 8},
+		{x + 1, y + 8}
+	};
+	const static BYTE flags[]{
+		PT_MOVETO,
+		PT_LINETO,
+		PT_MOVETO,
+		PT_LINETO,
+		PT_MOVETO,
+		PT_LINETO,
+		PT_MOVETO,
+		PT_LINETO,
+		PT_MOVETO,
+		PT_LINETO,
+		PT_MOVETO,
+		PT_LINETO,
+		PT_MOVETO,
+		PT_LINETO,
+		PT_MOVETO,
+		PT_LINETO,
+		PT_MOVETO,
+		PT_LINETO
+	};
+	PolyDraw(hdc, &pts[0], &flags[0], gsl::narrow_cast<int>(std::size(pts)));
 }
 
 namespace
@@ -1447,6 +1498,29 @@ bool CopyBitmapToHDC(HDC hdc, LONG xDest, LONG yDest, LONG wDest, LONG hDest, HB
 	Auto(Dcx::dcxSelectObject(hTmp, hOld));
 
 	return (BitBlt(hdc, xDest, yDest, wDest, hDest, hTmp, xSrc, ySrc, SRCCOPY) != FALSE);
+}
+
+
+
+HBITMAP dcxCreateMask(HDC hdc, LPRECT rc, COLORREF clrMask) noexcept
+{
+	HDC hdcMask = CreateCompatibleDC(hdc);
+	if (!hdcMask)
+		return nullptr;
+	Auto(DeleteDC(hdcMask));
+
+	auto hbmMask = CreateBitmap(rc->right, rc->bottom, 1, 1, nullptr);
+	if (!hbmMask)
+		return nullptr;
+
+	const auto oldbm = SelectBitmap(hdcMask, hbmMask);
+	Auto(SelectBitmap(hdcMask, oldbm));
+
+	const auto oldClr = SetBkColor(hdc, clrMask);
+	BitBlt(hdcMask, 0, 0, rc->right, rc->bottom, hdc, 0, 0, SRCCOPY);
+	SetBkColor(hdc, oldClr);
+
+	return hbmMask;
 }
 
 /// <summary>
