@@ -339,20 +339,12 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		if (numtok < 7)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		//const auto x = input.getfirsttok(4).to_int();
-		//const auto y = input.getnexttok().to_int();	// tok 5
-		//const auto w = input.getnexttok().to_int();	// tok 6
-		//const auto h = input.getnexttok().to_int();	// tok 7
-		//
-		//MoveWindow(m_Hwnd, x, y, w, h, TRUE);
-		//redrawBufferedWindow();
-
 		auto x = input.getfirsttok(4).to_int();
 		auto y = input.getnexttok().to_int();	// tok 5
 		auto w = input.getnexttok().to_int();	// tok 6
 		auto h = input.getnexttok().to_int();	// tok 7
 
-		const Dcx::dcxWindowRect rc(m_Hwnd, getParentHWND());
+		const Dcx::dcxWindowRect rc(m_Hwnd, GetParent(m_Hwnd));
 
 		if (x == -1)
 			x = rc.left;
