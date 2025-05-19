@@ -1196,7 +1196,7 @@ inline HWND dcxCreateWindow(_In_ const WindowExStyle ExStyles, _In_opt_z_ const 
 	if (!rc)
 		return nullptr;
 
-	return CreateWindowEx(
+	return CreateWindowExW(
 		gsl::narrow_cast<DWORD>(ExStyles),
 		szClass,
 		nullptr,
@@ -1205,7 +1205,7 @@ inline HWND dcxCreateWindow(_In_ const WindowExStyle ExStyles, _In_opt_z_ const 
 		hParent,
 		reinterpret_cast<HMENU>(uID),
 		GetModuleHandle(nullptr),
-		(LPVOID)pthis);
+		const_cast<LPVOID>(pthis));
 }
 
 inline UINT dcxSetWindowID(_In_ HWND Hwnd, _In_ const UINT uID) noexcept

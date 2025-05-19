@@ -801,6 +801,7 @@ bool IsFile(TString& filename);
 
 struct dcxTextOptions
 {
+	bool m_bUseNewStyle{};
 	bool m_bGradientFill{};
 	bool m_bHorizGradientFill{};
 	bool m_bOutline{};
@@ -821,8 +822,8 @@ struct dcxTextOptions
 	COLORREF m_clrGradientOutlineStart{ CLR_INVALID };
 	COLORREF m_clrGradientOutlineEnd{ CLR_INVALID };
 	COLORREF m_clrOutline{ CLR_INVALID };
-	COLORREF m_clrShadow{ CLR_INVALID };
-	COLORREF m_clrGlow{ CLR_INVALID };
+	COLORREF m_clrShadow{ RGB(0, 0, 0) };
+	COLORREF m_clrGlow{ RGB(255,255,255) };
 
 	BYTE m_uOutlineSize{ 1 };
 	BYTE m_uShadowXOffset{ 5 };

@@ -107,19 +107,20 @@ enum class DcxControlTypes
 enum class dcxTextStyles
 	: UINT
 {
-	Unknown = 0x00000000,
-	HorizGradientText = 0x00000001,
-	VertGradientText = 0x00000002,
-	Shadow = 0x00000004,
-	OutlineOnly = 0x00000008,
-	OutlineFilled = 0x00000010,
-	HorizGradientOutline = 0x00000020,
-	VertGradientOutline = 0x00000040,
-	NoCtrlCodes = 0x00000080,
-	NoColours = 0x00000100,
-	Glow = 0x00000200,
-	DblOutline = 0x00000400,
-	Transparent = 0x00000800
+	Unknown					= 0x00000000,
+	HorizGradientText		= 0x00000001,
+	VertGradientText		= 0x00000002,
+	Shadow					= 0x00000004,
+	OutlineOnly				= 0x00000008,
+	OutlineFilled			= 0x00000010,
+	HorizGradientOutline	= 0x00000020,
+	VertGradientOutline		= 0x00000040,
+	NoCtrlCodes				= 0x00000080,
+	NoColours				= 0x00000100,
+	Glow					= 0x00000200,
+	DblOutline				= 0x00000400,
+	Transparent				= 0x00000800,
+	NewStyle				= 0x00001000
 };
 
 // icon sizes...

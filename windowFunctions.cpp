@@ -1763,10 +1763,13 @@ void dcxDrawTextOptions(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT mStyle, 
 	RECT rcTxt = *pRC;
 	OffsetRect(&rcTxt, -rcTxt.left, -rcTxt.top);
 
-	const auto clrTxt = (dTO.m_clrText != CLR_INVALID) ? dTO.m_clrText : GetTextColor(hdcTxt);
+	//const auto clrTxt = (dTO.m_clrText != CLR_INVALID) ? dTO.m_clrText : GetTextColor(hdcTxt);
 	//const auto clrOutline = (dTO.m_clrOutline != CLR_INVALID) ? dTO.m_clrOutline : GetContrastColour(clrTxt);
+	//SetTextColor(hdcTxt, clrTxt);
 
-	SetTextColor(hdcTxt, clrTxt);
+	if (dTO.m_clrText != CLR_INVALID)
+		SetTextColor(hdcTxt, dTO.m_clrText);
+
 	if (dTO.m_clrTextBackground != CLR_INVALID)
 		SetBkColor(hdcTxt, dTO.m_clrTextBackground);
 

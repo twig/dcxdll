@@ -290,6 +290,8 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 				m_TextOptions.m_bShadow = dcx_testflag(tsMask, dcxTextStyles::Shadow);
 			if (dcx_testflag(ts, dcxTextStyles::Transparent))
 				m_TextOptions.m_bTransparent = dcx_testflag(tsMask, dcxTextStyles::Transparent);
+			if (dcx_testflag(ts, dcxTextStyles::NewStyle))
+				m_TextOptions.m_bUseNewStyle = dcx_testflag(tsMask, dcxTextStyles::NewStyle);
 
 			if (const auto tsPen(tsStyleArgs.wildtok(L"outlinesize=*", 1)); !tsPen.empty())
 			{
@@ -1981,6 +1983,9 @@ dcxTextStyles DcxControl::parseTextStyles(const TString& tsStyles)
 		case L"transparent"_hash:
 			ts |= dcxTextStyles::Transparent;
 			break;
+		case L"newstyle"_hash:
+			ts |= dcxTextStyles::NewStyle;
+			break;
 		default:
 			break;
 		}
@@ -2986,6 +2991,8 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, cons
 		//dTO.m_bCtrlCodes = false;
 		dTO.m_bNoColours = true;
 	}
+	if (dTO.m_bUseNewStyle)
+	{
 	dcxDrawTextOptions(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), rc, style, dTO);
 
 	//dcxDrawGradientTextMasked(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), rc, style, dTO);
@@ -2996,6 +3003,26 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, cons
 	//if (vec.empty())
 	//	return;
 	//mIRC_DrawBreakdown(hdc, vec, rc, style, dTO);
+	}
+	else {
+		const auto oldClr = SetTextColor(hdc, dTO.m_clrText);
+		Auto(SetTextColor(hdc, oldClr));
+
+		if (dTO.m_bNoCtrlCodes || dTO.m_bNoColours)
+		{
+			const auto oldBkgMode = SetBkMode(hdc, TRANSPARENT);
+			Auto(SetBkMode(hdc, oldBkgMode));
+		 
+			if (dTO.m_bGlow)
+				dcxDrawShadowText(hdc, txt.to_wchr(), gsl::narrow_cast<UINT>(txt.len()), rc, style, dTO.m_clrText, dTO.m_clrGlow, 0, 0);
+			else if (dTO.m_bShadow)
+				dcxDrawShadowText(hdc, txt.to_wchr(), gsl::narrow_cast<UINT>(txt.len()), rc, style, dTO.m_clrText, dTO.m_clrShadow, dTO.m_uShadowXOffset, dTO.m_uShadowYOffset);
+			else
+				DrawTextW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), rc, style);
+		}
+		else
+			mIRC_DrawText(hdc, txt, rc, style, dTO.m_bShadow);
+	}
 
 	//if (!this->IsControlCodeTextEnabled())
 	//{
@@ -3009,7 +3036,7 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, cons
 	//}
 	//else
 	//	mIRC_DrawText(hdc, txt, rc, style, this->IsShadowTextEnabled());
-
+	//}
 	//if (!this->IsControlCodeTextEnabled())
 	//{
 	//	const auto oldBkgMode = SetBkMode(hdc, TRANSPARENT);
