@@ -1816,7 +1816,7 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 		if (MapDialogRect(this->getHwnd(), &rc))
 			_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.right, rc.top, rc.bottom);
 		else
-			szReturnValue = TEXT("-FAIL Unable to get Glass colour.");
+			szReturnValue = TEXT("-FAIL Unable to map location.");
 	}
 	break;
 
@@ -1862,6 +1862,17 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 	case L"dpi"_hash:
 	{
 		_ts_snprintf(szReturnValue, TEXT("%u"), m_uDPI);
+	}
+	break;
+
+	case L"state"_hash:
+	{
+		if (IsIconic(m_Hwnd))
+			szReturnValue = TEXT('i');
+		else if (IsZoomed(m_Hwnd))
+			szReturnValue = TEXT('m');
+		else
+			szReturnValue = TEXT('n');
 	}
 	break;
 

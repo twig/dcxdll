@@ -40,6 +40,7 @@ bool DcxUXModule::load()
 		GetWindowThemeUx = (PFNGETWINDOWTHEME) GetProcAddress(m_hModule, "GetWindowTheme");
 		DrawThemeEdgeUx = (PFNDRAWTHEMEEDGE) GetProcAddress(m_hModule, "DrawThemeEdge");
 		GetThemeColorUx = (PFNGETTHEMECOLOR) GetProcAddress(m_hModule, "GetThemeColor");
+		GetThemeIntUx = (PFNGETTHEMEINT)GetProcAddress(m_hModule, "GetThemeInt");
 		GetThemeFontUx = (PFNGETTHEMEFONT)GetProcAddress(m_hModule, "GetThemeFont");
 		GetThemeTextExtentUx = (PFNGETTHEMETEXTEXTENT)GetProcAddress(m_hModule, "GetThemeTextExtent");
 		GetThemeRectUx = (PFNGETTHEMERECT)GetProcAddress(m_hModule, "GetThemeRect");
@@ -260,6 +261,7 @@ HRESULT DcxUXModule::dcxDrawThemeText(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int
 {
 	if (DrawThemeTextUx)
 		return DrawThemeTextUx(hTheme, hdc, iPartId, iStateId, pszText, cchText, dwTextFlags, dwTextFlags2, pRect);
+
 	return E_NOTIMPL;
 }
 
@@ -267,6 +269,7 @@ HRESULT DcxUXModule::dcxDrawThemeTextEx(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ i
 {
 	if (DrawThemeTextExUx)
 		return DrawThemeTextExUx(hTheme, hdc, iPartId, iStateId, pszText, cchText, dwTextFlags, pRect, pOptions);
+
 	return E_NOTIMPL;
 }
 
@@ -288,6 +291,13 @@ HRESULT DcxUXModule::dcxGetThemeColor(_In_ HTHEME hTheme, _In_ int iPartId, _In_
 {
 	if (GetThemeColorUx)
 		return GetThemeColorUx(hTheme, iPartId, iStateId, iPropId, pColor);
+	return E_NOTIMPL;
+}
+
+HRESULT DcxUXModule::dcxGetThemeInt(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ int* piVal) noexcept
+{
+	if (GetThemeIntUx)
+		return GetThemeIntUx(hTheme, iPartId, iStateId, iPropId, piVal);
 	return E_NOTIMPL;
 }
 
@@ -489,4 +499,28 @@ void DcxUXModule::dcxRefreshTitleBarThemeColor(_In_opt_ HWND mHwnd) noexcept
 		dark = TRUE;
 	}
 	Dcx::DwmModule.dcxDwmSetWindowAttribute(mHwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof(dark));
+}
+
+int DcxUXModule::dcxGetTextGlowSize() noexcept
+{
+	int iGlow = 12; // Default value
+	// CompositedWindow::Window is declared in AeroStyle.xml
+	if (HTHEME hThemeWindow = dcxOpenThemeData(nullptr, L"CompositedWindow::Window"); hThemeWindow)
+	{
+		dcxGetThemeInt(hThemeWindow, 0, 0, TMT_TEXTGLOWSIZE, &iGlow);
+		dcxCloseThemeData(hThemeWindow);
+	}
+	return iGlow;
+}
+
+COLORREF DcxUXModule::dcxGetTextGlowColor() noexcept
+{
+	COLORREF crGlow = RGB(255,255,255); // Default value
+	// CompositedWindow::Window is declared in AeroStyle.xml
+	if (HTHEME hThemeWindow = dcxOpenThemeData(nullptr, L"CompositedWindow::Window"); hThemeWindow)
+	{
+		dcxGetThemeColor(hThemeWindow, 0, 0, TMT_GLOWCOLOR, &crGlow);
+		dcxCloseThemeData(hThemeWindow);
+	}
+	return crGlow;
 }

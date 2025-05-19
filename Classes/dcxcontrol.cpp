@@ -323,6 +323,13 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 					m_TextOptions.m_uShadowThickness = gsl::narrow_cast<BYTE>(iPen);
 				}
 			}
+			if (const auto tsPen(tsStyleArgs.wildtok(L"glowsize=*", 1)); !tsPen.empty())
+			{
+				if (const auto iPen = tsPen.gettok(2, L'=').to_<UINT>(); (iPen > 0 && iPen <= 20))
+				{
+					m_TextOptions.m_uGlowSize = gsl::narrow_cast<BYTE>(iPen);
+		}
+			}
 		}
 		redrawWindow();
 	}
@@ -1280,11 +1287,6 @@ void DcxControl::HandleDragMove(int x, int y) noexcept
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	DcxControl* pthis{};
@@ -1355,7 +1357,6 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
  *
  * Input [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
  */
-
 GSL_SUPPRESS(r.11)
 DcxControl* DcxControl::controlFactory(gsl::strict_not_null<DcxDialog* const> p_Dialog, const UINT mID, const TString& tsInput, const UINT offset, const DcxAllowControls mask = DcxAllowControls::ALLOW_ALL, HWND hParent)
 {
@@ -1679,12 +1680,6 @@ LRESULT DcxControl::setFont(const HFONT hFont, const BOOL fRedraw) noexcept
 	return SendMessage(m_Hwnd, WM_SETFONT, reinterpret_cast<WPARAM>(hFont), MAKELPARAM(fRedraw, 0));
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void DcxControl::setCursor(const TString& tsFlags, TString& tsFilename)
 {
 	const auto iFlags = this->parseCursorFlags(tsFlags);
@@ -1727,6 +1722,8 @@ void DcxControl::setRegion(const TString& tsFlags, const TString& tsArgs)
 		RegionMode = RGN_DIFF;
 	else if (xflags[TEXT('x')])
 		RegionMode = RGN_XOR;
+	else if (xflags[TEXT('c')])
+		RegionMode = RGN_COPY;
 
 	if (xflags[TEXT('f')]) // image file - [COLOR] [FILE]
 	{
@@ -2361,7 +2358,7 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC* hdc, const bool DoubleBuffer)
 		if (this->IsAlphaBlend())
 			paintParams.pBlendFunction = &ai->ai_bf;
 
-		ai->ai_Buffer = Dcx::UXModule.dcxBeginBufferedPaint(*hdc, &ai->ai_rcClient, BPBF_COMPATIBLEBITMAP, &paintParams, &ai->ai_hdc);
+		ai->ai_Buffer = Dcx::UXModule.dcxBeginBufferedPaint(*hdc, &ai->ai_rcClient, /*BPBF_TOPDOWNDIB*/ BPBF_COMPATIBLEBITMAP, &paintParams, &ai->ai_hdc);
 		if (ai->ai_Buffer)
 		{
 			this->DrawParentsBackground(ai->ai_hdc, &ai->ai_rcClient);
@@ -3145,7 +3142,6 @@ void DcxControl::toXml(TiXmlElement* const xml) const
 		xTextOptions.SetAttribute("noformat", m_TextOptions.m_bNoCtrlCodes);
 		xTextOptions.SetAttribute("dbloutline", m_TextOptions.m_bDoubleOutline);
 		xTextOptions.SetAttribute("filloutline", m_TextOptions.m_bFilledOutline);
-		xTextOptions.SetAttribute("glow", m_TextOptions.m_bGlow);
 		if (m_TextOptions.m_bGradientFill)
 		{
 			if (m_TextOptions.m_bHorizGradientFill)
@@ -3162,8 +3158,28 @@ void DcxControl::toXml(TiXmlElement* const xml) const
 		}
 		xTextOptions.SetAttribute("nocolours", m_TextOptions.m_bNoColours);
 		xTextOptions.SetAttribute("outlineonly", m_TextOptions.m_bOutline);
-		xTextOptions.SetAttribute("shadow", m_TextOptions.m_bShadow);
 		xTextOptions.SetAttribute("transparent", m_TextOptions.m_bTransparent);
+
+		{
+			TiXmlElement xItem("shadows");
+
+			xItem.SetAttribute("enable", m_TextOptions.m_bShadow);
+			xItem.SetAttribute("alpha", m_TextOptions.m_uShadowAlpha);
+			xItem.SetAttribute("size", m_TextOptions.m_uShadowThickness);
+			xItem.SetAttribute("xoffset", m_TextOptions.m_uShadowXOffset);
+			xItem.SetAttribute("yoffset", m_TextOptions.m_uShadowYOffset);
+
+			xTextOptions.InsertEndChild(xItem);
+		}
+
+		{
+			TiXmlElement xItem("glow");
+
+			xItem.SetAttribute("enable", m_TextOptions.m_bGlow);
+			xItem.SetAttribute("size", m_TextOptions.m_uGlowSize);
+
+			xTextOptions.InsertEndChild(xItem);
+		}
 
 		{
 			TiXmlElement xTextColours("colours");
@@ -3431,8 +3447,24 @@ void DcxControl::xmlSetStyle(const TiXmlElement* xStyle)
 		}
 		m_TextOptions.m_bNoColours = (queryIntAttribute(xTextOptions, "nocolours") == 0);
 		m_TextOptions.m_bOutline = (queryIntAttribute(xTextOptions, "outlineonly") == 0);
-		m_TextOptions.m_bShadow = (queryIntAttribute(xTextOptions, "shadow") == 0);
 		m_TextOptions.m_bTransparent = (queryIntAttribute(xTextOptions, "transparent") == 0);
+
+		if (auto xItem = dynamic_cast<const TiXmlElement*>(xTextOptions->FirstChild("shadows")); xItem)
+		{
+			m_TextOptions.m_bShadow = (queryIntAttribute(xItem, "enable") == 0);
+
+			m_TextOptions.m_uShadowAlpha = gsl::narrow_cast<BYTE>(queryIntAttribute(xItem, "alpha", m_TextOptions.m_uShadowAlpha));
+			m_TextOptions.m_uShadowThickness = gsl::narrow_cast<BYTE>(queryIntAttribute(xItem, "size", m_TextOptions.m_uShadowThickness));
+			m_TextOptions.m_uShadowXOffset = gsl::narrow_cast<BYTE>(queryIntAttribute(xItem, "xoffset", m_TextOptions.m_uShadowXOffset));
+			m_TextOptions.m_uShadowYOffset = gsl::narrow_cast<BYTE>(queryIntAttribute(xItem, "yoffset", m_TextOptions.m_uShadowYOffset));
+		}
+
+		if (auto xItem = dynamic_cast<const TiXmlElement*>(xTextOptions->FirstChild("glow")); xItem)
+		{
+			m_TextOptions.m_bGlow = (queryIntAttribute(xItem, "enable") == 0);
+
+			m_TextOptions.m_uGlowSize = gsl::narrow_cast<BYTE>(queryIntAttribute(xItem, "size", m_TextOptions.m_uGlowSize));
+		}
 
 		if (auto xColours = dynamic_cast<const TiXmlElement*>(xTextOptions->FirstChild("colours")); xColours)
 		{

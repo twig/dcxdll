@@ -32,6 +32,8 @@ typedef HTHEME(WINAPI* PFNGETWINDOWTHEME)(_In_ HWND);
 typedef HRESULT(WINAPI* PFNDRAWTHEMEEDGE)(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT pDestRect, _In_ UINT uEdge, _In_ UINT uFlags, _Out_opt_ LPRECT pContentRect);
 //GetThemeColor
 typedef HRESULT(WINAPI* PFNGETTHEMECOLOR)(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ COLORREF* pColor);
+//GetThemeInt
+typedef HRESULT(WINAPI* PFNGETTHEMEINT)(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ int* piVal);
 //GetThemeFont
 typedef HRESULT(WINAPI* PFNGETTHEMEFONT)(_In_ HTHEME hTheme, _In_opt_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ LPLOGFONT plog);
 //GetThemeTextExtent
@@ -205,6 +207,7 @@ class DcxUXModule final
 	static inline PFNGETWINDOWTHEME GetWindowThemeUx = nullptr;
 	static inline PFNDRAWTHEMEEDGE DrawThemeEdgeUx = nullptr;
 	static inline PFNGETTHEMECOLOR GetThemeColorUx = nullptr;
+	static inline PFNGETTHEMEINT GetThemeIntUx = nullptr;
 	static inline PFNGETTHEMEFONT GetThemeFontUx = nullptr;
 	static inline PFNGETTHEMETEXTEXTENT GetThemeTextExtentUx = nullptr;
 	static inline PFNDRAWTHEMEPARENTBACKGROUNDEX DrawThemeParentBackgroundExUx = nullptr;
@@ -287,6 +290,7 @@ public:
 	static HRESULT dcxGetThemeBackgroundRegion(_In_ HTHEME hTheme, _In_opt_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT pRect, _Out_ HRGN* pRegion) noexcept;
 	static HRESULT dcxDrawThemeEdge(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT pDestRect, _In_ UINT uEdge, _In_ UINT uFlags, _Out_opt_ LPRECT pContentRect) noexcept;
 	static HRESULT dcxGetThemeColor(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ COLORREF* pColor) noexcept;
+	static HRESULT dcxGetThemeInt(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ int* piVal) noexcept;
 	static HRESULT dcxGetThemeFont(_In_ HTHEME hTheme, _In_opt_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ LPLOGFONT plog) noexcept;
 	static HRESULT dcxGetThemeTextExtent(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_reads_(cchCharCount) LPCWSTR pszText, _In_ int cchCharCount, _In_ DWORD dwTextFlags, _In_opt_ LPCRECT pBoundingRect, _Out_ LPRECT pExtentRect) noexcept;
 	static HRESULT dcxDrawThemeParentBackgroundEx(_In_ HWND hwnd, _In_ HDC hdc, _In_ DWORD dwFlags, _In_opt_ LPCRECT prc) noexcept;
@@ -314,6 +318,7 @@ public:
 	static void dcxAllowDarkModeForApp(_In_ bool allow) noexcept;
 	static bool dcxIsHighContrast() noexcept;
 	static void dcxRefreshTitleBarThemeColor(_In_opt_ HWND mHwnd) noexcept;
-
+	static int dcxGetTextGlowSize() noexcept;
+	static COLORREF dcxGetTextGlowColor() noexcept;
 };
 #endif // _DCXUXMODULES_H_

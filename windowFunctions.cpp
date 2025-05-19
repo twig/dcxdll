@@ -1536,8 +1536,6 @@ HBITMAP dcxCreateMask(HDC hdc, LPRECT rc, COLORREF clrMask) noexcept
 /// <param name="dTO"></param>
 void dcxDrawGradientText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, const dcxTextOptions& dTO)
 {
-	// draw text where the letters are gradient coloured.
-
 	if (!hdc || !pRC || !txt || len <= 0 || IsRectEmpty(pRC))
 		return;
 
@@ -1561,18 +1559,6 @@ void dcxDrawGradientText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, co
 	const auto clrTxt = GetTextColor(hdc);
 	const auto bkgclr = GetContrastColour(clrTxt);
 	Dcx::FillRectColour(hdcTxt, pRC, bkgclr);
-
-	//if (dTO.m_bNoCtrlCodes)
-	//{
-	//	SetBkMode(hdcTxt, (dTO.m_bTransparent) ? TRANSPARENT : OPAQUE);
-
-	//	if (dTO.m_bShadow)
-	//		dcxDrawShadowText(hdcTxt, txt, gsl::narrow_cast<UINT>(len), &rcTxt, fmt, clrTxt, dTO.m_clrShadow, dTO.m_uShadowXOffset, dTO.m_uShadowYOffset);
-	//	else
-	//		DrawTextW(hdcTxt, txt, gsl::narrow_cast<int>(len), &rcTxt, fmt);
-	//}
-	//else
-	//	mIRC_DrawText(hdcTxt, txt, &rcTxt, fmt, dTO.m_bShadow);
 
 	mIRC_DrawBreakdown(hdcTxt, vec, &rcTxt, fmt, dTO);
 
@@ -1712,21 +1698,6 @@ void dcxDrawOutlineText(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT fmt, con
 
 	RECT rcTxt = *pRC;
 	OffsetRect(&rcTxt, -rcTxt.left, -rcTxt.top);
-
-	//const auto clrTxt = (dTO.m_clrText != CLR_INVALID) ? dTO.m_clrText : GetTextColor(hdc);
-	//if (dTO.m_bNoCtrlCodes)
-	//{
-	//	const auto oldBkgMode = SetBkMode(hdcTxt, TRANSPARENT);
-	//	Auto(SetBkMode(hdcTxt, oldBkgMode));
-	//	if (dTO.m_bShadow)
-	//		dcxDrawShadowText(hdcTxt, txt, gsl::narrow_cast<UINT>(len), &rcTxt, fmt, clrTxt, dTO.m_clrShadow, dTO.m_uShadowXOffset, dTO.m_uShadowYOffset);
-	//	else {
-	//		SetTextColor(hdcTxt, clrTxt);
-	//		DrawTextW(hdcTxt, txt, gsl::narrow_cast<int>(len), &rcTxt, fmt);
-	//	}
-	//}
-	//else
-	//	mIRC_DrawTextNoBuffer(hdcTxt, txt, &rcTxt, fmt, dTO.m_bShadow);
 
 	mIRC_DrawBreakdown(hdcTxt, vec, &rcTxt, fmt, dTO);
 
