@@ -509,5 +509,4 @@ namespace Dcx
 
 		return gsl::narrow_cast<int>(SendMessage(hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(nStart), reinterpret_cast<LPARAM>(nEnd)));
 	}
-
 }

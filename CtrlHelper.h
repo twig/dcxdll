@@ -2951,4 +2951,25 @@ namespace Dcx
 	{
 		return !!Animate_Stop(hwnd);
 	}
+
+	/// <summary>
+	/// Set the tab padding.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="cx"></param>
+	/// <param name="cy"></param>
+	inline void dcxTabCtrl_SetPadding(_In_ HWND hwnd, _In_ UINT cx, _In_ UINT cy) noexcept
+	{
+		TabCtrl_SetPadding(hwnd, cx, cy);
+	}
+
+	/// <summary>
+	/// Get the currently selected tab.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
+	inline int dcxTabCtrl_GetCurSel(_In_ HWND hwnd) noexcept
+	{
+		return TabCtrl_GetCurSel(hwnd);
+	}
 }
