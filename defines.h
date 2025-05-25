@@ -857,8 +857,8 @@ void dcxDrawTextOptions(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT mStyle, 
 
 [[nodiscard("Memory Leak")]] gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc);
 void DeleteHDCBuffer(gsl::owner<HDC*> hBuffer) noexcept;
-HPAINTBUFFER CreateHDCBufferNoCopy(HDC hdc, HDC* hdcOut) noexcept;
-void DeleteHDCBufferNoCopy(HPAINTBUFFER hBuf) noexcept;
+HANDLE CreateHDCBufferNoCopy(_In_ HDC hdc, _Out_ HDC* hdcOut) noexcept;
+void DeleteHDCBufferNoCopy(_In_opt_ HANDLE hBuf) noexcept;
 
 int TGetWindowText(HWND hwnd, TString& txt);
 TString TGetWindowText(HWND hwnd);

@@ -1685,17 +1685,33 @@ bool IsFile(TString& filename)
 }
 
 // mIRC Colours, only the first 16 of these are changable.
+//COLORREF staticPalette[mIRC_PALETTE_SIZE] = {
+//	CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID,
+//	CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID,
+//	0x470000, 0x472100, 0x474700, 0x324700, 0x004700, 0x00472c, 0x004747, 0x002747, 0x000047, 0x2e0047, 0x470047,
+//	0x47002a, 0x740000, 0x743a00, 0x747400, 0x517400, 0x007400, 0x007449, 0x007474, 0x004074, 0x000074, 0x4b0074,
+//	0x740074, 0x740045, 0xb50000, 0xb56300, 0xb5b500, 0x7db500, 0x00b500, 0x00b571, 0x00b5b5, 0x0063b5, 0x0000b5,
+//	0x7500b5, 0xb500b5, 0xb5006b, 0xff0000, 0xff8c00, 0xffff00, 0xb2ff00, 0x00ff00, 0x00ffa0, 0x00ffff, 0x008cff,
+//	0x0000ff, 0xa500ff, 0xff00ff, 0xff0098, 0xff5959, 0xffb459, 0xffff71, 0xcfff60, 0x6fff6f, 0x65ffc9, 0x6dffff,
+//	0x59b4ff, 0x5959ff, 0xc459ff, 0xff66ff, 0xff59bc, 0xff9c9c, 0xffd39c, 0xffff9c, 0xe2ff9c, 0x9cff9c, 0x9cffdb,
+//	0x9cffff, 0x9cd3ff, 0x9c9cff, 0xdc9cff, 0xff9cff, 0xff94d3, 0x000000, 0x131313, 0x282828, 0x363636, 0x4d4d4d,
+//	0x656565, 0x818181, 0x9f9f9f, 0xbcbcbc, 0xe2e2e2, 0xffffff
+//};
+
+// mIRC Colours, only the first 16 of these are changable.
 COLORREF staticPalette[mIRC_PALETTE_SIZE] = {
 	CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID,
 	CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID,
-	0x470000, 0x472100, 0x474700, 0x324700, 0x004700, 0x00472c, 0x004747, 0x002747, 0x000047, 0x2e0047, 0x470047,
-	0x47002a, 0x740000, 0x743a00, 0x747400, 0x517400, 0x007400, 0x007449, 0x007474, 0x004074, 0x000074, 0x4b0074,
-	0x740074, 0x740045, 0xb50000, 0xb56300, 0xb5b500, 0x7db500, 0x00b500, 0x00b571, 0x00b5b5, 0x0063b5, 0x0000b5,
-	0x7500b5, 0xb500b5, 0xb5006b, 0xff0000, 0xff8c00, 0xffff00, 0xb2ff00, 0x00ff00, 0x00ffa0, 0x00ffff, 0x008cff,
-	0x0000ff, 0xa500ff, 0xff00ff, 0xff0098, 0xff5959, 0xffb459, 0xffff71, 0xcfff60, 0x6fff6f, 0x65ffc9, 0x6dffff,
-	0x59b4ff, 0x5959ff, 0xc459ff, 0xff66ff, 0xff59bc, 0xff9c9c, 0xffd39c, 0xffff9c, 0xe2ff9c, 0x9cff9c, 0x9cffdb,
-	0x9cffff, 0x9cd3ff, 0x9c9cff, 0xdc9cff, 0xff9cff, 0xff94d3, 0x000000, 0x131313, 0x282828, 0x363636, 0x4d4d4d,
-	0x656565, 0x818181, 0x9f9f9f, 0xbcbcbc, 0xe2e2e2, 0xffffff
+	0x00000047 ,0x00002147 ,0x00004747 ,0x00004732 ,0x00004700 ,0x002C4700 ,0x00474700 ,0x00472700 ,0x00470000,
+	0x0047002E ,0x00470047 ,0x002A0047 ,0x00000074 ,0x00003A74 ,0x00007474 ,0x00007451 ,0x00007400 ,0x00497400,
+	0x00747400 ,0x00744000 ,0x00740000 ,0x0074004B ,0x00740074 ,0x00450074 ,0x000000B5 ,0x000063B5 ,0x0000B5B5,
+	0x0000B57D ,0x0000B500 ,0x0071B500 ,0x00B5B500 ,0x00B56300 ,0x00B50000 ,0x00B50075 ,0x00B500B5 ,0x006B00B5,
+	0x000000FF ,0x00008CFF ,0x0000FFFF ,0x0000FFB2 ,0x0000FF00 ,0x00A0FF00 ,0x00FFFF00 ,0x00FF8C00 ,0x00FF0000,
+	0x00FF00A5 ,0x00FF00FF ,0x009800FF ,0x005959FF ,0x0059B4FF ,0x0071FFFF ,0x0060FFCF ,0x006FFF6F ,0x00C9FF65,
+	0x00FFFF6D ,0x00FFB459 ,0x00FF5959 ,0x00FF59C4 ,0x00FF66FF ,0x00BC59FF ,0x009C9CFF ,0x009CD3FF ,0x009CFFFF,
+	0x009CFFE2 ,0x009CFF9C ,0x00DBFF9C ,0x00FFFF9C ,0x00FFD39C ,0x00FF9C9C ,0x00FF9CDC ,0x00FF9CFF ,0x00D394FF,
+	0x00000000 ,0x00131313 ,0x00282828 ,0x00363636 ,0x004D4D4D ,0x00656565 ,0x00818181 ,0x009F9F9F ,0x00BCBCBC,
+	0x00E2E2E2 ,0x00FFFFFF ,0x00000000 
 };
 
 /*!
@@ -1989,7 +2005,7 @@ RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPC
 		return rcResult;
 
 	try {
-		//const UINT uNewStyle = uStyle | DT_CALCRECT;
+		const UINT uNewStyle = uStyle | DT_CALCRECT;
 
 	TString txt;
 	txt.reserve(64 * vec.size());	// reserve 64 characters for each string (should be enuf for most cases)
@@ -1998,16 +2014,25 @@ RECT dcxBreakdownCalcRect(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPC
 	{
 		txt += tbd.m_str;
 	}
-		//DrawTextW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), &rcResult, uNewStyle);
+		if (txt.empty())
+			return rcResult;
+
+		DrawTextW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), &rcResult, uNewStyle);
 	// Ook: This is a quick fix for the last letter not always being drawn.
 		//rcResult.right++;
 
+		{
 		SIZE sz{};
-		//GetTextExtentExPointW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), 0, nullptr, nullptr, &sz);
-		GetTextExtentPoint32W(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), &sz);
-		sz.cx++;
-		rcResult.right = rcResult.left + sz.cx;
-		rcResult.bottom = rcResult.top + sz.cy;
+			GetTextExtentPoint32W(hdc, &txt.to_wchr()[txt.len() -1], 1, &sz);
+			rcResult.right += sz.cx;
+	}
+
+		//SIZE sz{};
+		////GetTextExtentExPointW(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), 0, nullptr, nullptr, &sz);
+		//GetTextExtentPoint32W(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), &sz);
+		//sz.cx++;
+		//rcResult.right = rcResult.left + sz.cx;
+		//rcResult.bottom = rcResult.top + sz.cy;
 	}
 	catch (...) {}
 	return rcResult;
@@ -2890,30 +2915,59 @@ namespace
 		HBITMAP m_hOldBitmap{};
 		HBITMAP m_hBitmap{};
 		HFONT m_hOldFont{};
+		HPAINTBUFFER m_hPaintBuffer{};
+
 		// needs work...
 	};
 	using LPHDCBuffer = HDCBuffer*;
 }
 
-//LPALPHAINFO
-HPAINTBUFFER CreateHDCBufferNoCopy(HDC hdc, HDC* hdcOut) noexcept
+HANDLE CreateHDCBufferNoCopy(_In_ HDC hdc, _Out_ HDC* hdcOut) noexcept
 {
 	if ((!hdc) || (!hdcOut))
 		return nullptr;
 
-	if (!Dcx::UXModule.IsBufferedPaintSupported())
+	if (!DcxUXModule::IsBufferedPaintSupported())
 		return nullptr;
+
+	auto buf = std::make_unique<HDCBuffer>();
 
 	const RECT rcClient = dcxGetCurrentBitmapRect(hdc);
 
 	BP_PAINTPARAMS paintParams{ sizeof(BP_PAINTPARAMS),BPPF_ERASE, nullptr, nullptr };
 
-	return Dcx::UXModule.dcxBeginBufferedPaint(hdc, &rcClient, BPBF_COMPATIBLEBITMAP, &paintParams, hdcOut);
+	buf->m_hPaintBuffer = DcxUXModule::dcxBeginBufferedPaint(hdc, &rcClient, BPBF_TOPDOWNDIB /*BPBF_COMPATIBLEBITMAP*/, &paintParams, hdcOut);
+	buf->m_hHDC = *hdcOut;
+
+	// copy settings from hdc to buffer's hdc.
+	SetDCBrushColor(buf->m_hHDC, GetDCBrushColor(hdc));
+	SetDCPenColor(buf->m_hHDC, GetDCPenColor(hdc));
+	SetLayout(buf->m_hHDC, GetLayout(hdc));
+	buf->m_hOldFont = Dcx::dcxSelectObject(buf->m_hHDC, Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT));
+	SetTextColor(buf->m_hHDC, GetTextColor(hdc));
+	SetTextAlign(buf->m_hHDC, GetTextAlign(hdc));
+	SetBkColor(buf->m_hHDC, GetBkColor(hdc));
+	SetBkMode(buf->m_hHDC, GetBkMode(hdc));
+	SetROP2(buf->m_hHDC, GetROP2(hdc));
+	SetMapMode(buf->m_hHDC, GetMapMode(hdc));
+	SetPolyFillMode(buf->m_hHDC, GetPolyFillMode(hdc));
+	SetStretchBltMode(buf->m_hHDC, GetStretchBltMode(hdc));
+	SetGraphicsMode(buf->m_hHDC, GetGraphicsMode(hdc));
+
+	return reinterpret_cast<HANDLE>(buf.release());
 }
 
-void DeleteHDCBufferNoCopy(HPAINTBUFFER hBuf) noexcept
+void DeleteHDCBufferNoCopy(_In_opt_ HANDLE hBuf) noexcept
 {
-	Dcx::UXModule.dcxEndBufferedPaint(hBuf, TRUE);
+	if (!hBuf)
+		return;
+
+	auto buf = reinterpret_cast<LPHDCBuffer>(hBuf);
+
+	if (buf->m_hOldFont)
+		SelectObject(buf->m_hHDC, buf->m_hOldFont);
+
+	DcxUXModule::dcxEndBufferedPaint(buf->m_hPaintBuffer, TRUE);
 }
 
 gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc)
@@ -3586,7 +3640,7 @@ HBITMAP Base64ToBitmap(const char* vData, long w, long h)
 
 	LPBYTE lpBits = ptr;
 
-	return CreateDIBitmap(hdc, &bmpInfo, CBM_INIT, lpBits, (BITMAPINFO*)vBinf.data(), DIB_RGB_COLORS);
+	return CreateDIBitmap(hdc, &bmpInfo, CBM_INIT, lpBits, reinterpret_cast<BITMAPINFO*>(vBinf.data()), DIB_RGB_COLORS);
 }
 
 HICON Base64ToIcon(const char* hbmData, const char* maskData, long sz)
@@ -3645,7 +3699,7 @@ HBITMAP Base64ToBitmap(const wchar_t* vData, long w, long h)
 
 	LPBYTE lpBits = ptr;
 
-	return CreateDIBitmap(hdc, &bmpInfo, CBM_INIT, lpBits, (BITMAPINFO*)vBinf.data(), DIB_RGB_COLORS);
+	return CreateDIBitmap(hdc, &bmpInfo, CBM_INIT, lpBits, reinterpret_cast<BITMAPINFO*>(vBinf.data()), DIB_RGB_COLORS);
 }
 
 HICON Base64ToIcon(const wchar_t* hbmData, const wchar_t* maskData, long sz)
