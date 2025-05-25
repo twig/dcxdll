@@ -24,7 +24,6 @@
   * \param rc Window Rectangle
   * \param styles Window Style Tokenized List
   */
-
 DcxButton::DcxButton(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
@@ -77,12 +76,6 @@ DcxButton::DcxButton(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dia
 DcxButton::~DcxButton()
 {
 	ImageList_Destroy(getImageList());
-
-	//for (const auto& x : m_aBitmaps)
-	//{
-	//	if (x)
-	//		DeleteObject(x);
-	//}
 
 	for (auto& x : m_aBitmaps)
 		x.reset();
@@ -155,12 +148,6 @@ void DcxButton::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 
 	szReturnValue = parseInfoRequest(input).to_chr();
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void DcxButton::parseCommandRequest(const TString& input)
 {
@@ -747,6 +734,8 @@ LRESULT DcxButton::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 		if (const auto pDialog = getParentDialog(); pDialog)
 			pDialog->setMouseControl(getUserID());
 
+		m_bHover = false;
+
 		if (!m_bTracking)
 			m_bTracking = TrackMouseEvents(TME_LEAVE | TME_HOVER);
 
@@ -882,11 +871,12 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	if (!hdc)
 		return;
 
-	HTHEME hTheme{ nullptr };
+	gsl::owner<HTHEME> hTheme{ nullptr };
 	int iStateId{};
-	if (IsThemed() && Dcx::UXModule.dcxIsThemeActive())
+	if (IsThemed() && DcxUXModule::dcxIsThemeActive())
 	{
-		hTheme = Dcx::UXModule.dcxOpenThemeData(m_Hwnd, VSCLASS_BUTTON);
+		hTheme = DcxUXModule::dcxOpenThemeData(m_Hwnd, VSCLASS_BUTTON);
+		//hTheme = DcxUXModule::dcxGetWindowTheme(m_Hwnd);
 
 		// this allows the theme buttons to have a transparent background like the normal ones
 		switch (nState)
@@ -957,7 +947,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 				// This method causes the theme bkg to re-appear during resize, but button is otherwise drawn correctly.
 				if (uMsg != WM_PRINTCLIENT)
 				{
-					if (HRGN hRgn{ nullptr }; Dcx::UXModule.dcxGetThemeBackgroundRegion(hTheme, hdc, BP_PUSHBUTTON, iStateId, &rcClient, &hRgn) == S_OK)
+					if (HRGN hRgn{ nullptr }; DcxUXModule::dcxGetThemeBackgroundRegion(hTheme, hdc, BP_PUSHBUTTON, iStateId, &rcClient, &hRgn) == S_OK)
 					{
 						if (hRgn)
 						{
@@ -1075,7 +1065,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	}
 
 	if (hTheme)
-		Dcx::UXModule.dcxCloseThemeData(hTheme);
+		DcxUXModule::dcxCloseThemeData(hTheme);
 }
 
 LRESULT DcxButton::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept

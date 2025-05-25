@@ -20,12 +20,6 @@
 
 class DcxDialog;
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 class DcxCheck final
 	: public DcxControl
 {
@@ -63,7 +57,17 @@ public:
 
 private:
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
+	void ctrlDrawBackground(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus);
+	void ctrlDrawCheckBox(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus) noexcept;
+	void ctrlDrawCheckText(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus);
+
 	bool m_bCustom{};
+	bool m_bRoundedCheckBox{};
+	bool m_bTracking{ false };	//!< Tracking Mouse Event State
+	bool m_bHover{ false };		//!< Hovering State
+	bool m_bHot{ false };		//!< Hot State
+	bool m_bSelected{ false };	//!< Selected State
+
 	clrCheckBox m_Colours;
 };
 

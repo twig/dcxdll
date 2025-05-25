@@ -194,7 +194,7 @@ consteval bool CheckFreeCommand(T cmd, const T(&global_cmds)[N], std::size_t off
 consteval bool CheckFreeCommand(TCHAR cmd)
 {
 	// list of command chars in use by parseGlobalCommandRequest()
-	const TCHAR global_cmds[] = TEXT("bCefFhJMpxURsTz");
+	const TCHAR global_cmds[] = TEXT("bCeEfFhJMpxURsTz");
 	return CheckFreeCommand(cmd, global_cmds, 0);
 }
 // check if this command is valid & not in use globally.
