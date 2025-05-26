@@ -2922,6 +2922,27 @@ namespace
 	using LPHDCBuffer = HDCBuffer*;
 }
 
+HFONT CopyHDCSettings(_In_ HDC hSrc, _In_ HDC hDst) noexcept
+{
+	if ((!hSrc) || (!hDst))
+		return nullptr;
+
+	// copy settings from hdc to buffer's hdc.
+	SetDCBrushColor(hDst, GetDCBrushColor(hSrc));
+	SetDCPenColor(hDst, GetDCPenColor(hSrc));
+	SetLayout(hDst, GetLayout(hSrc));
+	SetTextColor(hDst, GetTextColor(hSrc));
+	SetTextAlign(hDst, GetTextAlign(hSrc));
+	SetBkColor(hDst, GetBkColor(hSrc));
+	SetBkMode(hDst, GetBkMode(hSrc));
+	SetROP2(hDst, GetROP2(hSrc));
+	SetMapMode(hDst, GetMapMode(hSrc));
+	SetPolyFillMode(hDst, GetPolyFillMode(hSrc));
+	SetStretchBltMode(hDst, GetStretchBltMode(hSrc));
+	SetGraphicsMode(hDst, GetGraphicsMode(hSrc));
+	return Dcx::dcxSelectObject(hDst, Dcx::dcxGetCurrentObject<HFONT>(hSrc, OBJ_FONT));
+}
+
 HANDLE CreateHDCBufferNoCopy(_In_ HDC hdc, _Out_ HDC* hdcOut) noexcept
 {
 	if ((!hdc) || (!hdcOut))
@@ -2940,19 +2961,7 @@ HANDLE CreateHDCBufferNoCopy(_In_ HDC hdc, _Out_ HDC* hdcOut) noexcept
 	buf->m_hHDC = *hdcOut;
 
 	// copy settings from hdc to buffer's hdc.
-	SetDCBrushColor(buf->m_hHDC, GetDCBrushColor(hdc));
-	SetDCPenColor(buf->m_hHDC, GetDCPenColor(hdc));
-	SetLayout(buf->m_hHDC, GetLayout(hdc));
-	buf->m_hOldFont = Dcx::dcxSelectObject(buf->m_hHDC, Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT));
-	SetTextColor(buf->m_hHDC, GetTextColor(hdc));
-	SetTextAlign(buf->m_hHDC, GetTextAlign(hdc));
-	SetBkColor(buf->m_hHDC, GetBkColor(hdc));
-	SetBkMode(buf->m_hHDC, GetBkMode(hdc));
-	SetROP2(buf->m_hHDC, GetROP2(hdc));
-	SetMapMode(buf->m_hHDC, GetMapMode(hdc));
-	SetPolyFillMode(buf->m_hHDC, GetPolyFillMode(hdc));
-	SetStretchBltMode(buf->m_hHDC, GetStretchBltMode(hdc));
-	SetGraphicsMode(buf->m_hHDC, GetGraphicsMode(hdc));
+	buf->m_hOldFont = CopyHDCSettings(hdc, buf->m_hHDC);
 
 	return reinterpret_cast<HANDLE>(buf.release());
 }
@@ -3024,19 +3033,7 @@ gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc)
 	buf->m_hOldBitmap = Dcx::dcxSelectObject(buf->m_hHDC, buf->m_hBitmap);
 
 	// copy settings from hdc to buffer's hdc.
-	SetDCBrushColor(buf->m_hHDC, GetDCBrushColor(hdc));
-	SetDCPenColor(buf->m_hHDC, GetDCPenColor(hdc));
-	SetLayout(buf->m_hHDC, GetLayout(hdc));
-	buf->m_hOldFont = Dcx::dcxSelectObject(buf->m_hHDC, Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT));
-	SetTextColor(buf->m_hHDC, GetTextColor(hdc));
-	SetTextAlign(buf->m_hHDC, GetTextAlign(hdc));
-	SetBkColor(buf->m_hHDC, GetBkColor(hdc));
-	SetBkMode(buf->m_hHDC, GetBkMode(hdc));
-	SetROP2(buf->m_hHDC, GetROP2(hdc));
-	SetMapMode(buf->m_hHDC, GetMapMode(hdc));
-	SetPolyFillMode(buf->m_hHDC, GetPolyFillMode(hdc));
-	SetStretchBltMode(buf->m_hHDC, GetStretchBltMode(hdc));
-	SetGraphicsMode(buf->m_hHDC, GetGraphicsMode(hdc));
+	buf->m_hOldFont = CopyHDCSettings(hdc, buf->m_hHDC);
 
 	// copy contents of hdc within area to buffer.
 	BitBlt(buf->m_hHDC, 0, 0, bm.bmWidth, bm.bmHeight, hdc, x, y, SRCCOPY);

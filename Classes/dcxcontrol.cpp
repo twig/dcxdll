@@ -2347,23 +2347,48 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC* hdc, const bool DoubleBuffer)
 		4: alpha blend temp hdc to hdc
 	*/
 
-	if (Dcx::UXModule.IsBufferedPaintSupported())
+	if (DcxUXModule::IsBufferedPaintSupported())
 	{
 		BP_PAINTPARAMS paintParams{ sizeof(BP_PAINTPARAMS),BPPF_ERASE, nullptr, nullptr };
-		//ai->ai_bf.AlphaFormat = AC_SRC_OVER;
-		ai->ai_bf.SourceConstantAlpha = this->m_iAlphaLevel; // 0x7f half of 0xff = 50% transparency
 		if (this->IsAlphaBlend())
-			paintParams.pBlendFunction = &ai->ai_bf;
-
-		ai->ai_Buffer = Dcx::UXModule.dcxBeginBufferedPaint(*hdc, &ai->ai_rcClient, /*BPBF_TOPDOWNDIB*/ BPBF_COMPATIBLEBITMAP, &paintParams, &ai->ai_hdc);
-		if (ai->ai_Buffer)
 		{
-			this->DrawParentsBackground(ai->ai_hdc, &ai->ai_rcClient);
-			//BitBlt(*hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
+			// we are doing alpha
+			// create buffer to hold alpha blended image (this buffer will be drawn to the orig hdc)
+			ai->ai_BufferAlpha = DcxUXModule::dcxBeginBufferedPaint(*hdc, &ai->ai_rcClient, BPBF_TOPDOWNDIB /*BPBF_COMPATIBLEBITMAP*/, &paintParams, &ai->ai_hdcAlpha);
+			if (!ai->ai_BufferAlpha)
+				return nullptr;
+
+			// fill alpha buffer with bkg image.
+			this->DrawParentsBackground(ai->ai_hdcAlpha, &ai->ai_rcClient);
+
+			// create buffer to hold image than needs to be alpha blended.
+			ai->ai_bf.SourceConstantAlpha = this->m_iAlphaLevel; // 0x7f half of 0xff = 50% transparency
+			paintParams.pBlendFunction = &ai->ai_bf;
+			ai->ai_Buffer = DcxUXModule::dcxBeginBufferedPaint(ai->ai_hdcAlpha, &ai->ai_rcClient, BPBF_TOPDOWNDIB /*BPBF_COMPATIBLEBITMAP*/, &paintParams, &ai->ai_hdc);
+			if (!ai->ai_Buffer)
+				return nullptr;
+
+			// copy parent bkg to this buffer too
+			BitBlt(ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdcAlpha, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
+
+			// return new buffered hdc.
 			ai->ai_Oldhdc = *hdc;
 			*hdc = ai->ai_hdc;
 			return ai.release();
 		}
+		else {
+			// buffering only.
+			// create a buffer to hold all drawing.
+			ai->ai_Buffer = DcxUXModule::dcxBeginBufferedPaint(*hdc, &ai->ai_rcClient, BPBF_TOPDOWNDIB /*BPBF_COMPATIBLEBITMAP*/, &paintParams, &ai->ai_hdc);
+		if (ai->ai_Buffer)
+		{
+				// first fill with parents image.
+			this->DrawParentsBackground(ai->ai_hdc, &ai->ai_rcClient);
+			ai->ai_Oldhdc = *hdc;
+			*hdc = ai->ai_hdc;
+			return ai.release();
+		}
+	}
 	}
 	// if vista method failed, fall through to our own method.
 
@@ -2451,7 +2476,11 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai) noexcept
 
 	if (ai->ai_Buffer)
 	{
-		Dcx::UXModule.dcxEndBufferedPaint(ai->ai_Buffer, TRUE);
+		DcxUXModule::dcxEndBufferedPaint(ai->ai_Buffer, TRUE);
+
+		if (ai->ai_BufferAlpha)
+			DcxUXModule::dcxEndBufferedPaint(ai->ai_BufferAlpha, TRUE);
+
 		return;
 	}
 	//// if we can't do Vista method, try do our own

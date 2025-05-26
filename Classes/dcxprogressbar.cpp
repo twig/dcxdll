@@ -419,7 +419,7 @@ LRESULT DcxProgressBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	{
 		if (isExStyle(WindowExStyle::Transparent))
 		{
-			DrawParentsBackground(reinterpret_cast<HDC>(wParam));
+			//DrawParentsBackground(reinterpret_cast<HDC>(wParam));
 			bParsed = TRUE;
 			return TRUE;
 		}
@@ -506,6 +506,8 @@ LRESULT DcxProgressBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 	case WM_DESTROY:
 	{
+		this->CallDefaultClassProc(uMsg, wParam, lParam);
+
 		delete this;
 		bParsed = TRUE;
 	}
@@ -550,7 +552,7 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		return;
 
 	// Setup alpha blend if any.
-	auto ai = SetupAlphaBlend(&hdc);
+	auto ai = SetupAlphaBlend(&hdc,true);
 	Auto(FinishAlphaBlend(ai));
 
 	if (m_bIsGrad)

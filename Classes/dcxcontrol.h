@@ -145,6 +145,8 @@ struct ALPHAINFO
 	RECT ai_rcWin{ 0,0,0,0 };
 	BLENDFUNCTION ai_bf{ AC_SRC_OVER,0, 255, 0 };
 	HPAINTBUFFER ai_Buffer{ nullptr };
+	HPAINTBUFFER ai_BufferAlpha{ nullptr };
+	HDC ai_hdcAlpha{};
 
 	ALPHAINFO(HWND hwnd)
 	{
@@ -161,8 +163,9 @@ struct ALPHAINFO
 
 	bool operator==(const ALPHAINFO& other) const = default;
 
-	ALPHAINFO(const HDC& ai_hdc, HDC* ai_hdcBuffer, const HDC& ai_Oldhdc, const HBITMAP& ai_bitmap, const HBITMAP& ai_bkg, const HBITMAP& ai_oldBM, const RECT& ai_rcClient, const RECT& ai_rcWin, const BLENDFUNCTION& ai_bf, const HPAINTBUFFER& ai_Buffer) noexcept
-		: ai_hdc(ai_hdc), ai_hdcBuffer(ai_hdcBuffer), ai_Oldhdc(ai_Oldhdc), ai_bitmap(ai_bitmap), ai_bkg(ai_bkg), ai_oldBM(ai_oldBM), ai_rcClient(ai_rcClient), ai_rcWin(ai_rcWin), ai_bf(ai_bf), ai_Buffer(ai_Buffer)
+
+	ALPHAINFO(const HDC& ai_hdc, HDC* ai_hdcBuffer, const HDC& ai_Oldhdc, const HBITMAP& ai_bitmap, const HBITMAP& ai_bkg, const HBITMAP& ai_oldBM, const RECT& ai_rcClient, const RECT& ai_rcWin, const BLENDFUNCTION& ai_bf, const HPAINTBUFFER& ai_Buffer, const HPAINTBUFFER& ai_BufferAlpha, const HDC& ai_hdcAlpha)
+		: ai_hdc(ai_hdc), ai_hdcBuffer(ai_hdcBuffer), ai_Oldhdc(ai_Oldhdc), ai_bitmap(ai_bitmap), ai_bkg(ai_bkg), ai_oldBM(ai_oldBM), ai_rcClient(ai_rcClient), ai_rcWin(ai_rcWin), ai_bf(ai_bf), ai_Buffer(ai_Buffer), ai_BufferAlpha(ai_BufferAlpha), ai_hdcAlpha(ai_hdcAlpha)
 	{
 	}
 };
