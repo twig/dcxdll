@@ -22,19 +22,31 @@ function get_xdid_link(&$XDID) {
 	    'l' => array(
 	        '__desc' => 'This command lets you change a color in the link palette.',
 	        '__cmd' => '[N] [COLOR]',
-	        '__eg' => '2 $rgb(255,0,255)',
+	        '__eg' => array(
+				'2 $rgb(255,0,255)',
+				'2 default',
+			),
 	        '__params' => array(
-                "N" => "Palette color number 1-4 (see [cmd]/xdid -q[/cmd] for color order).",
- 			)
+                "N" => "Palette color number 1-6 (see [cmd]/xdid -q[/cmd] for color order).",
+ 			),
+            '__notes' => array(
+				'You can use the word default instead of a colour value to restore the colour to its default.',
+				'A colour value of -1 will result in that colour not being changed.',
+			),
 		),
 		'q' => array(
             '__desc' => 'This command lets you load a custom palette into the link control.',
-            '__cmd' => '[NORMAL] [HIGHLIGHT] [VISITED] [DISABLED]',
+            '__cmd' => '[NORMAL] [HOVER] [VISITED] [DISABLED] [PRESSED] [HOT]',
             '__eg' => array(
-				'$rgb(255,0,0) $rgb(0,0,0) $rgb(255, 0, 255) $rgb(150, 150, 150)',
+				'$rgb(255,0,0) $rgb(0,0,0) $rgb(255, 0, 255) $rgb(150, 150, 150) $rgb(0, 0, 0) $rgb(0,102,204)',
 				'$rgb(255,0,0) $rgb(0,0,0)',
+				'default -1 default default -1 default',
             ),
-            '__notes' => 'You can give the command a number of colors inferior to 4, it will then only add thoses colors in order to the palette starting at 1.',
+            '__notes' => array(
+				'You can give the command a number of colors inferior to 6, it will then only add thoses colors in order to the palette starting at 1.',
+				'You can use the word default instead of a colour value to restore the colour to its default.',
+				'A colour value of -1 will result in that colour not being changed.',
+			),
 		),
 		't' => array(
 	        '__desc' => 'This command lets you set the link text.',
@@ -50,7 +62,10 @@ function get_xdid_link(&$XDID) {
 	            'INDEX' => 'Icon index in icon archive',
 				'FILENAME' => 'Icon archive filename',
 			),
-	        '__notes' => "Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
+	        '__notes' => array(
+				"Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
+				"This is always a small 16x16 icon.",
+			),
 		),
 	);
 	

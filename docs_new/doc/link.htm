@@ -120,14 +120,14 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -l dcx 4 2 $rgb(255,0,255)</div></td>
+		<td><div class="example">/xdid -l dcx 4 2 $rgb(255,0,255)<br />/xdid -l dcx 4 2 default<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">N</td>
-		<td>Palette color number 1-4 (see <a class='value' href='link.htm#xdid.q'>/xdid -q</a> for color order).</td>
+		<td>Palette color number 1-6 (see <a class='value' href='link.htm#xdid.q'>/xdid -q</a> for color order).</td>
 	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use the word default instead of a colour value to restore the colour to its default.</li><li>A colour value of -1 will result in that colour not being changed.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -135,13 +135,13 @@
 	<tr><td colspan="2">This command lets you load a custom palette into the link control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -q [DNAME] [ID] [NORMAL] [HIGHLIGHT] [VISITED] [DISABLED]</div></td>
+		<td><div class="syntax">/xdid -q [DNAME] [ID] [NORMAL] [HOVER] [VISITED] [DISABLED] [PRESSED] [HOT]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -q dcx 4 $rgb(255,0,0) $rgb(0,0,0) $rgb(255, 0, 255) $rgb(150, 150, 150)<br />/xdid -q dcx 4 $rgb(255,0,0) $rgb(0,0,0)<br /></div></td>
+		<td><div class="example">/xdid -q dcx 4 $rgb(255,0,0) $rgb(0,0,0) $rgb(255, 0, 255) $rgb(150, 150, 150) $rgb(0, 0, 0) $rgb(0,102,204)<br />/xdid -q dcx 4 $rgb(255,0,0) $rgb(0,0,0)<br />/xdid -q dcx 4 default -1 default default -1 default<br /></div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can give the command a number of colors inferior to 4, it will then only add thoses colors in order to the palette starting at 1.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can give the command a number of colors inferior to 6, it will then only add thoses colors in order to the palette starting at 1.</li><li>You can use the word default instead of a colour value to restore the colour to its default.</li><li>A colour value of -1 will result in that colour not being changed.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -198,7 +198,7 @@
 		<td class="param">FILENAME</td>
 		<td>Icon archive filename</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</li><li>This is always a small 16x16 icon.</li></ul></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
@@ -542,7 +542,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2025</td>
-		<td style="text-align: right;">Last Updated: 8th May, 25</td>
+		<td style="text-align: right;">Last Updated: 26th May, 25</td>
 	</tr>
 </table>
 <div style="text-align: center;">

@@ -24,7 +24,6 @@
   * \param rc Window Rectangle
   * \param styles Window Style Tokenized List
   */
-
 DcxLink::DcxLink(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
@@ -47,11 +46,6 @@ DcxLink::DcxLink(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog,
 
 	setNoThemed(ws.m_NoTheme);
 
-	//this->m_aColors[0] = RGB(0, 0, 255);
-	//this->m_aColors[1] = RGB(255, 0, 0);
-	//this->m_aColors[2] = RGB(0, 0, 255);
-	//this->m_aColors[3] = RGB(128, 128, 128);
-
 	if (p_Dialog->getToolTipHWND())
 	{
 		if (styles.istok(TEXT("tooltips")))
@@ -66,12 +60,6 @@ DcxLink::DcxLink(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog,
 
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 DcxLink::~DcxLink() noexcept
 {
@@ -221,12 +209,6 @@ void DcxLink::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		parseGlobalInfoRequest(input, szReturnValue);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void DcxLink::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));		// tok 3
@@ -244,9 +226,10 @@ void DcxLink::parseCommandRequest(const TString& input)
 		if (nColor >= std::size(m_aColors))
 			throw Dcx::dcxException("Invalid Colour Index");
 
-		gsl::at(m_aColors, nColor) = input.getnexttok().to_<COLORREF>();	// tok 5
+		const TString arg = input.getnexttok().trim();
+		setColour(nColor, arg);
 	}
-	// xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR4]
+	// xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR6]
 	else if (flags[TEXT('q')])
 	{
 		if (numtok < 4)
@@ -260,7 +243,7 @@ void DcxLink::parseCommandRequest(const TString& input)
 		UINT i = 0U;
 		for (const auto& arg : tsArgs)
 		{
-			gsl::at(m_aColors, i) = arg.to_<COLORREF>();	// tok i+1
+			setColour(i, arg);
 			++i;
 		}
 	}
@@ -309,8 +292,8 @@ LRESULT DcxLink::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 		if (!this->m_bTracking)
 		{
-			TRACKMOUSEEVENT tme{ sizeof(TRACKMOUSEEVENT), TME_LEAVE | TME_HOVER, m_Hwnd, HOVER_DEFAULT };
-			this->m_bTracking = _TrackMouseEvent(&tme);
+			this->m_bTracking = this->TrackMouseEvents(TME_LEAVE | TME_HOVER);
+			InvalidateRect(m_Hwnd, nullptr, FALSE);
 		}
 	}
 	break;
@@ -330,7 +313,7 @@ LRESULT DcxLink::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		if (this->m_bTracking)
 		{
 			this->m_bHover = false;
-			this->m_bTracking = FALSE;
+			this->m_bTracking = false;
 			InvalidateRect(m_Hwnd, nullptr, FALSE);
 		}
 	}
@@ -338,13 +321,25 @@ LRESULT DcxLink::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 	case WM_LBUTTONDOWN:
 	{
+		this->m_bPressed = true;
 		if (!this->m_bVisited)
-		{
 			this->m_bVisited = true;
+
 			InvalidateRect(m_Hwnd, nullptr, FALSE);
-		}
+
 		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			this->execAliasEx(TEXT("lbdown,%u"), getUserID());
+	}
+	break;
+
+	case WM_LBUTTONUP:
+	{
+		this->m_bPressed = false;
+
+		InvalidateRect(m_Hwnd, nullptr, FALSE);
+
+		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
+			this->execAliasEx(TEXT("lbup,%u"), getUserID());
 	}
 	break;
 
@@ -403,6 +398,8 @@ LRESULT DcxLink::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 	case WM_DESTROY:
 	{
+		this->CallDefaultClassProc(uMsg, wParam, lParam);
+
 		delete this;
 		bParsed = TRUE;
 	}
@@ -571,8 +568,12 @@ void DcxLink::DrawClientArea(HDC hdc)
 
 			if (IsWindowEnabled(m_Hwnd) == FALSE)
 				setTextColor(this->m_aColors[3]);
+			else if (this->m_bPressed)
+				setTextColor(this->m_aColors[4]);
 			else if (this->m_bHover)
 				setTextColor(this->m_aColors[1]);
+			else if (this->m_bTracking)
+				setTextColor(this->m_aColors[5]);
 			else if (this->m_bVisited)
 				setTextColor(this->m_aColors[2]);
 			else
@@ -642,6 +643,44 @@ void DcxLink::DrawClientArea(HDC hdc)
 	//	}
 	//}
 	//this->FinishAlphaBlend(ai);
+}
+
+void DcxLink::setColour(UINT nColor, const TString& arg)
+{
+	if (nColor >= std::size(m_aColors))
+		return;
+
+	if (arg == L"default")
+	{
+		switch (nColor)
+		{
+			//RGB(0, 0, 255), RGB(255, 0, 0), RGB(0, 0, 255), RGB(128, 128, 128), RGB(0, 0, 0) RGB(0,102,204)
+		case 0: // normal
+			gsl::at(m_aColors, nColor) = RGB(0, 0, 255);
+			break;
+		case 1: // hover
+			gsl::at(m_aColors, nColor) = RGB(255, 0, 0);
+			break;
+		case 2: // visited
+			gsl::at(m_aColors, nColor) = RGB(0, 0, 255);
+			break;
+		case 3: // disabled
+			gsl::at(m_aColors, nColor) = RGB(128, 128, 128);
+			break;
+		case 4: // pressed
+			gsl::at(m_aColors, nColor) = RGB(0, 0, 0);
+			break;
+		case 5: // hot
+			gsl::at(m_aColors, nColor) = RGB(0, 102, 204);
+			break;
+		default:
+			break;
+		}
+	}
+	else {
+		if (const auto clr = arg.to_<COLORREF>(); ((clr & 0xFF000000) != 0xFF000000))
+			gsl::at(m_aColors, nColor) = clr;
+	}
 }
 
 LRESULT DcxLink::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
