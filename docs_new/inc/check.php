@@ -29,6 +29,26 @@ function get_xdid_check(&$XDID) {
                 "You can set the indeterminate state when using a [s]3state[/s] check by using the <f>-cu</f> switches.",
  			)
 		),
+	    'n' => array(
+	        '__desc' => 'This command lets you change come checkbox settings.',
+			'__cmd' => "[+FLAGS] [+MASK] (ARGS)",
+			'__eg' => '+r +r',
+			'__params' => array(
+				'+FLAGS' => array(
+                    '__desc' => "Color Flags.",
+                    '__values' => array(
+                        'r' => "Rounded checkbox.",
+                    ),
+                ),
+				'+MASK' => array(
+                    '__desc' => "Color Flags.",
+                    '__values' => array(
+                        'r' => "Enable Rounded checkbox.",
+                    ),
+                ),
+            ),
+			'__notes' => 'This command may change alot.',
+		),
 		't' => array(
 	        '__desc' => 'This command lets you set the check text.',
 	        '__cmd' => '(Text)',
