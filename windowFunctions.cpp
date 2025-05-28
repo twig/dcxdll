@@ -1309,7 +1309,7 @@ bool dcxDrawTranslucentRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorde
 	if (!hDC || !rc)
 		return false;
 
-	if (!Dcx::UXModule.IsBufferedPaintSupported())
+	if (!DcxUXModule::IsBufferedPaintSupported())
 		return dcxDrawRect(hDC, rc, clr, clrBorder, bRounded);
 
 	// 0x7f half of 0xff = 50% transparency
@@ -1318,11 +1318,11 @@ bool dcxDrawTranslucentRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorde
 	BP_PAINTPARAMS paintParams{ sizeof(BP_PAINTPARAMS),BPPF_ERASE, nullptr, &ai_bf };
 	HDC hdc{};
 
-	auto ai_Buffer = Dcx::UXModule.dcxBeginBufferedPaint(hDC, rc, BPBF_COMPATIBLEBITMAP, &paintParams, &hdc);
+	auto ai_Buffer = DcxUXModule::dcxBeginBufferedPaint(hDC, rc, BPBF_COMPATIBLEBITMAP, &paintParams, &hdc);
 	if (!ai_Buffer)
 		return false;
 
-	Auto(Dcx::UXModule.dcxEndBufferedPaint(ai_Buffer, TRUE));
+	Auto(DcxUXModule::dcxEndBufferedPaint(ai_Buffer, TRUE));
 
 	return dcxDrawRect(hdc, rc, clr, clrBorder, bRounded);
 }
