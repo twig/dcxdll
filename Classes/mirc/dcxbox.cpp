@@ -29,7 +29,6 @@
   * \param rc Window Rectangle
   * \param styles Window Style Tokenized List
   */
-
 DcxBox::DcxBox(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
@@ -52,7 +51,7 @@ DcxBox::DcxBox(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, c
 	removeExStyle(WindowExStyle::ClientEdge | WS_EX_DLGMODALFRAME | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
 
 	if (ws.m_NoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	setNoThemed(ws.m_NoTheme);
 
@@ -61,19 +60,13 @@ DcxBox::DcxBox(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, c
 	setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 
 	if (Dcx::UXModule.isUseable())
-		_hTheme = Dcx::UXModule.dcxOpenThemeData(m_Hwnd, VSCLASS_BUTTON);
+		_hTheme = DcxUXModule::dcxOpenThemeData(m_Hwnd, VSCLASS_BUTTON);
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 DcxBox::~DcxBox()
 {
 	if (_hTheme)
-		Dcx::UXModule.dcxCloseThemeData(_hTheme);
+		DcxUXModule::dcxCloseThemeData(_hTheme);
 }
 
 /// <summary>
@@ -574,14 +567,16 @@ LRESULT DcxBox::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 	{
 		if (_hTheme)
 		{
-			Dcx::UXModule.dcxCloseThemeData(_hTheme);
-			_hTheme = Dcx::UXModule.dcxOpenThemeData(m_Hwnd, VSCLASS_BUTTON);
+			DcxUXModule::dcxCloseThemeData(_hTheme);
+			_hTheme = DcxUXModule::dcxOpenThemeData(m_Hwnd, VSCLASS_BUTTON);
 		}
 	}
 	break;
 
 	case WM_DESTROY:
 	{
+		this->CallDefaultClassProc(uMsg, wParam, lParam);
+
 		delete this;
 		bParsed = TRUE;
 	}

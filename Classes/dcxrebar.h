@@ -25,11 +25,6 @@ class DcxDialog;
 #define RBBS_BOLD      0x00002000 //!< Rebar Caption Bold Style
 #define RBBS_UNDERLINE 0x00004000 //!< Rebar Caption Underline Style
 
-/*!
- * \brief blah
- *
- * blah
- */
 struct DCXRBBAND
 {
 	TString tsTipText;  //!< Tooltip text
@@ -39,12 +34,6 @@ struct DCXRBBAND
 	bool bUline{ false };        //!< Is Line Caption Underlined
 };
 using LPDCXRBBAND = DCXRBBAND *;
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 class DcxReBar final
 	: public DcxControl

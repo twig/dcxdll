@@ -24,7 +24,6 @@
 * \param rc Window Rectangle
 * \param styles Window Style Tokenized List
 */
-
 DcxEdit::DcxEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
@@ -49,7 +48,7 @@ DcxEdit::DcxEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog,
 		Dcx::dcxEdit_SetExtendedStyle(m_Hwnd, dStyle, dStyle);
 
 	if (ws.m_NoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	setNoThemed(ws.m_NoTheme);
 
@@ -1408,6 +1407,8 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 	case WM_DESTROY:
 	{
+		this->CallDefaultClassProc(uMsg, wParam, lParam);
+
 		delete this;
 		bParsed = TRUE;
 		break;
@@ -1793,7 +1794,7 @@ void DcxEdit::DrawGutter(HDC hdc)
 		const auto oldTextColor = GetTextColor(*hdcbuf);
 		Auto(SetTextColor(*hdcbuf, oldTextColor));
 
-		TCHAR buf[49]{};
+		WCHAR buf[49]{};
 
 		// render the line numbers
 		for (const auto& index : rng)
@@ -1808,7 +1809,7 @@ void DcxEdit::DrawGutter(HDC hdc)
 				SetTextColor(*hdcbuf, m_clrGutter_txt);
 
 			if (const auto l = _ts_snprintf(&buf[0], std::size(buf), _T("%u"), index + 1); l != -1)
-				DrawText(*hdcbuf, &buf[0], l, &RNumber, DT_RIGHT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
+				DrawTextW(*hdcbuf, &buf[0], l, &RNumber, DT_RIGHT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
 
 			RNumber.top += letter_height;
 			RNumber.bottom = RNumber.top + letter_height;

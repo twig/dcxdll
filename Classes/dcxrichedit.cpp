@@ -47,7 +47,7 @@ DcxRichEdit::DcxRichEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 		Dcx::dcxEdit_SetExtendedStyle(m_Hwnd, dStyle, dStyle);
 
 	if (ws.m_NoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 	else
 		if (!CRichEditThemed::Attach(m_Hwnd))
 			throw DcxExceptions::dcxUnableToCreateWindow();
@@ -2154,6 +2154,8 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 	case WM_DESTROY:
 	{
+		this->CallDefaultClassProc(uMsg, wParam, lParam);
+
 		delete this;
 		bParsed = TRUE;
 	}

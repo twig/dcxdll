@@ -20,12 +20,6 @@
 
 class DcxDialog;
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 struct DCXCCOMBOITEM
 {
 	COLORREF clrItem{ CLR_INVALID };     //!< Item Color
@@ -39,18 +33,9 @@ using LPDCXCCOMBOITEM = DCXCCOMBOITEM *;
 // the height for each item
 constexpr auto DCX_COLORCOMBO_ITEM_HEIGHT = 16;
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 class DcxColorCombo final
 	: public DcxControl
 {
-//#ifdef DEBUG
-//	bool m_bGridLayout{ false };
-//#endif
 	bool m_bShowNumbers{ false };
 public:
 	DcxColorCombo() = delete;
@@ -90,13 +75,12 @@ public:
 
 	const TString getStyles(void) const final;
 
-//#ifdef DEBUG
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 //	WNDPROC m_hListProc{ nullptr };
 //	HWND m_hGrid{};
 //	static LRESULT CALLBACK ListProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 //#endif
 
-	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 };
 

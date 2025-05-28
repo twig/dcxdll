@@ -24,7 +24,6 @@
   * \param rc Window Rectangle
   * \param styles Window Style Tokenized List
   */
-
 DcxText::DcxText(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
@@ -47,7 +46,7 @@ DcxText::DcxText(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog,
 	removeExStyle(WindowExStyle::ClientEdge | WS_EX_DLGMODALFRAME | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
 
 	if (ws.m_NoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	setNoThemed(ws.m_NoTheme);
 
@@ -64,12 +63,6 @@ DcxText::DcxText(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog,
 		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 DcxText::~DcxText() noexcept
 {
@@ -92,6 +85,9 @@ dcxWindowStyles DcxText::parseControlStyles(const TString& tsStyles)
 		case L"center"_hash:
 			m_uiStyle |= DT_CENTER;
 			break;
+		case L"vcenter"_hash:
+			m_uiStyle |= DT_VCENTER;
+			break;
 		case L"right"_hash:
 			m_uiStyle |= DT_RIGHT;
 			break;
@@ -103,6 +99,15 @@ dcxWindowStyles DcxText::parseControlStyles(const TString& tsStyles)
 			break;
 		case L"pathellipsis"_hash:
 			m_uiStyle |= DT_PATH_ELLIPSIS;
+			break;
+		case L"wordellipsis"_hash:
+			m_uiStyle |= DT_WORD_ELLIPSIS;
+			break;
+		case L"wordbreak"_hash:
+			m_uiStyle |= DT_WORDBREAK;
+			break;
+		case L"expandtabs"_hash:
+			m_uiStyle |= DT_EXPANDTABS;
 			break;
 		case L"doublebuffer"_hash:
 			m_bDoubleBuffer = true;
@@ -135,17 +140,11 @@ void DcxText::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3) == TEXT("text"))
 	{
-		GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+		GetWindowTextW(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void DcxText::parseCommandRequest(const TString& input)
 {
@@ -156,7 +155,7 @@ void DcxText::parseCommandRequest(const TString& input)
 	if (flags[TEXT('r')])
 	{
 		this->m_tsText.clear();	// = TEXT("");
-		SetWindowText(m_Hwnd, TEXT(""));
+		SetWindowTextW(m_Hwnd, TEXT(""));
 	}
 
 	// xdid -a [NAME] [ID] [SPACE 0|1] [TEXT]
@@ -169,7 +168,7 @@ void DcxText::parseCommandRequest(const TString& input)
 			this->m_tsText += TEXT(' ');
 
 		this->m_tsText += input.getlasttoks();	// tok 5, -1
-		SetWindowText(m_Hwnd, this->m_tsText.to_chr());
+		SetWindowTextW(m_Hwnd, this->m_tsText.to_chr());
 
 		// redraw if transparent
 		if (this->isExStyle(WindowExStyle::Transparent))
@@ -187,7 +186,7 @@ void DcxText::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		this->m_tsText = input.getlasttoks();	// tok 4, -1
-		SetWindowText(m_Hwnd, this->m_tsText.to_chr());
+		SetWindowTextW(m_Hwnd, this->m_tsText.to_chr());
 
 		// redraw if transparent
 		if (this->isExStyle(WindowExStyle::Transparent))
@@ -200,11 +199,6 @@ void DcxText::parseCommandRequest(const TString& input)
 		this->parseGlobalCommandRequest(input, flags);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 LRESULT DcxText::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
 {
 	return 0L;
@@ -256,6 +250,8 @@ LRESULT DcxText::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 	case WM_DESTROY:
 	{
+		this->CallDefaultClassProc(uMsg, wParam, lParam);
+
 		delete this;
 		bParsed = TRUE;
 	}

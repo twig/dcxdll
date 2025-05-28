@@ -25,7 +25,6 @@
   * \param rc Window Rectangle
   * \param styles Window Style Tokenized List
   */
-
 DcxReBar::DcxReBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
@@ -46,19 +45,13 @@ DcxReBar::DcxReBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialo
 	if (ws.m_NoTheme)
 	{
 		//SendMessage( m_Hwnd, RB_SETWINDOWTHEME, 0, L" ");
-		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 	}
 
 	setNoThemed(ws.m_NoTheme);
 
-	{
 		this->setImageList(this->createImageList());
-		//REBARINFO rbi;
-		//rbi.cbSize = sizeof(REBARINFO);
-		//rbi.fMask = 0;
-		//rbi.himl = nullptr;
-		//this->setBarInfo( &rbi );
-	}
+
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
@@ -67,12 +60,9 @@ DcxReBar::DcxReBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialo
  *
  * blah
  */
-
 DcxReBar::~DcxReBar() noexcept
 {
 	this->resetContents();
-
-	//ImageList_Destroy(this->getImageList());
 
 	auto himl = this->getImageList();
 	setImageList(nullptr);
@@ -1494,6 +1484,8 @@ LRESULT DcxReBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 
 	case WM_DESTROY:
 	{
+		this->CallDefaultClassProc(uMsg, wParam, lParam);
+
 		delete this;
 		bParsed = TRUE;
 	}

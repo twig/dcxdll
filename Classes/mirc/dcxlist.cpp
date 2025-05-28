@@ -1403,17 +1403,17 @@ void DcxList::UpdateHorizExtent(const int nPos)
 		HFONT hFont = getFont(), hOldFont = nullptr;
 		SIZE sz{};
 
-		const auto nHorizExtent = ListBox_GetHorizontalExtent(m_Hwnd);
+		const auto nHorizExtent = Dcx::dcxListBox_GetHorizontalExtent(m_Hwnd);
 
 		if (hFont)
 			hOldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
 
 		if (const auto itemtext(Dcx::dcxListBox_GetText(m_Hwnd, nPos)); !itemtext.empty())
 		{
-			if (GetTextExtentPoint32(hdc, itemtext.to_chr(), gsl::narrow_cast<int>(itemtext.len()), &sz))
+			if (GetTextExtentPoint32W(hdc, itemtext.to_wchr(), gsl::narrow_cast<int>(itemtext.len()), &sz))
 			{
 				if (sz.cx > nHorizExtent)
-					ListBox_SetHorizontalExtent(m_Hwnd, sz.cx);
+					Dcx::dcxListBox_SetHorizontalExtent(m_Hwnd, sz.cx);
 			}
 		}
 		if (hFont)
@@ -1492,6 +1492,10 @@ int DcxList::addItems(int nPos, const TString& tsFlags, const TString& tsArgs)
 		if (endN < startN)
 			throw DcxExceptions::dcxOutOfRange();
 
+		// attempt to pre-allocate mem, assumes 64 characters per item.
+		const int iCount = (endN - startN);
+		Dcx::dcxListBox_InitStorge(m_Hwnd, iCount, (iCount * 64 * sizeof(TCHAR)));
+
 		this->setRedraw(FALSE);
 		Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
 
@@ -1555,6 +1559,10 @@ int DcxList::addItems(int nPos, const TString& tsFlags, const TString& tsArgs)
 		if (endN < startN)
 			throw DcxExceptions::dcxOutOfRange();
 
+		// attempt to pre-allocate mem, assumes 64 characters per item.
+		const int iCount = (endN - startN);
+		Dcx::dcxListBox_InitStorge(m_Hwnd, iCount, (iCount * 64 * sizeof(TCHAR)));
+
 		this->setRedraw(FALSE);
 		Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
 
@@ -1576,6 +1584,10 @@ int DcxList::addItems(int nPos, const TString& tsFlags, const TString& tsArgs)
 		tok[0] = gsl::narrow_cast<TCHAR>(tsArgs.getfirsttok(1).to_int());
 		tok[1] = 0;
 		const auto contents(tsArgs.getlasttoks());	// tok 2, -1
+
+		// attempt to pre-allocate mem, assumes 64bytes per item.
+		const int iCount = gsl::narrow_cast<int>(contents.numtok());
+		Dcx::dcxListBox_InitStorge(m_Hwnd, iCount, contents.capacity());
 
 		setRedraw(FALSE);
 		Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
@@ -1599,12 +1611,12 @@ int DcxList::addItems(int nPos, const TString& tsFlags, const TString& tsArgs)
 
 void DcxList::UpdateHorizExtent(void)
 {
-	const auto nTotalItems = ListBox_GetCount(m_Hwnd);
+	const auto nTotalItems = Dcx::dcxListBox_GetCount(m_Hwnd);
 	auto nMaxStrlen = 0, iLongestItem = -1;
 
 	for (auto i = decltype(nTotalItems){0}; i < nTotalItems; ++i)
 	{
-		if (const auto nLen = ListBox_GetTextLen(m_Hwnd, i); nLen > nMaxStrlen)
+		if (const auto nLen = Dcx::dcxListBox_GetTextLen(m_Hwnd, i); nLen > nMaxStrlen)
 		{
 			nMaxStrlen = nLen;
 			iLongestItem = i;
@@ -1625,19 +1637,17 @@ void DcxList::toXml(TiXmlElement* const xml) const
 	xml->SetAttribute("styles", getStyles().c_str());
 
 	{
-		const int nCnt = ListBox_GetCount(m_Hwnd);
+		const int nCnt = Dcx::dcxListBox_GetCount(m_Hwnd);
 
 		if (nCnt < 1)
 			return;
 
-		GSL_SUPPRESS(con.4) TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
-
 		for (int nItem{}; nItem < nCnt; ++nItem)
 		{
-			ListBox_GetText(m_Hwnd, nItem, &szBuf[0]);
+			const auto tsBuf(Dcx::dcxListBox_GetText(m_Hwnd, nItem));
 
 			TiXmlElement xChild("item");
-			xChild.SetAttribute("text", TString(szBuf).c_str());
+			xChild.SetAttribute("text", tsBuf.c_str());
 			// save selection state?
 
 			xml->InsertEndChild(xChild);

@@ -26,7 +26,6 @@
   * \param rc Window Rectangle
   * \param styles Window Style Tokenized List
   */
-
 DcxStacker::DcxStacker(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
@@ -45,7 +44,7 @@ DcxStacker::DcxStacker(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_D
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	setNoThemed(ws.m_NoTheme);
 
@@ -481,10 +480,6 @@ void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPCRECT rc, const COLO
 	//gfx.SetCompositingQuality
 	Gdiplus::SolidBrush blackBrush(Gdiplus::Color(128, GetRValue(clrShape), GetGValue(clrShape), GetBValue(clrShape)));
 	// Create an array of Point objects that define the polygon.
-	//Point point1(rc->left, rc->top);
-	//Point point2(rc->right, rc->top);
-	//Point point3(rc->left + (rc->right - rc->left)/2, rc->bottom);
-	//Point points[3] = {point1, point2, point3};
 	Gdiplus::Point points[3];
 	points[0].X = rc->left;
 	points[0].Y = rc->top;
@@ -644,10 +639,15 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		{
 			if (dcx_testflag(idata->itemState, ODS_SELECTED))
 			{
-				if (RECT rc{}; GetWindowRect(sWnd, &rc))
+				//if (RECT rc{}; GetWindowRect(sWnd, &rc))
+				//{
+				//	SetWindowPos(sWnd, nullptr, idata->rcItem.left, button_base, (idata->rcItem.right - idata->rcItem.left), (rc.bottom - rc.top), SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+				//	h += (rc.bottom - rc.top);
+				//}
+				if (const Dcx::dcxWindowRect rc(sWnd); rc)
 				{
-					SetWindowPos(sWnd, nullptr, idata->rcItem.left, button_base, (idata->rcItem.right - idata->rcItem.left), (rc.bottom - rc.top), SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
-					h += (rc.bottom - rc.top);
+					SetWindowPos(sWnd, nullptr, idata->rcItem.left, button_base, (idata->rcItem.right - idata->rcItem.left), rc.Height(), SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+					h += rc.Height();
 				}
 				if (sWnd != this->m_hActive)
 				{
@@ -788,16 +788,16 @@ LRESULT DcxStacker::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 		if (!GetClientRect(m_Hwnd, &rcText))
 			break;
 
-		auto h = gsl::narrow_cast<long>(MIN_STACK_HEIGHT), w = (rcText.right - rcText.left);
-
 		if (!hFont)
 			hFont = GetWindowFont(m_Hwnd);
 
-		auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(hFont);
+		const auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(hFont);
 		if (code == 0)
 			break;
 
-		h = std::max(gsl::narrow_cast<LONG>(h), lf.lfHeight * 20);
+		const auto w = (rcText.right - rcText.left);
+
+		auto h = std::max(gsl::narrow_cast<long>(MIN_STACK_HEIGHT), lf.lfHeight * 20L);
 
 		if (sitem->pChild)
 		{
@@ -1029,6 +1029,8 @@ LRESULT DcxStacker::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 
 	case WM_DESTROY:
 	{
+		this->CallDefaultClassProc(uMsg, wParam, lParam);
+
 		delete this;
 		bParsed = TRUE;
 	}

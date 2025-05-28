@@ -32,12 +32,6 @@ using LPSB_PARTINFOX = SB_PARTINFOX *;
 
 using VectorOfXParts = std::vector<LPSB_PARTINFOX>;
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 class DcxStatusBar final
 	: public DcxControl
 {

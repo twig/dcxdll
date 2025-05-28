@@ -2020,11 +2020,11 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl* const p_thi
 
 	if (!IsWindowEnabled(p_this->m_Hwnd))
 	{// use disabled colouring when windows disabled.
-		if (hTheme && p_this->IsThemed() && Dcx::UXModule.dcxIsThemeActive())
+		if (hTheme && p_this->IsThemed() && DcxUXModule::dcxIsThemeActive())
 		{
-			if (Dcx::UXModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
-				Dcx::UXModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
-			Dcx::UXModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, nullptr);
+			if (DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
+				DcxUXModule::dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
+			DcxUXModule::dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, nullptr);
 		}
 		else
 			FillRect(hdc, &rc, GetSysColorBrush(COLOR_3DFACE));
@@ -2040,11 +2040,11 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl* const p_thi
 		auto hBrush = p_this->getBackClrBrush();
 		if (!hBrush)
 		{
-			if (hTheme && p_this->IsThemed() && Dcx::UXModule.dcxIsThemeActive())
+			if (hTheme && p_this->IsThemed() && DcxUXModule::dcxIsThemeActive())
 			{
-				if (Dcx::UXModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
-					Dcx::UXModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
-				Dcx::UXModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, nullptr);
+				if (DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
+					DcxUXModule::dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
+				DcxUXModule::dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, nullptr);
 				return;
 			}
 			else

@@ -37,12 +37,6 @@ struct DCXSTREAM
 };
 using LPDCXSTREAM = DCXSTREAM*;
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 class DcxRichEdit final
 	: public DcxControl
 	, virtual public DcxSearchHelper
@@ -83,9 +77,6 @@ public:
 
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
-
-	//LRESULT getLineLength();
-	//LRESULT getLineIndex();
 
 	inline const TString getType() const final { return TEXT("richedit"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::RICHEDIT; }

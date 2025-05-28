@@ -90,12 +90,6 @@ struct CharRank
 	}
 };
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 struct DCXLVSORT
 {
 	TString tsCustomAlias;  //!< Custom Sorting Alias
@@ -119,12 +113,6 @@ using LPDCXLVRENDERINFO = DCXLVRENDERINFO*;
 
 using VectorOfRenderInfo = std::vector<DCXLVRENDERINFO>;
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 #define DCX_LV_COLUMNF_AUTO			1		// uses LVSCW_AUTOSIZE
 #define DCX_LV_COLUMNF_AUTOHEADER	2		// uses LVSCW_AUTOSIZE_USEHEADER
 #define DCX_LV_COLUMNF_AUTOMAX		4		// uses both LVSCW_AUTOSIZE & LVSCW_AUTOSIZE_USEHEADER to find the largest.
@@ -142,12 +130,6 @@ using LPDCXLVCOLUMNINFO = DCXLVCOLUMNINFO*;
 using VectorOfColumnInfo = std::vector<LPDCXLVCOLUMNINFO>;
 //using ColumnWidths = std::map<int, int>;
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 struct DCXLVITEM
 {
 	TString tsTipText;	//!< Tooltip text
@@ -159,12 +141,6 @@ struct DCXLVITEM
 using LPDCXLVITEM = DCXLVITEM*;
 using VectorOfDcxItems = std::vector<DCXLVITEM>;
 using MapOfDcxItems = std::map<LPARAM, DCXLVITEM>;
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 class DcxListView final
 	: public DcxControl
@@ -372,7 +348,7 @@ private:
 	{
 		RECT rcButton{};
 		const RECT rcBounds{ *rcHeader };
-		Dcx::UXModule.dcxGetThemeBackgroundContentRect(hTheme, hdc, LVP_COLLAPSEBUTTON, iStateId, &rcBounds, &rcButton);
+		DcxUXModule::dcxGetThemeBackgroundContentRect(hTheme, hdc, LVP_COLLAPSEBUTTON, iStateId, &rcBounds, &rcButton);
 
 		return rcButton;
 	}
@@ -502,7 +478,7 @@ private:
 	{
 		COLORREF clr{ RGB(0, 51, 153) };
 		if (hTheme)
-			Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_HEADING1TEXTCOLOR, &clr);
+			DcxUXModule::dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_HEADING1TEXTCOLOR, &clr);
 		return clr;
 	}
 	/// <summary>
@@ -515,7 +491,7 @@ private:
 	{
 		COLORREF clr{ RGB(185, 229, 242) };
 		if (hTheme)
-			Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_ACCENTCOLORHINT, &clr);
+			DcxUXModule::dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_ACCENTCOLORHINT, &clr);
 		return clr;
 	}
 	/// <summary>
@@ -528,7 +504,7 @@ private:
 	{
 		COLORREF clr{ RGB(94, 131, 191) };
 		if (hTheme)
-			Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_FILLCOLORHINT, &clr);
+			DcxUXModule::dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_FILLCOLORHINT, &clr);
 		return clr;
 	}
 	/// <summary>
@@ -544,7 +520,7 @@ private:
 		{
 			LOGFONT logFont{};
 
-			if (Dcx::UXModule.dcxGetThemeFont(hTheme, hdc, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_HEADING1FONT, &logFont) == S_OK)
+			if (DcxUXModule::dcxGetThemeFont(hTheme, hdc, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_HEADING1FONT, &logFont) == S_OK)
 				return CreateFontIndirectW(&logFont);
 		}
 		return nullptr;

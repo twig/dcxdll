@@ -24,12 +24,6 @@ class DcxDialog;
 //#define CBEXSEARCH_W 0x01 //!< ComboEx WildCard Search
 //#define CBEXSEARCH_R 0x02 //!< ComboEx Regex Search
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 struct DCXCOMBOEXEDIT
 {
 	WNDPROC OldProc{ nullptr }; //!< Subclassed Window Procedure of Combo
@@ -43,12 +37,6 @@ struct DCXCBITEM
 	TString tsMark;		// Marked text
 };
 using LPDCXCBITEM = DCXCBITEM *;
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 class DcxComboEx final
 	: public DcxControl

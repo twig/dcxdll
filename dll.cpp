@@ -986,7 +986,7 @@ mIRC(IsUnloadSafe) noexcept
 */
 mIRC(IsThemedXP) noexcept
 {
-	ret(dcx_truefalse(Dcx::UXModule.dcxIsThemeActive() != FALSE));
+	ret(dcx_truefalse(DcxUXModule::dcxIsThemeActive() != FALSE));
 }
 
 /*!
@@ -1816,7 +1816,7 @@ mIRC(WindowProps)
 		{
 			if (Dcx::UXModule.isUseable())
 			{
-				if (Dcx::UXModule.dcxSetWindowTheme(hwnd, TEXT(" "), TEXT(" ")) != S_OK)
+				if (DcxUXModule::dcxSetWindowTheme(hwnd, TEXT(" "), TEXT(" ")) != S_OK)
 					throw Dcx::dcxException("Unable to set theme");
 			}
 		}

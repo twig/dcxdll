@@ -96,7 +96,7 @@ DcxDialog::~DcxDialog() noexcept
 		a.second.m_hBkg.reset();
 
 	if (m_CustomMenuBar.m_menuTheme)
-		Dcx::UXModule.dcxCloseThemeData(m_CustomMenuBar.m_menuTheme);
+		DcxUXModule::dcxCloseThemeData(m_CustomMenuBar.m_menuTheme);
 #endif
 
 	if (m_Hwnd && m_hMenuBackup && IsMenu(m_hMenuBackup))
@@ -2041,7 +2041,7 @@ void DcxDialog::setFocusControl(const UINT mUID)
 //void DcxDialog::UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept
 //{
 //	if (!m_CustomMenuBar.m_menuTheme)
-//		m_CustomMenuBar.m_menuTheme = Dcx::UXModule.dcxOpenThemeData(mHwnd, L"Menu");
+//		m_CustomMenuBar.m_menuTheme = DcxUXModule::dcxOpenThemeData(mHwnd, L"Menu");
 //
 //	RECT rc{};
 //
@@ -2089,7 +2089,7 @@ void DcxDialog::setFocusControl(const UINT mUID)
 //		if (m_CustomMenuBar.m_Default.m_Colours.m_clrBack != CLR_INVALID)	// if menu colour set, use it
 //			Dcx::FillRectColour(pUDM->hdc, &rc, m_CustomMenuBar.m_Default.m_Colours.m_clrBack);
 //		else if (m_CustomMenuBar.m_menuTheme)	// otherwise try themed drawing
-//			Dcx::UXModule.dcxDrawThemeBackground(m_CustomMenuBar.m_menuTheme, pUDM->hdc, MENU_BARBACKGROUND, (pUDM->dwFlags == 0xa00 ? MB_ACTIVE : MB_INACTIVE), &rc, nullptr);
+//			DcxUXModule::dcxDrawThemeBackground(m_CustomMenuBar.m_menuTheme, pUDM->hdc, MENU_BARBACKGROUND, (pUDM->dwFlags == 0xa00 ? MB_ACTIVE : MB_INACTIVE), &rc, nullptr);
 //		else
 //			Dcx::FillRectColour(pUDM->hdc, &rc, GetSysColor(COLOR_MENUBAR));	// if all else fails draw as standard menu colour.
 //	}
@@ -2179,7 +2179,7 @@ void DcxDialog::setFocusControl(const UINT mUID)
 //	}
 //
 //	if (!this->m_CustomMenuBar.m_menuTheme)
-//		this->m_CustomMenuBar.m_menuTheme = Dcx::UXModule.dcxOpenThemeData(mHwnd, L"Menu");
+//		this->m_CustomMenuBar.m_menuTheme = DcxUXModule::dcxOpenThemeData(mHwnd, L"Menu");
 //
 //	//if (this->m_CustomMenuBar.m_bDrawBorder)
 //	//{
@@ -2198,7 +2198,7 @@ void DcxDialog::setFocusControl(const UINT mUID)
 //	{
 //		const DTTOPTS opts = { sizeof(opts), (this->m_CustomMenuBar.m_bDrawShadowText ? DTT_TEXTCOLOR | DTT_SHADOWCOLOR : DTT_TEXTCOLOR), clrText,0,RGB(0,0,0) };
 //
-//		Dcx::UXModule.dcxDrawThemeTextEx(this->m_CustomMenuBar.m_menuTheme, pUDMI->um.hdc, MENU_BARITEM, MBI_NORMAL, &menuString[0], mii.cch, dwFlags, &pUDMI->dis.rcItem, &opts);
+//		DcxUXModule::dcxDrawThemeTextEx(this->m_CustomMenuBar.m_menuTheme, pUDMI->um.hdc, MENU_BARITEM, MBI_NORMAL, &menuString[0], mii.cch, dwFlags, &pUDMI->dis.rcItem, &opts);
 //	}
 //	else {
 //		if (this->m_CustomMenuBar.m_bDrawShadowText)
@@ -2254,7 +2254,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 #if DCX_CUSTOM_MENUS
 		if (p_this->m_CustomMenuBar.m_menuTheme)
 		{
-			Dcx::UXModule.dcxCloseThemeData(p_this->m_CustomMenuBar.m_menuTheme);
+			DcxUXModule::dcxCloseThemeData(p_this->m_CustomMenuBar.m_menuTheme);
 			p_this->m_CustomMenuBar.m_menuTheme = nullptr;
 		}
 #endif

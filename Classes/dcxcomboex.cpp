@@ -24,7 +24,6 @@
 * \param rc Window Rectangle
 * \param styles Window Style Tokenized List
 */
-
 DcxComboEx::DcxComboEx(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
@@ -44,7 +43,7 @@ DcxComboEx::DcxComboEx(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_D
 
 	if (ws.m_NoTheme)
 	{
-		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 		//SendMessage( m_Hwnd, CBEM_SETWINDOWTHEME, 0, (LPARAM)(LPCWSTR)L" "); // do this instead?
 	}
 
@@ -62,7 +61,7 @@ DcxComboEx::DcxComboEx(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_D
 	if (IsWindow(this->m_EditHwnd))
 	{
 		if (ws.m_NoTheme)
-			Dcx::UXModule.dcxSetWindowTheme(this->m_EditHwnd, L" ", L" ");
+			DcxUXModule::dcxSetWindowTheme(this->m_EditHwnd, L" ", L" ");
 
 		this->m_exEdit.cHwnd = m_Hwnd;
 		this->m_exEdit.pHwnd = mParentHwnd;
@@ -76,7 +75,7 @@ DcxComboEx::DcxComboEx(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_D
 	if (IsWindow(this->m_hComboHwnd))
 	{
 		if (ws.m_NoTheme)
-			Dcx::UXModule.dcxSetWindowTheme(this->m_hComboHwnd, L" ", L" ");
+			DcxUXModule::dcxSetWindowTheme(this->m_hComboHwnd, L" ", L" ");
 
 		COMBOBOXINFO cbi{};
 		cbi.cbSize = sizeof(cbi);
@@ -1063,6 +1062,8 @@ LRESULT DcxComboEx::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 
 	case WM_NCDESTROY:
 	{
+		this->CallDefaultClassProc(uMsg, wParam, lParam);
+
 		delete this;
 		bParsed = TRUE;
 	}

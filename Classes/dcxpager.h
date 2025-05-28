@@ -11,12 +11,6 @@
 
 class DcxDialog;
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 class DcxPager final
 	: public DcxControl
 {

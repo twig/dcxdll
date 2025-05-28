@@ -24,7 +24,6 @@
   * \param rc Window Rectangle
   * \param styles Window Style Tokenized List
   */
-
 DcxTab::DcxTab(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
@@ -43,21 +42,15 @@ DcxTab::DcxTab(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, c
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	setNoThemed(ws.m_NoTheme);
 
 	if (this->m_bClosable)
-		TabCtrl_SetPadding(m_Hwnd, Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CXSMICON), Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CYFIXEDFRAME));
+		Dcx::dcxTabCtrl_SetPadding(m_Hwnd, Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CXSMICON), Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CYFIXEDFRAME));
 
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 DcxTab::~DcxTab() noexcept
 {
@@ -67,12 +60,6 @@ DcxTab::~DcxTab() noexcept
 	for (auto n = decltype(nItems){0}; n < nItems; ++n)
 		this->deleteLParamInfo(n);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 dcxWindowStyles DcxTab::parseControlStyles(const TString& tsStyles)
 {
@@ -299,12 +286,6 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 		parseGlobalInfoRequest(input, szReturnValue);
 	}
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void DcxTab::parseCommandRequest(const TString& input)
 {
@@ -577,33 +558,15 @@ void DcxTab::parseCommandRequest(const TString& input)
 		this->parseGlobalCommandRequest(input, xflags);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 HIMAGELIST DcxTab::getImageList() const noexcept
 {
 	return TabCtrl_GetImageList(m_Hwnd);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 HIMAGELIST DcxTab::setImageList(const HIMAGELIST himl) noexcept
 {
 	return TabCtrl_SetImageList(m_Hwnd, himl);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void DcxTab::deleteLParamInfo(const int nItem) noexcept
 {
@@ -616,12 +579,6 @@ void DcxTab::deleteLParamInfo(const int nItem) noexcept
 		delete lpdtci;
 	}
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void DcxTab::activateSelectedTab()
 {
@@ -937,11 +894,6 @@ void DcxTab::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
@@ -1010,7 +962,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 
 		RECT rect{};
 		const auto nTabIndex = gsl::narrow_cast<int>(idata->itemID);
-		const bool bCurSel = (TabCtrl_GetCurSel(m_Hwnd) == nTabIndex);
+		const bool bCurSel = (Dcx::dcxTabCtrl_GetCurSel(m_Hwnd) == nTabIndex);
 
 		CopyRect(&rect, &idata->rcItem);
 
@@ -1266,6 +1218,8 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 
 	case WM_DESTROY:
 	{
+		this->CallDefaultClassProc(uMsg, wParam, lParam);
+
 		delete this;
 		bParsed = TRUE;
 	}

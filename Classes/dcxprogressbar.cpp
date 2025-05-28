@@ -43,7 +43,7 @@ DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ gsl::strict_not_null<Dcx
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	setNoThemed(ws.m_NoTheme);
 

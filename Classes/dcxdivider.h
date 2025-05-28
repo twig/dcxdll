@@ -21,12 +21,6 @@
 
 class DcxDialog;
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 class DcxDivider final
 	: public DcxControl
 {

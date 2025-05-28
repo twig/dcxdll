@@ -49,12 +49,6 @@ using LPDCXSITEM = DCXSITEM *;
 using VectorOfImages = std::vector<std::unique_ptr<Gdiplus::Image>>;
 using VectorOfStackerItems = std::vector<LPDCXSITEM>;
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 class DcxStacker final
 	: public DcxControl
 {

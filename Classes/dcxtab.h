@@ -20,24 +20,12 @@
 
 class DcxDialog;
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 struct DCXTCITEM
 {
 	TString		tsTipText;	//!< Tooltip Text
 	HWND		mChildHwnd{ nullptr };	//!< Hwnd to child window
 };
 using LPDCXTCITEM = DCXTCITEM *;
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 class DcxTab final
 	: public DcxControl

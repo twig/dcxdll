@@ -51,7 +51,7 @@ DcxListView::DcxListView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	setNoThemed(ws.m_NoTheme);
 
@@ -78,12 +78,6 @@ DcxListView::DcxListView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 
 	DragAcceptFiles(m_Hwnd, TRUE);
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 DcxListView::~DcxListView() noexcept
 {
@@ -196,12 +190,6 @@ const TString DcxListView::getStyles(void) const
 
 	return styles;
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 dcxWindowStyles DcxListView::parseControlStyles(const TString& tsStyles)
 {
@@ -1125,12 +1113,6 @@ void DcxListView::HandleDragMove(int x, int y) noexcept
 
 	Dcx::dcxListView_SetInsertMark(m_Hwnd, &lvim);
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 void DcxListView::parseCommandRequest(const TString& input)
 {
@@ -2418,35 +2400,17 @@ gsl::strict_not_null<HIMAGELIST> DcxListView::initImageList(const int iImageList
 	return gsl::make_strict_not_null(himl);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 GSL_SUPPRESS(lifetime.4)
 HIMAGELIST DcxListView::getImageList(const int iImageList) const noexcept
 {
 	return ListView_GetImageList(m_Hwnd, iImageList);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 void DcxListView::setImageList(const HIMAGELIST himl, const int iImageList) noexcept
 {
 	if (auto o = ListView_SetImageList(m_Hwnd, himl, iImageList); (o && o != himl))
 		ImageList_Destroy(o);
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 UINT DcxListView::parseIconFlagOptions(const TString& flags)
 {
@@ -2468,12 +2432,6 @@ UINT DcxListView::parseIconFlagOptions(const TString& flags)
 		iFlags |= LVSIL_GROUPHEADER;
 	return iFlags;
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 UINT DcxListView::parseItemFlags(const TString& flags)
 {
@@ -2563,12 +2521,6 @@ TString DcxListView::parseItemFlags(UINT uFlags)
 	return tsFlags;
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 UINT DcxListView::parseMassItemFlags(const TString& flags)
 {
 	const XSwitchFlags xflags(flags);
@@ -2590,11 +2542,6 @@ UINT DcxListView::parseMassItemFlags(const TString& flags)
 	return iFlags;
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
 // used flags bcflr
 UINT DcxListView::parseHeaderFlags(const TString& flags)
 {
@@ -2630,12 +2577,6 @@ UINT DcxListView::parseHeaderFlags(const TString& flags)
 
 	return iFlags;
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 INT DcxListView::parseHeaderFlags2(const TString& flags)
 {
@@ -2675,12 +2616,6 @@ INT DcxListView::parseHeaderFlags2(const XSwitchFlags& xflags)
 	return iFlags;
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 UINT DcxListView::parseSortFlags(const TString& flags)
 {
 	const XSwitchFlags xflags(flags);
@@ -2707,12 +2642,6 @@ UINT DcxListView::parseSortFlags(const TString& flags)
 
 	return iFlags;
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 UINT DcxListView::parseGroupFlags(const TString& flags)
 {
@@ -2760,12 +2689,6 @@ UINT DcxListView::parseGroupState(const TString& flags)
 	return iFlags;
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 UINT DcxListView::parseColorFlags(const TString& flags)
 {
 	const XSwitchFlags xflags(flags);
@@ -2786,12 +2709,6 @@ UINT DcxListView::parseColorFlags(const TString& flags)
 
 	return iFlags;
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 UINT DcxListView::parseImageFlags(const TString& flags)
 {
@@ -2815,12 +2732,6 @@ UINT DcxListView::parseImageFlags(const TString& flags)
 
 	return iFlags;
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 bool DcxListView::isListViewStyle(const WindowStyle dwView) const noexcept
 {
@@ -2846,12 +2757,6 @@ bool DcxListView::matchItemText(const int nItem, const int nSubItem, const dcxSe
 
 	return DcxSearchHelper::matchItemText(itemtext.get(), srch_data);
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 const int& DcxListView::getColumnCount() const noexcept
 {
@@ -3031,12 +2936,6 @@ void DcxListView::loadIcon(const TString& tsFlags, const TString& tsIndex, const
 	}
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 int DcxListView::getTopIndex() const noexcept
 {
 	if (Dcx::dcxListView_GetItemCount(m_Hwnd) > 0)
@@ -3044,12 +2943,6 @@ int DcxListView::getTopIndex() const noexcept
 
 	return -1;
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 int DcxListView::getBottomIndex() const noexcept
 {
@@ -3060,12 +2953,6 @@ int DcxListView::getBottomIndex() const noexcept
 
 	return --nBottomIndex;
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 int CALLBACK DcxListView::sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
 {
@@ -3186,11 +3073,6 @@ int CALLBACK DcxListView::sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lPa
 	return 0;
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
 GSL_SUPPRESS(con.4)
 LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
@@ -4125,6 +4007,8 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 	case WM_DESTROY:
 	{
+		this->CallDefaultClassProc(uMsg, wParam, lParam);
+
 		delete this;
 		bParsed = TRUE;
 	}
@@ -4137,12 +4021,6 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 	return lRes;
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 LRESULT CALLBACK DcxListView::EditLabelProc(gsl::not_null<HWND> mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
@@ -4169,7 +4047,6 @@ LRESULT CALLBACK DcxListView::EditLabelProc(gsl::not_null<HWND> mHwnd, UINT uMsg
 	}
 	return CallWindowProc(pthis->m_OrigEditProc, mHwnd, uMsg, wParam, lParam);
 }
-
 
 DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString& styles)
 {
@@ -5692,7 +5569,7 @@ void DcxListView::DrawGroupHeaderText(HDC hdc, HTHEME hTheme, int iStateId, LPCR
 		if (bCustomText)
 			calcTextRect(hdc, tsHeader, &rcRgn, uTextFlags);
 		else
-			Dcx::UXModule.dcxGetThemeTextExtent(hTheme, hdc, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, tsHeader.to_chr(), -1, uTextFlags, &rcText, &rcRgn);
+			DcxUXModule::dcxGetThemeTextExtent(hTheme, hdc, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, tsHeader.to_chr(), -1, uTextFlags, &rcText, &rcRgn);
 
 		// offset rect for group settings.
 		if (dcx_testflag(uAlign, LVGA_HEADER_CENTER))
@@ -5714,7 +5591,7 @@ void DcxListView::DrawGroupHeaderText(HDC hdc, HTHEME hTheme, int iStateId, LPCR
 		if (bCustomText)
 			ctrlDrawText(hdc, tsHeader, &rcRgn, uTextFlags);
 		else
-			Dcx::UXModule.dcxDrawThemeText(hTheme, hdc, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, tsHeader.to_chr(), -1, uTextFlags, 0, &rcRgn);
+			DcxUXModule::dcxDrawThemeText(hTheme, hdc, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, tsHeader.to_chr(), -1, uTextFlags, 0, &rcRgn);
 
 		// exclude text rect from line (drawn bellow)
 		ExcludeClipRect(hdc, rcRgn.left, rcRgn.top, rcRgn.right, rcRgn.bottom);
@@ -5741,11 +5618,11 @@ LRESULT DcxListView::DrawGroup(LPNMLVCUSTOMDRAW lplvcd)
 			return CDRF_DODEFAULT;
 
 		// open theme
-		GSL_SUPPRESS(r.3) GSL_SUPPRESS(lifetime.1) auto hTheme = Dcx::UXModule.dcxOpenThemeData(m_Hwnd, L"ListView;ListViewStyle");
+		GSL_SUPPRESS(r.3) GSL_SUPPRESS(lifetime.1) auto hTheme = DcxUXModule::dcxOpenThemeData(m_Hwnd, L"ListView;ListViewStyle");
 		if (!hTheme)
 			return CDRF_DODEFAULT;
 
-		Auto(GSL_SUPPRESS(lifetime.1) Dcx::UXModule.dcxCloseThemeData(hTheme));
+		Auto(GSL_SUPPRESS(lifetime.1) DcxUXModule::dcxCloseThemeData(hTheme));
 
 		const int iStateId = getGroupDrawState();
 
@@ -5805,7 +5682,7 @@ LRESULT DcxListView::DrawGroup(LPNMLVCUSTOMDRAW lplvcd)
 		{
 			const RECT rcButton{ GetHeaderButtonRect(&lplvcd->rcText) };
 			//RECT rcButton{ lplvcd->rcText };
-			//Dcx::UXModule.dcxGetThemeRect(hTheme, LISTVIEWPARTS::LVP_COLLAPSEBUTTON, LVCB_NORMAL, TMT_RECT, &rcButton);
+			//DcxUXModule::dcxGetThemeRect(hTheme, LISTVIEWPARTS::LVP_COLLAPSEBUTTON, LVCB_NORMAL, TMT_RECT, &rcButton);
 
 			//RECT rcHDR{}, rcLABEL{};
 			//Dcx::dcxListView_GetGroupRect(m_Hwnd, lplvcd->nmcd.dwItemSpec, LVGGR_HEADER, &rcHDR);
@@ -5816,15 +5693,15 @@ LRESULT DcxListView::DrawGroup(LPNMLVCUSTOMDRAW lplvcd)
 			int iButtonStateId{ LVEB_NORMAL };
 			//const RECT rcButton{ GetHeaderButtonRect(hTheme, lplvcd->nmcd.hdc, iButtonStateId, &lplvcd->rcText) };
 			//WORD wHitCode{};
-			//Dcx::UXModule.dcxHitTestThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_COLLAPSEBUTTON, iButtonStateId, HTTB_BACKGROUNDSEG, &lplvcd->rcText, nullptr, pt, &wHitCode);
+			//DcxUXModule::dcxHitTestThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_COLLAPSEBUTTON, iButtonStateId, HTTB_BACKGROUNDSEG, &lplvcd->rcText, nullptr, pt, &wHitCode);
 
 			if (PtInRect(&rcButton, pt))
 				iButtonStateId = LVEB_HOVER;
 
 			if (IsGroupCollapsed(gsl::narrow_cast<int>(lplvcd->nmcd.dwItemSpec)))
-				Dcx::UXModule.dcxDrawThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_EXPANDBUTTON, iButtonStateId, &rcButton, nullptr);
+				DcxUXModule::dcxDrawThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_EXPANDBUTTON, iButtonStateId, &rcButton, nullptr);
 			else
-				Dcx::UXModule.dcxDrawThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_COLLAPSEBUTTON, iButtonStateId, &rcButton, nullptr);
+				DcxUXModule::dcxDrawThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_COLLAPSEBUTTON, iButtonStateId, &rcButton, nullptr);
 
 			// exclude button rect from line (drawn bellow)
 			ExcludeClipRect(lplvcd->nmcd.hdc, rcButton.left, rcButton.top, rcButton.right, rcButton.bottom);
@@ -5839,7 +5716,7 @@ LRESULT DcxListView::DrawGroup(LPNMLVCUSTOMDRAW lplvcd)
 			rcLine.bottom = rcLine.top + 1;
 
 			// draw line through group. (excluding text areas)
-			Dcx::UXModule.dcxDrawThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_GROUPHEADERLINE, iStateId, &rcLine, nullptr);
+			DcxUXModule::dcxDrawThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_GROUPHEADERLINE, iStateId, &rcLine, nullptr);
 		}
 
 		return CDRF_SKIPDEFAULT;
@@ -5955,7 +5832,7 @@ void DcxListView::DrawGroupSelectionRect(HTHEME hTheme, HDC hdc, LPCRECT rc, int
 	// NB: Non themed groups dont show a `hot` rect
 	if (hTheme)
 	{
-		if (Dcx::UXModule.dcxDrawThemeBackground(hTheme, hdc, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, rc, nullptr) != S_OK)
+		if (DcxUXModule::dcxDrawThemeBackground(hTheme, hdc, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, rc, nullptr) != S_OK)
 		{
 			// if themed drawing fails try our own draw routine
 			constexpr COLORREF clrBkg = RGB(185, 229, 242);

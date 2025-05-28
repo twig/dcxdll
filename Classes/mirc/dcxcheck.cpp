@@ -43,7 +43,7 @@ DcxCheck::DcxCheck(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialo
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	setNoThemed(ws.m_NoTheme);
 
@@ -938,6 +938,9 @@ void DcxCheck::ctrlDrawBackground(HTHEME hTheme, int iState, HDC hdcPaint, LPREC
 
 void DcxCheck::ctrlDrawCheckBox(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus) noexcept
 {
+	if (rc->right <= rc->left)
+		return;
+
 	RECT rcCheck{};
 	// square (in future get system value for this)
 	constexpr int iCheckSize = 16;
@@ -1040,15 +1043,21 @@ void DcxCheck::ctrlDrawCheckText(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT
 		if (hTheme)
 		{
 			// only used themed if no ctrl codes being used.
-			if (this->m_TextOptions.m_bNoCtrlCodes)
+			if (this->IsControlCodeTextDisabled())
 			{
 				DTTOPTS dtt{};
 				dtt.dwSize = sizeof(DTTOPTS);
+				if (this->isExStyle(WindowExStyle::Composited))
+				{
+					dtt.dwFlags |= DTT_COMPOSITED;
+				}
 				if (this->m_TextOptions.m_clrText != CLR_INVALID)
 				{
 					dtt.crText = this->m_TextOptions.m_clrText;
 					dtt.dwFlags |= DTT_TEXTCOLOR;
 				}
+				//if (!IsWindowEnabled(m_Hwnd))
+				//	tsText.strip();
 
 				DcxUXModule::dcxDrawThemeTextEx(hTheme, hdcPaint, BUTTONPARTS::BP_CHECKBOX, iState, tsText.to_wchr(), tsText.len(), DT_LEFT | DT_SINGLELINE | DT_VCENTER, rc, &dtt);
 				return;

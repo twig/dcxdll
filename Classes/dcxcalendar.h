@@ -22,12 +22,6 @@
 
 class DcxDialog;
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 class DcxCalendar final
 	: public DcxControl
 {

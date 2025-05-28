@@ -48,12 +48,6 @@ namespace
 	};
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 class DcxDirectshow final
 	: public DcxControl
 {
