@@ -20,12 +20,6 @@
 
 class DcxDialog;
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 class DcxUpDown final
 	: public DcxControl
 {

@@ -19,7 +19,7 @@ DcxWebControl2::DcxWebControl2(const UINT ID, gsl::strict_not_null<DcxDialog* co
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	setNoThemed(ws.m_NoTheme);
 }

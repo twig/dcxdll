@@ -77,12 +77,6 @@ class DcxTreeView;
 #define TVIT_NORMAL 0x01      //!< TreeView Normal ImageList
 #define TVIT_STATE  0x02      //!< TreeView State ImageList
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 struct DCXTVSORT
 {
 	TString		tsCustomAlias;						//!< Custom Sorting Alias
@@ -101,12 +95,6 @@ struct DCXTVSORT
 	}
 };
 using LPDCXTVSORT = DCXTVSORT*;
-
-/*!
- * \brief blah
- *
- * blah
- */
 
  // text, background, line, insert colours alrdy set elsewhere.
 struct DCXTVCOLOURS
@@ -145,13 +133,6 @@ struct DCXTVITEM
 	}
 };
 using LPDCXTVITEM = DCXTVITEM*;
-
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 class DcxTreeView final
 	: public DcxControl

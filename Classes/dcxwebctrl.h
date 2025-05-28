@@ -32,12 +32,6 @@ class DcxDialog;
 #define DCX_USE_AMBIENT 1
 #endif
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 class DcxWebControl final
 	: public DcxControl, public IOleClientSite, public IOleInPlaceSite, public DWebBrowserEvents2
 {

@@ -27,7 +27,6 @@
   * \param rc Window Rectangle
   * \param styles Window Style Tokenized List
   */
-
 DcxTreeView::DcxTreeView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
@@ -46,7 +45,7 @@ DcxTreeView::DcxTreeView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	setNoThemed(ws.m_NoTheme);
 
@@ -2102,6 +2101,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			return (getParentDialog()->evalAliasT(TEXT("labelbegin,%"), getUserID()).second == TEXT("noedit"));
 		}
 		break;
+
 		case TVN_ENDLABELEDIT:
 		{
 			bParsed = TRUE;
@@ -2422,6 +2422,8 @@ LRESULT DcxTreeView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 	case WM_DESTROY:
 	{
+		this->CallDefaultClassProc(uMsg, wParam, lParam);
+
 		delete this;
 		bParsed = TRUE;
 	}
@@ -2434,12 +2436,6 @@ LRESULT DcxTreeView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 	return 0L;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 LRESULT CALLBACK DcxTreeView::EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {

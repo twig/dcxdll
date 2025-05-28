@@ -38,12 +38,6 @@ enum class TrackBarParts
 };
 class DcxDialog;
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 class DcxTrackBar final
 	: public DcxControl
 {
