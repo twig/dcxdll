@@ -2182,13 +2182,22 @@
 	<tr><td colspan="2">When the user presses ESC while editing or clicks somewhere else without editing the text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME labelcancel ID </div></td>
+		<td><div class="syntax">/cb_alias DNAME labelcancel ID ITEM SUBITEM</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx labelcancel 4</div></td>
+		<td><div class="example">/cb_alias dcx labelcancel 4 3 1</div></td>
 	</tr>
-</table>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ITEM</td>
+		<td>The item being edited.</td>
+	</tr>
+	<tr>
+		<td class="param">SUBITEM</td>
+		<td>The subitem being edited.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td>No return value.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -2196,13 +2205,21 @@
 	<tr><td colspan="2">When the user clicks elsewhere or presses RETURN while editing or clicks somewhere else but edited the text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME labelend ID VALUE</div></td>
+		<td><div class="syntax">/cb_alias DNAME labelend ID ITEM SUBITEM VALUE</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx labelend 4 New text value</div></td>
+		<td><div class="example">/cb_alias dcx labelend 4 3 1 New text value</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ITEM</td>
+		<td>The item being edited.</td>
+	</tr>
+	<tr>
+		<td class="param">SUBITEM</td>
+		<td>The subitem being edited.</td>
+	</tr>
 	<tr>
 		<td class="param">VALUE</td>
 		<td>Edited text label.</td>
@@ -2715,7 +2732,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2025</td>
-		<td style="text-align: right;">Last Updated: 8th May, 25</td>
+		<td style="text-align: right;">Last Updated: 28th May, 25</td>
 	</tr>
 </table>
 <div style="text-align: center;">

@@ -914,14 +914,25 @@ function get_events_listview(&$EVENTS) {
 		),
 		"labelend" => array(
 			'__desc' => "When the user clicks elsewhere or presses RETURN while editing or clicks somewhere else but edited the text.",
-			'__cmd' => 'VALUE',
-			'__eg' => 'New text value',
+			'__cmd' => 'ITEM SUBITEM VALUE',
+			'__eg' => '3 1 New text value',
 			'__params' => array(
+				'ITEM' => 'The item being edited.',
+				'SUBITEM' => 'The subitem being edited.',
 				'VALUE' => 'Edited text label.',
 			),
             '__return' => '[r]noedit[/r] to cancel label editing (for example if string is NULL or invalid to your application).'
 		),
-		"labelcancel" => "When the user presses ESC while editing or clicks somewhere else without editing the text.",
+		"labelcancel" => array(
+			'__desc' => "When the user presses ESC while editing or clicks somewhere else without editing the text.",
+			'__cmd' => 'ITEM SUBITEM',
+			'__eg' => '3 1',
+			'__params' => array(
+				'ITEM' => 'The item being edited.',
+				'SUBITEM' => 'The subitem being edited.',
+			),
+            '__return' => 'No return value.'
+		),
 		"hsclick" => array(
 			'__desc' => "When the user clicks on a header item in the listview.",
 			'__cmd' => 'N',
