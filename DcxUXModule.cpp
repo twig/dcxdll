@@ -492,9 +492,9 @@ bool DcxUXModule::dcxIsHighContrast() noexcept
 void DcxUXModule::dcxRefreshTitleBarThemeColor(_In_opt_ HWND mHwnd) noexcept
 {
 	BOOL dark = FALSE;
-	if (Dcx::UXModule.dcxIsDarkModeAllowedForWindow(mHwnd) &&
-		Dcx::UXModule.dcxShouldAppsUseDarkMode() &&
-		!Dcx::UXModule.dcxIsHighContrast())
+	if (DcxUXModule::dcxIsDarkModeAllowedForWindow(mHwnd) &&
+		DcxUXModule::dcxShouldAppsUseDarkMode() &&
+		!DcxUXModule::dcxIsHighContrast())
 	{
 		dark = TRUE;
 	}
