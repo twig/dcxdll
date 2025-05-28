@@ -139,7 +139,7 @@ namespace
 		//
 		//		COLORREF clr{ GetSysColor(COLOR_WINDOW) };
 		//		if (lpmcdata->m_hTheme)
-		//			Dcx::UXModule.dcxGetThemeColor(lpmcdata->m_hTheme, CP_BACKGROUND, 0, TMT_COLOR, &clr);
+		//			DcxUXModule::dcxGetThemeColor(lpmcdata->m_hTheme, CP_BACKGROUND, 0, TMT_COLOR, &clr);
 		//
 		//		if (lpmcdata->m_CurrentEditTextColour != CLR_INVALID)
 		//			SetTextColor((HDC)wParam, lpmcdata->m_CurrentEditTextColour);
@@ -455,7 +455,7 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		{
 			if (lpmcdata->m_hTheme)
 			{
-				Dcx::UXModule.dcxCloseThemeData(lpmcdata->m_hTheme);
+				DcxUXModule::dcxCloseThemeData(lpmcdata->m_hTheme);
 				lpmcdata->m_hTheme = nullptr;
 			}
 			if (lpmcdata->m_CurrentEditColour)
@@ -858,13 +858,13 @@ void MultiCombo_OnThemeChange(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 	if (lpmcdata->m_hTheme)
 	{
-		Dcx::UXModule.dcxCloseThemeData(lpmcdata->m_hTheme);
+		DcxUXModule::dcxCloseThemeData(lpmcdata->m_hTheme);
 		lpmcdata->m_hTheme = nullptr;
 	}
 	if (lpmcdata->m_hEdit && IsWindow(lpmcdata->m_hEdit))
-		Dcx::UXModule.dcxSetWindowTheme(lpmcdata->m_hEdit, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(lpmcdata->m_hEdit, L" ", L" ");
 	if (lpmcdata->m_hDropCtrl && IsWindow(lpmcdata->m_hDropCtrl))
-		Dcx::UXModule.dcxSetWindowTheme(lpmcdata->m_hDropCtrl, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(lpmcdata->m_hDropCtrl, L" ", L" ");
 }
 
 RECT MultiCombo_GetEditRect(LPCRECT rcBase) noexcept
@@ -936,7 +936,7 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 		lpmcdata->m_hBase = mHwnd;
 		lpmcdata->m_Styles = cs->style & MCS_STYLEMASK;
-		lpmcdata->m_hTheme = Dcx::UXModule.dcxOpenThemeData(mHwnd, WC_COMBOBOXW);
+		lpmcdata->m_hTheme = DcxUXModule::dcxOpenThemeData(mHwnd, WC_COMBOBOXW);
 
 		// ES_NOHIDESEL
 
@@ -979,10 +979,10 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		}
 
 		if (lpmcdata->m_hEdit && IsWindow(lpmcdata->m_hEdit))
-			Dcx::UXModule.dcxSetWindowTheme(lpmcdata->m_hEdit, WC_COMBOBOXW, nullptr);
+			DcxUXModule::dcxSetWindowTheme(lpmcdata->m_hEdit, WC_COMBOBOXW, nullptr);
 		if (lpmcdata->m_hDropCtrl && IsWindow(lpmcdata->m_hDropCtrl))
 		{
-			Dcx::UXModule.dcxSetWindowTheme(lpmcdata->m_hDropCtrl, WC_COMBOBOXW, nullptr);
+			DcxUXModule::dcxSetWindowTheme(lpmcdata->m_hDropCtrl, WC_COMBOBOXW, nullptr);
 
 			SetPropW(lpmcdata->m_hDropCtrl, TEXT("mc_data"), lpmcdata.get());
 		}
@@ -1019,7 +1019,7 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 			}
 
 			if (lpmcdata->m_hDropChild)
-				Dcx::UXModule.dcxSetWindowTheme(lpmcdata->m_hDropChild, WC_COMBOBOXW, nullptr);
+				DcxUXModule::dcxSetWindowTheme(lpmcdata->m_hDropChild, WC_COMBOBOXW, nullptr);
 		}
 	}
 
@@ -1064,7 +1064,7 @@ void MultiCombo_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 			iStateId = CBXS_HOT;
 		}
 
-		Dcx::UXModule.dcxDrawThemeBackground(lpmcdata->m_hTheme, hdc, CP_DROPDOWNBUTTON, iStateId, &lpmcdata->m_rcButton, nullptr);
+		DcxUXModule::dcxDrawThemeBackground(lpmcdata->m_hTheme, hdc, CP_DROPDOWNBUTTON, iStateId, &lpmcdata->m_rcButton, nullptr);
 	}
 	else {
 		DrawFrameControl(hdc, &lpmcdata->m_rcButton, DFC_SCROLL,
@@ -1279,7 +1279,7 @@ BOOL MultiCombo_DrawItem(HWND mHwnd, LPDRAWITEMSTRUCT lpdis)
 		{
 			COLORREF clr{ GetSysColor(COLOR_WINDOW) };
 			if (lpmcdata->m_hTheme)
-				Dcx::UXModule.dcxGetThemeColor(lpmcdata->m_hTheme, CP_BACKGROUND, 0, TMT_COLOR, &clr);
+				DcxUXModule::dcxGetThemeColor(lpmcdata->m_hTheme, CP_BACKGROUND, 0, TMT_COLOR, &clr);
 
 			if (dcx_testflag(lpdis->itemState, ODS_SELECTED))
 				clr = GetSysColor(COLOR_MENUHILIGHT);
