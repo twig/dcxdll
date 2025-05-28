@@ -58,7 +58,7 @@ const bool LayoutManager::updateLayout(RECT& rc)
 
 	const auto bRedraw = m_pRoot->setRect(rc);
 	m_pRoot->LayoutChild();
-	std::ignore = (EndDeferWindowPos(m_pRoot->ExecuteLayout(BeginDeferWindowPos(gsl::narrow_cast<int>(m_iCount)))) != FALSE);
+	std::ignore = EndDeferWindowPos(m_pRoot->ExecuteLayout(BeginDeferWindowPos(gsl::narrow_cast<int>(m_iCount))));
 	return bRedraw;
 }
 
