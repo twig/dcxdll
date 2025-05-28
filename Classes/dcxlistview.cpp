@@ -3188,16 +3188,6 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		{
 			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
-				//if (LVHITTESTINFO lvh{}; GetCursorPos(&lvh.pt))
-				//{
-				//	MapWindowPoints(nullptr, m_Hwnd, &lvh.pt, 1);
-				//
-				//	if (Dcx::dcxListView_SubItemHitTest(m_Hwnd, &lvh) == -1)
-				//		execAliasEx(TEXT("hover,%u"), getUserID());
-				//	else
-				//		execAliasEx(TEXT("hover,%u,%d,%d"), getUserID(), lvh.iItem + 1, lvh.iSubItem + 1);
-				//}
-
 				if (LVHITTESTINFO lvh{ Dcx::dcxListView_CursorHitTest(m_Hwnd) }; lvh.flags & LVHT_ONITEM)
 					execAliasEx(TEXT("hover,%u,%d,%d"), getUserID(), lvh.iItem + 1, lvh.iSubItem + 1);
 				else
@@ -3243,10 +3233,10 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				break;
 
 			if (!lplvdi->item.pszText)
-				execAliasEx(TEXT("labelcancel,%u"), getUserID());
+				execAliasEx(TEXT("labelcancel,%u,%d,%d"), getUserID(), lplvdi->item.iItem + 1, lplvdi->item.iSubItem + 1);
 			else {
 				const stString<256> sRet;
-				evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("labelend,%u,%s"), getUserID(), lplvdi->item.pszText);
+				evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("labelend,%u,%d,%d,%s"), getUserID(), lplvdi->item.iItem + 1, lplvdi->item.iSubItem + 1, lplvdi->item.pszText);
 				//evalAlias(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("labelend,%,%"), getUserID(), lplvdi->item.pszText);
 
 				if (sRet == TEXT("noedit"))
@@ -3259,6 +3249,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		case LVN_COLUMNOVERFLOWCLICK:
 		{
 			dcxlParam(LPNMLISTVIEW, lpml);
+			//dcxlParam(LPNMITEMACTIVATE, lpml);
 
 			bParsed = TRUE;
 
