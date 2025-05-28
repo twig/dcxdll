@@ -107,7 +107,7 @@ namespace Dcx
 			return lvht;
 		// X & Y are relative to screen area.
 		MapWindowPoints(nullptr, hwnd, &lvht.pt, 1);
-		Dcx::dcxListView_SubItemHitTest(hwnd, &lvht);
+		dcxListView_SubItemHitTest(hwnd, &lvht);
 
 		return lvht;
 	}
@@ -118,13 +118,13 @@ namespace Dcx
 	{
 		TString tsBuf;
 
-		const auto len = ListBox_GetTextLen(hwnd, i);
+		const auto len = dcxListBox_GetTextLen(hwnd, i);
 		if (len < 1)
 			return tsBuf;
 
 		tsBuf.reserve(len + 1U);
 
-		ListBox_GetText(hwnd, i, tsBuf.to_chr());
+		dcxListBox_GetText(hwnd, i, tsBuf.to_chr());
 
 		return tsBuf;
 	}
@@ -134,7 +134,7 @@ namespace Dcx
 			return -1;
 
 		// do we have any items?
-		if (const auto iCnt = ListBox_GetCount(hListbox); iCnt > 0)
+		if (const auto iCnt = dcxListBox_GetCount(hListbox); iCnt > 0)
 		{
 			RECT rc{};
 
@@ -144,9 +144,11 @@ namespace Dcx
 				if (!PtInRect(&rc, pt))
 					return -1;
 			}
+			
+			//ListBox_GetTopIndex(hwnd) used instead of zero to make the loop quicker.
 
 			// loop through items & check for a match
-			for (int i{}; i < iCnt; ++i)
+			for (int i = dcxListBox_GetTopIndex(hListbox); i < iCnt; ++i)
 			{
 				// get items rect
 				if (!dcxListBox_GetItemRect(hListbox, i, &rc))
@@ -182,10 +184,12 @@ namespace Dcx
 			// in client rect
 			phti->flags = LVHT_NOWHERE;
 			// do we have any items?
-			if (const auto iCnt = ListBox_GetCount(hListbox); iCnt > 0)
+			if (const auto iCnt = dcxListBox_GetCount(hListbox); iCnt > 0)
 			{
+				//ListBox_GetTopIndex(hwnd) used instead of zero to make the loop quicker.
+
 				// loop through items & check for a match
-				for (int i{}; i < iCnt; ++i)
+				for (int i = dcxListBox_GetTopIndex(hListbox); i < iCnt; ++i)
 				{
 					// get items rect
 					if (!Dcx::dcxListBox_GetItemRect(hListbox, i, &rc))

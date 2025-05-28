@@ -45,7 +45,7 @@ DcxList::DcxList(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog,
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	setNoThemed(ws.m_NoTheme);
 
@@ -1081,7 +1081,7 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			GetScrollInfo(m_Hwnd, SB_VERT, &si); // 'Get valid 32bit position
 			si.nPos = si.nTrackPos;
 			SetScrollInfo(m_Hwnd, SB_VERT, &si, TRUE); // 'Fix scrollbar thumb position avoiding the Listbox 16 bit engine.
-			SendMessage(m_Hwnd, LB_SETTOPINDEX, si.nTrackPos, 0); // 'Scroll listbox
+			Dcx::dcxListBox_SetTopIndex(m_Hwnd, si.nTrackPos); // 'Scroll listbox
 			bParsed = TRUE;
 		}
 #endif
@@ -1133,12 +1133,12 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			if (wParam == VK_HOME)
 				si.nPos = 0;
 			else
-				si.nPos = ListBox_GetCount(m_Hwnd) - 1;
+				si.nPos = Dcx::dcxListBox_GetCount(m_Hwnd) - 1;
 
 			si.cbSize = sizeof(SCROLLINFO);
 			si.fMask = SIF_POS;
 			SetScrollInfo(m_Hwnd, SB_VERT, &si, TRUE); // 'Fix scrollbar thumb position avoiding the Lisbox 16 bit engine.
-			SendMessage(m_Hwnd, LB_SETTOPINDEX, si.nPos, 0); // 'Scroll listbox
+			Dcx::dcxListBox_SetTopIndex(m_Hwnd, si.nPos); // 'Scroll listbox
 			bParsed = TRUE;
 
 			return lRes;
@@ -1206,6 +1206,8 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 	case WM_DESTROY:
 	{
+		this->CallDefaultClassProc(uMsg, wParam, lParam);
+
 		delete this;
 		bParsed = TRUE;
 	}

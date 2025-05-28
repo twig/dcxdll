@@ -1087,14 +1087,67 @@ namespace Dcx
 		return ListBox_GetTextLen(hwnd, nPos);
 	}
 
+	/// <summary>
+	/// Get the max horizontal distance required to display all items.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
 	inline int dcxListBox_GetHorizontalExtent(_In_ HWND hwnd) noexcept
 	{
 		return ListBox_GetHorizontalExtent(hwnd);
 	}
 
+	/// <summary>
+	/// Set the max horizontal distance required to display all items.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="nExtent"></param>
 	inline void dcxListBox_SetHorizontalExtent(_In_ HWND hwnd, _In_ int nExtent) noexcept
 	{
 		ListBox_SetHorizontalExtent(hwnd, nExtent);
+	}
+
+	/// <summary>
+	/// Get the total count of items.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
+	inline int dcxListBox_GetCount(_In_ HWND hwnd) noexcept
+	{
+		return ListBox_GetCount(hwnd);
+	}
+
+	/// <summary>
+	/// Set the top visible item.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iIndex"></param>
+	/// <returns></returns>
+	inline int dcxListBox_SetTopIndex(_In_ HWND hwnd, _In_ int iIndex) noexcept
+	{
+		return ListBox_SetTopIndex(hwnd, iIndex);
+	}
+
+	/// <summary>
+	/// Get the top visible item.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
+	inline int dcxListBox_GetTopIndex(_In_ HWND hwnd) noexcept
+	{
+		return ListBox_GetTopIndex(hwnd);
+	}
+
+	/// <summary>
+	/// Get an items text.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="i"></param>
+	/// <param name="buf"></param>
+	/// <returns></returns>
+	inline int dcxListBox_GetText(_In_ HWND hwnd, _In_ int i, _Inout_z_ TCHAR *buf) noexcept
+	{
+		return ListBox_GetText(hwnd, i, buf);
 	}
 
 	/// <summary>
