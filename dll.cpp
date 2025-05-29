@@ -1935,7 +1935,7 @@ static TString dcxGetWindowProps(HWND hwnd, size_t prop)
 		tsRes = TGetWindowText(hwnd);
 		break;
 	case TEXT("dpi"_hash):			// dpi
-		tsRes.addtok(Dcx::DpiModule.dcxGetDpiForWindow(hwnd));
+		tsRes.addtok(DcxDPIModule::dcxGetDpiForWindow(hwnd));
 		break;
 	case TEXT("class"_hash):		// class
 	{
@@ -2263,6 +2263,15 @@ mIRC(SetDCXSettings)
 			getmIRCPalette(true); // force colours to update
 			break;
 		}
+		case L"DarkMode"_hash:
+		{
+			const bool bEnable = (d.getnexttok().to_int() > 0);
+			DcxUXModule::dcxAllowDarkModeForApp(bEnable);
+			DcxUXModule::dcxAllowDarkModeForWindow(mIRCLinker::m_mIRCHWND, bEnable);
+			DcxUXModule::dcxRefreshImmersiveColorPolicyState();
+			DcxUXModule::dcxRefreshTitleBarThemeColor(mIRCLinker::m_mIRCHWND);
+			break;
+		}
 		default:
 			throw DcxExceptions::dcxInvalidArguments();
 		}
@@ -2278,7 +2287,7 @@ mIRC(SetDCXSettings)
 	}
 
 	mIRCLinker::echo(TEXT("/dcx SetDCXSettings [option] (option args)"));
-	mIRCLinker::echo(TEXT("[option] = StaticColours,UpdateColours"));
+	mIRCLinker::echo(TEXT("[option] = StaticColours,UpdateColours,DarkMode"));
 	mIRCLinker::echo(TEXT("(option args) = optional, args contents depends on the option used."));
 	return 0;
 }
@@ -2307,9 +2316,24 @@ mIRC(GetDCXSettings)
 		}
 		case L"dpi"_hash:
 		{
-			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%u"), Dcx::DpiModule.dcxGetDpiForSystem());
+			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%u"), DcxDPIModule::dcxGetDpiForSystem());
 			break;
 		}
+		case L"DarkMode"_hash:
+		{
+			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%u"), DcxUXModule::dcxShouldAppsUseDarkMode());
+		}
+		break;
+		case L"UsingDarkMode"_hash:
+		{
+			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%u"), Dcx::UXModule.dcxIsDarkModeEnabled());
+		}
+		break;
+		case L"dpiaware"_hash:
+		{
+			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%ld"), DcxDPIModule::dcxGetProcessDpiAwareness());
+		}
+		break;
 		default:
 			throw DcxExceptions::dcxInvalidArguments();
 		}
@@ -2325,6 +2349,6 @@ mIRC(GetDCXSettings)
 	}
 
 	mIRCLinker::echo(TEXT("$!dcx(GetDCXSettings,[option])"));
-	mIRCLinker::echo(TEXT("[option] = StaticColours,CustomMenus"));
+	mIRCLinker::echo(TEXT("[option] = StaticColours,dpi,darkmode,usingdarkmode,dpiaware"));
 	return 0;
 }
