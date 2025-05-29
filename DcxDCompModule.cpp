@@ -26,7 +26,10 @@ bool DcxDCompModule::load()
 #pragma warning(disable: 4191)
 #pragma warning(disable: 26493)	//warning C26493 : Don't use C-style casts that would perform a static_cast downcast, const_cast, or reinterpret_cast. (type.4: http://go.microsoft.com/fwlink/p/?LinkID=620420)
 
+		DCompositionCreateDeviceUx = reinterpret_cast<decltype(::DCompositionCreateDevice)*>(::GetProcAddress(m_hModule, "DCompositionCreateDevice"));
 		DCompositionCreateDevice2Ux = reinterpret_cast<decltype(::DCompositionCreateDevice2)*>(::GetProcAddress(m_hModule, "DCompositionCreateDevice2"));
+		DCompositionCreateDevice3Ux = reinterpret_cast<decltype(::DCompositionCreateDevice3)*>(::GetProcAddress(m_hModule, "DCompositionCreateDevice3"));
+		DCompositionCreateSurfaceHandleUx = reinterpret_cast<decltype(::DCompositionCreateSurfaceHandle)*>(::GetProcAddress(m_hModule, "DCompositionCreateSurfaceHandle"));
 
 #pragma warning(pop)
 
@@ -62,7 +65,7 @@ bool DcxDCompModule::unload() noexcept
 #pragma warning(pop)
 
 
-HRESULT DcxDCompModule::dcxDCompositionCreateDevice2(IUnknown* renderingDevice, REFIID iid, void** dcompositionDevice)
+HRESULT DcxDCompModule::dcxDCompositionCreateDevice2(IUnknown* renderingDevice, REFIID iid, void** dcompositionDevice) noexcept
 {
 	if (DCompositionCreateDevice2Ux)
 		return DCompositionCreateDevice2Ux(renderingDevice, iid, dcompositionDevice);

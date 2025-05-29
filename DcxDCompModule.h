@@ -9,7 +9,17 @@
 class DcxDCompModule final
 	: public DcxModule
 {
+	static inline decltype(::DCompositionCreateDevice)* DCompositionCreateDeviceUx = nullptr;
 	static inline decltype(::DCompositionCreateDevice2)* DCompositionCreateDevice2Ux = nullptr;
+	static inline decltype(::DCompositionCreateDevice3)* DCompositionCreateDevice3Ux = nullptr;
+	static inline decltype(::DCompositionCreateSurfaceHandle)* DCompositionCreateSurfaceHandleUx = nullptr;
+	static inline decltype(::DCompositionAttachMouseDragToHwnd)* DCompositionAttachMouseDragToHwndUx = nullptr;
+	static inline decltype(::DCompositionAttachMouseWheelToHwnd)* DCompositionAttachMouseWheelToHwndUx = nullptr;
+	static inline decltype(::DCompositionBoostCompositorClock)* DCompositionBoostCompositorClockUx = nullptr;
+	static inline decltype(::DCompositionGetFrameId)* DCompositionGetFrameIdUx = nullptr;
+	static inline decltype(::DCompositionGetStatistics)* DCompositionGetStatisticsUx = nullptr;
+	static inline decltype(::DCompositionGetTargetStatistics)* DCompositionGetTargetStatisticsUx = nullptr;
+	static inline decltype(::DCompositionWaitForCompositorClock)* DCompositionWaitForCompositorClockUx = nullptr;
 
 public:
 	constexpr DcxDCompModule(void) noexcept
@@ -29,6 +39,6 @@ public:
 		_In_opt_ IUnknown* renderingDevice,
 		_In_ REFIID iid,
 		_Outptr_ void** dcompositionDevice
-	);
+	) noexcept;
 };
 #endif // _DCXDCOMPMODULE_H_
