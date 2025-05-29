@@ -2257,7 +2257,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 							SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
 
-							if (!this->IsControlCodeTextEnabled())
+							if (this->IsControlCodeTextDisabled())
 							{
 								SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
 								if (bSelected && this->IsShadowTextEnabled())
