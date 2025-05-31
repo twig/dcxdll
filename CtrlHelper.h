@@ -1162,7 +1162,7 @@ namespace Dcx
 	/// Get the item at a specific point.
 	/// </summary>
 	/// <param name="hListbox"></param>
-	/// <param name="pt"></param>
+	/// <param name="pt">Position in screen coordinates.</param>
 	/// <returns>Item number or -1 if no item</returns>
 	int dcxListBox_GetPointItem(_In_ HWND hListbox, _In_ POINT pt) noexcept;
 

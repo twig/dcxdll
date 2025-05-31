@@ -133,40 +133,43 @@ namespace Dcx
 		if (!hListbox)
 			return -1;
 
-		// do we have any items?
-		if (const auto iCnt = dcxListBox_GetCount(hListbox); iCnt > 0)
-		{
-			RECT rc{};
+		//// do we have any items?
+		//if (const auto iCnt = dcxListBox_GetCount(hListbox); iCnt > 0)
+		//{
+		//	RECT rc{};
+		//
+		//	// check point is in client area.
+		//	if (GetClientRect(hListbox, &rc))
+		//	{
+		//		if (!PtInRect(&rc, pt))
+		//			return -1;
+		//	}
+		//	
+		//	//ListBox_GetTopIndex(hwnd) used instead of zero to make the loop quicker.
+		//
+		//	// loop through items & check for a match
+		//	for (int i = dcxListBox_GetTopIndex(hListbox); i < iCnt; ++i)
+		//	{
+		//		// get items rect
+		//		if (!dcxListBox_GetItemRect(hListbox, i, &rc))
+		//			break;
+		//
+		//		// check if point is within this item.
+		//		if (PtInRect(&rc, pt))
+		//			return i;
+		//	}
+		//}
+		//return -1;
 
-			// check point is in client area.
-			if (GetClientRect(hListbox, &rc))
-			{
-				if (!PtInRect(&rc, pt))
-					return -1;
-			}
-			
-			//ListBox_GetTopIndex(hwnd) used instead of zero to make the loop quicker.
-
-			// loop through items & check for a match
-			for (int i = dcxListBox_GetTopIndex(hListbox); i < iCnt; ++i)
-			{
-				// get items rect
-				if (!dcxListBox_GetItemRect(hListbox, i, &rc))
-					break;
-
-				// check if point is within this item.
-				if (PtInRect(&rc, pt))
-					return i;
-			}
-		}
-		return -1;
+		return LBItemFromPt(hListbox, pt, FALSE);
 	}
 	int dcxListBox_GetHoverItem(_In_ HWND hListbox) noexcept
 	{
 		if (!hListbox)
 			return -1;
 
-		return dcxListBox_GetPointItem(hListbox, Dcx::dcxCursorPos(hListbox));
+		//return dcxListBox_GetPointItem(hListbox, Dcx::dcxCursorPos(hListbox));
+		return dcxListBox_GetPointItem(hListbox, Dcx::dcxCursorPos());
 	}
 	bool dcxListBox_HitTest(_In_ HWND hListbox, _Inout_ LPLVHITTESTINFO phti) noexcept
 	{
