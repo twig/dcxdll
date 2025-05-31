@@ -3103,7 +3103,7 @@ void FreeOSCompatibility() noexcept
 
 	if (UXModule)
 	{
-		Dcx::UXModule.dcxBufferedPaintUnInit();
+		DcxUXModule::dcxBufferedPaintUnInit();
 
 		FreeLibrary(UXModule);
 		UXModule = nullptr;

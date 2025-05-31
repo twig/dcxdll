@@ -814,6 +814,7 @@ struct dcxTextOptions
 	bool m_bTransparent{};
 	bool m_bGlow{};
 	bool m_bNoColours{};
+	bool m_bAlphaBlend{};
 
 	COLORREF m_clrText{ CLR_INVALID };
 	COLORREF m_clrTextBackground{ CLR_INVALID };
@@ -831,6 +832,7 @@ struct dcxTextOptions
 	BYTE m_uShadowAlpha{ 192 };
 	BYTE m_uShadowThickness{ 1 };
 	BYTE m_uGlowSize{ 12 };
+	BYTE m_uAlphaValue{ 255 };
 };
 
 struct dcxTextBreakdown

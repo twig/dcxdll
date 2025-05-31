@@ -292,44 +292,56 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 				m_TextOptions.m_bTransparent = dcx_testflag(tsMask, dcxTextStyles::Transparent);
 			if (dcx_testflag(ts, dcxTextStyles::NewStyle))
 				m_TextOptions.m_bUseNewStyle = dcx_testflag(tsMask, dcxTextStyles::NewStyle);
+			if (dcx_testflag(ts, dcxTextStyles::AlphaBlend))
+				m_TextOptions.m_bAlphaBlend = dcx_testflag(tsMask, dcxTextStyles::AlphaBlend);
 
 			if (const auto tsPen(tsStyleArgs.wildtok(L"outlinesize=*", 1)); !tsPen.empty())
 			{
 				if (const auto iPen = tsPen.gettok(2, L'=').to_<UINT>(); (iPen > 0 && iPen <= 20))
 				{
-					m_TextOptions.m_uOutlineSize = gsl::narrow_cast<BYTE>(iPen);
+					m_TextOptions.m_uOutlineSize = gsl::narrow_cast<BYTE>(iPen);	// limit to 1 - 20
 				}
 			}
 			if (const auto tsPen(tsStyleArgs.wildtok(L"shadowoffsetx=*", 1)); !tsPen.empty())
 			{
 				if (const auto iPen = tsPen.gettok(2, L'=').to_<UINT>(); (iPen > 0 && iPen <= 20))
 				{
-					m_TextOptions.m_uShadowXOffset = gsl::narrow_cast<BYTE>(iPen);
+					m_TextOptions.m_uShadowXOffset = gsl::narrow_cast<BYTE>(iPen);	// limit to 1 - 20
 				}
 			}
 			if (const auto tsPen(tsStyleArgs.wildtok(L"shadowoffsety=*", 1)); !tsPen.empty())
 			{
 				if (const auto iPen = tsPen.gettok(2, L'=').to_<UINT>(); (iPen > 0 && iPen <= 20))
 				{
-					m_TextOptions.m_uShadowYOffset = gsl::narrow_cast<BYTE>(iPen);
+					m_TextOptions.m_uShadowYOffset = gsl::narrow_cast<BYTE>(iPen);	// limit to 1 - 20
 				}
 			}
 			if (const auto tsPen(tsStyleArgs.wildtok(L"shadowalpha=*", 1)); !tsPen.empty())
 			{
-				m_TextOptions.m_uShadowAlpha = gsl::narrow_cast<BYTE>(tsPen.gettok(2, L'=').to_<UINT>());
+				if (const auto iPen = tsPen.gettok(2, L'=').to_<UINT>(); (iPen >= 0 && iPen <= 255))
+				{
+					m_TextOptions.m_uShadowAlpha = (gsl::narrow_cast<BYTE>(iPen) & 0xFFu);	// limit to 0 - 255
+			}
 			}
 			if (const auto tsPen(tsStyleArgs.wildtok(L"shadowsize=*", 1)); !tsPen.empty())
 			{
 				if (const auto iPen = tsPen.gettok(2, L'=').to_<UINT>(); (iPen > 0 && iPen <= 20))
 				{
-					m_TextOptions.m_uShadowThickness = gsl::narrow_cast<BYTE>(iPen);
+					m_TextOptions.m_uShadowThickness = gsl::narrow_cast<BYTE>(iPen);	// limit to 1 - 20
 				}
 			}
 			if (const auto tsPen(tsStyleArgs.wildtok(L"glowsize=*", 1)); !tsPen.empty())
 			{
 				if (const auto iPen = tsPen.gettok(2, L'=').to_<UINT>(); (iPen > 0 && iPen <= 20))
 				{
-					m_TextOptions.m_uGlowSize = gsl::narrow_cast<BYTE>(iPen);
+					m_TextOptions.m_uGlowSize = gsl::narrow_cast<BYTE>(iPen);	// limit to 1 - 20
+		}
+			}
+			if (const auto tsPen(tsStyleArgs.wildtok(L"alpha=*", 1)); !tsPen.empty())
+			{
+				if (const auto iPen = tsPen.gettok(2, L'=').to_<UINT>(); (iPen >= 0 && iPen <= 255))
+				{
+					m_TextOptions.m_uAlphaValue = (gsl::narrow_cast<BYTE>(iPen) & 0xFFu);	// limit to 0 - 255
 		}
 			}
 		}
@@ -1986,6 +1998,9 @@ dcxTextStyles DcxControl::parseTextStyles(const TString& tsStyles)
 		case L"newstyle"_hash:
 			ts |= dcxTextStyles::NewStyle;
 			break;
+		case L"alpha"_hash:
+			ts |= dcxTextStyles::AlphaBlend;
+			break;
 		default:
 			break;
 		}
@@ -2990,15 +3005,15 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, cons
 		return;
 
 	//Ook: This version causes issues when control is disabled, text isnt drawn disabled.
-	//const auto oldClr = SetTextColor(hdc, m_clrText);
+	//const auto oldClr = SetTextColor(hdc, m_TextOptions.m_clrText);
 	//Auto(SetTextColor(hdc, oldClr));
-	//if (!this->IsControlCodeTextEnabled())
+	//if (this->IsControlCodeTextDisabled())
 	//{
 	//	const auto oldBkgMode = SetBkMode(hdc, TRANSPARENT);
 	//	Auto(SetBkMode(hdc, oldBkgMode));
 	//
 	//	if (this->IsShadowTextEnabled())
-	//		dcxDrawShadowText(hdc, txt.to_chr(), txt.len(), rc, style, this->m_clrText, 0, 5, 5);
+	//		dcxDrawShadowText(hdc, txt.to_chr(), txt.len(), rc, style, m_TextOptions.m_clrText, m_TextOptions.m_clrShadow, 5, 5);
 	//	else
 	//		DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(txt.len()), rc, style);
 	//}
@@ -3008,6 +3023,8 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, cons
 	dcxTextOptions dTO = this->m_TextOptions;
 	dTO.m_bTransparent = dTO.m_bNoCtrlCodes;
 	//dTO.m_clrTextBackground = this->getBackTextColor();
+
+	// If ctrl is disabled then no colours or ctrl codes in text, & set colour to grayed.
 	if (!IsWindowEnabled(m_Hwnd))
 	{
 		dTO.m_bNoCtrlCodes = true;
@@ -3024,14 +3041,11 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, cons
 	{
 	dcxDrawTextOptions(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), rc, style, dTO);
 
+		//dcxDrawGDIPlusTextOptions(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), rc, style, dTO);
+
 	//dcxDrawGradientTextMasked(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), rc, style, dTO);
 
 	//dcxDrawGradientText(hdc, txt.to_wchr(), gsl::narrow_cast<int>(txt.len()), rc, style, dTO);
-
-	//const auto vec = dcxBreakdownmIRCText(txt);
-	//if (vec.empty())
-	//	return;
-	//mIRC_DrawBreakdown(hdc, vec, rc, style, dTO);
 	}
 	else {
 		const auto oldClr = SetTextColor(hdc, dTO.m_clrText);
@@ -3053,7 +3067,7 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, cons
 			mIRC_DrawText(hdc, txt, rc, style, dTO.m_bShadow);
 	}
 
-	//if (!this->IsControlCodeTextEnabled())
+	//if (this->IsControlCodeTextDisabled())
 	//{
 	//	const auto oldBkgMode = SetBkMode(hdc, TRANSPARENT);
 	//	Auto(SetBkMode(hdc, oldBkgMode));
@@ -3066,7 +3080,7 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, cons
 	//else
 	//	mIRC_DrawText(hdc, txt, rc, style, this->IsShadowTextEnabled());
 	//}
-	//if (!this->IsControlCodeTextEnabled())
+	//if (this->IsControlCodeTextDisabled())
 	//{
 	//	const auto oldBkgMode = SetBkMode(hdc, TRANSPARENT);
 	//	Auto(SetBkMode(hdc, oldBkgMode));

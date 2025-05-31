@@ -120,7 +120,8 @@ enum class dcxTextStyles
 	Glow					= 0x00000200,
 	DblOutline				= 0x00000400,
 	Transparent				= 0x00000800,
-	NewStyle				= 0x00001000
+	NewStyle				= 0x00001000,
+	AlphaBlend				= 0x00002000
 };
 
 // icon sizes...
