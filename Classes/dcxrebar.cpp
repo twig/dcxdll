@@ -26,7 +26,7 @@
   * \param styles Window Style Tokenized List
   */
 DcxReBar::DcxReBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
-	: DcxControl(ID, p_Dialog)
+	: DcxControl(ID, p_Dialog, DcxControlTypes::REBAR)
 {
 	const auto ws = parseControlStyles(styles);
 
@@ -50,7 +50,7 @@ DcxReBar::DcxReBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialo
 
 	setNoThemed(ws.m_NoTheme);
 
-		this->setImageList(this->createImageList());
+	this->setImageList(this->createImageList());
 
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }

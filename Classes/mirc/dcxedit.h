@@ -21,12 +21,6 @@
 
 class DcxDialog;
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 class DcxEdit final
 	: public DcxControl
 	, virtual public DcxSearchHelper

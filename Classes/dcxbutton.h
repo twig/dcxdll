@@ -74,6 +74,7 @@ public:
 	const TString getStyles(void) const final;
 
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
+
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 private:

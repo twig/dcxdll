@@ -25,7 +25,7 @@
   * \param styles Window Style Tokenized List
   */
 DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ gsl::strict_not_null<DcxDialog* const> p_Dialog, _In_ const HWND mParentHwnd, _In_ const RECT* const rc, _In_ const TString& styles)
-	: DcxControl(ID, p_Dialog)
+	: DcxControl(ID, p_Dialog, DcxControlTypes::PROGRESSBAR)
 	, m_tsText(TEXT("%d %%"_ts))
 {
 	const auto ws = parseControlStyles(styles);

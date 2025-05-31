@@ -40,12 +40,6 @@ using LPDCXENUM = DCXENUM*;
 
 class DcxDialog;
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 class DcxBox final
 	: public DcxControl
 {

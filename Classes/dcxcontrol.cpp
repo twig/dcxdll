@@ -81,6 +81,12 @@ DcxControl::DcxControl(const UINT mID, gsl::strict_not_null<DcxDialog* const> p_
 	m_dEventMask = p_Dialog->getEventMask();	// inherit the parent dialogs event mask
 }
 
+DcxControl::DcxControl(const UINT mID, gsl::strict_not_null<DcxDialog* const> p_Dialog, DcxControlTypes eType) noexcept
+	: DcxControl(mID, p_Dialog)
+{
+	m_eType = eType;
+}
+
 /*!
  * \brief Destructor
  *

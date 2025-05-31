@@ -24,12 +24,6 @@
 
 class DcxDialog;
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 class DcxImage final
 	: public DcxControl
 {

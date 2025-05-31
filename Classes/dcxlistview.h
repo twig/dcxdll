@@ -195,6 +195,7 @@ public:
 	void HandleDragMove(int x, int y) noexcept override;
 
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
+
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:

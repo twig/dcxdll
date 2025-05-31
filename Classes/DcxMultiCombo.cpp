@@ -2,7 +2,7 @@
 #include "DcxMultiCombo.h"
 
 DcxMultiCombo::DcxMultiCombo(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
-	: DcxControl(ID, p_Dialog)
+	: DcxControl(ID, p_Dialog, DcxControlTypes::MULTICOMBO)
 {
 	const auto ws = parseControlStyles(styles);
 

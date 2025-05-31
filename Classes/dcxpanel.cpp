@@ -28,7 +28,7 @@
   * \param styles Window Style Tokenized List
   */
 DcxPanel::DcxPanel(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
-	: DcxControl(ID, p_Dialog)
+	: DcxControl(ID, p_Dialog, DcxControlTypes::PANEL)
 {
 	const auto ws = parseControlStyles(styles);
 

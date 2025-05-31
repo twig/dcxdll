@@ -28,7 +28,7 @@ grey icons
   * \param styles Window Style Tokenized List
   */
 DcxToolBar::DcxToolBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
-	: DcxControl(ID, p_Dialog)
+	: DcxControl(ID, p_Dialog, DcxControlTypes::TOOLBAR)
 {
 	//We need to divide ExStyles and tbExStyles here because the first is used for
 	//global transparent style and the second for arrows style

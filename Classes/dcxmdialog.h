@@ -46,6 +46,7 @@ public:
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::DIALOG; }
 
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
+
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:

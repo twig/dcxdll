@@ -25,7 +25,7 @@
 * \param styles Window Style Tokenized List
 */
 DcxEdit::DcxEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
-	: DcxControl(ID, p_Dialog)
+	: DcxControl(ID, p_Dialog, DcxControlTypes::EDIT)
 {
 	if (!p_Dialog)
 		throw Dcx::dcxException("Unable to get controls parent dialog");
@@ -70,15 +70,9 @@ DcxEdit::DcxEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog,
 	DragAcceptFiles(m_Hwnd, TRUE);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
 DcxEdit::~DcxEdit() noexcept
 {
 }
-
 
 const TString DcxEdit::getStyles(void) const
 {
@@ -206,12 +200,6 @@ void DcxEdit::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 		Dcx::dcxEdit_SetModify(m_Hwnd, FALSE);
 	}
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 dcxWindowStyles DcxEdit::parseControlStyles(const TString& tsStyles)
 {
@@ -505,11 +493,6 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	}
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
 void DcxEdit::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
@@ -904,11 +887,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		this->parseGlobalCommandRequest(input, flags);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
@@ -1697,20 +1675,6 @@ void DcxEdit::DrawClientRect(HDC hdc, unsigned int uMsg, LPARAM lParam)
 				CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(*hdcbuf), lParam);
 				addExStyle(WindowExStyle::Transparent);
 				TransparentBlt(hdc, 0, 0, (rcBkg.right - rcBkg.left), (rcBkg.bottom - rcBkg.top), *hdcbuf, 0, 0, (rcBkg.right - rcBkg.left), (rcBkg.bottom - rcBkg.top), GetPixel(*hdcbuf, 0, 0));
-
-				// fails to show any text
-				//BeginPath(*hdcbuf);
-				//CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(*hdcbuf), lParam);
-				//EndPath(*hdcbuf);
-				//
-				//if (auto hRgn = PathToRegion(*hdcbuf); hRgn)
-				//{
-				//	const auto clr = getTextColor();
-				//	auto hBrush = CreateSolidBrush(clr);
-				//	FillRgn(hdc, hRgn, hBrush);
-				//	DeleteBrush(hBrush);
-				//	DeleteRgn(hRgn);
-				//}
 			}
 		}
 		else CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);

@@ -20,12 +20,6 @@
 
 class DcxDialog;
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 class DcxLine final
 	: public DcxControl
 {

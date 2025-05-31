@@ -76,10 +76,6 @@ public:
 	const TString getStyles(void) const final;
 
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
-//	WNDPROC m_hListProc{ nullptr };
-//	HWND m_hGrid{};
-//	static LRESULT CALLBACK ListProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-//#endif
 
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 };

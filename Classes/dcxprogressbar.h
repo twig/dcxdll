@@ -64,6 +64,7 @@ public:
 	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis) final;
 
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
+
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 	auto getPredictedPos(LPARAM lParam, const int iLower, const int iHigher) const noexcept

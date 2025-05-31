@@ -2,7 +2,7 @@
 #include "DcxWebControl2.h"
 
 DcxWebControl2::DcxWebControl2(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
-	: DcxControl(ID, p_Dialog)
+	: DcxControl(ID, p_Dialog, DcxControlTypes::WEB2CTRL)
 {
 	const auto ws = parseControlStyles(styles);
 

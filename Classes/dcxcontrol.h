@@ -247,6 +247,7 @@ public:
 	GSL_SUPPRESS(c.128) bool operator==(const DcxControl& other) const = delete;
 
 	DcxControl(const UINT mID, gsl::strict_not_null<DcxDialog* const> p_Dialog) noexcept;
+	DcxControl(const UINT mID, gsl::strict_not_null<DcxDialog* const> p_Dialog, DcxControlTypes eType) noexcept;
 	~DcxControl() noexcept;
 
 	virtual dcxWindowStyles parseControlStyles(const TString& tsStyles) = 0;
@@ -281,6 +282,7 @@ public:
 
 	virtual const TString getType() const = 0;
 	virtual const DcxControlTypes getControlType() const noexcept = 0;
+	const DcxControlTypes& getGeneralControlType() const noexcept { return m_eType; }
 
 	virtual const TString getStyles(void) const;
 	void toXml(TiXmlElement* const xml) const override;
@@ -492,6 +494,8 @@ public:
 protected:
 	//private:
 	static inline bool m_bInitialized{ false };
+
+	DcxControlTypes m_eType{ DcxControlTypes::UNKNOWN };
 
 	//DcxDialog* m_pParentDialog{ nullptr };	//!< Parent DcxDialog object
 	gsl::strict_not_null<DcxDialog*> m_pParentDialog;	//!< Parent DcxDialog object
