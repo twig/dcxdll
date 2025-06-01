@@ -1182,6 +1182,51 @@ namespace Dcx
 	/// <returns>true on success</returns>
 	bool dcxListBox_HitTest(_In_ HWND hListbox, _Inout_ LPLVHITTESTINFO phti) noexcept;
 
+	/// <summary>
+	/// Adds the specified filename to a list box that contains a directory listing.
+	/// </summary>
+	/// <param name="hListbox"></param>
+	/// <param name="szFile">- A pointer to a buffer that specifies the name of the file to add.</param>
+	/// <returns></returns>
+	inline int dcxListBox_AddFile(_In_ HWND hListbox, _In_z_ TCHAR *szFile) noexcept
+	{
+		return gsl::narrow_cast<int>(SendMessage(hListbox, LB_ADDFILE, 0, reinterpret_cast<LPARAM>(szFile)));
+	}
+
+	/// <summary>
+	/// Adds a string to a list box. If the list box does not have the LBS_SORT style, the string is added to the end of the list. Otherwise, the string is inserted into the list and the list is sorted.
+	/// </summary>
+	/// <param name="hListbox"></param>
+	/// <param name="szStr">- A pointer to the null-terminated string that is to be added.</param>
+	/// <returns></returns>
+	inline int dcxListBox_AddString(_In_ HWND hListbox, _In_z_ TCHAR* szStr) noexcept
+	{
+		return ListBox_AddString(hListbox, szStr);
+	}
+
+	/// <summary>
+	/// Deletes a string in a list box.
+	/// </summary>
+	/// <param name="hListbox"></param>
+	/// <param name="iIndex">- The zero-based index of the string to be deleted.</param>
+	/// <returns></returns>
+	inline int dcxListBox_DeleteString(_In_ HWND hListbox, _In_ int iIndex) noexcept
+	{
+		return ListBox_DeleteString(hListbox, iIndex);
+	}
+
+	/// <summary>
+	/// Adds names to the list displayed by a list box. The message adds the names of directories and files that match a specified string and set of file attributes. LB_DIR can also add mapped drive letters to the list box.
+	/// </summary>
+	/// <param name="hListbox"></param>
+	/// <param name="attrs">- The attributes of the files or directories to be added to the list box.</param>
+	/// <param name="szFile">- A pointer to the null - terminated string that specifies an absolute path, relative path, or filename.An absolute path can begin with a drive letter(for example, d:) or a UNC name(for example, \\ machinename\ sharename). If the string specifies a filename or directory that has the attributes specified by the wParam parameter, the filename or directory is added to the list.If the filename or directory name contains wildcard characters(? or *), all files or directories that match the wildcard expression and have the attributes specified by the wParam parameter are added to the list.</param>
+	/// <returns>If the message succeeds, the return value is the zero-based index of the last name added to the list. If an error occurs, the return value is LB_ERR.If there is insufficient space to store the new strings, the return value is LB_ERRSPACE.</returns>
+	inline int dcxListBox_Dir(_In_ HWND hListbox, _In_ UINT attrs, _In_z_ LPCTSTR szFile) noexcept
+	{
+		return ListBox_Dir(hListbox, attrs, szFile);
+	}
+
 	// ToolTip
 
 	/// <summary>

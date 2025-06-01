@@ -2943,7 +2943,7 @@ HFONT CopyHDCSettings(_In_ HDC hSrc, _In_ HDC hDst) noexcept
 	return Dcx::dcxSelectObject(hDst, Dcx::dcxGetCurrentObject<HFONT>(hSrc, OBJ_FONT));
 }
 
-HANDLE CreateHDCBufferNoCopy(_In_ HDC hdc, _Out_ HDC* hdcOut) noexcept
+HANDLE CreateHDCBufferOptions(_In_ HDC hdc, _Out_ HDC* hdcOut, _In_ bool bCopySettings, _In_ bool bCopyContents, _In_ bool bAlpha, _In_ BYTE uAlpha) noexcept
 {
 	if ((!hdc) || (!hdcOut))
 		return nullptr;
@@ -2955,18 +2955,30 @@ HANDLE CreateHDCBufferNoCopy(_In_ HDC hdc, _Out_ HDC* hdcOut) noexcept
 
 	const RECT rcClient = dcxGetCurrentBitmapRect(hdc);
 
+	const BLENDFUNCTION bf{ AC_SRC_OVER,0, uAlpha, 0 };
 	BP_PAINTPARAMS paintParams{ sizeof(BP_PAINTPARAMS),BPPF_ERASE, nullptr, nullptr };
 
+	if (bAlpha)
+		paintParams.pBlendFunction = &bf;
+
 	buf->m_hPaintBuffer = DcxUXModule::dcxBeginBufferedPaint(hdc, &rcClient, BPBF_TOPDOWNDIB /*BPBF_COMPATIBLEBITMAP*/, &paintParams, hdcOut);
+	if (!buf->m_hPaintBuffer)
+		return nullptr;
+
 	buf->m_hHDC = *hdcOut;
 
 	// copy settings from hdc to buffer's hdc.
+	if (bCopySettings)
 	buf->m_hOldFont = CopyHDCSettings(hdc, buf->m_hHDC);
+
+	// copy contents of hdc within area to buffer.
+	if (bCopyContents)
+		BitBlt(buf->m_hHDC, 0, 0, rcClient.right, rcClient.bottom, hdc, 0, 0, SRCCOPY);
 
 	return reinterpret_cast<HANDLE>(buf.release());
 }
 
-void DeleteHDCBufferNoCopy(_In_opt_ HANDLE hBuf) noexcept
+void DeleteHDCBufferOptions(_In_opt_ HANDLE hBuf, bool bDraw) noexcept
 {
 	if (!hBuf)
 		return;
@@ -2976,7 +2988,7 @@ void DeleteHDCBufferNoCopy(_In_opt_ HANDLE hBuf) noexcept
 	if (buf->m_hOldFont)
 		SelectObject(buf->m_hHDC, buf->m_hOldFont);
 
-	DcxUXModule::dcxEndBufferedPaint(buf->m_hPaintBuffer, TRUE);
+	DcxUXModule::dcxEndBufferedPaint(buf->m_hPaintBuffer, bDraw);
 }
 
 gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc)

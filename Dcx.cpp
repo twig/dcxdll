@@ -814,14 +814,6 @@ namespace Dcx {
 	GSL_SUPPRESS(lifetimes)
 	HCURSOR WINAPI XSetCursor(HCURSOR hCursor)
 	{
-		//if (!hCursor)
-		//	return SetCursorUx(hCursor);
-		//
-		//auto hTemp = SystemToCustomCursor(hCursor);
-		//if (!hTemp)
-		//	hTemp = hCursor;
-		//return SetCursorUx(hTemp);
-
 		if (hCursor)
 		{
 			if (auto hTemp = SystemToCustomCursor(hCursor); hTemp)

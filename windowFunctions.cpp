@@ -1751,21 +1751,42 @@ void dcxDrawTextOptions(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT mStyle, 
 	if (vec.empty())
 		return;
 
-	const auto hBufTxt = CreateHDCBuffer(hdc, pRC);
+	//const auto hBufTxt = CreateHDCBuffer(hdc, pRC);
+	//if (!hBufTxt)
+	//	return;
+	//
+	//Auto(DeleteHDCBuffer(hBufTxt));
+	//HDC hdcTxt = *hBufTxt;
+	//if (!hdcTxt)
+	//	return;
+	//RECT rcTxt = *pRC;
+	//OffsetRect(&rcTxt, -rcTxt.left, -rcTxt.top);
+	//if (dTO.m_clrText != CLR_INVALID)
+	//	SetTextColor(hdcTxt, dTO.m_clrText);
+	//
+	//if (dTO.m_clrTextBackground != CLR_INVALID)
+	//	SetBkColor(hdcTxt, dTO.m_clrTextBackground);
+	//
+	//const bool bDoPath = (dTO.m_bFilledOutline || dTO.m_bOutline || dTO.m_bGradientFill);
+	//
+	//if (dTO.m_bTransparent && !bDoPath)
+	//	SetBkMode(hdcTxt, TRANSPARENT);
+	//
+	//mIRC_DrawBreakdown(hdcTxt, vec, &rcTxt, mStyle, dTO);
+	//BitBlt(hdc, pRC->left, pRC->top, pRC->right - pRC->left, pRC->bottom - pRC->top, hdcTxt, 0, 0, SRCCOPY);
+
+
+	HDC hdcTxt{};
+	const auto hBufTxt = CreateHDCBufferOptions(hdc, &hdcTxt, true, true, dTO.m_bAlphaBlend, dTO.m_uAlphaValue);
 	if (!hBufTxt)
 		return;
 
-	Auto(DeleteHDCBuffer(hBufTxt));
-	HDC hdcTxt = *hBufTxt;
+	Auto(DeleteHDCBufferOptions(hBufTxt, true));
 	if (!hdcTxt)
 		return;
 
+	// rcTxt needed as this can be modified by mIRC_DrawBreakdown()
 	RECT rcTxt = *pRC;
-	OffsetRect(&rcTxt, -rcTxt.left, -rcTxt.top);
-
-	//const auto clrTxt = (dTO.m_clrText != CLR_INVALID) ? dTO.m_clrText : GetTextColor(hdcTxt);
-	//const auto clrOutline = (dTO.m_clrOutline != CLR_INVALID) ? dTO.m_clrOutline : GetContrastColour(clrTxt);
-	//SetTextColor(hdcTxt, clrTxt);
 
 	if (dTO.m_clrText != CLR_INVALID)
 		SetTextColor(hdcTxt, dTO.m_clrText);
@@ -1778,119 +1799,7 @@ void dcxDrawTextOptions(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT mStyle, 
 	if (dTO.m_bTransparent && !bDoPath)
 		SetBkMode(hdcTxt, TRANSPARENT);
 
-	//if (bDoPath)
-	//	BeginPath(hdcTxt);
-
 	mIRC_DrawBreakdown(hdcTxt, vec, &rcTxt, mStyle, dTO);
 
-	//if (bDoPath)
-		//{
-	//	EndPath(hdcTxt);
-	//
-	//	auto hOutlinePen = CreatePen(PS_SOLID, dTO.m_uOutlineSize, clrOutline);
-	//	if (!hOutlinePen)
-	//		return;
-	//	Auto(DeletePen(hOutlinePen));
-	//
-	//	auto hOldPen = SelectPen(hdcTxt, hOutlinePen);
-	//	Auto(SelectPen(hdcTxt, hOldPen));
-	//
-	//	auto hFillBrush = CreateSolidBrush(clrTxt);
-	//	if (!hFillBrush)
-			//		return;
-	//	Auto(DeleteBrush(hFillBrush));
-		//
-	//	auto hOldBrush = SelectBrush(hdcTxt, hFillBrush);
-	//	Auto(SelectBrush(hdcTxt, hOldBrush));
-	//
-	//	if (!dTO.m_bGradientFill || dTO.m_bOutline)
-		//	{
-	//		// not a gradient so must be an outline
-	//		if (dTO.m_bFilledOutline)
-	//			StrokeAndFillPath(hdcTxt);
-	//		else
-	//			StrokePath(hdcTxt);
-	//	}
-	//	else {
-	//		if (dTO.m_bGradientOutline)
-	//			WidenPath(hdcTxt);
-	//
-	//		// TODO: fix shadow look for gradient and outlines...
-	//		// TODO: get gradient outlines working... mostly done?
-	//
-	//
-	//		if (dTO.m_bFilledOutline)
-	//			StrokeAndFillPath(hdcTxt);
-	//		else if (dTO.m_bOutline)
-	//			StrokePath(hdcTxt);
-	//		else
-	//			FillPath(hdcTxt);
-	//
-	//		//if (HRGN hRgn = PathToRegion(hdcTxt); hRgn)
-	//		//{
-	//		//	Auto(DeleteRgn(hRgn));
-	//		//	const auto hBufGrad = CreateHDCBuffer(hdc, pRC);
-	//		//	if (!hBufGrad)
-	//		//		return;
-	//		//	Auto(DeleteHDCBuffer(hBufGrad));
-	//		//	HDC hdcGrad = *hBufGrad;
-	//		//	SelectClipRgn(hdcGrad, hRgn);
-	//		//	XPopupMenuItem::DrawGradient(hdcGrad, &rcTxt, dTO.m_clrGradientTextStart, dTO.m_clrGradientTextEnd, dTO.m_bHorizGradientFill);
-	//		//	SelectClipRgn(hdcGrad, nullptr);
-	//		//
-	//		//	if (dTO.m_bFilledOutline)
-	//		//	{
-	//		//		if (auto hOutlineBrush = CreateSolidBrush(clrOutline); hOutlineBrush)
-	//		//		{
-	//		//			Auto(DeleteBrush(hOutlineBrush));
-	//		//
-	//		//			FrameRgn(hdcGrad, hRgn, hOutlineBrush, dTO.m_uOutlineSize, dTO.m_uOutlineSize);
-	//		//		}
-	//		//	}
-	//		//	BitBlt(hdcTxt, 0, 0, rcTxt.right, rcTxt.bottom, hdcGrad, 0, 0, SRCCOPY);
-	//		//}
-	//
-	//		const auto hBufGrad = CreateHDCBuffer(hdc, pRC);
-	//		if (!hBufGrad)
-	//			return;
-	//		Auto(DeleteHDCBuffer(hBufGrad));
-	//		HDC hdcGrad = *hBufGrad;
-	//		if (!hdcGrad)
-	//			return;
-	//
-	//		auto hbmMask = CreateBitmap(rcTxt.right, rcTxt.bottom, 1, 1, nullptr);
-	//		if (!hbmMask)
-	//			return;
-	//		Auto(DeleteBitmap(hbmMask));
-	//
-	//		// create mask
-		//		{
-	//			const auto oldbm = SelectBitmap(hdcGrad, hbmMask);
-	//			Auto(SelectBitmap(hdcGrad, oldbm));
-		//		
-	//			const auto oldClr = SetBkColor(hdcTxt, clrTxt);
-	//			BitBlt(hdcGrad, 0, 0, rcTxt.right, rcTxt.bottom, hdcTxt, 0, 0, SRCCOPY);
-	//			SetBkColor(hdcTxt, oldClr);
-		//		}
-	//		XPopupMenuItem::DrawGradient(hdcGrad, &rcTxt, dTO.m_clrGradientTextStart, dTO.m_clrGradientTextEnd, dTO.m_bHorizGradientFill);
-	//
-	//		if (dTO.m_bGradientOutline)
-	//			StrokePath(hdcTxt);
-	//
-	//		//if (dTO.m_bFilledOutline)
-	//		//	StrokePath(hdcTxt);
-	//
-	//		//constexpr DWORD DSTCOPY = 0x00AA0029;
-	//		//constexpr DWORD hafs = MAKEROP4(SRCCOPY, DSTCOPY);
-	//		//constexpr DWORD hafs = 0xAACC0000;
-	//		//MaskBlt(hdc, pRC->left, pRC->top, rcTxt.right, rcTxt.bottom, hdcGrad, 0, 0, hbmMask, 0, 0, hafs);
-//
-	//		// these points are the wrong way round, BUT they cause the text to be flipped, which is a nice effect for the future.
-	//		//const POINT pts[3]{ {rcTxt.top,rcTxt.left }, { rcTxt.top, rcTxt.right }, { rcTxt.bottom, rcTxt.left } };
-//
-	//		const POINT pts[3]{ { rcTxt.left,rcTxt.top }, { rcTxt.right,rcTxt.top }, { rcTxt.left,rcTxt.bottom } };
-	//		PlgBlt(hdcTxt, &pts[0], hdcGrad, 0, 0, rcTxt.right, rcTxt.bottom, hbmMask, 0, 0);
-		//	}
-		//}
-	BitBlt(hdc, pRC->left, pRC->top, pRC->right - pRC->left, pRC->bottom - pRC->top, hdcTxt, 0, 0, SRCCOPY);
+	BitBlt(hdc, pRC->left, pRC->top, pRC->right - pRC->left, pRC->bottom - pRC->top, hdcTxt, pRC->left, pRC->top, SRCCOPY);
 }
