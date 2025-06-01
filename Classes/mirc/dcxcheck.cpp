@@ -866,8 +866,8 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		return;
 
 	HDC hdcPaint{};
-	const auto hPaintBuf = CreateHDCBufferNoCopy(hdc, &hdcPaint);
-	Auto(DeleteHDCBufferNoCopy(hPaintBuf));
+	const auto hPaintBuf = CreateHDCBufferOptions(hdc, &hdcPaint, true, false, false, 255);
+	Auto(DeleteHDCBufferOptions(hPaintBuf, true));
 
 	if (!hPaintBuf || !hdcPaint)
 		hdcPaint = hdc;
