@@ -21,7 +21,7 @@ static void TraverseChildren(const HTREEITEM hParent, TString& buf, TString& res
 		{
 			{
 				DcxDock::g_wid = DcxDock::getTreebarItemWID(pitem->lParam);
-				const TString tsType(DcxDock::getTreebarItemType(pitem->lParam));
+				const TString tsType(DcxDock::getTreebarItemTypeString(pitem->lParam));
 
 				mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), pitem->lParam, pitem->pszText);
 				mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, pitem->lParam);
@@ -131,7 +131,7 @@ static void TraverseTreebarItems(void)
 		{
 			{
 				DcxDock::g_wid = DcxDock::getTreebarItemWID(item.lParam);
-				TString tsType(DcxDock::getTreebarItemType(item.lParam));
+				TString tsType(DcxDock::getTreebarItemTypeString(item.lParam));
 
 				mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), item.lParam, item.pszText);
 				mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, item.lParam);
@@ -323,7 +323,7 @@ mIRC(xtreebar)
 				case L"nofullrowselect"_hash: // nofullrowselect
 					stylef &= ~TVS_FULLROWSELECT;
 					break;
-				case L"haslines"_hash: // haslines
+				case L"haslines"_hash: // haslines (on by default)
 					stylef |= TVS_HASLINES;
 					stylef &= ~TVS_FULLROWSELECT;	// this style does not work with the TVS_FULLROWSELECT style
 					break;
@@ -587,9 +587,10 @@ mIRC(xtreebar)
 			}
 		}
 		break;
-		case TEXT('T'): // [1|0]
+		case TEXT('T'): // [1|0] (1|0)
 		{ // Take over Treebar drawing
 			DcxDock::g_bTakeOverTreebar = (input.getnexttok().to_int() > 0);	// tok 2
+			DcxDock::g_bTreebarThemedProgress = (input.getnexttok().to_int() > 0);	// tok 3
 			if (DcxDock::g_bTakeOverTreebar)
 			{
 				if (mIRCLinker::isAlias(L"xtreebar_callback"_ts))

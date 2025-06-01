@@ -382,7 +382,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 		if (Dcx::dcxHIWORD(pitem->lParam) != 0)
 		{
 			DcxDock::g_wid = DcxDock::getTreebarItemWID(pitem->lParam);
-			const TString buf(DcxDock::getTreebarItemType(pitem->lParam));
+			const TString buf(DcxDock::getTreebarItemTypeString(pitem->lParam));
 
 			// <item type> <wid> <status>
 			constexpr TCHAR sSel[] = TEXT("selected");
@@ -407,7 +407,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 		if (dcx_testflag(pTvis->itemex.mask, TVIF_TEXT))
 		{
 			DcxDock::g_wid = DcxDock::getTreebarItemWID(pTvis->itemex.lParam);
-			TString buf(DcxDock::getTreebarItemType(pTvis->itemex.lParam));
+			TString buf(DcxDock::getTreebarItemTypeString(pTvis->itemex.lParam));
 
 			mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), pTvis->itemex.lParam, pTvis->itemex.pszText);
 			mIRCLinker::eval(buf, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), buf, pTvis->itemex.lParam);
@@ -588,111 +588,18 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					//case CDDS_PREPAINT:
 					//	return CDRF_NOTIFYITEMDRAW;
 				case CDDS_ITEMPREPAINT:
-				{
-					if (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_HOT))
-					{ // This makes sure the hot colour doesnt show as blue.
-						if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT)) != CLR_INVALID)
-							lpntvcd->clrText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT));
-						else
-							lpntvcd->clrText = GetSysColor(COLOR_HOTLIGHT);
-
-						if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)) != CLR_INVALID) // only set a bkg colour if one is set in prefs.
-							lpntvcd->clrTextBk = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG));
-					}
-					if (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED))
-					{ // This makes sure the selected colour doesnt show as grayed.
-						if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED)) != CLR_INVALID)
-							lpntvcd->clrText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED));
-						else
-							lpntvcd->clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);
-
-						if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG)) != CLR_INVALID)
-							lpntvcd->clrTextBk = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG));
-						else
-							lpntvcd->clrTextBk = GetSysColor(COLOR_HIGHLIGHT);
-					}
-					else {
-						TString buf;
-
-						if (const auto wid = DcxDock::getTreebarItemWID(lpntvcd->nmcd.lItemlParam); wid > 0)
-							mIRCLinker::eval(buf, TEXT("$window(@%).sbcolor"), wid);
-
-						if (!buf.empty())
-						{
-							COLORREF cText = CLR_INVALID, cBkg = CLR_INVALID;
-							switch (std::hash<TString>{}(buf))
-							{
-							case L"message"_hash:
-							{
-								cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MESSAGE));
-								cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MESSAGE_BKG));
-							}
-							break;
-							case L"event"_hash:
-								cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_EVENT));
-								cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_EVENT_BKG));
-								break;
-							case L"highlight"_hash:
-								cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT));
-								cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT_BKG));
-								break;
-							default:
-								break;
-							}
-							if (cText != CLR_INVALID) // text colour
-								lpntvcd->clrText = cText;
-							if (cBkg != CLR_INVALID) // bkg colour
-								lpntvcd->clrTextBk = cBkg;
-						}
-					}
-					// mIRC default return is CDRF_SKIPDEFAULT
-
-					//return CDRF_NEWFONT;
-
-					return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
-				}
+					return treebar_PrePaint(lpntvcd);
 
 				case CDDS_ITEMPOSTPAINT:
-				{
-					// This fixes the dcc progress & custom window -qS:P not showing in treebar
-					if (const auto wid = DcxDock::getTreebarItemWID(lpntvcd->nmcd.lItemlParam); wid > 0)
-					{
-						TString buf;
-						mIRCLinker::eval(buf, TEXT("$window(@%).pbstate"), wid);
-
-						if (buf.to_<int>() > 0)
-						{
-							mIRCLinker::eval(buf, TEXT("$window(@%).pbpercent"), wid);
-							const int perc = buf.to_<int>();
-
-							COLORREF clr = RGB(0, 255, 0);
-							if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR)) != CLR_INVALID)
-								clr = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR));
-							COLORREF clrbkg = RGB(0, 0, 0);
-							if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG)) != CLR_INVALID)
-								clrbkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG));
-
-							RECT rcTxt{};
-							auto hItem = reinterpret_cast<HTREEITEM>(lpntvcd->nmcd.dwItemSpec);
-
-							Dcx::dcxTreeView_GetItemRect(lpntvcd->nmcd.hdr.hwndFrom, hItem, &rcTxt, true);
-							RECT rcBar{ rcTxt };
-							rcBar.top = rcBar.bottom - 2;
-							rcBar.right = lpntvcd->nmcd.rc.right;
-
-							if (perc < 100)
-							{
-								Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcBar, clrbkg);
-								rcBar.right = rcBar.left + gsl::narrow_cast<LONG>(((gsl::narrow_cast<double>(rcBar.right) - gsl::narrow_cast<double>(rcBar.left)) / 100.0) * gsl::narrow_cast<double>(perc));
-							}
-							Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcBar, clr);
-						}
-					}
-				}
-				[[fallthrough]];
+					return treebar_PostPaint(lpntvcd);
 				default:
-					return CallWindowProc(pthis->m_OldDockWndProc, mHwnd, uMsg, wParam, lParam);
-					//return CDRF_DODEFAULT;
+					break;
+				//default:
+				//{
+				//	if (pthis->m_OldDockWndProc)
+				//		return CallWindowProc(pthis->m_OldDockWndProc, mHwnd, uMsg, wParam, lParam);
+				//	return CDRF_DODEFAULT;
+				//}
 				}
 			}
 			break;
@@ -700,29 +607,8 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 			{
 				if (dcxlParam(LPNMTVGETINFOTIP, tcgit); tcgit)
 				{
-					if (tcgit->cchTextMax < 1)
+					if (!treebar_GetInfoTip(tcgit))
 						break;
-
-					TString buf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
-					TVITEMEX item{};
-
-					item.hItem = tcgit->hItem;
-					item.pszText = buf.to_chr();
-					item.cchTextMax = MIRC_BUFFER_SIZE_CCH;
-					item.mask = TVIF_TEXT | TVIF_PARAM;
-					if (Dcx::dcxTreeView_GetItem(mIRCLinker::getTreeview(), &item))
-					{
-						DcxDock::g_wid = DcxDock::getTreebarItemWID(item.lParam);
-						const TString tsType(DcxDock::getTreebarItemType(item.lParam));
-
-						mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), item.lParam, item.pszText); // <- had wrong args causing instant crash when showing tooltips
-						mIRCLinker::eval(buf, TEXT("$xtreebar_callback(gettooltip,%,\\%dcx_%)"), tsType, item.lParam);
-
-						DcxDock::g_wid = 0;
-
-						if (!buf.empty())
-							dcx_strcpyn(tcgit->pszText, buf.to_chr(), tcgit->cchTextMax);
-					}
 				}
 				return 0L;
 			}
@@ -915,7 +801,7 @@ bool DcxDock::InitStatusbar(const TString& styles)
 	if (IsWindow(g_StatusBar))
 	{
 		if (bNoTheme)
-			Dcx::UXModule.dcxSetWindowTheme(g_StatusBar, L" ", L" ");
+			DcxUXModule::dcxSetWindowTheme(g_StatusBar, L" ", L" ");
 
 		//SendMessage(g_StatusBar, SB_SETUNICODEFORMAT, TRUE, 0);
 		return true;
@@ -1259,7 +1145,7 @@ WORD DcxDock::getTreebarItemWID(const LPARAM lParam) noexcept
 	return 0;
 }
 
-TString DcxDock::getTreebarItemType(const LPARAM lParam)
+TString DcxDock::getTreebarItemTypeString(const LPARAM lParam)
 {
 	TString tsType;
 
@@ -1282,13 +1168,320 @@ TString DcxDock::getTreebarItemType(const LPARAM lParam)
 		break;
 	default:
 	{
-		mIRCLinker::eval(tsType, TEXT("$window(@%).type"), wid);
-		if (tsType.empty())
-			tsType = TEXT("notify");
+		// lParam & 0x001 = status window
+		// lParam & 0x100 = selected
+		if (dcx_testflag(lParam, 0x01))
+			tsType = TEXT("status");
+		else {
+			mIRCLinker::eval(tsType, TEXT("$window(@%).type"), wid);
+			if (tsType.empty())
+				tsType = TEXT("notify");
+		}
 	}
 	break;
 	}
 	return tsType;
+}
+
+TreebarItemTypes DcxDock::getTreebarItemTypeEnum(const LPARAM lParam)
+{
+	TreebarItemTypes eType{ TreebarItemTypes::Unknown };
+
+	switch (const UINT wid = Dcx::dcxHIWORD(lParam); wid)
+	{
+	case 15000: // channel folder
+		eType = TreebarItemTypes::ChannelFolder;
+		break;
+	case 15004: // transfers folder
+		eType = TreebarItemTypes::TransfersFolder;
+		break;
+	case 15006: // window folder
+		eType = TreebarItemTypes::WindowFolder;
+		break;
+	case 15007: // notify folder
+		eType = TreebarItemTypes::NotifyFolder;
+		break;
+	case 0:
+		break;
+	default:
+	{
+		// lParam & 0x001 = status window
+		// lParam & 0x100 = selected
+		if (dcx_testflag(lParam, 0x01))
+			eType = TreebarItemTypes::Status;
+		else {
+			TString tsType;
+			mIRCLinker::eval(tsType, TEXT("$window(@%).type"), wid);
+			if (tsType.empty())
+				eType = TreebarItemTypes::Notify;
+			else {
+				switch (std::hash<TString>()(tsType))
+				{
+				case L"status"_hash:
+					eType = TreebarItemTypes::Status;
+					break;
+				case L"channel"_hash:
+					eType = TreebarItemTypes::Channel;
+					break;
+				case L"custom"_hash:
+					eType = TreebarItemTypes::Channel;
+					break;
+				case L"send"_hash:
+					eType = TreebarItemTypes::DCCSend;
+					break;
+				case L"get"_hash:
+					eType = TreebarItemTypes::DCCGet;
+					break;
+				case L"notify"_hash:
+					eType = TreebarItemTypes::Notify;
+					break;
+				case L"urls"_hash:
+					eType = TreebarItemTypes::Urls;
+					break;
+				default:
+					break;
+				}
+			}
+		}
+	}
+	break;
+	}
+	return eType;
+}
+
+LRESULT DcxDock::treebar_PrePaint(LPNMTVCUSTOMDRAW lpntvcd)
+{
+	if (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_HOT))
+	{ // This makes sure the hot colour doesnt show as blue.
+		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT)) != CLR_INVALID)
+			lpntvcd->clrText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT));
+		else
+			lpntvcd->clrText = GetSysColor(COLOR_HOTLIGHT);
+
+		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)) != CLR_INVALID) // only set a bkg colour if one is set in prefs.
+			lpntvcd->clrTextBk = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG));
+	}
+	if (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED))
+	{ // This makes sure the selected colour doesnt show as grayed.
+		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED)) != CLR_INVALID)
+			lpntvcd->clrText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED));
+		else
+			lpntvcd->clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);
+
+		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG)) != CLR_INVALID)
+			lpntvcd->clrTextBk = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG));
+		else
+			lpntvcd->clrTextBk = GetSysColor(COLOR_HIGHLIGHT);
+	}
+	else {
+		TString buf;
+
+		if (const auto wid = DcxDock::getTreebarItemWID(lpntvcd->nmcd.lItemlParam); wid > 0)
+			mIRCLinker::eval(buf, TEXT("$window(@%).sbcolor"), wid);
+
+		if (!buf.empty())
+		{
+			COLORREF cText = CLR_INVALID, cBkg = CLR_INVALID;
+			switch (std::hash<TString>{}(buf))
+			{
+			case L"message"_hash:
+			{
+				cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MESSAGE));
+				cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MESSAGE_BKG));
+			}
+			break;
+			case L"event"_hash:
+				cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_EVENT));
+				cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_EVENT_BKG));
+				break;
+			case L"highlight"_hash:
+				cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT));
+				cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT_BKG));
+				break;
+			default:
+				break;
+			}
+			if (cText != CLR_INVALID) // text colour
+				lpntvcd->clrText = cText;
+			if (cBkg != CLR_INVALID) // bkg colour
+				lpntvcd->clrTextBk = cBkg;
+		}
+	}
+
+	// mIRC default return is CDRF_SKIPDEFAULT
+
+	//return CDRF_NEWFONT;
+
+	return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
+
+	//{
+	//	treebar_PostPaint(lpntvcd);
+	//}
+	//return CDRF_SKIPDEFAULT;
+}
+
+LRESULT DcxDock::treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd)
+{
+	auto hItem = reinterpret_cast<HTREEITEM>(lpntvcd->nmcd.dwItemSpec);
+	if (!hItem)
+		return CDRF_DODEFAULT;
+
+	RECT rcTxt{}, rcItem{}, rcSelected{};
+	if (!Dcx::dcxTreeView_GetItemRect(lpntvcd->nmcd.hdr.hwndFrom, hItem, &rcItem, false))
+		return CDRF_DODEFAULT;
+	if (!Dcx::dcxTreeView_GetItemRect(lpntvcd->nmcd.hdr.hwndFrom, hItem, &rcTxt, true))
+		return CDRF_DODEFAULT;
+
+	const auto bSelected = (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED));
+	const auto bHot = dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_HOT);
+	const auto ctrlstyles = dcxGetWindowStyle(lpntvcd->nmcd.hdr.hwndFrom);
+	const bool bFullrow = dcx_testflag(ctrlstyles, WindowStyle::TVS_FullRowSelect);
+	const bool bTrackHot = dcx_testflag(ctrlstyles, WindowStyle::TVS_TrackSelect);
+	if (bFullrow)
+		rcSelected = rcItem;
+	else
+		rcSelected = rcTxt;
+	RECT rcBar{ rcTxt };
+	rcBar.right = lpntvcd->nmcd.rc.right;
+
+	const auto tsTxt(Dcx::dcxTreeView_GetItemText(lpntvcd->nmcd.hdr.hwndFrom, hItem));
+
+	// This fixes the dcc progress & custom window -qS:P not showing in treebar
+	if (const auto wid = DcxDock::getTreebarItemWID(lpntvcd->nmcd.lItemlParam); wid > 0)
+	{
+		TString buf;
+
+		//mIRCLinker::eval(buf, TEXT("$window(@%).pbstate $window(@%).pbpercent"), wid, wid);
+		mIRCLinker::eval(buf, TEXT("$_dcx_WIDToPercent(%)"), wid);
+		if (buf.getfirsttok(1).to_<int>() > 0)
+		{
+			const int perc = buf.getnexttokas<int>();
+			if (DcxDock::g_bTreebarThemedProgress && DcxUXModule::dcxIsThemeActive())
+			{
+				if (auto hStyleTheme = DcxUXModule::dcxOpenThemeData(lpntvcd->nmcd.hdr.hwndFrom, VSCLASS_PROGRESS); hStyleTheme)
+				{
+					Auto(DcxUXModule::dcxCloseThemeData(hStyleTheme));
+
+					constexpr int iStyle{ PBFS_NORMAL };
+
+					if (bSelected || (bHot && bTrackHot))
+					{
+						if (!dcxDrawTranslucentRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, lpntvcd->clrTextBk, false))
+							dcxDrawRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, lpntvcd->clrTextBk, false);
+					}
+
+					if (DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(hStyleTheme, PP_BAR, iStyle))
+						DcxUXModule::dcxDrawThemeParentBackground(lpntvcd->nmcd.hdr.hwndFrom, lpntvcd->nmcd.hdc, &rcBar);
+
+					DcxUXModule::dcxDrawThemeBackground(hStyleTheme, lpntvcd->nmcd.hdc, PP_BAR, iStyle, &rcBar, nullptr);
+
+					RECT rcContents{};
+					DcxUXModule::dcxGetThemeBackgroundContentRect(hStyleTheme, lpntvcd->nmcd.hdc, PP_BAR, iStyle, &rcBar, &rcContents);
+
+					rcContents.right = rcContents.left + gsl::narrow_cast<LONG>(((rcContents.right - rcContents.left) / 100.0) * std::clamp(perc, 0, 100));
+					DcxUXModule::dcxDrawThemeBackground(hStyleTheme, lpntvcd->nmcd.hdc, PP_FILL, iStyle, &rcContents, nullptr);
+
+					const auto oldClr = SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
+					const auto oldMode = SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
+					DrawTextW(lpntvcd->nmcd.hdc, tsTxt.to_wchr(), tsTxt.len(), &rcTxt, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
+					SetBkMode(lpntvcd->nmcd.hdc, oldMode);
+					SetTextColor(lpntvcd->nmcd.hdc, oldClr);
+
+					return CDRF_DODEFAULT;
+				}
+			}
+
+			//Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcTxt, lpntvcd->clrTextBk);
+
+			if (bSelected || (bHot && bTrackHot))
+			{
+				if (!dcxDrawTranslucentRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, lpntvcd->clrTextBk, false))
+					dcxDrawRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, lpntvcd->clrTextBk, false);
+			}
+			else
+				Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcTxt, lpntvcd->clrTextBk);
+
+			const auto oldClr = SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
+			const auto oldMode = SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
+			DrawTextW(lpntvcd->nmcd.hdc, tsTxt.to_wchr(), tsTxt.len(), &rcTxt, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
+			SetBkMode(lpntvcd->nmcd.hdc, oldMode);
+			SetTextColor(lpntvcd->nmcd.hdc, oldClr);
+			
+			//if (bSelected || (bHot && bTrackHot))
+			//{
+			//	if (!dcxDrawTranslucentRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, lpntvcd->clrTextBk, false))
+			//		dcxDrawRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, lpntvcd->clrTextBk, false);
+			//}
+
+			// draw thin bar at bottom under text.
+			rcBar.top = rcBar.bottom - 2;
+
+			if (perc < 100)
+			{
+				//COLORREF clrbkg = RGB(0, 0, 0);
+				//COLORREF clrbkg = Dcx::dcxTreeView_GetBkColor(lpntvcd->nmcd.hdr.hwndFrom);
+				COLORREF clrbkg = lpntvcd->clrTextBk;
+				if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG)) != CLR_INVALID)
+					clrbkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG));
+
+				// draw background
+				Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcBar, clrbkg);
+				rcBar.right = rcBar.left + gsl::narrow_cast<LONG>(((gsl::narrow_cast<double>(rcBar.right) - gsl::narrow_cast<double>(rcBar.left)) / 100.0) * gsl::narrow_cast<double>(perc));
+			}
+
+			COLORREF clr = RGB(0, 255, 0);
+			if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR)) != CLR_INVALID)
+				clr = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR));
+
+			// draw percentage bar.
+			Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcBar, clr);
+			return CDRF_DODEFAULT;
+		}
+	}
+
+	if (bSelected || (bHot && bTrackHot))
+	{
+		if (!dcxDrawTranslucentRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, lpntvcd->clrTextBk, false))
+			dcxDrawRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, lpntvcd->clrTextBk, false);
+	}
+	else
+		Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcTxt, lpntvcd->clrTextBk);
+
+	const auto oldClr = SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
+	const auto oldMode = SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
+	DrawTextW(lpntvcd->nmcd.hdc, tsTxt.to_wchr(), tsTxt.len(), &rcTxt, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
+	SetBkMode(lpntvcd->nmcd.hdc, oldMode);
+	SetTextColor(lpntvcd->nmcd.hdc, oldClr);
+	
+	return CDRF_DODEFAULT;
+}
+
+bool DcxDock::treebar_GetInfoTip(LPNMTVGETINFOTIP tcgit)
+{
+	if (tcgit->cchTextMax < 1)
+		return false;
+
+	TString buf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
+	TVITEMEX item{};
+
+	item.hItem = tcgit->hItem;
+	item.pszText = buf.to_chr();
+	item.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+	item.mask = TVIF_TEXT | TVIF_PARAM;
+	if (Dcx::dcxTreeView_GetItem(mIRCLinker::getTreeview(), &item))
+	{
+		DcxDock::g_wid = DcxDock::getTreebarItemWID(item.lParam);
+		const TString tsType(DcxDock::getTreebarItemTypeString(item.lParam));
+
+		mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), item.lParam, item.pszText);
+		mIRCLinker::eval(buf, TEXT("$xtreebar_callback(gettooltip,%,\\%dcx_%)"), tsType, item.lParam);
+
+		DcxDock::g_wid = 0;
+
+		if (!buf.empty())
+			dcx_strcpyn(tcgit->pszText, buf.to_chr(), tcgit->cchTextMax);
+	}
+	return true;
 }
 
 //UINT DcxDock::getTreebarChildState(const HTREEITEM hParent, LPTVITEMEX pitem)

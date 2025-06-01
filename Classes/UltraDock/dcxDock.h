@@ -17,10 +17,11 @@ enum class DockTypes
 	DOCK_TYPE_MDI
 };
 
-//#define DOCK_TYPE_SWITCH	0x00
-//#define DOCK_TYPE_TOOL		0x01
-//#define DOCK_TYPE_TREE		0x02
-//#define DOCK_TYPE_MDI		0x03
+enum class TreebarItemTypes
+	: UINT
+{
+	Unknown, Status, Channel, Custom, DCCSend, DCCGet, Notify, Urls, ChannelFolder = 15000, TransfersFolder = 15004, WindowFolder = 15006, NotifyFolder = 15007
+};
 
 enum class DockFlags
 	: UINT
@@ -195,8 +196,13 @@ public:
 	//
 	static WORD getTreebarItemWID(const LPARAM lParam) noexcept;
 	//
-	static TString getTreebarItemType(const LPARAM lParam);
+	static TString getTreebarItemTypeString(const LPARAM lParam);
+	static TreebarItemTypes getTreebarItemTypeEnum(const LPARAM lParam);
 	//static UINT getTreebarChildState(const HTREEITEM hParent, LPTVITEMEX pitem);
+
+	static LRESULT treebar_PrePaint(LPNMTVCUSTOMDRAW lpntvcd);
+	static LRESULT treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd);
+	static bool treebar_GetInfoTip(LPNMTVGETINFOTIP tcgit);
 
 	// statusbar stuff
 	static inline HWND g_StatusBar{}; //!< The Statusbar for the main mIRC window.
@@ -207,6 +213,7 @@ public:
 	static inline VectorOfDParts g_vParts;	//!< Parts info for ownerdraw parts.
 	// treebar stuff
 	static inline bool g_bTakeOverTreebar{}; //!< take over the drawing of the treebar from mIRC.
+	static inline bool g_bTreebarThemedProgress{}; //!< Use a themed progressbar to display dcc & custom window progress bars.
 
 	// 0 = selected, 1 = selected bkg, 2 = message, 3 = message bkg
 	// 4 = event, 5 = event bkg, 6 = highlight, 7 = highlight bkg
