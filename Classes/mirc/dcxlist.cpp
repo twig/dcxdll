@@ -184,13 +184,13 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 
 		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
 
-		if (nSel < 0 || nSel >= ListBox_GetCount(m_Hwnd))
+		if (nSel < 0 || nSel >= Dcx::dcxListBox_GetCount(m_Hwnd))
 			throw DcxExceptions::dcxOutOfRange();
 
-		if (const auto l = ListBox_GetTextLen(m_Hwnd, nSel); (l == LB_ERR || l >= MIRC_BUFFER_SIZE_CCH))
+		if (const auto l = Dcx::dcxListBox_GetTextLen(m_Hwnd, nSel); (l == LB_ERR || l >= MIRC_BUFFER_SIZE_CCH))
 			throw Dcx::dcxException("String Too Long (Greater than Max chars)");
 
-		ListBox_GetText(m_Hwnd, nSel, szReturnValue);
+		Dcx::dcxListBox_GetText(m_Hwnd, nSel, szReturnValue);
 	}
 	break;
 	// [NAME] [ID] [PROP]
@@ -234,14 +234,14 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 			if (const auto l = ListBox_GetTextLen(m_Hwnd, nSel); (l == LB_ERR && l >= MIRC_BUFFER_SIZE_CCH))
 				throw Dcx::dcxException("String Too Long (Greater than Max chars)");
 
-			ListBox_GetText(m_Hwnd, nSel, szReturnValue);
+			Dcx::dcxListBox_GetText(m_Hwnd, nSel, szReturnValue);
 		}
 	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"num"_hash:
 	{
-		const auto i = ListBox_GetCount(m_Hwnd);
+		const auto i = Dcx::dcxListBox_GetCount(m_Hwnd);
 		_ts_snprintf(szReturnValue, TEXT("%d"), i);
 	}
 	break;
@@ -293,12 +293,12 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		if (!GetClientRect(m_Hwnd, &rc))
 			throw Dcx::dcxException("Unable to get client rect!");
 
-		const auto top = ListBox_GetTopIndex(m_Hwnd);
+		const auto top = Dcx::dcxListBox_GetTopIndex(m_Hwnd);
 		const auto height = ListBox_GetItemHeight(m_Hwnd, 0);
 
 		auto bottom = top + ((rc.bottom - rc.top) / height);
 
-		const auto count = ListBox_GetCount(m_Hwnd);
+		const auto count = Dcx::dcxListBox_GetCount(m_Hwnd);
 
 		if (bottom > count)
 			bottom = count;
@@ -321,7 +321,7 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		const auto SearchType = CharToSearchType(params++[0]);
 
 		const auto N = params++.to_<UINT>();	// tok 2
-		const auto nItems = ListBox_GetCount(m_Hwnd);
+		const auto nItems = Dcx::dcxListBox_GetCount(m_Hwnd);
 
 		dcxSearchData srch_data(matchtext, SearchType);
 
@@ -384,7 +384,7 @@ void DcxList::parseCommandRequest(const TString& input)
 		const auto tsItem(input.getlasttoks());			// tok 5, -1
 
 		if (nPos == -1)
-			nPos = ListBox_GetCount(m_Hwnd);
+			nPos = Dcx::dcxListBox_GetCount(m_Hwnd);
 
 		Dcx::dcxListBox_InsertString(m_Hwnd, nPos, tsItem);
 	}
@@ -586,7 +586,7 @@ void DcxList::parseCommandRequest(const TString& input)
 		const TString tsArgs(input.getlasttoks().trim());
 
 		if (nPos == -1)
-			nPos = ListBox_GetCount(m_Hwnd);
+			nPos = Dcx::dcxListBox_GetCount(m_Hwnd);
 
 		addItems(nPos, tsFlags, tsArgs);
 
@@ -600,7 +600,7 @@ void DcxList::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItems = ListBox_GetCount(m_Hwnd);
+		const auto nItems = Dcx::dcxListBox_GetCount(m_Hwnd);
 
 		if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
 		{
@@ -642,7 +642,7 @@ void DcxList::parseCommandRequest(const TString& input)
 
 		const auto Ns(input.getnexttok());			// tok 4
 
-		const auto nItems = ListBox_GetCount(m_Hwnd);
+		const auto nItems = Dcx::dcxListBox_GetCount(m_Hwnd);
 
 		if (const XSwitchFlags xFlags(input.getnexttok()); xFlags[TEXT('+')])
 		{
@@ -743,9 +743,9 @@ void DcxList::parseCommandRequest(const TString& input)
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nPos == -1)
-			nPos = ListBox_GetCount(m_Hwnd) - 1;
+			nPos = Dcx::dcxListBox_GetCount(m_Hwnd) - 1;
 
-		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
+		if (nPos < 0 && nPos >= Dcx::dcxListBox_GetCount(m_Hwnd))
 			throw DcxExceptions::dcxOutOfRange();
 
 		ListBox_DeleteString(m_Hwnd, nPos);
@@ -774,77 +774,6 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 			return 0L;
 
 		const auto sel = ListBox_GetCurSel(m_Hwnd) + 1;
-		//	TCHAR szRet[20] = { 0 };
-	//
-		//	switch (dli->uNotification)
-		//	{
-		//		// begin dragging item
-		//	case DL_BEGINDRAG:
-		//		{
-		//			// callback DIALOG itemdragbegin THIS_ID DRAGGEDITEM
-		//			evalAliasEx(szRet, Dcx::countof(szRet), TEXT("itemdragbegin,%u,%d"), getUserID(), sel);
-	//
-		//			// cancel drag event
-		//			return (lstrcmpi(szRet, TEXT("nodrag")) != 0);
-		//		}
-		//		// cancel drag
-		//	case DL_CANCELDRAG:
-		//		{
-		//			// callback DIALOG itemdragcancel THIS_ID DRAGGEDITEM
-		//			evalAliasEx(szRet, Dcx::countof(szRet), TEXT("itemdragcancel,%u,%d"), getUserID(), sel);
-			//
-		//			if (m_bUseDrawInsert)
-		//				getParentDialog()->redrawWindow();
-		//			else
-		//				redrawWindow();
-		//		}
-		//		break;
-	//
-		//		// current dragging, as mirc if it needs to change the cursor or not
-		//	case DL_DRAGGING:
-		//		{
-		//			const auto item = LBItemFromPt(m_Hwnd, dli->ptCursor, TRUE);
-	//
-		//			if (m_bUseDrawInsert)
-		//				DrawInsert(this->m_pParentHWND, m_Hwnd, item);
-		//			else
-		//				DrawDragLine(item);
-	//
-		//			// callback DIALOG itemdrag THIS_ID SEL_ITEM MOUSE_OVER_ITEM
-		//			evalAliasEx(szRet, Dcx::countof(szRet), TEXT("itemdrag,%u,%d,%d"), getUserID(), sel, item +1);
-	//
-		//			if (szRet[0] != 0) // check for empty string first
-		//			{
-		//				if (lstrcmpi(szRet, TEXT("stop")) == 0)
-		//					return DL_STOPCURSOR;
-		//				else if (lstrcmpi(szRet, TEXT("copy")) == 0)
-		//					return DL_COPYCURSOR;
-		//			}
-	//
-		//			return DL_MOVECURSOR;
-		//		}
-		//		break;
-	//
-		//		// finish dragging
-		//	case DL_DROPPED:
-		//		{
-		//			// callback DIALOG itemdragfinish THIS_ID SEL_ITEM MOUSE_OVER_ITEM
-		//			const auto item = LBItemFromPt(m_Hwnd, dli->ptCursor, TRUE);
-	//
-		//			execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("itemdragfinish"), getUserID(), sel, item +1);
-	//
-		//			if (m_bUseDrawInsert)
-		//				// refresh m_pParent to remove drawing leftovers
-		//				getParentDialog()->redrawWindow();
-		//			else
-		//				redrawWindow();
-		//		}
-		//		break;
-		//	}
-	//
-		//	return 0L;
-		//}
-
 		const stString<20> szRet;
 
 		switch (dli->uNotification)
@@ -1360,36 +1289,6 @@ bool DcxList::matchItemText(const int nItem, const dcxSearchData& srch_data) con
 
 	return DcxSearchHelper::matchItemText(itemtext.to_chr(), srch_data);
 }
-
-//void DcxList::StrLenToExtent(int *nLineExtent)
-//{ // Get Font sizes (best way i can find atm, if you know something better then please let me know)
-//
-//	HFONT hFont = this->getFont();
-//
-//	if (hFont == nullptr)
-//		return;
-//
-//	HDC hdc = GetDC( m_Hwnd);
-//
-//	if (hdc == nullptr)
-//		return;
-//
-//	TEXTMETRIC tm;
-//
-//	HFONT hOldFont = SelectFont(hdc, hFont);
-//
-//	GetTextMetrics(hdc, &tm);
-//
-//	SelectFont(hdc, hOldFont);
-//
-//	ReleaseDC( m_Hwnd, hdc);
-//
-//	// Multiply max str len by font average width + 1
-//	*nLineExtent *= (tm.tmAveCharWidth + tm.tmOverhang);
-//	// Add 2 * chars as spacer.
-//	*nLineExtent += (tm.tmAveCharWidth * 2);
-//	//*nLineExtent++;
-//}
 
 void DcxList::UpdateHorizExtent(const int nPos)
 {
