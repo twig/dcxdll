@@ -3698,6 +3698,10 @@ void DcxControl::InitializeDcxControls()
 	if (m_bInitialized)
 		return;
 
+	// Patch ScrollWindowEx() function for List/TreeView custom backgrounds...
+	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Patch ScrollWindowEx..."));
+	ScrollWindowExUx = static_cast<decltype(::ScrollWindowEx)*>(Dcx::PatchAPI("User32.dll", "ScrollWindowEx", DcxControl::XScrollWindowEx));
+
 	// Custom ProgressBar
 	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering ProgressBar..."));
 	dcxRegisterClass<DcxProgressBar>(PROGRESS_CLASS, DCX_PROGRESSBARCLASS);
@@ -3901,4 +3905,42 @@ void DcxControl::UnInitializeDcxControls() noexcept
 		DeleteRgn(DcxWindow::m_hZeroRgn);
 		DcxWindow::m_hZeroRgn = nullptr;
 	}
+
+	Dcx::RemovePatch(DcxControl::ScrollWindowExUx, DcxControl::XScrollWindowEx);
+}
+
+// patch function to allow buffered scrolling for list & treeview controls.
+int WINAPI DcxControl::XScrollWindowEx(_In_ HWND hWnd, _In_ int dx, _In_ int dy, _In_ const RECT* prcScroll, _In_ const RECT* prcClip, _In_ HRGN hrgnUpdate, _Out_ LPRECT prcUpdate, _In_ UINT flags) noexcept
+{
+	if (!ScrollWindowExUx)
+		return ERROR;
+
+	if (const auto pthis = Dcx::dcxGetProp<DcxControl*>(hWnd, TEXT("dcx_cthis")); pthis)
+	{
+		switch (pthis->getGeneralControlType())
+		{
+		default:
+			break;
+		case DcxControlTypes::LIST:
+		{
+			if (pthis->isExStyle(WindowExStyle::Transparent) || pthis->IsAlphaBlend())
+			{
+				InvalidateRect(hWnd, nullptr, /*TRUE*/ FALSE);
+				return SIMPLEREGION;
+			}
+		}
+		break;
+		case DcxControlTypes::TREEVIEW:
+		{
+			if (const auto pTree = dynamic_cast<DcxTreeView*>(pthis); pTree->isExStyle(WindowExStyle::Transparent) || pTree->IsAlphaBlend() || pTree->isBkgImage())
+			{
+				InvalidateRect(hWnd, nullptr, /*TRUE*/ FALSE);
+				return SIMPLEREGION;
+			}
+		}
+		break;
+		}
+	}
+
+	return ScrollWindowExUx(hWnd, dx, dy, prcScroll, prcClip, hrgnUpdate, prcUpdate, flags);
 }

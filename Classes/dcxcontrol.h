@@ -490,6 +490,7 @@ public:
 
 	static void InitializeDcxControls();
 	static void UnInitializeDcxControls() noexcept;
+	static int WINAPI XScrollWindowEx(_In_ HWND hWnd, _In_ int dx, _In_ int dy, _In_ const RECT* prcScroll, _In_ const RECT* prcClip, _In_ HRGN hrgnUpdate, _Out_ LPRECT prcUpdate, _In_ UINT flags) noexcept;
 
 protected:
 	//private:
@@ -538,6 +539,8 @@ protected:
 	//bool m_bShadowText{ false };			//!< Text is drawn with a shadow.
 	//bool m_bCtrlCodeText{ true };			//!< mIRC's ctrl codes are used to change the text's appearance.
 	bool m_bNoThemed{ true };				//!< Is Control themed.
+
+	static inline decltype(::ScrollWindowEx)* ScrollWindowExUx{};
 
 	/* ***** */
 //protected:
