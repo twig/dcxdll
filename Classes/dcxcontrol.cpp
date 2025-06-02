@@ -2041,15 +2041,28 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl* const p_thi
 
 	if (!IsWindowEnabled(p_this->m_Hwnd))
 	{// use disabled colouring when windows disabled.
+		//TMT_BACKGROUND
+		//TMT_FILLCOLOR
+		//TMT_BTNFACE
+
+		//if (hTheme && p_this->IsThemed() && DcxUXModule::dcxIsThemeActive())
+		//{
+		//	if (DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
+		//		DcxUXModule::dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
+		//	DcxUXModule::dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, nullptr);
+		//}
+		//else
+		//	FillRect(hdc, &rc, GetSysColorBrush(COLOR_3DFACE));
+
+		COLORREF clr{ CLR_INVALID };
 		if (hTheme && p_this->IsThemed() && DcxUXModule::dcxIsThemeActive())
-		{
-			if (DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
-				DcxUXModule::dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
-			DcxUXModule::dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, nullptr);
+			DcxUXModule::dcxGetThemeColor(hTheme, iPartId, iStateId, TMT_BTNFACE, &clr);
+
+		if (clr == CLR_INVALID)
+			clr = GetSysColor(COLOR_3DFACE);
+
+		Dcx::FillRectColour(hdc, &rc, clr);
 		}
-		else
-			FillRect(hdc, &rc, GetSysColorBrush(COLOR_3DFACE));
-	}
 	else if (p_this->m_bGradientFill)
 	{
 		const auto clrStart = (p_this->getStartGradientColor() != CLR_INVALID) ? p_this->getStartGradientColor() : GetSysColor(COLOR_3DFACE);
@@ -2063,9 +2076,17 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl* const p_thi
 		{
 			if (hTheme && p_this->IsThemed() && DcxUXModule::dcxIsThemeActive())
 			{
-				if (DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
-					DcxUXModule::dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
-				DcxUXModule::dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, nullptr);
+			//	//if (DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
+			//	//	DcxUXModule::dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
+			//	//DcxUXModule::dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, nullptr);
+
+				COLORREF clr{ CLR_INVALID };
+				DcxUXModule::dcxGetThemeColor(hTheme, iPartId, iStateId, TMT_BTNFACE, &clr);
+
+				if (clr == CLR_INVALID)
+					clr = GetSysColor(COLOR_3DFACE);
+
+				Dcx::FillRectColour(hdc, &rc, clr);
 				return;
 			}
 			else
