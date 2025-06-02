@@ -998,7 +998,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 				this->setExStyle(WindowExStyle::Transparent);
 
 			// setting clr none here is required for the image to display properly.
-			Dcx::dcxTreeView_SetBkColor(m_Hwnd, CLR_NONE);
+			//Dcx::dcxTreeView_SetBkColor(m_Hwnd, CLR_NONE);
 		}
 		this->redrawWindow();
 	}
@@ -2046,10 +2046,10 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			if (isExStyle(WindowExStyle::Transparent))
 			{
 				setRedraw(TRUE);
-				//InvalidateRect(m_Hwnd, nullptr, FALSE);
+				InvalidateRect(m_Hwnd, nullptr, FALSE);
 				//UpdateWindow(m_Hwnd);
 				//if (getParentDialog()->IsVistaStyle())
-				redrawWindow();
+				//redrawWindow();
 				//else
 				//	redrawBufferedWindow();
 			}
@@ -2075,7 +2075,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		//		{
 		//			if (m_bCustomDraw)
 		//			{
-		//				const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+		//				CallDefaultClassProc(uMsg, wParam, lParam);
 		//				bParsed = TRUE;
 		//				return (LRESULT)GetStockBrush(BLACK_BRUSH);
 		//			}
@@ -2211,30 +2211,59 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						Dcx::dcxTreeView_GetItemRect(m_Hwnd, hItem, &rcTxt, true);
 						Dcx::dcxTreeView_GetItemRect(m_Hwnd, hItem, &rcItem, false);
 						RECT rcClear = rcItem;
-
-						rcClear.left = rcTxt.left;
-
-						const auto bgClr = (this->getBackColor() != CLR_INVALID) ? this->getBackColor() : GetSysColor(COLOR_WINDOW);
-
-#ifdef DCX_USE_GDIPLUS
-						// Ook: if image supplied the control isnt drawn correctly, no borders or scrollbars etc.. needs looked at
-						if (Dcx::GDIModule.isUseable() && m_pImage.m_pImage)
+						RECT rcSelected = rcItem;
+						if (!this->isStyle(WindowStyle::TVS_FullRowSelect))
 						{
-							if (auto hdc = CreateHDCBuffer(lpntvcd->nmcd.hdc, nullptr); hdc)
-							{
-								Auto(DeleteHDCBuffer(hdc));
+						rcClear.left = rcTxt.left;
+							rcSelected = rcTxt;
+						}
 
-								DrawGDIPlusImage(*hdc);
+						if (m_bTransparent || this->IsAlphaBlend())
+							this->DrawParentsBackground(lpntvcd->nmcd.hdc, &rcClear);
 
-								BitBlt(lpntvcd->nmcd.hdc, rcClear.left, rcClear.top, (rcClear.right - rcClear.left), (rcClear.bottom - rcClear.top), *hdc, rcClear.left, rcClear.top, SRCCOPY);
+//#ifdef DCX_USE_GDIPLUS
+//						if (!m_bTransparent)
+//						{
+//							// Ook: if image supplied the control isnt drawn correctly, no borders or scrollbars etc.. needs looked at
+//							if (m_pImage.m_pImage)
+//							{
+//								if (auto hdc = CreateHDCBuffer(lpntvcd->nmcd.hdc, nullptr); hdc)
+//								{
+//									Auto(DeleteHDCBuffer(hdc));
+//						
+//									//DrawGDIPlusImage(*hdc);
+//									FillBkgBitmap(*hdc);
+//						
+//									BitBlt(lpntvcd->nmcd.hdc, rcClear.left, rcClear.top, (rcClear.right - rcClear.left), (rcClear.bottom - rcClear.top), *hdc, rcClear.left, rcClear.top, SRCCOPY);
+//								}
+//							}
+//							else {
+//								const auto bgClr = (this->getBackColor() != CLR_INVALID) ? this->getBackColor() : (Dcx::dcxTreeView_GetBkColor(m_Hwnd) != CLR_INVALID) ? Dcx::dcxTreeView_GetBkColor(m_Hwnd) : GetSysColor(COLOR_WINDOW);
+//						
+//								Dcx::FillRectColour(lpntvcd->nmcd.hdc, std::addressof(rcClear), bgClr);
+//							}
+//						}
+//#else
+//						if (!m_bTransparent)
+//						{
+//							const auto bgClr = (this->getBackColor() != CLR_INVALID) ? this->getBackColor() : (Dcx::dcxTreeView_GetBkColor(m_Hwnd) != CLR_INVALID) ? Dcx::dcxTreeView_GetBkColor(m_Hwnd) : GetSysColor(COLOR_WINDOW);
+//
+//							Dcx::FillRectColour(lpntvcd->nmcd.hdc, std::addressof(rcClear), bgClr);
+//						}
+//#endif
+
+						if (!m_bTransparent)
+						{
+							if (isBkgImage())
+								FillBkgBitmap(lpntvcd->nmcd.hdc, std::addressof(rcClear));
+							else {
+								if (const auto clr = Dcx::dcxTreeView_GetBkColor(m_Hwnd); clr != CLR_NONE)
+									Dcx::FillRectColour(lpntvcd->nmcd.hdc, std::addressof(rcClear), clr);
 							}
 						}
-						else
-							Dcx::FillRectColour(lpntvcd->nmcd.hdc, std::addressof(rcClear), bgClr);
-#else
-						Dcx::FillRectColour(lpntvcd->nmcd.hdc, std::addressof(rcClear), bgClr);
-#endif
-						const auto DrawSelected = [](HDC hdc, const RECT& rcItem, const RECT& rcTxt, COLORREF clrTextBk) noexcept {
+
+						const auto DrawSelected = [](HDC hdc, const RECT& rcItem, const RECT& rcTxt, COLORREF clrTextBk) noexcept
+						{
 							RECT rcSelected = rcTxt;
 							rcSelected.left = std::max(rcSelected.left - 2, rcItem.left);
 							rcSelected.right = std::min(rcSelected.right + 5, rcItem.right);
@@ -2253,24 +2282,26 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							calcTextRect(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles);
 
 							if (bSelected)
-								DrawSelected(lpntvcd->nmcd.hdc, rcItem, rcTxt, lpntvcd->clrTextBk);
+								DrawSelected(lpntvcd->nmcd.hdc, rcItem, rcSelected, lpntvcd->clrTextBk);
 
 							SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
 
-							if (this->IsControlCodeTextDisabled())
-							{
-								SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
-								if (bSelected && this->IsShadowTextEnabled())
-									dcxDrawShadowText(lpntvcd->nmcd.hdc, tsItem.to_wchr(), gsl::narrow_cast<UINT>(tsItem.len()), std::addressof(rcTxt), TextSyles, lpntvcd->clrText, 0, 5, 5);
-								else
-									DrawTextW(lpntvcd->nmcd.hdc, tsItem.to_wchr(), gsl::narrow_cast<int>(tsItem.len()), std::addressof(rcTxt), TextSyles);
+							//if (this->IsControlCodeTextDisabled())
+							//{
+							//	SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
+							//	if (bSelected && this->IsShadowTextEnabled())
+							//		dcxDrawShadowText(lpntvcd->nmcd.hdc, tsItem.to_wchr(), gsl::narrow_cast<UINT>(tsItem.len()), std::addressof(rcTxt), TextSyles, lpntvcd->clrText, 0, 5, 5);
+							//	else
+							//		DrawTextW(lpntvcd->nmcd.hdc, tsItem.to_wchr(), gsl::narrow_cast<int>(tsItem.len()), std::addressof(rcTxt), TextSyles);
+							//}
+							//else
+							//	mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles, (bSelected && this->IsShadowTextEnabled()));
+
+							this->ctrlDrawText(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles);
 							}
-							else
-								mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles, (bSelected && this->IsShadowTextEnabled()));
-						}
 						else {
 							if (bSelected)
-								DrawSelected(lpntvcd->nmcd.hdc, rcItem, rcTxt, lpntvcd->clrTextBk);
+								DrawSelected(lpntvcd->nmcd.hdc, rcItem, rcSelected, lpntvcd->clrTextBk);
 						}
 					}
 				}
@@ -2362,32 +2393,63 @@ LRESULT DcxTreeView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 #ifdef USE_CUSTOM_TREE_DRAWING
 	case WM_ERASEBKGND:
 	{
-		if (this->IsAlphaBlend() && Dcx::GDIModule.isUseable() && m_pImage.m_pImage)
-		{
-#ifdef DCX_USE_GDIPLUS
-			DrawGDIPlusImage(reinterpret_cast<HDC>(wParam));
-#endif
+		if (!m_bCustomDraw)
+			break;
+		//
+		//			auto hdc = reinterpret_cast<HDC>(wParam);
+		//			if (!hdc)
+		//				break;
+		//	
+		//			auto hBuf = SetupAlphaBlend(&hdc, m_bTransparent);
+		//			Auto(FinishAlphaBlend(hBuf));
+		//	
+		//			//if (this->IsAlphaBlend() || m_bTransparent)
+		//			//	this->DrawParentsBackground(hdc);
+		//	
+		//			if (!m_bTransparent)
+		//			{
+		//#ifdef DCX_USE_GDIPLUS
+		//				if (m_pImage.m_pImage)
+		//					FillBkgBitmap(hdc);
+		//				else
+		//					this->DrawCtrlBackground(hdc, this);
+		//#else
+		//				this->DrawCtrlBackground(hdc, this);
+		//#endif
+		//			}
+		//			bParsed = TRUE;
+		//			return TRUE;
+
 			bParsed = TRUE;
-			return TRUE;
+		return FALSE;
 		}
-	}
 	break;
 
-	case WM_HSCROLL:
-	{
-		if (Dcx::GDIModule.isUseable() && m_pImage.m_pImage && m_Hwnd && m_bCustomDraw)
-		{
-			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
-			bParsed = TRUE;
-			if (HDC hdc = GetDC(m_Hwnd); hdc)
-			{
-				Auto(ReleaseDC(m_Hwnd, hdc));
+	//case WM_VSCROLL:
+	//case WM_HSCROLL:
+	//{
+	//	if (m_pImage.m_pImage && m_Hwnd && m_bCustomDraw)
+	//	{
+	//		bParsed = TRUE;
 
-				DrawClientArea(hdc, WM_PRINTCLIENT, PRF_CLIENT);
+	//		const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+	//		InvalidateRect(m_Hwnd, nullptr, TRUE);
+	//		UpdateWindow(m_Hwnd);
+	//		return lRes;
+	//	}
+	//}
+	//break;
+
+	case WM_SIZE:
+	{
+		//CacheBitmap();
+		if (m_BitmapCache)
+		{
+			const auto hTmp = m_BitmapCache;
+			m_BitmapCache = nullptr;
+			DeleteBitmap(hTmp);
 			}
-			return lRes;
 		}
-	}
 	break;
 
 	//case WM_CTLCOLORSCROLLBAR:
@@ -2464,17 +2526,86 @@ LRESULT CALLBACK DcxTreeView::EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam
 
 void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 {
+	if (!hdc)
+		return;
+
 #ifdef DCX_USE_GDIPLUS
-	if (Dcx::GDIModule.isUseable() && m_pImage.m_pImage)
+	if (m_bCustomDraw /*&& (m_pImage.m_pImage || m_bTransparent)*/)
 	{
+		if (!m_BitmapCache)
+			CacheBitmap(hdc);
+
 		// Setup alpha blend if any. Double Buffer is needed to stop flicker when a bkg image is used.
 		const auto ai = SetupAlphaBlend(&hdc, true);
 		Auto(FinishAlphaBlend(ai));
 
-		DrawGDIPlusImage(hdc);
+		if (!m_bTransparent)
+		{
+#ifdef DCX_USE_GDIPLUS
+			if (isBkgImage())
+				FillBkgBitmap(hdc);
+			else
+				this->DrawCtrlBackground(hdc, this);
+#else
+			this->DrawCtrlBackground(hdc, this);
+#endif
+		}
 
-		//CallDefaultClassProc(WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT | PRF_CHILDREN | PRF_ERASEBKGND);
-		CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+		//if (const auto hdcbufOrig = CreateHDCBuffer(hdc, nullptr); hdcbufOrig)
+		//{
+		//	Auto(DeleteHDCBuffer(hdcbufOrig));
+		//
+		//	CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(*hdcbufOrig), lParam);
+		//
+		//	const auto clr = Dcx::dcxTreeView_GetBkColor(m_Hwnd);
+		//
+		//	const auto sz = dcxGetCurrentBitmapDimensions(hdc);
+		//	if (const auto hdcbuf = CreateHDCBuffer(hdc, nullptr); hdcbuf)
+		//	{
+		//		Auto(DeleteHDCBuffer(hdcbuf));
+		//
+		//		if (m_bTransparent)
+		//			DrawParentsBackground(*hdcbuf);
+		//		else if (m_pImage.m_pImage)
+		//			FillBkgBitmap(*hdcbuf);
+		//
+		//		if (clr == CLR_NONE)
+		//			BitBlt(*hdcbuf, 0, 0, sz.cx, sz.cy, *hdcbufOrig, 0, 0, SRCCOPY);
+		//		else
+		//			TransparentBlt(*hdcbuf, 0, 0, sz.cx, sz.cy, *hdcbufOrig, 0, 0, sz.cx, sz.cy, clr);
+		//
+		//		BitBlt(hdc, 0, 0, sz.cx, sz.cy, *hdcbuf, 0, 0, SRCCOPY);
+		//	}
+		//}
+
+		HDC hdcbufOrig{};
+		if (const auto hbufOrig = CreateHDCBufferOptions(hdc, &hdcbufOrig, true, false, false, 255); hbufOrig)
+		{
+			Auto(DeleteHDCBufferOptions(hbufOrig, false));
+
+			const auto sz = dcxGetCurrentBitmapDimensions(hdc);
+			const auto clr = Dcx::dcxTreeView_GetBkColor(m_Hwnd);
+
+			if (clr != CLR_NONE)
+			{
+				const RECT rc{ 0,0,sz.cx,sz.cy };
+
+				Dcx::FillRectColour(hdcbufOrig, &rc, clr);
+			}
+
+			auto oldBk = SetBkMode(hdcbufOrig, TRANSPARENT);
+			Auto(SetBkMode(hdcbufOrig, oldBk));
+
+			CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdcbufOrig), lParam);
+
+			if (clr == CLR_NONE)
+				BitBlt(hdc, 0, 0, sz.cx, sz.cy, hdcbufOrig, 0, 0, SRCCOPY);
+			else
+				TransparentBlt(hdc, 0, 0, sz.cx, sz.cy, hdcbufOrig, 0, 0, sz.cx, sz.cy, clr);
+
+		}
+
+		//CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 		return;
 	}
 #endif
@@ -2490,6 +2621,8 @@ void DcxTreeView::PreloadData() noexcept
 #ifdef DCX_USE_GDIPLUS
 	//m_pImage.reset(nullptr);
 	m_pImage.reset();
+	if (m_BitmapCache)
+		DeleteBitmap(m_BitmapCache);
 #endif
 }
 
@@ -2544,23 +2677,11 @@ void DcxTreeView::DrawGDIPlusImage(HDC hdc)
 	if (!hdc || !m_Hwnd || !Dcx::GDIModule.isUseable())
 		return;
 
-	Dcx::dcxClientRect rc(m_Hwnd);
+	const Dcx::dcxClientRect rc(m_Hwnd);
 	if (!rc)
 		return;
 
 	const auto w = rc.Width(), h = rc.Height(), x = rc.left, y = rc.top;
-	if (m_bTransparent)
-	{
-		if (!IsAlphaBlend())
-			DrawParentsBackground(hdc, &rc);
-	}
-	else {
-		if (auto hBrush = getBackClrBrush(); hBrush)
-			FillRect(hdc, &rc, hBrush);
-		else
-			Dcx::FillRectColour(hdc, &rc, GetBkColor(hdc));
-	}
-	//GdiFlush();
 
 	Gdiplus::Graphics grphx(hdc);
 
@@ -2593,6 +2714,66 @@ void DcxTreeView::DrawGDIPlusImage(HDC hdc)
 		grphx.DrawImage(m_pImage.m_pImage, m_iXOffset, m_iYOffset, w, h);
 	else
 		grphx.DrawImage(m_pImage.m_pImage, m_iXOffset, m_iYOffset);
+}
+
+void DcxTreeView::CacheBitmap(HDC _hdc)
+{
+	if (!m_pImage.m_pImage)
+	{
+		if (m_BitmapCache)
+			DeleteBitmap(m_BitmapCache);
+		m_BitmapCache = nullptr;
+		return;
+	}
+
+	const auto sz = dcxGetCurrentBitmapDimensions(_hdc);
+
+	if (sz.cx == 0 || sz.cy == 0)
+		return;
+
+	if (auto hdc = CreateCompatibleDC(_hdc); hdc)
+	{
+		Auto(DeleteDC(hdc));
+
+		if (auto hBm = CreateCompatibleBitmap(_hdc, sz.cx, sz.cy); hBm)
+		{
+			{
+				auto oldBm = Dcx::dcxSelectObject(hdc, hBm);
+				Auto(Dcx::dcxSelectObject(hdc, oldBm));
+
+				// fill bitmap
+				DrawGDIPlusImage(hdc);
+			}
+
+			// exchange old & new bitmaps
+			std::swap(hBm, m_BitmapCache);
+
+			// if old bitmap exists, delete it
+			if (hBm)
+				DeleteBitmap(hBm);
+		}
+	}
+}
+void DcxTreeView::FillBkgBitmap(HDC hdc)
+{
+	if (!m_BitmapCache)
+		CacheBitmap(hdc);
+
+	if (!m_BitmapCache)
+		return;
+
+	const auto sz = dcxGetBitmapDimensions(m_BitmapCache);
+	CopyBitmapToHDC(hdc, 0, 0, sz.cx, sz.cy, m_BitmapCache, 0, 0);
+}
+void DcxTreeView::FillBkgBitmap(HDC hdc, LPCRECT prc)
+{
+	if (!m_BitmapCache)
+		CacheBitmap(hdc);
+
+	if (!m_BitmapCache)
+		return;
+
+	CopyBitmapToHDC(hdc, prc->left, prc->top, (prc->right - prc->left), (prc->bottom - prc->top), m_BitmapCache, prc->left, prc->top);
 }
 #endif
 /*

@@ -96,7 +96,7 @@ struct DCXTVSORT
 };
 using LPDCXTVSORT = DCXTVSORT*;
 
- // text, background, line, insert colours alrdy set elsewhere.
+// text, background, line, insert colours alrdy set elsewhere.
 struct DCXTVCOLOURS
 {
 	COLORREF	m_clrSelected{ CLR_INVALID };		//!< Colour of selection box.
@@ -228,6 +228,9 @@ protected:
 #ifdef DCX_USE_GDIPLUS
 	void LoadGDIPlusImage(const TString& flags, TString& filename);
 	void DrawGDIPlusImage(HDC hdc);
+	void CacheBitmap(HDC _hdc);
+	void FillBkgBitmap(HDC hdc);
+	void FillBkgBitmap(_In_ HDC hdc, _In_ LPCRECT prc);
 
 	dcxImage m_pImage;																// Background Image
 	Gdiplus::CompositingQuality m_CQuality{ Gdiplus::CompositingQualityDefault };	// Image Rendering Quality
@@ -239,6 +242,7 @@ protected:
 	bool m_bTransparent{ false };					// Is Control Transparent?
 	int m_iXOffset{};								// Images X Offset
 	int m_iYOffset{};								// Images Y Offset
+	HBITMAP m_BitmapCache{};						// predrawn image bitmap sized to the control (redrawn on resize)
 #endif
 
 	void xmlSaveTree(HTREEITEM hFromItem, const TString& name, TString& filename);
