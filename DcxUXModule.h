@@ -42,6 +42,7 @@ typedef HRESULT(WINAPI* PFNGETTHEMETEXTEXTENT)(_In_ HTHEME hTheme, _In_ HDC hdc,
 typedef HRESULT(WINAPI* PFNDRAWTHEMEPARENTBACKGROUNDEX)(_In_ HWND, _In_ HDC, _In_ DWORD, _In_opt_ LPCRECT);
 //GetThemeBitmap
 //typedef HRESULT (WINAPI *PFNGETTHEMEBITMAP)(HTHEME hTheme,int iPartId,int iStateId,int iPropId,ULONG dwFlags,HBITMAP *phBitmap);
+typedef HRESULT(WINAPI* PFNGETTHEMEPARTSIZE)(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT prc, _In_ THEMESIZE eSize, _Out_ SIZE* psz);
 
 // Vista Function pointers.
 //BufferedPaintInit
@@ -212,6 +213,8 @@ class DcxUXModule final
 	static inline PFNGETTHEMETEXTEXTENT GetThemeTextExtentUx = nullptr;
 	static inline PFNDRAWTHEMEPARENTBACKGROUNDEX DrawThemeParentBackgroundExUx = nullptr;
 	static inline PFNGETTHEMERECT GetThemeRectUx = nullptr;
+	static inline PFNGETTHEMEPARTSIZE GetThemePartSizeUx = nullptr;
+
 	// Vista Function pointers.
 	static inline PFNBUFFEREDPAINTINIT BufferedPaintInitUx = nullptr;
 	static inline PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx = nullptr;
@@ -220,6 +223,7 @@ class DcxUXModule final
 	static inline PFNBUFFEREDPAINTSETALPHA BufferedPaintSetAlphaUx = nullptr;
 	static inline PFNBUFFEREDPAINTCLEAR BufferedPaintClearUx = nullptr;
 	static inline PFNHITTESTTHEMEBACKGROUND HitTestThemeBackgroundUx = nullptr;
+
 	// Win10+ functions
 	static inline decltype(::OpenThemeDataForDpi)* OpenThemeDataForDpiUx = nullptr;
 	// undocumented...
@@ -320,5 +324,7 @@ public:
 	static void dcxRefreshTitleBarThemeColor(_In_opt_ HWND mHwnd) noexcept;
 	static int dcxGetTextGlowSize() noexcept;
 	static COLORREF dcxGetTextGlowColor() noexcept;
+	static HRESULT dcxGetThemePartSize(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT prc, _In_ THEMESIZE eSize, _Out_ SIZE* psz) noexcept;
+	static SIZE dcxGetCheckBoxSize(_In_opt_ HWND hwnd, _In_opt_ HDC hdc, _In_opt_ LPCRECT prc) noexcept;
 };
 #endif // _DCXUXMODULES_H_

@@ -498,7 +498,7 @@ void DcxUXModule::dcxRefreshTitleBarThemeColor(_In_opt_ HWND mHwnd) noexcept
 	{
 		dark = TRUE;
 	}
-	Dcx::DwmModule.dcxDwmSetWindowAttribute(mHwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof(dark));
+	DcxDWMModule::dcxDwmSetWindowAttribute(mHwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof(dark));
 }
 
 int DcxUXModule::dcxGetTextGlowSize() noexcept
@@ -523,4 +523,35 @@ COLORREF DcxUXModule::dcxGetTextGlowColor() noexcept
 		dcxCloseThemeData(hThemeWindow);
 	}
 	return crGlow;
+}
+
+HRESULT DcxUXModule::dcxGetThemePartSize(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT prc, THEMESIZE eSize, SIZE* psz) noexcept
+{
+	if (GetThemePartSizeUx)
+		return GetThemePartSizeUx(hTheme, hdc, iPartId, iStateId, prc, eSize, psz);
+	return E_NOTIMPL;
+}
+
+SIZE DcxUXModule::dcxGetCheckBoxSize(HWND hwnd, HDC hdc, LPCRECT prc) noexcept
+{
+	SIZE sz{ 16, 16 }; // Default value
+
+	bool bGet = true;
+	if (hdc && prc)
+	{
+		if (HTHEME hTheme = dcxOpenThemeData(nullptr, VSCLASS_BUTTON); hTheme)
+		{
+			if (dcxGetThemePartSize(hTheme, hdc, BUTTONPARTS::BP_CHECKBOX, CHECKBOXSTATES::CBS_UNCHECKEDNORMAL, prc, TS_TRUE, &sz) == S_OK)
+				bGet = false;
+
+			dcxCloseThemeData(hTheme);
+		}
+	}
+
+	if (bGet)
+	{
+		sz.cx = DcxDPIModule::dcxGetWindowMetrics(hwnd, SM_CXMENUCHECK); // GetSystemMetrics(SM_CXMENUCHECK);
+		sz.cy = DcxDPIModule::dcxGetWindowMetrics(hwnd, SM_CYMENUCHECK); //GetSystemMetrics(SM_CYMENUCHECK);
+	}
+	return sz;
 }
