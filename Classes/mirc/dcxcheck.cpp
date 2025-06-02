@@ -946,6 +946,9 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 void DcxCheck::ctrlDrawBackground(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus)
 			{
+	if (!hdcPaint || !rc || (rc->right <= rc->left))
+		return;
+
 	if (hTheme)
 	{
 		//if (DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(hTheme, BUTTONPARTS::BP_CHECKBOX, iState))
@@ -968,20 +971,12 @@ void DcxCheck::ctrlDrawBackground(HTHEME hTheme, int iState, HDC hdcPaint, LPREC
 
 void DcxCheck::ctrlDrawCheckBox(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus, bool b3State) noexcept
 {
-	if (rc->right <= rc->left)
+	if (!hdcPaint || !rc || (rc->right <= rc->left))
 		return;
 
 	RECT rcCheck{};
-	SIZE szCheckSize{};
+	const SIZE szCheckSize = DcxUXModule::dcxGetCheckBoxSize(hTheme, m_Hwnd, hdcPaint, rc);
 
-	if (hTheme)
-		DcxUXModule::dcxGetThemePartSize(hTheme, hdcPaint, BUTTONPARTS::BP_CHECKBOX, iState, rc, TS_TRUE, &szCheckSize);
-
-	if ((szCheckSize.cx == 0) && (szCheckSize.cy == 0))
-	{
-		szCheckSize.cx = DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CXMENUCHECK); // GetSystemMetrics(SM_CXMENUCHECK);
-		szCheckSize.cy = DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CYMENUCHECK); //GetSystemMetrics(SM_CYMENUCHECK);
-	}
 	rcCheck.left = rc->left /*+ 1*/;
 	rcCheck.right = rcCheck.left + szCheckSize.cx;
 	// center checkbox vertically in control
@@ -1067,7 +1062,7 @@ void DcxCheck::ctrlDrawCheckBox(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT 
 
 void DcxCheck::ctrlDrawCheckText(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus)
 {
-	if (rc->right <= rc->left)
+	if (!hdcPaint || !rc || (rc->right <= rc->left))
 		return;
 
 	const auto tsText(TGetWindowText(m_Hwnd));

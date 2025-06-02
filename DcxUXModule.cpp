@@ -214,20 +214,13 @@ HRESULT DcxUXModule::dcxSetWindowTheme(_In_ const HWND hwnd, _In_opt_ const LPCW
 
 #pragma warning(push)
 #pragma warning(disable: 26422)
-HRESULT DcxUXModule::dcxCloseThemeData(_In_ gsl::owner<HTHEME> hTheme) noexcept
+HRESULT DcxUXModule::dcxCloseThemeData(_In_opt_ gsl::owner<HTHEME> hTheme) noexcept
 {
-	if (CloseThemeDataUx)
+	if (CloseThemeDataUx && hTheme)
 		return CloseThemeDataUx(hTheme);
 	return E_NOTIMPL;
 }
 #pragma warning(pop)
-
-//int DcxUXModule::dcxGetThemeBackgroundRegion(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPRECT pRect, HRGN *pRegion)
-//{
-//	if (GetThemeBackgroundRegionUx)
-//		return GetThemeBackgroundRegionUx(hTheme, hdc, iPartId, iStateId, pRect, pRegion);
-//	return nullptr;
-//}
 
 BOOL DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId) noexcept
 {
@@ -532,20 +525,15 @@ HRESULT DcxUXModule::dcxGetThemePartSize(HTHEME hTheme, HDC hdc, int iPartId, in
 	return E_NOTIMPL;
 }
 
-SIZE DcxUXModule::dcxGetCheckBoxSize(HWND hwnd, HDC hdc, LPCRECT prc) noexcept
+SIZE DcxUXModule::dcxGetCheckBoxSize(HTHEME hTheme, HWND hwnd, HDC hdc, LPCRECT prc) noexcept
 {
 	SIZE sz{ 16, 16 }; // Default value
 
 	bool bGet = true;
-	if (hdc && prc)
+	if (hdc && prc && hTheme)
 	{
-		if (HTHEME hTheme = dcxOpenThemeData(nullptr, VSCLASS_BUTTON); hTheme)
-		{
-			if (dcxGetThemePartSize(hTheme, hdc, BUTTONPARTS::BP_CHECKBOX, CHECKBOXSTATES::CBS_UNCHECKEDNORMAL, prc, TS_TRUE, &sz) == S_OK)
-				bGet = false;
-
-			dcxCloseThemeData(hTheme);
-		}
+		if (dcxGetThemePartSize(hTheme, hdc, BUTTONPARTS::BP_CHECKBOX, CHECKBOXSTATES::CBS_UNCHECKEDNORMAL, prc, TS_TRUE, &sz) == S_OK)
+			bGet = false;
 	}
 
 	if (bGet)
@@ -554,4 +542,12 @@ SIZE DcxUXModule::dcxGetCheckBoxSize(HWND hwnd, HDC hdc, LPCRECT prc) noexcept
 		sz.cy = DcxDPIModule::dcxGetWindowMetrics(hwnd, SM_CYMENUCHECK); //GetSystemMetrics(SM_CYMENUCHECK);
 	}
 	return sz;
+}
+
+SIZE DcxUXModule::dcxGetCheckBoxSize(HWND hwnd, HDC hdc, LPCRECT prc) noexcept
+{
+	HTHEME hTheme = dcxOpenThemeData(nullptr, VSCLASS_BUTTON);
+	Auto(dcxCloseThemeData(hTheme));
+
+	return dcxGetCheckBoxSize(hTheme, hwnd, hdc, prc);
 }
