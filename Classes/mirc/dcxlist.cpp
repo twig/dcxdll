@@ -857,12 +857,20 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 			{
 			case LBN_SELCHANGE:
 			{
-#ifdef USE_FIX_01
-				if (isExStyle(WindowExStyle::Transparent) && !getParentDialog()->isExStyle(WindowExStyle::Composited))
-					redrawBufferedWindowClient();
-#endif
+				//#ifdef USE_FIX_01
+				//				if (isExStyle(WindowExStyle::Transparent) && !getParentDialog()->isExStyle(WindowExStyle::Composited))
+				//					redrawBufferedWindowClient();
+				//#endif
 
 				const auto nItem = ListBox_GetCurSel(m_Hwnd);
+
+				if (nItem != LB_ERR) 
+				{
+					RECT rcItem{};
+					Dcx::dcxListBox_GetItemRect(m_Hwnd, nItem, &rcItem);
+					InvalidateRect(m_Hwnd, &rcItem, FALSE);
+					UpdateWindow(m_Hwnd);
+				}
 
 				if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
 				{
@@ -873,7 +881,17 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 					this->execAliasEx(TEXT("sclick,%u,%d"), getUserID(), nItem + 1);
 			}
 			break;
-
+			case LBN_SETFOCUS:
+			{
+				if (const auto nItem = ListBox_GetCurSel(m_Hwnd); nItem != LB_ERR)
+				{
+					RECT rcItem{};
+					Dcx::dcxListBox_GetItemRect(m_Hwnd, nItem, &rcItem);
+					InvalidateRect(m_Hwnd, &rcItem, FALSE);
+					UpdateWindow(m_Hwnd);
+				}
+			}
+			break;
 			case LBN_DBLCLK:
 			{
 				const auto nItem = ListBox_GetCurSel(m_Hwnd);
@@ -897,68 +915,11 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 	{
 		dcxlParam(LPDRAWITEMSTRUCT, lpDrawItem);
 
-		if (!lpDrawItem)
-			break;
-
-		const auto len = ListBox_GetTextLen(lpDrawItem->hwndItem, lpDrawItem->itemID);
-		if (len == LB_ERR)
-			break;
-
-		bParsed = TRUE;
-
-		RECT rc{};
-		COLORREF clrText = CLR_INVALID;
-
-		CopyRect(&rc, &lpDrawItem->rcItem);
-#ifdef USE_FIX_01
-		if (isExStyle(WindowExStyle::Transparent) && !getParentDialog()->isExStyle(WindowExStyle::Composited))
-			DrawParentsBackground(lpDrawItem->hDC, &rc);
-		else if (!getBackClrBrush())
-			FillRect(lpDrawItem->hDC, &rc, Dcx::dcxGetStockObject<HBRUSH>(WHITE_BRUSH));
-		else
-			DcxControl::DrawCtrlBackground(lpDrawItem->hDC, this, &rc);
-#else
-		if (!getBackClrBrush())
-			FillRect(lpDrawItem->hDC, &rc, Dcx::dcxGetStockObject<HBRUSH>(WHITE_BRUSH));
-		else
-			DcxControl::DrawCtrlBackground(lpDrawItem->hDC, this, &rc);
-#endif
-		if (dcx_testflag(lpDrawItem->itemState, ODS_SELECTED))
+		if (DrawItem(lpDrawItem))
 		{
-			// fill background with selected colour.
-			FillRect(lpDrawItem->hDC, &rc, GetSysColorBrush(COLOR_HIGHLIGHT));
-			// draw focus rect around selected item.
-			DrawFocusRect(lpDrawItem->hDC, &rc);
-			// set selected text colour.
-			clrText = SetTextColor(lpDrawItem->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
-		}
-		else {
-			// set text colour.
-			if (const auto clr = getTextColor(); clr != CLR_INVALID)
-				clrText = SetTextColor(lpDrawItem->hDC, clr);
-		}
-
-		if (len > 0)
-		{ // Only do all this if theres any text to draw.
-			//TString txt(gsl::narrow_cast<TString::size_type>(len + 1));
-			//ListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID, txt.to_chr());
-
-			const auto txt(Dcx::dcxListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID));
-
-			rc.left += 2;
-
-			const UINT style = (isStyle(WindowStyle::LBS_UseTabStops)) ? DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_EXPANDTABS : DT_LEFT | DT_VCENTER | DT_SINGLELINE;
-
-			//calcStrippedRect(lpDrawItem->hDC, txt, style, &rc, false);
-			//this->calcTextRect(lpDrawItem->hDC, txt, &rc, style); // causes drawing issues with multi column listboxes.
-
-			this->ctrlDrawText(lpDrawItem->hDC, txt, &rc, style);
-		}
-
-		if (clrText != CLR_INVALID)
-			SetTextColor(lpDrawItem->hDC, clrText);
-
+		bParsed = TRUE;
 		return TRUE;
+	}
 	}
 	break;
 
@@ -1014,38 +975,8 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			bParsed = TRUE;
 		}
 #endif
-
-#ifdef USE_FIX_01
-		//if ((Dcx::dcxLOWORD(wParam) == SB_ENDSCROLL) && isExStyle(WindowExStyle::Transparent) && !getParentDialog()->isExStyle(WindowExStyle::Composited))
-		//{
-		//	bParsed = TRUE;
-		//
-		//	const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
-		//
-		//	redrawBufferedWindowClient();
-		//
-		//	return lRes;
-		//}
-#endif
 	}
 		break;
-
-#ifdef USE_FIX_01
-		//case WM_HSCROLL:
-		//{
-		//	if (isExStyle(WindowExStyle::Transparent) && !getParentDialog()->isExStyle(WindowExStyle::Composited))
-		//	{
-		//		bParsed = TRUE;
-	//
-		//		const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
-	//
-		//		redrawBufferedWindowClient();
-	//
-		//		return lRes;
-		//	}
-		//}
-		//break;
-#endif
 
 #ifdef USE_FIX_SCROLL
 	case WM_KEYDOWN:
@@ -1085,6 +1016,13 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		if (!IsAlphaBlend())
 			break;
 
+		//if (!IsAlphaBlend())
+		//	break;
+
+		const bool bDbuf = (isExStyle(WindowExStyle::Transparent) && !IsAlphaBlend());
+
+		bParsed = TRUE;
+
 		if (!wParam)
 		{
 			PAINTSTRUCT ps{};
@@ -1092,21 +1030,17 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			auto hdc = BeginPaint(m_Hwnd, &ps);
 			Auto(EndPaint(m_Hwnd, &ps));
 
-			bParsed = TRUE;
-
 			// Setup alpha blend if any.
-			auto ai = this->SetupAlphaBlend(&hdc);
+			auto ai = this->SetupAlphaBlend(&hdc, bDbuf);
 			Auto(this->FinishAlphaBlend(ai));
 
 			return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 		}
 		else {
-			bParsed = TRUE;
-
 			auto hdc = reinterpret_cast<HDC>(wParam);
 
 			// Setup alpha blend if any.
-			auto ai = this->SetupAlphaBlend(&hdc);
+			auto ai = this->SetupAlphaBlend(&hdc, bDbuf);
 			Auto(this->FinishAlphaBlend(ai));
 
 			return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
@@ -1114,24 +1048,36 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 	}
 	break;
 
-#ifdef USE_FIX_01
+//#ifdef USE_FIX_01
 	// needed for odd bits at bottom/top of control where no item is shown.
-	case WM_ERASEBKGND:
-	{
-		if (isExStyle(WindowExStyle::Transparent) && !getParentDialog()->isExStyle(WindowExStyle::Composited))
-		{
-			auto hdc = reinterpret_cast<HDC>(wParam);
+	//case WM_ERASEBKGND:
+	//{
+	//	if (isExStyle(WindowExStyle::Transparent))
+	//	{
+	//		//auto hdc = reinterpret_cast<HDC>(wParam);
 
-			////DcxControl::DrawCtrlBackground();
+	//		///DcxControl::DrawCtrlBackground(hdc, this);
 
-			DrawParentsBackground(hdc);
+	//		////CleanUpParentCache();
 
-			bParsed = TRUE;
-			return TRUE;
-		}
-	}
-	break;
-#endif
+	//		////CacheParent();
+
+	//		//DrawParentsBackground(hdc);
+
+	//		//RECT rc{};
+	//		//GetClientRect(m_Hwnd, &rc);
+
+	//		//if (!getBackClrBrush())
+	//		//	FillRect(hdc, &rc, Dcx::dcxGetStockObject<HBRUSH>(WHITE_BRUSH));
+	//		//else
+	//		//	DcxControl::DrawCtrlBackground(hdc, this, &rc);
+
+	//		bParsed = TRUE;
+	//		return TRUE;
+	//	}
+	//}
+	//break;
+//#endif
 
 	case WM_DESTROY:
 	{
@@ -1175,8 +1121,9 @@ void DcxList::DrawDragLine(const int location) noexcept
 		return;
 	Auto(ReleaseDC(m_Hwnd, hDC));
 
-	if (const auto hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_WINDOWTEXT)); hPen)
-	{
+	const auto hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_WINDOWTEXT));
+	if (!hPen)
+		return;
 		Auto(DeleteObject(hPen));
 
 		const auto hOldPen = Dcx::dcxSelectObject<HPEN>(hDC, hPen);
@@ -1202,76 +1149,79 @@ void DcxList::DrawDragLine(const int location) noexcept
 		MoveToEx(hDC, lWidth - 2, rc.top - 2, nullptr);
 		LineTo(hDC, lWidth - 2, rc.top + 2);
 	}
+
+bool DcxList::DrawItem(_In_opt_ LPDRAWITEMSTRUCT lpDrawItem)
+{
+	if (!lpDrawItem)
+		return false;
+
+	const auto len = Dcx::dcxListBox_GetTextLen(lpDrawItem->hwndItem, gsl::narrow_cast<int>(lpDrawItem->itemID));
+	if (len == LB_ERR)
+		return false;
+
+	RECT rc{};
+	COLORREF clrText = CLR_INVALID;
+
+	CopyRect(&rc, &lpDrawItem->rcItem);
+//#ifdef USE_FIX_01
+	if (isExStyle(WindowExStyle::Transparent) || IsAlphaBlend())
+		DrawParentsBackground(lpDrawItem->hDC, &rc);
+	else if (!getBackClrBrush())
+		FillRect(lpDrawItem->hDC, &rc, Dcx::dcxGetStockObject<HBRUSH>(WHITE_BRUSH));
+	else
+		DcxControl::DrawCtrlBackground(lpDrawItem->hDC, this, &rc);
+//#else
+//	if (!getBackClrBrush())
+//		FillRect(lpDrawItem->hDC, &rc, Dcx::dcxGetStockObject<HBRUSH>(WHITE_BRUSH));
+//	else
+//		DcxControl::DrawCtrlBackground(lpDrawItem->hDC, this, &rc);
+//#endif
+	if (dcx_testflag(lpDrawItem->itemState, ODS_SELECTED))
+	{
+		// fill background with selected colour.
+		//FillRect(lpDrawItem->hDC, &rc, GetSysColorBrush(COLOR_HIGHLIGHT));
+
+		if (this->m_bSelectBorderOnly)
+		{
+			// this fixes the focus rect disrupting the border
+			RECT rcSel{ rc };
+			InflateRect(&rcSel, -1, -1);
+			if (!dcx_testflag(lpDrawItem->itemState, ODS_FOCUS))
+				dcxDrawBorder(lpDrawItem->hDC, &rcSel, BF_RECT, GetSysColor(COLOR_HIGHLIGHT));
+		}
+		else {
+			if (this->m_bGradientFill)
+				XPopupMenuItem::DrawGradient(lpDrawItem->hDC, &rc, GetSysColor(COLOR_HIGHLIGHT), this->m_clrEndGradient, this->m_bGradientVertical);
+			else
+				FillRect(lpDrawItem->hDC, &rc, GetSysColorBrush(COLOR_HIGHLIGHT));
+		}
+		// set selected text colour.
+		clrText = SetTextColor(lpDrawItem->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
+	}
+	else {
+		// set text colour.
+		if (const auto clr = getTextColor(); clr != CLR_INVALID)
+			clrText = SetTextColor(lpDrawItem->hDC, clr);
+	}
+
+	if (len > 0)
+	{ // Only do all this if theres any text to draw.
+		const auto txt(Dcx::dcxListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID));
+
+		const UINT style = (isStyle(WindowStyle::LBS_UseTabStops)) ? DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_EXPANDTABS : DT_LEFT | DT_VCENTER | DT_SINGLELINE;
+
+		this->ctrlDrawText(lpDrawItem->hDC, txt, &rc, style);
 }
 
-//bool DcxList::matchItemText(const int nItem, const TString &search, const DcxSearchTypes &SearchType) const
-//{
-//	const auto len = ListBox_GetTextLen(m_Hwnd, nItem);
-//
-//	if (len > 0) {
-//		auto itemtext = std::make_unique<TCHAR[]>(len + 1);
-//
-//		ListBox_GetText(m_Hwnd, nItem, itemtext.get());
-//
-//		//switch (SearchType)
-//		//{
-//		//case DcxSearchTypes::SEARCH_R:	// regex match
-//		//	return isRegexMatch(itemtext.get(), search.to_chr());
-//		//case DcxSearchTypes::SEARCH_W:	// wildcard match
-//		//	return TString(itemtext).iswm(search);
-//		//case DcxSearchTypes::SEARCH_E:   // exact match
-//		//	return (dcx_strncmp(itemtext.get(), search.to_chr(), len) == 0);
-//		//}
-//
-//		return DcxListHelper::matchItemText(itemtext.get(), search, SearchType);
-//	}
-//	return false;
-//}
-//
-//void DcxList::getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range)
-//{
-//	//int iStart, iEnd;
-//	//if (tsItems.numtok(TEXT('-')) == 2) {
-//	//	iStart = tsItems.getfirsttok(1, TEXT('-')).to_int() -1;
-//	//	iEnd = tsItems.getnexttok(TEXT('-')).to_int() -1;
-//	//
-//	//	if (iEnd == -1)	// special case
-//	//		iEnd = nItemCnt -1;
-//	//}
-//	//else {
-//	//	iEnd = tsItems.to_int() -1;
-//	//
-//	//	if (iEnd == -1)	// special case
-//	//		iStart = iEnd = nItemCnt -1;
-//	//	else
-//	//		iStart = iEnd;
-//	//}
-//	//*iStart_range = iStart;
-//	//*iEnd_range = iEnd;
-//
-//	std::tie(*iStart_range, *iEnd_range) = getItemRange(tsItems, nItemCnt);
-//}
-//
-//std::pair<int, int> DcxList::getItemRange(const TString &tsItems, const int nItemCnt)
-//{
-//	int iStart, iEnd;
-//	if (tsItems.numtok(TEXT('-')) == 2) {
-//		iStart = tsItems.getfirsttok(1, TEXT('-')).to_int() - 1;
-//		iEnd = tsItems.getnexttok(TEXT('-')).to_int() - 1;
-//
-//		if (iEnd == -1)	// special case
-//			iEnd = nItemCnt - 1;
-//	}
-//	else {
-//		iEnd = tsItems.to_int() - 1;
-//
-//		if (iEnd == -1)	// special case
-//			iStart = iEnd = nItemCnt - 1;
-//		else
-//			iStart = iEnd;
-//	}
-//	return std::make_pair(iStart, iEnd);
-//}
+	// draw focus rect around item.
+	if (dcx_testflag(lpDrawItem->itemState, ODS_FOCUS))
+		DrawFocusRect(lpDrawItem->hDC, &rc);
+
+	if (clrText != CLR_INVALID)
+		SetTextColor(lpDrawItem->hDC, clrText);
+
+	return true;
+}
 
 GSL_SUPPRESS(bounds.4)
 GSL_SUPPRESS(con.4)

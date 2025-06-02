@@ -20,7 +20,7 @@
 #include "Classes\custom\SearchHelper.h"
 
 // Test fix for drawing when transparent.
-#define USE_FIX_01 1
+//#define USE_FIX_01 1
 // this enables a fix for listboxes with >64k items
 #define USE_FIX_SCROLL 1
 
@@ -66,6 +66,7 @@ public:
 
 private:
 	void DrawDragLine(const int location) noexcept;
+	bool DrawItem(_In_opt_ LPDRAWITEMSTRUCT lpDrawItem);
 	bool matchItemText(const int nItem, const TString &search, const DcxSearchTypes &SearchType) const;
 	bool matchItemText(const int nItem, const dcxSearchData &srch_data) const;
 
@@ -84,7 +85,8 @@ private:
 	UINT m_iDragList{};
 	int m_iLastDrawnLine{};
 	bool m_bUseDrawInsert{ true };
-	bool m_bReserved[3]{ false };
+	bool m_bSelectBorderOnly{};
+	bool m_bReserved[2]{ false };
 };
 
 #endif // _DCXLIST_H_
