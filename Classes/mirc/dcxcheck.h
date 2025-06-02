@@ -58,7 +58,7 @@ public:
 private:
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 	void ctrlDrawBackground(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus);
-	void ctrlDrawCheckBox(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus) noexcept;
+	void ctrlDrawCheckBox(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus, bool b3State) noexcept;
 	void ctrlDrawCheckText(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus);
 
 	bool m_bCustom{};

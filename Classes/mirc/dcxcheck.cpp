@@ -379,7 +379,7 @@ LRESULT DcxCheck::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 					this->getParentDialog()->getName(),
 					getUserID());
 			}
-
+			InvalidateRect(m_Hwnd, nullptr, FALSE);
 			break;
 		}
 		default:
@@ -576,8 +576,11 @@ LRESULT DcxCheck::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 	case WM_MOUSEHOVER:
 	{
 		if (!m_bHover && m_bTracking)
+		{
 			m_bHover = true;
+			InvalidateRect(m_Hwnd, nullptr, FALSE);
 			}
+	}
 		break;
 
 	case WM_MOUSELEAVE:
@@ -613,6 +616,13 @@ LRESULT DcxCheck::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 	}
 	break;
 
+	case WM_ENABLE:
+	{
+		InvalidateRect(m_Hwnd, nullptr, FALSE);
+		bParsed = TRUE;
+	}
+	break;
+
 	case WM_ERASEBKGND:
 	{
 		bParsed = TRUE;
@@ -638,6 +648,8 @@ LRESULT DcxCheck::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 
 			this->DrawClientArea(hdc, uMsg, lParam);
 		}
+		else if (wParam)
+			this->DrawClientArea(reinterpret_cast<HDC>(wParam), uMsg, lParam);
 		else {
 			auto hdc = GetDC(m_Hwnd);
 			//auto hdc = GetDCEx(m_Hwnd, nullptr, DCX_CLIPCHILDREN|DCX_CLIPSIBLINGS); // <- Ook: needs testing
@@ -670,7 +682,7 @@ LRESULT DcxCheck::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 {
 	// Setup alpha blend if any.
-	const auto ai = SetupAlphaBlend(&hdc);
+	const auto ai = SetupAlphaBlend(&hdc,true);
 	Auto(FinishAlphaBlend(ai));
 
 	//if (!this->IsThemed() || !DcxUXModule::dcxIsThemeActive())
@@ -866,10 +878,10 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		return;
 
 	HDC hdcPaint{};
-	const auto hPaintBuf = CreateHDCBufferOptions(hdc, &hdcPaint, true, false, false, 255);
-	Auto(DeleteHDCBufferOptions(hPaintBuf, true));
+	//const auto hPaintBuf = CreateHDCBufferOptions(hdc, &hdcPaint, true, false, false, 255);
+	//Auto(DeleteHDCBufferOptions(hPaintBuf, true));
 
-	if (!hPaintBuf || !hdcPaint)
+	//if (!hPaintBuf || !hdcPaint)
 		hdcPaint = hdc;
 
 	const auto hFontOld = Dcx::dcxSelectObject<HFONT>(hdcPaint, getControlFont());
@@ -879,11 +891,16 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	if (this->IsThemed())
 		hTheme = DcxUXModule::dcxGetWindowTheme(m_Hwnd);
 
+	const auto ButtonState = Button_GetCheck(m_Hwnd);
+	const auto winStyle = dcxGetWindowStyle(m_Hwnd);
+
 	const bool bDisabled = !IsWindowEnabled(m_Hwnd);
-	const bool bChecked = (Button_GetCheck(m_Hwnd) == BST_CHECKED);
+	const bool bChecked = (ButtonState == BST_CHECKED);
 	const bool bSelected = m_bSelected;
+	const bool bIndeterminate = (ButtonState == BST_INDETERMINATE);
 	const bool bFocus = (GetFocus() == m_Hwnd);
 	const bool bHot = m_bHot;
+	const bool b3State = (dcx_testflag(winStyle, BS_AUTO3STATE) || dcx_testflag(winStyle, BS_3STATE));
 
 	int iState = CHECKBOXSTATES::CBS_UNCHECKEDNORMAL;
 
@@ -891,6 +908,8 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	{
 		if (bChecked)
 			iState = CHECKBOXSTATES::CBS_CHECKEDDISABLED;
+		else if (b3State && bIndeterminate)
+			iState = CHECKBOXSTATES::CBS_MIXEDDISABLED;
 		else
 			iState = CHECKBOXSTATES::CBS_UNCHECKEDDISABLED;
 	}
@@ -898,6 +917,8 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		{
 		if (bChecked)
 			iState = CHECKBOXSTATES::CBS_CHECKEDPRESSED;
+		else if (b3State && bIndeterminate)
+			iState = CHECKBOXSTATES::CBS_MIXEDPRESSED;
 		else
 			iState = CHECKBOXSTATES::CBS_UNCHECKEDPRESSED;
 	}
@@ -905,14 +926,18 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	{
 		if (bChecked)
 			iState = CHECKBOXSTATES::CBS_CHECKEDHOT;
+		else if (b3State && bIndeterminate)
+			iState = CHECKBOXSTATES::CBS_MIXEDHOT;
 		else
 			iState = CHECKBOXSTATES::CBS_UNCHECKEDHOT;
 	}
 	else if (bChecked)
 		iState = CHECKBOXSTATES::CBS_CHECKEDNORMAL;
+	else if (b3State && bIndeterminate)
+			iState = CHECKBOXSTATES::CBS_MIXEDNORMAL;
 
 	ctrlDrawBackground(hTheme, iState, hdcPaint, &rc, bFocus);
-	ctrlDrawCheckBox(hTheme, iState, hdcPaint, &rc, bFocus);
+	ctrlDrawCheckBox(hTheme, iState, hdcPaint, &rc, bFocus, b3State);
 	ctrlDrawCheckText(hTheme, iState, hdcPaint, &rc, bFocus);
 
 	if (bFocus)
@@ -923,11 +948,16 @@ void DcxCheck::ctrlDrawBackground(HTHEME hTheme, int iState, HDC hdcPaint, LPREC
 			{
 	if (hTheme)
 	{
-		if (DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(hTheme, BUTTONPARTS::BP_CHECKBOX, iState))
-			DcxUXModule::dcxDrawThemeParentBackground(m_Hwnd, hdcPaint, rc);
+		//if (DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(hTheme, BUTTONPARTS::BP_CHECKBOX, iState))
+		//	DcxUXModule::dcxDrawThemeParentBackground(m_Hwnd, hdcPaint, rc);
 		if (!this->isExStyle(WindowExStyle::Transparent))
+		{
+			if (m_bCustom)
 			DcxControl::DrawCtrlBackground(hdcPaint, this, rc);
+			else
+				DcxControl::DrawCtrlBackground(hdcPaint, this, rc, hTheme, BUTTONPARTS::BP_CHECKBOX, iState);
 			}
+	}
 	else {
 		if (this->isExStyle(WindowExStyle::Transparent))
 			this->DrawParentsBackground(hdcPaint, rc);
@@ -936,20 +966,27 @@ void DcxCheck::ctrlDrawBackground(HTHEME hTheme, int iState, HDC hdcPaint, LPREC
 	}
 }
 
-void DcxCheck::ctrlDrawCheckBox(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus) noexcept
+void DcxCheck::ctrlDrawCheckBox(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus, bool b3State) noexcept
 {
 	if (rc->right <= rc->left)
 		return;
 
 	RECT rcCheck{};
-	// square (in future get system value for this)
-	constexpr int iCheckSize = 16;
+	SIZE szCheckSize{};
 
+	if (hTheme)
+		DcxUXModule::dcxGetThemePartSize(hTheme, hdcPaint, BUTTONPARTS::BP_CHECKBOX, iState, rc, TS_TRUE, &szCheckSize);
+
+	if ((szCheckSize.cx == 0) && (szCheckSize.cy == 0))
+	{
+		szCheckSize.cx = DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CXMENUCHECK); // GetSystemMetrics(SM_CXMENUCHECK);
+		szCheckSize.cy = DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CYMENUCHECK); //GetSystemMetrics(SM_CYMENUCHECK);
+	}
 	rcCheck.left = rc->left /*+ 1*/;
-	rcCheck.right = rcCheck.left + iCheckSize;
+	rcCheck.right = rcCheck.left + szCheckSize.cx;
 	// center checkbox vertically in control
-	rcCheck.top = ((rc->bottom - rc->top) / 2) - (iCheckSize / 2);
-	rcCheck.bottom = rcCheck.top + iCheckSize;
+	rcCheck.top = ((rc->bottom - rc->top) / 2) - (szCheckSize.cy / 2);
+	rcCheck.bottom = rcCheck.top + szCheckSize.cy;
 
 	if (this->m_bCustom)
 	{
@@ -991,7 +1028,7 @@ void DcxCheck::ctrlDrawCheckBox(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT 
 		DcxUXModule::dcxDrawThemeBackground(hTheme, hdcPaint, BUTTONPARTS::BP_CHECKBOX, iState, &rcCheck, nullptr);
 	else
 	{
-		DWORD dState{ DFCS_BUTTONCHECK };
+		DWORD dState{ gsl::narrow_cast<DWORD>((b3State ? DFCS_BUTTON3STATE : DFCS_BUTTONCHECK)) };
 
 		switch (iState)
 		{
