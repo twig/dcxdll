@@ -317,6 +317,15 @@ void DcxWindow::redrawBufferedWindowClient()
 	ValidateRect(m_Hwnd, nullptr);
 }
 
+void DcxWindow::InvalidateAndUpdate(_In_opt_ LPCRECT prc, _In_ bool bErase) noexcept
+{
+	if (!m_Hwnd)
+		return;
+
+	InvalidateRect(m_Hwnd, prc, bErase);
+	UpdateWindow(m_Hwnd);
+}
+
 void DcxWindow::HandleChildSizing(SizingTypes sz) const noexcept
 {
 	if (dcx_testflag(sz, SizingTypes::ReBar))
@@ -334,6 +343,24 @@ void DcxWindow::HandleChildSizing(SizingTypes sz) const noexcept
 	if (dcx_testflag(sz, SizingTypes::Toolbar))
 		for (auto bars = FindWindowEx(m_Hwnd, nullptr, DCX_TOOLBARCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_TOOLBARCLASS, nullptr))
 			SendMessage(bars, WM_SIZE, 0U, 0);
+
+	//auto hDWP = BeginDeferWindowPos(1);
+	//if (dcx_testflag(sz, SizingTypes::ReBar))
+	//	for (auto bars = FindWindowEx(m_Hwnd, nullptr, DCX_REBARCTRLCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_REBARCTRLCLASS, nullptr))
+	//		hDWP = DeferWindowPos(hDWP, bars, nullptr, 0,0,0,0, SWP_NOZORDER| SWP_NOSENDCHANGING| SWP_NOOWNERZORDER| SWP_NOMOVE| SWP_NOACTIVATE);
+
+	//if (dcx_testflag(sz, SizingTypes::Status))
+	//	for (auto bars = FindWindowEx(m_Hwnd, nullptr, DCX_STATUSBARCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_STATUSBARCLASS, nullptr))
+	//		hDWP = DeferWindowPos(hDWP, bars, nullptr, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+
+	//if (dcx_testflag(sz, SizingTypes::Panel))
+	//	for (auto bars = FindWindowEx(m_Hwnd, nullptr, DCX_PANELCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_PANELCLASS, nullptr))
+	//		hDWP = DeferWindowPos(hDWP, bars, nullptr, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+
+	//if (dcx_testflag(sz, SizingTypes::Toolbar))
+	//	for (auto bars = FindWindowEx(m_Hwnd, nullptr, DCX_TOOLBARCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_TOOLBARCLASS, nullptr))
+	//		hDWP = DeferWindowPos(hDWP, bars, nullptr, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+	//EndDeferWindowPos(hDWP);
 }
 
 /*!

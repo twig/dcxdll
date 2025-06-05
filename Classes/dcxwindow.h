@@ -221,6 +221,7 @@ public:
 	void redrawWindow() const noexcept;
 	void redrawBufferedWindow();
 	void redrawBufferedWindowClient();
+	void InvalidateAndUpdate(_In_opt_ LPCRECT prc, _In_ bool bErase = false) noexcept;
 
 	void HandleChildSizing(SizingTypes sz) const noexcept;
 
