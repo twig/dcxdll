@@ -227,11 +227,11 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		}
 		// single select
 		else
-			nSel = ListBox_GetCurSel(m_Hwnd);
+			nSel = Dcx::dcxListBox_GetCurSel(m_Hwnd);
 
 		if (nSel > -1)
 		{
-			if (const auto l = ListBox_GetTextLen(m_Hwnd, nSel); (l == LB_ERR && l >= MIRC_BUFFER_SIZE_CCH))
+			if (const auto l = Dcx::dcxListBox_GetTextLen(m_Hwnd, nSel); (l == LB_ERR && l >= MIRC_BUFFER_SIZE_CCH))
 				throw Dcx::dcxException("String Too Long (Greater than Max chars)");
 
 			Dcx::dcxListBox_GetText(m_Hwnd, nSel, szReturnValue);
@@ -280,7 +280,7 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		// single select
 		else
 		{
-			const auto i = ListBox_GetCurSel(m_Hwnd) + 1;
+			const auto i = Dcx::dcxListBox_GetCurSel(m_Hwnd) + 1;
 			_ts_snprintf(szReturnValue, TEXT("%d"), i);
 		}
 	}
@@ -661,7 +661,7 @@ void DcxList::parseCommandRequest(const TString& input)
 			for (auto nPos = Ns.to_int(); nPos < nItems; ++nPos)
 			{
 				if (this->matchItemText(nPos, srch_data))
-					ListBox_DeleteString(m_Hwnd, nPos--);		// NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
+					Dcx::dcxListBox_DeleteString(m_Hwnd, nPos--);		// NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
 			}
 		}
 		else {
@@ -677,7 +677,7 @@ void DcxList::parseCommandRequest(const TString& input)
 						throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
 					for (auto nPos = iStart; nPos <= iEnd; ++nPos)
-						ListBox_DeleteString(m_Hwnd, nPos);
+						Dcx::dcxListBox_DeleteString(m_Hwnd, nPos);
 				}
 			}
 		}
@@ -748,7 +748,7 @@ void DcxList::parseCommandRequest(const TString& input)
 		if (nPos < 0 && nPos >= Dcx::dcxListBox_GetCount(m_Hwnd))
 			throw DcxExceptions::dcxOutOfRange();
 
-		ListBox_DeleteString(m_Hwnd, nPos);
+		Dcx::dcxListBox_DeleteString(m_Hwnd, nPos);
 		Dcx::dcxListBox_InsertString(m_Hwnd, nPos, input.getlasttoks());	// tok 5, -1
 	}
 	//xdid -z [NAME] [ID]
@@ -862,7 +862,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 				//					redrawBufferedWindowClient();
 				//#endif
 
-				const auto nItem = ListBox_GetCurSel(m_Hwnd);
+				const auto nItem = Dcx::dcxListBox_GetCurSel(m_Hwnd);
 
 				if (nItem != LB_ERR) 
 				{
@@ -874,7 +874,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 
 				if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
 				{
-					if (ListBox_GetSel(m_Hwnd, nItem) > 0)
+					if (Dcx::dcxListBox_GetSel(m_Hwnd, nItem) > 0)
 						this->execAliasEx(TEXT("sclick,%u,%d"), getUserID(), nItem + 1);
 				}
 				else if (nItem != LB_ERR)
@@ -883,7 +883,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 			break;
 			case LBN_SETFOCUS:
 			{
-				if (const auto nItem = ListBox_GetCurSel(m_Hwnd); nItem != LB_ERR)
+				if (const auto nItem = Dcx::dcxListBox_GetCurSel(m_Hwnd); nItem != LB_ERR)
 				{
 					RECT rcItem{};
 					Dcx::dcxListBox_GetItemRect(m_Hwnd, nItem, &rcItem);
@@ -894,11 +894,11 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 			break;
 			case LBN_DBLCLK:
 			{
-				const auto nItem = ListBox_GetCurSel(m_Hwnd);
+				const auto nItem = Dcx::dcxListBox_GetCurSel(m_Hwnd);
 
 				if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
 				{
-					if (ListBox_GetSel(m_Hwnd, nItem) > 0)
+					if (Dcx::dcxListBox_GetSel(m_Hwnd, nItem) > 0)
 						this->execAliasEx(TEXT("dclick,%u,%d"), getUserID(), nItem + 1);
 				}
 				else if (nItem != LB_ERR)
@@ -1048,37 +1048,6 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 	}
 	break;
 
-//#ifdef USE_FIX_01
-	// needed for odd bits at bottom/top of control where no item is shown.
-	//case WM_ERASEBKGND:
-	//{
-	//	if (isExStyle(WindowExStyle::Transparent))
-	//	{
-	//		//auto hdc = reinterpret_cast<HDC>(wParam);
-
-	//		///DcxControl::DrawCtrlBackground(hdc, this);
-
-	//		////CleanUpParentCache();
-
-	//		////CacheParent();
-
-	//		//DrawParentsBackground(hdc);
-
-	//		//RECT rc{};
-	//		//GetClientRect(m_Hwnd, &rc);
-
-	//		//if (!getBackClrBrush())
-	//		//	FillRect(hdc, &rc, Dcx::dcxGetStockObject<HBRUSH>(WHITE_BRUSH));
-	//		//else
-	//		//	DcxControl::DrawCtrlBackground(hdc, this, &rc);
-
-	//		bParsed = TRUE;
-	//		return TRUE;
-	//	}
-	//}
-	//break;
-//#endif
-
 	case WM_DESTROY:
 	{
 		this->CallDefaultClassProc(uMsg, wParam, lParam);
@@ -1208,7 +1177,7 @@ bool DcxList::DrawItem(_In_opt_ LPDRAWITEMSTRUCT lpDrawItem)
 	{ // Only do all this if theres any text to draw.
 		const auto txt(Dcx::dcxListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID));
 
-		const UINT style = (isStyle(WindowStyle::LBS_UseTabStops)) ? DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_EXPANDTABS : DT_LEFT | DT_VCENTER | DT_SINGLELINE;
+		const UINT style = DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX | ((isStyle(WindowStyle::LBS_UseTabStops)) ? DT_EXPANDTABS : 0);
 
 		this->ctrlDrawText(lpDrawItem->hDC, txt, &rc, style);
 }
