@@ -451,6 +451,11 @@ public:
 	{
 		--m_iRefCount;
 	};
+
+	/// <summary>
+	/// Get the current ref count for this control.
+	/// </summary>
+	/// <returns></returns>
 	[[nodiscard]] inline const UINT& getRefCount() const noexcept
 	{
 		return m_iRefCount;
@@ -460,10 +465,18 @@ public:
 	void DrawParentsBackground(const HDC hdc, const RECT* const rcBounds = nullptr, const HWND dHwnd = nullptr);
 	[[nodiscard("Memory Leak")]] LPALPHAINFO SetupAlphaBlend(HDC* hdc, const bool DoubleBuffer = false);
 	void FinishAlphaBlend(LPALPHAINFO ai) noexcept;
+
+	/// <summary>
+	/// Moves keyboard focus to the next control.
+	/// </summary>
 	void MoveFocusToNext() const noexcept
 	{
 		PostMessage(m_Hwnd, WM_NEXTDLGCTL, FALSE, FALSE);
 	};
+
+	/// <summary>
+	/// Moves keyboard focus to the previous control.
+	/// </summary>
 	void MoveFocusToPrev() const noexcept
 	{
 		PostMessage(m_Hwnd, WM_NEXTDLGCTL, FALSE, TRUE);

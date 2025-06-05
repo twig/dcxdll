@@ -73,13 +73,9 @@ DcxTreeView::DcxTreeView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 
 	DragAcceptFiles(m_Hwnd, TRUE);
 	m_bTransparent = isExStyle(WindowExStyle::Transparent);
+	if (m_bTransparent)
+		Dcx::dcxTreeView_SetBkColor(m_Hwnd, CLR_NONE);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 DcxTreeView::~DcxTreeView() noexcept
 {
@@ -95,12 +91,6 @@ DcxTreeView::~DcxTreeView() noexcept
 
 	PreloadData();
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 dcxWindowStyles DcxTreeView::parseControlStyles(const TString& tsStyles)
 {
@@ -158,7 +148,7 @@ dcxWindowStyles DcxTreeView::parseControlStyles(const TString& tsStyles)
 
 WindowExStyle DcxTreeView::parseTreeViewExStyles(const TString& styles) const
 {
-	WindowExStyle ExStyles(gsl::narrow_cast<WindowExStyle>(TreeView_GetExtendedStyle(m_Hwnd)));
+	WindowExStyle ExStyles(gsl::narrow_cast<WindowExStyle>(Dcx::dcxTreeView_GetExtendedStyle(m_Hwnd)));
 
 	// Vista+ ONLY!
 	for (const auto& tsStyle : styles)
@@ -398,12 +388,6 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		parseGlobalInfoRequest(input, szReturnValue);
 	}
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void DcxTreeView::parseCommandRequest(const TString& input)
 {
@@ -990,7 +974,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		if (!this->m_bTransparent)
 			this->removeExStyle(WindowExStyle::Transparent);
 
-		if (filename != TEXT("none"))
+		if ((filename != TEXT("none")) && m_bCustomDraw)
 		{
 			LoadGDIPlusImage(flag, filename);
 
@@ -998,7 +982,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 				this->setExStyle(WindowExStyle::Transparent);
 
 			// setting clr none here is required for the image to display properly.
-			//Dcx::dcxTreeView_SetBkColor(m_Hwnd, CLR_NONE);
+			Dcx::dcxTreeView_SetBkColor(m_Hwnd, CLR_NONE);
 		}
 		this->redrawWindow();
 	}
@@ -1037,23 +1021,11 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		this->parseGlobalCommandRequest(input, flags);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 GSL_SUPPRESS(lifetime)
 HIMAGELIST DcxTreeView::getImageList(const int type) const noexcept
 {
 	return Dcx::dcxTreeView_GetImageList(m_Hwnd, type);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void DcxTreeView::setImageList(const HIMAGELIST himl, const int type) noexcept
 {
@@ -1061,22 +1033,10 @@ void DcxTreeView::setImageList(const HIMAGELIST himl, const int type) noexcept
 		ImageList_Destroy(o);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 HIMAGELIST DcxTreeView::createImageList() noexcept
 {
 	return ImageList_Create(gsl::narrow_cast<int>(m_iIconSize), gsl::narrow_cast<int>(m_iIconSize), ILC_COLOR32 | ILC_MASK, 1, 0);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void DcxTreeView::insertItem(const TString& tsPath, const TString& tsData, const TString& tsTooltip)
 {
@@ -1205,12 +1165,6 @@ void DcxTreeView::insertItem(const TString& tsPath, const TString& tsData, const
 	return;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 UINT DcxTreeView::parseIconFlagOptions(const TString& flags) noexcept
 {
 	const XSwitchFlags xflags(flags);
@@ -1227,12 +1181,6 @@ UINT DcxTreeView::parseIconFlagOptions(const TString& flags) noexcept
 
 	return iFlags;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 UINT DcxTreeView::parseItemFlags(const TString& flags) noexcept
 {
@@ -1269,12 +1217,6 @@ UINT DcxTreeView::parseItemFlags(const TString& flags) noexcept
 	return iFlags;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 UINT DcxTreeView::parseSortFlags(const TString& flags) noexcept
 {
 	const XSwitchFlags xflags(flags);
@@ -1304,12 +1246,6 @@ UINT DcxTreeView::parseSortFlags(const TString& flags) noexcept
 	return iFlags;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 UINT DcxTreeView::parseColorFlags(const TString& flags) noexcept
 {
 	const XSwitchFlags xflags(flags);
@@ -1332,12 +1268,6 @@ UINT DcxTreeView::parseColorFlags(const TString& flags) noexcept
 
 	return iFlags;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 UINT DcxTreeView::parseToggleFlags(const TString& flags) noexcept
 {
@@ -1365,12 +1295,6 @@ UINT DcxTreeView::parseToggleFlags(const TString& flags) noexcept
 
 	return iFlags;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 int CALLBACK DcxTreeView::sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
 {
@@ -1458,11 +1382,6 @@ int CALLBACK DcxTreeView::sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lPa
 	return 0;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 TString DcxTreeView::getPathFromItem(const HTREEITEM item) const
 {
 	//HTREEITEM parent = item;
@@ -1508,12 +1427,6 @@ TString DcxTreeView::getPathFromItem(const HTREEITEM item) const
 	return result.trim();
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void DcxTreeView::getItemText(const HTREEITEM hItem, TCHAR* szBuffer, const int cchTextMax) const noexcept
 {
 	TVITEMEX tvi{};
@@ -1527,11 +1440,6 @@ void DcxTreeView::getItemText(const HTREEITEM hItem, TCHAR* szBuffer, const int 
 		szBuffer[0] = 0;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 TString DcxTreeView::getItemText(const HTREEITEM hItem) const
 {
 	//TVITEMEX tvi{};
@@ -1651,12 +1559,6 @@ void DcxTreeView::loadIcon(const TString& tsFlags, const TString& tsIndex, const
 		DestroyIcon(icon);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 GSL_SUPPRESS(bounds.4)
 GSL_SUPPRESS(con.4)
 GSL_SUPPRESS(r.5)
@@ -1740,12 +1642,6 @@ std::optional<HTREEITEM> DcxTreeView::findItemText(const HTREEITEM hStart, const
 	return {};
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void DcxTreeView::expandAllItems(const HTREEITEM hStart, const UINT expandOption) noexcept
 {
 	//HTREEITEM hCurrentItem = TreeView_GetChild(m_Hwnd, hStart);
@@ -1777,12 +1673,6 @@ void DcxTreeView::expandAllItems(const HTREEITEM hStart, const UINT expandOption
 	//	TreeView_Expand(m_Hwnd, hCurrentItem.m_Item, expandOption);
 	//}
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 HTREEITEM DcxTreeView::cloneItem(const HTREEITEM hItem, const HTREEITEM hParentTo, const HTREEITEM hAfterTo)
 {
@@ -1820,12 +1710,6 @@ HTREEITEM DcxTreeView::cloneItem(const HTREEITEM hItem, const HTREEITEM hParentT
 
 	return item;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void DcxTreeView::copyAllItems(const HTREEITEM hItem, const HTREEITEM hParentTo)
 {
@@ -1886,15 +1770,36 @@ HTREEITEM DcxTreeView::copyAllItems(const TString& pathFrom, const TString& path
 	return item;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
+//#ifdef USE_CUSTOM_TREE_DRAWING
+//	case WM_CTLCOLORSCROLLBAR:
+//	{
+//		if (m_bCustomDraw)
+//		{
+//			CallDefaultClassProc(uMsg, wParam, lParam);
+//			bParsed = TRUE;
+//			return (LRESULT)GetStockBrush(BLACK_BRUSH);
+//		}
+//	}
+//	break;
+//#endif
+
+#ifdef USE_CUSTOM_TREE_DRAWING
+	case WM_CTLCOLORSTATIC:
+	case WM_CTLCOLOREDIT:
+	{
+		if (m_bTransparent || isBkgImage())
+		{
+			bParsed = TRUE;
+			return (LRESULT)GetStockBrush(HOLLOW_BRUSH);
+		}
+	}
+	break;
+#endif
+
 	case WM_NOTIFY:
 	{
 		dcxlParam(const LPNMHDR, hdr);
@@ -2070,19 +1975,6 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		}
 		break;
 
-		//#ifdef USE_CUSTOM_TREE_DRAWING
-		//		case WM_CTLCOLORSCROLLBAR:
-		//		{
-		//			if (m_bCustomDraw)
-		//			{
-		//				CallDefaultClassProc(uMsg, wParam, lParam);
-		//				bParsed = TRUE;
-		//				return (LRESULT)GetStockBrush(BLACK_BRUSH);
-		//			}
-		//		}
-		//		break;
-		//#endif
-
 		case TVN_BEGINLABELEDIT:
 		{
 			bParsed = TRUE;
@@ -2128,19 +2020,6 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			{
 			case CDDS_PREPAINT:
 				return (CDRF_NOTIFYPOSTPAINT | CDRF_NOTIFYITEMDRAW);
-
-				//case CDDS_ITEMPREERASE:
-				//{
-				//	const auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(lpntvcd->nmcd.lItemlParam);
-				//	return CDRF_DODEFAULT;
-				//}
-				//break;
-				//case CDDS_ITEMPOSTERASE:
-				//{
-				//	const auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(lpntvcd->nmcd.lItemlParam);
-				//	return CDRF_DODEFAULT;
-				//}
-				//break;
 
 			case CDDS_ITEMPREPAINT:
 			{
@@ -2221,37 +2100,6 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						if (m_bTransparent || this->IsAlphaBlend())
 							this->DrawParentsBackground(lpntvcd->nmcd.hdc, &rcClear);
 
-//#ifdef DCX_USE_GDIPLUS
-//						if (!m_bTransparent)
-//						{
-//							// Ook: if image supplied the control isnt drawn correctly, no borders or scrollbars etc.. needs looked at
-//							if (m_pImage.m_pImage)
-//							{
-//								if (auto hdc = CreateHDCBuffer(lpntvcd->nmcd.hdc, nullptr); hdc)
-//								{
-//									Auto(DeleteHDCBuffer(hdc));
-//						
-//									//DrawGDIPlusImage(*hdc);
-//									FillBkgBitmap(*hdc);
-//						
-//									BitBlt(lpntvcd->nmcd.hdc, rcClear.left, rcClear.top, (rcClear.right - rcClear.left), (rcClear.bottom - rcClear.top), *hdc, rcClear.left, rcClear.top, SRCCOPY);
-//								}
-//							}
-//							else {
-//								const auto bgClr = (this->getBackColor() != CLR_INVALID) ? this->getBackColor() : (Dcx::dcxTreeView_GetBkColor(m_Hwnd) != CLR_INVALID) ? Dcx::dcxTreeView_GetBkColor(m_Hwnd) : GetSysColor(COLOR_WINDOW);
-//						
-//								Dcx::FillRectColour(lpntvcd->nmcd.hdc, std::addressof(rcClear), bgClr);
-//							}
-//						}
-//#else
-//						if (!m_bTransparent)
-//						{
-//							const auto bgClr = (this->getBackColor() != CLR_INVALID) ? this->getBackColor() : (Dcx::dcxTreeView_GetBkColor(m_Hwnd) != CLR_INVALID) ? Dcx::dcxTreeView_GetBkColor(m_Hwnd) : GetSysColor(COLOR_WINDOW);
-//
-//							Dcx::FillRectColour(lpntvcd->nmcd.hdc, std::addressof(rcClear), bgClr);
-//						}
-//#endif
-
 						if (!m_bTransparent)
 						{
 							if (isBkgImage())
@@ -2285,17 +2133,6 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 								DrawSelected(lpntvcd->nmcd.hdc, rcItem, rcSelected, lpntvcd->clrTextBk);
 
 							SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
-
-							//if (this->IsControlCodeTextDisabled())
-							//{
-							//	SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
-							//	if (bSelected && this->IsShadowTextEnabled())
-							//		dcxDrawShadowText(lpntvcd->nmcd.hdc, tsItem.to_wchr(), gsl::narrow_cast<UINT>(tsItem.len()), std::addressof(rcTxt), TextSyles, lpntvcd->clrText, 0, 5, 5);
-							//	else
-							//		DrawTextW(lpntvcd->nmcd.hdc, tsItem.to_wchr(), gsl::narrow_cast<int>(tsItem.len()), std::addressof(rcTxt), TextSyles);
-							//}
-							//else
-							//	mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles, (bSelected && this->IsShadowTextEnabled()));
 
 							this->ctrlDrawText(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles);
 							}
@@ -2425,21 +2262,6 @@ LRESULT DcxTreeView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		}
 	break;
 
-	//case WM_VSCROLL:
-	//case WM_HSCROLL:
-	//{
-	//	if (m_pImage.m_pImage && m_Hwnd && m_bCustomDraw)
-	//	{
-	//		bParsed = TRUE;
-
-	//		const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
-	//		InvalidateRect(m_Hwnd, nullptr, TRUE);
-	//		UpdateWindow(m_Hwnd);
-	//		return lRes;
-	//	}
-	//}
-	//break;
-
 	case WM_SIZE:
 	{
 		//CacheBitmap();
@@ -2456,13 +2278,31 @@ LRESULT DcxTreeView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	//{
 	//	if (m_bCustomDraw)
 	//	{
-	//		const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+	//		//const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
 	//		bParsed = TRUE;
 	//		return (LRESULT)GetStockBrush(BLACK_BRUSH);
 	//	}
 	//}
 	//break;
 
+	case WM_HSCROLL:
+	{
+
+		if (m_bCustomDraw)
+		{
+			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+			bParsed = TRUE;
+
+			if (auto hItem = Dcx::dcxTreeView_GetSelection(m_Hwnd); hItem)
+			{
+				if (RECT rc{}; Dcx::dcxTreeView_GetItemRect(m_Hwnd, hItem, &rc, true))
+					InvalidateRect(m_Hwnd, &rc, FALSE);
+				UpdateWindow(m_Hwnd);
+			}
+			return lRes;
+		}
+	}
+	break;
 #endif
 
 	case WM_PAINT:
@@ -2579,7 +2419,7 @@ void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		//}
 
 		HDC hdcbufOrig{};
-		if (const auto hbufOrig = CreateHDCBufferOptions(hdc, &hdcbufOrig, true, false, false, 255); hbufOrig)
+		if (const auto hbufOrig = CreateHDCBufferOptions(hdc, &hdcbufOrig, true, true, false, 255); hbufOrig)
 		{
 			Auto(DeleteHDCBufferOptions(hbufOrig, false));
 
@@ -2593,10 +2433,12 @@ void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 				Dcx::FillRectColour(hdcbufOrig, &rc, clr);
 			}
 
+			{
 			auto oldBk = SetBkMode(hdcbufOrig, TRANSPARENT);
 			Auto(SetBkMode(hdcbufOrig, oldBk));
 
 			CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdcbufOrig), lParam);
+			}
 
 			if (clr == CLR_NONE)
 				BitBlt(hdc, 0, 0, sz.cx, sz.cy, hdcbufOrig, 0, 0, SRCCOPY);
@@ -2754,6 +2596,7 @@ void DcxTreeView::CacheBitmap(HDC _hdc)
 		}
 	}
 }
+
 void DcxTreeView::FillBkgBitmap(HDC hdc)
 {
 	if (!m_BitmapCache)
@@ -2765,6 +2608,7 @@ void DcxTreeView::FillBkgBitmap(HDC hdc)
 	const auto sz = dcxGetBitmapDimensions(m_BitmapCache);
 	CopyBitmapToHDC(hdc, 0, 0, sz.cx, sz.cy, m_BitmapCache, 0, 0);
 }
+
 void DcxTreeView::FillBkgBitmap(HDC hdc, LPCRECT prc)
 {
 	if (!m_BitmapCache)
