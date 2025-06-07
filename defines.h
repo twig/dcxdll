@@ -946,7 +946,7 @@ SIZE dcxGetCurrentBitmapDimensions(HDC hdc) noexcept;
 RECT dcxGetCurrentBitmapRect(HDC hdc) noexcept;
 SIZE dcxGetBitmapDimensions(HBITMAP hBM) noexcept;
 RECT dcxGetBitmapRect(HBITMAP hBM) noexcept;
-bool CopyBitmapToHDC(HDC hdc, LONG xDest, LONG yDest, LONG wDest, LONG hDest, HBITMAP hBm, LONG xSrc, LONG ySrc) noexcept;
+bool CopyBitmapToHDC(HDC hdc, LONG xDest, LONG yDest, LONG wDest, LONG hDest, HBITMAP hBm, LONG xSrc, LONG ySrc, bool bHasAlpha = false) noexcept;
 bool CopyHDCToBitmap(HBITMAP hBm, LONG xDest, LONG yDest, LONG wDest, LONG hDest, HDC hdc, LONG xSrc, LONG ySrc) noexcept;
 
 /// <summary>

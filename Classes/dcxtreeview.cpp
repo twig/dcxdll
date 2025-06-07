@@ -2096,8 +2096,12 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						rcClear.left = rcTxt.left;
 							rcSelected = rcTxt;
 						}
+						if (rcClear.left < 0)
+							rcClear.left = 0;
+						if (rcClear.top < 0)
+							rcClear.top = 0;
 
-						if (m_bTransparent || this->IsAlphaBlend())
+						if (m_bTransparent || this->IsAlphaBlend() || (isBkgImage() && m_bAlphaBlendBkgImage))
 							this->DrawParentsBackground(lpntvcd->nmcd.hdc, &rcClear);
 
 						if (!m_bTransparent)
@@ -2120,28 +2124,45 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 								dcxDrawRect(hdc, std::addressof(rcSelected), clrTextBk, GetSysColor(COLOR_3DHIGHLIGHT), false);
 						};
 
+						//if (TString tsItem(Dcx::dcxTreeView_GetItemText(m_Hwnd, hItem)); !tsItem.empty())
+						//{
+						//	constexpr UINT TextSyles = /*DT_WORD_ELLIPSIS |*/ DT_LEFT | DT_SINGLELINE | DT_VCENTER;
+						//
+						//	if (this->IsControlCodeTextDisabled())
+						//		tsItem.strip();
+						//
+						//	calcTextRect(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles);
+						//
+						//	if (bSelected)
+						//		DrawSelected(lpntvcd->nmcd.hdc, rcItem, rcSelected, lpntvcd->clrTextBk);
+						//
+						//	SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
+						//
+						//	this->ctrlDrawText(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles);
+						//}
+						//else {
+						//	if (bSelected)
+						//		DrawSelected(lpntvcd->nmcd.hdc, rcItem, rcSelected, lpntvcd->clrTextBk);
+						//}
+
+						if (bSelected)
+							DrawSelected(lpntvcd->nmcd.hdc, rcItem, rcSelected, lpntvcd->clrTextBk);
+
 						if (TString tsItem(Dcx::dcxTreeView_GetItemText(m_Hwnd, hItem)); !tsItem.empty())
 						{
-							constexpr UINT TextSyles = /*DT_WORD_ELLIPSIS |*/ DT_LEFT | DT_SINGLELINE | DT_VCENTER;
+							constexpr UINT TextSyles = /*DT_WORD_ELLIPSIS |*/ DT_LEFT | DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX;
 
 							if (this->IsControlCodeTextDisabled())
 								tsItem.strip();
 
 							calcTextRect(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles);
 
-							if (bSelected)
-								DrawSelected(lpntvcd->nmcd.hdc, rcItem, rcSelected, lpntvcd->clrTextBk);
-
 							SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
 
 							this->ctrlDrawText(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles);
 							}
-						else {
-							if (bSelected)
-								DrawSelected(lpntvcd->nmcd.hdc, rcItem, rcSelected, lpntvcd->clrTextBk);
 						}
 					}
-				}
 #endif
 
 				if (m_hOldItemFont)
@@ -2391,33 +2412,6 @@ void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 #endif
 		}
 
-		//if (const auto hdcbufOrig = CreateHDCBuffer(hdc, nullptr); hdcbufOrig)
-		//{
-		//	Auto(DeleteHDCBuffer(hdcbufOrig));
-		//
-		//	CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(*hdcbufOrig), lParam);
-		//
-		//	const auto clr = Dcx::dcxTreeView_GetBkColor(m_Hwnd);
-		//
-		//	const auto sz = dcxGetCurrentBitmapDimensions(hdc);
-		//	if (const auto hdcbuf = CreateHDCBuffer(hdc, nullptr); hdcbuf)
-		//	{
-		//		Auto(DeleteHDCBuffer(hdcbuf));
-		//
-		//		if (m_bTransparent)
-		//			DrawParentsBackground(*hdcbuf);
-		//		else if (m_pImage.m_pImage)
-		//			FillBkgBitmap(*hdcbuf);
-		//
-		//		if (clr == CLR_NONE)
-		//			BitBlt(*hdcbuf, 0, 0, sz.cx, sz.cy, *hdcbufOrig, 0, 0, SRCCOPY);
-		//		else
-		//			TransparentBlt(*hdcbuf, 0, 0, sz.cx, sz.cy, *hdcbufOrig, 0, 0, sz.cx, sz.cy, clr);
-		//
-		//		BitBlt(hdc, 0, 0, sz.cx, sz.cy, *hdcbuf, 0, 0, SRCCOPY);
-		//	}
-		//}
-
 		HDC hdcbufOrig{};
 		if (const auto hbufOrig = CreateHDCBufferOptions(hdc, &hdcbufOrig, true, true, false, 255); hbufOrig)
 		{
@@ -2446,12 +2440,10 @@ void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 				TransparentBlt(hdc, 0, 0, sz.cx, sz.cy, hdcbufOrig, 0, 0, sz.cx, sz.cy, clr);
 
 		}
-
-		//CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 		return;
 	}
-#endif
-	const auto ai = SetupAlphaBlend(&hdc);
+
+	const auto ai = SetupAlphaBlend(&hdc, m_bTransparent);
 	Auto(FinishAlphaBlend(ai));
 
 	CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
@@ -2478,8 +2470,8 @@ void DcxTreeView::LoadGDIPlusImage(const TString& flags, TString& filename)
 	if (!IsFile(filename))
 		throw Dcx::dcxException(TEXT("LoadGDIPlusImage() - Unable to Access File: %"), filename);
 
-	//m_pImage = std::make_unique<Gdiplus::Image>(filename.to_chr(), TRUE);
-	m_pImage.m_pImage = new Gdiplus::Image(filename.to_chr(), TRUE);
+	//m_pImage = std::make_unique<Gdiplus::Image>(filename.to_wchr(), TRUE);
+	m_pImage.m_pImage = new Gdiplus::Image(filename.to_wchr(), TRUE);
 	m_pImage.m_tsFilename = filename;
 
 	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
@@ -2499,10 +2491,12 @@ void DcxTreeView::LoadGDIPlusImage(const TString& flags, TString& filename)
 		this->m_IMode = Gdiplus::InterpolationModeDefault;
 	}
 
-	if (xflags[TEXT('b')]) // Blend Image
-		this->m_CMode = Gdiplus::CompositingModeSourceOver;
-	else
+	//if (xflags[TEXT('b')]) // Blend Image
+	//	this->m_CMode = Gdiplus::CompositingModeSourceOver;
+	//else
 		this->m_CMode = Gdiplus::CompositingModeSourceCopy;
+
+	m_bAlphaBlendBkgImage = xflags[TEXT('b')]; // Blend Image
 
 	if (xflags[TEXT('a')]) // Anti-Aliased
 		this->m_SMode = Gdiplus::SmoothingModeAntiAlias;
@@ -2606,7 +2600,7 @@ void DcxTreeView::FillBkgBitmap(HDC hdc)
 		return;
 
 	const auto sz = dcxGetBitmapDimensions(m_BitmapCache);
-	CopyBitmapToHDC(hdc, 0, 0, sz.cx, sz.cy, m_BitmapCache, 0, 0);
+	CopyBitmapToHDC(hdc, 0, 0, sz.cx, sz.cy, m_BitmapCache, 0, 0, m_bAlphaBlendBkgImage);
 }
 
 void DcxTreeView::FillBkgBitmap(HDC hdc, LPCRECT prc)
@@ -2617,7 +2611,7 @@ void DcxTreeView::FillBkgBitmap(HDC hdc, LPCRECT prc)
 	if (!m_BitmapCache)
 		return;
 
-	CopyBitmapToHDC(hdc, prc->left, prc->top, (prc->right - prc->left), (prc->bottom - prc->top), m_BitmapCache, prc->left, prc->top);
+	CopyBitmapToHDC(hdc, prc->left, prc->top, (prc->right - prc->left), (prc->bottom - prc->top), m_BitmapCache, prc->left, prc->top, m_bAlphaBlendBkgImage);
 }
 #endif
 /*

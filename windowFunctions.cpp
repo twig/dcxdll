@@ -1483,8 +1483,9 @@ bool CopyHDCToBitmap(HBITMAP hBm, LONG xDest, LONG yDest, LONG wDest, LONG hDest
 /// <param name="hBm"></param>
 /// <param name="xSrc"></param>
 /// <param name="ySrc"></param>
+/// <param name="bHasAlpha"></param>
 /// <returns></returns>
-bool CopyBitmapToHDC(HDC hdc, LONG xDest, LONG yDest, LONG wDest, LONG hDest, HBITMAP hBm, LONG xSrc, LONG ySrc) noexcept
+bool CopyBitmapToHDC(HDC hdc, LONG xDest, LONG yDest, LONG wDest, LONG hDest, HBITMAP hBm, LONG xSrc, LONG ySrc, bool bHasAlpha) noexcept
 {
 	if (!hdc || !hBm)
 		return false;
@@ -1497,6 +1498,11 @@ bool CopyBitmapToHDC(HDC hdc, LONG xDest, LONG yDest, LONG wDest, LONG hDest, HB
 	auto hOld = Dcx::dcxSelectObject(hTmp, hBm);
 	Auto(Dcx::dcxSelectObject(hTmp, hOld));
 
+	if (bHasAlpha)
+	{
+		const BLENDFUNCTION bf{ AC_SRC_OVER,0, 255, AC_SRC_ALPHA };
+		return (AlphaBlend(hdc, xDest, yDest, wDest, hDest, hTmp, xSrc, ySrc, wDest, hDest, bf) != FALSE);
+	}
 	return (BitBlt(hdc, xDest, yDest, wDest, hDest, hTmp, xSrc, ySrc, SRCCOPY) != FALSE);
 }
 

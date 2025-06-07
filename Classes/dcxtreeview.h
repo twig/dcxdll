@@ -190,6 +190,7 @@ protected:
 
 	bool m_bDestroying{ false }; //!< this flag is set when the listview is about to get destroyed to avoid senseless events
 	bool m_bCustomDraw{ false };
+	bool m_bAlphaBlendBkgImage{ false };
 
 	DCXTVCOLOURS m_SelectionColours;
 
