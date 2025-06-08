@@ -295,7 +295,7 @@ function get_general_dcx(&$GENERAL) {
 		<td>Font is underlined.</td>
 	</tr>
 </table>',
-						'charset' => "Can be any of the following: ansi, baltic, chinesebig, default, easteurope, gb2312, greek, hangul, mac, oem, russian, shiftjis, symbol, turkish, vietnamese.",
+						'charset' => "Can be any of the following: [v]ansi[/v], [v]baltic[/v], [v]chinesebig[/v], [v]default[/v], [v]easteurope[/v], [v]gb2312[/v], [v]greek[/v], [v]hangul[/v], [v]mac[/v], [v]oem[/v], [v]russian[/v], [v]shiftjis[/v], [v]symbol[/v], [v]turkish[/v], or [v]vietnamese[/v]. (use [v]default[/v] for unicode)",
 						'size' => "Font size in points.",
 						'fontname' => "Font name.",
 					),

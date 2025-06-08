@@ -72,7 +72,7 @@ function get_xdid_xdid(&$XDID) {
 						'u' => "Font is underlined.",
 					),
 				),
-				'CHARSET' => "Can be any of the following: [v]ansi[/v], [v]baltic[/v], [v]chinesebig[/v], [v]default[/v], [v]easteurope[/v], [v]gb2312[/v], [v]greek[/v], [v]hangul[/v], [v]mac[/v], [v]oem[/v], [v]russian[/v], [v]shiftjis[/v], [v]symbol[/v], [v]turkish[/v], or [v]vietnamese[/v].",
+				'CHARSET' => "Can be any of the following: [v]ansi[/v], [v]baltic[/v], [v]chinesebig[/v], [v]default[/v], [v]easteurope[/v], [v]gb2312[/v], [v]greek[/v], [v]hangul[/v], [v]mac[/v], [v]oem[/v], [v]russian[/v], [v]shiftjis[/v], [v]symbol[/v], [v]turkish[/v], or [v]vietnamese[/v]. (use [v]default[/v] for unicode)",
 				'SIZE' => "Font size in points.",
 				'FONTNAME' => "Font name. Ex: Tahoma, Courier New, Arial, ...",
 			),
