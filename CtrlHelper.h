@@ -1145,7 +1145,7 @@ namespace Dcx
 	/// <param name="i"></param>
 	/// <param name="buf"></param>
 	/// <returns></returns>
-	inline int dcxListBox_GetText(_In_ HWND hwnd, _In_ int i, _Inout_z_ TCHAR *buf) noexcept
+	inline int dcxListBox_GetText(_In_ HWND hwnd, _In_ int i, _Inout_z_ TCHAR* buf) noexcept
 	{
 		return ListBox_GetText(hwnd, i, buf);
 	}
@@ -1188,7 +1188,7 @@ namespace Dcx
 	/// <param name="hListbox"></param>
 	/// <param name="szFile">- A pointer to a buffer that specifies the name of the file to add.</param>
 	/// <returns></returns>
-	inline int dcxListBox_AddFile(_In_ HWND hListbox, _In_z_ TCHAR *szFile) noexcept
+	inline int dcxListBox_AddFile(_In_ HWND hListbox, _In_z_ TCHAR* szFile) noexcept
 	{
 		return gsl::narrow_cast<int>(SendMessage(hListbox, LB_ADDFILE, 0, reinterpret_cast<LPARAM>(szFile)));
 	}
@@ -1225,6 +1225,27 @@ namespace Dcx
 	inline int dcxListBox_Dir(_In_ HWND hListbox, _In_ UINT attrs, _In_z_ LPCTSTR szFile) noexcept
 	{
 		return ListBox_Dir(hListbox, attrs, szFile);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hListbox"></param>
+	/// <param name="iIndex"></param>
+	/// <returns></returns>
+	inline int dcxListBox_GetSel(_In_ HWND hListbox, _In_ int iIndex) noexcept
+	{
+		return ListBox_GetSel(hListbox, iIndex);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hListbox"></param>
+	/// <returns></returns>
+	inline int dcxListBox_GetCurSel(_In_ HWND hListbox) noexcept
+	{
+		return ListBox_GetCurSel(hListbox);
 	}
 
 	// ToolTip
@@ -1439,14 +1460,14 @@ namespace Dcx
 	/// Get the number of items in the control.
 	/// The control does not support >65536 items.
 	/// </summary>
-	/// <param name="hTree"></param>
+	/// <param name="hTree">- Handle to a tree-view control.</param>
 	/// <returns></returns>
 	size_t dcxTreeView_GetCount(_In_ HWND hTree) noexcept;
 
 	/// <summary>
 	/// Get the controls image list.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="type"></param>
 	/// <returns></returns>
 	[[nodiscard]] inline HIMAGELIST dcxTreeView_GetImageList(_In_ HWND hwnd, _In_ int type) noexcept
@@ -1455,12 +1476,48 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// Sets the controls image list.
+	/// Retrieves the amount, in pixels, that child items are indented relative to their parent items.
 	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <param name="himl"></param>
-	/// <param name="type"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <returns></returns>
+	inline UINT dcxTreeView_GetIndent(_In_ HWND hwnd) noexcept
+	{
+		return TreeView_GetIndent(hwnd);
+	}
+
+	/// <summary>
+	/// Retrieves the color used to draw the insertion mark for the tree view.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <returns></returns>
+	inline COLORREF dcxTreeView_GetInsertMarkColor(_In_ HWND hwnd) noexcept
+	{
+		return TreeView_GetInsertMarkColor(hwnd);
+	}
+
+	/// <summary>
+	/// Retrieves the incremental search string for a tree-view control. The tree-view control uses the incremental search string to select an item based on characters typed by the user.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="lpsz"></param>
+	/// <returns></returns>
+	inline bool dcxTreeView_GetISearchString(_In_ HWND hwnd, _Inout_z_ LPTSTR lpsz) noexcept
+	{
+		return (TreeView_GetISearchString(hwnd, lpsz) != FALSE);
+	}
+
+	/// <summary>
+	/// Sets the normal or state image list for a tree-view control and redraws the control using the new images.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="himl">- The HIMAGELIST handle to the image list. If himl is NULL, the message removes the specified image list from the tree-view control.</param>
+	/// <param name="type">
+	/// <para>- Type of image list to set. This parameter can be one of the following values:</para>
+	///	<para>TVSIL_NORMAL - Indicates the normal image list, which contains selected, nonselected, and overlay images for the items of a tree - view control.</para>
+	///	<para>TVSIL_STATE - Indicates the state image list.You can use state images to indicate application - defined item states.A state image is displayed to the left of an item's selected or nonselected image.</para>
+	///	</param>
+	/// <returns>Returns the HIMAGELIST handle to the previous image list, if any, or NULL otherwise.</returns>
+	/// <remarks>The tree-view control will not destroy the image list specified with this message. Your application must destroy the image list when it is no longer needed.</remarks>
 	inline HIMAGELIST dcxTreeView_SetImageList(_In_ HWND hwnd, _In_ HIMAGELIST himl, _In_ int type) noexcept
 	{
 		return TreeView_SetImageList(hwnd, himl, gsl::narrow_cast<WPARAM>(type));
@@ -1469,28 +1526,62 @@ namespace Dcx
 	/// <summary>
 	/// Insert a treeview item.
 	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <param name="ptvins"></param>
-	/// <returns></returns>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="ptvins">- Pointer to a TVINSERTSTRUCT structure that specifies the attributes of the tree-view item.</param>
+	/// <returns>Returns the HTREEITEM handle to the new item if successful, or NULL otherwise.</returns>
 	[[nodiscard]] inline HTREEITEM dcxTreeView_InsertItem(_In_ HWND hwnd, _In_ const TVINSERTSTRUCT* const ptvins) noexcept
 	{
 		return TreeView_InsertItem(hwnd, ptvins);
 	}
 
 	/// <summary>
-	/// Get the tooltip control.
+	/// Retrieves the handle to the child tooltip control used by a tree-view control.
 	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <returns></returns>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <returns>Returns the handle to the child tooltip control, or NULL if the control is not using tooltips.</returns>
+	/// <remarks>
+	/// <para>When created, tree-view controls automatically create a child tooltip control.</para>
+	/// <para>To prevent a tree-view control from using tooltips, create the control with the TVS_NOTOOLTIPS style.</para>
+	/// </remarks>
 	[[nodiscard]] inline HWND dcxTreeView_GetToolTips(_In_ HWND hwnd) noexcept
 	{
 		return TreeView_GetToolTips(hwnd);
 	}
 
 	/// <summary>
+	/// Retrieves the Unicode character format flag for the control.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <returns>
+	/// <para>Returns the Unicode format flag for the control.</para>
+	/// <para>If this value is nonzero, the control is using Unicode characters.</para>
+	/// <para>If this value is zero, the control is using ANSI characters.</para>
+	/// </returns>
+	inline bool dcxTreeView_GetUnicodeFormat(_In_ HWND hwnd) noexcept
+	{
+		return (TreeView_GetUnicodeFormat(hwnd) != FALSE);
+	}
+
+	/// <summary>
+	/// Obtains the number of items that can be fully visible in the client window of a tree-view control.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <returns>Returns the number of items that can be fully visible in the client window of the tree-view control.</returns>
+	/// <remarks>
+	/// <para>The number of items that can be fully visible may be greater than the number of items in the control.</para>
+	/// <para>The control calculates this value by dividing the height of the client window by the height of an item.</para>
+	/// <para>Note that the return value is the number of items that can be fully visible.</para>
+	/// <para>If you can see all of 20 items and part of one more item, the return value is 20.</para>
+	/// </remarks>
+	inline UINT dcxTreeView_GetVisibleCount(_In_ HWND hwnd) noexcept
+	{
+		return TreeView_GetVisibleCount(hwnd);
+	}
+
+	/// <summary>
 	/// Get an items info.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="ptvi"></param>
 	/// <returns></returns>
 	inline bool dcxTreeView_GetItem(_In_ HWND hwnd, _Inout_ LPTVITEMEX ptvi) noexcept
@@ -1499,9 +1590,19 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Retrieves the current height of the tree-view items.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <returns></returns>
+	inline int dcxTreeView_GetItemHeight(_In_ HWND hwnd) noexcept
+	{
+		return TreeView_GetItemHeight(hwnd);
+	}
+
+	/// <summary>
 	/// Set an items info.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="ptvi"></param>
 	/// <returns></returns>
 	inline bool dcxTreeView_SetItem(_In_ HWND hwnd, _In_ const LPTVITEMEX ptvi) noexcept
@@ -1512,7 +1613,7 @@ namespace Dcx
 	/// <summary>
 	/// Get the root item.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <returns></returns>
 	[[nodiscard]] inline HTREEITEM dcxTreeView_GetRoot(_In_ HWND hwnd) noexcept
 	{
@@ -1520,9 +1621,24 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Retrieves the maximum scroll time for the tree-view control.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <returns>Returns the maximum scroll time, in milliseconds.</returns>
+	/// <remarks>
+	/// The maximum scroll time is the longest amount of time that a scroll operation can take.<br/>
+	/// Scrolling will be adjusted so that the scroll will take place within the maximum scroll time.<br/>
+	/// A scroll operation may take less time than the maximum.
+	/// </remarks>
+	[[nodiscard]] inline UINT dcxTreeView_GetScrollTime(_In_ HWND hwnd) noexcept
+	{
+		GSL_SUPPRESS(es.47) return TreeView_GetScrollTime(hwnd);
+	}
+
+	/// <summary>
 	/// Get items parent.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="hItem"></param>
 	/// <returns></returns>
 	[[nodiscard]] inline HTREEITEM dcxTreeView_GetParent(_In_ HWND hwnd, _In_ HTREEITEM hItem) noexcept
@@ -1533,7 +1649,7 @@ namespace Dcx
 	/// <summary>
 	/// Get items first child.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="hItem"></param>
 	/// <returns></returns>
 	[[nodiscard]] inline HTREEITEM dcxTreeView_GetChild(_In_ HWND hwnd, _In_ HTREEITEM hItem) noexcept
@@ -1544,19 +1660,33 @@ namespace Dcx
 	/// <summary>
 	/// Get next sibling item.
 	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <param name="hItem"></param>
-	/// <returns></returns>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="hItem">- Handle to an item.</param>
+	/// <seealso cref="dcxTreeView_GetNextItem"/>
+	/// <returns>Returns the handle to the item if successful, or NULL otherwise.</returns>
 	[[nodiscard]] inline HTREEITEM dcxTreeView_GetNextSibling(_In_ HWND hwnd, _In_ HTREEITEM hItem) noexcept
 	{
 		return TreeView_GetNextSibling(hwnd, hItem);
 	}
 
 	/// <summary>
+	/// Retrieves the next visible item that follows a specified item in a tree-view control. 
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="hItem">- Handle to an item.</param>
+	/// <seealso cref="dcxTreeView_GetNextItem"/>
+	/// <returns></returns>
+	[[nodiscard]] inline HTREEITEM dcxTreeView_GetNextVisible(_In_ HWND hwnd, _In_ HTREEITEM hItem) noexcept
+	{
+		return TreeView_GetNextVisible(hwnd, hItem);
+	}
+
+	/// <summary>
 	/// Get previous sibling item.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="hItem"></param>
+	/// <seealso cref="dcxTreeView_GetNextItem"/>
 	/// <returns></returns>
 	[[nodiscard]] inline HTREEITEM dcxTreeView_GetPrevSibling(_In_ HWND hwnd, _In_ HTREEITEM hItem) noexcept
 	{
@@ -1564,19 +1694,42 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Retrieves the first visible item that precedes a specified item in a tree-view control.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="hItem"></param>
+	/// <seealso cref="dcxTreeView_GetNextItem"/>
+	/// <returns></returns>
+	[[nodiscard]] inline HTREEITEM dcxTreeView_GetPrevVisible(_In_ HWND hwnd, _In_ HTREEITEM hItem) noexcept
+	{
+		return TreeView_GetPrevVisible(hwnd, hItem);
+	}
+
+	/// <summary>
 	/// Get controls extended styles.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <returns></returns>
-	[[nodiscard]] inline DWORD dcxTreeView_GetExtendedStyle (_In_ HWND hwnd) noexcept
+	[[nodiscard]] inline DWORD dcxTreeView_GetExtendedStyle(_In_ HWND hwnd) noexcept
 	{
 		return TreeView_GetExtendedStyle(hwnd);
 	}
 
 	/// <summary>
+	/// Retrieves the first visible item in a tree-view control window.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <seealso cref="dcxTreeView_GetNextItem"/>
+	/// <returns></returns>
+	[[nodiscard]] inline HTREEITEM dcxTreeView_GetFirstVisible(_In_ HWND hwnd) noexcept
+	{
+		return TreeView_GetFirstVisible(hwnd);
+	}
+
+	/// <summary>
 	/// Set controls extended styles.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="exstyle"></param>
 	/// <param name="mask"></param>
 	/// <returns></returns>
@@ -1588,7 +1741,7 @@ namespace Dcx
 	/// <summary>
 	/// Set controls extended styles.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="exstyle"></param>
 	/// <param name="mask"></param>
 	/// <returns></returns>
@@ -1598,9 +1751,26 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Sets the hot item for a tree-view control. (internal only dont use)
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="hItem">- Handle to the new hot item. If this value is NULL, the tree-view control will be set to have no hot item.</param>
+	/// <returns>Returns TRUE if successful, or FALSE otherwise.</returns>
+	/// <remarks>
+	/// The hot item is the item that the mouse is hovering over. The TVM_SETHOT message sent by this macro makes an item look like it is the hot item even if the mouse is not hovering over it.
+	/// The TVM_SETHOT message has no visible effect if the TVS_TRACKSELECT style is not set.
+	///	If it succeeds, the TVM_SETHOT message causes the hot item to be redrawn.
+	///	The TVM_SETHOT message is ignored if hitem is NULL and the tree - view control is tracking the mouse.
+	/// </remarks>
+	inline bool dcxTreeView_SetHot(_In_ HWND hwnd, _In_opt_ HTREEITEM hItem) noexcept
+	{
+		return (TreeView_SetHot(hwnd, hItem) != FALSE);
+	}
+
+	/// <summary>
 	/// Set text colour.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="clr"></param>
 	/// <returns></returns>
 	inline COLORREF dcxTreeView_SetTextColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
@@ -1611,18 +1781,29 @@ namespace Dcx
 	/// <summary>
 	/// Set background colour.
 	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <param name="clr"></param>
-	/// <returns></returns>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="clr">- COLORREF value that contains the new background color. If this argument is -1, the control will revert to using the system color for the background color.</param>
+	/// <returns>Returns a COLORREF value that represents the previous background color. If this value is -1, the control was using the system color for the background color.</returns>
 	inline COLORREF dcxTreeView_SetBkColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
 	{
 		return TreeView_SetBkColor(hwnd, clr);
 	}
 
 	/// <summary>
+	/// Sets information used to determine auto-scroll characteristics.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="uPixPerSec">- Specifies pixels per second. The offset to scroll is divided by the uPixPerSec to determine the total duration of the auto-scroll.</param>
+	/// <param name="uUpdateTime">- Specifies the redraw time interval. Redraw at every elapsed interval, until the item is scrolled into view. Given uPixPerSec, the location of the item is calculated and a repaint occurs. Set this value to create smooth scrolling.</param>
+	inline void dcxTreeView_SetAutoScrollInfo(_In_ HWND hwnd, _In_ UINT uPixPerSec, _In_ UINT uUpdateTime) noexcept
+	{
+		TreeView_SetAutoScrollInfo(hwnd, uPixPerSec, uUpdateTime);
+	}
+
+	/// <summary>
 	/// Set line colour.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="clr"></param>
 	/// <returns></returns>
 	inline COLORREF dcxTreeView_SetLineColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
@@ -1631,9 +1812,25 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Sets the maximum scroll time for the tree-view control.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="uTime">- New maximum scroll time, in milliseconds. If this value is less than 100, it will be rounded up to 100.</param>
+	/// <returns>Returns the previous scroll time, in milliseconds.</returns>
+	/// <remarks>
+	/// The maximum scroll time is the longest amount of time that a scroll operation can take.
+	/// Scrolling will be adjusted so that the scroll will take place within the maximum scroll time.
+	/// A scroll operation may take less time than the maximum.
+	/// </remarks>
+	inline UINT dcxTreeView_SetScrollTime(_In_ HWND hwnd, _In_ UINT uTime) noexcept
+	{
+		return TreeView_SetScrollTime(hwnd, uTime);
+	}
+
+	/// <summary>
 	/// Set insert mark colour.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="clr"></param>
 	/// <returns></returns>
 	inline COLORREF dcxTreeView_SetInsertMarkColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
@@ -1644,7 +1841,7 @@ namespace Dcx
 	/// <summary>
 	/// Get items state.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="hti"></param>
 	/// <param name="mask"></param>
 	/// <returns></returns>
@@ -1656,7 +1853,7 @@ namespace Dcx
 	/// <summary>
 	/// Ensure item is visible.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="hti"></param>
 	/// <returns></returns>
 	inline bool dcxTreeView_EnsureVisible(_In_ HWND hwnd, _In_ HTREEITEM hti) noexcept
@@ -1667,7 +1864,7 @@ namespace Dcx
 	/// <summary>
 	/// Start editing the items label.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="hti"></param>
 	/// <returns>The edit control for editing.</returns>
 	inline HWND dcxTreeView_EditLabel(_In_ HWND hwnd, _In_ HTREEITEM hti) noexcept
@@ -1676,20 +1873,92 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// Set items as selected.
+	/// Ends the editing of a tree-view item's label.
 	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <param name="hti"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="bCancel"></param>
 	/// <returns></returns>
-	inline bool dcxTreeView_SelectItem(_In_ HWND hwnd, _In_ HTREEITEM hti) noexcept
+	inline bool dcxTreeView_EndEditLabelNow(_In_ HWND hwnd, _In_ bool bCancel) noexcept
+	{
+		return (TreeView_EndEditLabelNow(hwnd, bCancel) != FALSE);
+	}
+
+	/// <summary>
+	/// Selects the specified tree-view item, scrolls the item into view, or redraws the item in the style used to indicate the target of a drag-and-drop operation.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="hti">- Handle to an item. If the hitem parameter is NULL, the control is set to have no selected item.</param>
+	/// <param name="code">
+	/// <para>- Action flag. This parameter can be one of the following values:</para>
+	///	<para>TVGN_CARET - Sets the selection to the given item.The control's parent window receives the TVN_SELCHANGING and TVN_SELCHANGED notification codes.</para>
+	///	<para>TVGN_DROPHILITE - Redraws the given item in the style used to indicate the target of a drag - and -drop operation.</para>
+	///	<para>TVGN_FIRSTVISIBLE - Ensures that the specified item is visible, and, if possible, displays it at the top of the control's window. Tree-view controls display as many items as will fit in the window. If the specified item is near the bottom of the control's hierarchy of items, it might not become the first visible item, depending on how many items fit in the window.</para>
+	/// </param>
+	/// <returns>Returns TRUE if successful, or FALSE otherwise.</returns>
+	/// <remarks>
+	/// <para>If the specified item is the child of a collapsed parent item, the parent's list of child items is expanded to reveal the specified item.</para>
+	/// <para>In this case, the parent window receives the TVN_ITEMEXPANDING and TVN_ITEMEXPANDED notification codes.</para>
+	/// </remarks>
+	inline bool dcxTreeView_Select(_In_ HWND hwnd, _In_opt_ HTREEITEM hti, _In_ UINT code) noexcept
+	{
+		return (TreeView_Select(hwnd, hti, code) != FALSE);
+	}
+
+	/// <summary>
+	/// Redraws a specified tree-view control item in the style used to indicate the target of a drag-and-drop operation.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="hti">- Handle to an item. If the hitem parameter is NULL, the control is set to have no selected item.</param>
+	/// <returns>Returns TRUE if successful, or FALSE otherwise.</returns>
+	/// <remarks>
+	/// <para>If the specified item is the child of a collapsed parent item, the parent's list of child items is expanded to reveal the specified item.</para>
+	/// <para>In this case, the parent window receives the TVN_ITEMEXPANDING and TVN_ITEMEXPANDED notification codes.</para>
+	/// </remarks>
+	/// <seealso cref="dcxTreeView_Select"/>
+	inline bool dcxTreeView_SelectDropTarget(_In_ HWND hwnd, _In_opt_ HTREEITEM hti) noexcept
+	{
+		return (TreeView_SelectDropTarget(hwnd, hti) != FALSE);
+	}
+
+	/// <summary>
+	/// Set item as selected.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="hti">- Handle to an item. If the hitem parameter is NULL, the control is set to have no selected item.</param>
+	/// <returns>Returns TRUE if successful, or FALSE otherwise.</returns>
+	/// <remarks>
+	/// <para>When you call the TreeView_SelectItem macro, the control's parent window receives the TVN_SELCHANGING and TVN_SELCHANGED notification codes.</para>
+	/// <para>Also, if the specified item is the child of a collapsed parent item, the parent's list of child items is expanded to reveal the specified item.</para>
+	/// <para>In this case, the parent window receives the TVN_ITEMEXPANDING and TVN_ITEMEXPANDED notification codes.</para>
+	/// </remarks>
+	/// <seealso cref="dcxTreeView_Select"/>
+	inline bool dcxTreeView_SelectItem(_In_ HWND hwnd, _In_opt_ HTREEITEM hti) noexcept
 	{
 		return (TreeView_SelectItem(hwnd, hti) != FALSE);
 	}
 
 	/// <summary>
+	/// Scrolls the tree-view control vertically to ensure that the specified item is visible. If possible, the specified item becomes the first visible item at the top of the control's window.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="hti">- Handle to an item. If the hitem parameter is NULL, the control is set to have no selected item.</param>
+	/// <returns>Returns TRUE if successful, or FALSE otherwise.</returns>
+	/// <remarks>
+	///  <para>Tree - view controls display as many items as will fit in the window.</para>
+	///  <para>If the specified item is near the bottom of the control's hierarchy of items, it might not become the first visible item, depending on how many items fit in the window.</para>
+	///  <para>If the specified item is the child of a collapsed parent item, the parent's list of child items is expanded to reveal the specified item.</para>
+	///  <para>In this case, the parent window receives the TVN_ITEMEXPANDING and TVN_ITEMEXPANDED notification codes.</para>
+	/// </remarks>
+	/// <seealso cref="dcxTreeView_Select"/>
+	inline bool dcxTreeView_SelectSetFirstVisible(_In_ HWND hwnd, _In_opt_ HTREEITEM hti) noexcept
+	{
+		return (TreeView_SelectSetFirstVisible(hwnd, hti) != FALSE);
+	}
+
+	/// <summary>
 	/// Set height for all items.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="height"></param>
 	/// <returns></returns>
 	inline int dcxTreeView_SetItemHeight(_In_ HWND hwnd, _In_ int height) noexcept
@@ -1698,9 +1967,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// Set border size around control.
+	/// Set border size around control. (internal only dont use)
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="dwFlags"></param>
 	/// <param name="iLeft"></param>
 	/// <param name="iTop"></param>
@@ -1711,9 +1980,20 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Sets the item's state image to "checked" or "unchecked."
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="hti">- Handle to the item.</param>
+	/// <param name="fCheck">- Value that indicates which state image is displayed. Set fCheck to TRUE to display the checked state image or FALSE to display the unchecked image.</param>
+	inline void dcxTreeView_SetCheckState(_In_ HWND hwnd, _In_ HTREEITEM hti, _In_ bool fCheck) noexcept
+	{
+		TreeView_SetCheckState(hwnd, hti, fCheck);
+	}
+
+	/// <summary>
 	/// Expand items children.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="iPart"></param>
 	/// <param name="Style"></param>
 	/// <param name="lpstr"></param>
@@ -1725,7 +2005,7 @@ namespace Dcx
 	/// <summary>
 	/// Sort items.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="hItem"></param>
 	/// <param name="bRecurse"></param>
 	/// <returns></returns>
@@ -1737,7 +2017,7 @@ namespace Dcx
 	/// <summary>
 	/// Sort items via callback function.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="ptscb"></param>
 	/// <param name="bRecurse"></param>
 	/// <returns></returns>
@@ -1749,7 +2029,7 @@ namespace Dcx
 	/// <summary>
 	/// Get items check state.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <param name="hti"></param>
 	/// <returns></returns>
 	inline UINT dcxTreeView_GetCheckState(_In_ HWND hwnd, _In_ HTREEITEM hti) noexcept
@@ -1760,7 +2040,7 @@ namespace Dcx
 	/// <summary>
 	/// Get the edit control being used to edit labels.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
 	/// <returns></returns>
 	[[nodiscard]] inline HWND dcxTreeView_GetEditControl(_In_ HWND hwnd) noexcept
 	{
@@ -1791,6 +2071,22 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Retrieves the largest possible bounding rectangle that constitutes the "hit zone" for a specified part of an item.
+	/// </summary>
+	/// <param name="hwnd">- Handle to a tree-view control.</param>
+	/// <param name="hItem"></param>
+	/// <param name="prc">- Pointer to a RECT structure that receives the bounding rectangle. The caller is responsible for allocating this structure. The coordinates received are relative to the upper-left corner of the tree-view control.</param>
+	/// <param name="partid">- ID of the item part. This value must be TVGIPR_BUTTON (0x0001).</param>
+	/// <returns></returns>
+	inline bool dcxTreeView_GetItemPartRect(_In_ HWND hwnd, _In_ HTREEITEM hItem, _Inout_ LPRECT prc, _In_ TVITEMPART partid) noexcept
+	{
+		const TVGETITEMPARTRECTINFO pri{ hItem, prc, partid };
+		return (gsl::narrow_cast<BOOL>(SendMessageW(hwnd, TVM_GETITEMPARTRECT, 0, reinterpret_cast<LPARAM>(&pri))) != FALSE);
+
+		//return (TreeView_GetItemPartRect(hwnd, hItem, prc, partid) != FALSE);
+	}
+
+	/// <summary>
 	/// Retrieves the current background color of the control.
 	/// </summary>
 	/// <param name="hwnd">- Handle to a tree-view control.</param>
@@ -1801,11 +2097,21 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Get the number of items selected?
+	/// </summary>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
+	/// <returns>Returns the number of items selected.</returns>
+	inline DWORD dcxTreeView_GetSelectedCount(_In_ HWND hTree) noexcept
+	{
+		return TreeView_GetSelectedCount(hTree);
+	}
+
+	/// <summary>
 	/// Get the currently selected item.
 	/// </summary>
-	/// <param name="hTree"></param>
-	/// <see cref="dcxTreeView_GetNextItem"/>
-	/// <returns></returns>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
+	/// <seealso cref="dcxTreeView_GetNextItem"/>
+	/// <returns>Returns the handle to the item if successful, or NULL otherwise.</returns>
 	[[nodiscard]] inline HTREEITEM dcxTreeView_GetSelection(_In_ HWND hTree) noexcept
 	{
 		if (!hTree)
@@ -1815,12 +2121,22 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Retrieves the current text color of the control.
+	/// </summary>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
+	/// <returns>Returns a COLORREF value that represents the current text color. If this value is -1, the control is using the system color for the text color.</returns>
+	inline COLORREF dcxTreeView_GetTextColor(_In_ HWND hTree) noexcept
+	{
+		return TreeView_GetTextColor(hTree);
+	}
+
+	/// <summary>
 	/// Retrieves the tree-view item that bears the specified relationship to a specified item.
 	/// </summary>
 	/// <param name="hTree">- Handle to the tree-view control.</param>
 	/// <param name="hItem">- Handle to an item.</param>
 	/// <param name="iCode">- Flag specifying the item to retrieve.</param>
-	/// <returns></returns>
+	/// <returns>Returns the handle to the item if successful. For most cases, the message returns a NULL value to indicate an error.</returns>
 	/// <remarks>This macro will return NULL if the item being retrieved is the root node of the tree. For example, if you use this macro with the TVGN_PARENT flag on a first-level child of the tree view's root node, the macro will return NULL.</remarks>
 	[[nodiscard]] inline HTREEITEM dcxTreeView_GetNextItem(_In_ HWND hTree, _In_opt_ HTREEITEM hItem, _In_ int iCode) noexcept
 	{
@@ -1831,9 +2147,25 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Retrieves the tree-view item that bears the TVGN_NEXTSELECTED relationship to a specified tree item.
+	/// </summary>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
+	/// <param name="hItem">- Handle to an item.</param>
+	/// <seealso cref="dcxTreeView_GetNextItem"/>
+	/// <returns>Handle to an item, or NULL if no item is found with the TVGN_NEXTSELECTED relationship.</returns>
+	/// <remarks>Used to find the next selected item when there are multiple items selected.</remarks>
+	[[nodiscard]] inline HTREEITEM dcxTreeView_GetNextSelected(_In_ HWND hTree, _In_opt_ HTREEITEM hItem) noexcept
+	{
+		if (!hTree)
+			return nullptr;
+
+		GSL_SUPPRESS(es.47) GSL_SUPPRESS(lifetime.4) return TreeView_GetNextSelected(hTree, hItem);
+	}
+
+	/// <summary>
 	/// Show an items info tip.
 	/// </summary>
-	/// <param name="hTree"></param>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
 	/// <param name="hItem"></param>
 	/// <returns></returns>
 	inline DWORD dcxTreeView_ShowInfoTip(_In_ HWND hTree, _In_ HTREEITEM hItem) noexcept
@@ -1844,7 +2176,7 @@ namespace Dcx
 	/// <summary>
 	/// Set the control to unicode format or not.
 	/// </summary>
-	/// <param name="hTree"></param>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
 	/// <param name="bUnicode"></param>
 	/// <returns></returns>
 	inline bool dcxTreeView_SetUnicodeFormat(_In_ HWND hTree, _In_ bool bUnicode) noexcept
@@ -1855,7 +2187,7 @@ namespace Dcx
 	/// <summary>
 	/// Sets a tree-view control's child tooltip control.
 	/// </summary>
-	/// <param name="hTree"></param>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
 	/// <param name="hTooltip"></param>
 	/// <returns></returns>
 	inline HWND dcxTreeView_SetToolTips(_In_ HWND hTree, _In_ HWND hTooltip) noexcept
@@ -1867,7 +2199,12 @@ namespace Dcx
 	/// Determines the location of the specified point relative to the client area of a tree-view control.
 	/// </summary>
 	/// <param name="hTree">- Handle to the tree-view control.</param>
-	/// <param name="lpht">- Pointer to a TVHITTESTINFO structure. When the message is sent, the pt member specifies the coordinates of the point to test. When the message returns, the hItem member is the handle to the item at the specified point or NULL if no item occupies the point. Also, when the message returns, the flags member is a hit test value that indicates the location of the specified point.</param>
+	/// <param name="lpht">
+	/// <para>- Pointer to a TVHITTESTINFO structure.</para>
+	/// <para>When the message is sent, the pt member specifies the coordinates of the point to test.</para>
+	/// <para>When the message returns, the hItem member is the handle to the item at the specified point or NULL if no item occupies the point.</para>
+	/// <para>Also, when the message returns, the flags member is a hit test value that indicates the location of the specified point.</para>
+	/// </param>
 	/// <returns>The items under the point or NULL</returns>
 	inline HTREEITEM dcxTreeView_HitTest(_In_ HWND hTree, _Inout_ LPTVHITTESTINFO lpht) noexcept
 	{
@@ -1899,9 +2236,42 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Creates a dragging bitmap for the specified item in a tree-view control. The macro also creates an image list for the bitmap and adds the bitmap to the image list. An application can display the image when dragging the item by using the image list functions.
+	/// </summary>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
+	/// <param name="hItem"></param>
+	/// <returns></returns>
+	[[nodiscard("Memory Leak")]] inline HIMAGELIST dcxTreeView_CreateDragImage(_In_ HWND hTree, _In_ HTREEITEM hItem) noexcept
+	{
+		return TreeView_CreateDragImage(hTree, hItem);
+	}
+
+	/// <summary>
+	/// <para>Retrieves the last expanded item in a tree-view control.</para>
+	/// <para>This does not retrieve the last item visible in the tree-view window.</para>
+	/// </summary>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
+	/// <seealso cref="dcxTreeView_GetNextItem"/>
+	/// <returns>Returns the handle to the item if successful, or NULL otherwise.</returns>
+	[[nodiscard]] inline HTREEITEM dcxTreeView_GetLastVisible(_In_ HWND hTree) noexcept
+	{
+		return TreeView_GetLastVisible(hTree);
+	}
+
+	/// <summary>
+	/// Gets the current line color.
+	/// </summary>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
+	/// <returns>Returns the current line color, or the CLR_DEFAULT value if none has been specified.</returns>
+	inline COLORREF dcxTreeView_GetLineColor(_In_ HWND hTree) noexcept
+	{
+		return TreeView_GetLineColor(hTree);
+	}
+
+	/// <summary>
 	/// Get an items last sibling.
 	/// </summary>
-	/// <param name="hTree"></param>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
 	/// <param name="child"></param>
 	/// <returns></returns>
 	[[nodiscard]] HTREEITEM dcxTreeView_GetLastSibling(_In_ HWND hTree, _In_ HTREEITEM child) noexcept;
@@ -1909,7 +2279,7 @@ namespace Dcx
 	/// <summary>
 	/// Set an items state.
 	/// </summary>
-	/// <param name="hTree"></param>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
 	/// <param name="hItem"></param>
 	/// <param name="data"></param>
 	/// <param name="mask"></param>
@@ -1925,7 +2295,7 @@ namespace Dcx
 	/// <summary>
 	/// Set an items text.
 	/// </summary>
-	/// <param name="hTree"></param>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
 	/// <param name="hItem"></param>
 	/// <param name="txt"></param>
 	void dcxTreeView_SetItemText(_In_ HWND hTree, _In_ HTREEITEM hItem, _In_ const TString& txt) noexcept;
@@ -1933,7 +2303,7 @@ namespace Dcx
 	/// <summary>
 	/// Delete a specified item. This function includes the fix for items not being displayed after a delete.
 	/// </summary>
-	/// <param name="hTree"></param>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
 	/// <param name="item"></param>
 	/// <returns></returns>
 	bool dcxTreeView_DeleteItem(_In_ HWND hTree, _In_ const HTREEITEM item) noexcept;
@@ -1941,23 +2311,56 @@ namespace Dcx
 	/// <summary>
 	/// Delete all items. This function includes the fix for items not being displayed after a delete.
 	/// </summary>
-	/// <param name="hTree"></param>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
 	/// <returns></returns>
 	bool dcxTreeView_DeleteAllItems(_In_ HWND hTree) noexcept;
 
 	/// <summary>
 	/// Get the HitTest info about the current cursor position.
 	/// </summary>
-	/// <param name="hTree"></param>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
 	/// <returns></returns>
 	TVHITTESTINFO dcxTreeView_GetCursorItem(_In_ HWND hTree) noexcept;
 
 	/// <summary>
 	/// Map an index to an item.
 	/// </summary>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
 	/// <param name="nIndex"></param>
 	/// <returns>The matching item if any, or nullptr</returns>
 	[[nodiscard]] HTREEITEM dcxTreeView_MapIndexToItem(_In_ HWND hTree, _In_ size_t nIndex) noexcept;
+
+	/// <summary>
+	/// Maps an accessibility ID to an HTREEITEM.
+	/// </summary>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
+	/// <param name="id">The accessibility ID to map to an HTREEITEM.</param>
+	/// <returns>Returns the HTREEITEM to which the specified accessibility ID is mapped.</returns>
+	/// <remarks>
+	/// <para>To use TreeView_MapAccIDToHTREEITEM, specify Comctl32.dll version 6 in the manifest.</para>
+	/// <para>The accessibility ID is not the same as that mentioned in IAccessibleObject.</para>
+	/// <para>This is a unique ID used for treeview items as long as treeitems do not exceed the max limit of UINT.</para>
+	/// </remarks>
+	inline HTREEITEM dcxTreeView_MapAccIDToHTREEITEM(_In_ HWND hTree, _In_ UINT id) noexcept
+	{
+		return TreeView_MapAccIDToHTREEITEM(hTree, id);
+	}
+
+	/// <summary>
+	/// Maps an HTREEITEM to an accessibility ID.
+	/// </summary>
+	/// <param name="hTree">- Handle to the tree-view control.</param>
+	/// <param name="hItem">- The value to be mapped.</param>
+	/// <returns>Returns an accessibility ID.</returns>
+	/// <remarks>
+	/// <para>To use TreeView_MapHTREEITEMToAccID, specify Comctl32.dll version 6 in the manifest.</para>
+	/// <para>The accessibility ID is not the same as that mentioned in IAccessibleObject.</para>
+	/// <para>This is a unique ID used for treeview items as long as treeitems do not exceed the max limit of UINT.</para>
+	/// </remarks>
+	inline UINT dcxTreeView_MapHTREEITEMToAccID(_In_ HWND hTree, _In_ HTREEITEM hItem) noexcept
+	{
+		return TreeView_MapHTREEITEMToAccID(hTree, hItem);
+	}
 
 	// Button
 
@@ -2706,7 +3109,7 @@ namespace Dcx
 	/// </summary>
 	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="lprng">- A CHARRANGE structure that receives the selection range.</param>
-	inline void dcxRichEdit_ExGetSel(_In_ HWND hwnd, _Inout_ CHARRANGE *lprng) noexcept
+	inline void dcxRichEdit_ExGetSel(_In_ HWND hwnd, _Inout_ CHARRANGE* lprng) noexcept
 	{
 		SendMessage(hwnd, EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(lprng));
 	}
@@ -2780,7 +3183,7 @@ namespace Dcx
 	///	<para>Microsoft Rich Edit 2.0 and later: This parameter is a CHARFORMAT2 structure, which is an extension of the CHARFORMAT structure.</para>
 	/// <para>The structure's cbSize member is set to indicate the version of the structure.</para>
 	///	</param>
-	inline DWORD dcxRichEdit_GetCharFormat(_In_ HWND hwnd, _In_ UINT dwRange, _Inout_ CHARFORMAT2 &chrFmt) noexcept
+	inline DWORD dcxRichEdit_GetCharFormat(_In_ HWND hwnd, _In_ UINT dwRange, _Inout_ CHARFORMAT2& chrFmt) noexcept
 	{
 		chrFmt.cbSize = sizeof(CHARFORMAT2);
 		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_GETCHARFORMAT, dwRange, reinterpret_cast<LPARAM>(&chrFmt)));
@@ -2931,7 +3334,7 @@ namespace Dcx
 	///	</param>
 	/// <param name="lpstrm">- Pointer to an EDITSTREAM structure. On input, the pfnCallback member of this structure must point to an application defined EditStreamCallback function. On output, the dwError member can contain a nonzero error code if an error occurred.</param>
 	/// <returns>This message returns the number of characters written to the data stream.</returns>
-	inline int dcxRichEdit_StreamOut(_In_ HWND hwnd, _In_ DWORD dwFlags, _Inout_ EDITSTREAM *lpstrm) noexcept
+	inline int dcxRichEdit_StreamOut(_In_ HWND hwnd, _In_ DWORD dwFlags, _Inout_ EDITSTREAM* lpstrm) noexcept
 	{
 		return gsl::narrow_cast<int>(SendMessage(hwnd, EM_STREAMOUT, dwFlags, reinterpret_cast<LPARAM>(lpstrm)));
 	}
@@ -2966,7 +3369,7 @@ namespace Dcx
 	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="rng">- A TEXTRANGE structure that specifies the range of characters to retrieve and a buffer to copy the characters to.</param>
 	/// <returns>The message returns the number of characters copied, not including the terminating null character.</returns>
-	inline DWORD dcxRichEdit_GetTextRange(_In_ HWND hwnd, _Inout_ TEXTRANGE &rng) noexcept
+	inline DWORD dcxRichEdit_GetTextRange(_In_ HWND hwnd, _Inout_ TEXTRANGE& rng) noexcept
 	{
 		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&rng)));
 	}
