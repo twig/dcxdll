@@ -2978,7 +2978,7 @@ HANDLE CreateHDCBufferOptions(_In_ HDC hdc, _Out_ HDC* hdcOut, _In_ bool bCopySe
 	return reinterpret_cast<HANDLE>(buf.release());
 }
 
-void DeleteHDCBufferOptions(_In_opt_ HANDLE hBuf, bool bDraw) noexcept
+void DeleteHDCBufferOptions(_In_opt_ HANDLE hBuf, _In_ bool bDraw) noexcept
 {
 	if (!hBuf)
 		return;
@@ -3186,7 +3186,7 @@ BOOL dcxGetWindowRect(const HWND hWnd, const LPRECT lpRect) noexcept
 	// GetWindowRect does not return the real size of a window if you are using vista with areo glass
 	// using DwmGetWindowAttribute now to fix that (fixes bug 685)
 	if (Dcx::DwmModule.isUseable())
-		return (Dcx::DwmModule.dcxDwmGetWindowAttribute(hWnd, DWMWA_EXTENDED_FRAME_BOUNDS, lpRect, sizeof(RECT)) == S_OK);
+		return (DcxDWMModule::dcxDwmGetWindowAttribute(hWnd, DWMWA_EXTENDED_FRAME_BOUNDS, lpRect, sizeof(RECT)) == S_OK);
 
 	return GetWindowRect(hWnd, lpRect);
 }
