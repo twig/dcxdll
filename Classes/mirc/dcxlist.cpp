@@ -1183,7 +1183,7 @@ bool DcxList::DrawItem(_In_opt_ LPDRAWITEMSTRUCT lpDrawItem)
 }
 
 	// draw focus rect around item.
-	if (dcx_testflag(lpDrawItem->itemState, ODS_FOCUS))
+	if (dcx_testflag(lpDrawItem->itemState, ODS_FOCUS) && !dcx_testflag(lpDrawItem->itemState, ODS_NOFOCUSRECT))
 		DrawFocusRect(lpDrawItem->hDC, &rc);
 
 	if (clrText != CLR_INVALID)
