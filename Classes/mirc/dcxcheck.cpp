@@ -274,13 +274,41 @@ void DcxCheck::parseCommandRequest(const TString& input)
 
 		const XSwitchFlags xFlags(input.getnexttok());
 		const XSwitchFlags xMask(input.getnexttok());
+		const TString tsArgs(input.getlasttoks());
 
 		if (!xFlags[L'+'] || !xMask[L'+'])
 			throw DcxExceptions::dcxInvalidFlag();
 
+		// rounded checkbox
 		if (xFlags[L'r'])
 		{
 			this->m_bRoundedCheckBox = xMask[L'r'];
+		}
+
+		// margins
+		if (xFlags[L'm'])
+		{
+			if (xMask[L'm'])
+			{
+				// ARGS = left top right text
+				// no bottom is set
+				if (tsArgs.numtok() != 4)
+					throw DcxExceptions::dcxInvalidArguments();
+
+				if (const auto tmp = tsArgs.getfirsttok(1).to_int(); tmp >= 0)
+					m_CheckMargins.cxLeftWidth = tmp;
+				if (const auto tmp = tsArgs.getnexttokas<int>(); tmp >= 0)
+					m_CheckMargins.cyTopHeight = tmp;
+				if (const auto tmp = tsArgs.getnexttokas<int>(); tmp >= 0)
+					m_CheckMargins.cxRightWidth = tmp;
+				if (const auto tmp = tsArgs.getnexttokas<int>(); tmp >= 0)
+					m_CheckMargins.cyBottomHeight = tmp;
+			}
+			else {
+				const MARGINS tmp{};
+				m_CheckMargins = tmp;
+	}
+			this->InvalidateAndUpdate(nullptr);
 		}
 	}
 	//xdid -t [NAME] [ID] [SWITCH] ItemText
@@ -977,10 +1005,11 @@ void DcxCheck::ctrlDrawCheckBox(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT 
 	RECT rcCheck{};
 	const SIZE szCheckSize = DcxUXModule::dcxGetCheckBoxSize(hTheme, m_Hwnd, hdcPaint, rc);
 
-	rcCheck.left = rc->left /*+ 1*/;
+	rcCheck.left = rc->left + m_CheckMargins.cxLeftWidth;
 	rcCheck.right = rcCheck.left + szCheckSize.cx;
 	// center checkbox vertically in control
 	rcCheck.top = ((rc->bottom - rc->top) / 2) - (szCheckSize.cy / 2);
+	rcCheck.top += m_CheckMargins.cyTopHeight;
 	rcCheck.bottom = rcCheck.top + szCheckSize.cy;
 
 	if (this->m_bCustom)
@@ -1057,7 +1086,7 @@ void DcxCheck::ctrlDrawCheckBox(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT 
 	}
 
 	// move left edge of rect past the checkbox
-	rc->left = rcCheck.right + 1;
+	rc->left = rcCheck.right + 1 + m_CheckMargins.cxRightWidth;
 }
 
 void DcxCheck::ctrlDrawCheckText(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus)
@@ -1068,6 +1097,9 @@ void DcxCheck::ctrlDrawCheckText(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT
 	const auto tsText(TGetWindowText(m_Hwnd));
 	if (tsText.empty())
 		return;
+
+	RECT rcBase{ *rc };
+	rcBase.left += m_CheckMargins.cyBottomHeight;
 
 	if (!this->m_TextOptions.m_bUseNewStyle)
 	{
@@ -1091,7 +1123,7 @@ void DcxCheck::ctrlDrawCheckText(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT
 				//if (!IsWindowEnabled(m_Hwnd))
 				//	tsText.strip();
 
-				DcxUXModule::dcxDrawThemeTextEx(hTheme, hdcPaint, BUTTONPARTS::BP_CHECKBOX, iState, tsText.to_wchr(), tsText.len(), DT_LEFT | DT_SINGLELINE | DT_VCENTER, rc, &dtt);
+				DcxUXModule::dcxDrawThemeTextEx(hTheme, hdcPaint, BUTTONPARTS::BP_CHECKBOX, iState, tsText.to_wchr(), tsText.len(), DT_LEFT | DT_SINGLELINE | DT_VCENTER, &rcBase, &dtt);
 				return;
 			}
 		}
@@ -1103,10 +1135,10 @@ void DcxCheck::ctrlDrawCheckText(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT
 	calcTextRect(hdcPaint, tsText, std::addressof(rcText), DT_LEFT | DT_SINGLELINE /*| DT_VCENTER*/);
 
 	// set right hand limit to the size of the control.
-	rcText.right = rc->right;
+	rcText.right = rcBase.right;
 
 	// offset text to right of checkbox, & vertically centered.
-	OffsetRect(&rcText, rc->left, ((rc->bottom - rc->top) / 2) - ((rcText.bottom - rcText.top) / 2));
+	OffsetRect(&rcText, rcBase.left, ((rcBase.bottom - rcBase.top) / 2) - ((rcText.bottom - rcText.top) / 2));
 
 	// finally draw text.
 	ctrlDrawText(hdcPaint, tsText, std::addressof(rcText), DT_LEFT | DT_SINGLELINE /*| DT_VCENTER*/);
