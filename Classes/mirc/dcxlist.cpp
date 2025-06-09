@@ -911,6 +911,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 		}
 	}
 	break;
+
 	case WM_DRAWITEM:
 	{
 		dcxlParam(LPDRAWITEMSTRUCT, lpDrawItem);
@@ -933,6 +934,11 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 
 	//case WM_CTLCOLORLISTBOX:
 	//{
+	//	if (isExStyle(WindowExStyle::Transparent))
+	//	{
+	//		bParsed = TRUE;
+	//		return (LRESULT)GetStockBrush(HOLLOW_BRUSH);
+	//	}
 	//}
 	//break;
 
@@ -1132,7 +1138,7 @@ bool DcxList::DrawItem(_In_opt_ LPDRAWITEMSTRUCT lpDrawItem)
 	COLORREF clrText = CLR_INVALID;
 
 	CopyRect(&rc, &lpDrawItem->rcItem);
-//#ifdef USE_FIX_01
+
 	if (isExStyle(WindowExStyle::Transparent) || IsAlphaBlend())
 		DrawParentsBackground(lpDrawItem->hDC, &rc);
 	else if (!getBackClrBrush())
@@ -1144,7 +1150,7 @@ bool DcxList::DrawItem(_In_opt_ LPDRAWITEMSTRUCT lpDrawItem)
 //		FillRect(lpDrawItem->hDC, &rc, Dcx::dcxGetStockObject<HBRUSH>(WHITE_BRUSH));
 //	else
 //		DcxControl::DrawCtrlBackground(lpDrawItem->hDC, this, &rc);
-//#endif
+
 	if (dcx_testflag(lpDrawItem->itemState, ODS_SELECTED))
 	{
 		// fill background with selected colour.

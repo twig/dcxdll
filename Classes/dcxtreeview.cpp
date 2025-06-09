@@ -2390,7 +2390,7 @@ void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	if (!hdc)
 		return;
 
-#ifdef DCX_USE_GDIPLUS
+	//CleanUpParentCache();
 	if (m_bCustomDraw /*&& (m_pImage.m_pImage || m_bTransparent)*/)
 	{
 		if (!m_BitmapCache)
