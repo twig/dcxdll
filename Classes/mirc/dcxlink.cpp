@@ -148,12 +148,6 @@ void DcxLink::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 dcxWindowStyles DcxLink::parseControlStyles(const TString& tsStyles)
 {
 	//auto ws = parseGeneralControlStyles(tsStyles);
@@ -188,7 +182,6 @@ dcxWindowStyles DcxLink::parseControlStyles(const TString& tsStyles)
  *
  * \return > void
  */
-
 TString DcxLink::parseInfoRequest(const TString& input) const
 {
 	// [NAME] [ID] [PROP]
@@ -272,11 +265,6 @@ void DcxLink::parseCommandRequest(const TString& input)
 		this->parseGlobalCommandRequest(input, flags);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 LRESULT DcxLink::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
 {
 	return 0L;
@@ -327,8 +315,7 @@ LRESULT DcxLink::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 			InvalidateRect(m_Hwnd, nullptr, FALSE);
 
-		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
-			this->execAliasEx(TEXT("lbdown,%u"), getUserID());
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
 	}
 	break;
 
@@ -338,8 +325,7 @@ LRESULT DcxLink::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 		InvalidateRect(m_Hwnd, nullptr, FALSE);
 
-		if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
-			this->execAliasEx(TEXT("lbup,%u"), getUserID());
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
 	}
 	break;
 
