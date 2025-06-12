@@ -1077,10 +1077,18 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		cd.m_rcText.left += m_CheckMargins.cxRightWidth + m_CheckMargins.cxLeftWidth;
 	}
 
+	// weirdly BS_RIGHT seems to be set whenever we set BS_CENTER
+	if (cd.m_bRightJustify)
+	{
+		cd.m_textFlags |= DT_RIGHT;
+		cd.m_textFlags &= ~DT_CENTER;
+	}
+
 	// set horiz positioning. (just for text & focus)
 	if (cd.m_bHCenter)
 	{
 		cd.m_textFlags |= DT_CENTER;
+		cd.m_textFlags &= ~DT_RIGHT;
 
 		if (cd.m_bRightButton)
 		{
