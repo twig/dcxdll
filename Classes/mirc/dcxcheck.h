@@ -56,10 +56,49 @@ public:
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 
 private:
+	struct dcxCheckData
+	{
+		WindowStyle m_WinStyle{};
+
+		HTHEME m_hTheme{};
+
+		RECT m_rc{};
+		RECT m_rcCheck{};
+		RECT m_rcText{};
+		RECT m_rcFocus{};
+
+		SIZE m_szCheckSize{};
+
+		HDC m_hdcPaint{};
+
+		int m_ButtonState{};
+		int m_iState{};
+
+		UINT m_DrawFrameState{};
+		UINT m_DrawState{};
+
+		DWORD m_textFlags{ DT_LEFT | DT_SINGLELINE };
+
+		bool m_bDisabled{};
+		bool m_bChecked{};
+		bool m_bSelected{};
+		bool m_bIndeterminate{};
+		bool m_bFocus{};
+		bool m_bHot{};
+		bool m_b3State{};
+		bool m_bRightJustify{};
+		bool m_bVCenter{};
+		bool m_bHCenter{};
+		bool m_bRightButton{};
+		bool m_bPushLike{};
+
+		TString m_tsText;
+	};
+
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
-	void ctrlDrawBackground(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus);
-	void ctrlDrawCheckBox(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus, bool b3State) noexcept;
-	void ctrlDrawCheckText(HTHEME hTheme, int iState, HDC hdcPaint, LPRECT rc, bool bFocus);
+	void ctrlDrawBackground(dcxCheckData& cd);
+	void ctrlDrawCheckBox(dcxCheckData& cd) noexcept;
+	void ctrlDrawCheckText(dcxCheckData& cd);
 
 	bool m_bCustom{};
 	bool m_bRoundedCheckBox{};
