@@ -53,6 +53,11 @@ bool DcxDWMModule::load(void)
 		DwmEnableBlurBehindWindowUx = (PFNDWMENABLEBLURBEHINDWINDOW) GetProcAddress(m_hModule, "DwmEnableBlurBehindWindow"); // Vista ONLY!
 		DwmGetColorizationColorUx = (PFNDWMGETCOLORIZATIONCOLOR) GetProcAddress(m_hModule, "DwmGetColorizationColor"); // Vista ONLY!
 
+		DwmRegisterThumbnailUx = reinterpret_cast<decltype(::DwmRegisterThumbnail)*>(GetProcAddress(m_hModule, "DwmRegisterThumbnail"));
+		DwmUnregisterThumbnailUx = reinterpret_cast<decltype(::DwmUnregisterThumbnail)*>(GetProcAddress(m_hModule, "DwmUnregisterThumbnail"));
+		DwmUpdateThumbnailPropertiesUx = reinterpret_cast<decltype(::DwmUpdateThumbnailProperties)*>(GetProcAddress(m_hModule, "DwmUpdateThumbnailProperties"));
+		DwmQueryThumbnailSourceSizeUx = reinterpret_cast<decltype(::DwmQueryThumbnailSourceSize)*>(GetProcAddress(m_hModule, "DwmQueryThumbnailSourceSize"));
+
 #pragma warning(pop)
 
 #if DCX_DEBUG_OUTPUT
@@ -77,6 +82,10 @@ bool DcxDWMModule::unload(void) noexcept
 		DwmExtendFrameIntoClientAreaUx = nullptr;
 		DwmEnableBlurBehindWindowUx = nullptr;
 		DwmGetColorizationColorUx = nullptr;
+		DwmRegisterThumbnailUx = nullptr;
+		DwmUnregisterThumbnailUx = nullptr;
+		DwmUpdateThumbnailPropertiesUx = nullptr;
+		DwmQueryThumbnailSourceSizeUx = nullptr;
 	}
 	return isUseable();
 }
@@ -134,4 +143,32 @@ HRESULT DcxDWMModule::dcxDwmGetColorizationColor( __out  DWORD *pcrColorization,
 	if (DwmGetColorizationColorUx != nullptr)
 		return DwmGetColorizationColorUx(pcrColorization, pfOpaqueBlend);
 	return DWM_E_COMPOSITIONDISABLED;
+}
+
+HRESULT DcxDWMModule::dcxDwmRegisterThumbnail(HWND hwndDestination, HWND hwndSource, PHTHUMBNAIL phThumbnailId) noexcept
+{
+	if (DwmRegisterThumbnailUx != nullptr)
+		return DwmRegisterThumbnailUx(hwndDestination, hwndSource, phThumbnailId);
+	return E_NOTIMPL;
+}
+
+HRESULT DcxDWMModule::dcxDwmUnregisterThumbnail(HTHUMBNAIL hThumbnailId) noexcept
+{
+	if (DwmUnregisterThumbnailUx != nullptr)
+		return DwmUnregisterThumbnailUx(hThumbnailId);
+	return E_NOTIMPL;
+}
+
+HRESULT DcxDWMModule::dcxDwmUpdateThumbnailProperties(HTHUMBNAIL hThumbnailId, const DWM_THUMBNAIL_PROPERTIES* ptnProperties) noexcept
+{
+	if (DwmUpdateThumbnailPropertiesUx != nullptr)
+		return DwmUpdateThumbnailPropertiesUx(hThumbnailId, ptnProperties);
+	return E_NOTIMPL;
+}
+
+HRESULT DcxDWMModule::dcxDwmQueryThumbnailSourceSize(HTHUMBNAIL hThumbnail, PSIZE pSize) noexcept
+{
+	if (DwmQueryThumbnailSourceSizeUx != nullptr)
+		return DwmQueryThumbnailSourceSizeUx(hThumbnail, pSize);
+	return E_NOTIMPL;
 }

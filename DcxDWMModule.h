@@ -18,6 +18,10 @@ class DcxDWMModule final
 	static inline PFNDWMEXTENDFRAMEINTOCLIENTAREA DwmExtendFrameIntoClientAreaUx = nullptr;
 	static inline PFNDWMENABLEBLURBEHINDWINDOW DwmEnableBlurBehindWindowUx = nullptr;
 	static inline PFNDWMGETCOLORIZATIONCOLOR DwmGetColorizationColorUx = nullptr;
+	static inline decltype(::DwmRegisterThumbnail)* DwmRegisterThumbnailUx = nullptr;
+	static inline decltype(::DwmUnregisterThumbnail)* DwmUnregisterThumbnailUx = nullptr;
+	static inline decltype(::DwmUpdateThumbnailProperties)* DwmUpdateThumbnailPropertiesUx = nullptr;
+	static inline decltype(::DwmQueryThumbnailSourceSize)* DwmQueryThumbnailSourceSizeUx = nullptr;
 
 public:
 	constexpr DcxDWMModule(void) noexcept
@@ -40,6 +44,10 @@ public:
 	static HRESULT dcxDwmExtendFrameIntoClientArea(HWND hwnd, const MARGINS *pMarInset) noexcept;
 	static HRESULT dcxDwmEnableBlurBehindWindow(HWND hwnd, __in const DWM_BLURBEHIND *pBlurBehind) noexcept;
 	static HRESULT dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend) noexcept;
+	static HRESULT dcxDwmRegisterThumbnail(_In_ HWND hwndDestination, _In_ HWND hwndSource, _Out_ PHTHUMBNAIL phThumbnailId) noexcept;
+	static HRESULT dcxDwmUnregisterThumbnail(_In_ HTHUMBNAIL hThumbnailId) noexcept;
+	static HRESULT dcxDwmUpdateThumbnailProperties(_In_ HTHUMBNAIL hThumbnailId, _In_ const DWM_THUMBNAIL_PROPERTIES* ptnProperties) noexcept;
+	static HRESULT dcxDwmQueryThumbnailSourceSize(_In_ HTHUMBNAIL hThumbnail, _Out_ PSIZE pSize) noexcept;
 
 	const bool &isAero(void) const noexcept { return m_bAero; };
 };
