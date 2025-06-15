@@ -93,7 +93,6 @@ using LPMCOMBO_ITEM = MCOMBO_ITEM*;
 //};
 //using LPMCOMBO_TREEVIEWITEM = MCOMBO_TREEVIEWITEM*;
 
-//#ifdef BUILD_MCOMBO_CLASS
 struct MCOMBO_DATA
 {
 	HWND m_hBase{};				// base window that joins everything together.
@@ -181,6 +180,3 @@ void MultiCombo_SetSel(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 void MultiCombo_DeleteItem(HWND mHwnd, WPARAM wParam) noexcept;
 
 void MultiCombo_SetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam);
-
-
-//#endif

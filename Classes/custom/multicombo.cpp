@@ -956,7 +956,7 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 			if (!GetClassInfoExW(cs->hInstance, MCOMBO_DROPCLASS, &wc))
 			{
 				wc.cbSize = sizeof(WNDCLASSEX);
-				wc.style = CS_HREDRAW | CS_VREDRAW;
+				wc.style = CS_HREDRAW | CS_VREDRAW | CS_DROPSHADOW;
 				wc.lpfnWndProc = MultiComboDropWndProc;
 				wc.cbClsExtra = 0;
 				wc.cbWndExtra = 0;
