@@ -491,7 +491,8 @@ void DcxUXModule::dcxRefreshTitleBarThemeColor(_In_opt_ HWND mHwnd) noexcept
 	{
 		dark = TRUE;
 	}
-	DcxDWMModule::dcxDwmSetWindowAttribute(mHwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof(dark));
+	if (Dcx::VersInfo.isWin11())
+		DcxDWMModule::dcxDwmSetWindowAttribute(mHwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof(dark));	// this is Windows 11 Build 22000+ only
 }
 
 int DcxUXModule::dcxGetTextGlowSize() noexcept
