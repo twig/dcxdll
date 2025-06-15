@@ -997,7 +997,7 @@ namespace Dcx
 	/// <summary>
 	/// Test where cursor is over control.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	LVHITTESTINFO dcxListView_CursorHitTest(_In_ HWND hwnd) noexcept;
 
@@ -1006,7 +1006,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="hdti"></param>
 	/// <returns></returns>
 	inline LRESULT dcxHeader_HitTest(_In_ HWND hwnd, _Inout_ LPHDHITTESTINFO hdti) noexcept
@@ -1017,7 +1017,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="i"></param>
 	/// <param name="phi"></param>
 	/// <returns></returns>
@@ -1029,7 +1029,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="i"></param>
 	/// <param name="phi"></param>
 	/// <returns></returns>
@@ -1041,21 +1041,42 @@ namespace Dcx
 	// ListBox
 
 	/// <summary>
-	/// Add a string to the listbox
+	/// Adds a string to a list box at the specified location.
 	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <param name="nPos"></param>
-	/// <param name="txt"></param>
-	/// <returns></returns>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="nPos">- The zero-based index in the list at which to insert the item data, or –1 to add it to the end of the list.</param>
+	/// <param name="txt">- The string to add.</param>
+	/// <returns>The return value is the zero-based index of the string in the list box. If an error occurs, the return value is LB_ERR. If there is insufficient space to store the new string, the return value is LB_ERRSPACE.</returns>
 	inline int dcxListBox_InsertString(_In_ HWND hwnd, _In_ int nPos, _In_ const TString& txt) noexcept
 	{
 		return ListBox_InsertString(hwnd, nPos, txt.to_chr());
 	}
 
 	/// <summary>
+	/// Inserts item data to a list box at the specified location.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="nPos">- The zero-based index in the list at which to insert the item data, or –1 to add it to the end of the list.</param>
+	/// <param name="data">- A pointer to the item data to insert.</param>
+	/// <returns>The return value is the zero-based index of the item in the list box. If an error occurs, the return value is LB_ERR. If there is insufficient space to store the new string, the return value is LB_ERRSPACE.</returns>
+	inline int dcxListBox_InsertItemData(_In_ HWND hwnd, _In_ int nPos, _In_ LPARAM data) noexcept
+	{
+		return ListBox_InsertItemData(hwnd, nPos, data);
+	}
+
+	/// <summary>
+	/// Removes all items from a list box.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	inline void dcxListBox_ResetContent(_In_ HWND hwnd) noexcept
+	{
+		ListBox_ResetContent(hwnd);
+	}
+
+	/// <summary>
 	/// Allocates memory for storing list box items. This message is used before an application adds a large number of items to a list box.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="nItems"></param>
 	/// <param name="nMem"></param>
 	/// <returns></returns>
@@ -1067,7 +1088,7 @@ namespace Dcx
 	/// <summary>
 	/// Get an items rect.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="nPos"></param>
 	/// <param name="prc"></param>
 	/// <returns>true on success</returns>
@@ -1077,40 +1098,180 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Gets the application-defined value associated with the specified list box item.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="nPos">- The zero-based index of the item.</param>
+	/// <returns>The item data.</returns>
+	inline LRESULT dcxListBox_GetItemData(_In_ HWND hwnd, _In_ int nPos) noexcept
+	{
+		return ListBox_GetItemData(hwnd, nPos);
+	}
+
+	/// <summary>
+	/// Retrieves the height of items in a list box. If the list box has the LBS_OWNERDRAWVARIABLE style, this macro gets the height of the specified item; otherwise, it gets the height of all items.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="nPos">- The zero-based index of the item. If the list box does not have the LBS_OWNERDRAWVARIABLE style, set this parameter to zero.</param>
+	/// <returns>The height, in pixels, of the item or items, or LB_ERR if an error occurs.</returns>
+	inline int dcxListBox_GetItemHeight(_In_ HWND hwnd, _In_ int nPos) noexcept
+	{
+		return ListBox_GetItemHeight(hwnd, nPos);
+	}
+
+	/// <summary>
 	/// Get the length of an items text.
 	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <param name="nPos"></param>
-	/// <returns></returns>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="nPos">- The zero-based index of the item.</param>
+	/// <returns>The count of characters in the string.</returns>
 	inline int dcxListBox_GetTextLen(_In_ HWND hwnd, _In_ int nPos) noexcept
 	{
 		return ListBox_GetTextLen(hwnd, nPos);
 	}
 
 	/// <summary>
-	/// Get the max horizontal distance required to display all items.
+	/// Gets the width that a list box can be scrolled horizontally (the scrollable width) if the list box has a horizontal scroll bar.
 	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <returns></returns>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <returns>The scrollable width, in pixels, of the list box.</returns>
 	inline int dcxListBox_GetHorizontalExtent(_In_ HWND hwnd) noexcept
 	{
 		return ListBox_GetHorizontalExtent(hwnd);
 	}
 
 	/// <summary>
-	/// Set the max horizontal distance required to display all items.
+	/// Set the width by which a list box can be scrolled horizontally (the scrollable width). If the width of the list box is smaller than this value, the horizontal scroll bar horizontally scrolls items in the list box. If the width of the list box is equal to or greater than this value, the horizontal scroll bar is hidden.
 	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <param name="nExtent"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="nExtent">- The number of pixels by which the list box can be scrolled.</param>
 	inline void dcxListBox_SetHorizontalExtent(_In_ HWND hwnd, _In_ int nExtent) noexcept
 	{
 		ListBox_SetHorizontalExtent(hwnd, nExtent);
 	}
 
 	/// <summary>
+	/// Sets the application-defined value associated with the specified list box item.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="index">- The zero-based index of the item.</param>
+	/// <param name="data">- The item data to set.</param>
+	/// <returns>If an error occurs, the return value is LB_ERR.</returns>
+	inline int dcxListBox_SetItemData(_In_ HWND hwnd, _In_ int index, _In_ LPARAM data) noexcept
+	{
+		return ListBox_SetItemData(hwnd, index, data);
+	}
+
+	/// <summary>
+	/// Sets the height of items in a list box. If the list box has the LBS_OWNERDRAWVARIABLE style, this macro sets the height of the specified item; otherwise, it sets the height of all items.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="index">- The zero-based index of the item.</param>
+	/// <param name="cy">- The height of the item or items, in pixels.</param>
+	/// <returns>If the index or height is invalid, the return value is LB_ERR.</returns>
+	inline int dcxListBox_SetItemHeight(_In_ HWND hwnd, _In_ int index, _In_ LPARAM cy) noexcept
+	{
+		return ListBox_SetItemData(hwnd, index, cy);
+	}
+
+	/// <summary>
+	/// Selects or deselects an item in a multiple-selection list box.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="fSelect">- TRUE to select the item, or FALSE to deselect it.</param>
+	/// <param name="index">- The zero-based index of the item.</param>
+	/// <returns>If an error occurs, the return value is LB_ERR.</returns>
+	inline int dcxListBox_SetSel(_In_ HWND hwnd, _In_ BOOL fSelect, _In_ int index) noexcept
+	{
+		return ListBox_SetSel(hwnd, fSelect, index);
+	}
+
+	/// <summary>
+	/// Sets the tab-stop positions in a list box.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="cTabs">- The number of elements in the lpTabs array.</param>
+	/// <param name="lpTabs">- A pointer to an array of integers containing the tab stops. The integers represent the number of quarters of the average character width for the font that is selected into the list box. For example, a tab stop of 4 is placed at 1.0 character units, and a tab stop of 6 is placed at 1.5 average character units. However, if the list box is part of a dialog box, the integers are in dialog template units. The tab stops must be sorted in ascending order; backward tabs are not allowed.</param>
+	/// <returns>If all the specified tabs are set, the return value is TRUE; otherwise, it is FALSE.</returns>
+	inline bool dcxListBox_SetTabStops(_In_ HWND hwnd, _In_ int cTabs, _In_reads_(cTabs) const int *lpTabs) noexcept
+	{
+		return (ListBox_SetTabStops(hwnd, cTabs, lpTabs) != FALSE);
+	}
+
+	/// <summary>
+	/// Searches a list box for an item that has the specified item data. If a matching item is found, the item is selected.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="indexStart">- The zero-based index of the item before the first item to be searched. When the search reaches the bottom of the list box, it continues searching from the top of the list box back to the item specified by the indexStart parameter. If indexStart is –1, the entire list box is searched from the beginning.</param>
+	/// <param name="data">- The item data to find.</param>
+	/// <returns>If the search is successful, the return value is the index of the selected item. If the search is unsuccessful, the return value is LB_ERR and the current selection is not changed.</returns>
+	inline int dcxListBox_SelectItemData(_In_ HWND hwnd, _In_ int indexStart, _In_ LPARAM data) noexcept
+	{
+		return ListBox_SelectItemData(hwnd, indexStart, data);
+	}
+
+	/// <summary>
+	/// Searches a list box for an item that begins with the characters in a specified string. If a matching item is found, the item is selected.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="indexStart">- The zero-based index of the item before the first item to be searched. When the search reaches the bottom of the list box, it continues searching from the top of the list box back to the item specified by the indexStart parameter. If indexStart is –1, the entire list box is searched from the beginning.</param>
+	/// <param name="lpszFind">- The string to find.</param>
+	/// <returns>If the search is successful, the return value is the index of the selected item. If the search is unsuccessful, the return value is LB_ERR and the current selection is not changed.</returns>
+	inline int dcxListBox_SelectString(_In_ HWND hwnd, _In_ int indexStart, _In_ LPCTSTR lpszFind) noexcept
+	{
+		return ListBox_SelectString(hwnd, indexStart, lpszFind);
+	}
+
+	/// <summary>
+	/// Selects or deselects one or more consecutive items in a multiple-selection list box.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="fSelect">- TRUE to select the range of items, or FALSE to deselect it.</param>
+	/// <param name="first">- The zero-based index of the first item to select.</param>
+	/// <param name="last">- The zero-based index of the last item to select.</param>
+	/// <returns>If an error occurs, the return value is LB_ERR.</returns>
+	inline int dcxListBox_SelItemRange(_In_ HWND hwnd, _In_ BOOL fSelect, _In_ int first, _In_ int last) noexcept
+	{
+		return ListBox_SelItemRange(hwnd, fSelect, first, last);
+	}
+
+	/// <summary>
+	/// Sets the focus rectangle to the item at the specified index in a multiple-selection list box.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="index">- the zero-based index of the list box item that is to receive the focus rectangle.</param>
+	/// <returns>If an error occurs, the return value is LB_ERR.</returns>
+	/// <remarks>The contents of the list box are scrolled till the item is fully visible.</remarks>
+	inline int dcxListBox_SetCaretIndex(_In_ HWND hwnd, _In_ int index) noexcept
+	{
+		return ListBox_SetCaretIndex(hwnd, index);
+	}
+
+	/// <summary>
+	/// Sets the width of all columns in a multiple-column list box.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="cxColumn">- The width, in pixels, of all columns.</param>
+	inline void dcxListBox_SetColumnWidth(_In_ HWND hwnd, _In_ int cxColumn) noexcept
+	{
+		ListBox_SetColumnWidth(hwnd, cxColumn);
+	}
+
+	/// <summary>
+	/// Sets the currently selected item in a single-selection list box.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="index">- The zero-based index of the item to select, or –1 to clear the selection.</param>
+	/// <returns>If an error occurs, the return value is LB_ERR. If the index parameter is –1, the return value is LB_ERR even though no error occurred.</returns>
+	inline int dcxListBox_SetCurSel(_In_ HWND hwnd, _In_ int index) noexcept
+	{
+		return ListBox_SetCurSel(hwnd, index);
+	}
+
+	/// <summary>
 	/// Get the total count of items.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	inline int dcxListBox_GetCount(_In_ HWND hwnd) noexcept
 	{
@@ -1120,9 +1281,10 @@ namespace Dcx
 	/// <summary>
 	/// Set the top visible item.
 	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <param name="iIndex"></param>
-	/// <returns></returns>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="iIndex">- The zero-based index of the item to put at the top of the visible part of the list.</param>
+	/// <returns>If an error occurs, the return value is LB_ERR.</returns>
+	/// <remarks>The list box contents are scrolled so that either the specified item appears at the top of the list box or the maximum scroll range has been reached.</remarks>
 	inline int dcxListBox_SetTopIndex(_In_ HWND hwnd, _In_ int iIndex) noexcept
 	{
 		return ListBox_SetTopIndex(hwnd, iIndex);
@@ -1131,8 +1293,8 @@ namespace Dcx
 	/// <summary>
 	/// Get the top visible item.
 	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <returns></returns>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <returns>The zero-based index of the first visible item.</returns>
 	inline int dcxListBox_GetTopIndex(_In_ HWND hwnd) noexcept
 	{
 		return ListBox_GetTopIndex(hwnd);
@@ -1141,10 +1303,10 @@ namespace Dcx
 	/// <summary>
 	/// Get an items text.
 	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <param name="i"></param>
-	/// <param name="buf"></param>
-	/// <returns></returns>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="i">- The zero-based index of the item.</param>
+	/// <param name="buf">- A pointer to the buffer that will receive the string. The buffer must have sufficient space for the string and a terminating null character. Before allocating the buffer, you can call dcxListBox_GetTextLen to retrieve the length of the string.</param>
+	/// <returns>The count of characters in the string, excluding the terminating null character. If index does not specify a valid item, the return value is LB_ERR.</returns>
 	inline int dcxListBox_GetText(_In_ HWND hwnd, _In_ int i, _Inout_z_ TCHAR* buf) noexcept
 	{
 		return ListBox_GetText(hwnd, i, buf);
@@ -1153,15 +1315,15 @@ namespace Dcx
 	/// <summary>
 	/// Get an items text.
 	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <param name="i"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="i">- The zero-based index of the item.</param>
 	/// <returns></returns>
 	[[nodiscard]] TString dcxListBox_GetText(_In_ HWND hwnd, _In_ int i);
 
 	/// <summary>
 	/// Get the item at a specific point.
 	/// </summary>
-	/// <param name="hListbox"></param>
+	/// <param name="hListbox">- A handle to the control.</param>
 	/// <param name="pt">Position in screen coordinates.</param>
 	/// <returns>Item number or -1 if no item</returns>
 	int dcxListBox_GetPointItem(_In_ HWND hListbox, _In_ POINT pt) noexcept;
@@ -1169,7 +1331,7 @@ namespace Dcx
 	/// <summary>
 	/// Get the item the mouse is currently over
 	/// </summary>
-	/// <param name="hListbox"></param>
+	/// <param name="hListbox">- A handle to the control.</param>
 	/// <returns></returns>
 	int dcxListBox_GetHoverItem(_In_ HWND hListbox) noexcept;
 
@@ -1177,7 +1339,7 @@ namespace Dcx
 	/// Test where a point is
 	/// uses the same return codes as Listviews LVM_HITTEST, and the same structure.
 	/// </summary>
-	/// <param name="hListbox"></param>
+	/// <param name="hListbox">- A handle to the control.</param>
 	/// <param name="phti"></param>
 	/// <returns>true on success</returns>
 	bool dcxListBox_HitTest(_In_ HWND hListbox, _Inout_ LPLVHITTESTINFO phti) noexcept;
@@ -1185,7 +1347,7 @@ namespace Dcx
 	/// <summary>
 	/// Adds the specified filename to a list box that contains a directory listing.
 	/// </summary>
-	/// <param name="hListbox"></param>
+	/// <param name="hListbox">- A handle to the control.</param>
 	/// <param name="szFile">- A pointer to a buffer that specifies the name of the file to add.</param>
 	/// <returns></returns>
 	inline int dcxListBox_AddFile(_In_ HWND hListbox, _In_z_ TCHAR* szFile) noexcept
@@ -1196,20 +1358,32 @@ namespace Dcx
 	/// <summary>
 	/// Adds a string to a list box. If the list box does not have the LBS_SORT style, the string is added to the end of the list. Otherwise, the string is inserted into the list and the list is sorted.
 	/// </summary>
-	/// <param name="hListbox"></param>
+	/// <param name="hListbox">- A handle to the control.</param>
 	/// <param name="szStr">- A pointer to the null-terminated string that is to be added.</param>
-	/// <returns></returns>
+	/// <returns>The return value is the zero-based index of the string in the list box. If an error occurs, the return value is LB_ERR. If there is insufficient space to store the new string, the return value is LB_ERRSPACE.</returns>
 	inline int dcxListBox_AddString(_In_ HWND hListbox, _In_z_ TCHAR* szStr) noexcept
 	{
 		return ListBox_AddString(hListbox, szStr);
 	}
 
 	/// <summary>
+	/// Adds item data to the list box at the specified location.
+	/// </summary>
+	/// <param name="hListbox">- A handle to the control.</param>
+	/// <param name="data">- A pointer to the item data to add.</param>
+	/// <returns>The return value is the zero-based index of the item in the list. If an error occurs, the return value is LB_ERR. If there is insufficient space to store the new string, the return value is LB_ERRSPACE.</returns>
+	/// <remarks>Use this macro for a list box with an owner-drawn style but without the LBS_HASSTRINGS style.</remarks>
+	inline int dcxListBox_AddItemData(_In_ HWND hListbox, _In_ LPARAM data) noexcept
+	{
+		return ListBox_AddItemData(hListbox, data);
+	}
+
+	/// <summary>
 	/// Deletes a string in a list box.
 	/// </summary>
-	/// <param name="hListbox"></param>
+	/// <param name="hListbox">- A handle to the control.</param>
 	/// <param name="iIndex">- The zero-based index of the string to be deleted.</param>
-	/// <returns></returns>
+	/// <returns>The return value is a count of the strings remaining in the list. The return value is LB_ERR if the index parameter specifies an index greater than the number of items in the list.</returns>
 	inline int dcxListBox_DeleteString(_In_ HWND hListbox, _In_ int iIndex) noexcept
 	{
 		return ListBox_DeleteString(hListbox, iIndex);
@@ -1218,7 +1392,7 @@ namespace Dcx
 	/// <summary>
 	/// Adds names to the list displayed by a list box. The message adds the names of directories and files that match a specified string and set of file attributes. LB_DIR can also add mapped drive letters to the list box.
 	/// </summary>
-	/// <param name="hListbox"></param>
+	/// <param name="hListbox">- A handle to the control.</param>
 	/// <param name="attrs">- The attributes of the files or directories to be added to the list box.</param>
 	/// <param name="szFile">- A pointer to the null - terminated string that specifies an absolute path, relative path, or filename.An absolute path can begin with a drive letter(for example, d:) or a UNC name(for example, \\ machinename\ sharename). If the string specifies a filename or directory that has the attributes specified by the wParam parameter, the filename or directory is added to the list.If the filename or directory name contains wildcard characters(? or *), all files or directories that match the wildcard expression and have the attributes specified by the wParam parameter are added to the list.</param>
 	/// <returns>If the message succeeds, the return value is the zero-based index of the last name added to the list. If an error occurs, the return value is LB_ERR.If there is insufficient space to store the new strings, the return value is LB_ERRSPACE.</returns>
@@ -1228,24 +1402,104 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Enables or disables a list box control.
 	/// </summary>
-	/// <param name="hListbox"></param>
-	/// <param name="iIndex"></param>
-	/// <returns></returns>
+	/// <param name="hListbox">- A handle to the control.</param>
+	/// <param name="bEnable">- TRUE to enable the control, or FALSE to disable it.</param>
+	/// <returns>TRUE if the window was previously disabled, or FALSE if it was previously enabled.</returns>
+	inline int dcxListBox_Enable(_In_ HWND hListbox, _In_ bool bEnable) noexcept
+	{
+		return ListBox_Enable(hListbox, bEnable);
+	}
+
+	/// <summary>
+	/// Finds the first item in a list box that has the specified item data.
+	/// </summary>
+	/// <param name="hListbox">- A handle to the control.</param>
+	/// <param name="indexStart">- The zero-based index of the item before the first item to be searched. When the search reaches the bottom of the list box, it continues searching from the top of the list box back to the item specified by the indexStart parameter. If indexStart is –1, the entire list box is searched from the beginning.</param>
+	/// <param name="data">- The data to find.</param>
+	/// <returns>The index of the matching item, or LB_ERR if the search was unsuccessful.</returns>
+	inline int dcxListBox_FindItemData(_In_ HWND hListbox, _In_ int indexStart, _In_ LPARAM data) noexcept
+	{
+		return ListBox_FindItemData(hListbox, indexStart, data);
+	}
+
+	/// <summary>
+	/// Finds the first string in a list box that begins with the specified string.
+	/// </summary>
+	/// <param name="hListbox">- A handle to the control.</param>
+	/// <param name="indexStart">- The zero-based index of the item before the first item to be searched. When the search reaches the bottom of the list box, it continues searching from the top of the list box back to the item specified by the indexStart parameter. If indexStart is –1, the entire list box is searched from the beginning.</param>
+	/// <param name="lpszFind">- The string to find.</param>
+	/// <returns>The index of the matching item, or LB_ERR if the search was unsuccessful.</returns>
+	inline int dcxListBox_FindString(_In_ HWND hListbox, _In_ int indexStart, _In_z_ LPCTSTR lpszFind) noexcept
+	{
+		return ListBox_FindString(hListbox, indexStart, lpszFind);
+	}
+
+	/// <summary>
+	/// Finds the first list box string that exactly matches the specified string, except that the search is not case sensitive.
+	/// </summary>
+	/// <param name="hListbox">- A handle to the control.</param>
+	/// <param name="indexStart">- The zero-based index of the item before the first item to be searched. When the search reaches the bottom of the list box, it continues searching from the top of the list box back to the item specified by the indexStart parameter. If indexStart is –1, the entire list box is searched from the beginning.</param>
+	/// <param name="lpszFind">- The string to find.</param>
+	/// <returns>The index of the matching item, or LB_ERR if the search was unsuccessful.</returns>
+	inline int dcxListBox_FindStringExact(_In_ HWND hListbox, _In_ int indexStart, _In_z_ LPCTSTR lpszFind) noexcept
+	{
+		return ListBox_FindStringExact(hListbox, indexStart, lpszFind);
+	}
+
+	/// <summary>
+	/// Gets the selection state of an item.
+	/// </summary>
+	/// <param name="hListbox">- A handle to the control.</param>
+	/// <param name="iIndex">- The zero-based index of the item.</param>
+	/// <returns>If the item is selected, the return value is greater than zero; otherwise, it is zero. If an error occurs, the return value is LB_ERR.</returns>
 	inline int dcxListBox_GetSel(_In_ HWND hListbox, _In_ int iIndex) noexcept
 	{
 		return ListBox_GetSel(hListbox, iIndex);
 	}
 
 	/// <summary>
-	/// 
+	/// Gets the count of selected items in a multiple-selection list box.
 	/// </summary>
-	/// <param name="hListbox"></param>
+	/// <param name="hListbox">- A handle to the control.</param>
+	/// <returns>The number of selected items. If the list box is a single-selection list box, the return value is LB_ERR.</returns>
+	inline int dcxListBox_GetSelCount(_In_ HWND hListbox) noexcept
+	{
+		return ListBox_GetSelCount(hListbox);
+	}
+
+	/// <summary>
+	/// Gets the indexes of selected items in a multiple-selection list box.
+	/// </summary>
+	/// <param name="hListbox">- A handle to the control.</param>
+	/// <param name="cItems">- The maximum number of selected items whose item numbers are to be placed in the buffer.</param>
+	/// <param name="lpItems">- A pointer to a buffer large enough for the number of integers specified by cItems.</param>
 	/// <returns></returns>
+	inline int dcxListBox_GetSelItems(_In_ HWND hListbox, _In_ int cItems, _Inout_ int *lpItems) noexcept
+	{
+		return ListBox_GetSelItems(hListbox, cItems, lpItems);
+	}
+
+	/// <summary>
+	/// Gets the index of the currently selected item in a single-selection list box.
+	/// </summary>
+	/// <param name="hListbox">- A handle to the control.</param>
+	/// <returns>The zero-based index of the selected item. If there is no selection, the return value is LB_ERR.</returns>
 	inline int dcxListBox_GetCurSel(_In_ HWND hListbox) noexcept
 	{
 		return ListBox_GetCurSel(hListbox);
+	}
+
+	/// <summary>
+	/// Retrieves the index of the list box item that has the focus rectangle in a multiple-selection list box. The item may or may not be selected. 
+	/// </summary>
+	/// <param name="hListbox">- A handle to the control.</param>
+	/// <returns>The zero-based index of the focused item, or 0 if no item has the focus.</returns>
+	/// <remarks>The contents of the list box are scrolled till the item is fully visible.</remarks>
+	inline int dcxListBox_GetCaretIndex(_In_ HWND hListbox) noexcept
+	{
+		return ListBox_GetCaretIndex(hListbox);
 	}
 
 	// ToolTip
@@ -3465,12 +3719,61 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// Get the currently selected tab.
+	/// Determines the currently selected tab in a tab control.
 	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <returns></returns>
+	/// <param name="hwnd">- Handle to the tab control.</param>
+	/// <returns>Returns the index of the selected tab if successful, or -1 if no tab is selected.</returns>
 	inline int dcxTabCtrl_GetCurSel(_In_ HWND hwnd) noexcept
 	{
 		return TabCtrl_GetCurSel(hwnd);
 	}
+
+	/// <summary>
+	/// Calculates a tab control's display area given a window rectangle, or calculates the window rectangle that would correspond to a specified display area.
+	/// </summary>
+	/// <param name="hwnd">- Handle to the tab control.</param>
+	/// <param name="bLarger">- Operation to perform. If this parameter is TRUE, prc specifies a display rectangle and receives the corresponding window rectangle. If this parameter is FALSE, prc specifies a window rectangle and receives the corresponding display area.</param>
+	/// <param name="prc">- Pointer to a RECT structure that specifies the given rectangle and receives the calculated rectangle.</param>
+	inline void dcxTabCtrl_AdjustRect(_In_ HWND hwnd, _In_ bool bLarger, _Inout_ LPRECT prc) noexcept
+	{
+		TabCtrl_AdjustRect(hwnd, bLarger, prc);
+	}
+
+	/// <summary>
+	/// Removes all items from a tab control.
+	/// </summary>
+	/// <param name="hwnd">- Handle to the tab control.</param>
+	/// <returns>Returns TRUE if successful, or FALSE otherwise.</returns>
+	inline bool dcxTabCtrl_DeleteAllItems(_In_ HWND hwnd) noexcept
+	{
+		return (TabCtrl_DeleteAllItems(hwnd) != FALSE);
+	}
+
+	/// <summary>
+	/// Removes an item from a tab control.
+	/// </summary>
+	/// <param name="hwnd">- Handle to the tab control.</param>
+	/// <param name="i">- Index of the item to delete.</param>
+	/// <returns>Returns TRUE if successful, or FALSE otherwise.</returns>
+	inline bool dcxTabCtrl_DeleteItem(_In_ HWND hwnd, _In_ int i) noexcept
+	{
+		return (TabCtrl_DeleteItem(hwnd, i) != FALSE);
+	}
+
+	int dcxTabCtrl_GetPointItem(_In_ HWND hwnd, _In_ POINT pt) noexcept;
+
+	int dcxTabCtrl_GetHoverItem(_In_ HWND hwnd) noexcept;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd">- Handle to the tab control.</param>
+	/// <param name="i"></param>
+	/// <param name="prc"></param>
+	/// <returns></returns>
+	inline bool dcxTabCtrl_GetItemRect(_In_ HWND hwnd, _In_ int i, _Out_ LPRECT prc) noexcept
+	{
+		return (TabCtrl_GetItemRect(hwnd, i, prc) != FALSE);
+	}
+
 }

@@ -47,7 +47,7 @@ DcxTab::DcxTab(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, c
 	setNoThemed(ws.m_NoTheme);
 
 	if (this->m_bClosable)
-		Dcx::dcxTabCtrl_SetPadding(m_Hwnd, Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CXSMICON), Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CYFIXEDFRAME));
+		Dcx::dcxTabCtrl_SetPadding(m_Hwnd, DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CXSMICON), DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CYFIXEDFRAME));
 
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
@@ -154,7 +154,6 @@ void DcxTab::loadIcon(const TString& tsFlags, const TString& tsIndex, const TStr
  *
  * \return > void
  */
-
 void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	const auto numtok = input.numtok();
@@ -199,7 +198,7 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 	break;
 	case L"sel"_hash:
 	{
-		const auto nItem = TabCtrl_GetCurSel(m_Hwnd);
+		const auto nItem = Dcx::dcxTabCtrl_GetCurSel(m_Hwnd);
 
 		if (nItem < 0 || nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -209,7 +208,7 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 	break;
 	case L"seltext"_hash:
 	{
-		const auto nItem = TabCtrl_GetCurSel(m_Hwnd);
+		const auto nItem = Dcx::dcxTabCtrl_GetCurSel(m_Hwnd);
 
 		if (nItem < 0 || nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -261,7 +260,7 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 			throw DcxExceptions::dcxInvalidItem();
 
 		RECT rc{};
-		TabCtrl_GetItemRect(m_Hwnd, nItem, &rc);
+		Dcx::dcxTabCtrl_GetItemRect(m_Hwnd, nItem, &rc);
 		_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right, rc.bottom);
 	}
 	break;
@@ -269,12 +268,12 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 	{
 		const auto nTotal = getTabCount();
 		RECT rc{};
-		TabCtrl_GetItemRect(m_Hwnd, 0, &rc);
+		Dcx::dcxTabCtrl_GetItemRect(m_Hwnd, 0, &rc);
 
 		for (int nItem{ 1 }; nItem < nTotal; ++nItem)
 		{
 			RECT rcItem{};
-			TabCtrl_GetItemRect(m_Hwnd, nItem, &rcItem);
+			Dcx::dcxTabCtrl_GetItemRect(m_Hwnd, nItem, &rcItem);
 
 			//rc.bottom += (rcItem.bottom - rcItem.top);
 			rc.right += (rcItem.right - rcItem.left);
@@ -316,7 +315,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 			}
 		}
 
-		TabCtrl_DeleteAllItems(m_Hwnd);
+		Dcx::dcxTabCtrl_DeleteAllItems(m_Hwnd);
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [ICON] [TEXT][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB](TOOLTIP)
@@ -374,7 +373,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		if (nItem < 0 && nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
 
-		const auto curSel = TabCtrl_GetCurSel(m_Hwnd);
+		const auto curSel = Dcx::dcxTabCtrl_GetCurSel(m_Hwnd);
 		TCITEM tci{};
 
 		tci.mask = TCIF_PARAM;
@@ -390,7 +389,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 			}
 		}
 
-		TabCtrl_DeleteItem(m_Hwnd, nItem);
+		Dcx::dcxTabCtrl_DeleteItem(m_Hwnd, nItem);
 
 		// select the next tab item if its the current one
 		if (const auto iTotal = getTabCount(); ((curSel == nItem) && (iTotal > 0)))
@@ -437,7 +436,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('r')])
 	{
 	}
-	// xdid -t [NAME] [ID] [SWITCH] [N] (text)
+	// xdid -t [NAME] [ID] [SWITCH] [N] (text) ($chr(9) (tooltip text))
 	else if (xflags[TEXT('t')])
 	{
 		if (numtok < 4)
@@ -448,16 +447,25 @@ void DcxTab::parseCommandRequest(const TString& input)
 		if (nItem < 0 && nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
 
-		TString itemtext;
+		const TString tsArgs(input.getlasttoks().trim());
 
-		if (numtok > 4)
-			itemtext = input.getlasttoks().trim();	// tok 5, -1
+		TString itemtext(tsArgs.getfirsttok(1,TSTABCHAR).trim());
+		const TString tsTooltip(tsArgs.getnexttok(TSTABCHAR).trim());
 
 		TCITEM tci{};
 		tci.mask = TCIF_TEXT;
 		tci.pszText = itemtext.to_chr();
 
 		TabCtrl_SetItem(m_Hwnd, nItem, &tci);
+
+		tci.mask = TCIF_PARAM;
+		if (getTab(nItem, &tci))
+		{
+			if (const auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci)
+			{
+				lpdtci->tsTipText = tsTooltip;
+	}
+		}
 	}
 	// xdid -v [DNAME] [ID] [SWITCH] [N] [POS]
 	else if (xflags[TEXT('v')])
@@ -477,7 +485,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		if (nItem == pos)
 			return;
 
-		auto curSel = TabCtrl_GetCurSel(m_Hwnd); // make zero based
+		auto curSel = Dcx::dcxTabCtrl_GetCurSel(m_Hwnd); // make zero based
 		if (curSel == nItem)
 			curSel = pos;
 		else if (curSel > nItem)
@@ -583,6 +591,7 @@ void DcxTab::deleteLParamInfo(const int nItem) noexcept
 void DcxTab::activateSelectedTab()
 {
 	const auto nSel = TabCtrl_GetCurSel(m_Hwnd);
+	const auto nSel = Dcx::dcxTabCtrl_GetCurSel(m_Hwnd);
 	activateTab(nSel);
 }
 
@@ -598,7 +607,7 @@ void DcxTab::activateTab(int nSel)
 	if (!GetWindowRect(m_Hwnd, &tabrect))
 		return;
 
-	TabCtrl_AdjustRect(m_Hwnd, FALSE, &tabrect);
+	Dcx::dcxTabCtrl_AdjustRect(m_Hwnd, false, &tabrect);
 
 	RECT rc{};
 	if (!GetWindowRect(m_Hwnd, &rc))
@@ -972,7 +981,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 		if (!bCurSel && !isStyle(WindowStyle::TCS_Buttons))
 		{
 			// Ook: This is a hack to fix the gap left between a non-selected tab & the tab area when NOT TCS_BUTTONS
-			rect.bottom += Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CYEDGE); // 2
+			rect.bottom += DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CYEDGE); // 2
 		}
 
 		//DcxControl::DrawCtrlBackground(idata->hDC, this, &rect);
@@ -990,8 +999,8 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 
 		//rect.left += 1 + GetSystemMetrics(SM_CXEDGE); // move in past border.
 		//rect.top += 1 + GetSystemMetrics(SM_CYEDGE); //4;
-		rect.left += 1 + Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CXEDGE); // move in past border.
-		rect.top += 1 + Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CYEDGE); //4;
+		rect.left += 1 + DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CXEDGE); // move in past border.
+		rect.top += 1 + DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CYEDGE); //4;
 
 		TCHAR szLabel[MIRC_BUFFER_SIZE_CCH]{};
 
@@ -1040,12 +1049,15 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 		{
 			// force text to be left aligned
 			//rect.left += GetSystemMetrics(SM_CXEDGE);	//5 add padding for left of text, make this a settable option for text alignment.
-			rect.left += Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CXEDGE);	//5 add padding for left of text, make this a settable option for text alignment.
+			rect.left += DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CXEDGE);	//5 add padding for left of text, make this a settable option for text alignment.
 		}
 		else {
 			// center text on control (default)
 			uDrawFlags |= DT_CENTER;
 		}
+
+		//m_TextOptions.m_bGlow = (nTabIndex == this->m_iHotItem);
+
 		this->ctrlDrawText(idata->hDC, label, &rect, uDrawFlags);
 		break;
 	}
@@ -1293,10 +1305,10 @@ int DcxTab::HitTestOnItem() const noexcept
 RECT DcxTab::GetCloseButtonRect(const RECT& rcItem) noexcept
 {
 	//return { ((rcItem.right - GetSystemMetrics(SM_CXEDGE)) - GetSystemMetrics(SM_CXSMICON)), rcItem.top, (rcItem.right - GetSystemMetrics(SM_CXEDGE)), rcItem.top + GetSystemMetrics(SM_CYSMICON) };
-	const auto dpi = Dcx::DpiModule.dcxGetDpiForSystem();
-	const auto xEdge = gsl::narrow_cast<long>(Dcx::DpiModule.dcxGetSystemMetricsForDpi(SM_CXEDGE, dpi));
-	const auto szXIcon = gsl::narrow_cast<long>(Dcx::DpiModule.dcxGetSystemMetricsForDpi(SM_CXSMICON, dpi));
-	const auto szYIcon = gsl::narrow_cast<long>(Dcx::DpiModule.dcxGetSystemMetricsForDpi(SM_CYSMICON, dpi));
+	const auto dpi = DcxDPIModule::dcxGetDpiForSystem();
+	const auto xEdge = gsl::narrow_cast<long>(DcxDPIModule::dcxGetSystemMetricsForDpi(SM_CXEDGE, dpi));
+	const auto szXIcon = gsl::narrow_cast<long>(DcxDPIModule::dcxGetSystemMetricsForDpi(SM_CXSMICON, dpi));
+	const auto szYIcon = gsl::narrow_cast<long>(DcxDPIModule::dcxGetSystemMetricsForDpi(SM_CYSMICON, dpi));
 	return { ((rcItem.right - xEdge) - szXIcon), rcItem.top, (rcItem.right - xEdge), rcItem.top + szYIcon };
 }
 

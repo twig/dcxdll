@@ -78,7 +78,7 @@ public:
 protected:
 	static RECT GetCloseButtonRect(const RECT& rcItem) noexcept;
 	int HitTestOnItem() const noexcept;
-	bool CloseButtonHitTest(const int iTab) const noexcept;
+	bool CloseButtonHitTest(_In_ const int iTab) const noexcept;
 
 	LRESULT DrawClientArea(HDC hdc, UINT uMsg, LPARAM lParam);
 

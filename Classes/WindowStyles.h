@@ -1140,7 +1140,8 @@ enum class WindowExStyle
 	ControlParent = WS_EX_CONTROLPARENT,
 	ClientEdge = WS_EX_CLIENTEDGE,
 	Composited = WS_EX_COMPOSITED,
-	Layered = WS_EX_LAYERED
+	Layered = WS_EX_LAYERED,
+	NoActivate = WS_EX_NOACTIVATE
 };
 
 enum class WindowAnimStyle

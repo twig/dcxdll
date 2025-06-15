@@ -516,4 +516,22 @@ namespace Dcx
 
 		return gsl::narrow_cast<int>(SendMessage(hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(nStart), reinterpret_cast<LPARAM>(nEnd)));
 	}
+
+	int dcxTabCtrl_GetPointItem(HWND hwnd, POINT pt) noexcept
+	{
+		TCHITTESTINFO tti{};
+		tti.pt = pt;
+
+		auto iTab = TabCtrl_HitTest(hwnd, &tti);
+
+		if (tti.flags & TCHT_ONITEM)
+			return iTab;
+
+		return -1;
+	}
+
+	int dcxTabCtrl_GetHoverItem(HWND hwnd) noexcept
+	{
+		return dcxTabCtrl_GetPointItem(hwnd, Dcx::dcxCursorPos(hwnd));
+	}
 }
