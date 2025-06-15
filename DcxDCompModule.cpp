@@ -15,23 +15,17 @@ bool DcxDCompModule::load()
 	if (isUseable())
 		return false;
 
-	// DPIModule Loading
+	// DCompModule Loading
 	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Loading dcomp.dll..."));
 	m_hModule = LoadLibrary(TEXT("dcomp.dll"));
 
 	if (m_hModule)
 	{
 		// Get function pointers.
-#pragma warning(push)
-#pragma warning(disable: 4191)
-#pragma warning(disable: 26493)	//warning C26493 : Don't use C-style casts that would perform a static_cast downcast, const_cast, or reinterpret_cast. (type.4: http://go.microsoft.com/fwlink/p/?LinkID=620420)
-
 		DCompositionCreateDeviceUx = reinterpret_cast<decltype(::DCompositionCreateDevice)*>(::GetProcAddress(m_hModule, "DCompositionCreateDevice"));
 		DCompositionCreateDevice2Ux = reinterpret_cast<decltype(::DCompositionCreateDevice2)*>(::GetProcAddress(m_hModule, "DCompositionCreateDevice2"));
 		DCompositionCreateDevice3Ux = reinterpret_cast<decltype(::DCompositionCreateDevice3)*>(::GetProcAddress(m_hModule, "DCompositionCreateDevice3"));
 		DCompositionCreateSurfaceHandleUx = reinterpret_cast<decltype(::DCompositionCreateSurfaceHandle)*>(::GetProcAddress(m_hModule, "DCompositionCreateSurfaceHandle"));
-
-#pragma warning(pop)
 
 		if (DCompositionCreateDevice2Ux)
 		{
