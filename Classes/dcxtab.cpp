@@ -590,7 +590,7 @@ void DcxTab::deleteLParamInfo(const int nItem) noexcept
 
 void DcxTab::activateSelectedTab()
 {
-	const auto nSel = TabCtrl_GetCurSel(m_Hwnd);
+	//HidePeek();
 	const auto nSel = Dcx::dcxTabCtrl_GetCurSel(m_Hwnd);
 	activateTab(nSel);
 }
