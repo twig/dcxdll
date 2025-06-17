@@ -779,8 +779,9 @@ bool CopyToClipboard(const HWND owner, const TString& str) noexcept;
 //[[nodiscard("Memory Leak")]] HBITMAP dcxLoadBitmap(HBITMAP dest, TString& filename);
 [[nodiscard("Memory Leak")]] HICON dcxLoadIcon(const int index, TString& filename, const bool large, const TString& flags);
 [[nodiscard("Memory Leak")]] HICON CreateGrayscaleIcon(HICON hIcon) noexcept;
-
 [[nodiscard("Memory Leak")]] HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool bIsTransparent);
+
+HFONT CopyHDCSettings(_In_ HDC hSrc, _In_ HDC hDst) noexcept;
 
 void ChangeHwndIcon(const HWND hwnd, const TString& flags, const int index, TString& filename);
 void AddFileIcons(HIMAGELIST himl, TString& filename, const bool bLarge, const int iIndex, const int iStart = 0, int iEnd = -1);
