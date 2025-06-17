@@ -18,6 +18,8 @@
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
 
+#include "custom/peek.h"
+
 class DcxDialog;
 
 struct DCXTCITEM
@@ -82,8 +84,22 @@ protected:
 
 	LRESULT DrawClientArea(HDC hdc, UINT uMsg, LPARAM lParam);
 
+	void SetPeekSource(_In_ int iTab, _In_ int iTabSel, _In_opt_ LPCRECT rcItem) noexcept;
+	//void SetPeekPos(_In_ bool bShowHDC, _In_opt_ LPCRECT rcItem) noexcept;
+	void ShowPeek(int x, int y) noexcept;
+	void HidePeek() noexcept;
+
 	bool m_bClosable{ false };	//!< Does tab have a close button.
 	//bool m_bGradient{ false };	//!< Does tab have a gradient fill. (only closeable)
+	bool m_bPeek{};
+
+	bool m_bTracking{};
+	bool m_bHover{};
+	bool m_bHot{};
+	int m_iHotItem{ -1 };
+	int m_iHoverItem{ -1 };
+
+	HWND m_hPeek{};
 };
 
 #endif // _DCXTAB_H_
