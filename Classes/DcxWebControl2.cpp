@@ -64,6 +64,23 @@ LRESULT DcxWebControl2::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 	switch (uMsg)
 	{
+	//case WM_PRINTCLIENT:
+	//{
+	//	dcxwParam(HDC, hdc);
+
+	//	bParsed = TRUE;
+
+	//	CleanUpParentCache();
+
+	//	// Setup alpha blend if any.
+	//	const auto ai = SetupAlphaBlend(&hdc);
+	//	Auto(FinishAlphaBlend(ai));
+
+	//	// draw...
+
+	//}
+	//break;
+
 	case WM_NCHITTEST:
 	{
 		if (m_dcompDevice && m_dcompRootVisual)
@@ -637,11 +654,11 @@ DWORD WINAPI DcxWebControl2::DownloadAndInstallWV2RT(_In_ LPVOID lpParameter) no
 	// code, including any code obtained from a Microsoft URL, under a separate
 	// license directly from Microsoft, including a Microsoft download site
 	// (e.g., https://developer.microsoft.com/microsoft-edge/webview2/).
-	if (const HRESULT hr = URLDownloadToFile(nullptr, L"https://go.microsoft.com/fwlink/p/?LinkId=2124703", L".\\MicrosoftEdgeWebview2Setup.exe", 0, nullptr); hr == S_OK)
+	if (const HRESULT hr = URLDownloadToFileW(nullptr, L"https://go.microsoft.com/fwlink/p/?LinkId=2124703", L".\\MicrosoftEdgeWebview2Setup.exe", 0, nullptr); hr == S_OK)
 	{
 		// Either Package the WebView2 Bootstrapper with your app or download it using fwlink
 		// Then invoke install at Runtime.
-		GSL_SUPPRESS(type.7) SHELLEXECUTEINFO shExInfo {};
+		GSL_SUPPRESS(type.7) SHELLEXECUTEINFOW shExInfo {};
 		shExInfo.cbSize = sizeof(shExInfo);
 		shExInfo.fMask = SEE_MASK_NOASYNC;
 		shExInfo.hwnd = nullptr;
@@ -652,7 +669,7 @@ DWORD WINAPI DcxWebControl2::DownloadAndInstallWV2RT(_In_ LPVOID lpParameter) no
 		shExInfo.nShow = 0;
 		shExInfo.hInstApp = nullptr;
 
-		if (ShellExecuteEx(&shExInfo))
+		if (ShellExecuteExW(&shExInfo))
 		{
 			returnCode = 0; // Install successfull
 		}
@@ -699,20 +716,20 @@ bool DcxWebControl2::InitializeInterface()
 	}
 	wil::unique_cotaskmem_string version_info;
 
-	if (HRESULT hr = Dcx::WebViewModule.dcxGetAvailableCoreWebView2BrowserVersionString(nullptr, &version_info); (hr == S_OK) && (version_info != nullptr))
+	if (HRESULT hr = DcxWebView2Module::dcxGetAvailableCoreWebView2BrowserVersionString(nullptr, &version_info); (hr == S_OK) && (version_info != nullptr))
 	{
 #if DCX_DEBUG_OUTPUT
 		mIRCLinker::signal(TEXT("web2ctrl webview2 installed: v%"), version_info.get());
 #endif
 		if (m_bDCompRender)
-			hr = Dcx::DCompModule.dcxDCompositionCreateDevice2(nullptr, IID_PPV_ARGS(&m_dcompDevice));
+			hr = DcxDCompModule::dcxDCompositionCreateDevice2(nullptr, IID_PPV_ARGS(&m_dcompDevice));
 
 		if (DcxWebControl2::m_webviewEnvironment == nullptr)
 		{
 			TString tsUserData("$mircdirWebView2Cache");
 			mIRCLinker::eval(tsUserData, tsUserData);
 
-			Dcx::WebViewModule.dcxCreateCoreWebView2EnvironmentWithOptions(nullptr, tsUserData.to_wchr(), nullptr, Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(this, &DcxWebControl2::OnCreateCoreWebView2EnvironmentCompleted).Get());
+			DcxWebView2Module::dcxCreateCoreWebView2EnvironmentWithOptions(nullptr, tsUserData.to_wchr(), nullptr, Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(this, &DcxWebControl2::OnCreateCoreWebView2EnvironmentCompleted).Get());
 		}
 		else
 			OnCreateCoreWebView2EnvironmentCompleted(0, DcxWebControl2::m_webviewEnvironment.get());
