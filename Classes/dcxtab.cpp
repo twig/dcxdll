@@ -449,7 +449,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 
 		const TString tsArgs(input.getlasttoks().trim());
 
-		TString itemtext(tsArgs.getfirsttok(1,TSTABCHAR).trim());
+		TString itemtext(tsArgs.getfirsttok(1, TSTABCHAR).trim());
 		const TString tsTooltip(tsArgs.getnexttok(TSTABCHAR).trim());
 
 		TCITEM tci{};
@@ -500,7 +500,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidItem();
 
 		// remove the old tab item
-		if (!TabCtrl_DeleteItem(m_Hwnd, nItem))
+		if (!Dcx::dcxTabCtrl_DeleteItem(m_Hwnd, nItem))
 			throw DcxExceptions::dcxInvalidItem();
 
 		// insert it into the new position
@@ -545,9 +545,9 @@ void DcxTab::parseCommandRequest(const TString& input)
 				ImageList_Destroy(himl);
 		}
 	}
-	// xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [WIDTH]
-	// xdid -m -> [NAME] [ID] -m [+FLAGS] [WIDTH]
-	else if (xflags[TEXT('m')])
+	// xdid -M [NAME] [ID] [SWITCH] [+FLAGS] [WIDTH]
+	// xdid -M -> [NAME] [ID] -M [+FLAGS] [WIDTH]
+	else if (xflags[TEXT('M')])
 	{
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
@@ -984,8 +984,6 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 			rect.bottom += DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CYEDGE); // 2
 		}
 
-		//DcxControl::DrawCtrlBackground(idata->hDC, this, &rect);
-
 		if (this->m_bGradientFill)
 		{
 			if (this->m_TextOptions.m_clrTextBackground == CLR_INVALID)
@@ -997,8 +995,6 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 		else
 			DcxControl::DrawCtrlBackground(idata->hDC, this, &rect);
 
-		//rect.left += 1 + GetSystemMetrics(SM_CXEDGE); // move in past border.
-		//rect.top += 1 + GetSystemMetrics(SM_CYEDGE); //4;
 		rect.left += 1 + DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CXEDGE); // move in past border.
 		rect.top += 1 + DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CYEDGE); //4;
 
@@ -1048,7 +1044,6 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 		if (isStyle(WindowStyle::TCS_ForceLeftAlign))
 		{
 			// force text to be left aligned
-			//rect.left += GetSystemMetrics(SM_CXEDGE);	//5 add padding for left of text, make this a settable option for text alignment.
 			rect.left += DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CXEDGE);	//5 add padding for left of text, make this a settable option for text alignment.
 		}
 		else {

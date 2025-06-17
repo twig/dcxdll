@@ -117,6 +117,10 @@
 		<td>The tabs aline themselves on multiple rows (default is single row).</td>
 	</tr>
 	<tr>
+		<td class="style"><a name="style.peek" class="style">peek</a></td>
+		<td>Open a peek window when the tabs are hovered over.</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.right" class="style">right</a></td>
 		<td>The tabs are aligned verticaly right (used with vertical). (See note below).</td>
 	</tr>
@@ -273,14 +277,14 @@
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.t"></a>/xdid -t	</td></tr>
-	<tr><td colspan="2">This command lets you change the Nth tab item text.</td></tr>
+	<tr><td colspan="2">This command lets you change the Nth tab items text and tooltip.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -t [DNAME] [ID] [N] (Itemtext)</div></td>
+		<td><div class="syntax">/xdid -t [DNAME] [ID] [N] (Itemtext) $chr(9) (tooltip)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -t dcx 4 2 New Text</div></td>
+		<td><div class="example">/xdid -t dcx 4 2 New Text<br />/xdid -t dcx 4 2 New Text $chr(9) new tooltip text<br />/xdid -t dcx 4 2 $chr(9) new tooltip text<br />/xdid -t dcx 4 2<br />/xdid -t dcx 4 2 $chr(9)<br /></div></td>
 	</tr>
 </table>
 <br />
@@ -356,7 +360,7 @@
 	<tr><td colspan="2">This command lets you clear the tab image list or delete a specific image from the list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -y [DNAME] [ID] ([+FLAGS] (args))</div></td>
+		<td><div class="syntax">/xdid -y [DNAME] [ID] ([+FLAGS] (ARGS))</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -381,6 +385,25 @@
 		<td>The index of the image to delete.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If no args are supplied then all images are deleted.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.M"></a>/xdid -M	</td></tr>
+	<tr><td colspan="2">This command lets you set the minimum tab width for all tabs.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -M [DNAME] [ID] [+FLAGS] [WIDTH]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -M dcx 4 + 50</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">WIDTH</td>
+		<td>Minimum width of tabs allowed.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> No flags are defined at the moment, just use a +.</td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
@@ -439,6 +462,20 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).num</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.peek"></a>$xdid().peek	</td></tr>
+	<tr><td colspan="2">This property tells you if the peek effect is enabled.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).peek</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).peek</div></td>
 	</tr>
 </table>
 <br />
@@ -846,6 +883,7 @@
 		<a class='flag' href="#style.gradient"><div>gradient</div></a>
 		<a class='flag' href="#style.hottrack"><div>hottrack</div></a>
 		<a class='flag' href="#style.multiline"><div>multiline</div></a>
+		<a class='flag' href="#style.peek"><div>peek</div></a>
 		<a class='flag' href="#style.right"><div>right</div></a>
 		<a class='flag' href="#style.rightjustify"><div>rightjustify</div></a>
 		<a class='flag' href="#style.scrollopposite"><div>scrollopposite</div></a>
@@ -863,6 +901,7 @@
 		<a class='flag' href="#xdid.v"><div>-v</div></a>
 		<a class='flag' href="#xdid.w"><div>-w</div></a>
 		<a class='flag' href="#xdid.y"><div>-y</div></a>
+		<a class='flag' href="#xdid.big.M"><div>-M</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
@@ -870,6 +909,7 @@
 		<a class='flag' href="#xdidprop.icon"><div>icon</div></a>
 		<a class='flag' href="#xdidprop.mouseitem"><div>mouseitem</div></a>
 		<a class='flag' href="#xdidprop.num"><div>num</div></a>
+		<a class='flag' href="#xdidprop.peek"><div>peek</div></a>
 		<a class='flag' href="#xdidprop.sel"><div>sel</div></a>
 		<a class='flag' href="#xdidprop.seltext"><div>seltext</div></a>
 		<a class='flag' href="#xdidprop.tabrect"><div>tabrect</div></a>
@@ -892,7 +932,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2025</td>
-		<td style="text-align: right;">Last Updated: 8th May, 25</td>
+		<td style="text-align: right;">Last Updated: 16th June, 25</td>
 	</tr>
 </table>
 <div style="text-align: center;">

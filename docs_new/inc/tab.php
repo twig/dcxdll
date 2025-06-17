@@ -20,6 +20,7 @@ function get_styles_tab(&$STYLES) {
 		'scrollopposite' => 'Unneeded tabs scroll to the opposite side of the control when a tab is selected.',
 		'flatseps' => 'The tab separators are drawn as flat (Only with buttons and flat).',
 		'gradient' => 'A gradient background is applied. (Only works with [s]closable[/s])',
+		'peek' => 'Open a peek window when the tabs are hovered over.',
 
 		'__notes' => array(
 			'Vertical and bottom tabs are not supported correctly in XP Themes. The control works, but the tabs are not drawn properly. There is no easy fix for this at the moment. It is a bug in the windows theme system, not in the API.',
@@ -87,9 +88,15 @@ function get_xdid_tab(&$XDID) {
 		),
 		'r' => 'This command lets you clear all the tab items.',
 		't' => array(
-	        '__desc' => "This command lets you change the Nth tab item text.",
-	        '__cmd' => '[N] (Itemtext)',
-	        '__eg' => '2 New Text',
+	        '__desc' => "This command lets you change the Nth tab items text and tooltip.",
+	        '__cmd' => '[N] (Itemtext) $chr(9) (tooltip)',
+	        '__eg' => array(
+				'2 New Text',
+				'2 New Text $chr(9) new tooltip text',
+				'2 $chr(9) new tooltip text',
+				'2',
+				'2 $chr(9)',
+			),
 		),
 		'w' => array(
 	        '__desc' => 'This command lets you add an icon to the image list.',
@@ -107,7 +114,7 @@ function get_xdid_tab(&$XDID) {
 		),
 		'y' => array(
 	        '__desc' => 'This command lets you clear the tab image list or delete a specific image from the list.',
-	        '__cmd' => '([+FLAGS] (args))',
+	        '__cmd' => '([+FLAGS] (ARGS))',
 	        '__eg' => '+',
 	        '__params' => array(
 	        	'+FLAGS' => array(
@@ -127,6 +134,16 @@ function get_xdid_tab(&$XDID) {
 			),
 			'__notes' => 'If no args are supplied then all images are deleted.',
 		),
+		'M' => array(
+	        '__desc' => 'This command lets you set the minimum tab width for all tabs.',
+	        '__cmd' => '[+FLAGS] [WIDTH]',
+	        '__eg' => '+ 50',
+	        '__params' => array(
+	        	// +FLAGS
+				'WIDTH' => 'Minimum width of tabs allowed.',
+			),
+			'__notes' => 'No flags are defined at the moment, just use a +.',
+		),
 	);
 	
 	writeDcxLoadIcon($XDID, 'w', '+FLAGS', 1);
@@ -143,6 +160,7 @@ function get_xdidprops_tab(&$XDIDPROPS) {
 		'sel' => 'This property lets you retreive the tab selected item number.',
 		'seltext' => 'This property lets you retreive selected tab item text.',
 		'num' => 'This property lets you retreive the total number of tab items.',
+		'peek' => 'This property tells you if the peek effect is enabled.',
 		"icon" => array(
 		    '__desc' => "This property lets you retreive Nth tab icon.",
 	        '__cmd' => 'N',
