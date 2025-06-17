@@ -1844,22 +1844,10 @@ HFONT DcxControl::getFont() const noexcept
 	return (m_Hwnd ? GetWindowFont(m_Hwnd) : nullptr);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 LRESULT DcxControl::setRedraw(const BOOL fView) noexcept
 {
 	return SendMessage(m_Hwnd, WM_SETREDRAW, gsl::narrow_cast<WPARAM>(fView), LPARAM{ 0 });
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 GSL_SUPPRESS(type.4)
 void DcxControl::setControlFont(const HFONT hFont, const BOOL fRedraw) noexcept
@@ -1917,12 +1905,6 @@ void DcxControl::setControlFont(const HFONT hFont, const BOOL fRedraw) noexcept
 	this->setFont(hFont, fRedraw);
 	this->m_hFont = hFont;
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 const RECT DcxControl::getWindowPosition() const noexcept
 {
@@ -2496,9 +2478,6 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC* hdc, const bool DoubleBuffer)
 					BitBlt(hdcbkg, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
 				}
 			}
-
-			//Dcx::dcxHDCBitmap2Resource hdcbkg(*hdc, (ai->ai_rcWin.right - ai->ai_rcWin.left),(ai->ai_rcWin.bottom - ai->ai_rcWin.top));
-			//BitBlt(hdcbkg, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
 		}
 		ai->ai_Oldhdc = *hdc;
 		*hdc = ai->ai_hdc;
@@ -2813,6 +2792,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 		bParsed = TRUE; // stops event being passed down to parent controls
 	}
 	break;
+
 	case WM_DROPFILES:
 	{
 		dcxwParam(HDROP, files);
@@ -2862,6 +2842,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 		DragFinish(files);
 		break;
 	}
+
 	case WM_NOTIFY:
 	{
 		dcxlParam(LPNMHDR, hdr);
@@ -2897,6 +2878,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 		}
 	}
 	break;
+
 	// Default WM_PRINTCLIENT method that handles alpha for us.
 	// This Message is required for AnimateWindow() to work (also used by new transparency/alpha code)
 	case WM_PRINTCLIENT:
@@ -2912,6 +2894,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 		lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 	}
 	break;
+
 	case WM_PRINT:
 	{
 		if (m_bInPrint) // avoid a drawing loop.
@@ -2930,6 +2913,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 			bParsed = TRUE;
 	}
 	break;
+
 	case WM_KEYDOWN:
 	{
 		if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
@@ -2944,6 +2928,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 		}
 		break;
 	}
+
 	case WM_KEYUP:
 	{
 		if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
@@ -2975,6 +2960,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 		//	}
 		//	break;
 		//}
+
 	default:
 		break;
 	}
@@ -3827,6 +3813,33 @@ void DcxControl::InitializeDcxControls()
 			RegisterClassEx(&wc);
 		}
 
+		// Custom Peek
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering Peek..."));
+
+		{
+			//const WNDCLASSEX wc{ sizeof(WNDCLASSEX), CS_PARENTDC | CS_HREDRAW | CS_VREDRAW | CS_DROPSHADOW, PeekWndProc, 0, 0, hHandle, nullptr, LoadCursor(hHandle, IDC_ARROW), nullptr, nullptr, PEEK_CLASS, nullptr };
+			//RegisterClassEx(&wc);
+
+			WNDCLASSEX wc{};
+			wc.cbSize = sizeof(WNDCLASSEX);
+			if (!GetClassInfoExW(hHandle, PEEK_CLASS, &wc))
+			{
+				wc.cbSize = sizeof(WNDCLASSEX);
+				wc.style = CS_HREDRAW | CS_VREDRAW | CS_DROPSHADOW;
+				wc.lpfnWndProc = PeekWndProc;
+				wc.cbClsExtra = 0;
+				wc.cbWndExtra = 0;
+				wc.hInstance = hHandle;
+				wc.hIcon = nullptr;
+				wc.hCursor = nullptr;
+				wc.hbrBackground = GetStockBrush(COLOR_WINDOWFRAME);
+				wc.lpszMenuName = nullptr;
+				wc.lpszClassName = PEEK_CLASS;
+				wc.hIconSm = nullptr;
+				RegisterClassExW(&wc);
+			}
+		}
+
 		// Custom Panel
 		{
 			DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering Panel..."));
@@ -3919,6 +3932,7 @@ void DcxControl::UnInitializeDcxControls() noexcept
 	UnregisterClass(DCX_STACKERCLASS, GetModuleHandle(nullptr));
 	//UnregisterClass(DCX_GRIDCLASS, GetModuleHandle(nullptr));
 	//UnregisterClass(DCX_MULTIBUTTONCLASS, GetModuleHandle(nullptr));
+	UnregisterClass(PEEK_CLASS, GetModuleHandle(nullptr));
 
 	if (DcxWindow::m_hZeroRgn)
 	{
@@ -3945,7 +3959,9 @@ int WINAPI DcxControl::XScrollWindowEx(_In_ HWND hWnd, _In_ int dx, _In_ int dy,
 		{
 			if (pthis->isExStyle(WindowExStyle::Transparent) || pthis->IsAlphaBlend())
 			{
-				InvalidateRect(hWnd, nullptr, /*TRUE*/ FALSE);
+				// must be FALSE, or we get flicker.
+				InvalidateRect(hWnd, nullptr, FALSE);
+				//InvalidateRect(hWnd, nullptr, dcx_testflag(flags,SW_ERASE));
 				return SIMPLEREGION;
 			}
 		}
@@ -3954,7 +3970,7 @@ int WINAPI DcxControl::XScrollWindowEx(_In_ HWND hWnd, _In_ int dx, _In_ int dy,
 		{
 			if (const auto pTree = dynamic_cast<DcxTreeView*>(pthis); pTree->isExStyle(WindowExStyle::Transparent) || pTree->IsAlphaBlend() || pTree->isBkgImage())
 			{
-				InvalidateRect(hWnd, nullptr, /*TRUE*/ FALSE);
+				InvalidateRect(hWnd, nullptr, FALSE);
 				return SIMPLEREGION;
 			}
 		}
