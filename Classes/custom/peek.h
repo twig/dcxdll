@@ -18,11 +18,15 @@
 #define PC_WM_SHOW (PC_WM_BASE + 5)
 #define PC_WM_SETMINMAX (PC_WM_BASE + 6)
 
-#define PCF_HWND	0x01
-#define PCF_TITLE	0x02
-#define PCF_DESC	0x04
-#define PCF_MIN		0x08
-#define PCF_MAX		0x10
+#define PCF_HWND			0x01
+#define PCF_TITLE			0x02
+#define PCF_DESC			0x04
+#define PCF_MIN				0x08
+#define PCF_MAX				0x10
+#define PCF_BKGCOLOUR		0x11
+#define PCF_TITLECOLOUR		0x12
+#define PCF_DESCCOLOUR		0x14
+#define PCF_ROUNDED			0x18
 
 struct pkData
 {
@@ -30,13 +34,17 @@ struct pkData
 	HWND m_hSrc;
 	SIZE m_szMin{};
 	SIZE m_szMax{};
+	COLORREF m_clrBkg{ CLR_INVALID };
+	COLORREF m_clrTitle{ CLR_INVALID };
+	COLORREF m_clrDescription{ CLR_INVALID };
 	TCHAR m_Title[64]{};
 	TCHAR m_Description[64]{};
+	bool m_bRoundedWindow{};
 };
 
 struct PEEK_DATA
 {
-	HWND m_hBase{};				// base window that joins everything together.
+	//HWND m_hBase{};				// base window that joins everything together.
 
 	HTHEME m_hTheme{};			// theme data.
 	//HTHUMBNAIL m_hThumb{};
@@ -47,9 +55,14 @@ struct PEEK_DATA
 	SIZE m_szMax{ 200, 200 };
 
 	//BOOL m_Tracking{};
+	bool m_bRounded{};
 
 	UINT m_BaseID{};			// controls ID
 	//UINT m_Styles{};
+
+	COLORREF m_clrTitle{ CLR_INVALID };
+	COLORREF m_clrDesc{ CLR_INVALID };
+	COLORREF m_clrBkg{ CLR_INVALID };
 
 	TCHAR m_Title[64]{};
 	TCHAR m_Description[64]{};
@@ -96,3 +109,5 @@ LRESULT Peek_Show(_In_ HWND mHwnd, _In_ bool bShowHDC, _In_ int x, _In_ int y) n
 LRESULT Peek_SetMin(_In_ HWND mHwnd, _In_ LPSIZE szMin) noexcept;
 
 LRESULT Peek_SetMax(_In_ HWND mHwnd, _In_ LPSIZE szMax) noexcept;
+
+LRESULT Peek_SetRounded(_In_ HWND mHwnd, _In_ bool bRounded) noexcept;

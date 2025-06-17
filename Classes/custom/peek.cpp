@@ -287,7 +287,7 @@ LRESULT Peek_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 		lpmcdata->m_BaseID = gsl::narrow_cast<UINT>(reinterpret_cast<size_t>(cs->hMenu));
 
-		lpmcdata->m_hBase = mHwnd;
+		//lpmcdata->m_hBase = mHwnd;
 		//lpmcdata->m_Styles = cs->style /*& MCS_STYLEMASK*/;
 		//lpmcdata->m_hTheme = DcxUXModule::dcxOpenThemeData(mHwnd, L"Composited::Window");
 		lpmcdata->m_hTheme = DcxUXModule::dcxOpenThemeData(mHwnd, L"TEXTSTYLE");
@@ -310,6 +310,8 @@ LRESULT Peek_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 static void GetTextRect(HDC hdc, LPRECT rcTxt, LPPEEK_DATA lpmcdata) noexcept
 {
+	constexpr DWORD textFlags = DT_SINGLELINE | DT_NOPREFIX | DT_CALCRECT;
+
 	if (lpmcdata->m_hTheme)
 	{
 		DTTOPTS dtt{};
@@ -319,7 +321,7 @@ static void GetTextRect(HDC hdc, LPRECT rcTxt, LPPEEK_DATA lpmcdata) noexcept
 		if (!_ts_isEmpty(lpmcdata->m_Title))
 		{
 			RECT rcTmp{};
-			DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTITLE, 0, &lpmcdata->m_Title[0], -1, DT_SINGLELINE | DT_NOPREFIX | DT_CALCRECT, &rcTmp, &dtt);
+			DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTITLE, 0, &lpmcdata->m_Title[0], -1, textFlags, &rcTmp, &dtt);
 			const int txtSize = std::max(12L, (rcTmp.bottom - rcTmp.top));
 			rcTxt->bottom = rcTxt->top + txtSize + 1;
 			rcTxt->right = std::max(rcTmp.right, rcTxt->right);
@@ -327,7 +329,7 @@ static void GetTextRect(HDC hdc, LPRECT rcTxt, LPPEEK_DATA lpmcdata) noexcept
 		if (!_ts_isEmpty(lpmcdata->m_Description))
 		{
 			RECT rcTmp{};
-			DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTITLE, 0, &lpmcdata->m_Title[0], -1, DT_SINGLELINE | DT_NOPREFIX | DT_CALCRECT, &rcTmp, &dtt);
+			DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTITLE, 0, &lpmcdata->m_Title[0], -1, textFlags, &rcTmp, &dtt);
 			const int txtSize = std::max(12L, (rcTmp.bottom - rcTmp.top));
 			rcTxt->bottom += txtSize + 1;
 			rcTxt->right = std::max(rcTmp.right, rcTxt->right);
@@ -337,7 +339,7 @@ static void GetTextRect(HDC hdc, LPRECT rcTxt, LPPEEK_DATA lpmcdata) noexcept
 		if (!_ts_isEmpty(lpmcdata->m_Title))
 		{
 			RECT rcTmp{};
-			DrawText(hdc, &lpmcdata->m_Title[0], -1, &rcTmp, DT_SINGLELINE | DT_NOPREFIX | DT_CALCRECT);
+			DrawText(hdc, &lpmcdata->m_Title[0], -1, &rcTmp, textFlags);
 			const int txtSize = (rcTmp.bottom - rcTmp.top);
 			rcTxt->bottom = rcTxt->top + txtSize + 1;
 			rcTxt->right = std::max(rcTmp.right, rcTxt->right);
@@ -345,13 +347,14 @@ static void GetTextRect(HDC hdc, LPRECT rcTxt, LPPEEK_DATA lpmcdata) noexcept
 		if (!_ts_isEmpty(lpmcdata->m_Description))
 		{
 			RECT rcTmp{};
-			DrawText(hdc, &lpmcdata->m_Title[0], -1, &rcTmp, DT_SINGLELINE | DT_NOPREFIX | DT_CALCRECT);
+			DrawText(hdc, &lpmcdata->m_Title[0], -1, &rcTmp, textFlags);
 			const int txtSize = (rcTmp.bottom - rcTmp.top);
 			rcTxt->bottom += txtSize + 1;
 			rcTxt->right = std::max(rcTmp.right, rcTxt->right);
 		}
 	}
 }
+
 void Peek_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
 	if (!mHwnd)
@@ -371,20 +374,24 @@ void Peek_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 	if (!wParam)
 		hdc = BeginPaint(mHwnd, &ps);
-	else
-		CopyRect(&ps.rcPaint, &rcClient);
+	//else
+	//	CopyRect(&ps.rcPaint, &rcClient);
 
 	if (!hdc)
 		return;
 
 	Auto({ if (!wParam) EndPaint(mHwnd, &ps); });
 
-	FillRect(hdc, &rcClient, GetSysColorBrush(COLOR_WINDOW));
+	if (lpmcdata->m_clrBkg != CLR_INVALID)
+		Dcx::FillRectColour(hdc, &rcClient, lpmcdata->m_clrBkg);
+	else
+		FillRect(hdc, &rcClient, GetSysColorBrush(COLOR_WINDOW));
 
 	{
 		RECT rcTxt{ rcClient };
 		//SetBkMode(hdc, OPAQUE);
 
+		constexpr DWORD textFlags = DT_SINGLELINE | DT_NOPREFIX | DT_END_ELLIPSIS;
 		// draw title & description
 		if (lpmcdata->m_hTheme)
 		{
@@ -395,44 +402,68 @@ void Peek_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 			if (!_ts_isEmpty(lpmcdata->m_Title))
 			{
 				RECT rcTmp{};
-				DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTITLE, 0, &lpmcdata->m_Title[0], -1, DT_SINGLELINE | DT_NOPREFIX | DT_CALCRECT, &rcTmp, &dtt);
+				DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTITLE, 0, &lpmcdata->m_Title[0], -1, textFlags | DT_CALCRECT, &rcTmp, &dtt);
 				const int txtSize = std::max(12L, (rcTmp.bottom - rcTmp.top));
 				rcTxt.bottom = rcTxt.top + txtSize;
 
-				DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTITLE, 0, &lpmcdata->m_Title[0], -1, DT_SINGLELINE | DT_NOPREFIX, &rcTxt, nullptr);
+				if (lpmcdata->m_clrTitle != CLR_INVALID)
+				{
+					dtt.dwFlags = DTT_TEXTCOLOR;
+					dtt.crText = lpmcdata->m_clrTitle;
+				}
+				DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTITLE, 0, &lpmcdata->m_Title[0], -1, textFlags, &rcTxt, &dtt);
 				if (!_ts_isEmpty(lpmcdata->m_Description))
 					OffsetRect(&rcTxt, 0, txtSize + 1);
 			}
 			if (!_ts_isEmpty(lpmcdata->m_Description))
 			{
 				RECT rcTmp{};
-				DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTITLE, 0, &lpmcdata->m_Title[0], -1, DT_SINGLELINE | DT_NOPREFIX | DT_CALCRECT, &rcTmp, &dtt);
+				DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTITLE, 0, &lpmcdata->m_Description[0], -1, textFlags | DT_CALCRECT, &rcTmp, &dtt);
 				const int txtSize = std::max(12L, (rcTmp.bottom - rcTmp.top));
 				rcTxt.bottom = rcTxt.top + txtSize;
 
-				DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTEXT, 0, &lpmcdata->m_Description[0], -1, DT_SINGLELINE | DT_NOPREFIX, &rcTxt, nullptr);
+				if (lpmcdata->m_clrDesc != CLR_INVALID)
+				{
+					dtt.dwFlags = DTT_TEXTCOLOR;
+					dtt.crText = lpmcdata->m_clrDesc;
+				}
+				DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTEXT, 0, &lpmcdata->m_Description[0], -1, textFlags, &rcTxt, &dtt);
 			}
 		}
 		else {
 			if (!_ts_isEmpty(lpmcdata->m_Title))
 			{
+				COLORREF oldClr{ CLR_INVALID };
+				if (lpmcdata->m_clrTitle != CLR_INVALID)
+					oldClr = SetTextColor(hdc, lpmcdata->m_clrTitle);
+
 				RECT rcTmp{};
-				DrawText(hdc, &lpmcdata->m_Title[0], -1, &rcTmp, DT_SINGLELINE | DT_NOPREFIX | DT_CALCRECT);
+				DrawText(hdc, &lpmcdata->m_Title[0], -1, &rcTmp, textFlags | DT_CALCRECT);
 				const int txtSize = (rcTmp.bottom - rcTmp.top);
 				rcTxt.bottom = rcTxt.top + txtSize;
 
-				DrawText(hdc, &lpmcdata->m_Title[0], -1, &rcTxt, DT_SINGLELINE | DT_NOPREFIX);
+				DrawText(hdc, &lpmcdata->m_Title[0], -1, &rcTxt, textFlags);
 				if (!_ts_isEmpty(lpmcdata->m_Description))
 					OffsetRect(&rcTxt, 0, txtSize + 1);
+
+				if (oldClr != CLR_INVALID)
+					SetTextColor(hdc, oldClr);
 			}
 			if (!_ts_isEmpty(lpmcdata->m_Description))
 			{
+				COLORREF oldClr{ CLR_INVALID };
+				if (lpmcdata->m_clrDesc != CLR_INVALID)
+					oldClr = SetTextColor(hdc, lpmcdata->m_clrDesc);
+
 				RECT rcTmp{};
-				DrawText(hdc, &lpmcdata->m_Title[0], -1, &rcTmp, DT_SINGLELINE | DT_NOPREFIX | DT_CALCRECT);
+				DrawText(hdc, &lpmcdata->m_Description[0], -1, &rcTmp, textFlags | DT_CALCRECT);
 				const int txtSize = (rcTmp.bottom - rcTmp.top);
 				rcTxt.bottom = rcTxt.top + txtSize;
 
-				DrawText(hdc, &lpmcdata->m_Description[0], -1, &rcTxt, DT_SINGLELINE | DT_NOPREFIX);
+				DrawText(hdc, &lpmcdata->m_Description[0], -1, &rcTxt, textFlags);
+
+				if (oldClr != CLR_INVALID)
+					SetTextColor(hdc, oldClr);
 			}
 		}
 		rcDest.top = rcTxt.bottom + 1;
@@ -630,6 +661,14 @@ LRESULT Peek_SetData(HWND mHwnd, pkData* pkd) noexcept
 		Peek_SetMax(mHwnd, &pkd->m_szMax);
 	if (dcx_testflag(pkd->m_dwMask, PCF_HWND))
 		Peek_SetSource(mHwnd, pkd->m_hSrc);
+	if (dcx_testflag(pkd->m_dwMask, PCF_BKGCOLOUR))
+		lpmcdata->m_clrBkg = pkd->m_clrBkg;
+	if (dcx_testflag(pkd->m_dwMask, PCF_TITLECOLOUR))
+		lpmcdata->m_clrTitle = pkd->m_clrTitle;
+	if (dcx_testflag(pkd->m_dwMask, PCF_DESCCOLOUR))
+		lpmcdata->m_clrDesc = pkd->m_clrDescription;
+	if (dcx_testflag(pkd->m_dwMask, PCF_ROUNDED))
+		lpmcdata->m_bRounded = pkd->m_bRoundedWindow;
 
 	return TRUE;
 }
@@ -648,7 +687,7 @@ LRESULT Peek_Show(HWND mHwnd, bool bShowHDC, int x, int y) noexcept
 	// we want to show hdc, but can only do so if window is valid.
 	if (bShowHDC)
 		bShowHDC = (!!IsWindow(lpmcdata->m_hCopyHwnd));
-	
+
 	if (bShowHDC)
 	{
 		w = std::clamp((lpmcdata->m_rcSrc.right - lpmcdata->m_rcSrc.left), lpmcdata->m_szMin.cx, lpmcdata->m_szMax.cx);
@@ -669,6 +708,7 @@ LRESULT Peek_Show(HWND mHwnd, bool bShowHDC, int x, int y) noexcept
 	}
 
 	SetWindowPos(mHwnd, nullptr, x, y, w, h, SWP_NOACTIVATE | SWP_SHOWWINDOW);
+	Peek_SetRounded(mHwnd, lpmcdata->m_bRounded);
 
 	return TRUE;
 }
@@ -697,6 +737,23 @@ LRESULT Peek_SetMax(HWND mHwnd, LPSIZE szMax) noexcept
 		return FALSE;
 
 	lpmcdata->m_szMax = *szMax;
+
+	return TRUE;
+}
+
+LRESULT Peek_SetRounded(HWND mHwnd, bool bRounded) noexcept
+{
+	HRGN hRgn{};
+
+	if (bRounded)
+	{
+		RECT rcWin{};
+		GetWindowRect(mHwnd, &rcWin);
+
+		hRgn = CreateRoundRectRgn(0, 0, (rcWin.right - rcWin.left), (rcWin.bottom - rcWin.top), 5, 5);
+	}
+
+	SetWindowRgn(mHwnd, hRgn, TRUE);
 
 	return TRUE;
 }
