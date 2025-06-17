@@ -2189,21 +2189,6 @@ void mIRC_DrawBreakdown(HDC hdc, const std::vector<dcxTextBreakdown>& vec, LPREC
 				if (!hdcGrad)
 					return false;
 
-				//auto hbmMask = CreateBitmap(rc->right, rc->bottom, 1, 1, nullptr);
-				//if (!hbmMask)
-				//	return false;
-				//Auto(DeleteBitmap(hbmMask));
-				//
-				//// create mask
-				//{
-				//	const auto oldbm = SelectBitmap(hdcGrad, hbmMask);
-				//	Auto(SelectBitmap(hdcGrad, oldbm));
-				//
-				//	const auto oldClr = SetBkColor(hdc, clrTxt);
-				//	BitBlt(hdcGrad, 0, 0, rc->right, rc->bottom, hdc, 0, 0, SRCCOPY);
-				//	SetBkColor(hdc, oldClr);
-				//}
-
 				// create mask
 				auto hbmMask = dcxCreateMask(hdc, rc, clrTxt);
 				if (!hbmMask)
