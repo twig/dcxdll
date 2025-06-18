@@ -816,6 +816,7 @@
   <ItemGroup>
     <ClCompile Include="Classes\custom\ListHelper.cpp" />
     <ClCompile Include="Classes\custom\multicombo.cpp" />
+    <ClCompile Include="Classes\custom\peek.cpp" />
     <ClCompile Include="Classes\custom\SearchHelper.cpp" />
     <ClCompile Include="Classes\DcxMultiCombo.cpp" />
     <ClCompile Include="Classes\DcxWebControl2.cpp" />
@@ -920,6 +921,7 @@
     <ClInclude Include="AutoRelease.h" />
     <ClInclude Include="Classes\custom\ListHelper.h" />
     <ClInclude Include="Classes\custom\multicombo.h" />
+    <ClInclude Include="Classes\custom\peek.h" />
     <ClInclude Include="Classes\custom\SearchHelper.h" />
     <ClInclude Include="Classes\DcxMultiCombo.h" />
     <ClInclude Include="Classes\DcxWebControl2.h" />

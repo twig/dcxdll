@@ -360,6 +360,9 @@
     <ClCompile Include="dcxVersionInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Classes\custom\peek.cpp">
+      <Filter>Source Files\Controls\Custom</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dcx.h">
@@ -634,6 +637,9 @@
     </ClInclude>
     <ClInclude Include="dcxVersionInfo.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\custom\peek.h">
+      <Filter>Header Files\Controls\Custom</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
