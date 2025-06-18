@@ -242,7 +242,7 @@ public:
 
 	inline const UINT& getDPI() const noexcept { return m_uDPI; }
 
-	bool TrackMouseEvents(DWORD events) noexcept;
+	bool TrackMouseEvents(DWORD events, UINT uTime = HOVER_DEFAULT) const noexcept;
 
 	[[nodiscard]] static PTCHAR parseCursorType(const TString& cursor);
 	[[nodiscard]] static DcxResourceFlags parseCursorFlags(const TString& flags) noexcept;

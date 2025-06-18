@@ -21,7 +21,6 @@
   * \param mHwnd Window Handle
   * \param mID Window ID
   */
-
 DcxWindow::DcxWindow(const HWND mHwnd, const UINT mID) noexcept
 	: m_Hwnd(mHwnd), m_ID(mID)
 {
@@ -36,17 +35,10 @@ DcxWindow::DcxWindow(const HWND mHwnd, const UINT mID) noexcept
  *
  * \param mID Window ID
  */
-
 DcxWindow::DcxWindow(const UINT mID) noexcept
 	: DcxWindow(nullptr, mID)
 {
 }
-
-/*!
- * \brief Destructor
- *
- * Destructor
- */
 
 DcxWindow::~DcxWindow() noexcept
 {
@@ -54,22 +46,10 @@ DcxWindow::~DcxWindow() noexcept
 	//	DeleteRgn(m_hZeroRgn);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 bool DcxWindow::isStyle(const WindowStyle Styles) const noexcept
 {
 	return dcx_testflag(dcxGetWindowStyle(m_Hwnd), Styles);	// this makes sure ALL flags match not just some.
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 WindowStyle DcxWindow::removeStyle(const WindowStyle Styles) noexcept
 {
@@ -77,45 +57,21 @@ WindowStyle DcxWindow::removeStyle(const WindowStyle Styles) noexcept
 	return dcxSetWindowStyle(m_Hwnd, winStyles & ~Styles);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 WindowStyle DcxWindow::addStyle(const WindowStyle Styles) noexcept
 {
 	const auto winStyles = dcxGetWindowStyle(m_Hwnd);
 	return dcxSetWindowStyle(m_Hwnd, winStyles | Styles);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 WindowStyle DcxWindow::setStyle(const WindowStyle Styles) noexcept
 {
 	return dcxSetWindowStyle(m_Hwnd, Styles);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 bool DcxWindow::isExStyle(const WindowExStyle Styles) const noexcept
 {
 	return dcx_testflag(dcxGetWindowExStyle(m_Hwnd), Styles);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 WindowExStyle DcxWindow::removeExStyle(const WindowExStyle Styles) noexcept
 {
@@ -123,23 +79,11 @@ WindowExStyle DcxWindow::removeExStyle(const WindowExStyle Styles) noexcept
 	return dcxSetWindowExStyle(m_Hwnd, winStyles & ~Styles);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 WindowExStyle DcxWindow::addExStyle(const WindowExStyle Styles) noexcept
 {
 	const auto winStyles = dcxGetWindowExStyle(m_Hwnd);
 	return dcxSetWindowExStyle(m_Hwnd, winStyles | Styles);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 WindowExStyle DcxWindow::setExStyle(const WindowExStyle Styles) noexcept
 {
@@ -172,20 +116,10 @@ dcxWindowStyles DcxWindow::parseBorderStyles(const TString& tsFlags) noexcept
 	return { Styles, ExStyles };
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 const UINT& DcxWindow::getID() const noexcept
 {
 	return m_ID;
 }
-
-/// <summary>
-/// Opens tooltip window, if it exists.
-/// </summary>
 
 void DcxWindow::OpenToolTip() const noexcept
 {
@@ -195,27 +129,10 @@ void DcxWindow::OpenToolTip() const noexcept
 	Dcx::dcxToolTip_PopUp(m_HwndTooltip);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 const HWND& DcxWindow::getHwnd() const noexcept
 {
 	return m_Hwnd;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
-
-
- /// <summary>
- /// Closes tooltip window, if open.
- /// </summary>
 
 void DcxWindow::CloseToolTip() const noexcept
 {
@@ -363,12 +280,6 @@ void DcxWindow::HandleChildSizing(SizingTypes sz) const noexcept
 	//EndDeferWindowPos(hDWP);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void DcxWindow::setEventMask(const TString& tspFlags, const TString& tsnFlags)
 {
 	const XSwitchFlags xpFlags(tspFlags);
@@ -424,9 +335,14 @@ void DcxWindow::setEventMask(const TString& tspFlags, const TString& tsnFlags)
 	m_dEventMask = mask;
 }
 
-bool DcxWindow::TrackMouseEvents(DWORD events) noexcept
+bool DcxWindow::TrackMouseEvents(DWORD events, UINT uTime) const noexcept
 {
-	TRACKMOUSEEVENT tme{ sizeof(TRACKMOUSEEVENT),events,m_Hwnd,HOVER_DEFAULT };
+	//TRACKMOUSEEVENT tme{ sizeof(TRACKMOUSEEVENT),events,m_Hwnd,HOVER_DEFAULT };
+
+	//UINT uTime{ HOVER_DEFAULT };
+	//SystemParametersInfoW(SPI_GETMOUSEHOVERTIME, 0, &uTime, 0);
+
+	TRACKMOUSEEVENT tme{ sizeof(TRACKMOUSEEVENT),events,m_Hwnd,uTime };
 
 	return _TrackMouseEvent(&tme) != FALSE;
 }
@@ -454,12 +370,6 @@ PTCHAR DcxWindow::parseCursorType(const TString& cursor)
 		return got->second;
 	return nullptr;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 DcxResourceFlags DcxWindow::parseCursorFlags(const TString& flags) noexcept
 {
