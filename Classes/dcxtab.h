@@ -98,8 +98,9 @@ protected:
 	bool m_bHot{};
 	int m_iHotItem{ -1 };
 	int m_iHoverItem{ -1 };
-
+	UINT m_iHoverDelay{ HOVER_DEFAULT };
 	HWND m_hPeek{};
+	HFONT m_hPeekFont{};
 };
 
 #endif // _DCXTAB_H_

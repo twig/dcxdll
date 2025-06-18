@@ -62,7 +62,7 @@ DcxTab::DcxTab(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, c
 			const SIZE szMin{ 100, 30 };
 			const SIZE szMax{ 200, 200 };
 			SendMessage(m_hPeek, PC_WM_SETMINMAX, reinterpret_cast<WPARAM>(&szMin), reinterpret_cast<LPARAM>(&szMax));
-}
+		}
 	}
 }
 
@@ -489,7 +489,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 			if (const auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci)
 			{
 				lpdtci->tsTipText = tsTooltip;
-	}
+			}
 		}
 	}
 	// xdid -v [DNAME] [ID] [SWITCH] [N] [POS]
@@ -586,6 +586,110 @@ void DcxTab::parseCommandRequest(const TString& input)
 		TabCtrl_SetMinTabWidth(m_Hwnd, iWidth);
 
 		this->activateSelectedTab();
+	}
+	// xdid -P [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
+	// xdid -P -> [NAME] [ID] -M [+FLAGS] [ARGS]
+	else if (xflags[TEXT('P')])
+	{
+		if (numtok < 5)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		if (!m_hPeek)
+			throw DcxExceptions::dcxUnableToCreateWindow();
+
+		// +r = rounded window [ARGS] = 1/0
+		// +m = min size [ARGS] = minx miny
+		// +M = max size [ARGS] = maxx maxy
+		// +f = font [ARGS] = [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
+		// +b = background colour [ARGS] = RGB colour
+		// +t = Title text colour [ARGS] = RGB colour
+		// +d = Description text colour [ARGS] = RGB colour
+		// +o = hover open delay [ARGS] = delay time in milliseconds (default is system setting which is usually 400)
+		// +e = enable/disable peek ability [ARGS] = 1/0
+		const XSwitchFlags xFlags(input.getnexttok());
+		const auto tsArgs(input.getlasttoks());
+
+		pkData pkd{};
+
+		if (xFlags[L'r'])
+		{
+			pkd.m_dwMask |= PCF_ROUNDED;
+			pkd.m_bRoundedWindow = (tsArgs.to_<int>() > 0);
+		}
+		else if (xFlags[L'm'])
+		{
+			pkd.m_dwMask |= PCF_MIN;
+
+			pkd.m_szMin.cx = tsArgs.getfirsttok(1).to_<LONG>();
+			pkd.m_szMin.cy = tsArgs.getnexttokas<LONG>();
+		}
+		else if (xFlags[L'M'])
+		{
+			pkd.m_dwMask |= PCF_MAX;
+
+			pkd.m_szMax.cx = tsArgs.getfirsttok(1).to_<LONG>();
+			pkd.m_szMax.cy = tsArgs.getnexttokas<LONG>();
+		}
+		else if (xFlags[L'f'])
+		{
+			if (LOGFONT lf{}; ParseCommandToLogfont(tsArgs, &lf))
+			{
+				auto hTmp = m_hPeekFont;
+				m_hPeekFont = CreateFontIndirect(&lf);
+				if (m_hPeekFont)
+				{
+					SetWindowFont(m_hPeek, m_hPeekFont, FALSE);
+					if (hTmp)
+						DeleteFont(hTmp);
+				}
+			}
+		}
+		else if (xFlags[L'b'])
+		{
+			pkd.m_dwMask |= PCF_BKGCOLOUR;
+
+			pkd.m_clrBkg = tsArgs.getfirsttok(1).to_<COLORREF>();
+		}
+		else if (xFlags[L't'])
+		{
+			pkd.m_dwMask |= PCF_TITLECOLOUR;
+
+			pkd.m_clrTitle = tsArgs.getfirsttok(1).to_<COLORREF>();
+		}
+		else if (xFlags[L'd'])
+		{
+			pkd.m_dwMask |= PCF_DESCCOLOUR;
+
+			pkd.m_clrDescription = tsArgs.getfirsttok(1).to_<COLORREF>();
+		}
+		else if (xFlags[L'o'])
+		{
+			m_iHoverDelay = tsArgs.getfirsttok(1).to_<UINT>();
+		}
+		else if (xFlags[L'e'])
+		{
+			if (m_hPeek)
+			{
+				DestroyWindow(m_hPeek);
+				m_hPeek = nullptr;
+			}
+
+			m_bPeek = (tsArgs.getfirsttok(1).to_<int>() > 0);
+
+			if (m_bPeek)
+			{
+				auto hHandle = GetModuleHandle(nullptr);
+
+				const RECT rcPeek{ 0,0,200,200 };
+				m_hPeek = CreateWindowExW(WS_EX_NOACTIVATE, PEEK_CLASS, nullptr, WS_POPUP | WS_CLIPCHILDREN, rcPeek.left, rcPeek.top, (rcPeek.right - rcPeek.left), (rcPeek.bottom - rcPeek.top), m_Hwnd, nullptr, hHandle, nullptr);
+
+				pkd.m_dwMask |= PCF_MIN | PCF_MAX;
+				pkd.m_szMin = SIZE(100, 30);
+				pkd.m_szMax = SIZE(200, 200);
+			}
+		}
+		if (m_hPeek)
+			SendMessage(m_hPeek, PC_WM_SETDATA, reinterpret_cast<WPARAM>(&pkd), 0);
 	}
 	else
 		this->parseGlobalCommandRequest(input, xflags);
@@ -1075,8 +1179,8 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 			// center text on control (default)
 			uDrawFlags |= DT_CENTER;
 		}
-
-		//m_TextOptions.m_bGlow = (nTabIndex == this->m_iHotItem);
+		//if (dcx_testflag(dcxGetWindowStyle(m_Hwnd), TCS_HOTTRACK))
+		//	m_TextOptions.m_bGlow = (nTabIndex == this->m_iHotItem);
 
 		this->ctrlDrawText(idata->hDC, label, &rect, uDrawFlags);
 		break;
@@ -1119,7 +1223,7 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 		m_iHoverItem = -1;
 
 		if (!m_bTracking)
-			m_bTracking = TrackMouseEvents(TME_LEAVE | TME_HOVER);
+			m_bTracking = TrackMouseEvents(TME_LEAVE | TME_HOVER, m_iHoverDelay);
 		if (!m_bHot)
 		{
 			m_bHot = true;
@@ -1140,11 +1244,6 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 
 				Dcx::dcxTabCtrl_GetItemRect(m_Hwnd, iTab, &rcItem);
 				//InvalidateRect(m_Hwnd, &rcItem, FALSE);
-
-				//if (iTab != Dcx::dcxTabCtrl_GetCurSel(m_Hwnd))
-				//	SetPeekSource(iTab, &rcItem);
-				//else
-				//	HidePeek();
 
 				SetPeekSource(iTab, Dcx::dcxTabCtrl_GetCurSel(m_Hwnd), &rcItem);
 
@@ -1333,6 +1432,8 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 		//
 		//lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 
+		//CleanUpParentCache();
+
 		if (!this->IsAlphaBlend())
 			break;
 
@@ -1490,6 +1591,8 @@ LRESULT DcxTab::DrawClientArea(HDC hdc, UINT uMsg, LPARAM lParam)
 {
 	if (!hdc)
 		return 0L;
+
+	//CleanUpParentCache();
 
 	// Setup alpha blend if any.
 	const auto ai = this->SetupAlphaBlend(&hdc);
