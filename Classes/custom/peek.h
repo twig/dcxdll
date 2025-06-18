@@ -18,15 +18,15 @@
 #define PC_WM_SHOW (PC_WM_BASE + 5)
 #define PC_WM_SETMINMAX (PC_WM_BASE + 6)
 
-#define PCF_HWND			0x01
-#define PCF_TITLE			0x02
-#define PCF_DESC			0x04
-#define PCF_MIN				0x08
-#define PCF_MAX				0x10
-#define PCF_BKGCOLOUR		0x11
-#define PCF_TITLECOLOUR		0x12
-#define PCF_DESCCOLOUR		0x14
-#define PCF_ROUNDED			0x18
+#define PCF_HWND			(1UL << 1)
+#define PCF_TITLE			(1UL << 2)
+#define PCF_DESC			(1UL << 3)
+#define PCF_MIN				(1UL << 4)
+#define PCF_MAX				(1UL << 5)
+#define PCF_BKGCOLOUR		(1UL << 6)
+#define PCF_TITLECOLOUR		(1UL << 7)
+#define PCF_DESCCOLOUR		(1UL << 8)
+#define PCF_ROUNDED			(1UL << 9)
 
 struct pkData
 {

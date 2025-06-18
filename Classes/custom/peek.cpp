@@ -704,7 +704,7 @@ LRESULT Peek_Show(HWND mHwnd, bool bShowHDC, int x, int y) noexcept
 			MapWindowRect(mHwnd, nullptr, &rcTxt);
 		}
 		w = std::clamp((rcTxt.right - rcTxt.left), lpmcdata->m_szMin.cx, lpmcdata->m_szMax.cx);
-		h = std::clamp((rcTxt.bottom - rcTxt.top), 24L, 30L);
+		h = std::clamp((rcTxt.bottom - rcTxt.top), 24L, 30L) + 5;
 	}
 
 	SetWindowPos(mHwnd, nullptr, x, y, w, h, SWP_NOACTIVATE | SWP_SHOWWINDOW);
