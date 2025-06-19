@@ -1065,6 +1065,7 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		cd.m_rcText.bottom = cd.m_rcText.top + (rcTmp.bottom - rcTmp.top);
 	}
 
+	// apply the set offsets
 	OffsetRect(&cd.m_rcCheck, 0, m_CheckMargins.cyTopHeight);
 
 	if (cd.m_bRightButton)
@@ -1077,54 +1078,38 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		cd.m_rcText.left += m_CheckMargins.cxRightWidth + m_CheckMargins.cxLeftWidth;
 	}
 
-	// weirdly BS_RIGHT seems to be set whenever we set BS_CENTER
-	if (cd.m_bRightJustify)
-	{
-		cd.m_textFlags |= DT_RIGHT;
-		cd.m_textFlags &= ~DT_CENTER;
-	}
-
 	// set horiz positioning. (just for text & focus)
 	if (cd.m_bHCenter)
 	{
+		//center text within text area
 		cd.m_textFlags |= DT_CENTER;
 		cd.m_textFlags &= ~DT_RIGHT;
-
-		if (cd.m_bRightButton)
-		{
-			cd.m_rcFocus = cd.m_rcText;
-			cd.m_rcText.left += m_CheckMargins.cyBottomHeight;
-			cd.m_rcText.right -= (m_CheckMargins.cyBottomHeight + m_CheckMargins.cyBottomHeight);
-		}
-		else {
-			cd.m_rcFocus = cd.m_rcText;
-			OffsetRect(&cd.m_rcText, m_CheckMargins.cyBottomHeight, 0);
-			cd.m_rcFocus.right += (m_CheckMargins.cyBottomHeight + m_CheckMargins.cyBottomHeight);
-		}
 	}
-	else {
-		if (cd.m_bRightButton)
+	// weirdly BS_RIGHT seems to be set whenever we set BS_CENTER
+	else if (cd.m_bRightJustify)
 		{
-			cd.m_rcFocus = cd.m_rcText;
-			cd.m_rcText.left += m_CheckMargins.cyBottomHeight;
-			cd.m_rcText.right -= (m_CheckMargins.cyBottomHeight + m_CheckMargins.cyBottomHeight);
-		}
-		else {
-			cd.m_rcFocus = cd.m_rcText;
-			OffsetRect(&cd.m_rcText, m_CheckMargins.cyBottomHeight, 0);
-			cd.m_rcFocus.right += (m_CheckMargins.cyBottomHeight + m_CheckMargins.cyBottomHeight);
-		}
-	}
-
-	if (cd.m_bRightJustify)
-	{
+		//text to right of text area
 		cd.m_textFlags |= DT_RIGHT;
 		cd.m_textFlags &= ~DT_CENTER;
-	}
+		}
 
-	// make sure right edge of focus rect stays in view.
+		if (cd.m_bRightButton)
+		{
+			cd.m_rcFocus = cd.m_rcText;
+			cd.m_rcText.left += m_CheckMargins.cyBottomHeight;
+			cd.m_rcText.right -= (m_CheckMargins.cyBottomHeight + m_CheckMargins.cyBottomHeight);
+		}
+		else {
+			cd.m_rcFocus = cd.m_rcText;
+			OffsetRect(&cd.m_rcText, m_CheckMargins.cyBottomHeight, 0);
+			cd.m_rcFocus.right += (m_CheckMargins.cyBottomHeight + m_CheckMargins.cyBottomHeight);
+		}
+
+	// make sure edge of focus rect stays in view.
 	if (cd.m_rcFocus.right > cd.m_rc.right)
 		cd.m_rcFocus.right = cd.m_rc.right;
+	if (cd.m_rcFocus.left < cd.m_rc.left)
+		cd.m_rcFocus.left = cd.m_rc.left;
 
 	ctrlDrawBackground(cd);
 	ctrlDrawCheckBox(cd);

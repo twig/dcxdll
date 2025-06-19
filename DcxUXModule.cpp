@@ -26,32 +26,33 @@ bool DcxUXModule::load()
 #pragma warning(disable: 4191)
 #pragma warning(disable: 26493)	//warning C26493 : Don't use C-style casts that would perform a static_cast downcast, const_cast, or reinterpret_cast. (type.4: http://go.microsoft.com/fwlink/p/?LinkID=620420)
 
-		SetWindowThemeUx = (PFNSETTHEME) GetProcAddress(m_hModule, "SetWindowTheme");
-		IsThemeActiveUx = (PFNISTHEMEACTIVE) GetProcAddress(m_hModule, "IsThemeActive");
-		OpenThemeDataUx = (PFNOPENTHEMEDATA) GetProcAddress(m_hModule, "OpenThemeData");
-		CloseThemeDataUx = (PFNCLOSETHEMEDATA) GetProcAddress(m_hModule, "CloseThemeData");
-		DrawThemeBackgroundUx = (PFNDRAWTHEMEBACKGROUND) GetProcAddress(m_hModule, "DrawThemeBackground");
-		GetThemeBackgroundContentRectUx = (PFNGETTHEMEBACKGROUNDCONTENTRECT) GetProcAddress(m_hModule, "GetThemeBackgroundContentRect");
-		IsThemeBackgroundPartiallyTransparentUx = (PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT) GetProcAddress(m_hModule, "IsThemeBackgroundPartiallyTransparent");
-		DrawThemeParentBackgroundUx = (PFNDRAWTHEMEPARENTBACKGROUND) GetProcAddress(m_hModule, "DrawThemeParentBackground");
-		DrawThemeTextUx = (PFNDRAWTHEMETEXT) GetProcAddress(m_hModule, "DrawThemeText");
+		SetWindowThemeUx = (PFNSETTHEME)GetProcAddress(m_hModule, "SetWindowTheme");
+		IsThemeActiveUx = (PFNISTHEMEACTIVE)GetProcAddress(m_hModule, "IsThemeActive");
+		OpenThemeDataUx = (PFNOPENTHEMEDATA)GetProcAddress(m_hModule, "OpenThemeData");
+		CloseThemeDataUx = (PFNCLOSETHEMEDATA)GetProcAddress(m_hModule, "CloseThemeData");
+		DrawThemeBackgroundUx = (PFNDRAWTHEMEBACKGROUND)GetProcAddress(m_hModule, "DrawThemeBackground");
+		GetThemeBackgroundContentRectUx = (PFNGETTHEMEBACKGROUNDCONTENTRECT)GetProcAddress(m_hModule, "GetThemeBackgroundContentRect");
+		IsThemeBackgroundPartiallyTransparentUx = (PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT)GetProcAddress(m_hModule, "IsThemeBackgroundPartiallyTransparent");
+		DrawThemeParentBackgroundUx = (PFNDRAWTHEMEPARENTBACKGROUND)GetProcAddress(m_hModule, "DrawThemeParentBackground");
+		DrawThemeTextUx = (PFNDRAWTHEMETEXT)GetProcAddress(m_hModule, "DrawThemeText");
 		DrawThemeTextExUx = (PFNDRAWTHEMETEXTEX)GetProcAddress(m_hModule, "DrawThemeTextEx");
-		GetThemeBackgroundRegionUx = (PFNGETTHEMEBACKGROUNDREGION) GetProcAddress(m_hModule, "GetThemeBackgroundRegion");
-		GetWindowThemeUx = (PFNGETWINDOWTHEME) GetProcAddress(m_hModule, "GetWindowTheme");
-		DrawThemeEdgeUx = (PFNDRAWTHEMEEDGE) GetProcAddress(m_hModule, "DrawThemeEdge");
-		GetThemeColorUx = (PFNGETTHEMECOLOR) GetProcAddress(m_hModule, "GetThemeColor");
+		GetThemeBackgroundRegionUx = (PFNGETTHEMEBACKGROUNDREGION)GetProcAddress(m_hModule, "GetThemeBackgroundRegion");
+		GetWindowThemeUx = (PFNGETWINDOWTHEME)GetProcAddress(m_hModule, "GetWindowTheme");
+		DrawThemeEdgeUx = (PFNDRAWTHEMEEDGE)GetProcAddress(m_hModule, "DrawThemeEdge");
+		GetThemeColorUx = (PFNGETTHEMECOLOR)GetProcAddress(m_hModule, "GetThemeColor");
 		GetThemeIntUx = (PFNGETTHEMEINT)GetProcAddress(m_hModule, "GetThemeInt");
 		GetThemeFontUx = (PFNGETTHEMEFONT)GetProcAddress(m_hModule, "GetThemeFont");
 		GetThemeTextExtentUx = (PFNGETTHEMETEXTEXTENT)GetProcAddress(m_hModule, "GetThemeTextExtent");
 		GetThemeRectUx = (PFNGETTHEMERECT)GetProcAddress(m_hModule, "GetThemeRect");
+		GetThemePartSizeUx = (PFNGETTHEMEPARTSIZE)GetProcAddress(m_hModule, "GetThemePartSize");
 
 		// Get Vista function pointers.
-		DrawThemeParentBackgroundExUx = (PFNDRAWTHEMEPARENTBACKGROUNDEX) GetProcAddress(m_hModule, "DrawThemeParentBackgroundEx"); // Vista ONLY!
+		DrawThemeParentBackgroundExUx = (PFNDRAWTHEMEPARENTBACKGROUNDEX)GetProcAddress(m_hModule, "DrawThemeParentBackgroundEx"); // Vista ONLY!
 		//GetThemeBitmapUx = (PFNGETTHEMEBITMAP) GetProcAddress(UXModule, "GetThemeBitmap");
-		BufferedPaintInitUx = (PFNBUFFEREDPAINTINIT) GetProcAddress(m_hModule, "BufferedPaintInit");
-		BufferedPaintUnInitUx = (PFNBUFFEREDPAINTUNINIT) GetProcAddress(m_hModule, "BufferedPaintUnInit");
-		BeginBufferedPaintUx = (PFNBEGINBUFFEREDPAINT) GetProcAddress(m_hModule, "BeginBufferedPaint");
-		EndBufferedPaintUx = (PFNENDBUFFEREDPAINT) GetProcAddress(m_hModule, "EndBufferedPaint");
+		BufferedPaintInitUx = (PFNBUFFEREDPAINTINIT)GetProcAddress(m_hModule, "BufferedPaintInit");
+		BufferedPaintUnInitUx = (PFNBUFFEREDPAINTUNINIT)GetProcAddress(m_hModule, "BufferedPaintUnInit");
+		BeginBufferedPaintUx = (PFNBEGINBUFFEREDPAINT)GetProcAddress(m_hModule, "BeginBufferedPaint");
+		EndBufferedPaintUx = (PFNENDBUFFEREDPAINT)GetProcAddress(m_hModule, "EndBufferedPaint");
 		BufferedPaintSetAlphaUx = (PFNBUFFEREDPAINTSETALPHA)GetProcAddress(m_hModule, "BufferedPaintSetAlpha");
 		BufferedPaintClearUx = (PFNBUFFEREDPAINTCLEAR)GetProcAddress(m_hModule, "BufferedPaintClear");
 		HitTestThemeBackgroundUx = (PFNHITTESTTHEMEBACKGROUND)GetProcAddress(m_hModule, "HitTestThemeBackground");
@@ -85,7 +86,7 @@ bool DcxUXModule::load()
 		if (SetWindowThemeUx && IsThemeActiveUx && OpenThemeDataUx && CloseThemeDataUx &&
 			DrawThemeBackgroundUx && GetThemeBackgroundContentRectUx && IsThemeBackgroundPartiallyTransparentUx &&
 			DrawThemeParentBackgroundUx && DrawThemeTextUx && DrawThemeTextExUx && GetThemeBackgroundRegionUx &&
-			GetWindowThemeUx && DrawThemeEdgeUx && GetThemeColorUx && GetThemeFontUx && GetThemeTextExtentUx && GetThemeRectUx)
+			GetWindowThemeUx && DrawThemeEdgeUx && GetThemeColorUx && GetThemeFontUx && GetThemeTextExtentUx && GetThemeRectUx && GetThemePartSizeUx)
 		{
 			DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Found XP+ Theme Functions"));
 			if (DrawThemeParentBackgroundExUx && BufferedPaintInitUx && BufferedPaintUnInitUx
@@ -266,7 +267,7 @@ HRESULT DcxUXModule::dcxDrawThemeTextEx(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ i
 	return E_NOTIMPL;
 }
 
-[[gsl::suppress(lifetime)]] HRESULT DcxUXModule::dcxGetThemeBackgroundRegion(_In_ HTHEME hTheme, _In_opt_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT pRect, _Out_ HRGN *pRegion) noexcept
+[[gsl::suppress(lifetime)]] HRESULT DcxUXModule::dcxGetThemeBackgroundRegion(_In_ HTHEME hTheme, _In_opt_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT pRect, _Out_ HRGN* pRegion) noexcept
 {
 	if (GetThemeBackgroundRegionUx)
 		return GetThemeBackgroundRegionUx(hTheme, hdc, iPartId, iStateId, pRect, pRegion);
@@ -280,7 +281,7 @@ HRESULT DcxUXModule::dcxDrawThemeEdge(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int
 	return E_NOTIMPL;
 }
 
-HRESULT DcxUXModule::dcxGetThemeColor(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ COLORREF *pColor) noexcept
+HRESULT DcxUXModule::dcxGetThemeColor(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ COLORREF* pColor) noexcept
 {
 	if (GetThemeColorUx)
 		return GetThemeColorUx(hTheme, iPartId, iStateId, iPropId, pColor);
@@ -315,7 +316,7 @@ HRESULT DcxUXModule::dcxDrawThemeParentBackgroundEx(_In_ HWND hwnd, _In_ HDC hdc
 	return E_NOTIMPL;
 }
 
-[[gsl::suppress(lifetime,Enum.3)]] _Success_(return != NULL) gsl::owner<HPAINTBUFFER> DcxUXModule::dcxBeginBufferedPaint(_In_ HDC hdcTarget, _In_ LPCRECT prcTarget, _In_ BP_BUFFERFORMAT dwFormat, _In_opt_ BP_PAINTPARAMS *pPaintParams, _Out_ HDC *phdc) noexcept
+[[gsl::suppress(lifetime, Enum.3)]] _Success_(return != NULL) gsl::owner<HPAINTBUFFER> DcxUXModule::dcxBeginBufferedPaint(_In_ HDC hdcTarget, _In_ LPCRECT prcTarget, _In_ BP_BUFFERFORMAT dwFormat, _In_opt_ BP_PAINTPARAMS * pPaintParams, _Out_ HDC * phdc) noexcept
 {
 	if (BeginBufferedPaintUx)
 		return BeginBufferedPaintUx(hdcTarget, prcTarget, dwFormat, pPaintParams, phdc);
@@ -360,7 +361,7 @@ HRESULT DcxUXModule::dcxBufferedPaintClear(_In_ HPAINTBUFFER hBufferedPaint, _In
 	return E_NOTIMPL;
 }
 
-HRESULT DcxUXModule::dcxHitTestThemeBackground(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ DWORD dwOptions, _In_ LPCRECT pRect, _In_ HRGN hrgn, _In_ POINT ptTest, _Out_ WORD* pwHitTestCode) noexcept
+HRESULT DcxUXModule::dcxHitTestThemeBackground(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ DWORD dwOptions, _In_ LPCRECT pRect, _In_ HRGN hrgn, _In_ POINT ptTest, _Out_ WORD * pwHitTestCode) noexcept
 {
 	if (HitTestThemeBackgroundUx)
 		return HitTestThemeBackgroundUx(hTheme, hdc, iPartId, iStateId, dwOptions, pRect, hrgn, ptTest, pwHitTestCode);
@@ -509,7 +510,7 @@ int DcxUXModule::dcxGetTextGlowSize() noexcept
 
 COLORREF DcxUXModule::dcxGetTextGlowColor() noexcept
 {
-	COLORREF crGlow = RGB(255,255,255); // Default value
+	COLORREF crGlow = RGB(255, 255, 255); // Default value
 	// CompositedWindow::Window is declared in AeroStyle.xml
 	if (HTHEME hThemeWindow = dcxOpenThemeData(nullptr, L"CompositedWindow::Window"); hThemeWindow)
 	{
@@ -519,7 +520,7 @@ COLORREF DcxUXModule::dcxGetTextGlowColor() noexcept
 	return crGlow;
 }
 
-HRESULT DcxUXModule::dcxGetThemePartSize(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT prc, THEMESIZE eSize, SIZE* psz) noexcept
+HRESULT DcxUXModule::dcxGetThemePartSize(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT prc, THEMESIZE eSize, SIZE * psz) noexcept
 {
 	if (GetThemePartSizeUx)
 		return GetThemePartSizeUx(hTheme, hdc, iPartId, iStateId, prc, eSize, psz);
@@ -533,8 +534,17 @@ SIZE DcxUXModule::dcxGetCheckBoxSize(HTHEME hTheme, HWND hwnd, HDC hdc, LPCRECT 
 	bool bGet = true;
 	if (hdc && prc && hTheme)
 	{
-		if (dcxGetThemePartSize(hTheme, hdc, BUTTONPARTS::BP_CHECKBOX, CHECKBOXSTATES::CBS_UNCHECKEDNORMAL, prc, TS_TRUE, &sz) == S_OK)
+		//if (dcxGetThemePartSize(hTheme, hdc, BUTTONPARTS::BP_CHECKBOX, CHECKBOXSTATES::CBS_UNCHECKEDNORMAL, prc, TS_TRUE, &sz) == S_OK)
+		//	bGet = false;
+
+		auto res = dcxGetThemePartSize(hTheme, hdc, BUTTONPARTS::BP_CHECKBOX, CHECKBOXSTATES::CBS_UNCHECKEDNORMAL, prc, TS_TRUE, &sz);
+		if (res == S_OK)
+		{
+			// possible quick fix for checkboxes being to small here...
+			//sz.cx += DcxDPIModule::dcxGetWindowMetrics(hwnd, SM_CXBORDER); // 2;
+			//sz.cy += DcxDPIModule::dcxGetWindowMetrics(hwnd, SM_CYBORDER); // 2;
 			bGet = false;
+		}
 	}
 
 	if (bGet)

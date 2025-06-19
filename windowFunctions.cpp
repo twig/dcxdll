@@ -1050,7 +1050,7 @@ void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, con
 
 	RECT rc = *rcBox;
 
-	InflateRect(&rc, 0, -1);
+	//InflateRect(&rc, 0, -1);
 	/*rc.left += 1;*/
 	rc.right = rc.left + rc.bottom - rc.top;
 
@@ -1806,6 +1806,4 @@ void dcxDrawTextOptions(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT mStyle, 
 		SetBkMode(hdcTxt, TRANSPARENT);
 
 	mIRC_DrawBreakdown(hdcTxt, vec, &rcTxt, mStyle, dTO);
-
-	//BitBlt(hdc, pRC->left, pRC->top, pRC->right - pRC->left, pRC->bottom - pRC->top, hdcTxt, pRC->left, pRC->top, SRCCOPY);
 }
