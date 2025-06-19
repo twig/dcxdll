@@ -2019,10 +2019,10 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		GetClientRect(m_Hwnd, &rc);
 
 		// this is a quick fix to draw the bkg colour, will need more work to support the full range of bkg features.
-		if (m_clrBackground == CLR_INVALID)
-			m_clrBackground = Dcx::dcxRichEdit_GetBkgndColor(m_Hwnd);
+		if (this->getBackTextColor() == CLR_INVALID)
+			this->setTextBackColor(Dcx::dcxRichEdit_GetBkgndColor(m_Hwnd));
 
-		Dcx::FillRectColour(hdc, &rc, m_clrBackground);
+		Dcx::FillRectColour(hdc, &rc, this->getBackTextColor());
 		//DrawCtrlBackground(hdc, this, &rc);
 
 		rc.left -= 1;
