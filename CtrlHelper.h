@@ -3612,9 +3612,13 @@ namespace Dcx
 	/// <param name="bUseSystem">- Specifies whether to use the system color. If this parameter is a nonzero value, the background is set to the window background system color. Otherwise, the background is set to the specified color.</param>
 	/// <param name="clr">- A COLORREF structure specifying the color if wParam is zero. To generate a COLORREF, use the RGB macro.</param>
 	/// <returns>The original background color.</returns>
-	inline COLORREF dcxRichEdit_SetBkgndColor(_In_ HWND hwnd, _In_ BOOL bUseSystem, _In_ COLORREF clr) noexcept
+	COLORREF dcxRichEdit_SetBkgndColor(_In_ HWND hwnd, _In_ BOOL bUseSystem, _In_ COLORREF clr) noexcept;
+
+	COLORREF dcxRichEdit_GetBkgndColor(_In_ HWND hwnd) noexcept;
+
+	inline int dcxRichEdit_FormatRange(_In_ HWND hwnd, _In_ BOOL bRender, _In_ FORMATRANGE *lpFR) noexcept
 	{
-		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, EM_SETBKGNDCOLOR, gsl::narrow_cast<WPARAM>(bUseSystem), gsl::narrow_cast<LPARAM>(clr)));
+		return gsl::narrow_cast<int>(SendMessage(hwnd, EM_FORMATRANGE, gsl::narrow_cast<WPARAM>(bRender), reinterpret_cast<LPARAM>(lpFR)));
 	}
 
 	/// <summary>

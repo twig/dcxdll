@@ -517,12 +517,30 @@ namespace Dcx
 		return gsl::narrow_cast<int>(SendMessage(hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(nStart), reinterpret_cast<LPARAM>(nEnd)));
 	}
 
+
+	/// <summary>
+	/// Sets the background color for a rich edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="bUseSystem">- Specifies whether to use the system color. If this parameter is a nonzero value, the background is set to the window background system color. Otherwise, the background is set to the specified color.</param>
+	/// <param name="clr">- A COLORREF structure specifying the color if wParam is zero. To generate a COLORREF, use the RGB macro.</param>
+	/// <returns>The original background color.</returns>
+	COLORREF dcxRichEdit_SetBkgndColor(HWND hwnd, BOOL bUseSystem, COLORREF clr) noexcept
+	{
+		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, EM_SETBKGNDCOLOR, gsl::narrow_cast<WPARAM>(bUseSystem), gsl::narrow_cast<LPARAM>(clr)));
+	}
+
+	COLORREF dcxRichEdit_GetBkgndColor(HWND hwnd) noexcept
+	{
+		return dcxRichEdit_SetBkgndColor(hwnd, FALSE, dcxRichEdit_SetBkgndColor(hwnd, TRUE, 0));
+	}
+
 	int dcxTabCtrl_GetPointItem(HWND hwnd, POINT pt) noexcept
 	{
 		TCHITTESTINFO tti{};
 		tti.pt = pt;
 
-		auto iTab = TabCtrl_HitTest(hwnd, &tti);
+		const auto iTab = TabCtrl_HitTest(hwnd, &tti);
 
 		if (tti.flags & TCHT_ONITEM)
 			return iTab;
