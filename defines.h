@@ -211,7 +211,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  "70"
+#define DLL_DEV_BUILD  "71"
 #define DCXML_VERSION			1
 #define DCXML_DIALOG_VERSION	2
 #define DCXML_POPUP_VERSION		2
