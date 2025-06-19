@@ -1994,14 +1994,116 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	}
 	break;
 
+	case WM_PRINTCLIENT:
+	{
+		bParsed = TRUE;
+
+		dcxwParam(HDC, hdc);
+
+		CleanUpParentCache();
+
+		// Setup alpha blend if any.
+		const auto ai = this->SetupAlphaBlend(&hdc);
+		Auto(this->FinishAlphaBlend(ai));
+
+		// richedits printclient appears broken & non functional.
+		//const auto lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+		//if (m_bShowLineNumbers)
+		//	DrawGutter(hdc);
+
+
+		const auto nLogPixelsX = ::GetDeviceCaps(hdc, LOGPIXELSX);
+		const auto nLogPixelsY = ::GetDeviceCaps(hdc, LOGPIXELSY);
+
+		RECT rc{};
+		GetClientRect(m_Hwnd, &rc);
+
+		// this is a quick fix to draw the bkg colour, will need more work to support the full range of bkg features.
+		if (m_clrBackground == CLR_INVALID)
+			m_clrBackground = Dcx::dcxRichEdit_GetBkgndColor(m_Hwnd);
+
+		Dcx::FillRectColour(hdc, &rc, m_clrBackground);
+		//DrawCtrlBackground(hdc, this, &rc);
+
+		rc.left -= 1;
+		rc.top -= 2;
+		rc.left = MulDiv(rc.left, 1440, nLogPixelsX);
+		rc.top = MulDiv(rc.top, 1440, nLogPixelsY);
+		rc.right = MulDiv(rc.right, 1440, nLogPixelsX);
+		rc.bottom = MulDiv(rc.bottom, 1440, nLogPixelsY);
+
+		POINTL point{};
+
+		FORMATRANGE fr{};
+
+		fr.hdc = hdc;
+		fr.hdcTarget = hdc;
+		fr.rc = rc;
+		fr.rcPage = rc;
+		fr.chrg.cpMin = Dcx::dcxRichEdit_CharFromPos(m_Hwnd, &point);
+		fr.chrg.cpMax = -1;
+
+		//Requesting to draw on the DC
+		Dcx::dcxRichEdit_FormatRange(m_Hwnd, TRUE, &fr);
+		Dcx::dcxRichEdit_FormatRange(m_Hwnd, FALSE, nullptr);
+
+		if (m_bShowLineNumbers)
+			DrawGutter(hdc);
+
+		return 0L;
+	}
+	break;
+
 	case WM_PAINT:
 	{
+		//CleanUpParentCache();
+		//
+		//if (this->IsAlphaBlend())
+		//{
+		//	PAINTSTRUCT ps{};
+		//
+		//	auto hdc = BeginPaint(m_Hwnd, &ps);
+		//	Auto(EndPaint(m_Hwnd, &ps));
+		//
+		//	bParsed = TRUE;
+		//
+		//	// Setup alpha blend if any.
+		//	const auto ai = this->SetupAlphaBlend(&hdc);
+		//	Auto(this->FinishAlphaBlend(ai));
+		//
+		//	const auto lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+		//
+		//	if (m_bShowLineNumbers)
+		//		//PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+		//		DrawGutter(hdc);
+		//
+		//	return lRes;
+		//}
+		//else if (m_bShowLineNumbers)
+		//{
+		//	bParsed = TRUE;
+		//	const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+		//
+		//	//PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+		//	if (wParam)
+		//		DrawGutter(reinterpret_cast<HDC>(wParam));
+		//	else
+		//		DrawGutter();
+		//
+		//	return lRes;
+		//}
+
+		//CleanUpParentCache();
+
+		dcxwParam(HDC, hdc);
+
 		if (this->IsAlphaBlend())
 		{
 			PAINTSTRUCT ps{};
 
-			auto hdc = BeginPaint(m_Hwnd, &ps);
-			Auto(EndPaint(m_Hwnd, &ps));
+			if (!wParam)
+				hdc = BeginPaint(m_Hwnd, &ps);
+			Auto({ if (!wParam) EndPaint(m_Hwnd, &ps); });
 
 			bParsed = TRUE;
 
@@ -2012,7 +2114,6 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 			const auto lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 
 			if (m_bShowLineNumbers)
-				//PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
 				DrawGutter(hdc);
 
 			return lRes;
@@ -2022,9 +2123,8 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 			bParsed = TRUE;
 			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
 
-			//PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
-			if (wParam)
-				DrawGutter(reinterpret_cast<HDC>(wParam));
+			if (hdc)
+				DrawGutter(hdc);
 			else
 				DrawGutter();
 
