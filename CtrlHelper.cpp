@@ -532,7 +532,9 @@ namespace Dcx
 
 	COLORREF dcxRichEdit_GetBkgndColor(HWND hwnd) noexcept
 	{
-		return dcxRichEdit_SetBkgndColor(hwnd, FALSE, dcxRichEdit_SetBkgndColor(hwnd, TRUE, 0));
+		const auto clr = dcxRichEdit_SetBkgndColor(hwnd, TRUE, 0);
+		dcxRichEdit_SetBkgndColor(hwnd, FALSE, clr);
+		return clr;
 	}
 
 	int dcxTabCtrl_GetPointItem(HWND hwnd, POINT pt) noexcept
