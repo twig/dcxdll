@@ -2000,7 +2000,7 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 		dcxwParam(HDC, hdc);
 
-		CleanUpParentCache();
+		//CleanUpParentCache();
 
 		// Setup alpha blend if any.
 		const auto ai = this->SetupAlphaBlend(&hdc);
