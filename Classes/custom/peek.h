@@ -42,6 +42,8 @@ struct pkData
 	bool m_bRoundedWindow{};
 };
 
+#define PEEK_TXT_BOTTOM_PAD 5
+
 struct PEEK_DATA
 {
 	//HWND m_hBase{};				// base window that joins everything together.

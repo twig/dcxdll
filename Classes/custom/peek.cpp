@@ -420,7 +420,7 @@ void Peek_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 				RECT rcTmp{};
 				DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTITLE, 0, &lpmcdata->m_Description[0], -1, textFlags | DT_CALCRECT, &rcTmp, &dtt);
 				const int txtSize = std::max(12L, (rcTmp.bottom - rcTmp.top));
-				rcTxt.bottom = rcTxt.top + txtSize;
+				rcTxt.bottom = rcTxt.top + txtSize + PEEK_TXT_BOTTOM_PAD;
 
 				if (lpmcdata->m_clrDesc != CLR_INVALID)
 				{
@@ -458,7 +458,7 @@ void Peek_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 				RECT rcTmp{};
 				DrawText(hdc, &lpmcdata->m_Description[0], -1, &rcTmp, textFlags | DT_CALCRECT);
 				const int txtSize = (rcTmp.bottom - rcTmp.top);
-				rcTxt.bottom = rcTxt.top + txtSize;
+				rcTxt.bottom = rcTxt.top + txtSize + PEEK_TXT_BOTTOM_PAD;
 
 				DrawText(hdc, &lpmcdata->m_Description[0], -1, &rcTxt, textFlags);
 
@@ -704,7 +704,7 @@ LRESULT Peek_Show(HWND mHwnd, bool bShowHDC, int x, int y) noexcept
 			MapWindowRect(mHwnd, nullptr, &rcTxt);
 		}
 		w = std::clamp((rcTxt.right - rcTxt.left), lpmcdata->m_szMin.cx, lpmcdata->m_szMax.cx);
-		h = std::clamp((rcTxt.bottom - rcTxt.top), 24L, 30L) + 5;
+		h = std::clamp((rcTxt.bottom - rcTxt.top), 24L, 30L) + PEEK_TXT_BOTTOM_PAD;
 	}
 
 	SetWindowPos(mHwnd, nullptr, x, y, w, h, SWP_NOACTIVATE | SWP_SHOWWINDOW);
