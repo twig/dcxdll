@@ -129,6 +129,8 @@ protected:
 	COLORREF m_clrGutter_seltxt{ RGB(0x0F, 0x0F, 0x0F) };
 	COLORREF m_clrGutter_border{ RGB(0xFF, 0xFF, 0xFF) };
 
+	void DrawClientArea(HDC hdc);
+
 	void DrawGutter();
 	void DrawGutter(HDC hdc);
 	RECT getFmtRect() const noexcept

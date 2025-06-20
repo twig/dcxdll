@@ -403,11 +403,6 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	return 0;
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
 GSL_SUPPRESS(bounds.3)
 void DcxRichEdit::parseCommandRequest(const TString& input)
 {
@@ -1341,6 +1336,53 @@ void DcxRichEdit::parseStringContents(const TString& tsStr, const BOOL fNewLine)
 	//SendMessage(hRichText, EM_SETTEXTEX, (WPARAM)&TextInfo, (LPARAM)Utf8); 
 }
 
+void DcxRichEdit::DrawClientArea(HDC hdc)
+{
+	const auto nLogPixelsX = ::GetDeviceCaps(hdc, LOGPIXELSX);
+	const auto nLogPixelsY = ::GetDeviceCaps(hdc, LOGPIXELSY);
+
+	//RECT rc{};
+	//GetClientRect(m_Hwnd, &rc);
+
+	RECT rc = getFmtRect();
+	if (IsRectEmpty(&rc))
+		GetClientRect(m_Hwnd, &rc);
+
+	// this is a quick fix to draw the bkg colour, will need more work to support the full range of bkg features.
+	if (this->getBackTextColor() == CLR_INVALID)
+		this->setTextBackColor(Dcx::dcxRichEdit_GetBkgndColor(m_Hwnd));
+
+	if (!isExStyle(WindowExStyle::Transparent))
+		Dcx::FillRectColour(hdc, &rc, this->getBackTextColor());
+	//DrawCtrlBackground(hdc, this, &rc);
+
+	rc.left -= 1;
+	rc.top -= 2;
+
+	rc.left = MulDiv(rc.left, 1440, nLogPixelsX);
+	rc.top = MulDiv(rc.top, 1440, nLogPixelsY);
+	rc.right = MulDiv(rc.right, 1440, nLogPixelsX);
+	rc.bottom = MulDiv(rc.bottom, 1440, nLogPixelsY);
+
+	POINTL point{};
+
+	FORMATRANGE fr{};
+
+	fr.hdc = hdc;
+	fr.hdcTarget = hdc;
+	fr.rc = rc;
+	fr.rcPage = rc;
+	fr.chrg.cpMin = Dcx::dcxRichEdit_CharFromPos(m_Hwnd, &point);
+	fr.chrg.cpMax = -1;
+
+	//Requesting to draw on the DC
+	Dcx::dcxRichEdit_FormatRange(m_Hwnd, TRUE, &fr);
+	Dcx::dcxRichEdit_FormatRange(m_Hwnd, FALSE, nullptr);
+
+	if (m_bShowLineNumbers)
+		DrawGutter(hdc);
+}
+
 void DcxRichEdit::DrawGutter()
 {
 	if (!m_Hwnd)
@@ -2011,44 +2053,7 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		//if (m_bShowLineNumbers)
 		//	DrawGutter(hdc);
 
-
-		const auto nLogPixelsX = ::GetDeviceCaps(hdc, LOGPIXELSX);
-		const auto nLogPixelsY = ::GetDeviceCaps(hdc, LOGPIXELSY);
-
-		RECT rc{};
-		GetClientRect(m_Hwnd, &rc);
-
-		// this is a quick fix to draw the bkg colour, will need more work to support the full range of bkg features.
-		if (this->getBackTextColor() == CLR_INVALID)
-			this->setTextBackColor(Dcx::dcxRichEdit_GetBkgndColor(m_Hwnd));
-
-		Dcx::FillRectColour(hdc, &rc, this->getBackTextColor());
-		//DrawCtrlBackground(hdc, this, &rc);
-
-		rc.left -= 1;
-		rc.top -= 2;
-		rc.left = MulDiv(rc.left, 1440, nLogPixelsX);
-		rc.top = MulDiv(rc.top, 1440, nLogPixelsY);
-		rc.right = MulDiv(rc.right, 1440, nLogPixelsX);
-		rc.bottom = MulDiv(rc.bottom, 1440, nLogPixelsY);
-
-		POINTL point{};
-
-		FORMATRANGE fr{};
-
-		fr.hdc = hdc;
-		fr.hdcTarget = hdc;
-		fr.rc = rc;
-		fr.rcPage = rc;
-		fr.chrg.cpMin = Dcx::dcxRichEdit_CharFromPos(m_Hwnd, &point);
-		fr.chrg.cpMax = -1;
-
-		//Requesting to draw on the DC
-		Dcx::dcxRichEdit_FormatRange(m_Hwnd, TRUE, &fr);
-		Dcx::dcxRichEdit_FormatRange(m_Hwnd, FALSE, nullptr);
-
-		if (m_bShowLineNumbers)
-			DrawGutter(hdc);
+		DrawClientArea(hdc);
 
 		return 0L;
 	}
@@ -2225,25 +2230,14 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 			//{
 			//	Auto(ReleaseDC(m_Hwnd, hdc));
 			//	DrawGutter(hdc);
-			//	SendMessage(m_Hwnd, WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT|PRF_ERASEBKGND);
-			//	SendMessage(m_Hwnd, WM_PAINT, reinterpret_cast<WPARAM>(hdc), 0);
+			//	//SendMessage(m_Hwnd, WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT|PRF_ERASEBKGND);
+			//	//SendMessage(m_Hwnd, WM_PAINT, reinterpret_cast<WPARAM>(hdc), 0);
 			//}
 
-			//this->redrawBufferedWindowClient();
+			//DrawGutter();
 
-			//if (auto hdc = GetDC(m_Hwnd); hdc)
-			//{
-			//	Auto(ReleaseDC(m_Hwnd, hdc));
-			//	RECT rcClient{};
-			//	GetClientRect(m_Hwnd, &rcClient);
-			//	if (auto hdcbuf = CreateHDCBuffer(hdc, &rcClient); hdcbuf)
-			//	{
-			//		Auto(DeleteHDCBuffer(hdcbuf));
-			//		DrawGutter(*hdcbuf);
-			//		SendMessage(m_Hwnd, WM_PRINTCLIENT, reinterpret_cast<WPARAM>(*hdcbuf), PRF_CLIENT|PRF_ERASEBKGND);
-			//		BitBlt(hdc, 0, 0, rcClient.right, rcClient.bottom, *hdcbuf, 0, 0, SRCCOPY);
-			//	}
-			//}
+			//const RECT rc = getFmtRect();
+			//InvalidateRect(m_Hwnd, &rc, FALSE);
 
 			bParsed = TRUE;
 			return 0L;
