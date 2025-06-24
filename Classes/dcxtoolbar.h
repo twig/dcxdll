@@ -160,7 +160,7 @@ public:
 	LRESULT getCommandToIndex(const int idButton) const noexcept;
 	LRESULT moveButton(const int iButtonFrom, const int iButtonTo) noexcept;
 	LRESULT markButton(const int iButton, const bool fHighlight) noexcept;
-	LRESULT setButtonSize(const int dxButton, const int dyButton) noexcept;
+	bool setButtonSize(const int dxButton, const int dyButton) noexcept;
 	LPDCXTBBUTTON getButtonData(const int idButton) const;
 	TString getButtonFlags(int idButton) const;
 

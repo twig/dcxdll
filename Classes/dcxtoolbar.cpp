@@ -999,12 +999,15 @@ void DcxToolBar::autoStretchButtons() noexcept
 	const auto nButtons = gsl::narrow_cast<int>(this->getButtonCount());
 	auto nTotalButtons = nButtons;
 
+	if (nTotalButtons == 0)
+		return;
+
 	RECT rc{};
 
 	if (!GetClientRect(m_Hwnd, &rc))
 		return;
 
-	auto leftwidth = rc.right - rc.left;
+	auto leftwidth = (rc.right - rc.left);
 
 	TBBUTTON tbb{};
 
@@ -1020,11 +1023,14 @@ void DcxToolBar::autoStretchButtons() noexcept
 
 			if (auto [code, rcItem] = getItemRect(i); code)
 			{
-				leftwidth -= rcItem.right - rcItem.left;
+				leftwidth -= (rcItem.right - rcItem.left);
 			}
 			--nTotalButtons;
 		}
 	}
+
+	if (nTotalButtons == 0)
+		return;
 
 	// Apply the new width
 	TBBUTTONINFO tbbi{};
@@ -1103,44 +1109,20 @@ void DcxToolBar::loadIcon(const TString& tsFlags, const TString& tsIndex, const 
 	}
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 LRESULT DcxToolBar::autoSize() noexcept
 {
 	return SendMessage(m_Hwnd, TB_AUTOSIZE, 0U, 0);
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 LRESULT DcxToolBar::insertButton(const int nPos, LPCTBBUTTON lpbb) noexcept
 {
 	return SendMessage(m_Hwnd, TB_INSERTBUTTON, gsl::narrow_cast<WPARAM>(nPos), reinterpret_cast<LPARAM>(lpbb));
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 LRESULT DcxToolBar::hitTest(const LPPOINT lpt) const noexcept
 {
 	return SendMessage(m_Hwnd, TB_HITTEST, 0U, reinterpret_cast<LPARAM>(lpt));
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 LRESULT DcxToolBar::getItemRect(const int iButton, LPCRECT lprc) const noexcept
 {
@@ -1153,121 +1135,55 @@ Dcx::CodeValue<RECT> DcxToolBar::getItemRect(const int iButton) const noexcept
 	return { gsl::narrow_cast<decltype(Dcx::CodeValue<RECT>::code)>(SendMessage(m_Hwnd, TB_GETITEMRECT, gsl::narrow_cast<WPARAM>(iButton), reinterpret_cast<LPARAM>(std::addressof(rc)))), rc };
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 LRESULT DcxToolBar::getButtonCount() const noexcept
 {
 	return SendMessage(m_Hwnd, TB_BUTTONCOUNT, 0U, 0);
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 LRESULT DcxToolBar::setButtonWidth(const int cxMin, const int cxMax) noexcept
 {
 	return SendMessage(m_Hwnd, TB_SETBUTTONWIDTH, 0U, gsl::narrow_cast<LPARAM>(MAKELONG(cxMin, cxMax)));
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 LRESULT DcxToolBar::deleteButton(const int iButton) noexcept
 {
 	return static_cast<LRESULT>(SendMessage(m_Hwnd, TB_DELETEBUTTON, gsl::narrow_cast<WPARAM>(iButton), 0));
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 LRESULT DcxToolBar::setButtonInfo(const int idButton, const LPTBBUTTONINFO lpbi) noexcept
 {
 	return SendMessage(m_Hwnd, TB_SETBUTTONINFO, gsl::narrow_cast<WPARAM>(idButton), reinterpret_cast<LPARAM>(lpbi));
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 LRESULT DcxToolBar::getButtonInfo(const int idButton, const LPTBBUTTONINFO lpbi) const noexcept
 {
 	return SendMessage(m_Hwnd, TB_GETBUTTONINFO, gsl::narrow_cast<WPARAM>(idButton), reinterpret_cast<LPARAM>(lpbi));
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 HWND DcxToolBar::getTooltips() const noexcept
 {
 	return to_hwnd(SendMessage(m_Hwnd, TB_GETTOOLTIPS, 0U, 0));
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 LRESULT DcxToolBar::getButtonText(const int idButton, const LPSTR lpszText) const noexcept
 {
 	return static_cast<LRESULT>(SendMessage(m_Hwnd, TB_GETBUTTONTEXT, gsl::narrow_cast<WPARAM>(idButton), reinterpret_cast<LPARAM>(lpszText)));
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 LRESULT DcxToolBar::getButton(const int iButton, const LPTBBUTTON lpb) const noexcept
 {
 	return SendMessage(m_Hwnd, TB_GETBUTTON, gsl::narrow_cast<WPARAM>(iButton), reinterpret_cast<LPARAM>(lpb));
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 LRESULT DcxToolBar::getCommandToIndex(const int idButton) const noexcept
 {
 	return SendMessage(m_Hwnd, TB_COMMANDTOINDEX, gsl::narrow_cast<WPARAM>(idButton), 0);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 LRESULT DcxToolBar::moveButton(const int iButtonFrom, const int iButtonTo) noexcept
 {
 	return SendMessage(m_Hwnd, TB_MOVEBUTTON, gsl::narrow_cast<WPARAM>(iButtonFrom), gsl::narrow_cast<LPARAM>(iButtonTo));
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 LRESULT DcxToolBar::markButton(const int iButton, const bool fHighlight) noexcept
 {
@@ -1276,12 +1192,6 @@ LRESULT DcxToolBar::markButton(const int iButton, const bool fHighlight) noexcep
 	return SendMessage(m_Hwnd, TB_MARKBUTTON, gsl::narrow_cast<WPARAM>(iButton), Dcx::dcxMAKELPARAM(gsl::narrow_cast<uint8_t>(fHighlight), gsl::narrow_cast<uint8_t>(0)));
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 LRESULT DcxToolBar::setButtonState(const int idButton, const UINT fState) noexcept
 {
 	//return SendMessage(m_Hwnd, TB_SETSTATE, gsl::narrow_cast<WPARAM>(idButton), gsl::narrow_cast<LPARAM>(MAKELONG(fState, 0)));
@@ -1289,17 +1199,9 @@ LRESULT DcxToolBar::setButtonState(const int idButton, const UINT fState) noexce
 	return SendMessage(m_Hwnd, TB_SETSTATE, gsl::narrow_cast<WPARAM>(idButton), Dcx::dcxMAKELPARAM(gsl::narrow_cast<UINT>(fState), gsl::narrow_cast<UINT>(0)));
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
-LRESULT DcxToolBar::setButtonSize(const int dxButton, const int dyButton) noexcept
+bool DcxToolBar::setButtonSize(const int dxButton, const int dyButton) noexcept
 {
-	//return SendMessage(m_Hwnd, TB_SETBUTTONSIZE, 0U, gsl::narrow_cast<LPARAM>(MAKELONG(dxButton, dyButton)));
-	//return SendMessage(m_Hwnd, TB_SETBUTTONSIZE, 0U, MAKELPARAM(dxButton, dyButton));
-	return SendMessage(m_Hwnd, TB_SETBUTTONSIZE, 0U, Dcx::dcxMAKELPARAM(dxButton, dyButton));
+	return (SendMessage(m_Hwnd, TB_SETBUTTONSIZE, 0U, Dcx::dcxMAKELPARAM(dxButton, dyButton)) != FALSE);
 }
 
 LPDCXTBBUTTON DcxToolBar::getButtonData(const int idButton) const
@@ -1314,7 +1216,7 @@ LPDCXTBBUTTON DcxToolBar::getButtonData(const int idButton) const
 
 TString DcxToolBar::getButtonFlags(int idButton) const
 {
-	TString tsRes(L"+");
+	TString tsRes(L'+');
 
 	TBBUTTONINFO bi{};
 	bi.cbSize = sizeof(TBBUTTONINFO);
