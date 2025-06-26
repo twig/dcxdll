@@ -9,13 +9,6 @@ namespace Dcx
 {
 	// ListView
 
-	/// <summary>
-	/// Get an items text.
-	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <param name="nItem"></param>
-	/// <param name="nSubItem"></param>
-	/// <returns>The items text</returns>
 	TString dcxListView_GetItemText(_In_ HWND hwnd, _In_ int nItem, _In_ int nSubItem)
 	{
 		TString tsRes(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
@@ -49,13 +42,6 @@ namespace Dcx
 	}
 
 
-	/// <summary>
-	/// Get the item at x,y screen position.
-	/// </summary>
-	/// <param name="hwnd"> = the listview control</param>
-	/// <param name="x"> = the x screen position</param>
-	/// <param name="y"> = the y screen position</param>
-	/// <returns>the item at x,y or -1 for no item there.</returns>
 	int dcxListView_GetItemAtPos(_In_ HWND hwnd, _In_ int x, _In_ int y) noexcept
 	{
 		if (!hwnd)
@@ -79,12 +65,6 @@ namespace Dcx
 		return lvhti.iItem;
 	}
 
-
-	/// <summary>
-	/// Get the item at the cursor position.
-	/// </summary>
-	/// <param name="hwnd"> = the listview control.</param>
-	/// <returns>the item at the cursor or -1 for no item there.</returns>
 	int dcxListView_GetItemAtCursor(_In_ HWND hwnd) noexcept
 	{
 		if (!hwnd)
@@ -128,6 +108,7 @@ namespace Dcx
 
 		return tsBuf;
 	}
+
 	int dcxListBox_GetPointItem(_In_ HWND hListbox, _In_ POINT pt) noexcept
 	{
 		if (!hListbox)
@@ -163,6 +144,7 @@ namespace Dcx
 
 		return LBItemFromPt(hListbox, pt, FALSE);
 	}
+
 	int dcxListBox_GetHoverItem(_In_ HWND hListbox) noexcept
 	{
 		if (!hListbox)
@@ -171,6 +153,7 @@ namespace Dcx
 		//return dcxListBox_GetPointItem(hListbox, Dcx::dcxCursorPos(hListbox));
 		return dcxListBox_GetPointItem(hListbox, Dcx::dcxCursorPos());
 	}
+
 	bool dcxListBox_HitTest(_In_ HWND hListbox, _Inout_ LPLVHITTESTINFO phti) noexcept
 	{
 		if (!hListbox || !phti)
@@ -225,6 +208,7 @@ namespace Dcx
 	}
 
 	// TreeView
+
 	size_t dcxTreeView_GetCount(_In_ HWND hTree) noexcept
 	{
 		if (!hTree)
@@ -238,6 +222,7 @@ namespace Dcx
 
 		return gsl::narrow_cast<size_t>(cnt);
 	}
+
 	GSL_SUPPRESS(type.4)
 		[[nodiscard]] HTREEITEM dcxTreeView_GetLastSibling(_In_ HWND hTree, _In_ HTREEITEM child) noexcept
 	{
@@ -249,6 +234,7 @@ namespace Dcx
 			current = tmp;
 		return current;
 	}
+
 	void dcxTreeView_SetItemState(_In_ HWND hTree, _In_ HTREEITEM hItem, _In_ UINT data, _In_ UINT mask) noexcept
 	{
 		if (!hTree)
@@ -263,11 +249,6 @@ namespace Dcx
 		dcxTreeView_SetItem(hTree, std::addressof(_ms_TVi));
 	}
 
-	/// <summary>
-	/// Get an items text.
-	/// </summary>
-	/// <param name="hItem"></param>
-	/// <returns></returns>
 	TString dcxTreeView_GetItemText(_In_ HWND hTree, _In_ HTREEITEM hItem)
 	{
 		TString tsRes;
@@ -310,6 +291,7 @@ namespace Dcx
 
 		return (TreeView_DeleteItem(hTree, item) != FALSE);
 	}
+
 	bool dcxTreeView_DeleteAllItems(_In_ HWND hTree) noexcept
 	{
 		if (!hTree)
@@ -383,11 +365,6 @@ namespace Dcx
 		return nullptr;
 	}
 
-	/// <summary>
-	/// Get the note text.
-	/// </summary>
-	/// <param name="hwnd"></param>
-	/// <returns></returns>
 	TString dcxButton_GetNote(_In_ HWND hwnd)
 	{
 		TString tsBuf;

@@ -158,7 +158,7 @@ namespace Dcx
 	/// <summary>
 	/// Set controls empty text.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="pszText"></param>
 	/// <returns></returns>
 	inline BOOL dcxListView_SetEmptyText(_In_ HWND hwnd, _In_z_ LPCTCH pszText) noexcept
@@ -172,7 +172,7 @@ namespace Dcx
 	/// <summary>
 	/// Insert item into control.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="plvi"></param>
 	/// <returns></returns>
 	inline int dcxListView_InsertItem(_In_ HWND hwnd, _In_ const LPLVITEM plvi) noexcept
@@ -183,7 +183,7 @@ namespace Dcx
 	/// <summary>
 	/// Get information on an item.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="plvi"></param>
 	/// <returns></returns>
 	inline BOOL dcxListView_GetItem(_In_ HWND hwnd, _Inout_ LPLVITEM const plvi) noexcept
@@ -194,7 +194,7 @@ namespace Dcx
 	/// <summary>
 	/// Get an items text.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="nItem"></param>
 	/// <param name="nSubItem"></param>
 	/// <param name="Buf"></param>
@@ -207,7 +207,7 @@ namespace Dcx
 	/// <summary>
 	/// Get an items text.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="nItem"></param>
 	/// <param name="nSubItem"></param>
 	/// <returns>The items text</returns>
@@ -216,7 +216,7 @@ namespace Dcx
 	/// <summary>
 	/// Get the items text length.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="nItem"></param>
 	/// <param name="nSubItem"></param>
 	/// <returns></returns>
@@ -225,7 +225,7 @@ namespace Dcx
 	/// <summary>
 	/// Get next item.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="i"></param>
 	/// <param name="flags"></param>
 	/// <returns></returns>
@@ -237,7 +237,7 @@ namespace Dcx
 	/// <summary>
 	/// Get an array of column order.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="nCnt"></param>
 	/// <param name="p"></param>
 	/// <returns></returns>
@@ -249,7 +249,7 @@ namespace Dcx
 	/// <summary>
 	/// Get a columns width.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="iCol"></param>
 	/// <returns></returns>
 	[[nodiscard]] inline int dcxListView_GetColumnWidth(_In_ HWND hwnd, _In_ const int iCol) noexcept
@@ -260,7 +260,7 @@ namespace Dcx
 	/// <summary>
 	/// Get total number of items.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <returns></returns>
 	[[nodiscard]] inline int dcxListView_GetItemCount(_In_ HWND hwnd) noexcept
 	{
@@ -270,7 +270,7 @@ namespace Dcx
 	/// <summary>
 	/// Get number of selected items.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <returns></returns>
 	[[nodiscard]] inline unsigned int dcxListView_GetSelectedCount(_In_ HWND hwnd) noexcept
 	{
@@ -280,7 +280,7 @@ namespace Dcx
 	/// <summary>
 	/// Get items state.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="i"></param>
 	/// <param name="mask"></param>
 	/// <returns></returns>
@@ -292,7 +292,7 @@ namespace Dcx
 	/// <summary>
 	/// Get controls extended style.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <returns></returns>
 	[[nodiscard]] inline DWORD dcxListView_GetExtendedListViewStyle(_In_ HWND hwnd) noexcept
 	{
@@ -302,7 +302,7 @@ namespace Dcx
 	/// <summary>
 	/// Get items rect.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="i"></param>
 	/// <param name="prc"></param>
 	/// <param name="code"></param>
@@ -315,7 +315,7 @@ namespace Dcx
 	/// <summary>
 	/// Get subitems rect.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="i"></param>
 	/// <param name="iSub"></param>
 	/// <param name="code"></param>
@@ -329,7 +329,7 @@ namespace Dcx
 	/// <summary>
 	/// Get columns info.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="iCol"></param>
 	/// <param name="lc"></param>
 	/// <returns></returns>
@@ -341,7 +341,7 @@ namespace Dcx
 	/// <summary>
 	/// Insert column into control.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="iCol"></param>
 	/// <param name="pCol"></param>
 	/// <returns></returns>
@@ -353,7 +353,7 @@ namespace Dcx
 	/// <summary>
 	/// Get Header child control.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <returns></returns>
 	GSL_SUPPRESS(lifetime.4)
 		[[nodiscard]] inline HWND dcxListView_GetHeader(_In_ HWND hwnd) noexcept
@@ -364,7 +364,7 @@ namespace Dcx
 	/// <summary>
 	/// Get ToolTip child control.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <returns></returns>
 	GSL_SUPPRESS(lifetime.4)
 		[[nodiscard]] inline HWND dcxListView_GetToolTips(_In_ HWND hwnd) noexcept
@@ -375,7 +375,7 @@ namespace Dcx
 	/// <summary>
 	/// Get index of top item.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <returns></returns>
 	[[nodiscard]] inline int dcxListView_GetTopIndex(_In_ HWND hwnd) noexcept
 	{
@@ -423,9 +423,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Get a groups information.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="gid"></param>
 	/// <param name="pgrp"></param>
 	/// <returns></returns>
@@ -435,9 +435,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Get a groups information.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="iIndex"></param>
 	/// <param name="pgrp"></param>
 	/// <returns></returns>
@@ -447,9 +447,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Get number of groups.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <returns></returns>
 	[[nodiscard]] inline int dcxListView_GetGroupCount(_In_ HWND hwnd) noexcept
 	{
@@ -457,9 +457,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Get groups state.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="gid"></param>
 	/// <param name="mask"></param>
 	/// <returns></returns>
@@ -469,9 +469,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Get groups size.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="gid"></param>
 	/// <param name="type"></param>
 	/// <param name="prc"></param>
@@ -482,9 +482,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Get the text displayed when the control is empty.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="str"></param>
 	/// <param name="sz"></param>
 	/// <returns></returns>
@@ -494,9 +494,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Hit test subitem.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="lvht"></param>
 	/// <returns></returns>
 	inline int dcxListView_SubItemHitTest(_In_ HWND hwnd, _Inout_ LPLVHITTESTINFO lvht) noexcept
@@ -505,9 +505,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Hit test group.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="lvht"></param>
 	/// <returns></returns>
 	inline int dcxListView_SubItemGroupHitTest(_In_ HWND hwnd, _Inout_ LPLVHITTESTINFO lvht) noexcept
@@ -517,9 +517,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Set column width.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="iCol"></param>
 	/// <param name="cx"></param>
 	/// <returns></returns>
@@ -529,9 +529,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Set column order.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="iCount"></param>
 	/// <param name="pi"></param>
 	/// <returns></returns>
@@ -541,9 +541,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Set current view mode.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="mode"></param>
 	/// <returns></returns>
 	inline DWORD dcxListView_SetView(_In_ HWND hwnd, _In_ DWORD mode) noexcept
@@ -552,9 +552,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Check if group exists.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="group"></param>
 	/// <returns></returns>
 	[[nodiscard]] inline LRESULT dcxListView_HasGroup(_In_ HWND hwnd, _In_ const int group) noexcept
@@ -563,9 +563,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Check if group view is enabled.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <returns></returns>
 	[[nodiscard]] inline BOOL dcxListView_IsGroupViewEnabled(_In_ HWND hwnd) noexcept
 	{
@@ -573,9 +573,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Enable/Disable group view.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="fEnable"></param>
 	/// <returns></returns>
 	inline BOOL dcxListView_EnableGroupView(_In_ HWND hwnd, _In_ bool fEnable) noexcept
@@ -584,9 +584,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Set a groups state.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="gid"></param>
 	/// <param name="mask"></param>
 	/// <param name="state"></param>
@@ -596,9 +596,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Insert a group.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="index"></param>
 	/// <param name="pgrp"></param>
 	inline void dcxListView_InsertGroup(_In_ HWND hwnd, _In_ const int index, _In_ PLVGROUP pgrp) noexcept
@@ -607,9 +607,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Set a groups information.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="iGID"></param>
 	/// <param name="pgrp"></param>
 	/// <returns></returns>
@@ -619,9 +619,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Move the position of a group.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="gid"></param>
 	/// <param name="index"></param>
 	inline void dcxListView_MoveGroup(_In_ HWND hwnd, _In_ const int gid, _In_ const int index) noexcept
@@ -630,9 +630,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Moves an item to a specified group.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="index"></param>
 	/// <param name="gid"></param>
 	inline void dcxListView_MoveItemToGroup(_In_ HWND hwnd, _In_ const int index, _In_ const int gid) noexcept
@@ -641,9 +641,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Removes a group.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="gid"></param>
 	inline void dcxListView_RemoveGroup(_In_ HWND hwnd, _In_ const int gid) noexcept
 	{
@@ -651,9 +651,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Removes all groups from the control.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	inline void dcxListView_RemoveAllGroups(_In_ HWND hwnd) noexcept
 	{
 		ListView_RemoveAllGroups(hwnd);
@@ -692,9 +692,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Sort the items.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="pFn"></param>
 	/// <param name="data"></param>
 	/// <returns></returns>
@@ -704,9 +704,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Ensure a specific item is visible.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="i"></param>
 	/// <param name="partialOK"></param>
 	/// <returns></returns>
@@ -716,9 +716,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Scroll the display.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="dx"></param>
 	/// <param name="dy"></param>
 	/// <returns></returns>
@@ -728,9 +728,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Get the number of items per page.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <returns></returns>
 	[[nodiscard]] inline int dcxListView_GetCountPerPage(_In_ HWND hwnd) noexcept
 	{
@@ -738,9 +738,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Get the edit control used to edit label.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <returns></returns>
 	[[nodiscard]] inline HWND dcxListView_GetEditControl(_In_ HWND hwnd) noexcept
 	{
@@ -748,9 +748,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Get background colour.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <returns></returns>
 	[[nodiscard]] inline COLORREF dcxListView_GetBkColor(_In_ HWND hwnd) noexcept
 	{
@@ -758,9 +758,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Edit items text.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="i"></param>
 	/// <returns></returns>
 	inline HWND dcxListView_EditLabel(_In_ HWND hwnd, _In_ const int i) noexcept
@@ -769,9 +769,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Hit test control.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="lvhti"></param>
 	/// <returns></returns>
 	inline int dcxListView_HitTest(_In_ HWND hwnd, _Inout_ LPLVHITTESTINFO lvhti) noexcept
@@ -780,9 +780,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Hit test control.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="lvhti"></param>
 	/// <returns></returns>
 	inline int dcxListView_HitTestEx(_In_ HWND hwnd, _Inout_ LPLVHITTESTINFO lvhti) noexcept
@@ -791,9 +791,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Update an item.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="nItem"></param>
 	/// <returns></returns>
 	inline BOOL dcxListView_Update(_In_ HWND hwnd, _In_ int nItem) noexcept
@@ -802,9 +802,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Redraw a range of items.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="nFirst"></param>
 	/// <param name="nLast"></param>
 	/// <returns></returns>
@@ -814,9 +814,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Set the text colour.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="clr"></param>
 	/// <returns></returns>
 	inline COLORREF dcxListView_SetTextColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
@@ -825,9 +825,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Set the text background colour.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="clr"></param>
 	/// <returns></returns>
 	inline COLORREF dcxListView_SetTextBkColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
@@ -836,9 +836,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Set the background colour.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="clr"></param>
 	/// <returns></returns>
 	inline COLORREF dcxListView_SetBkColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
@@ -847,9 +847,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Set the outline colour.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="clr"></param>
 	/// <returns></returns>
 	inline COLORREF dcxListView_SetOutlineColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
@@ -858,9 +858,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Set the insert mark position.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="lplvim"></param>
 	/// <returns></returns>
 	inline BOOL dcxListView_SetInsertMark(_In_ HWND hwnd, _In_ LPLVINSERTMARK lplvim) noexcept
@@ -869,9 +869,9 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Clear the insert mark.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <returns></returns>
 	inline BOOL dcxListView_ClearInsertMark(_In_ HWND hwnd) noexcept
 	{
@@ -895,20 +895,21 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Test if an item is visible.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="i"></param>
 	/// <returns></returns>
 	[[nodiscard]] inline BOOL dcxListView_IsItemVisible(_In_ HWND hwnd, _In_ int i) noexcept
 	{
 		return ListView_IsItemVisible(hwnd, i);
 	}
+
 	/// <summary>
 	/// Undocumented message.
 	/// Set a subitem for editing (used mostly when setting embeded control in explorer)
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="iItem"></param>
 	/// <param name="iSubItem"></param>
 	/// <returns></returns>
@@ -916,6 +917,7 @@ namespace Dcx
 	{
 		return SendMessage(hwnd, LVM_EDITSUBITEM, iItem, iSubItem);
 	}
+
 	/// <summary>
 	/// Undocumented message.
 	/// Ensure a specified subitem is visible.
@@ -928,6 +930,7 @@ namespace Dcx
 	{
 		return SendMessage(hwnd, LVM_ENSURESUBITEMVISIBLE, iItem, iSubItem);
 	}
+
 	/// <summary>
 	/// Undocumented message.
 	/// Get the ListViews COM interface.
@@ -943,6 +946,7 @@ namespace Dcx
 
 		return gsl::narrow_cast<BOOL>(SendMessage(hwnd, LVM_QUERYINTERFACE, reinterpret_cast<WPARAM>(&iid), reinterpret_cast<LPARAM>(pUnkn)));
 	}
+
 	/// <summary>
 	/// Undocumented message.
 	/// Set the ListViews left, right, top, bottom margins.
@@ -954,6 +958,7 @@ namespace Dcx
 	{
 		return gsl::narrow_cast<BOOL>(SendMessage(hwnd, LVM_SETVIEWMARGIN, 0, reinterpret_cast<LPARAM>(pRC)));
 	}
+
 	/// <summary>
 	/// Undocumented message.
 	/// Get the ListViews left, right, top, bottom margins.
@@ -965,6 +970,7 @@ namespace Dcx
 	{
 		return gsl::narrow_cast<BOOL>(SendMessage(hwnd, LVM_GETVIEWMARGIN, 0, reinterpret_cast<LPARAM>(pRC)));
 	}
+
 	/// <summary>
 	/// 
 	/// </summary>
@@ -975,22 +981,30 @@ namespace Dcx
 	{
 		return gsl::narrow_cast<BOOL>(SendMessage(hwnd, LVM_GETVIEWRECT, 0, reinterpret_cast<LPARAM>(pRC)));
 	}
+
+	/// <summary>
+	/// Get the controls current view setting.
+	/// </summary>
+	/// <param name="hwnd">- the listview control</param>
+	/// <returns></returns>
 	inline DWORD dcxListView_GetView(_In_ HWND hwnd) noexcept
 	{
 		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, LVM_GETVIEW, 0, 0));
 	}
+
 	/// <summary>
 	/// Get the item at x,y screen position.
 	/// </summary>
-	/// <param name="hwnd"> = the listview control</param>
-	/// <param name="x"> = the x screen position</param>
-	/// <param name="y"> = the y screen position</param>
+	/// <param name="hwnd">- the listview control</param>
+	/// <param name="x">- the x screen position</param>
+	/// <param name="y">- the y screen position</param>
 	/// <returns>the item at x,y or -1 for no item there.</returns>
 	int dcxListView_GetItemAtPos(_In_ HWND hwnd, _In_ int x, _In_ int y) noexcept;
+
 	/// <summary>
 	/// Get the item at the cursor position.
 	/// </summary>
-	/// <param name="hwnd"> = the listview control.</param>
+	/// <param name="hwnd">- the listview control.</param>
 	/// <returns>the item at the cursor or -1 for no item there.</returns>
 	inline int dcxListView_GetItemAtCursor(_In_ HWND hwnd) noexcept;
 
@@ -1193,7 +1207,7 @@ namespace Dcx
 	/// <param name="cTabs">- The number of elements in the lpTabs array.</param>
 	/// <param name="lpTabs">- A pointer to an array of integers containing the tab stops. The integers represent the number of quarters of the average character width for the font that is selected into the list box. For example, a tab stop of 4 is placed at 1.0 character units, and a tab stop of 6 is placed at 1.5 average character units. However, if the list box is part of a dialog box, the integers are in dialog template units. The tab stops must be sorted in ascending order; backward tabs are not allowed.</param>
 	/// <returns>If all the specified tabs are set, the return value is TRUE; otherwise, it is FALSE.</returns>
-	inline bool dcxListBox_SetTabStops(_In_ HWND hwnd, _In_ int cTabs, _In_reads_(cTabs) const int *lpTabs) noexcept
+	inline bool dcxListBox_SetTabStops(_In_ HWND hwnd, _In_ int cTabs, _In_reads_(cTabs) const int* lpTabs) noexcept
 	{
 		return (ListBox_SetTabStops(hwnd, cTabs, lpTabs) != FALSE);
 	}
@@ -1476,7 +1490,7 @@ namespace Dcx
 	/// <param name="cItems">- The maximum number of selected items whose item numbers are to be placed in the buffer.</param>
 	/// <param name="lpItems">- A pointer to a buffer large enough for the number of integers specified by cItems.</param>
 	/// <returns></returns>
-	inline int dcxListBox_GetSelItems(_In_ HWND hListbox, _In_ int cItems, _Inout_ int *lpItems) noexcept
+	inline int dcxListBox_GetSelItems(_In_ HWND hListbox, _In_ int cItems, _Inout_ int* lpItems) noexcept
 	{
 		return ListBox_GetSelItems(hListbox, cItems, lpItems);
 	}
@@ -1500,6 +1514,206 @@ namespace Dcx
 	inline int dcxListBox_GetCaretIndex(_In_ HWND hListbox) noexcept
 	{
 		return ListBox_GetCaretIndex(hListbox);
+	}
+
+	//Toolbar
+
+	/// <summary>
+	/// Sets the size of buttons on a toolbar.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="dx">- The width in pixels, of the buttons</param>
+	/// <param name="dy">- The height in pixels, of the buttons</param>
+	/// <returns>Returns TRUE if successful, or FALSE otherwise.</returns>
+	inline bool dcxToolbar_SetButtonSize(_In_ HWND hwnd, _In_ int dx, _In_ int dy) noexcept
+	{
+		return (SendMessage(hwnd, TB_SETBUTTONSIZE, 0, MAKELPARAM(dx, dy)) != FALSE);
+	}
+
+	/// <summary>
+	/// Sets the minimum and maximum button widths in the toolbar control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="xMin">- Minimum button width, in pixels. Toolbar buttons will never be narrower than this value.</param>
+	/// <param name="xMax">- Maximum button width, in pixels. If button text is too wide, the control displays it with ellipsis points.</param>
+	/// <returns>Returns nonzero if successful, or zero otherwise.</returns>
+	inline bool dcxToolbar_SetButtonWidth(_In_ HWND hwnd, _In_ int xMin, _In_ int xMax) noexcept
+	{
+		return (SendMessage(hwnd, TB_SETBUTTONWIDTH, 0, MAKELPARAM(xMin, xMax)) != FALSE);
+	}
+
+	/// <summary>
+	/// Adds one or more images to the list of button images available for a toolbar.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="iCnt">- Number of button images in the bitmap. If lParam specifies a system-defined bitmap, this parameter is ignored.</param>
+	/// <param name="lpbm">- Pointer to a TBADDBITMAP structure that contains the identifier of a bitmap resource and the handle to the module instance with the executable file that contains the bitmap resource.</param>
+	/// <returns>Returns the index of the first new image if successful, or -1 otherwise.</returns>
+	inline int dcxToolbar_AddBitmap(_In_ HWND hwnd, _In_ int iCnt, _In_ LPTBADDBITMAP lpbm) noexcept
+	{
+		return gsl::narrow_cast<int>(SendMessage(hwnd, TB_ADDBITMAP, iCnt, reinterpret_cast<LPARAM>(lpbm)));
+	}
+
+	/// <summary>
+	/// Adds one or more buttons to a toolbar.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="iCnt">- Number of buttons to add.</param>
+	/// <param name="lpbm">- Pointer to an array of TBBUTTON structures that contain information about the buttons to add. There must be the same number of elements in the array as buttons specified by wParam.</param>
+	/// <returns></returns>
+	/// <remarks>If the toolbar was created using the CreateWindowEx function, you must send the TB_BUTTONSTRUCTSIZE message to the toolbar before sending TB_ADDBUTTONS.</remarks>
+	inline int dcxToolbar_AddButtons(_In_ HWND hwnd, _In_ int iCnt, _In_ LPCTBBUTTON lpbm) noexcept
+	{
+		return gsl::narrow_cast<int>(SendMessage(hwnd, TB_ADDBUTTONS, iCnt, reinterpret_cast<LPARAM>(lpbm)));
+	}
+
+	/// <summary>
+	/// Adds a new string to the toolbar's string pool.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="hInst">- Handle to the module instance with an executable file that contains the string resource. If lParam instead points to a character array with one or more strings, set this parameter to NULL.</param>
+	/// <param name="lpStrs">- Resource identifier for the string resource, or a pointer to a TCHAR array. See Remarks.</param>
+	/// <returns>Returns the index of the first new string if successful, or -1 otherwise.</returns>
+	/// <remarks>
+	/// <para>If wParam is NULL, lParam points to a character array with one or more null-terminated strings.</para>
+	/// <para>The last string in the array must be terminated with two null characters.</para>
+	/// <para>If wParam is the HINSTANCE of the application or of another module containing a string resource, lParam is the resource identifier of the string.
+	/// <para>Each item in the string must begin with an arbitrary separator character,</para>
+	/// <para>and the string must end with two such characters. For example, the text for three buttons might appear in the string table as "/New/Open/Save//".</para>
+	/// <para>The message returns the index of "New" in the toolbar's string pool, and the other items are in consecutive positions.</para>
+	/// </remarks>
+	inline int dcxToolbar_AddString(_In_ HWND hwnd, _In_ HINSTANCE hInst, _In_ TCHAR *lpStrs) noexcept
+	{
+		return gsl::narrow_cast<int>(SendMessage(hwnd, TB_ADDSTRING, reinterpret_cast<WPARAM>(hInst), reinterpret_cast<LPARAM>(lpStrs)));
+	}
+
+	/// <summary>
+	/// Retrieves a count of the buttons currently in the toolbar.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <returns>Returns the count of the buttons.</returns>
+	inline int dcxToolbar_ButtonCount(_In_ HWND hwnd) noexcept
+	{
+		return gsl::narrow_cast<int>(SendMessage(hwnd, TB_BUTTONCOUNT, 0, 0));
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <returns></returns>
+	inline HWND dcxToolbar_GetTooltips(_In_ HWND hwnd) noexcept
+	{
+		return to_hwnd(SendMessage(hwnd, TB_ADDBUTTONS, 0, 0));
+	}
+
+	/// <summary>
+	/// Retrieves the bounding rectangle of a button in a toolbar.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="uIndex">- Zero-based index of the button for which to retrieve information.</param>
+	/// <param name="lprc">- Pointer to a RECT structure that receives the client coordinates of the bounding rectangle.</param>
+	/// <returns>Returns TRUE if successful, or FALSE otherwise.</returns>
+	inline bool dcxToolbar_GetItemRect(_In_ HWND hwnd, _In_ UINT uIndex, _In_ LPRECT lprc) noexcept
+	{
+		return !!SendMessage(hwnd, TB_GETITEMRECT, uIndex, reinterpret_cast<LPARAM>(lprc));
+	}
+
+	/// <summary>
+	/// Retrieves the index of the hot item in a toolbar.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <returns>Returns the index of the hot item, or -1 if no hot item is set. Toolbar controls that do not have the TBSTYLE_FLAT style do not have hot items.</returns>
+	inline int dcxToolbar_GetHotItem(_In_ HWND hwnd) noexcept
+	{
+		return gsl::narrow_cast<int>(SendMessage(hwnd, TB_GETHOTITEM, 0, 0));
+	}
+
+	/// <summary>
+	/// Determines where a point lies in a toolbar control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="lpPT">- Pointer to a POINT structure that contains the x-coordinate of the hit test in the x member and the y-coordinate of the hit test in the y member. The coordinates are relative to the toolbar's client area.</param>
+	/// <returns>Returns an integer value. If the return value is zero or a positive value, it is the zero-based index of the nonseparator item in which the point lies. If the return value is negative, the point does not lie within a button. The absolute value of the return value is the index of a separator item or the nearest nonseparator item.</returns>
+	inline int dcxToolbar_HitTest(_In_ HWND hwnd, _In_ const LPPOINT lpPT) noexcept
+	{
+		return gsl::narrow_cast<int>(SendMessage(hwnd, TB_HITTEST, 0, reinterpret_cast<LPARAM>(lpPT)));
+	}
+
+	/// <summary>
+	/// Deletes a button from the toolbar.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="uIndex">- Zero-based index of the button to delete.</param>
+	/// <returns>Returns TRUE if successful, or FALSE otherwise.</returns>
+	inline bool dcxToolbar_DeleteButton(_In_ HWND hwnd, _In_ UINT uIndex) noexcept
+	{
+		return !!SendMessage(hwnd, TB_DELETEBUTTON, uIndex, 0);
+	}
+
+	/// <summary>
+	/// Inserts a button in a toolbar.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="uIndex">- Zero-based index of a button. The message inserts the new button to the left of this button.</param>
+	/// <param name="lpButton">- Pointer to a TBBUTTON structure containing information about the button to insert.</param>
+	/// <returns></returns>
+	inline bool dcxToolbar_InsertButton(_In_ HWND hwnd, _In_ UINT uIndex, _In_ LPCTBBUTTON lpButton) noexcept
+	{
+		return !!SendMessage(hwnd, TB_INSERTBUTTON, uIndex, reinterpret_cast<LPARAM>(lpButton));
+	}
+
+	/// <summary>
+	/// Sets the information for an existing button in a toolbar.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="uIndex">- Zero-based index of a button.</param>
+	/// <param name="lpButton">- Pointer to a TBBUTTONINFO structure that contains the new button information. The cbSize and dwMask members of this structure must be filled in prior to sending this message.</param>
+	/// <returns>Returns nonzero if successful, or zero otherwise.</returns>
+	inline bool dcxToolbar_SetButtonInfo(_In_ HWND hwnd, _In_ UINT uIndex, _In_ LPTBBUTTONINFO lpButton) noexcept
+	{
+		return !!SendMessage(hwnd, TB_SETBUTTONINFO, uIndex, reinterpret_cast<LPARAM>(lpButton));
+	}
+
+	/// <summary>
+	/// Retrieves extended information for a button in a toolbar.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="uIndex">- Zero-based index of a button.</param>
+	/// <param name="lpButton">- Pointer to a TBBUTTONINFO structure that receives the button information. The cbSize and dwMask members of this structure must be filled in prior to sending this message.</param>
+	/// <returns>Returns the zero-based index of the button, or -1 if an error occurs.</returns>
+	inline int dcxToolbar_GetButtonInfo(_In_ HWND hwnd, _In_ UINT uIndex, _In_ LPTBBUTTONINFO lpButton) noexcept
+	{
+		return gsl::narrow_cast<int>(SendMessage(hwnd, TB_GETBUTTONINFO, uIndex, reinterpret_cast<LPARAM>(lpButton)));
+	}
+
+	/// <summary>
+	/// Sets the extended styles for a toolbar control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="exStyle">- Value specifying the new extended styles.</param>
+	/// <returns>Returns a DWORD that represents the previous extended styles.</returns>
+	inline DWORD dcxToolbar_SetExtendedStyle(_In_ HWND hwnd, _In_ DWORD exStyle) noexcept
+	{
+		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, TB_SETEXTENDEDSTYLE, 0, exStyle));
+	}
+
+	/// <summary>
+	/// Specifies the size of the TBBUTTON structure.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	inline void dcxToolbar_SetButtonStructSize(_In_ HWND hwnd) noexcept
+	{
+		SendMessage(hwnd, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0);
+	}
+
+	/// <summary>
+	/// Resize controls contents to match current settings.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	inline void dcxToolbar_AutoSize(_In_ HWND hwnd) noexcept
+	{
+		SendMessage(hwnd, TB_AUTOSIZE, 0, 0);
 	}
 
 	// ToolTip
@@ -3411,6 +3625,45 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Calls the autocorrect callback function that is stored by the EM_SETAUTOCORRECTPROC message, provided that the text preceding the insertion point is a candidate for autocorrection.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="chr">- If this character is a tab (U+0009), and the character preceding the insertion point isn't a tab, then the character preceding the insertion point is treated as part of the autocorrect candidate string instead of as a string delimiter; otherwise, chr has no effect.</param>
+	/// <returns>The return value is zero if the message succeeds, or nonzero if an error occurs.</returns>
+	inline bool dcxRichEdit_CallAutoCorrectProc(_In_ HWND hwnd, _In_ WCHAR chr) noexcept
+	{
+		return (gsl::narrow_cast<BOOL>(SendMessage(hwnd, EM_CALLAUTOCORRECTPROC, chr, 0)) != FALSE);
+	}
+
+	/// <summary>
+	/// Determines whether a rich edit control can paste a specified clipboard format.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="fmts">- Specifies the Clipboard Formats to try. To try any format currently on the clipboard, set this parameter to zero.</param>
+	/// <returns>
+	/// <para>If the clipboard format can be pasted, the return value is a nonzero value.</para>
+	/// <para>If the clipboard format cannot be pasted, the return value is zero.</para>
+	///	</returns>
+	inline bool dcxRichEdit_CanPaste(_In_ HWND hwnd, _In_ UINT fmts) noexcept
+	{
+		return (gsl::narrow_cast<BOOL>(SendMessage(hwnd, EM_CANPASTE, fmts, 0)) != FALSE);
+	}
+
+	/// <summary>
+	/// Determines whether there are any actions in the control redo queue.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <returns>
+	/// <para>If there are actions in the control redo queue, the return value is a nonzero value.</para>
+	/// <para>If the redo queue is empty, the return value is zero.</para>
+	/// </returns>
+	/// <remarks>To redo the most recent undo operation, send the EM_REDO message.</remarks>
+	inline bool dcxRichEdit_CanRedo(_In_ HWND hwnd) noexcept
+	{
+		return (gsl::narrow_cast<BOOL>(SendMessage(hwnd, EM_CANREDO, 0, 0)) != FALSE);
+	}
+
+	/// <summary>
 	/// Hides or shows the selection in a rich edit control.
 	/// </summary>
 	/// <param name="hwnd">- A handle to the control.</param>
@@ -3463,6 +3716,69 @@ namespace Dcx
 	{
 		chrFmt.cbSize = sizeof(CHARFORMAT);
 		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_GETCHARFORMAT, dwRange, reinterpret_cast<LPARAM>(&chrFmt)));
+	}
+
+	/// <summary>
+	/// Retrieves the current edit style flags.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <returns>
+	/// <para>Returns the current edit style flags, which can include one or more of the following values:</para>
+	/// <para>SES_BEEPONMAXTEXT			-	Rich Edit will call the system beeper if the user attempts to enter more than the maximum characters.</para>
+	///	<para>SES_BIDI					-	Turns on bidirectional processing.This is automatically turned on by Rich Edit if any of the following window styles are active : WS_EX_RIGHT, WS_EX_RTLREADING, WS_EX_LEFTSCROLLBAR.However, this setting is useful for handling these window styles when using a custom implementation of ITextHost(default: 0).</para>
+	///	<para>SES_CTFALLOWEMBED			-	Windows XP with SP1 : Allow embedded objects to be inserted using TSF(default: 0).</para>
+	///	<para>SES_CTFALLOWPROOFING		-	Windows XP with SP1 : Allows TSF proofing tips(default: 0).</para>
+	///	<para>SES_CTFALLOWSMARTTAG		-	Windows XP with SP1 : Allows TSF SmartTag tips(default: 0).</para>
+	///	<para>SES_CTFNOLOCK				-	Windows 8 : Do not allow the TSF lock read / write access.This pauses TSF input.</para>
+	///	<para>SES_DEFAULTLATINLIGA		-	Windows 8 : Fonts with an fi ligature are displayed with default OpenType features resulting in improved typography(default: 0).</para>
+	///	<para>SES_DRAFTMODE				-	Windows XP with SP1 : Use draft mode fonts to display text.Draft mode is an accessibility option where the control displays the text with a single font; the font is determined by the system setting for the font used in message boxes.For example, accessible users may read text easier if it is uniform, rather than a mix of fonts and styles(default: 0).</para>
+	///	<para>SES_EMULATE10				-	Windows 8: Emulate RichEdit 1.0 behavior.</para>
+	///	<para>Note : If you really want this behavior, use the Windows riched32.dll instead of riched20.dll or msftedit.dll.Riched32.dll had more functionality.</para>
+	///	<para>SES_EMULATESYSEDIT		-	When this bit is on, rich edit attempts to emulate the system edit control(default: 0).</para>
+	///	<para>SES_EXTENDBACKCOLOR		-	Extends the background color all the way to the edges of the client rectangle(default: 0).</para>
+	///	<para>SES_HIDEGRIDLINES			-	Windows XP with SP1 : If the width of table gridlines is zero, gridlines are not displayed.This is equivalent to the hide gridlines feature in Word's table menu (default: 0).</para>
+	///	<para>SES_HYPERLINKTOOLTIPS		-	Windows 8 : When the cursor is over a link, display a tooltip with the target link address(default: 0).</para>
+	///	<para>SES_LOGICALCARET			-	Windows 8 : Provide logical caret information instead of a caret bitmap as described in ITextHost::TxSetCaretPos(default: 0).</para>
+	///	<para>SES_LOWERCASE				-	Converts all input characters to lowercase(default: 0).</para>
+	///	<para>SES_MAPCPS				-	Obsolete.Do not use.</para>
+	///	<para>SES_MULTISELECT			-	Windows 8: Enable multiselection with individual mouse selections made while the Ctrl key is pressed(default: 0).</para>
+	///	<para>SES_NOEALINEHEIGHTADJUST	-	Windows 8 : Do not adjust line height for East Asian text(default: 0 which adjusts the line height by 15 %).</para>
+	///	<para>SES_NOFOCUSLINKNOTIFY		-	Sends EN_LINK notification from links that do not have focus.</para>
+	///	<para>SES_NOIME					-	Disallows IMEs for this instance of the rich edit control(default: 0).</para>
+	///	<para>SES_NOINPUTSEQUENCECHK	-	When this bit is on, rich edit does not verify the sequence of typed text.Some languages(such as Thai and Vietnamese) require verifying the input sequence order before submitting it to the backing store(default: 0).</para>
+	///	<para>SES_SCROLLONKILLFOCUS		-	When KillFocus occurs, scroll to the beginning of the text(character position equal to 0) (default: 0).</para>
+	///	<para>SES_SMARTDRAGDROP			-	Windows 8: Add or delete a space according to the context when dropping text(default: 0).</para>
+	///	<para>SES_USECRLF				-	Obsolete.Do not use.</para>
+	///	<para>SES_WORDDRAGDROP			-	Windows 8: If word select is active, ensure that the drop location is at a word boundary(default: 0).</para>
+	///	<para>SES_UPPERCASE				-	Converts all input characters to uppercase(default: 0).</para>
+	///	<para>SES_USEAIMM				-	Uses the Active IMM input method component that ships with Internet Explorer 4.0 or later(default: 0).</para>
+	///	<para>SES_USEATFONT				-	Windows XP with SP1 : Uses an @ font, which is designed for vertical text; this is used with the ES_VERTICAL window style.The name of an @ font begins with the @ symbol, for example, "@Batang" (default: 0, but is automatically turned on for vertical text layout).</para>
+	///	<para>SES_USECTF				-	Windows XP with SP1 : Turns on TSF support. (default: 0)</para>
+	///	<para>SES_XLTCRCRLFTOCR			-	Turns on translation of CRCRLFs to CRs.When this bit is on and a file is read in, all instances of CRCRLF will be converted to hard CRs internally.This will affect the text wrapping.Note that if such a file is saved as plain text, the CRs will be replaced by CRLFs.This is the.txt standard for plain text(default: 0, which deletes CRCRLFs on input).</para>
+	/// </returns>
+	inline DWORD dcxRichEdit_GetEditStyle(_In_ HWND hwnd) noexcept
+	{
+		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_GETEDITSTYLE, 0, 0));
+	}
+
+	/// <summary>
+	/// Retrieves the current extended edit style flags.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <returns>
+	/// <para>Returns the extended edit style flags, which can include one or more of the following values.</para>
+	/// <para>SES_EX_HANDLEFRIENDLYURL	-	Display friendly name links with the same text color and underlining as automatic links, provided that temporary formatting isn t used or uses text autocolor(default: 0).</para>
+	/// <para>SES_EX_MULTITOUCH			-	Enable touch support in Rich Edit.This includes selection, caret placement, and context - menu invocation.When this flag is not set, touch is emulated by mouse commands, which do not take touch - mode specifics into account(default: 0).</para>
+	///	<para>SES_EX_NOACETATESELECTION	-	Display selected text using classic Windows selection text and background colors instead of background acetate color(default: 0).</para>
+	///	<para>SES_EX_NOMATH				-	Disable insertion of math zones(default: 1).To enable math editing and display, send the EM_SETEDITSTYLEEX message with wParam set to 0, and lParam set to SES_EX_NOMATH.</para>
+	///	<para>SES_EX_NOTABLE			-	Disable insertion of tables.The EM_INSERTTABLE message returns E_FAIL and RTF tables are skipped(default: 0).</para>
+	///	<para>SES_EX_USESINGLELINE		-	Enable a multiline control to act like a single - line control with the ability to scroll vertically when the single - line height is greater than the window height(default: 0).</para>
+	///	<para>SES_HIDETEMPFORMAT		-	Hide temporary formatting that is created when ITextFont.Reset is called with tomApplyTmp.For example, such formatting is used by spell checkers to display a squiggly underline under possibly misspelled words.</para>
+	///	<para>SES_EX_USEMOUSEWPARAM		-	Use wParam when handling the WM_MOUSEMOVE message and do not call GetAsyncKeyState.</para>
+	/// </returns>
+	inline DWORD dcxRichEdit_GetEditStyleEx(_In_ HWND hwnd) noexcept
+	{
+		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_GETEDITSTYLEEX, 0, 0));
 	}
 
 	/// <summary>
@@ -3606,6 +3922,17 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Replaces the selection with a blob that displays an image.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="lpRIP">- A pointer to a RICHEDIT_IMAGE_PARAMETERS structure that contains the image blob.</param>
+	/// <returns>Returns S_OK if successful, or one of the following error codes.</returns>
+	inline LRESULT dcxRichEdit_InsertImage(_In_ HWND hwnd, _In_ RICHEDIT_IMAGE_PARAMETERS* lpRIP) noexcept
+	{
+		return SendMessage(hwnd, EM_INSERTIMAGE, 0, reinterpret_cast<LPARAM>(lpRIP));
+	}
+
+	/// <summary>
 	/// Sets the background color for a rich edit control.
 	/// </summary>
 	/// <param name="hwnd">- A handle to the control.</param>
@@ -3614,9 +3941,27 @@ namespace Dcx
 	/// <returns>The original background color.</returns>
 	COLORREF dcxRichEdit_SetBkgndColor(_In_ HWND hwnd, _In_ BOOL bUseSystem, _In_ COLORREF clr) noexcept;
 
+	/// <summary>
+	/// Gets the background color for a rich edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <returns>The background color.</returns>
 	COLORREF dcxRichEdit_GetBkgndColor(_In_ HWND hwnd) noexcept;
 
-	inline int dcxRichEdit_FormatRange(_In_ HWND hwnd, _In_ BOOL bRender, _In_ FORMATRANGE *lpFR) noexcept
+	/// <summary>
+	/// Formats a range of text in a rich edit control for a specific device.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="bRender">- Specifies whether to render the text. If this parameter is not zero, the text is rendered. Otherwise, the text is just measured.</param>
+	/// <param name="lpFR">- A FORMATRANGE structure containing information about the output device, or NULL to free information cached by the control.</param>
+	/// <returns>This message returns the index of the last character that fits in the region, plus 1.</returns>
+	/// <remarks>
+	/// This message is typically used to format the content of rich edit control for an output device such as a printer.
+	/// After using this message to format a range of text, it is important that you free cached information by sending EM_FORMATRANGE again,
+	/// but with lParam set to NULL; otherwise, a memory leak will occur.
+	/// Also, after using this message for one device, you must free cached information before using it again for a different device.
+	/// </remarks>
+	inline int dcxRichEdit_FormatRange(_In_ HWND hwnd, _In_ BOOL bRender, _In_ FORMATRANGE* lpFR) noexcept
 	{
 		return gsl::narrow_cast<int>(SendMessage(hwnd, EM_FORMATRANGE, gsl::narrow_cast<WPARAM>(bRender), reinterpret_cast<LPARAM>(lpFR)));
 	}
