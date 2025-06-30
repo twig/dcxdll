@@ -67,25 +67,27 @@ public:
 	HIMAGELIST setImageList( const HIMAGELIST himl ) noexcept;
 
 	void deleteLParamInfo( const int nItem ) noexcept;
+
 	void activateSelectedTab( );
 	void activateTab(int nSel);
+	void updateAllTab();
+
 	bool getTab(const int index, const LPTCITEM tcItem) const noexcept;
 	int getTabCount() const noexcept;
 	DcxControl* addTab(int nIndex, int iIcon, const TString &tsText, const TString &tsCtrl, const TString &tsTooltip);
 
-#if DCX_USE_GDIPLUS
-	void DrawGlow(const int nTabIndex, HDC hDC, const RECT &rect) const;
-#endif
-
 protected:
+#if DCX_USE_GDIPLUS
+	void DrawGlow(const int nTabIndex, HDC hDC, const RECT& rect) const;
+#endif
 	static RECT GetCloseButtonRect(const RECT& rcItem) noexcept;
 	int HitTestOnItem() const noexcept;
 	bool CloseButtonHitTest(_In_ const int iTab) const noexcept;
 
 	LRESULT DrawClientArea(HDC hdc, UINT uMsg, LPARAM lParam);
 
+	void CreatePeek() noexcept;
 	void SetPeekSource(_In_ int iTab, _In_ int iTabSel, _In_opt_ LPCRECT rcItem) noexcept;
-	//void SetPeekPos(_In_ bool bShowHDC, _In_opt_ LPCRECT rcItem) noexcept;
 	void ShowPeek(int x, int y) noexcept;
 	void HidePeek() noexcept;
 

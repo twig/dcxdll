@@ -52,19 +52,8 @@ DcxTab::DcxTab(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, c
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 
 	if (m_bPeek)
-	{
-		auto hHandle = GetModuleHandle(nullptr);
-
-		const RECT rcPeek{ 0,0,200,200 };
-		m_hPeek = CreateWindowExW(WS_EX_NOACTIVATE, PEEK_CLASS, nullptr, WS_POPUP | WS_CLIPCHILDREN, rcPeek.left, rcPeek.top, (rcPeek.right - rcPeek.left), (rcPeek.bottom - rcPeek.top), m_Hwnd, nullptr, hHandle, nullptr);
-		if (m_hPeek)
-		{
-			const SIZE szMin{ 100, 30 };
-			const SIZE szMax{ 200, 200 };
-			SendMessage(m_hPeek, PC_WM_SETMINMAX, reinterpret_cast<WPARAM>(&szMin), reinterpret_cast<LPARAM>(&szMax));
-		}
+		CreatePeek();
 	}
-}
 
 DcxTab::~DcxTab() noexcept
 {
@@ -211,6 +200,14 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 
 		const auto iTab = input.getnexttok().to_int() - 1;		// tok 4
 
+		if (iTab == -1)
+		{
+			if (auto himl = TabCtrl_GetImageList(m_Hwnd); himl)
+			{
+				_ts_snprintf(szReturnValue, TEXT("%d"), ImageList_GetImageCount(himl));
+				return;
+			}
+		}
 		if (iTab < 0 || iTab >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
 
@@ -570,6 +567,25 @@ void DcxTab::parseCommandRequest(const TString& input)
 				ImageList_Destroy(himl);
 		}
 	}
+	// xdid -u [NAME] [ID] [SWITCH] ([+FLAGS] (args))
+	else if (xflags[TEXT('u')])
+	{
+		if (input.numtok() > 3)
+		{
+			const XSwitchFlags xFlags(input.getnexttok());
+
+			if (xFlags[TEXT('a')])
+				updateAllTab();
+			if (xFlags[TEXT('s')])
+				activateSelectedTab();
+			if (xFlags[TEXT('t')])
+				activateTab(input.getnexttokas<int>());
+		}
+		else {
+			updateAllTab();
+			activateSelectedTab();
+		}
+	}
 	// xdid -M [NAME] [ID] [SWITCH] [+FLAGS] [WIDTH]
 	// xdid -M -> [NAME] [ID] -M [+FLAGS] [WIDTH]
 	else if (xflags[TEXT('M')])
@@ -677,16 +693,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 			m_bPeek = (tsArgs.getfirsttok(1).to_<int>() > 0);
 
 			if (m_bPeek)
-			{
-				auto hHandle = GetModuleHandle(nullptr);
-
-				const RECT rcPeek{ 0,0,200,200 };
-				m_hPeek = CreateWindowExW(WS_EX_NOACTIVATE, PEEK_CLASS, nullptr, WS_POPUP | WS_CLIPCHILDREN, rcPeek.left, rcPeek.top, (rcPeek.right - rcPeek.left), (rcPeek.bottom - rcPeek.top), m_Hwnd, nullptr, hHandle, nullptr);
-
-				pkd.m_dwMask |= PCF_MIN | PCF_MAX;
-				pkd.m_szMin = SIZE(100, 30);
-				pkd.m_szMax = SIZE(200, 200);
-			}
+				CreatePeek();
 		}
 		if (m_hPeek)
 			SendMessage(m_hPeek, PC_WM_SETDATA, reinterpret_cast<WPARAM>(&pkd), 0);
@@ -781,6 +788,66 @@ void DcxTab::activateTab(int nSel)
 						0, 0, 0, 0,
 						SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER);
 				}
+				if (!hTemp)
+					break;
+				hdwp = hTemp;
+			}
+		}
+	}
+	if (hdwp)
+		EndDeferWindowPos(hdwp);
+}
+
+void DcxTab::updateAllTab()
+{
+	auto nTab = getTabCount();
+	//const auto nSel = TabCtrl_GetCurSel(m_Hwnd);
+
+	if (nTab <= 0)
+		return;
+
+	RECT tabrect{};
+	if (!GetWindowRect(m_Hwnd, &tabrect))
+		return;
+
+	Dcx::dcxTabCtrl_AdjustRect(m_Hwnd, false, &tabrect);
+
+	RECT rc{};
+	if (!GetWindowRect(m_Hwnd, &rc))
+		return;
+
+	OffsetRect(&tabrect, -rc.left, -rc.top);
+
+	TCITEM tci{ TCIF_PARAM, 0,0,nullptr, 0, 0, 0 };
+
+	auto hdwp = BeginDeferWindowPos(nTab + 1);
+
+	if (!hdwp)
+		throw Dcx::dcxException("updateAllTab() - Unable to size tabs");
+
+	auto hTemp = hdwp;
+
+	while (nTab-- > 0)
+	{
+		if (!getTab(nTab, &tci))
+			continue;
+
+		if (auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci)
+		{
+			if (auto hSelChild = lpdtci->mChildHwnd; (hSelChild && IsWindow(hSelChild)))
+			{
+				hTemp = DeferWindowPos(hdwp, hSelChild, nullptr,
+					tabrect.left, tabrect.top, tabrect.right - tabrect.left, tabrect.bottom - tabrect.top,
+					SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOOWNERZORDER);
+
+				if (!hTemp)
+					break;
+				hdwp = hTemp;
+
+				hTemp = DeferWindowPos(hTemp, hSelChild, nullptr,
+					tabrect.left, tabrect.top, tabrect.right - tabrect.left, tabrect.bottom - tabrect.top,
+					SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_DRAWFRAME | SWP_FRAMECHANGED);
+
 				if (!hTemp)
 					break;
 				hdwp = hTemp;
@@ -1277,14 +1344,9 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 
 					RECT rcItem{};
 					Dcx::dcxTabCtrl_GetItemRect(m_Hwnd, iTab, &rcItem);
-					//InvalidateRect(m_Hwnd, &rcItem, FALSE);
 
 					// dropdown peek window...
-
-					//if (iTab != Dcx::dcxTabCtrl_GetCurSel(m_Hwnd))
-					//	ShowPeek();
-					//else
-					//	HidePeek();
+					SendMessage(m_hPeek, PC_WM_RESETCACHE, 0, 0);
 
 					RECT rcPeek{ rcItem };
 					OffsetRect(&rcPeek, 0, (rcPeek.bottom - rcPeek.top));
@@ -1315,6 +1377,7 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 			m_iHoverItem = -1;
 			//InvalidateRect(m_Hwnd, nullptr, FALSE);
 
+			SendMessage(m_hPeek, PC_WM_RESETCACHE, 0, 0);
 		}
 		HidePeek();
 	}
@@ -1601,6 +1664,22 @@ LRESULT DcxTab::DrawClientArea(HDC hdc, UINT uMsg, LPARAM lParam)
 	return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 }
 
+void DcxTab::CreatePeek() noexcept
+{
+	auto hHandle = GetModuleHandle(nullptr);
+
+	const RECT rcPeek{ 0,0,200,200 };
+	m_hPeek = CreateWindowExW(WS_EX_NOACTIVATE, PEEK_CLASS, nullptr, WS_POPUP | WS_CLIPCHILDREN, rcPeek.left, rcPeek.top, (rcPeek.right - rcPeek.left), (rcPeek.bottom - rcPeek.top), m_Hwnd, nullptr, hHandle, nullptr);
+	if (m_hPeek)
+	{
+		SendMessage(m_hPeek, PC_WM_SETEXTENDEDSTYLE, PCS_CACHE_BITMAPS, 0);
+
+		const SIZE szMin{ 100, 30 };
+		const SIZE szMax{ 200, 200 };
+		SendMessage(m_hPeek, PC_WM_SETMINMAX, reinterpret_cast<WPARAM>(&szMin), reinterpret_cast<LPARAM>(&szMax));
+	}
+}
+
 void DcxTab::SetPeekSource(int iTab, _In_ int iTabSel, LPCRECT rcItem) noexcept
 {
 	if (!m_bPeek || !m_hPeek || !rcItem || iTab < 0)
@@ -1637,26 +1716,6 @@ void DcxTab::SetPeekSource(int iTab, _In_ int iTabSel, LPCRECT rcItem) noexcept
 		}
 	}
 }
-
-//void DcxTab::SetPeekPos(bool bShowHDC, LPCRECT rcItem) noexcept
-//{
-//	if (!m_bPeek || !m_hPeek || !rcItem)
-//		return;
-//
-//	RECT rcPeek{ *rcItem };
-//	MapWindowRect(m_Hwnd, nullptr, &rcPeek);
-//	OffsetRect(&rcPeek, 0, (rcPeek.bottom - rcPeek.top));
-//	if (bShowHDC)
-//	{
-//		rcPeek.right = rcPeek.left + std::clamp((rcPeek.right - rcPeek.left), 200L, 400L);
-//		rcPeek.bottom = rcPeek.top + std::clamp((rcPeek.bottom - rcPeek.top), 200L, 400L);
-//	}
-//	else {
-//		rcPeek.right = rcPeek.left + std::max((rcPeek.right - rcPeek.left), 30L);
-//		rcPeek.bottom = rcPeek.top + std::max((rcPeek.bottom - rcPeek.top), 30L);
-//	}
-//	MoveWindow(m_hPeek, rcPeek.left, rcPeek.top, (rcPeek.right - rcPeek.left), (rcPeek.bottom - rcPeek.top), FALSE);
-//}
 
 void DcxTab::ShowPeek(int x, int y) noexcept
 {

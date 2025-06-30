@@ -17,16 +17,20 @@
 #define PC_WM_SETDATA (PC_WM_BASE + 4)
 #define PC_WM_SHOW (PC_WM_BASE + 5)
 #define PC_WM_SETMINMAX (PC_WM_BASE + 6)
+#define PC_WM_RESETCACHE (PC_WM_BASE + 7)
+#define PC_WM_SETEXTENDEDSTYLE (PC_WM_BASE + 8)
 
-#define PCF_HWND			(1UL << 1)
-#define PCF_TITLE			(1UL << 2)
-#define PCF_DESC			(1UL << 3)
-#define PCF_MIN				(1UL << 4)
-#define PCF_MAX				(1UL << 5)
-#define PCF_BKGCOLOUR		(1UL << 6)
-#define PCF_TITLECOLOUR		(1UL << 7)
-#define PCF_DESCCOLOUR		(1UL << 8)
-#define PCF_ROUNDED			(1UL << 9)
+#define PCS_CACHE_BITMAPS	(1UL << 1)		// cache the thumb sized images of the copied hwnd.
+
+#define PCF_HWND			(1UL << 1)		// m_hSrc is valid
+#define PCF_TITLE			(1UL << 2)		// m_Title is valid
+#define PCF_DESC			(1UL << 3)		// m_Description is valid
+#define PCF_MIN				(1UL << 4)		// m_szMin is valid
+#define PCF_MAX				(1UL << 5)		// m_szMax is valid
+#define PCF_BKGCOLOUR		(1UL << 6)		// m_clrBkg is valid
+#define PCF_TITLECOLOUR		(1UL << 7)		// m_clrTitle is valid
+#define PCF_DESCCOLOUR		(1UL << 8)		// m_clrDescription is valid
+#define PCF_ROUNDED			(1UL << 9)		// m_bRoundedWindow is valid
 
 struct pkData
 {
@@ -46,8 +50,6 @@ struct pkData
 
 struct PEEK_DATA
 {
-	//HWND m_hBase{};				// base window that joins everything together.
-
 	HTHEME m_hTheme{};			// theme data.
 	//HTHUMBNAIL m_hThumb{};
 	HWND m_hCopyHwnd{};
@@ -56,11 +58,10 @@ struct PEEK_DATA
 	SIZE m_szMin{ 100, 30 };
 	SIZE m_szMax{ 200, 200 };
 
-	//BOOL m_Tracking{};
 	bool m_bRounded{};
 
 	UINT m_BaseID{};			// controls ID
-	//UINT m_Styles{};
+	UINT m_uStyle{ PCS_CACHE_BITMAPS };
 
 	COLORREF m_clrTitle{ CLR_INVALID };
 	COLORREF m_clrDesc{ CLR_INVALID };
@@ -68,33 +69,19 @@ struct PEEK_DATA
 
 	TCHAR m_Title[64]{};
 	TCHAR m_Description[64]{};
+
+	std::map<HWND, HBITMAP> m_mapCache;
 };
 
 using LPPEEK_DATA = PEEK_DATA*;
 
 LRESULT CALLBACK PeekWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-//void Peek_SizeWindow(HWND mHwnd, WORD cx, WORD cy) noexcept;
-//void Peek_OnLButtonDown(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
-//void Peek_OnLButtonUp(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
-//void Peek_OnMouseMove(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
-//void Peek_OnMouseLeave(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
-//void Peek_SetFocus(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
-
 void Peek_OnThemeChange(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
+
 LRESULT Peek_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 
 void Peek_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
-
-//void Peek_SetFont(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
-//
-//void Peek_ParentNotify(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
-//
-//void Peek_OnMove(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
-//
-//void Peek_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
-//
-//LRESULT Peek_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
 LRESULT Peek_SetSource(HWND mHwnd, HWND hSrc) noexcept;
 
@@ -113,3 +100,7 @@ LRESULT Peek_SetMin(_In_ HWND mHwnd, _In_ LPSIZE szMin) noexcept;
 LRESULT Peek_SetMax(_In_ HWND mHwnd, _In_ LPSIZE szMax) noexcept;
 
 LRESULT Peek_SetRounded(_In_ HWND mHwnd, _In_ bool bRounded) noexcept;
+
+LRESULT Peek_ResetCache(_In_ HWND mHwnd) noexcept;
+
+LRESULT Peek_SetExtendedStyle(_In_ HWND mHwnd, UINT uFlags) noexcept;

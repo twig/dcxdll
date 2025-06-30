@@ -14,23 +14,29 @@ namespace
 
 	void Peek_DeleteWindowData(HWND hWnd) noexcept
 	{
-		if (const auto lpmcdata = Peek_GetWindowData(hWnd); lpmcdata)
+		if (!hWnd)
+			return;
+
+		const auto lpmcdata = Peek_GetWindowData(hWnd);
+		if (!lpmcdata)
+			return;
+
+		//if (lpmcdata->m_hThumb)
+		//{
+		//	DcxDWMModule::dcxDwmUnregisterThumbnail(lpmcdata->m_hThumb);
+		//	lpmcdata->m_hThumb = nullptr;
+		//}
+		if (lpmcdata->m_hTheme)
 		{
-			//if (lpmcdata->m_hThumb)
-			//{
-			//	DcxDWMModule::dcxDwmUnregisterThumbnail(lpmcdata->m_hThumb);
-			//	lpmcdata->m_hThumb = nullptr;
-			//}
-			if (lpmcdata->m_hTheme)
-			{
-				DcxUXModule::dcxCloseThemeData(lpmcdata->m_hTheme);
-				lpmcdata->m_hTheme = nullptr;
-			}
-
-			RemoveProp(hWnd, TEXT("peek_data"));
-
-			delete lpmcdata;
+			DcxUXModule::dcxCloseThemeData(lpmcdata->m_hTheme);
+			lpmcdata->m_hTheme = nullptr;
 		}
+
+		Peek_ResetCache(hWnd);
+
+		RemoveProp(hWnd, TEXT("peek_data"));
+
+		delete lpmcdata;
 	}
 }
 
@@ -97,7 +103,7 @@ LRESULT CALLBACK PeekWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		// wParam == HDC
 
 		// paints using supplied hdc in wParam, this avoids flicker when sizing...
-		Peek_OnPaint(mHwnd, wParam, lParam);
+		//Peek_OnPaint(mHwnd, wParam, lParam);
 		return 1L;
 	}
 	break;
@@ -163,96 +169,25 @@ LRESULT CALLBACK PeekWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		return Peek_Show(mHwnd, gsl::narrow_cast<bool>(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 	}
 	break;
+
+	case PC_WM_RESETCACHE:
+	{
+		// wParam = 0
+		// lParam = 0
+		return Peek_ResetCache(mHwnd);
+	}
+	break;
+
+	case PC_WM_SETEXTENDEDSTYLE:
+	{
+		// wParam = style flags
+		// lParam = 0
+		return Peek_SetExtendedStyle(mHwnd, wParam);
+	}
+	break;
 	}
 	return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 }
-
-//void Peek_SizeWindow(HWND mHwnd, WORD cx, WORD cy) noexcept
-//{
-//	if (!mHwnd)
-//		return;
-//
-//	const auto lpmcdata = Peek_GetWindowData(mHwnd);
-//	if (!lpmcdata)
-//		return;
-//
-//	//const RECT rc{ 0,0,cx,cy };
-//
-//	//if (lpmcdata->m_hThumb)
-//	//{
-//	//	DWM_THUMBNAIL_PROPERTIES dskThumbProps{};
-//
-//	//	dskThumbProps.dwFlags = DWM_TNP_SOURCECLIENTAREAONLY | DWM_TNP_VISIBLE | DWM_TNP_OPACITY | DWM_TNP_RECTDESTINATION;
-//	//	dskThumbProps.fSourceClientAreaOnly = FALSE;
-//	//	dskThumbProps.fVisible = TRUE;
-//	//	dskThumbProps.opacity = (255 * 70) / 100;
-//	//	dskThumbProps.rcDestination = rc;
-//
-//	//	DcxDWMModule::dcxDwmUpdateThumbnailProperties(lpmcdata->m_hThumb, &dskThumbProps);
-//	//}
-//
-//}
-//
-//void Peek_OnLButtonDown(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
-//{
-//	if (!mHwnd)
-//		return;
-//
-//	const auto lpmcdata = Peek_GetWindowData(mHwnd);
-//	if (!lpmcdata)
-//		return;
-//}
-//
-//void Peek_OnLButtonUp(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
-//{
-//	if (!mHwnd)
-//		return;
-//
-//	const auto lpmcdata = Peek_GetWindowData(mHwnd);
-//	if (!lpmcdata)
-//		return;
-//
-//}
-//
-//void Peek_OnMouseMove(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
-//{
-//	if (!mHwnd)
-//		return;
-//
-//	const auto lpmcdata = Peek_GetWindowData(mHwnd);
-//	if (!lpmcdata)
-//		return;
-//
-//	if (!lpmcdata->m_Tracking)
-//	{
-//		TRACKMOUSEEVENT tme{ sizeof(TRACKMOUSEEVENT), TME_LEAVE, mHwnd, HOVER_DEFAULT };
-//
-//		lpmcdata->m_Tracking = _TrackMouseEvent(&tme);
-//	}
-//}
-//
-//void Peek_OnMouseLeave(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
-//{
-//	if (!mHwnd)
-//		return;
-//
-//	const auto lpmcdata = Peek_GetWindowData(mHwnd);
-//	if (!lpmcdata)
-//		return;
-//
-//	lpmcdata->m_Tracking = FALSE;
-//}
-//
-//void Peek_SetFocus(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
-//{
-//	if (!mHwnd)
-//		return;
-//
-//	const auto lpmcdata = Peek_GetWindowData(mHwnd);
-//	if (!lpmcdata)
-//		return;
-//
-//}
 
 void Peek_OnThemeChange(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
@@ -472,6 +407,12 @@ void Peek_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 	if (!IsWindow(lpmcdata->m_hCopyHwnd))
 		return;
 
+	if ((lpmcdata->m_uStyle & PCS_CACHE_BITMAPS) && lpmcdata->m_mapCache.contains(lpmcdata->m_hCopyHwnd))
+	{
+		CopyBitmapToHDC(hdc, rcDest.left, rcDest.top, (rcDest.right - rcDest.left), (rcDest.bottom - rcDest.top), lpmcdata->m_mapCache[lpmcdata->m_hCopyHwnd], 0, 0, false);
+		return;
+	}
+
 	RECT rcSrc{};
 	GetClientRect(lpmcdata->m_hCopyHwnd, &rcSrc);
 
@@ -503,6 +444,26 @@ void Peek_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 			SetBrushOrgEx(hdc, 0, 0, nullptr);
 
 			StretchBlt(hdc, rcDest.left, rcDest.top, (rcDest.right - rcDest.left), (rcDest.bottom - rcDest.top), hdcPaint, 0, 0, (rcSrc.right - rcSrc.left), (rcSrc.bottom - rcSrc.top), SRCCOPY);
+			if (lpmcdata->m_uStyle & PCS_CACHE_BITMAPS)
+			{
+				try {
+					if (!lpmcdata->m_mapCache.empty() && lpmcdata->m_mapCache.contains(lpmcdata->m_hCopyHwnd))
+					{
+						if (auto& t = lpmcdata->m_mapCache.at(lpmcdata->m_hCopyHwnd); t)
+						{
+							DeleteBitmap(t);
+							t = nullptr;
+						}
+						//lpmcdata->m_mapCache.erase(lpmcdata->m_hCopyHwnd);
+					}
+					if (auto hBmCache = CreateCompatibleBitmap(hdc, (rcDest.right - rcDest.left), (rcDest.bottom - rcDest.top)); hBmCache)
+					{
+						CopyHDCToBitmap(hBmCache, 0, 0, (rcDest.right - rcDest.left), (rcDest.bottom - rcDest.top), hdc, rcDest.left, rcDest.top);
+						lpmcdata->m_mapCache[lpmcdata->m_hCopyHwnd] = hBmCache;
+					}
+				}
+				catch (...) {};
+			}
 		}
 	}
 
@@ -754,6 +715,41 @@ LRESULT Peek_SetRounded(HWND mHwnd, bool bRounded) noexcept
 	}
 
 	SetWindowRgn(mHwnd, hRgn, TRUE);
+
+	return TRUE;
+}
+
+LRESULT Peek_ResetCache(HWND mHwnd) noexcept
+{
+	if (!mHwnd)
+		return FALSE;
+
+	const auto lpmcdata = Peek_GetWindowData(mHwnd);
+	if (!lpmcdata)
+		return FALSE;
+
+	if (!lpmcdata->m_mapCache.empty())
+	{
+		for (const auto& t : lpmcdata->m_mapCache)
+		{
+			if (t.second)
+				DeleteBitmap(t.second);
+		}
+		lpmcdata->m_mapCache.clear();
+	}
+	return TRUE;
+}
+
+LRESULT Peek_SetExtendedStyle(HWND mHwnd, UINT uFlags) noexcept
+{
+	if (!mHwnd)
+		return FALSE;
+
+	const auto lpmcdata = Peek_GetWindowData(mHwnd);
+	if (!lpmcdata)
+		return FALSE;
+
+	lpmcdata->m_uStyle = uFlags;
 
 	return TRUE;
 }
