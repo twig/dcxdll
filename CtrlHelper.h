@@ -1688,6 +1688,83 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Retrieves the display text of a button on a toolbar.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="uIndex">- Command identifier of the button whose text is to be retrieved.</param>
+	/// <param name="szBuf">- Pointer to a buffer that receives the button text.</param>
+	/// <returns>
+	/// Returns the length, in characters, of the string pointed to by lParam.
+	/// The length does not include the terminating null character.
+	/// If unsuccessful, the return value is -1.
+	/// </returns>
+	/// <remarks>
+	/// Security Warning: Using this message incorrectly might compromise the security of your program.
+	/// This message does not provide a way for you to know the size of the buffer.
+	/// If you use this message, first call the message passing NULL in the lParam, this returns the number of characters, excluding NULL that are required.
+	/// Then call the message a second time to retrieve the string.
+	/// </remarks>
+	inline int dcxToolbar_GetButtonText(_In_ HWND hwnd, _In_ UINT uIndex, _In_ TCHAR *szBuf) noexcept
+	{
+		return gsl::narrow_cast<int>(SendMessage(hwnd, TB_GETBUTTONTEXT, uIndex, reinterpret_cast<LPARAM>(szBuf)));
+	}
+
+	TString dcxToolbar_GetButtonText(_In_ HWND hwnd, _In_ UINT uIndex);
+
+	/// <summary>
+	/// Retrieves information about the specified button in a toolbar.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="uIndex">- Zero-based index of the button for which to retrieve information.</param>
+	/// <param name="lpButton">- Pointer to the TBBUTTON structure that receives the button information.</param>
+	/// <returns>Returns TRUE if successful, or FALSE otherwise.</returns>
+	inline bool dcxToolbar_GetButton(_In_ HWND hwnd, _In_ UINT uIndex, _In_ LPTBBUTTON lpButton) noexcept
+	{
+		return !!SendMessage(hwnd, TB_GETBUTTON, uIndex, reinterpret_cast<LPARAM>(lpButton));
+	}
+
+	/// <summary>
+	/// Retrieves the zero-based index for the button associated with the specified command identifier.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="uIndex">- Zero-based index of the button for which to retrieve information.</param>
+	/// <returns>Returns the zero-based index for the button or -1 if the specified command identifier is invalid.</returns>
+	inline int dcxToolbar_CommandToIndex(_In_ HWND hwnd, _In_ UINT uIndex) noexcept
+	{
+		return gsl::narrow_cast<int>(SendMessage(hwnd, TB_COMMANDTOINDEX, uIndex, 0));
+	}
+
+	/// <summary>
+	/// Moves a button from one index to another.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="uIndex">- Zero-based index of the button for which to retrieve information.</param>
+	/// <param name="uMoveIndex">- Zero-based index where the button will be moved.</param>
+	/// <returns>Returns nonzero if successful, or zero otherwise.</returns>
+	inline bool dcxToolbar_MoveButton(_In_ HWND hwnd, _In_ UINT uIndex, _In_ UINT uMoveIndex) noexcept
+	{
+		return !!SendMessage(hwnd, TB_MOVEBUTTON, gsl::narrow_cast<WPARAM>(uIndex), gsl::narrow_cast<LPARAM>(uMoveIndex));
+	}
+
+	/// <summary>
+	/// Sets the highlight state of a given button in a toolbar control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="uCmdId">- Command identifier for a toolbar button.</param>
+	/// <param name="fHighlight">- Indicates the new highlight state. If TRUE, the button is highlighted. If FALSE, the button is set to its default state.</param>
+	/// <returns>Returns nonzero if successful, or zero otherwise.</returns>
+	int dcxToolbar_MarkButton(_In_ HWND hwnd, _In_ UINT uCmdId, bool fHighlight) noexcept;
+
+	/// <summary>
+	/// Sets the state for the specified button in a toolbar.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="uCmdId">- Command identifier for a toolbar button.</param>
+	/// <param name="uFlags">- A combination of values listed in Toolbar Button States.</param>
+	/// <returns>Returns TRUE if successful, or FALSE otherwise.</returns>
+	bool dcxToolbar_SetState(_In_ HWND hwnd, _In_ UINT uCmdId, _In_ UINT uFlags) noexcept;
+
+	/// <summary>
 	/// Sets the extended styles for a toolbar control.
 	/// </summary>
 	/// <param name="hwnd">- A handle to the control.</param>

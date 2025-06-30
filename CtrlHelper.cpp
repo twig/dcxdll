@@ -207,6 +207,42 @@ namespace Dcx
 		return true;
 	}
 
+	// Toolbar
+
+	TString dcxToolbar_GetButtonText(HWND hwnd, UINT uIndex)
+	{
+		const auto iLen = dcxToolbar_GetButtonText(hwnd, uIndex, nullptr);
+		TString tsText(gsl::narrow_cast<TString::size_type>(iLen + 1));
+		dcxToolbar_GetButtonText(hwnd, uIndex, tsText.to_chr());
+
+		return tsText;
+	}
+
+
+	/// <summary>
+	/// Sets the highlight state of a given button in a toolbar control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="uCmdId">- Command identifier for a toolbar button.</param>
+	/// <param name="fHighlight">- Indicates the new highlight state. If TRUE, the button is highlighted. If FALSE, the button is set to its default state.</param>
+	/// <returns>Returns nonzero if successful, or zero otherwise.</returns>
+	int dcxToolbar_MarkButton(HWND hwnd, UINT uCmdId, bool fHighlight) noexcept
+	{
+		return gsl::narrow_cast<int>(SendMessage(hwnd, TB_MARKBUTTON, gsl::narrow_cast<WPARAM>(uCmdId), Dcx::dcxMAKELPARAM(gsl::narrow_cast<uint8_t>(fHighlight), gsl::narrow_cast<uint8_t>(0))));
+	}
+
+	/// <summary>
+	/// Sets the state for the specified button in a toolbar.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="uCmdId">- Command identifier for a toolbar button.</param>
+	/// <param name="uFlags">- A combination of values listed in Toolbar Button States.</param>
+	/// <returns>Returns TRUE if successful, or FALSE otherwise.</returns>
+	bool dcxToolbar_SetState(HWND hwnd, UINT uCmdId, UINT uFlags) noexcept
+	{
+		return !!SendMessage(hwnd, TB_SETSTATE, uCmdId, Dcx::dcxMAKELPARAM(gsl::narrow_cast<uint8_t>(uFlags), gsl::narrow_cast<uint8_t>(0)));
+	}
+
 	// TreeView
 
 	size_t dcxTreeView_GetCount(_In_ HWND hTree) noexcept
