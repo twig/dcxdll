@@ -162,6 +162,14 @@ LRESULT CALLBACK PeekWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 	}
 	break;
 
+	case PC_WM_GETDATA:
+	{
+		// wParam = pointer to peek data structure.
+		// lParam = 0
+		return Peek_GetData(mHwnd, reinterpret_cast<pkData*>(wParam));
+	}
+	break;
+
 	case PC_WM_SHOW:
 	{
 		// wParam = BOOL showhdc
@@ -183,6 +191,14 @@ LRESULT CALLBACK PeekWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		// wParam = style flags
 		// lParam = 0
 		return Peek_SetExtendedStyle(mHwnd, wParam);
+	}
+	break;
+
+	case PC_WM_GETEXTENDEDSTYLE:
+	{
+		// wParam = 0
+		// lParam = 0
+		return Peek_GetExtendedStyle(mHwnd);
 	}
 	break;
 	}
@@ -264,7 +280,7 @@ static void GetTextRect(HDC hdc, LPRECT rcTxt, LPPEEK_DATA lpmcdata) noexcept
 		if (!_ts_isEmpty(lpmcdata->m_Description))
 		{
 			RECT rcTmp{};
-			DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTITLE, 0, &lpmcdata->m_Title[0], -1, textFlags, &rcTmp, &dtt);
+			DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTEXT, 0, &lpmcdata->m_Title[0], -1, textFlags, &rcTmp, &dtt);
 			const int txtSize = std::max(12L, (rcTmp.bottom - rcTmp.top));
 			rcTxt->bottom += txtSize + 1;
 			rcTxt->right = std::max(rcTmp.right, rcTxt->right);
@@ -353,7 +369,7 @@ void Peek_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 			if (!_ts_isEmpty(lpmcdata->m_Description))
 			{
 				RECT rcTmp{};
-				DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTITLE, 0, &lpmcdata->m_Description[0], -1, textFlags | DT_CALCRECT, &rcTmp, &dtt);
+				DcxUXModule::dcxDrawThemeTextEx(lpmcdata->m_hTheme, hdc, TEXT_BODYTEXT, 0, &lpmcdata->m_Description[0], -1, textFlags | DT_CALCRECT, &rcTmp, &dtt);
 				const int txtSize = std::max(12L, (rcTmp.bottom - rcTmp.top));
 				rcTxt.bottom = rcTxt.top + txtSize + PEEK_TXT_BOTTOM_PAD;
 
@@ -407,10 +423,16 @@ void Peek_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 	if (!IsWindow(lpmcdata->m_hCopyHwnd))
 		return;
 
-	if ((lpmcdata->m_uStyle & PCS_CACHE_BITMAPS) && lpmcdata->m_mapCache.contains(lpmcdata->m_hCopyHwnd))
+	if (lpmcdata->m_uStyle & PCS_CACHE_BITMAPS)
 	{
-		CopyBitmapToHDC(hdc, rcDest.left, rcDest.top, (rcDest.right - rcDest.left), (rcDest.bottom - rcDest.top), lpmcdata->m_mapCache[lpmcdata->m_hCopyHwnd], 0, 0, false);
-		return;
+		try {
+			if (lpmcdata->m_mapCache.contains(lpmcdata->m_hCopyHwnd))
+			{
+				CopyBitmapToHDC(hdc, rcDest.left, rcDest.top, (rcDest.right - rcDest.left), (rcDest.bottom - rcDest.top), lpmcdata->m_mapCache[lpmcdata->m_hCopyHwnd], 0, 0, false);
+				return;
+			}
+		}
+		catch (...) {}
 	}
 
 	RECT rcSrc{};
@@ -468,65 +490,6 @@ void Peek_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 	}
 
 }
-
-//void Peek_SetFont(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
-//{
-//	if (!mHwnd)
-//		return;
-//
-//	const auto lpmcdata = Peek_GetWindowData(mHwnd);
-//	if (!lpmcdata)
-//		return;
-//
-//}
-//
-//void Peek_ParentNotify(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
-//{
-//	if (!mHwnd)
-//		return;
-//
-//	const auto lpmcdata = Peek_GetWindowData(mHwnd);
-//	if (!lpmcdata)
-//		return;
-//
-//	if (Dcx::dcxLOWORD(wParam) == WM_DESTROY)
-//	{
-//	}
-//}
-//
-//void Peek_OnMove(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
-//{
-//	if (!mHwnd)
-//		return;
-//
-//	const auto lpmcdata = Peek_GetWindowData(mHwnd);
-//	if (!lpmcdata)
-//		return;
-//
-//}
-//
-//void Peek_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
-//{
-//	if (!mHwnd)
-//		return;
-//
-//	const auto lpmcdata = Peek_GetWindowData(mHwnd);
-//	if (!lpmcdata)
-//		return;
-//
-//}
-//
-//LRESULT Peek_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
-//{
-//	if (!mHwnd)
-//		return 0;
-//
-//	const auto lpmcdata = Peek_GetWindowData(mHwnd);
-//	if (!lpmcdata)
-//		return DefWindowProc(mHwnd, WM_COMMAND, wParam, lParam);
-//
-//	return DefWindowProc(mHwnd, WM_COMMAND, wParam, lParam);
-//}
 
 LRESULT Peek_SetSource(HWND mHwnd, HWND hSrc) noexcept
 {
@@ -598,12 +561,12 @@ LRESULT Peek_SetTitle(HWND mHwnd, LPCTSTR str, int length) noexcept
 		length = std::size(lpmcdata->m_Title);
 
 	_ts_strcpyn(&lpmcdata->m_Title[0], str, length);
-	lpmcdata->m_Title[63] = 0;
+	lpmcdata->m_Title[std::size(lpmcdata->m_Title) - 1] = 0;
 
 	return TRUE;
 }
 
-LRESULT Peek_SetData(HWND mHwnd, pkData* pkd) noexcept
+LRESULT Peek_SetData(HWND mHwnd, const pkData* pkd) noexcept
 {
 	if (!mHwnd || !pkd)
 		return FALSE;
@@ -630,6 +593,47 @@ LRESULT Peek_SetData(HWND mHwnd, pkData* pkd) noexcept
 		lpmcdata->m_clrDesc = pkd->m_clrDescription;
 	if (dcx_testflag(pkd->m_dwMask, PCF_ROUNDED))
 		lpmcdata->m_bRounded = pkd->m_bRoundedWindow;
+	if (dcx_testflag(pkd->m_dwMask, PCF_EXSTTYLE))
+		lpmcdata->m_uStyle = pkd->m_uexstyle;
+
+	return TRUE;
+}
+
+LRESULT Peek_GetData(HWND mHwnd, pkData* pkd) noexcept
+{
+	if (!mHwnd || !pkd)
+		return FALSE;
+
+	const auto lpmcdata = Peek_GetWindowData(mHwnd);
+	if (!lpmcdata)
+		return FALSE;
+
+	if (dcx_testflag(pkd->m_dwMask, PCF_TITLE))
+	{
+		_ts_strcpyn(&pkd->m_Title[0], &lpmcdata->m_Title[0], std::size(pkd->m_Title));
+		lpmcdata->m_Title[std::size(lpmcdata->m_Title) - 1] = 0;
+	}
+	if (dcx_testflag(pkd->m_dwMask, PCF_DESC))
+	{
+		_ts_strcpyn(&pkd->m_Description[0], &lpmcdata->m_Description[0], std::size(pkd->m_Description));
+		lpmcdata->m_Description[std::size(lpmcdata->m_Description) - 1] = 0;
+	}
+	if (dcx_testflag(pkd->m_dwMask, PCF_MIN))
+		pkd->m_szMin = lpmcdata->m_szMin;
+	if (dcx_testflag(pkd->m_dwMask, PCF_MAX))
+		pkd->m_szMax = lpmcdata->m_szMax;
+	if (dcx_testflag(pkd->m_dwMask, PCF_HWND))
+		pkd->m_hSrc = lpmcdata->m_hCopyHwnd;
+	if (dcx_testflag(pkd->m_dwMask, PCF_BKGCOLOUR))
+		pkd->m_clrBkg = lpmcdata->m_clrBkg;
+	if (dcx_testflag(pkd->m_dwMask, PCF_TITLECOLOUR))
+		pkd->m_clrTitle = lpmcdata->m_clrTitle;
+	if (dcx_testflag(pkd->m_dwMask, PCF_DESCCOLOUR))
+		pkd->m_clrDescription = lpmcdata->m_clrDesc;
+	if (dcx_testflag(pkd->m_dwMask, PCF_ROUNDED))
+		pkd->m_bRoundedWindow = lpmcdata->m_bRounded;
+	if (dcx_testflag(pkd->m_dwMask, PCF_EXSTTYLE))
+		pkd->m_uexstyle = lpmcdata->m_uStyle;
 
 	return TRUE;
 }
@@ -674,7 +678,7 @@ LRESULT Peek_Show(HWND mHwnd, bool bShowHDC, int x, int y) noexcept
 	return TRUE;
 }
 
-LRESULT Peek_SetMin(HWND mHwnd, LPSIZE szMin) noexcept
+LRESULT Peek_SetMin(HWND mHwnd, const SIZE* szMin) noexcept
 {
 	if (!mHwnd || !szMin)
 		return FALSE;
@@ -688,7 +692,7 @@ LRESULT Peek_SetMin(HWND mHwnd, LPSIZE szMin) noexcept
 	return TRUE;
 }
 
-LRESULT Peek_SetMax(HWND mHwnd, LPSIZE szMax) noexcept
+LRESULT Peek_SetMax(HWND mHwnd, const SIZE* szMax) noexcept
 {
 	if (!mHwnd || !szMax)
 		return FALSE;
@@ -752,6 +756,18 @@ LRESULT Peek_SetExtendedStyle(HWND mHwnd, UINT uFlags) noexcept
 	lpmcdata->m_uStyle = uFlags;
 
 	return TRUE;
+}
+
+LRESULT Peek_GetExtendedStyle(HWND mHwnd) noexcept
+{
+	if (!mHwnd)
+		return FALSE;
+
+	const auto lpmcdata = Peek_GetWindowData(mHwnd);
+	if (!lpmcdata)
+		return FALSE;
+
+	return gsl::narrow_cast<LRESULT>(lpmcdata->m_uStyle);
 }
 
 void Peek_ResetContent(HWND mHwnd) noexcept

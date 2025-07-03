@@ -613,15 +613,17 @@ void DcxTab::parseCommandRequest(const TString& input)
 		if (!m_hPeek)
 			throw DcxExceptions::dcxUnableToCreateWindow();
 
+		// +b = background colour [ARGS] = RGB colour
+		// +c = Cache bitmaps.
+		// +d = Description text colour [ARGS] = RGB colour
+		// +e = enable/disable peek ability [ARGS] = 1/0
+		// +f = font [ARGS] = [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
 		// +r = rounded window [ARGS] = 1/0
 		// +m = min size [ARGS] = minx miny
 		// +M = max size [ARGS] = maxx maxy
-		// +f = font [ARGS] = [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
-		// +b = background colour [ARGS] = RGB colour
-		// +t = Title text colour [ARGS] = RGB colour
-		// +d = Description text colour [ARGS] = RGB colour
 		// +o = hover open delay [ARGS] = delay time in milliseconds (default is system setting which is usually 400)
-		// +e = enable/disable peek ability [ARGS] = 1/0
+		// +t = Title text colour [ARGS] = RGB colour
+
 		const XSwitchFlags xFlags(input.getnexttok());
 		const auto tsArgs(input.getlasttoks());
 
@@ -665,6 +667,17 @@ void DcxTab::parseCommandRequest(const TString& input)
 			pkd.m_dwMask |= PCF_BKGCOLOUR;
 
 			pkd.m_clrBkg = tsArgs.getfirsttok(1).to_<COLORREF>();
+		}
+		else if (xFlags[L'c'])
+		{
+			pkd.m_dwMask |= PCF_EXSTTYLE;
+
+			pkd.m_uexstyle = PeekCtrl_GetExtendedStyle(m_hPeek);
+
+			if (tsArgs.getfirsttok(1).to_<int>() > 0)
+				pkd.m_uexstyle |= PCS_CACHE_BITMAPS;
+			else
+				pkd.m_uexstyle &= ~PCS_CACHE_BITMAPS;
 		}
 		else if (xFlags[L't'])
 		{
@@ -931,26 +944,6 @@ DcxControl* DcxTab::addTab(int nIndex, int iIcon, const TString& tsText, const T
 	return p_Control;
 }
 
-//void DcxTab::GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton)
-//{
-//	// ----------
-//	//rcCloseButton.top = rcItem.top + 2;
-//	//rcCloseButton.bottom = rcCloseButton.top + (m_iiCloseButton.rcImage.bottom - m_iiCloseButton.rcImage.top);
-//	//rcCloseButton.right = rcItem.right - 2;
-//	//rcCloseButton.left = rcCloseButton.right - (m_iiCloseButton.rcImage.right - m_iiCloseButton.rcImage.left);
-//	// ----------
-//	//rcCloseButton.top = rcItem.top + 2;
-//	//rcCloseButton.bottom = rcCloseButton.top + (16);
-//	//rcCloseButton.right = rcItem.right - 2;
-//	//rcCloseButton.left = rcCloseButton.right - (16);
-//	// ----------
-//	rcCloseButton.top = rcItem.top;
-//	rcCloseButton.bottom = rcCloseButton.top + GetSystemMetrics(SM_CYSMICON);
-//	rcCloseButton.right = rcItem.right - GetSystemMetrics(SM_CXEDGE);
-//	rcCloseButton.left = rcCloseButton.right - GetSystemMetrics(SM_CXSMICON);
-//	// ----------
-//}
-
 const TString DcxTab::getStyles(void) const
 {
 	auto styles(__super::getStyles());
@@ -983,6 +976,8 @@ const TString DcxTab::getStyles(void) const
 		styles.addtok(TEXT("flatseps"));
 	if (this->m_bClosable)
 		styles.addtok(TEXT("closable"));
+	if (this->m_bPeek)
+		styles.addtok(TEXT("peek"));
 	//if (this->m_bGradient)
 	//	styles.addtok(TEXT("gradient"));
 	return styles;
@@ -1027,6 +1022,7 @@ void DcxTab::toXml(TiXmlElement* const xml) const
 					if (TString styles(xChild.Attribute("styles")); !styles.empty())
 					{
 						styles.remtok(TEXT("hidden"), 1);
+
 						if (!styles.empty())
 							xChild.SetAttribute("styles", styles.c_str());
 						else
@@ -1346,7 +1342,7 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 					Dcx::dcxTabCtrl_GetItemRect(m_Hwnd, iTab, &rcItem);
 
 					// dropdown peek window...
-					SendMessage(m_hPeek, PC_WM_RESETCACHE, 0, 0);
+					PeekCtrl_ResetCache(m_hPeek);
 
 					RECT rcPeek{ rcItem };
 					OffsetRect(&rcPeek, 0, (rcPeek.bottom - rcPeek.top));
@@ -1377,7 +1373,7 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 			m_iHoverItem = -1;
 			//InvalidateRect(m_Hwnd, nullptr, FALSE);
 
-			SendMessage(m_hPeek, PC_WM_RESETCACHE, 0, 0);
+			PeekCtrl_ResetCache(m_hPeek);
 		}
 		HidePeek();
 	}
@@ -1622,7 +1618,7 @@ bool DcxTab::CloseButtonHitTest(const int iTab) const noexcept
 	{
 		if (const Dcx::dcxCursorPos pt(m_Hwnd); pt)
 		{
-			if (RECT rc{}; TabCtrl_GetItemRect(m_Hwnd, iTab, &rc))
+			if (RECT rc{}; Dcx::dcxTabCtrl_GetItemRect(m_Hwnd, iTab, &rc))
 			{
 				const RECT rcCloseButton(GetCloseButtonRect(rc));
 
@@ -1638,7 +1634,7 @@ bool DcxTab::CloseButtonHitTest(const int iTab) const noexcept
 		{
 			MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
 
-			if (RECT rc{}; TabCtrl_GetItemRect(m_Hwnd, iTab, &rc))
+			if (RECT rc{}; Dcx::dcxTabCtrl_GetItemRect(m_Hwnd, iTab, &rc))
 			{
 				const RECT rcCloseButton(GetCloseButtonRect(rc));
 
@@ -1672,11 +1668,11 @@ void DcxTab::CreatePeek() noexcept
 	m_hPeek = CreateWindowExW(WS_EX_NOACTIVATE, PEEK_CLASS, nullptr, WS_POPUP | WS_CLIPCHILDREN, rcPeek.left, rcPeek.top, (rcPeek.right - rcPeek.left), (rcPeek.bottom - rcPeek.top), m_Hwnd, nullptr, hHandle, nullptr);
 	if (m_hPeek)
 	{
-		SendMessage(m_hPeek, PC_WM_SETEXTENDEDSTYLE, PCS_CACHE_BITMAPS, 0);
+		//PeekCtrl_SetExtendedStyle(m_hPeek, PCS_CACHE_BITMAPS);
 
 		const SIZE szMin{ 100, 30 };
 		const SIZE szMax{ 200, 200 };
-		SendMessage(m_hPeek, PC_WM_SETMINMAX, reinterpret_cast<WPARAM>(&szMin), reinterpret_cast<LPARAM>(&szMax));
+		PeekCtrl_SetMinMax(m_hPeek, &szMin, &szMax);
 	}
 }
 
@@ -1712,7 +1708,7 @@ void DcxTab::SetPeekSource(int iTab, _In_ int iTabSel, LPCRECT rcItem) noexcept
 			if (iTab != iTabSel)
 				pkd.m_hSrc = lpdtci->mChildHwnd;
 
-			SendMessage(m_hPeek, PC_WM_SETDATA, reinterpret_cast<WPARAM>(&pkd), 0);
+			PeekCtrl_SetData(m_hPeek, &pkd);
 		}
 	}
 }
@@ -1722,9 +1718,7 @@ void DcxTab::ShowPeek(int x, int y) noexcept
 	if (!m_bPeek || !m_hPeek)
 		return;
 
-	//ShowWindow(m_hPeek, SW_HIDE);
-	SendMessage(m_hPeek, PC_WM_SHOW, TRUE, MAKELPARAM(x, y));
-	//ShowWindow(m_hPeek, SW_SHOW);
+	PeekCtrl_Show(m_hPeek, true, x, y);
 }
 
 void DcxTab::HidePeek() noexcept
@@ -1733,5 +1727,5 @@ void DcxTab::HidePeek() noexcept
 		return;
 
 	ShowWindow(m_hPeek, SW_HIDE);
-	SendMessage(m_hPeek, PC_WM_REMSOURCE, 0, 0);
+	PeekCtrl_RemoveSource(m_hPeek);
 }
