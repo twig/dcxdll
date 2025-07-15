@@ -17,12 +17,6 @@
 
 #include "Classes/xpopup/xpopupmenu.h"
 
- /*!
-  * \brief blah
-  *
-  * blah
-  */
-
 class XMenuBar final
 {
 public:

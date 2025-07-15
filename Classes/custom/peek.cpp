@@ -190,7 +190,7 @@ LRESULT CALLBACK PeekWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 	{
 		// wParam = style flags
 		// lParam = 0
-		return Peek_SetExtendedStyle(mHwnd, wParam);
+		return Peek_SetExtendedStyle(mHwnd, gsl::narrow_cast<UINT>(wParam));
 	}
 	break;
 
@@ -540,7 +540,7 @@ LRESULT Peek_SetDescription(HWND mHwnd, LPCTSTR str, int length) noexcept
 		return FALSE;
 
 	if ((length < 0) || (gsl::narrow_cast<size_t>(length) > std::size(lpmcdata->m_Description)))
-		length = std::size(lpmcdata->m_Description);
+		length = gsl::narrow_cast<int>(std::size(lpmcdata->m_Description));
 
 	_ts_strcpyn(&lpmcdata->m_Description[0], str, length);
 	lpmcdata->m_Description[63] = 0;
@@ -558,7 +558,7 @@ LRESULT Peek_SetTitle(HWND mHwnd, LPCTSTR str, int length) noexcept
 		return FALSE;
 
 	if ((length < 0) || (gsl::narrow_cast<size_t>(length) > std::size(lpmcdata->m_Title)))
-		length = std::size(lpmcdata->m_Title);
+		length = gsl::narrow_cast<int>(std::size(lpmcdata->m_Title));
 
 	_ts_strcpyn(&lpmcdata->m_Title[0], str, length);
 	lpmcdata->m_Title[std::size(lpmcdata->m_Title) - 1] = 0;

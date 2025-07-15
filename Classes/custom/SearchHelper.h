@@ -104,6 +104,12 @@ struct regexOptions
 
 #if DCX_USE_PCRE2
 		const TString opts(tsPattern.gettok(gsl::narrow_cast<int>(tsPattern.numtok(TEXT('/'))), TEXT('/')));
+
+		//const gsl::span<const TCHAR> opts_span(opts.to_wchr(), opts.len());
+		//for (auto& c : opts_span)
+		//{
+		//}
+
 		for (UINT i = 0; i < opts.len(); ++i)
 		{
 			//	g - continue after first match
@@ -187,7 +193,7 @@ struct regexOptions
 			//std::u32string utf32_str(std::to_u32string(wstr));
 			//if (m_re = pcre2_compile_32(reinterpret_cast<PCRE2_SPTR>(utf32_str.c_str()), utf32_str.length(), m_Opts, &m_Error, &m_Erroffset, m_context); !m_re)
 
-			// Convert to utf-32.
+			// Must convert to utf-32 first.
 			auto str32(convert_utf16_to_utf32(reinterpret_cast<char16_t*>(m_tsPattern.to_wchr()), m_tsPattern.len()));
 			if (m_re = pcre2_compile_32(reinterpret_cast<PCRE2_SPTR>(str32.get()), PCRE2_ZERO_TERMINATED, m_Opts, &m_Error, &m_Erroffset, m_context); !m_re)
 				throw Dcx::dcxException("pcre2: Unable to compile regex: % pos %", m_Error, m_Erroffset);

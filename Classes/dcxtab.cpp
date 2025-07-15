@@ -610,18 +610,18 @@ void DcxTab::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		if (!m_hPeek)
-			throw DcxExceptions::dcxUnableToCreateWindow();
+		//if (!m_hPeek)
+		//	throw DcxExceptions::dcxUnableToCreateWindow();
 
 		// +b = background colour [ARGS] = RGB colour
 		// +c = Cache bitmaps.
 		// +d = Description text colour [ARGS] = RGB colour
 		// +e = enable/disable peek ability [ARGS] = 1/0
 		// +f = font [ARGS] = [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
-		// +r = rounded window [ARGS] = 1/0
 		// +m = min size [ARGS] = minx miny
 		// +M = max size [ARGS] = maxx maxy
 		// +o = hover open delay [ARGS] = delay time in milliseconds (default is system setting which is usually 400)
+		// +r = rounded window [ARGS] = 1/0
 		// +t = Title text colour [ARGS] = RGB colour
 
 		const XSwitchFlags xFlags(input.getnexttok());
@@ -1690,7 +1690,7 @@ void DcxTab::SetPeekSource(int iTab, _In_ int iTabSel, LPCRECT rcItem) noexcept
 	TCITEM tci{};
 	tci.mask = TCIF_PARAM | TCIF_TEXT;
 	tci.pszText = &pkd.m_Title[0];
-	tci.cchTextMax = std::size(pkd.m_Title);
+	tci.cchTextMax = gsl::narrow_cast<decltype(tci.cchTextMax)>(std::size(pkd.m_Title));
 
 	if (this->getTab(iTab, &tci))
 	{

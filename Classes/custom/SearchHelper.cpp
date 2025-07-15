@@ -38,29 +38,32 @@ bool DcxSearchHelper::isRegexMatch(const TCHAR* matchtext, const dcxSearchData& 
 #if DCX_USE_PCRE2
 		if (srch_data.m_regexOpts.m_UsePCRE2)
 		{
-			int res{};
+			//int res{};
+			//
+			//if (srch_data.m_regexOpts.m_Option_S)
+			//{
+			//	TString tsMatchText(matchtext);
+			//	tsMatchText.strip();
+			//
+			//	// Convert to utf-32.
+			//	auto str32(srch_data.m_regexOpts.convert_utf16_to_utf32(reinterpret_cast<const char16_t*>(tsMatchText.to_wchr()), tsMatchText.len()));
+			//	res = pcre2_match_32(srch_data.m_regexOpts.m_re, reinterpret_cast<PCRE2_SPTR32>(str32.get()), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
+			//}
+			//else {
+			//	// Convert to utf-32.
+			//	auto str32(srch_data.m_regexOpts.convert_utf16_to_utf32(reinterpret_cast<const char16_t*>(matchtext), _ts_strlen(matchtext)));
+			//	res = pcre2_match_32(srch_data.m_regexOpts.m_re, reinterpret_cast<PCRE2_SPTR32>(str32.get()), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
+			//}
+			//return (res > 0);
+
+			TString tsMatchText(matchtext);
 
 			if (srch_data.m_regexOpts.m_Option_S)
-			{
-				TString tsMatchText(matchtext);
+				tsMatchText.strip();
 
-
-				//res = pcre2_match(srch_data.m_regexOpts.m_re, reinterpret_cast<PCRE2_SPTR>(tsMatchText.strip().to_chr()), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
-				//res = pcre2_match(srch_data.m_regexOpts.m_re, tsMatchText.strip().to_<PCRE2_SPTR>(), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
-
-				const auto tsStripped(tsMatchText.strip());
-				// Convert to utf-32.
-				auto str32(srch_data.m_regexOpts.convert_utf16_to_utf32(reinterpret_cast<const char16_t*>(tsStripped.to_wchr()), tsStripped.len()));
-				res = pcre2_match_32(srch_data.m_regexOpts.m_re, reinterpret_cast<PCRE2_SPTR32>(str32.get()), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
-			}
-			else {
-				//res = pcre2_match(srch_data.m_regexOpts.m_re, reinterpret_cast<PCRE2_SPTR>(matchtext), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
-
-				// Convert to utf-32.
-				auto str32(srch_data.m_regexOpts.convert_utf16_to_utf32(reinterpret_cast<const char16_t*>(matchtext), _ts_strlen(matchtext)));
-				res = pcre2_match_32(srch_data.m_regexOpts.m_re, reinterpret_cast<PCRE2_SPTR32>(str32.get()), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
-			}
-			return (res > 0);
+			// Must convert to utf-32 first.
+			auto str32(srch_data.m_regexOpts.convert_utf16_to_utf32(reinterpret_cast<const char16_t*>(tsMatchText.to_wchr()), tsMatchText.len()));
+			return (pcre2_match_32(srch_data.m_regexOpts.m_re, reinterpret_cast<PCRE2_SPTR32>(str32.get()), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr) > 0);
 		}
 		else {
 			stString<10> res;
@@ -129,30 +132,57 @@ std::optional<RegexResults> DcxSearchHelper::getRegexMatchOffset(const TCHAR* ma
 		{
 			int res{};
 
+			//if (srch_data.m_regexOpts.m_Option_S)
+			//{
+			//	TString tsMatchText(matchtext);
+			//
+			//	res = pcre2_match(srch_data.m_regexOpts.m_re, tsMatchText.strip().to_<PCRE2_SPTR>(), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
+			//}
+			//else {
+			//	res = pcre2_match(srch_data.m_regexOpts.m_re, reinterpret_cast<PCRE2_SPTR>(matchtext), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
+			//}
+			//if (res > 0)
+			//{
+			//	//size_t sz{};
+			//	//pcre2_substring_length_bynumber(srch_data.m_regexOpts.m_Match_data, 1, &sz);
+			//	//return pcre2_get_startchar(srch_data.m_regexOpts.m_Match_data);
+			//
+			//	if (const auto cnt = pcre2_get_ovector_count(srch_data.m_regexOpts.m_Match_data); cnt > 0)
+			//	{
+			//		const auto ov = pcre2_get_ovector_pointer(srch_data.m_regexOpts.m_Match_data);
+			//		const auto nStart = ov[0];
+			//		const auto nEnd = ov[(cnt * 2) - 1];
+			//
+			//		return { RegexResults{nStart, nEnd} };
+			//	}
+			//}
+
 			if (srch_data.m_regexOpts.m_Option_S)
 			{
 				TString tsMatchText(matchtext);
+				tsMatchText.strip();
 
-				res = pcre2_match(srch_data.m_regexOpts.m_re, tsMatchText.strip().to_<PCRE2_SPTR>(), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
+				// Convert to utf-32.
+				auto str32(srch_data.m_regexOpts.convert_utf16_to_utf32(reinterpret_cast<const char16_t*>(tsMatchText.to_wchr()), tsMatchText.len()));
+				res = pcre2_match_32(srch_data.m_regexOpts.m_re, reinterpret_cast<PCRE2_SPTR32>(str32.get()), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
 			}
 			else {
-				res = pcre2_match(srch_data.m_regexOpts.m_re, reinterpret_cast<PCRE2_SPTR>(matchtext), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
+				// Convert to utf-32.
+				auto str32(srch_data.m_regexOpts.convert_utf16_to_utf32(reinterpret_cast<const char16_t*>(matchtext), _ts_strlen(matchtext)));
+				res = pcre2_match_32(srch_data.m_regexOpts.m_re, reinterpret_cast<PCRE2_SPTR32>(str32.get()), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
 			}
 			if (res > 0)
 			{
-				//size_t sz{};
-				//pcre2_substring_length_bynumber(srch_data.m_regexOpts.m_Match_data, 1, &sz);
-				//return pcre2_get_startchar(srch_data.m_regexOpts.m_Match_data);
-
-				if (const auto cnt = pcre2_get_ovector_count(srch_data.m_regexOpts.m_Match_data); cnt > 0)
+				if (const auto cnt = pcre2_get_ovector_count_32(srch_data.m_regexOpts.m_Match_data); cnt > 0)
 				{
-					const auto ov = pcre2_get_ovector_pointer(srch_data.m_regexOpts.m_Match_data);
+					const auto ov = pcre2_get_ovector_pointer_32(srch_data.m_regexOpts.m_Match_data);
 					const auto nStart = ov[0];
 					const auto nEnd = ov[(cnt * 2) - 1];
 
 					return { RegexResults{nStart, nEnd} };
 				}
 			}
+
 			return {};
 		}
 		else {
