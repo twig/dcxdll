@@ -1812,6 +1812,9 @@ std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const LPCWSTR txt, UINT len)
 {
 	std::vector<dcxTextBreakdown> vec;
 
+	// overkill...
+	vec.reserve(len);
+
 	const auto wtxt = txt;
 	bool usingRevTxt = false;
 	UINT pos = 0;
@@ -1831,7 +1834,7 @@ std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const LPCWSTR txt, UINT len)
 		{
 			if (!tmp.m_str.empty())
 			{
-				vec.push_back(tmp);
+				vec.emplace_back(tmp);
 				tmp.m_str.clear();
 			}
 			if (tmp.m_log.lfWeight == FW_BOLD)
@@ -1844,7 +1847,7 @@ std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const LPCWSTR txt, UINT len)
 		{
 			if (!tmp.m_str.empty())
 			{
-				vec.push_back(tmp);
+				vec.emplace_back(tmp);
 				tmp.m_str.clear();
 			}
 
@@ -1907,7 +1910,7 @@ std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const LPCWSTR txt, UINT len)
 		{
 			if (!tmp.m_str.empty())
 			{
-				vec.push_back(tmp);
+				vec.emplace_back(tmp);
 				tmp.m_str.clear();
 			}
 
@@ -1928,7 +1931,7 @@ std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const LPCWSTR txt, UINT len)
 		{
 			if (!tmp.m_str.empty())
 			{
-				vec.push_back(tmp);
+				vec.emplace_back(tmp);
 				tmp.m_str.clear();
 			}
 
@@ -1946,7 +1949,7 @@ std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const LPCWSTR txt, UINT len)
 		{
 			if (!tmp.m_str.empty())
 			{
-				vec.push_back(tmp);
+				vec.emplace_back(tmp);
 				tmp.m_str.clear();
 			}
 			tmp.m_log.lfItalic = (tmp.m_log.lfItalic ? 0U : 1U);
@@ -1956,7 +1959,7 @@ std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const LPCWSTR txt, UINT len)
 		{
 			if (!tmp.m_str.empty())
 			{
-				vec.push_back(tmp);
+				vec.emplace_back(tmp);
 				tmp.m_str.clear();
 			}
 			tmp.m_log.lfStrikeOut = (tmp.m_log.lfStrikeOut ? 0U : 1U);
@@ -1966,7 +1969,7 @@ std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const LPCWSTR txt, UINT len)
 		{
 			if (!tmp.m_str.empty())
 			{
-				vec.push_back(tmp);
+				vec.emplace_back(tmp);
 				tmp.m_str.clear();
 			}
 			tmp.m_log.lfUnderline = (tmp.m_log.lfUnderline ? 0U : 1U);
@@ -1982,7 +1985,7 @@ std::vector<dcxTextBreakdown> dcxBreakdownmIRCText(const LPCWSTR txt, UINT len)
 		}
 	}
 	if (!tmp.m_str.empty())
-		vec.push_back(tmp);
+		vec.emplace_back(tmp);
 
 	return vec;
 }
