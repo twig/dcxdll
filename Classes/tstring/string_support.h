@@ -1,10 +1,12 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.30
+// v1.31
 
 #include <tchar.h>
+#include <wtypes.h>
 #include <cstdlib>
 #include <codecvt>
+#include <string>
 
 #ifdef max
 #undef max
@@ -751,7 +753,7 @@ namespace details
 	template <>
 	struct _impl_ts_find<wchar_t*>
 	{
-		const wchar_t* operator()(_In_z_ const wchar_t* const str, _In_ const wchar_t* srch) noexcept
+		const wchar_t* operator()(_In_z_ const wchar_t* const str, _In_z_ const wchar_t* srch) noexcept
 		{
 			return wcsstr(str, srch);
 		}
@@ -759,9 +761,31 @@ namespace details
 	template <>
 	struct _impl_ts_find<const wchar_t*>
 	{
-		const wchar_t* operator()(_In_z_ const wchar_t* const str, _In_ const wchar_t* srch) noexcept
+		const wchar_t* operator()(_In_z_ const wchar_t* const str, _In_z_ const wchar_t* srch) noexcept
 		{
 			return wcsstr(str, srch);
+		}
+	};
+	template <>
+	struct _impl_ts_find<std::string>
+	{
+		const char* operator()(_In_ std::string& str, _In_z_ const char* srch) noexcept
+		{
+			const auto pos = str.find(srch, 0);
+			if (pos == std::string::npos)
+				return nullptr;
+			return std::addressof(gsl::at(str, pos));
+		}
+	};
+	template <>
+	struct _impl_ts_find<std::wstring>
+	{
+		const wchar_t* operator()(_In_ std::wstring& str, _In_z_ const wchar_t* srch) noexcept
+		{
+			const auto pos = str.find(srch, 0);
+			if (pos == std::wstring::npos)
+				return nullptr;
+			return std::addressof(gsl::at(str, pos));
 		}
 	};
 
@@ -1438,7 +1462,7 @@ T _ts_trim_and_copy(_In_ const T & str)
 /// <param name="str">- string to modify.</param>
 /// <returns>The string it was passed with the changes made.</returns>
 template <details::HasFrontBack T>
-T& _ts_strip(_Inout_ T& str)
+T& _ts_strip(_Inout_ T & str)
 {
 	_ts_remove(str, typename T::value_type{'\x02'});	//02
 	_ts_remove(str, typename T::value_type{'\x0F'});	//15
@@ -1469,7 +1493,7 @@ T& _ts_strip(_Inout_ T& str)
 /// <param name="str">- string to modify.</param>
 /// <returns>The string it was passed with the changes made.</returns>
 template <details::HasStripFunction T>
-T& _ts_strip(_Inout_ T& str)
+T& _ts_strip(_Inout_ T & str)
 {
 	return str.strip();
 }
