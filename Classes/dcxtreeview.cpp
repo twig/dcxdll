@@ -1135,8 +1135,6 @@ void DcxTreeView::insertItem(const TString& tsPath, const TString& tsData, const
 	else
 		tvi.iIntegral = 1;
 
-	// TODO: Add Expanded Image support (TVIF_EXPANDEDIMAGE)
-
 	iFlags &= ~TVIS_DCXMASK; // exclude DCX flags, they were messing up state & overlay icon settings, found when saved data didnt match what was set.
 
 	//tvi.hItem = hAfter;
@@ -1314,12 +1312,6 @@ int CALLBACK DcxTreeView::sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lPa
 		if (ptvsort->tsCustomAlias.empty())
 			return 0;
 
-		//TCHAR sRes[20];
-		//mIRCLinker::evalex( sRes, static_cast<int>(sRes.size()), TEXT("$%s(%s,%s)"), ptvsort->tsCustomAlias.to_chr( ), &ptvsort->itemtext1[0], &ptvsort->itemtext2[0] );
-
-		//stString<20> sRes;
-		//mIRCLinker::eval(sRes, TEXT("$%(%,%)"), ptvsort->tsCustomAlias, &ptvsort->itemtext1[0], &ptvsort->itemtext2[0]);
-
 		stString<20> sRes;
 		mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_1sort% %"), (LONG_PTR)&ptvsort->itemtext1[0], &ptvsort->itemtext1[0]);
 		mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_2sort% %"), (LONG_PTR)&ptvsort->itemtext2[0], &ptvsort->itemtext2[0]);
@@ -1412,7 +1404,7 @@ TString DcxTreeView::getPathFromItem(const HTREEITEM item) const
 		for (HTREEITEM current = parent; current; current = Dcx::dcxTreeView_GetPrevSibling(m_Hwnd, current))
 			++i;
 
-		vec.push_back(i);
+		vec.emplace_back(i);
 	}
 
 	// Construct the string containing the path backwards, as we traced it backwards.
@@ -1442,16 +1434,6 @@ void DcxTreeView::getItemText(const HTREEITEM hItem, TCHAR* szBuffer, const int 
 
 TString DcxTreeView::getItemText(const HTREEITEM hItem) const
 {
-	//TVITEMEX tvi{};
-	//TCHAR sBuf[MIRC_BUFFER_SIZE_CCH]{};
-	//tvi.hItem = hItem;
-	//tvi.mask = TVIF_TEXT | TVIF_HANDLE;
-	//tvi.cchTextMax = std::size(sBuf);
-	//tvi.pszText = &sBuf[0];
-	//if (!TreeView_GetItem(m_Hwnd, &tvi))
-	//	sBuf[0] = 0;
-	//return &sBuf[0];
-
 	TCHAR sBuf[MIRC_BUFFER_SIZE_CCH]{};
 
 	getItemText(hItem, &sBuf[0], gsl::narrow_cast<int>(std::size(sBuf)));
@@ -1464,22 +1446,6 @@ TString DcxTreeView::getItemText(const HTREEITEM hItem) const
  */
 int DcxTreeView::getChildCount(const HTREEITEM hParent) const noexcept
 {
-	//auto i = 0;
-	//auto hItem = TreeView_GetChild(m_Hwnd, hParent);
-	//
-	//// No children
-	//if (!hItem)
-	//	return 0;
-	//
-	//// Child found
-	//++i;
-	//
-	//// Iterate through sibling nodes until reaching the end
-	//while ((hItem = TreeView_GetNextSibling(m_Hwnd, hItem)) != nullptr)
-	//	++i;
-	//
-	//return i;
-
 	int i{};
 	for (auto hItem = Dcx::dcxTreeView_GetChild(m_Hwnd, hParent); hItem; hItem = Dcx::dcxTreeView_GetNextSibling(m_Hwnd, hItem))
 		++i;
