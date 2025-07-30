@@ -817,8 +817,8 @@ namespace Dcx
 	/// Set the text colour.
 	/// </summary>
 	/// <param name="hwnd">- A handle to the list-view control.</param>
-	/// <param name="clr"></param>
-	/// <returns></returns>
+	/// <param name="clr">- The colour to use.</param>
+	/// <returns>The previously used colour.</returns>
 	inline COLORREF dcxListView_SetTextColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
 	{
 		return ListView_SetTextColor(hwnd, clr);
@@ -828,8 +828,8 @@ namespace Dcx
 	/// Set the text background colour.
 	/// </summary>
 	/// <param name="hwnd">- A handle to the list-view control.</param>
-	/// <param name="clr"></param>
-	/// <returns></returns>
+	/// <param name="clr">- The colour to use.</param>
+	/// <returns>The previously used colour.</returns>
 	inline COLORREF dcxListView_SetTextBkColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
 	{
 		return ListView_SetTextBkColor(hwnd, clr);
@@ -839,19 +839,34 @@ namespace Dcx
 	/// Set the background colour.
 	/// </summary>
 	/// <param name="hwnd">- A handle to the list-view control.</param>
-	/// <param name="clr"></param>
-	/// <returns></returns>
+	/// <param name="clr">- The colour to use.</param>
+	/// <returns>The previously used colour.</returns>
 	inline COLORREF dcxListView_SetBkColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
 	{
 		return ListView_SetBkColor(hwnd, clr);
 	}
 
 	/// <summary>
+	/// Sets the background image in a list-view control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
+	/// <param name="lplvbki">- A pointer to an LVBKIMAGE structure that contains the new background image information.</param>
+	/// <returns>Returns true if successful, or false otherwise. Returns false if the ulFlags member of the LVBKIMAGE structure is LVBKIF_SOURCE_NONE.</returns>
+	/// <remarks>
+	/// <para>Because the list-view control uses OLE COM to manipulate the background images, the calling application must call CoInitialize or OleInitialize before using this macro.</para>
+	/// <para>It is best to call one of these functions when the application is initialized and call either CoUninitialize or OleUninitialize when the application is terminating.</para>
+	/// </remarks>
+	inline bool dcxListView_SetBkImage(_In_ HWND hwnd, _In_ LPLVBKIMAGE lplvbki) noexcept
+	{
+		return !!ListView_SetBkImage(hwnd, lplvbki);
+	}
+
+	/// <summary>
 	/// Set the outline colour.
 	/// </summary>
 	/// <param name="hwnd">- A handle to the list-view control.</param>
-	/// <param name="clr"></param>
-	/// <returns></returns>
+	/// <param name="clr">- The colour to use.</param>
+	/// <returns>The previously used colour.</returns>
 	inline COLORREF dcxListView_SetOutlineColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
 	{
 		return ListView_SetOutlineColor(hwnd, clr);
@@ -903,6 +918,45 @@ namespace Dcx
 	[[nodiscard]] inline BOOL dcxListView_IsItemVisible(_In_ HWND hwnd, _In_ int i) noexcept
 	{
 		return ListView_IsItemVisible(hwnd, i);
+	}
+
+	/// <summary>
+	/// Gets the handle to an image list used for drawing list-view items.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
+	/// <param name="iImageList">
+	/// <para>- The image list to retrieve. This parameter can be one of the following values:</para>
+	/// <para>LVSIL_NORMAL		-	Image list with large icons.</para>
+	/// <para>LVSIL_SMALL		-	Image list with small icons.</para>
+	/// <para>LVSIL_STATE		-	Image list with state images.</para>
+	/// <para>LVSIL_GROUPHEADER	-	Image list for group header.</para>
+	/// </param>
+	/// <returns>Returns the handle to the specified image list if successful, or nullptr otherwise.</returns>
+	[[nodiscard]] inline HIMAGELIST dcxListView_GetImageList(_In_ HWND hwnd, _In_ int iImageList) noexcept
+	{
+		return ListView_GetImageList(hwnd, iImageList);
+	}
+
+	/// <summary>
+	/// Assigns an image list to a list-view control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
+	/// <param name="himl">- A handle to the image list to assign.</param>
+	/// <param name="iImageList">
+	/// <para>- The image type of image list. This parameter can be one of the following values:</para>
+	/// <para>LVSIL_NORMAL		-	Image list with large icons.</para>
+	/// <para>LVSIL_SMALL		-	Image list with small icons.</para>
+	/// <para>LVSIL_STATE		-	Image list with state images.</para>
+	/// <para>LVSIL_GROUPHEADER	-	Image list for group header.</para>
+	/// </param>
+	/// <returns>Returns the handle to the image list previously associated with the control if successful, or nullptr otherwise.</returns>
+	/// <remarks>
+	/// The current image list will be destroyed when the list-view control is destroyed unless the LVS_SHAREIMAGELISTS style is set.
+	/// If you use this message to replace one image list with another, your application must explicitly destroy all image lists other than the current one.
+	/// </remarks>
+	inline HIMAGELIST dcxListView_SetImageList(_In_ HWND hwnd, _In_ HIMAGELIST himl, _In_ int iImageList) noexcept
+	{
+		return ListView_SetImageList(hwnd, himl, iImageList);
 	}
 
 	/// <summary>
@@ -1018,38 +1072,48 @@ namespace Dcx
 	// Header
 
 	/// <summary>
-	/// 
+	/// Tests a point to determine which header item, if any, is at the specified point.
 	/// </summary>
 	/// <param name="hwnd">- A handle to the control.</param>
-	/// <param name="hdti"></param>
-	/// <returns></returns>
-	inline LRESULT dcxHeader_HitTest(_In_ HWND hwnd, _Inout_ LPHDHITTESTINFO hdti) noexcept
+	/// <param name="hdti">- A pointer to an HDHITTESTINFO structure that contains the position to test and receives information about the results of the test.</param>
+	/// <returns>Returns the index of the item at the specified position, if any, or -1 otherwise.</returns>
+	inline int dcxHeader_HitTest(_In_ HWND hwnd, _Inout_ LPHDHITTESTINFO hdti) noexcept
 	{
-		return SendMessage(hwnd, HDM_HITTEST, 0U, reinterpret_cast<LPARAM>(hdti));
+		return gsl::narrow_cast<int>(SendMessage(hwnd, HDM_HITTEST, 0U, reinterpret_cast<LPARAM>(hdti)));
 	}
 
 	/// <summary>
-	/// 
+	/// Gets information about an item in a header control.
 	/// </summary>
 	/// <param name="hwnd">- A handle to the control.</param>
-	/// <param name="i"></param>
-	/// <param name="phi"></param>
-	/// <returns></returns>
-	inline BOOL dcxHeader_GetItem(_In_ HWND hwnd, _In_ const int i, _Inout_ LPHDITEM phi) noexcept
+	/// <param name="i">- The index of the item for which information is to be retrieved.</param>
+	/// <param name="phi">- A pointer to an HDITEM structure. When the message is sent, the mask member indicates the type of information being requested. When the message returns, the other members receive the requested information. If the mask member specifies zero, the message returns TRUE but copies no information to the structure.</param>
+	/// <returns>Returns TRUE if successful, or FALSE otherwise.</returns>
+	inline bool dcxHeader_GetItem(_In_ HWND hwnd, _In_ const int i, _Inout_ LPHDITEM phi) noexcept
 	{
-		return Header_GetItem(hwnd, i, phi);
+		return !!Header_GetItem(hwnd, i, phi);
 	}
 
 	/// <summary>
-	/// 
+	/// Sets the attributes of the specified item in a header control.
 	/// </summary>
 	/// <param name="hwnd">- A handle to the control.</param>
-	/// <param name="i"></param>
-	/// <param name="phi"></param>
-	/// <returns></returns>
-	inline BOOL dcxHeader_SetItem(_In_ HWND hwnd, _In_ const int i, _In_ const LPHDITEM phi) noexcept
+	/// <param name="i">- The current index of the item whose attributes are to be changed.</param>
+	/// <param name="phi">- A pointer to an HDITEM structure that contains item information. When this message is sent, the mask member of the structure must be set to indicate which attributes are being set.</param>
+	/// <returns>Returns true if successful, or false otherwise.</returns>
+	inline bool dcxHeader_SetItem(_In_ HWND hwnd, _In_ const int i, _In_ const LPHDITEM phi) noexcept
 	{
-		return Header_SetItem(hwnd, i, phi);
+		return !!Header_SetItem(hwnd, i, phi);
+	}
+
+	/// <summary>
+	/// Gets a count of the items in a header control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <returns>Returns the number of items if successful, or -1 otherwise.</returns>
+	inline int dcxHeader_GetItemCount(_In_ HWND hwnd) noexcept
+	{
+		return Header_GetItemCount(hwnd);
 	}
 
 	// ListBox
@@ -2534,14 +2598,29 @@ namespace Dcx
 	{
 		TreeView_SetCheckState(hwnd, hti, fCheck);
 	}
-
+	
 	/// <summary>
 	/// Expand items children.
 	/// </summary>
 	/// <param name="hwnd">- Handle to a tree-view control.</param>
-	/// <param name="iPart"></param>
-	/// <param name="Style"></param>
-	/// <param name="lpstr"></param>
+	/// <param name="hti">- Handle to the parent item that will be expanded or collapsed.</param>
+	/// <param name="iCode">- Action flag:
+	/// <para>TVE_COLLAPSE		-	Collapses the list.</para>
+	/// <para>TVE_COLLAPSERESET	-	Collapses the list and removes the child items.The TVIS_EXPANDEDONCE state flag is reset.This flag must be used with the TVE_COLLAPSE flag.</para>
+	/// <para>TVE_EXPAND		-	Expands the list.</para>
+	/// <para>TVE_EXPANDPARTIAL	-	Version 4.70.Partially expands the list.In this state the child items are visible and the parent item's plus sign (+), indicating that it can be expanded, is displayed. This flag must be used in combination with the TVE_EXPAND flag.</para>
+	/// <para>TVE_TOGGLE		-	Collapses the list if it is expanded or expands it if it is collapsed.</para>
+	/// </param>
+	/// <returns>Returns true if the operation was successful, or false otherwise.</returns>
+	/// <remarks>
+	/// <para>Expanding a node that is already expanded, or collapsing a node that is already collapsed is considered a successful operation and the macro returns a nonzero value.</para>
+	/// <para>Attempting to expand or collapse a node that has no children is considered a failure and the return value is zero.</para>
+	/// <para>When an item is first expanded by a TVM_EXPAND message, the action generates TVN_ITEMEXPANDING and TVN_ITEMEXPANDED notification codes and the item's TVIS_EXPANDEDONCE state flag is set.</para>
+	/// <para>As long as this state flag remains set, subsequent TVM_EXPAND messages do not generate TVN_ITEMEXPANDING or TVN_ITEMEXPANDED notifications.</para>
+	/// <para>To reset the TVIS_EXPANDEDONCE state flag, you must send a TVM_EXPAND message with the TVE_COLLAPSE and TVE_COLLAPSERESET flags set.</para>
+	/// <para>Attempting to explicitly set TVIS_EXPANDEDONCE will result in unpredictable behavior.</para>
+	/// <para>The expand operation may fail if the owner of the treeview control denies the operation in response to a TVN_ITEMEXPANDING notification.</para>
+	/// </remarks>
 	inline bool dcxTreeView_Expand(_In_ HWND hwnd, _In_ HTREEITEM hti, _In_ DWORD iCode) noexcept
 	{
 		return (TreeView_Expand(hwnd, hti, iCode) != FALSE);
