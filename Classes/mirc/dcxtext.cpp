@@ -123,6 +123,16 @@ dcxWindowStyles DcxText::parseControlStyles(const TString& tsStyles)
 	return parseGeneralControlStyles(tsStyles, ws);
 }
 
+TString DcxText::parseInfoRequest(const TString& input) const
+{
+	//return TString();
+	// [NAME] [ID] [PROP]
+	if (input.gettok(3) == TEXT("text"))
+		return TGetWindowText(m_Hwnd);
+
+	return this->parseGlobalInfoRequest(input);
+}
+
 /*!
  * \brief $xdid Parsing Function
  *
@@ -131,10 +141,6 @@ dcxWindowStyles DcxText::parseControlStyles(const TString& tsStyles)
  *
  * \return > void
  */
-TString DcxText::parseInfoRequest(const TString& input) const
-{
-	return TString();
-}
 void DcxText::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	// [NAME] [ID] [PROP]

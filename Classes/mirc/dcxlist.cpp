@@ -206,10 +206,10 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		auto nSel = -1;
 		if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
 		{
-			if (const auto n = ListBox_GetSelCount(m_Hwnd); n > 0)
+			if (const auto n = Dcx::dcxListBox_GetSelCount(m_Hwnd); n > 0)
 			{
 				auto p = std::make_unique<int[]>(gsl::narrow_cast<size_t>(n));
-				ListBox_GetSelItems(m_Hwnd, n, p.get());
+				Dcx::dcxListBox_GetSelItems(m_Hwnd, n, p.get());
 
 				// get a unique value
 				if (numtok > 3)
@@ -250,10 +250,10 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	{
 		if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
 		{
-			if (const auto n = ListBox_GetSelCount(m_Hwnd); n > 0)
+			if (const auto n = Dcx::dcxListBox_GetSelCount(m_Hwnd); n > 0)
 			{
 				auto p = std::make_unique<int[]>(gsl::narrow_cast<size_t>(n));
-				ListBox_GetSelItems(m_Hwnd, n, p.get());
+				Dcx::dcxListBox_GetSelItems(m_Hwnd, n, p.get());
 
 				TString path;
 
@@ -294,7 +294,7 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 			throw Dcx::dcxException("Unable to get client rect!");
 
 		const auto top = Dcx::dcxListBox_GetTopIndex(m_Hwnd);
-		const auto height = ListBox_GetItemHeight(m_Hwnd, 0);
+		const auto height = Dcx::dcxListBox_GetItemHeight(m_Hwnd, 0);
 
 		auto bottom = top + ((rc.bottom - rc.top) / height);
 
@@ -371,7 +371,7 @@ void DcxList::parseCommandRequest(const TString& input)
 
 	//xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')])
-		ListBox_ResetContent(m_Hwnd);
+		Dcx::dcxListBox_ResetContent(m_Hwnd);
 
 	//xdid -a [NAME] [ID] [SWITCH] [N] [TEXT]
 	//xdid -a -> [NAME] [ID] -a [N] [TEXT]
@@ -618,7 +618,7 @@ void DcxList::parseCommandRequest(const TString& input)
 						throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
 					for (auto nSel = iStart; nSel <= iEnd; ++nSel)
-						ListBox_SetSel(m_Hwnd, TRUE, nSel);
+						Dcx::dcxListBox_SetSel(m_Hwnd, TRUE, nSel);
 				}
 			}
 		}
@@ -629,7 +629,7 @@ void DcxList::parseCommandRequest(const TString& input)
 				nSel = nItems - 1;
 
 			if (nSel > -1 && nSel < nItems)
-				ListBox_SetCurSel(m_Hwnd, nSel);
+				Dcx::dcxListBox_SetCurSel(m_Hwnd, nSel);
 		}
 	}
 	//xdid -d [NAME] [ID] [SWITCH] [N](,[N],[N1]-N2],...)
@@ -691,9 +691,9 @@ void DcxList::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('u')])
 	{
 		if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
-			ListBox_SetSel(m_Hwnd, FALSE, -1);
+			Dcx::dcxListBox_SetSel(m_Hwnd, FALSE, -1);
 		else
-			ListBox_SetCurSel(m_Hwnd, -1);
+			Dcx::dcxListBox_SetCurSel(m_Hwnd, -1);
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [N](,[N]...)
 	//xdid -m -> [NAME] [ID] -m [+FLAGS] [N](,[N]...)
@@ -705,7 +705,7 @@ void DcxList::parseCommandRequest(const TString& input)
 		const XSwitchFlags xflags(input.getnexttok());	// tok 4
 
 		if (xflags[TEXT('w')])
-			ListBox_SetColumnWidth(m_Hwnd, input.getnexttok().to_int());	// tok 5
+			Dcx::dcxListBox_SetColumnWidth(m_Hwnd, input.getnexttok().to_int());	// tok 5
 		else if (xflags[TEXT('t')])
 		{
 			const auto Ns(input.getnexttok());	// tok 5
@@ -714,9 +714,9 @@ void DcxList::parseCommandRequest(const TString& input)
 			{
 				const auto nTab = Ns.to_int();
 				if (nTab < 0)
-					ListBox_SetTabStops(m_Hwnd, 0, nullptr);
+					Dcx::dcxListBox_SetTabStops(m_Hwnd, 0, nullptr);
 				else
-					ListBox_SetTabStops(m_Hwnd, 1, &nTab);
+					Dcx::dcxListBox_SetTabStops(m_Hwnd, 1, &nTab);
 			}
 			else {
 				auto tabs = std::make_unique<int[]>(n);
@@ -730,7 +730,7 @@ void DcxList::parseCommandRequest(const TString& input)
 					}
 				}
 
-				ListBox_SetTabStops(m_Hwnd, n, tabs.get());
+				Dcx::dcxListBox_SetTabStops(m_Hwnd, gsl::narrow_cast<int>(n), tabs.get());
 			}
 		}
 		else
@@ -773,7 +773,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 		if (!dli)
 			return 0L;
 
-		const auto sel = ListBox_GetCurSel(m_Hwnd) + 1;
+		const auto sel = Dcx::dcxListBox_GetCurSel(m_Hwnd) + 1;
 		const stString<20> szRet;
 
 		switch (dli->uNotification)
@@ -1411,7 +1411,7 @@ int DcxList::addItems(int nPos, const TString& tsFlags, const TString& tsArgs)
 
 		// attempt to pre-allocate mem, assumes 64bytes per item.
 		const int iCount = gsl::narrow_cast<int>(contents.numtok());
-		Dcx::dcxListBox_InitStorge(m_Hwnd, iCount, contents.capacity());
+		Dcx::dcxListBox_InitStorge(m_Hwnd, iCount, gsl::narrow_cast<UINT>(contents.capacity()));
 
 		setRedraw(FALSE);
 		Auto({ this->setRedraw(TRUE); this->redrawWindow(); });

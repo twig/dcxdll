@@ -251,7 +251,7 @@ void XPopupMenuManager::unload(void) noexcept
 
 	m_mIRCPopupMenu.reset(nullptr);
 
-	m_mIRCMenuBar->cleanMenu(GetMenu(mIRCLinker::getHWND()));
+	XPopupMenu::cleanMenu(GetMenu(mIRCLinker::getHWND()));
 
 	m_mIRCMenuBar.reset(nullptr);
 
@@ -278,7 +278,7 @@ void XPopupMenuManager::unload(void) noexcept
 	{
 		if (HWND tmp_hwnd = CreateWindowEx(0, TEXT("#32768"), nullptr, WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, GetModuleHandle(nullptr), nullptr); tmp_hwnd)
 		{
-			SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, (LONG_PTR)g_OldmIRCMenusWindowProc);
+			SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, reinterpret_cast<LONG_PTR>(g_OldmIRCMenusWindowProc));
 			DestroyWindow(tmp_hwnd);
 			g_OldmIRCMenusWindowProc = nullptr;
 		}
@@ -1084,7 +1084,7 @@ const int XPopupMenuManager::parseMPopup(const TString& input)
 		}
 		else {
 			m_bIsActiveMircMenubarPopup = false;
-			m_mIRCMenuBar->cleanMenu(GetMenu(mIRCLinker::getHWND()));
+			XPopupMenu::cleanMenu(GetMenu(mIRCLinker::getHWND()));
 		}
 	}
 	return 3;
@@ -1750,9 +1750,9 @@ void XPopupMenuManager::dcxCheckMenuHover2(HWND win) noexcept
 	if (!win || !IsWindow(win))
 		return;
 
-	if (Dcx::dcxCursorPos pt; pt)
+	if (const Dcx::dcxCursorPos pt; pt)
 	{
-		if (Dcx::dcxWindowRect rc(win); rc)
+		if (const Dcx::dcxWindowRect rc(win); rc)
 		{
 			if (PtInRect(&rc, pt))
 			{
@@ -2041,7 +2041,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					{
 						if (p_Item->IsTooltipsEnabled())
 						{
-							g_toolItem.lpszText = const_cast<TCHAR*>(p_Item->getItemTooltipText().to_chr());
+							g_toolItem.lpszText = const_cast<TCHAR*>(p_Item->getItemTooltipText().to_wchr());
 							Dcx::dcxToolTip_SetToolInfo(g_toolTipWin, &g_toolItem);
 							if (!p_Item->getItemTooltipText().empty())
 							{
@@ -2143,21 +2143,6 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					case L"value"_hash:
 					{
 						const auto tsText(tsRes.getlasttoks());
-
-						//switch (gsl::narrow_cast<MainMenuStyle>(xItem->getStyle2()))
-						//{
-						//case MainMenuStyle::XPMS_PROGRESS:
-						//case MainMenuStyle::XPMS_TRACK:
-						//case MainMenuStyle::XPMS_PROGRESS_THEMED:
-						//case MainMenuStyle::XPMS_TRACK_THEMED:
-						//	xItem->m_uProgressValue = tsText.getfirsttok(1).to_<UINT>();
-						//	if (tsText.numtok() > 1)
-						//		xItem->setItemText(tsText.getlasttoks());
-						//	break;
-						//default:
-						//	xItem->setItemText(tsText);
-						//	break;
-						//}
 
 							xItem->m_uProgressValue = tsText.getfirsttok(1).to_<UINT>();
 								xItem->setItemText(tsText.getlasttoks());

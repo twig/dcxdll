@@ -393,27 +393,93 @@ public:
 
 	bool operator==(const XPopupMenu& other) const = default;
 
+	/// <summary>
+	/// Execute menu specific commands.
+	/// </summary>
+	/// <param name="input"></param>
 	void parseXPopCommand(const TString& input);
+
+	/// <summary>
+	/// Get information about this menu.
+	/// </summary>
+	/// <param name="input"></param>
+	/// <param name="szReturnValue"></param>
 	void parseXPopIdentifier(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const;
+
+	/// <summary>
+	/// Get a menu style from a string.
+	/// </summary>
+	/// <param name="style"></param>
+	/// <returns></returns>
 	static XPopupMenu::MenuStyle parseStyle(const TString& style) noexcept;
 
+	/// <summary>
+	/// Get a menu from a path.
+	/// </summary>
+	/// <param name="path"></param>
+	/// <param name="hParent"></param>
+	/// <param name="depth"></param>
+	/// <returns></returns>
 	static HMENU parsePath(const TString& path, const HMENU hParent, const UINT depth = 1);
 
+	/// <summary>
+	/// Get the menus image list.
+	/// </summary>
+	/// <returns></returns>
 	HIMAGELIST& getImageList() noexcept;
+
+	/// <summary>
+	/// Destroy the menus image list.
+	/// </summary>
 	void destroyImageList() noexcept;
 
+	/// <summary>
+	/// Get the menus current style.
+	/// </summary>
+	/// <returns></returns>
 	const MenuStyle& getStyle() const noexcept { return this->m_MenuStyle; }
 
+	/// <summary>
+	/// Set the menus current style.
+	/// </summary>
+	/// <param name="style"></param>
 	constexpr void setStyle(const MenuStyle style) noexcept { this->m_MenuStyle = style; }
 
+	/// <summary>
+	/// Get additional item styles.
+	/// </summary>
+	/// <returns></returns>
 	const UINT& getItemStyle() const noexcept { return this->m_MenuItemStyles; }
 
+	/// <summary>
+	/// Set additional item styles.
+	/// </summary>
+	/// <param name="iExStyles"></param>
 	constexpr void setItemStyle(const UINT iExStyles) noexcept { this->m_MenuItemStyles = iExStyles; }
 
+	/// <summary>
+	/// Parse a flags string into additional item styles.
+	/// </summary>
+	/// <param name="tsFlags"></param>
 	void setItemStyleString(const TString& tsFlags);
+
+	/// <summary>
+	/// Get additional item styles as a string.
+	/// </summary>
+	/// <returns></returns>
 	TString getItemStyleString() const;
 
+	/// <summary>
+	/// Delete an items custom data.
+	/// </summary>
+	/// <param name="p_Item"></param>
+	/// <param name="mii"></param>
 	void deleteMenuItemData(const XPopupMenuItem* const p_Item, LPMENUITEMINFO mii = nullptr) noexcept;
+
+	/// <summary>
+	/// Delete the custom data from all a menus items.
+	/// </summary>
+	/// <param name="hMenu"></param>
 	void deleteAllItemData(HMENU hMenu) noexcept;
 
 	/// <summary>
@@ -461,7 +527,6 @@ public:
 	GSL_SUPPRESS(type.4) void setDefaultColor(_In_ const MenuColours nColor) noexcept;
 
 	static LRESULT CALLBACK XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
 	static LRESULT OnMeasureItem(const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis);
 	static LRESULT OnDrawItem(const HWND mHwnd, LPDRAWITEMSTRUCT lpdis);
 
@@ -517,12 +582,17 @@ public:
 	const inline bool& IsRoundedWindow(void) const noexcept { return this->m_bRoundedWindow; };
 
 	/// <summary>
-	/// Check if menu alpha blended.
+	/// Check if menu alpha blended when inactive.
 	/// </summary>
 	/// <param name=""></param>
 	/// <returns>0 - 255 alpha value</returns>
 	const inline std::byte& IsAlphaInactive(void) const noexcept { return this->m_uiAlphaInactive; };
 
+	/// <summary>
+	/// Check if menu alpha blended by default.
+	/// </summary>
+	/// <param name=""></param>
+	/// <returns></returns>
 	const inline std::byte& IsAlphaDefault(void) const noexcept { return this->m_uiAlphaDefault; };
 
 	/// <summary>
@@ -791,6 +861,9 @@ public:
 	/// <returns></returns>
 	bool DrawBorder(_In_opt_ HWND hWnd, _In_opt_ HDC hdc) const noexcept;
 
+	/// <summary>
+	/// A list of all menu items attached to this menu.
+	/// </summary>
 	VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects
 
 private:
@@ -803,7 +876,16 @@ private:
 	void xpop_t(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
 	void xpop_T(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
 
+	/// <summary>
+	/// Create a submenu for this menu.
+	/// </summary>
+	/// <returns>The new submenu or nullptr</returns>
 	HMENU AddSubMenu();
+
+	/// <summary>
+	/// Deletes a submenu. Including all items & items custom data.
+	/// </summary>
+	/// <param name="hSubMenu"></param>
 	void DeleteSubMenu(HMENU hSubMenu) noexcept;
 
 protected:

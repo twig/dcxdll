@@ -1383,7 +1383,7 @@ LRESULT DcxDock::treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd)
 
 					const auto oldClr = SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
 					const auto oldMode = SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
-					DrawTextW(lpntvcd->nmcd.hdc, tsTxt.to_wchr(), tsTxt.len(), &rcTxt, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
+					DrawTextW(lpntvcd->nmcd.hdc, tsTxt.to_wchr(), gsl::narrow_cast<int>(tsTxt.len()), &rcTxt, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
 					SetBkMode(lpntvcd->nmcd.hdc, oldMode);
 					SetTextColor(lpntvcd->nmcd.hdc, oldClr);
 
@@ -1403,7 +1403,7 @@ LRESULT DcxDock::treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd)
 
 			const auto oldClr = SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
 			const auto oldMode = SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
-			DrawTextW(lpntvcd->nmcd.hdc, tsTxt.to_wchr(), tsTxt.len(), &rcTxt, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
+			DrawTextW(lpntvcd->nmcd.hdc, tsTxt.to_wchr(), gsl::narrow_cast<int>(tsTxt.len()), &rcTxt, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
 			SetBkMode(lpntvcd->nmcd.hdc, oldMode);
 			SetTextColor(lpntvcd->nmcd.hdc, oldClr);
 			
@@ -1449,7 +1449,7 @@ LRESULT DcxDock::treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd)
 
 	const auto oldClr = SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
 	const auto oldMode = SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
-	DrawTextW(lpntvcd->nmcd.hdc, tsTxt.to_wchr(), tsTxt.len(), &rcTxt, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
+	DrawTextW(lpntvcd->nmcd.hdc, tsTxt.to_wchr(), gsl::narrow_cast<int>(tsTxt.len()), &rcTxt, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
 	SetBkMode(lpntvcd->nmcd.hdc, oldMode);
 	SetTextColor(lpntvcd->nmcd.hdc, oldClr);
 	
@@ -1458,7 +1458,7 @@ LRESULT DcxDock::treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd)
 
 bool DcxDock::treebar_GetInfoTip(LPNMTVGETINFOTIP tcgit)
 {
-	if (tcgit->cchTextMax < 1)
+	if ((!tcgit) || (tcgit->cchTextMax < 1))
 		return false;
 
 	TString buf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));

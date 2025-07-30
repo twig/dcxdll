@@ -140,6 +140,12 @@ namespace TStringConcepts
 	template <class T>
 	concept IsNumeric = is_Numeric_v<T>;
 
+	template <class T>
+	concept IsFloat = std::is_floating_point_v<T>;
+
+	template <class T>
+	concept IsInteger = IsNumeric<T> && !IsFloat<T>;
+
 	// container type
 	template<typename Iter, typename Container>
 	concept container_iterator =
@@ -1052,6 +1058,7 @@ public:
 	/// </summary>
 	/// <returns>A reference to this object after its trimmed.</returns>
 	TString& trim();
+
 	/// <summary>
 	/// Remove extra spaces at the start and end of the string, and all ctrl codes in text.
 	/// </summary>
@@ -1941,16 +1948,7 @@ public:
 	[[nodiscard]] const_pointer to_chr() const noexcept { return m_pString; };		// returns the string in the projects current format. (string can't be altered)
 	[[nodiscard]] WCHAR* to_wchr() noexcept { m_bDirty = true;  return m_pString; };	// returns the string in wide format (string can be altered)
 	[[nodiscard]] const WCHAR* const to_wchr() const noexcept { return m_pString; };	// returns the string in wide format (string can't be altered)
-	//[[nodiscard]] gsl::strict_not_null<pointer> to_chr() noexcept { m_bDirty = true;  return gsl::make_strict_not_null(m_pString); };	// returns the string in the projects current format. (string can be altered)
-	//[[nodiscard]] gsl::strict_not_null<const_pointer> to_chr() const noexcept { return gsl::make_strict_not_null(m_pString); };		// returns the string in the projects current format. (string can't be altered)
-	//[[nodiscard]] gsl::strict_not_null<WCHAR*> to_wchr() noexcept { m_bDirty = true;  return gsl::make_strict_not_null(m_pString); };	// returns the string in wide format (string can be altered)
-	//[[nodiscard]] gsl::strict_not_null<const WCHAR* const> to_wchr() const noexcept { return gsl::make_strict_not_null(m_pString); };	// returns the string in wide format (string can't be altered)
 
-	//char * c_str(void)														// returns the string as a char * (string can be altered)
-	//{
-	//	MakeTemp();
-	//	return m_pTempString;
-	//}
 	[[nodiscard]] const char* const c_str(void) const									// returns the string as a const char * (string can't be altered)
 	{
 		MakeTemp();
@@ -1961,8 +1959,8 @@ public:
 	/// <summary>
 	/// Convert to pointer...
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <returns></returns>
+	/// <typeparam name="T">- The type to return as.</typeparam>
+	/// <returns>A pointer to the string data, in the type specified.</returns>
 	template <TStringConcepts::IsPointer T>
 	[[nodiscard]] T to_() const noexcept
 	{

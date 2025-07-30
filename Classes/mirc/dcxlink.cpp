@@ -219,8 +219,8 @@ void DcxLink::parseCommandRequest(const TString& input)
 		if (nColor >= std::size(m_aColors))
 			throw Dcx::dcxException("Invalid Colour Index");
 
-		const TString arg = input.getnexttok().trim();
-		setColour(nColor, arg);
+		const TString arg(input.getnexttok().trim());
+		setColour(gsl::narrow_cast<UINT>(nColor), arg);
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR6]
 	else if (flags[TEXT('q')])

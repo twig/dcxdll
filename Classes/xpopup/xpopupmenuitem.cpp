@@ -291,9 +291,9 @@ void XPopupMenuItem::DrawButton(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XP
 					if (bGrayed)
 						iStyle = PBS_DISABLED;
 
-					Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, lpdis->hDC, BP_PUSHBUTTON, iStyle, rc, nullptr);
+			DcxUXModule::dcxDrawThemeBackground(hMenuStyleTheme, lpdis->hDC, BP_PUSHBUTTON, iStyle, rc, nullptr);
 
-					Dcx::UXModule.dcxCloseThemeData(hMenuStyleTheme);
+			DcxUXModule::dcxCloseThemeData(hMenuStyleTheme);
 
 					bDoDraw = false;
 				}
@@ -343,17 +343,17 @@ void XPopupMenuItem::DrawProgress(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ co
 		{
 			if (auto hMenuStyleTheme = Dcx::UXModule.dcxOpenThemeData(hMenuWin, VSCLASS_PROGRESS); hMenuStyleTheme)
 			{
-				Auto(Dcx::UXModule.dcxCloseThemeData(hMenuStyleTheme));
+			Auto(DcxUXModule::dcxCloseThemeData(hMenuStyleTheme));
 
 				constexpr int iStyle{ PBFS_NORMAL };
 
-				Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, hdc, PP_BAR, iStyle, rc, nullptr);
+			DcxUXModule::dcxDrawThemeBackground(hMenuStyleTheme, hdc, PP_BAR, iStyle, rc, nullptr);
 
 				RECT rcContents{};
-				Dcx::UXModule.dcxGetThemeBackgroundContentRect(hMenuStyleTheme, hdc, PP_BAR, iStyle, rc, &rcContents);
+			DcxUXModule::dcxGetThemeBackgroundContentRect(hMenuStyleTheme, hdc, PP_BAR, iStyle, rc, &rcContents);
 
-				rcContents.right = rcContents.left + gsl::narrow_cast<LONG>(((rcContents.right - rcContents.left) / 100.0) * std::clamp(iPos, 0, 100));
-				Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, hdc, PP_FILL, iStyle, &rcContents, nullptr);
+			rcContents.right = rcContents.left + gsl::narrow_cast<LONG>(((gsl::narrow_cast<double>(rcContents.right) - rcContents.left) / 100.0) * std::clamp(iPos, 0, 100));
+			DcxUXModule::dcxDrawThemeBackground(hMenuStyleTheme, hdc, PP_FILL, iStyle, &rcContents, nullptr);
 
 				bDoDraw = false;
 			}
@@ -368,7 +368,7 @@ void XPopupMenuItem::DrawProgress(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ co
 		rcContents.top++;
 		rcContents.bottom--;
 		rcContents.left++;
-		rcContents.right = rcContents.left + gsl::narrow_cast<LONG>(((rcContents.right - rcContents.left) / 100.0) * std::clamp(iPos, 0, 100));
+		rcContents.right = rcContents.left + gsl::narrow_cast<LONG>(((gsl::narrow_cast<double>(rcContents.right) - rcContents.left) / 100.0) * std::clamp(iPos, 0, 100));
 		dcxDrawRect(hdc, &rcContents, lpcol->m_clrLightBox, lpcol->m_clrLightBox, false);
 	}
 }
@@ -386,14 +386,14 @@ void XPopupMenuItem::DrawTrackbar(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ UI
 		{
 			if (auto hMenuStyleTheme = Dcx::UXModule.dcxOpenThemeData(hMenuWin, VSCLASS_TRACKBAR); hMenuStyleTheme)
 			{
-				Auto(Dcx::UXModule.dcxCloseThemeData(hMenuStyleTheme));
+			Auto(DcxUXModule::dcxCloseThemeData(hMenuStyleTheme));
 
 				int iStyle{ TKS_NORMAL };
 
-				Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, hdc, TKP_TRACK, iStyle, rc, nullptr);
+			DcxUXModule::dcxDrawThemeBackground(hMenuStyleTheme, hdc, TKP_TRACK, iStyle, rc, nullptr);
 
 				RECT rcContents{};
-				Dcx::UXModule.dcxGetThemeBackgroundContentRect(hMenuStyleTheme, hdc, TKP_TRACK, iStyle, rc, &rcContents);
+			DcxUXModule::dcxGetThemeBackgroundContentRect(hMenuStyleTheme, hdc, TKP_TRACK, iStyle, rc, &rcContents);
 
 				iStyle = TUBS_NORMAL;
 				if (bGrayed)
@@ -401,11 +401,11 @@ void XPopupMenuItem::DrawTrackbar(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ UI
 				else if (bSelected)
 					iStyle = TUBS_HOT;
 
-				const auto offset = gsl::narrow_cast<LONG>(((rcContents.right - rcContents.left) / 100.0) * std::clamp(iPos, 0, 100));
+			const auto offset = gsl::narrow_cast<LONG>(((gsl::narrow_cast<double>(rcContents.right) - rcContents.left) / 100.0) * std::clamp(iPos, 0, 100));
 
 				rcContents.left += offset - 5;
 				rcContents.right = rcContents.left + 10;
-				Dcx::UXModule.dcxDrawThemeBackground(hMenuStyleTheme, hdc, TKP_THUMB, iStyle, &rcContents, rc);
+			DcxUXModule::dcxDrawThemeBackground(hMenuStyleTheme, hdc, TKP_THUMB, iStyle, &rcContents, rc);
 
 				bDoDraw = false;
 			}
@@ -417,7 +417,7 @@ void XPopupMenuItem::DrawTrackbar(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ UI
 		dcxDrawRect(hdc, rc, lpcol->m_clrBack, lpcol->m_clrBorder, false);
 
 		RECT rcThumb{ *rc };
-		const auto offset = gsl::narrow_cast<LONG>(((rcThumb.right - rcThumb.left) / 100.0) * std::clamp(iPos, 0, 100));
+		const auto offset = gsl::narrow_cast<LONG>(((gsl::narrow_cast<double>(rcThumb.right) - rcThumb.left) / 100.0) * std::clamp(iPos, 0, 100));
 		rcThumb.left += offset - 5;
 		rcThumb.right = rcThumb.left + 10;
 

@@ -2023,11 +2023,6 @@ std::unique_ptr<char[]> TString::WcharTochar(const WCHAR* const wString)
 	return res;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 TString& TString::strip()
 {
 	if (this->empty())

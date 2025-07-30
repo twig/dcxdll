@@ -2109,7 +2109,7 @@ XPopupMenu::MenuStyle XPopupMenu::parseStyle(const TString& tsStyle) noexcept
 void XPMENUBAR::UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept
 {
 	if (!m_menuTheme)
-		m_menuTheme = Dcx::UXModule.dcxOpenThemeData(mHwnd, L"Menu");
+		m_menuTheme = DcxUXModule::dcxOpenThemeData(mHwnd, L"Menu");
 
 	RECT rc{};
 
@@ -2157,7 +2157,7 @@ void XPMENUBAR::UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept
 		if (m_Default.m_Colours.m_clrBack != CLR_INVALID)	// if menu colour set, use it
 			Dcx::FillRectColour(pUDM->hdc, &rc, m_Default.m_Colours.m_clrBack);
 		else if (m_menuTheme)	// otherwise try themed drawing
-			Dcx::UXModule.dcxDrawThemeBackground(m_menuTheme, pUDM->hdc, MENU_BARBACKGROUND, (pUDM->dwFlags == 0xa00 ? MB_ACTIVE : MB_INACTIVE), &rc, nullptr);
+			DcxUXModule::dcxDrawThemeBackground(m_menuTheme, pUDM->hdc, MENU_BARBACKGROUND, (pUDM->dwFlags == 0xa00 ? MB_ACTIVE : MB_INACTIVE), &rc, nullptr);
 		else
 			Dcx::FillRectColour(pUDM->hdc, &rc, GetSysColor(COLOR_MENUBAR));	// if all else fails draw as standard menu colour.
 	}
@@ -2247,7 +2247,7 @@ void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
 	}
 
 	if (!this->m_menuTheme)
-		this->m_menuTheme = Dcx::UXModule.dcxOpenThemeData(mHwnd, L"Menu");
+		this->m_menuTheme = DcxUXModule::dcxOpenThemeData(mHwnd, L"Menu");
 
 	//if (this->m_bDrawBorder)
 	//{
@@ -2266,7 +2266,7 @@ void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
 	{
 		const DTTOPTS opts = { sizeof(opts), (this->m_bDrawShadowText ? DTT_TEXTCOLOR | DTT_SHADOWCOLOR : DTT_TEXTCOLOR), clrText,0,RGB(0,0,0) };
 
-		Dcx::UXModule.dcxDrawThemeTextEx(this->m_menuTheme, pUDMI->um.hdc, MENU_BARITEM, MBI_NORMAL, &menuString[0], mii.cch, dwFlags, &pUDMI->dis.rcItem, &opts);
+		DcxUXModule::dcxDrawThemeTextEx(this->m_menuTheme, pUDMI->um.hdc, MENU_BARITEM, MBI_NORMAL, &menuString[0], mii.cch, dwFlags, &pUDMI->dis.rcItem, &opts);
 	}
 	else {
 		if (this->m_bDrawShadowText)

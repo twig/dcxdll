@@ -336,7 +336,7 @@ mIRC(_xstatusbar)
 		break;
 		default:	// error
 			throw Dcx::dcxException(TEXT("Invalid prop ().%"), d.gettok(2));
-			//throw Dcx::dcxException(std::format(L"Invalid prop ().{}", d.gettok(2).to_chr()).c_str());
+			//throw Dcx::dcxException2(std::format(L"Invalid prop ().{}", d.gettok(2)));
 		}
 		return 3;
 	}

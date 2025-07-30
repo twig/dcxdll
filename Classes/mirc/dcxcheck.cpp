@@ -1188,7 +1188,7 @@ void DcxCheck::ctrlDrawCheckText(dcxCheckData& cd)
 				//if (!IsWindowEnabled(m_Hwnd))
 				//	tsText.strip();
 
-				DcxUXModule::dcxDrawThemeTextEx(cd.m_hTheme, cd.m_hdcPaint, BUTTONPARTS::BP_CHECKBOX, cd.m_iState, cd.m_tsText.to_wchr(), cd.m_tsText.len(), cd.m_textFlags, std::addressof(cd.m_rcText), &dtt);
+				DcxUXModule::dcxDrawThemeTextEx(cd.m_hTheme, cd.m_hdcPaint, BUTTONPARTS::BP_CHECKBOX, cd.m_iState, cd.m_tsText.to_wchr(), gsl::narrow_cast<int>(cd.m_tsText.len()), cd.m_textFlags, std::addressof(cd.m_rcText), &dtt);
 				return;
 			}
 		}
