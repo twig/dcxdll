@@ -66,7 +66,7 @@ public:
 	HIMAGELIST getImageList( ) const noexcept;
 	HIMAGELIST setImageList( const HIMAGELIST himl ) noexcept;
 
-	void deleteLParamInfo( const int nItem ) noexcept;
+	void deleteLParamInfo( const int nItem ) const noexcept;
 
 	void activateSelectedTab( );
 	void activateTab(int nSel);
@@ -87,9 +87,9 @@ protected:
 	LRESULT DrawClientArea(HDC hdc, UINT uMsg, LPARAM lParam);
 
 	void CreatePeek() noexcept;
-	void SetPeekSource(_In_ int iTab, _In_ int iTabSel, _In_opt_ LPCRECT rcItem) noexcept;
-	void ShowPeek(int x, int y) noexcept;
-	void HidePeek() noexcept;
+	void SetPeekSource(_In_ int iTab, _In_ int iTabSel, _In_opt_ LPCRECT rcItem) const noexcept;
+	void ShowPeek(int x, int y) const noexcept;
+	void HidePeek() const noexcept;
 
 	bool m_bClosable{ false };	//!< Does tab have a close button.
 	//bool m_bGradient{ false };	//!< Does tab have a gradient fill. (only closeable)

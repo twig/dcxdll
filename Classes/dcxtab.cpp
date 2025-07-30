@@ -725,7 +725,7 @@ HIMAGELIST DcxTab::setImageList(const HIMAGELIST himl) noexcept
 	return TabCtrl_SetImageList(m_Hwnd, himl);
 }
 
-void DcxTab::deleteLParamInfo(const int nItem) noexcept
+void DcxTab::deleteLParamInfo(const int nItem) const noexcept
 {
 	TCITEM tci{ TCIF_PARAM, 0,0,nullptr, 0, 0, 0 };
 
@@ -1676,7 +1676,7 @@ void DcxTab::CreatePeek() noexcept
 	}
 }
 
-void DcxTab::SetPeekSource(int iTab, _In_ int iTabSel, LPCRECT rcItem) noexcept
+void DcxTab::SetPeekSource(int iTab, _In_ int iTabSel, LPCRECT rcItem) const noexcept
 {
 	if (!m_bPeek || !m_hPeek || !rcItem || iTab < 0)
 		return;
@@ -1713,7 +1713,7 @@ void DcxTab::SetPeekSource(int iTab, _In_ int iTabSel, LPCRECT rcItem) noexcept
 	}
 }
 
-void DcxTab::ShowPeek(int x, int y) noexcept
+void DcxTab::ShowPeek(int x, int y) const noexcept
 {
 	if (!m_bPeek || !m_hPeek)
 		return;
@@ -1721,7 +1721,7 @@ void DcxTab::ShowPeek(int x, int y) noexcept
 	PeekCtrl_Show(m_hPeek, true, x, y);
 }
 
-void DcxTab::HidePeek() noexcept
+void DcxTab::HidePeek() const noexcept
 {
 	if (!m_hPeek)
 		return;
