@@ -52,12 +52,6 @@ DcxPanel::DcxPanel(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialo
 	this->m_pLayoutManager = std::make_unique<LayoutManager>(m_Hwnd);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 DcxPanel::~DcxPanel() noexcept
 {
 }
@@ -271,11 +265,6 @@ void DcxPanel::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 //	return false;
 //}
 
-/*!
- * \brief blah
- *
- * blah
- */
 dcxWindowStyles DcxPanel::parseControlStyles(const TString& tsStyles)
 {
 	return parseGeneralControlStyles(tsStyles);
@@ -293,12 +282,6 @@ void DcxPanel::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 {
 	parseGlobalInfoRequest(input, szReturnValue);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void DcxPanel::parseCommandRequest(const TString& input)
 {

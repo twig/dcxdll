@@ -1573,11 +1573,6 @@ void DcxRichEdit::setRicheditFont(const TString& tsFlags, const TString& tsChars
 	}
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
 void DcxRichEdit::insertText(const TCHAR* const text, bool bline, bool uline, bool iline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse) noexcept
 {
 	// get total length

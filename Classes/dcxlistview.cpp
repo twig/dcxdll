@@ -88,13 +88,11 @@ DcxListView::~DcxListView() noexcept
 		delete a;
 	this->m_vWidths.clear();
 
-	ImageList_Destroy(getImageList(LVSIL_NORMAL));
-	ImageList_Destroy(getImageList(LVSIL_SMALL));
-	ImageList_Destroy(getImageList(LVSIL_STATE));
-
-	ImageList_Destroy(getImageList(LVSIL_FOOTER));
-
-	ImageList_Destroy(getImageList(LVSIL_GROUPHEADER));
+	//ImageList_Destroy(getImageList(LVSIL_NORMAL));
+	//ImageList_Destroy(getImageList(LVSIL_SMALL));
+	//ImageList_Destroy(getImageList(LVSIL_STATE));
+	//ImageList_Destroy(getImageList(LVSIL_FOOTER));
+	//ImageList_Destroy(getImageList(LVSIL_GROUPHEADER));
 }
 
 const TString DcxListView::getStyles(void) const
@@ -1021,37 +1019,6 @@ void DcxListView::autoSize(const int nColumn, const int iFlags, const int iWidth
 
 void DcxListView::HandleDragDrop(int x, int y) noexcept
 {
-	//if (!m_Hwnd)
-	//	return;
-	//
-	//// Determine the dropped item
-	//LVHITTESTINFO lvhti{};
-	//lvhti.pt.x = x;
-	//lvhti.pt.y = y;
-	//
-	//MapWindowPoints(mIRCLinker::m_mIRCHWND, m_Hwnd, &lvhti.pt, 1);
-	//Dcx::dcxListView_HitTest(m_Hwnd, &lvhti);
-	//
-	//Dcx::dcxListView_ClearInsertMark(m_Hwnd);
-	//
-	//// Out of the ListView?
-	//if (lvhti.iItem == -1)
-	//	return;
-	//// Not in an item?
-	//if (!dcx_testflag(lvhti.flags, LVHT_ONITEMICON) && !dcx_testflag(lvhti.flags, LVHT_ONITEMLABEL) && !dcx_testflag(lvhti.flags, LVHT_ONITEMSTATEICON))
-	//	return;
-	//
-	//// Dropped item is selected?
-	//if (Dcx::dcxListView_GetItemState(m_Hwnd, lvhti.iItem, LVIS_SELECTED) == LVIS_SELECTED)
-	//	return;
-	//
-	//// Rearrange the items
-	//for (int iPos = Dcx::dcxListView_GetNextItem(m_Hwnd, -1, LVNI_SELECTED); (iPos != -1); iPos = Dcx::dcxListView_GetNextItem(m_Hwnd, -1, LVNI_SELECTED))
-	//	this->MoveItem(iPos, lvhti.iItem);
-	//
-	////if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_DRAG))
-	////	execAliasEx(TEXT("enddrag,%u"), getUserID()); // allow blocking the drag?
-
 	if (!m_Hwnd)
 		return;
 
@@ -1081,28 +1048,7 @@ void DcxListView::HandleDragMove(int x, int y) noexcept
 	if (!m_Hwnd)
 		return;
 
-	//// Determine the dropped item
-	//LVHITTESTINFO lvhti{};
-	//lvhti.pt.x = x;
-	//lvhti.pt.y = y;
-	//
-	//// X & Y are relative to screen area.
-	//MapWindowPoints(nullptr, m_Hwnd, &lvhti.pt, 1);
-	//Dcx::dcxListView_HitTest(m_Hwnd, &lvhti);
-	//
-	//// Out of the ListView?
-	//if (lvhti.iItem == -1)
-	//	return;
-	//// Not in an item?
-	//if (!dcx_testflag(lvhti.flags, LVHT_ONITEMICON) && !dcx_testflag(lvhti.flags, LVHT_ONITEMLABEL) && !dcx_testflag(lvhti.flags, LVHT_ONITEMSTATEICON))
-	//	return;
-	//
-	//LVINSERTMARK lvim{};
-	//lvim.cbSize = sizeof(LVINSERTMARK);
-	//lvim.iItem = lvhti.iItem;
-	//
-	//Dcx::dcxListView_SetInsertMark(m_Hwnd, &lvim);
-
+	// Determine the dropped item
 	const int iItem = Dcx::dcxListView_GetItemAtPos(m_Hwnd, x, y);
 	if (iItem == -1)
 		return;
@@ -1322,7 +1268,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			lvbki.ulFlags |= LVBKIF_SOURCE_URL;
 		}
 
-		ListView_SetBkImage(m_Hwnd, &lvbki);
+		Dcx::dcxListView_SetBkImage(m_Hwnd, &lvbki);
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	else if (flags[TEXT('i')])
@@ -1677,7 +1623,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 		addGroup(input);
 	}
-	// xdid -Q [NAME] [ID] [SWITCH] [Add|Move|Del] ....
+	// xdid -Q [NAME] [ID] [SWITCH] [Add|Move|Del|Setup] ....
 	// xdid -Q [NAME] [ID] [SWITCH] Add [N] [+FLAGS] [GID] [Group Text] ([tab] Group column2 text)...
 	// xdid -Q [NAME] [ID] [SWITCH] Move [GID] [N]
 	// xdid -Q [NAME] [ID] [SWITCH] Del [GID]
@@ -2036,7 +1982,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		const auto height = count * (rc.bottom - rc.top);
 
 		//pos = std::lroundf(gsl::narrow_cast<float>(height) * gsl::narrow_cast<float>(pos) / gsl::narrow_cast<float>(100.0));
-		pos = dcx_round(gsl::narrow_cast<float>(height) * gsl::narrow_cast<float>(pos) / gsl::narrow_cast<float>(100.0));
+		pos = dcx_round(gsl::narrow_cast<float>(height) * gsl::narrow_cast<float>(pos) / 100.0f);
 		//pos = Dcx::dcxRound<int>(height * pos / 100.0);
 
 		Dcx::dcxListView_EnsureVisible(m_Hwnd, 0, FALSE);
@@ -2217,7 +2163,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 					rc.bottom = ibottom;
 
 				// header height is included in the top margin listview returns
-				// but musnt be included in teh top value we set.
+				// but musnt be included in the top value we set.
 				// we need to adjust top value to remove it before setting.
 				if (auto hHdr = Dcx::dcxListView_GetHeader(m_Hwnd); hHdr)
 				{
@@ -2403,12 +2349,12 @@ gsl::strict_not_null<HIMAGELIST> DcxListView::initImageList(const int iImageList
 GSL_SUPPRESS(lifetime.4)
 HIMAGELIST DcxListView::getImageList(const int iImageList) const noexcept
 {
-	return ListView_GetImageList(m_Hwnd, iImageList);
+	return Dcx::dcxListView_GetImageList(m_Hwnd, iImageList);
 }
 
 void DcxListView::setImageList(const HIMAGELIST himl, const int iImageList) noexcept
 {
-	if (auto o = ListView_SetImageList(m_Hwnd, himl, iImageList); (o && o != himl))
+	if (auto o = Dcx::dcxListView_SetImageList(m_Hwnd, himl, iImageList); (o && o != himl))
 		ImageList_Destroy(o);
 }
 
@@ -2750,31 +2696,22 @@ bool DcxListView::matchItemText(const int nItem, const int nSubItem, const TStri
 
 bool DcxListView::matchItemText(const int nItem, const int nSubItem, const dcxSearchData& srch_data) const
 {
-	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
-	gsl::at(itemtext, 0) = TEXT('\0');
+	//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+	//gsl::at(itemtext, 0) = TEXT('\0');
+	//Dcx::dcxListView_GetItemText(m_Hwnd, nItem, nSubItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH);
+	//return DcxSearchHelper::matchItemText(itemtext.get(), srch_data);
 
-	Dcx::dcxListView_GetItemText(m_Hwnd, nItem, nSubItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH);
+	const auto tsItemText(Dcx::dcxListView_GetItemText(m_Hwnd, nItem, nSubItem));
 
-	return DcxSearchHelper::matchItemText(itemtext.get(), srch_data);
+	return DcxSearchHelper::matchItemText(tsItemText.to_chr(), srch_data);
 }
 
 const int& DcxListView::getColumnCount() const noexcept
 {
 	//if (m_iColumnCount < 0)
-	//{
-	//	LVCOLUMN lvc{};
-	//	lvc.mask = LVCF_WIDTH;
-	//	auto i = 0;
-	//	while (Dcx::dcxListView_GetColumn(m_Hwnd, i, &lvc) != FALSE)
-	//		++i;
-	//	m_iColumnCount = i;
-	//}
-	//return m_iColumnCount;
-
-	//if (m_iColumnCount < 0)
 	{
 		if (auto hHeader = Dcx::dcxListView_GetHeader(m_Hwnd); hHeader)
-			m_iColumnCount = Header_GetItemCount(hHeader);
+			m_iColumnCount = Dcx::dcxHeader_GetItemCount(hHeader);
 		else
 		{
 			LVCOLUMN lvc{};
@@ -3434,26 +3371,6 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				break;
 
 			const auto wVKey = pnkd->wVKey;
-
-			//TCHAR cb[15];
-			//
-			//evalAliasEx(cb, Dcx::countof(cb), TEXT("keydown,%u,%d"), getUserID( ), wVKey);
-			//
-			//// space to change checkbox state
-			//if ((wVKey == 32) && dcx_testflag(ListView_GetExtendedListViewStyle(m_Hwnd), LVS_EX_CHECKBOXES)) {
-			//
-			//	// stop it from allowing user to change checkstate by pressing spacebar
-			//	if (ts_strcmp(TEXT("nospace"), cb) == 0) {
-			//		bParsed = TRUE;
-			//		return TRUE;
-			//	}
-			//
-			//	const auto index = ListView_GetNextItem(m_Hwnd, -1, LVNI_FOCUSED);
-			//
-			//	// TODO: twig: change this if we get multiple checkbox columns working
-			//	evalAliasEx(cb, Dcx::countof(cb), TEXT("stateclick,%u,%d,1"), getUserID(), index +1);
-			//}
-
 			const stString<15> cb;
 
 			evalAliasEx(cb, gsl::narrow_cast<int>(cb.size()), TEXT("keydown,%u,%d"), getUserID(), wVKey);
@@ -3530,19 +3447,6 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			const auto pGetInfoTip = reinterpret_cast<const LPNMLVGETINFOTIP>(lParam);
 			if (!pGetInfoTip)
 				break;
-
-			//LVITEM lvi = { 0 };
-			//lvi.mask = LVIF_PARAM;
-			//lvi.iItem = pGetInfoTip->iItem;
-			//lvi.iSubItem = pGetInfoTip->iSubItem;
-			//// Get item information.
-			//if (ListView_GetItem(m_Hwnd, &lvi))
-			//{
-			//	// return tooltip text, if any.
-			//	if (auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lvi.lParam); !lpdcxlvi->tsTipText.empty())
-			//		pGetInfoTip->pszText = lpdcxlvi->tsTipText.to_chr();
-			//	bParsed = TRUE;
-			//}
 
 			// Get item information.
 			if (LVITEM lvi{ LVIF_PARAM, pGetInfoTip->iItem, pGetInfoTip->iSubItem }; Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
@@ -5262,10 +5166,12 @@ void DcxListView::DrawEmpty(HDC hdc, const TString& tsBuf)
 		if (m_hFont)
 			Dcx::dcxSelectObject(hdc, m_hFont);
 
-		if (IsControlCodeTextDisabled())
-			DrawText(hdc, tsBuf.to_chr(), -1, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP);
-		else
-			mIRC_DrawText(hdc, tsBuf, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP, false);
+		//if (IsControlCodeTextDisabled())
+		//	DrawTextW(hdc, tsBuf.to_wchr(), -1, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP);
+		//else
+		//	mIRC_DrawText(hdc, tsBuf, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP, false);
+
+		this->ctrlDrawText(hdc, tsBuf, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP);
 
 		DrawMargin(hdc);
 	}

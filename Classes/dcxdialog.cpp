@@ -53,6 +53,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, const TString& tsName, const TString& tsA
 
 	addStyle(WindowStyle::ClipChildren);
 
+	//WS_EX_NOREDIRECTIONBITMAP // win8+
 	//addExStyle(WS_EX_TRANSPARENT); // WS_EX_TRANSPARENT|WS_EX_LAYERED gives a window u can click through to the win behind.
 
 	m_hDefaultDialogProc = SubclassWindow(m_Hwnd, DcxDialog::WindowProc);
