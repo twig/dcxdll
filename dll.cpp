@@ -1906,7 +1906,7 @@ mIRC(WindowProps)
 						if (iHPos > -1)
 						{
 							SetScrollPos(hScrollbar, SB_CTL, iHPos, bRedraw);
-							SendMessage(hStatic, WM_VSCROLL, MAKEWPARAM(SB_THUMBTRACK, iHPos), from_hwnd(hScrollbar));
+							SendMessage(hStatic, WM_HSCROLL, MAKEWPARAM(SB_THUMBTRACK, iHPos), from_hwnd(hScrollbar));
 						}
 					}
 				}
