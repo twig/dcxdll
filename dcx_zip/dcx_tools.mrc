@@ -63,6 +63,16 @@ alias dcxml {
   dcx dcxml $1-
 }
 
+; $1 = hwnd needs .prop
+alias xGetWindowProps {
+  if (($0 != 1) || ($prop == $null)) { echo 4 -smlbfti2 [ERROR] xGetWindowProps: Invalid Args - $1- | halt }
+  if ($isid) returnex $dcx(GetWindowProps,$1 $prop)
+  !echo 4 -smlbfti2 [ERROR] xGetWindowProps: Must be used as an identifier.
+  return
+  :error
+  !echo 4 -smlbfti2 [ERROR] xGetWindowProps: $error
+}
+
 ; check the version of the loaded dcx.dll
 ; $1 = required version (3.1), $2 = required build (1067)
 alias dcx_check_version {
