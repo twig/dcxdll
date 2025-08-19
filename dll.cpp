@@ -1807,7 +1807,7 @@ mIRC(WindowProps)
 		if (!xflags[TEXT('+')] || (flags.len() < 2))
 			throw Dcx::dcxException("No Flags Found");
 
-		if (!xflags[TEXT('T')] && !xflags[TEXT('i')] && !xflags[TEXT('t')] && !xflags[TEXT('r')] && !xflags[TEXT('v')])
+		if (!xflags[TEXT('T')] && !xflags[TEXT('i')] && !xflags[TEXT('t')] && !xflags[TEXT('r')] && !xflags[TEXT('v')] && !xflags[TEXT('s')] && !xflags[TEXT('S')])
 			throw DcxExceptions::dcxInvalidFlag();
 
 		// set hwnd NoTheme
@@ -1828,7 +1828,7 @@ mIRC(WindowProps)
 			if (numtok < 3)
 				throw DcxExceptions::dcxInvalidArguments();
 
-			const auto index = input.getnexttok().to_int();	// tok 3
+			const auto index = input.getnexttokas<int>();	// tok 3
 			//auto filename(input.gettok(1, TSTAB).gettok(4, -1).trim());
 			auto filename(input.getlasttoks().trim());
 
@@ -1854,8 +1854,8 @@ mIRC(WindowProps)
 		// +r [X] [Y]
 		else if (xflags[TEXT('r')])
 		{
-			const auto x = input.getnexttok().to_<UINT>();	// tok 3
-			const auto y = input.getnexttok().to_<UINT>();	// tok 4
+			const auto x = input.getnexttokas<UINT>();	// tok 3
+			const auto y = input.getnexttokas<UINT>();	// tok 4
 			const auto parm = Dcx::dcxMAKELPARAM(x, y);
 			SendMessage(hwnd, WM_RBUTTONDOWN, MK_RBUTTON, parm);
 			PostMessage(hwnd, WM_RBUTTONUP, MK_RBUTTON, parm); // MUST be a PostMessage or the dll hangs untill the menu is closed.
@@ -1865,10 +1865,10 @@ mIRC(WindowProps)
 		else if (xflags[TEXT('v')])
 		{
 			MARGINS margin{};
-			margin.cyTopHeight = input.getnexttok().to_<int>();		// tok 3
-			margin.cxLeftWidth = input.getnexttok().to_<int>();		// tok 4
-			margin.cyBottomHeight = input.getnexttok().to_<int>();	// tok 5
-			margin.cxRightWidth = input.getnexttok().to_<int>();	// tok 6
+			margin.cyTopHeight = input.getnexttokas<int>();		// tok 3
+			margin.cxLeftWidth = input.getnexttokas<int>();		// tok 4
+			margin.cyBottomHeight = input.getnexttokas<int>();	// tok 5
+			margin.cxRightWidth = input.getnexttokas<int>();	// tok 6
 			AddStyles(hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
 
 			//RGBQUAD clr = {0};
@@ -1881,8 +1881,43 @@ mIRC(WindowProps)
 			//}
 			//SetLayeredWindowAttributes(hwnd, RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue), 0, LWA_COLORKEY);
 
-			Dcx::DwmModule.dcxDwmExtendFrameIntoClientArea(hwnd, &margin);
+			DcxDWMModule::dcxDwmExtendFrameIntoClientArea(hwnd, &margin);
 			RedrawWindow(hwnd, nullptr, nullptr, RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_ERASE | RDW_FRAME | RDW_UPDATENOW);
+		}
+		// Scroll window.
+		// +S [vert] [horiz] [redraw]
+		else if (xflags[TEXT('S')])
+		{
+			const auto iVPos = input.getnexttokas<int>();
+			const auto iHPos = input.getnexttokas<int>();
+			const auto bRedraw = input.getnexttokas<BOOL>();
+
+			if (auto hStatic = FindWindowExW(hwnd, nullptr, WC_STATIC, nullptr); hStatic)
+			{
+				if (auto hScrollbar = FindWindowExW(hStatic, nullptr, WC_SCROLLBAR, nullptr); hScrollbar)
+				{
+					if (iVPos > -1)
+					{
+						SetScrollPos(hScrollbar, SB_CTL, iVPos, bRedraw);
+						SendMessage(hStatic, WM_VSCROLL, MAKEWPARAM(SB_THUMBTRACK,iVPos), from_hwnd(hScrollbar));
+					}
+					if (hScrollbar = FindWindowExW(hStatic, hScrollbar, WC_SCROLLBAR, nullptr); hScrollbar)
+					{
+						if (iHPos > -1)
+						{
+							SetScrollPos(hScrollbar, SB_CTL, iHPos, bRedraw);
+							SendMessage(hStatic, WM_VSCROLL, MAKEWPARAM(SB_THUMBTRACK, iHPos), from_hwnd(hScrollbar));
+						}
+					}
+				}
+			}
+			else if (auto hListbox = FindWindowExW(hwnd, nullptr, WC_LISTBOX, nullptr); hListbox)
+			{
+				if (iVPos > -1)
+					SetScrollPos(hListbox, SB_VERT, iVPos, bRedraw);
+				if (iHPos > -1)
+					SetScrollPos(hListbox, SB_HORZ, iHPos, bRedraw);
+			}
 		}
 		return 1;
 	}
@@ -1950,6 +1985,36 @@ static TString dcxGetWindowProps(HWND hwnd, size_t prop)
 		{
 			if (auto iItem = Dcx::dcxListBox_GetHoverItem(hListbox); iItem >= 0)
 				tsRes.addtok(++iItem);
+		}
+	}
+	break;
+	case TEXT("scrollpos"_hash):	// scrollpos
+	{
+		// Only works on a window that has a "ScrollBar" child (channel, custom (not picwin), etc..)
+		// returns vertpos horizpos
+		// vertpos or horizpos == -1 then scrollbar is disabled.
+
+		if (auto hStatic = FindWindowExW(hwnd, nullptr, WC_STATIC, nullptr); hStatic)
+		{
+			if (auto hScrollbar = FindWindowExW(hStatic, nullptr, WC_SCROLLBAR, nullptr); hScrollbar)
+			{
+				int iPos{ -1 };
+				if (IsWindowEnabled(hScrollbar))
+					iPos = GetScrollPos(hScrollbar, SB_CTL);
+				tsRes.addtok(iPos);
+				if (hScrollbar = FindWindowExW(hStatic, hScrollbar, WC_SCROLLBAR, nullptr); hScrollbar)
+				{
+					iPos = -1;
+					if (IsWindowEnabled(hScrollbar))
+						iPos = GetScrollPos(hScrollbar, SB_CTL);
+					tsRes.addtok(iPos);
+				}
+			}
+		}
+		else if (auto hListbox = FindWindowExW(hwnd, nullptr, WC_LISTBOX, nullptr); hListbox)
+		{
+			tsRes.addtok(GetScrollPos(hListbox, SB_VERT));
+			tsRes.addtok(GetScrollPos(hListbox, SB_HORZ));
 		}
 	}
 	break;
