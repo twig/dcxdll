@@ -176,7 +176,7 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		if (const auto nItem = input.getnexttok().to_int() - 1; nItem > -1)
+		if (const auto nItem = input.getnexttokas<int>() - 1; nItem > -1)
 		{
 			COMBOBOXEXITEM cbi{ CBEIF_TEXT, nItem, szReturnValue, MIRC_BUFFER_SIZE_CCH };
 
@@ -283,7 +283,7 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		if (numtok != 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		COMBOBOXEXITEM cbi{ CBEIF_LPARAM, nItem };
 
@@ -360,7 +360,7 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		auto nRow = input.getnexttok().to_int();	// tok 4
+		auto nRow = input.getnexttokas<int>();	// tok 4
 
 		// We're currently checking 1-based indexes.
 		if ((nRow < 1) || (nRow > this->getCount()))
@@ -394,7 +394,7 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		if (const auto nItem = input.getnexttok().to_int() - 1; nItem > -1)
+		if (const auto nItem = input.getnexttokas<int>() - 1; nItem > -1)
 			this->setCurSel(nItem);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
@@ -440,13 +440,38 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 		if (!this->getCount())
 			this->redrawWindow();
 	}
+	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
+	// xdid -E [NAME] [ID] [SWITCH] [+FLAGS] [CUE TEXT]
+	// xdid -E [NAME] [ID] [SWITCH] + [CUE TEXT]
+	// xdid -E [NAME] [ID] [SWITCH] +f [CUE TEXT]
+	else if (flags[TEXT('E')])
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto tsFlags(input.gettok(4));
+		bool bCueFocused{};
+		TString tsCue;
+		if (tsFlags[0] == TEXT('+'))
+		{
+			const XSwitchFlags xFlags(tsFlags);
+			tsCue = input.gettok(5, -1);	// tok 5, -1
+			bCueFocused = xFlags[TEXT('f')];
+		}
+		else {
+			bCueFocused = false;
+			tsCue = input.getlasttoks();	// tok 4, -1
+		}
+		if (IsWindow(this->m_EditHwnd))
+			Dcx::dcxEdit_SetCueBannerTextFocused(this->m_EditHwnd, tsCue.to_wchr(), bCueFocused);
+	}
 	// xdid -l [NAME] [ID] [SWITCH] [ON|OFF]
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const BOOL enabled = (input.getnexttok().to_int() > 0);	// tok 4
+		const BOOL enabled = (input.getnexttokas<int>() > 0);	// tok 4
 		if (auto hEdit = this->getEditControl(); hEdit)
 			SendMessage(hEdit, EM_SETREADONLY, gsl::narrow_cast<WPARAM>(enabled), 0);
 	}
@@ -455,6 +480,17 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('r')])
 	{
 		//this->resetContent();
+	}
+	// xdid -q [NAME] [ID] [SWITCH] [LIMIT]
+	else if (flags[TEXT('q')])
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+		if (IsWindow(this->m_EditHwnd))
+		{
+			if (const auto N = input.getnexttokas<int>(); N > -1)
+				Dcx::dcxEdit_LimitText(this->m_EditHwnd, N);
+		}
 	}
 	// xdid -u [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('u')])
@@ -483,12 +519,6 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 		this->parseGlobalCommandRequest(input, flags);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 GSL_SUPPRESS(lifetime.4)
 HIMAGELIST DcxComboEx::getImageList() const noexcept
 {
@@ -497,12 +527,6 @@ HIMAGELIST DcxComboEx::getImageList() const noexcept
 
 	return reinterpret_cast<HIMAGELIST>(SendMessage(m_Hwnd, CBEM_GETIMAGELIST, 0U, 0));
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 void DcxComboEx::setImageList(const HIMAGELIST himl) noexcept
 {
