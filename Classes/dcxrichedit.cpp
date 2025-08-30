@@ -147,7 +147,7 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		int line = 0;
 
 		if (numtok > 3)
-			line = input.getnexttok().to_int() - 1;		// tok 4
+			line = input.getnexttokas<int>() - 1;		// tok 4
 
 		if ((line < 0) || (line >= Dcx::dcxEdit_GetLineCount(m_Hwnd)))
 			throw Dcx::dcxException("Invalid line number.");
@@ -452,7 +452,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	//	if (numtok < 4)
 	//		throw DcxExceptions::dcxInvalidArguments();
 	//
-	//	auto pos = input.getnexttok().to_<long long>();
+	//	auto pos = input.getnexttokas<long long>();
 	//	if (pos < 0)
 	//	{
 	//		const auto oldPos = this->GetCaretPos();
@@ -473,7 +473,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 		//if (this->isStyle(WindowStyle::ES_MultiLine))
 		//{
-		//	const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
+		//	const auto nLine = input.getnexttokas<UINT>();	// tok 4
 		//	this->m_tsText.deltok(nLine, TEXT("\r\n"));
 		//}
 
@@ -508,7 +508,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 		const TString tsFlags(input.getnexttok());				// tok 4
 		const TString tsCharset(input.getnexttok());			// tok 5
-		const UINT iSize = input.getnexttok().to_<UINT>();		// tok 6
+		const UINT iSize = input.getnexttokas<UINT>();		// tok 6
 		const TString tsFontname(input.getlasttoks().trim());	// tok 7, -1
 
 		setRicheditFont(tsFlags, tsCharset, iSize, tsFontname);
@@ -591,7 +591,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 		const auto pos = this->GetCaretPos();
 
-		const auto nLine = input.getnexttok().to_<UINT>();								// tok 4
+		const auto nLine = input.getnexttokas<UINT>();								// tok 4
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
@@ -613,7 +613,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nChar = input.getnexttok().to_<UINT>();	// tok 4
+		const auto nChar = input.getnexttokas<UINT>();	// tok 4
 		TString tsInsert(input.getlasttoks());
 		TString tsLeft(this->m_tsText.sub(0, nChar));
 		const TString tsRight(this->m_tsText.sub(nChar, this->m_tsText.len()));
@@ -632,7 +632,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto clrColor = input.getnexttok().to_<COLORREF>();	// tok 4
+		const auto clrColor = input.getnexttokas<COLORREF>();	// tok 4
 
 		if (clrColor == CLR_INVALID)
 		{
@@ -652,12 +652,12 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nColor = input.getnexttok().to_int();	// tok 4
+		const auto nColor = input.getnexttokas<int>();	// tok 4
 
 		if (nColor < 0 || nColor >= gsl::narrow_cast<int>(std::size(m_aColorPalette)))
 			throw Dcx::dcxException("Invalid Colour");
 
-		gsl::at(this->m_aColorPalette, nColor) = input.getnexttok().to_<COLORREF>();	// tok 5
+		gsl::at(this->m_aColorPalette, nColor) = input.getnexttokas<COLORREF>();	// tok 5
 		this->parseContents(TRUE);
 	}
 	// xdid -m [NAME] [ID] [SWITCH]
@@ -667,15 +667,59 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 		this->parseContents(TRUE);
 	}
-	// xdid -n [NAME] [ID] [SWITCH] [BOOL]
+	// xdid -n [NAME] [ID] [SWITCH] [BOOL|(ENABLEDRIVELETTERS | DISABLEMIXEDLGC | ENABLEEAURLS | ENABLEEMAILADDR | ENABLETELNO | ENABLEURL)] ($chr(9) (scheme))
+	// xdid -n [DNAME] [ID] 1
+	// xdid -n [DNAME] [ID] 0
+	// xdid -n [DNAME] [ID] ENABLEURL $chr(9) http:ftp:
+	// xdid -n [DNAME] [ID] ENABLEDRIVELETTERS ENABLEURL ENABLEEAURLS
 	else if (flags[TEXT('n')])
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto b = (input.getnexttok().to_int() > 0);	// tok 4
+		//const auto b = (input.getnexttokas<int>() > 0);	// tok 4
+		//this->setAutoUrlDetect(b ? TRUE : FALSE);
+
+		const auto tsArgs(input.getnexttok());
+		const auto tsTypes(tsArgs.getfirsttok(1, TSTABCHAR));
+		const auto tsScheme(tsArgs.getnexttok(TSTABCHAR));
+
+		for (const auto tsArg : tsTypes)
+		{
+			switch (std::hash<TString>()(tsArg))
+			{
+			case L"ENABLEURL"_hash:
+			{
+				if (tsScheme.empty())
+					Dcx::dcxRichEdit_AutoUrlDetect(m_Hwnd, AURL_ENABLEURL, nullptr);
+				else
+					Dcx::dcxRichEdit_AutoUrlDetect(m_Hwnd, AURL_ENABLEURL, tsScheme.to_wchr());
+			}
+			break;
+			case L"ENABLEEAURLS"_hash:
+				Dcx::dcxRichEdit_AutoUrlDetect(m_Hwnd, AURL_ENABLEEAURLS, nullptr);
+				break;
+			case L"ENABLEDRIVELETTERS"_hash:
+				Dcx::dcxRichEdit_AutoUrlDetect(m_Hwnd, AURL_ENABLEDRIVELETTERS, nullptr);
+				break;
+			case L"DISABLEMIXEDLGC"_hash:
+				Dcx::dcxRichEdit_AutoUrlDetect(m_Hwnd, AURL_DISABLEMIXEDLGC, nullptr);
+				break;
+			case L"ENABLEEMAILADDR"_hash:
+				Dcx::dcxRichEdit_AutoUrlDetect(m_Hwnd, AURL_ENABLEEMAILADDR, nullptr);
+				break;
+			case L"ENABLETELNO"_hash:
+				Dcx::dcxRichEdit_AutoUrlDetect(m_Hwnd, AURL_ENABLETELNO, nullptr);
+				break;
+			default:
+			{
+				const auto b = (tsArgs.to_int() > 0);
 
 		this->setAutoUrlDetect(b ? TRUE : FALSE);
+	}
+			break;
+			}
+		}
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('o')])
@@ -683,7 +727,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
+		const auto nLine = input.getnexttokas<UINT>();	// tok 4
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
@@ -714,7 +758,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 			throw Dcx::dcxException("Invalid Colour Count");
 
 		for (auto i = decltype(nColor){0}; i < nColor; ++i)
-			gsl::at(m_aColorPalette, i) = input.getnexttok().to_<COLORREF>();	// tok 4 + i
+			gsl::at(m_aColorPalette, i) = input.getnexttokas<COLORREF>();	// tok 4 + i
 
 		this->parseContents(TRUE);
 	}
@@ -837,8 +881,8 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		CHARRANGE c{};
-		c.cpMin = input.getnexttok().to_int();	// tok 4
-		c.cpMax = (numtok > 4) ? input.getnexttok().to_int() : c.cpMin;	// tok 5
+		c.cpMin = input.getnexttokas<int>();	// tok 4
+		c.cpMax = (numtok > 4) ? input.getnexttokas<int>() : c.cpMin;	// tok 5
 
 		SendMessage(m_Hwnd, EM_EXSETSEL, 0, reinterpret_cast<LPARAM>(&c));
 		Dcx::dcxEdit_ScrollCaret(m_Hwnd);
@@ -860,7 +904,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		{
 			if (this->isStyle(WindowStyle::ES_MultiLine))
 			{
-				this->m_bShowLineNumbers = (input.getnexttok().to_int() > 0);	// tok 5
+				this->m_bShowLineNumbers = (input.getnexttokas<int>() > 0);	// tok 5
 				if (m_bShowLineNumbers)
 					setFmtRect();
 				else
@@ -875,8 +919,8 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto num = input.getnexttok().to_int();	// tok 4
-		const auto den = input.getnexttok().to_int();	// tok 5
+		const auto num = input.getnexttokas<int>();	// tok 4
+		const auto den = input.getnexttokas<int>();	// tok 5
 
 		if (!Dcx::dcxEdit_SetZoom(m_Hwnd, num, den))
 			throw Dcx::dcxException("Richedit zooming error");
@@ -1495,7 +1539,7 @@ Dcx::range_t<DWORD> DcxRichEdit::GetVisibleRange() const noexcept
 	const auto stop_line = Dcx::dcxRichEdit_ExLineFromChar(m_Hwnd, char_index);
 
 	// +1 to make range inclusive
-	return { start_line, stop_line + 1 };
+	return { start_line, stop_line /*+ 1*/ };
 }
 
 GSL_SUPPRESS(con.4)

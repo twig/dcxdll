@@ -153,7 +153,7 @@ void DcxStacker::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nSel = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
 			throw DcxExceptions::dcxInvalidItem();
@@ -179,7 +179,7 @@ void DcxStacker::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nSel = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
 			throw DcxExceptions::dcxInvalidItem();
@@ -197,7 +197,7 @@ void DcxStacker::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nSel = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
 			throw DcxExceptions::dcxInvalidItem();
@@ -248,10 +248,10 @@ void DcxStacker::parseCommandRequest(const TString& input)
 		auto nPos = item.getfirsttok(4).to_int() - 1;				// tok 4
 		const auto flag(item.getnexttok().trim());				// tok 5	?? flag never used ??
 
-		sitem->iItemImg = item.getnexttok().to_int() - 1;			// tok 6
-		sitem->iSelectedItemImg = item.getnexttok().to_int() - 1;	// tok 7
-		sitem->clrText = item.getnexttok().to_<COLORREF>();		// tok 8
-		sitem->clrBack = item.getnexttok().to_<COLORREF>();		// tok 9
+		sitem->iItemImg = item.getnexttokas<int>() - 1;			// tok 6
+		sitem->iSelectedItemImg = item.getnexttokas<int>() - 1;	// tok 7
+		sitem->clrText = item.getnexttokas<COLORREF>();		// tok 8
+		sitem->clrBack = item.getnexttokas<COLORREF>();		// tok 9
 		sitem->pChild = nullptr;
 		sitem->hFont = nullptr;
 		sitem->tsCaption = item.getlasttoks();						// tok 10, -1
@@ -301,7 +301,7 @@ void DcxStacker::parseCommandRequest(const TString& input)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nPos = input.getnexttok().to_int() - 1;		// tok 4
+		const auto nPos = input.getnexttokas<int>() - 1;		// tok 4
 
 		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
 			//throw Dcx::dcxException("Invalid Item");
@@ -316,7 +316,7 @@ void DcxStacker::parseCommandRequest(const TString& input)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nPos = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
 			//throw Dcx::dcxException("Invalid Item");
@@ -341,7 +341,7 @@ void DcxStacker::parseCommandRequest(const TString& input)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nPos = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
 			//throw Dcx::dcxException("Invalid Item");

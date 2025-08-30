@@ -159,7 +159,7 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		setBarColor(input.getnexttok().to_<COLORREF>());	// tok 4
+		setBarColor(input.getnexttokas<COLORREF>());	// tok 4
 	}
 	//// xdid -g name ID [1|0]
 	//else if ( flags[TEXT('g')] ) {
@@ -191,7 +191,7 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		setBKColor(input.getnexttok().to_<COLORREF>());	// tok 4
+		setBKColor(input.getnexttokas<COLORREF>());	// tok 4
 	}
 	// xdid -m(o|g) name ID N
 	else if (flags[TEXT('m')])
@@ -202,7 +202,7 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 			if (numtok < 4)
 				throw DcxExceptions::dcxInvalidArguments();
 
-			setMarquee(TRUE, input.getnexttok().to_int());	// tok 4
+			setMarquee(TRUE, input.getnexttokas<int>());	// tok 4
 		}
 		// -mg
 		else if (flags[TEXT('g')])
@@ -214,7 +214,7 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		setTextColor(input.getnexttok().to_<COLORREF>());	// tok 4
+		setTextColor(input.getnexttokas<COLORREF>());	// tok 4
 		redrawWindow();
 	}
 	// xdid -r name ID RLow RHigh
@@ -223,8 +223,8 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto iLow = input.getnexttok().to_int();
-		const auto iHigh = input.getnexttok().to_int();
+		const auto iLow = input.getnexttokas<int>();
+		const auto iHigh = input.getnexttokas<int>();
 
 		setRange(iLow, iHigh);
 	}
@@ -239,7 +239,7 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		setStep(input.getnexttok().to_int());	// tok 4
+		setStep(input.getnexttokas<int>());	// tok 4
 	}
 	// xdid -v name ID N
 	else if (flags[TEXT('v')])
@@ -247,7 +247,7 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		setPosition(input.getnexttok().to_int());	// tok 4
+		setPosition(input.getnexttokas<int>());	// tok 4
 	}
 	// xdid [-o] [NAME] [ID] [ANGLE]
 	// vertical fonts [1|0]
@@ -256,7 +256,7 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto angle = input.getnexttok().to_int();	// tok 4
+		const auto angle = input.getnexttokas<int>();	// tok 4
 
 		//TODO: let user specify angle of text?
 		if (angle > 0)

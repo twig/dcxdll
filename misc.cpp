@@ -896,7 +896,7 @@ GSL_SUPPRESS(bounds.3) bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT 
 		return (GetObject(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), sizeof(LOGFONT), lf) != 0);
 
 	lf->lfCharSet = gsl::narrow_cast<BYTE>(parseFontCharSet(cmd.getnexttok()) & 0xFF);	// tok 2
-	const auto fSize = cmd.getnexttok().to_int();				// tok 3
+	const auto fSize = cmd.getnexttokas<int>();				// tok 3
 	const auto fName(cmd.getlasttoks().trim());				// tok 4, -1
 
 	if (!fSize)

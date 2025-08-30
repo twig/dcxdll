@@ -1516,7 +1516,7 @@ mIRC(xpop)
 		Dcx::error(TEXT("/xpop"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	mIRCLinker::echo(TEXT("/xpop -[switch] [menu] [path] [tab] [option]"));
-	mIRCLinker::echo(TEXT("[switch] = a,c,d,f,i,s,t"));
+	mIRCLinker::echo(TEXT("[switch] = a,c,d,f,i,s,t,T"));
 	mIRCLinker::echo(TEXT("[menu] = name of the menu to affect"));
 	mIRCLinker::echo(TEXT("[path] = path to item"));
 	mIRCLinker::echo(TEXT("[option] = depends on switch used"));
@@ -1603,7 +1603,7 @@ mIRC(xpopup)
 		Dcx::error(TEXT("/xpopup"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	mIRCLinker::echo(TEXT("/xpopup -[switch] [menu] (options)"));
-	mIRCLinker::echo(TEXT("[switch] = b,c,d,i,j,l,m,M,p,s,t,x, or R"));
+	mIRCLinker::echo(TEXT("[switch] = b,c,d,e,i,j,l,m,M,p,r,s,t,x, or R"));
 	mIRCLinker::echo(TEXT("[menu] = name of the menu to affect"));
 	mIRCLinker::echo(TEXT("(options) = depends on switch used"));
 	return 0;
@@ -2064,7 +2064,7 @@ mIRC(GetWindowProps)
 	}
 	mIRCLinker::echo(TEXT("$!dcx(GetWindowProps, [hwnd] [property])"));
 	mIRCLinker::echo(TEXT("[hwnd] = The windows HWND"));
-	mIRCLinker::echo(TEXT("[property] = x,y,w,h,caption,dpi,class,hoveritem"));
+	mIRCLinker::echo(TEXT("[property] = x,y,w,h,caption,dpi,class,hoveritem,scollpos"));
 	return 0;
 }
 
@@ -2108,7 +2108,7 @@ mIRC(ActiveWindow)
 		Dcx::error(TEXT("$!dcx(ActiveWindow)"), TEXT("\"%\" error: Unknown Exception"), input);
 	}
 	mIRCLinker::echo(TEXT("$!dcx(ActiveWindow, [property])"));
-	mIRCLinker::echo(TEXT("[property] = x,y,w,h,caption,hwnd,dpi,class,hoveritem"));
+	mIRCLinker::echo(TEXT("[property] = x,y,w,h,caption,hwnd,dpi,class,hoveritem,scollpos"));
 	return 0;
 }
 
@@ -2319,7 +2319,7 @@ mIRC(SetDCXSettings)
 		case L"StaticColors"_hash:
 		case L"StaticColours"_hash:
 		{
-			Dcx::setting_bStaticColours = (d.getnexttok().to_int() > 0);
+			Dcx::setting_bStaticColours = (d.getnexttokas<int>() > 0);
 			break;
 		}
 		case L"UpdateColors"_hash:
@@ -2330,7 +2330,7 @@ mIRC(SetDCXSettings)
 		}
 		case L"DarkMode"_hash:
 		{
-			const bool bEnable = (d.getnexttok().to_int() > 0);
+			const bool bEnable = (d.getnexttokas<int>() > 0);
 			DcxUXModule::dcxAllowDarkModeForApp(bEnable);
 			DcxUXModule::dcxAllowDarkModeForWindow(mIRCLinker::m_mIRCHWND, bEnable);
 			DcxUXModule::dcxRefreshImmersiveColorPolicyState();

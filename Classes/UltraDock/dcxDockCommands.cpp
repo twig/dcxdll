@@ -437,7 +437,7 @@ mIRC(xdock)
 		if (numtok < 2)
 			throw DcxExceptions::dcxInvalidFlag();
 
-		const auto dockHwnd = to_hwnd(input.getnexttok().to_<size_t>()); // tok 2
+		const auto dockHwnd = to_hwnd(input.getnexttokas<size_t>()); // tok 2
 
 		// show/hide switchbar
 		// [-S] [1|0]
@@ -527,7 +527,7 @@ mIRC(xdock)
 		//// [-C] [cursor type] [filename.cur]
 		//else if ((switches[1] == TEXT('C')) && (numtok >= 2)) {
 		//	auto ud = GetUltraDock(dockHwnd);
-		//	UINT CursorType = input.getnexttok().to_<UINT>();
+		//	UINT CursorType = input.getnexttokas<UINT>();
 		//	TString tsFilename(input.getlasttoks());
 		//
 		//	return 1;
@@ -557,7 +557,7 @@ mIRC(xdock)
 		// [-n] [hwnd to dock] [+options] [hwnd to dock with]
 		else if ((switches[1] == TEXT('n')) && (numtok > 3))
 		{
-			mWnd = to_hwnd(input.getnexttok().to_<size_t>()); // tok 4
+			mWnd = to_hwnd(input.getnexttokas<size_t>()); // tok 4
 
 			if (!IsWindow(mWnd))
 				throw DcxExceptions::dcxInvalidArguments();
@@ -568,7 +568,7 @@ mIRC(xdock)
 		// [-c] [hwnd to dock] [+options] [hwnd to dock with]
 		else if ((switches[1] == TEXT('c')) && (numtok > 3))
 		{
-			mWnd = to_hwnd(input.getnexttok().to_<size_t>()); // tok 4
+			mWnd = to_hwnd(input.getnexttokas<size_t>()); // tok 4
 
 			if (!IsWindow(mWnd))
 				throw DcxExceptions::dcxInvalidArguments();
@@ -583,7 +583,7 @@ mIRC(xdock)
 			if (numtok < 4)
 				throw DcxExceptions::dcxInvalidArguments();
 
-			mWnd = to_hwnd(input.getnexttok().to_<size_t>()); // tok 4
+			mWnd = to_hwnd(input.getnexttokas<size_t>()); // tok 4
 
 			if (!IsWindow(mWnd))
 				throw DcxExceptions::dcxInvalidArguments();
@@ -621,8 +621,8 @@ mIRC(xdock)
 		// [-r] [hwnd to resize] [+options] [W] [H]
 		else if ((switches[1] == TEXT('r')) && (numtok > 4))
 		{
-			const auto w = input.getnexttok().to_int(); // tok 4
-			const auto h = input.getnexttok().to_int(); // tok 5
+			const auto w = input.getnexttokas<int>(); // tok 4
+			const auto h = input.getnexttokas<int>(); // tok 5
 
 			auto ud = GetUltraDock(dockHwnd);
 			DockFlags dflags{ DockFlags::DOCKF_NONE };

@@ -102,7 +102,7 @@ void DcxColorCombo::parseInfoRequest(const TString& input, const refString<TCHAR
 		if (input.numtok() < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nItem < 0 || nItem >= getCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -140,12 +140,12 @@ void DcxColorCombo::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nItem >= this->getCount())
 			nItem = -1;
 
-		if (const auto clrItem = input.getnexttok().to_<COLORREF>(); nItem > -2)
+		if (const auto clrItem = input.getnexttokas<COLORREF>(); nItem > -2)
 		{
 			const auto item = new DCXCCOMBOITEM(clrItem);
 
@@ -163,7 +163,7 @@ void DcxColorCombo::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
 			throw DcxExceptions::dcxInvalidItem();
@@ -176,7 +176,7 @@ void DcxColorCombo::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
 			throw DcxExceptions::dcxInvalidItem();
@@ -194,13 +194,13 @@ void DcxColorCombo::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
 			throw DcxExceptions::dcxInvalidItem();
 
 		if (const auto lpdcxcci = this->getItemData(nItem); lpdcxcci)
-			lpdcxcci->clrItem = input.getnexttok().to_<COLORREF>();	// tok 5
+			lpdcxcci->clrItem = input.getnexttokas<COLORREF>();	// tok 5
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [N] [Text]
 	else if (flags[TEXT('t')])
@@ -209,7 +209,7 @@ void DcxColorCombo::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
 			throw DcxExceptions::dcxInvalidItem();

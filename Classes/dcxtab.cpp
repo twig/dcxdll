@@ -176,7 +176,7 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nItem < 0 || nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -198,7 +198,7 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto iTab = input.getnexttok().to_int() - 1;		// tok 4
+		const auto iTab = input.getnexttokas<int>() - 1;		// tok 4
 
 		if (iTab == -1)
 		{
@@ -245,7 +245,7 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nItem < 0 || nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -276,7 +276,7 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nItem < 0 || nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -360,7 +360,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		}
 
 		const auto nIndex = data.getfirsttok(4).to_int() - 1;
-		const auto iIcon = data.getnexttok().to_int() - 1;	// tok 5
+		const auto iIcon = data.getnexttokas<int>() - 1;	// tok 5
 
 		// Itemtext
 		TString itemtext;
@@ -375,7 +375,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nItem < 0 && nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -389,7 +389,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		// if a valid item to delete
 		if (nItem < 0 && nItem >= getTabCount())
@@ -430,8 +430,8 @@ void DcxTab::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
-		const auto nIcon = input.getnexttok().to_int() - 1;	// tok 5
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
+		const auto nIcon = input.getnexttokas<int>() - 1;	// tok 5
 
 		if (nItem < 0 && nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -448,8 +448,8 @@ void DcxTab::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto X = input.getnexttok().to_int();	// tok 4
-		const auto Y = input.getnexttok().to_int();	// tok 5
+		const auto X = input.getnexttokas<int>();	// tok 4
+		const auto Y = input.getnexttokas<int>();	// tok 5
 
 		TabCtrl_SetItemSize(m_Hwnd, X, Y);
 	}
@@ -464,7 +464,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nItem < 0 && nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -495,8 +495,8 @@ void DcxTab::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;		// tok 4
-		const auto pos = input.getnexttok().to_int() - 1;	// tok 5
+		const auto nItem = input.getnexttokas<int>() - 1;		// tok 4
+		const auto pos = input.getnexttokas<int>() - 1;	// tok 5
 
 		if (nItem < 0 || nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -594,7 +594,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xFlags(input.getnexttok());	// tok 4
-		auto iWidth = input.getnexttok().to_int();		// tok 5
+		auto iWidth = input.getnexttokas<int>();		// tok 5
 
 		if (iWidth < -1)
 			iWidth = -1;

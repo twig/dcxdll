@@ -377,21 +377,52 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		// [NAME] [ID] [PROP] (N)
 	case L"columnorder"_hash:
 	{
+		//// if its a report listview and it has headers
+		//const auto& count = this->getColumnCount();
+		//const auto col = (numtok > 3 ? input++.to_int() - 1 : -1);	// tok 4
+		//
+		//// invalid column
+		//if ((col < -1) || (col >= count) || (count <= 0))
+		//	throw DcxExceptions::dcxOutOfRange();
+		//
+		//auto val = std::make_unique<int[]>(gsl::narrow_cast<size_t>(count));
+		//
+		//Dcx::dcxListView_GetColumnOrderArray(m_Hwnd, count, val.get());
+		//
+		//// increase each value by 1 for easy user indexing
+		//for (auto i = decltype(count){0}; i < count; ++i)
+		//	gsl::at(val, gsl::narrow_cast<size_t>(i))++;
+		//
+		//// get specific column
+		//if (col > -1)
+		//{
+		//	_ts_snprintf(szReturnValue, TEXT("%d"), gsl::at(val, gsl::narrow_cast<size_t>(col)));
+		//	return;
+		//}
+		//
+		//// collect all values
+		//TString buff(gsl::narrow_cast<TString::size_type>(count * 32));
+		//
+		//for (auto i = decltype(count){0}; i < count; ++i)
+		//	buff.addtok(gsl::at(val, gsl::narrow_cast<size_t>(i)));
+		//
+		//szReturnValue = buff.trim().to_chr();
+
 		// if its a report listview and it has headers
-		const auto count = this->getColumnCount();
+		const auto& count = this->getColumnCount();
 		const auto col = (numtok > 3 ? input++.to_int() - 1 : -1);	// tok 4
 
 		// invalid column
 		if ((col < -1) || (col >= count) || (count <= 0))
 			throw DcxExceptions::dcxOutOfRange();
 
-		auto val = std::make_unique<int[]>(gsl::narrow_cast<UINT>(count));
+		VectorOfInts val(gsl::narrow_cast<size_t>(count));
 
-		Dcx::dcxListView_GetColumnOrderArray(m_Hwnd, count, val.get());
+		Dcx::dcxListView_GetColumnOrderArray(m_Hwnd, count, val.data());
 
 		// increase each value by 1 for easy user indexing
-		for (auto i = decltype(count){0}; i < count; ++i)
-			gsl::at(val, gsl::narrow_cast<size_t>(i))++;
+		for (auto &v: val)
+			++v;
 
 		// get specific column
 		if (col > -1)
@@ -403,8 +434,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		// collect all values
 		TString buff(gsl::narrow_cast<TString::size_type>(count * 32));
 
-		for (auto i = decltype(count){0}; i < count; ++i)
-			buff.addtok(gsl::at(val, gsl::narrow_cast<size_t>(i)));
+		for (const auto &v: val)
+			buff.addtok(v);
 
 		szReturnValue = buff.trim().to_chr();
 	}
@@ -705,7 +736,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		auto nColumn = -1;
 
 		if (numtok > 3)
-			nColumn = input.getnexttok().to_int() - 1;	// tok 4
+			nColumn = input.getnexttokas<int>() - 1;	// tok 4
 
 		const auto count = this->getColumnCount();
 
@@ -733,7 +764,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nColumn = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nColumn = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nColumn < 0 || nColumn >= this->getColumnCount())
 			throw DcxExceptions::dcxOutOfRange();
@@ -752,7 +783,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nColumn = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nColumn = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nColumn < 0 || nColumn >= this->getColumnCount())
 			throw DcxExceptions::dcxOutOfRange();
@@ -770,7 +801,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (numtok != 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nCol = (input.getnexttok().to_int() - 1);	// tok 4
+		const auto nCol = (input.getnexttokas<int>() - 1);	// tok 4
 
 		if (nCol < 0 || nCol >= this->getColumnCount())
 			throw DcxExceptions::dcxOutOfRange();
@@ -805,7 +836,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto GID = input.getnexttok().to_<UINT>();	// tok 4
+		const auto GID = input.getnexttokas<UINT>();	// tok 4
 
 		auto wstr = std::make_unique<WCHAR[]>(MIRC_BUFFER_SIZE_CCH + 1);
 		gsl::at(wstr, 0) = TEXT('\0');
@@ -824,8 +855,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
-		const auto nSubItem = input.getnexttok().to_int() - 1;	// tok 5
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
+		const auto nSubItem = input.getnexttokas<int>() - 1;	// tok 5
 
 		if (nItem < 0 || nSubItem < 0 || nItem >= Dcx::dcxListView_GetItemCount(m_Hwnd))
 			throw DcxExceptions::dcxOutOfRange();
@@ -868,7 +899,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	// [NAME] [ID] [PROP] [N]
 	case L"gid"_hash:
 	{
-		const auto iIndex = input.getnexttok().to_int() - 1;	// tok 4
+		const auto iIndex = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (iIndex < 0 || iIndex >= Dcx::dcxListView_GetItemCount(m_Hwnd))
 			throw Dcx::dcxException(TEXT("Invalid Item: %"), iIndex);
@@ -884,8 +915,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	// [NAME] [ID] [PROP] [ROW] [COL]
 	case L"markeditem"_hash:
 	{
-		auto nRow = input.getnexttok().to_int();	// tok 4
-		auto nCol = input.getnexttok().to_int();	// tok 5
+		auto nRow = input.getnexttokas<int>();	// tok 4
+		auto nCol = input.getnexttokas<int>();	// tok 5
 
 		// 1-based indexes.
 		if ((nRow < 1) || (nRow > Dcx::dcxListView_GetItemCount(m_Hwnd)))
@@ -928,7 +959,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 
 		if (Dcx::VersInfo.isVista())
 		{
-			const auto gid = input.getnexttok().to_int();	// tok 4
+			const auto gid = input.getnexttokas<int>();	// tok 4
 			constexpr UINT iMask = LVGS_COLLAPSIBLE | LVGS_HIDDEN | LVGS_NOHEADER | LVGS_COLLAPSED | LVGS_SELECTED;
 
 			const auto iState = Dcx::dcxListView_GetGroupState(m_Hwnd, gid, iMask);
@@ -1153,7 +1184,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 		if (this->isStyle(WindowStyle::LVS_SingleSelect))
 		{
-			auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+			auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 			if (nItem == -1)
 				nItem = nItemCnt - 1;
@@ -1173,7 +1204,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 					if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
 						throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
-					for (auto nItem : r)
+					for (const auto nItem : r)
 						Dcx::dcxListView_SetItemState(m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
 				}
 			}
@@ -1193,7 +1224,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (xFlags[TEXT('+')])
 		{
 			// have flags, so its a match text delete
-			const auto nSubItem = input.getnexttok().to_int();
+			const auto nSubItem = input.getnexttokas<int>();
 
 			const dcxSearchData srch_data(input.getnexttok(), FlagsToSearchType(xFlags));
 
@@ -1350,7 +1381,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto state = input.getnexttok().to_int();	// tok 4
+		const auto state = input.getnexttokas<int>();	// tok 4
 		const auto Ns(input.getnexttok());				// tok 5
 		const auto nItemCnt = Dcx::dcxListView_GetItemCount(m_Hwnd);
 
@@ -1476,7 +1507,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 				throw Dcx::dcxException("Insufficient number of widths specified for +m flag");
 
 			for (auto i = decltype(iTotal){1}; i <= iTotal; ++i)
-				Dcx::dcxListView_SetColumnWidth(m_Hwnd, i - 1, input.getnexttok().to_int());	// tok 6+
+				Dcx::dcxListView_SetColumnWidth(m_Hwnd, i - 1, input.getnexttokas<int>());	// tok 6+
 		}
 		else if (xflags[TEXT('d')])
 		{
@@ -1490,7 +1521,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 				throw Dcx::dcxException(TEXT("Invalid column specified: %"), nColumn + 1);
 
 			const auto iFlags = this->parseHeaderFlags2(xflags);
-			const auto iWidth = input.getnexttok().to_int();	// tok 6
+			const auto iWidth = input.getnexttokas<int>();	// tok 6
 
 			for (const auto& a : this->m_vWidths)
 			{
@@ -1506,7 +1537,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		}
 		else {
 			const auto iFlags = this->parseHeaderFlags2(xflags);
-			const auto iWidth = input.getnexttok().to_int();	// tok 6
+			const auto iWidth = input.getnexttokas<int>();	// tok 6
 
 			if ((iFlags == 0) && (numtok < 6))
 				throw Dcx::dcxException("No width specified");
@@ -1812,7 +1843,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 		this->loadIcon(tflags, tsIndex, filename);
 	}
-	// xdid -W [NAME] [ID] [SWITCH] [STYLE|nochange] (CONTROL EXTENDED STYLES)
+	// xdid -W [NAME] [ID] [SWITCH] [VIEW|nochange] (CONTROL EXTENDED STYLES)
 	else if (flags[TEXT('W')])
 	{
 		if (numtok < 4)
@@ -1904,7 +1935,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		const auto lvsort = std::make_unique<DCXLVSORT>();	// too big for stack, use heap.
 
 		lvsort->iSortFlags = this->parseSortFlags(input.getnexttok());	// tok 4
-		const auto nColumn = input.getnexttok().to_int() - 1;	// tok 5
+		const auto nColumn = input.getnexttokas<int>() - 1;	// tok 5
 
 		lvsort->m_Hwnd = m_Hwnd;
 		lvsort->nColumn = nColumn;
@@ -1927,7 +1958,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		LVITEM lvi{ LVIF_PARAM, input.getnexttok().to_int() - 1, input.getnexttok().to_int() };
+		LVITEM lvi{ LVIF_PARAM, input.getnexttokas<int>() - 1, input.getnexttokas<int>() };
 
 		// check if item supplied was 0 (now -1), last item in list.
 		if (lvi.iItem == -1)
@@ -1965,7 +1996,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		//if (!this->isStyle(LVS_REPORT))
 		//	return;
 
-		auto pos = input.getnexttok().to_int();	// tok 4
+		auto pos = input.getnexttokas<int>();	// tok 4
 		auto count = Dcx::dcxListView_GetItemCount(m_Hwnd);
 
 		// no items - no need to view
@@ -2020,8 +2051,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 		// +c save to custom @window [@window] (data is appended to the bottom of the window, window must exist)
 		const auto count = Dcx::dcxListView_GetItemCount(m_Hwnd);
 		const auto tsFlags(input.getnexttok().trim());		// tok 4
-		const auto iN1 = input.getnexttok().to_int() - 1;	// tok 5 adjusted from 1-based to be zero based
-		auto iN2 = input.getnexttok().to_int() - 1;			// tok 6 adjusted from 1-based to be zero based
+		const auto iN1 = input.getnexttokas<int>() - 1;	// tok 5 adjusted from 1-based to be zero based
+		auto iN2 = input.getnexttokas<int>() - 1;			// tok 6 adjusted from 1-based to be zero based
 		const auto tsArgs(input.getlasttoks().trim());		// tok 7, -1
 
 		if ((tsFlags[0] != TEXT('+')) || (tsFlags.len() < 2))
@@ -2125,10 +2156,10 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 			for (auto nGID : r)
 			{
-				if (!Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<int>(nGID)))
+				if (!Dcx::dcxListView_HasGroup(m_Hwnd, nGID))
 					throw Dcx::dcxException(TEXT("Group doesn't exist: %"), nGID);
 
-				Dcx::dcxListView_SetGroupState(m_Hwnd, gsl::narrow_cast<int>(nGID), iMask, iState);
+				Dcx::dcxListView_SetGroupState(m_Hwnd, nGID, iMask, iState);
 			}
 		}
 	}
@@ -4560,8 +4591,8 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 	const auto state = data++.to_<int>();						// tok 5
 	auto overlay = data++.to_<int>();							// tok 6
 	const auto group = data++.to_<int>();						// tok 7
-	//auto clrText = data.getnexttok().to_<COLORREF>();			// tok 8
-	//auto clrBack = data.getnexttok().to_<COLORREF>();			// tok 9
+	//auto clrText = data.getnexttokas<COLORREF>();			// tok 8
+	//auto clrBack = data.getnexttokas<COLORREF>();			// tok 9
 	auto clrText = data++.to_<COLORREF>();						// tok 8
 	auto clrBack = data++.to_<COLORREF>();						// tok 9
 

@@ -170,7 +170,7 @@ void DcxText::parseCommandRequest(const TString& input)
 		if (numtok < 3)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		if (input.getnexttok().to_int() == 1)	// tok 4
+		if (input.getnexttokas<int>() == 1)	// tok 4
 			this->m_tsText += TEXT(' ');
 
 		this->m_tsText += input.getlasttoks();	// tok 5, -1

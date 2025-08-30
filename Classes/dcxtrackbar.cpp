@@ -186,7 +186,7 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto lPosition = input.getnexttok().to_<long>();	// tok 4
+		const auto lPosition = input.getnexttokas<long>();	// tok 4
 		this->setTic(lPosition);
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
@@ -237,8 +237,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto iMin = input.getnexttok().to_<long>();	// tok 4
-		const auto iMax = input.getnexttok().to_<long>();	// tok 5
+		const auto iMin = input.getnexttokas<long>();	// tok 4
+		const auto iMax = input.getnexttokas<long>();	// tok 5
 		this->setSel(iMin, iMax);
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [VALUE]
@@ -249,7 +249,7 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto lLineSize = input.getnexttok().to_<long>();	// tok 4
+		const auto lLineSize = input.getnexttokas<long>();	// tok 4
 		this->setLineSize(lLineSize);
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [VALUE]
@@ -260,7 +260,7 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto lPageSize = input.getnexttok().to_<long>();	// tok 4
+		const auto lPageSize = input.getnexttokas<long>();	// tok 4
 		this->setPageSize(lPageSize);
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [VALUE]
@@ -271,7 +271,7 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto iTicFreq = input.getnexttok().to_<long>();	// tok 4
+		const auto iTicFreq = input.getnexttokas<long>();	// tok 4
 		this->setTicFreq(iTicFreq);
 	}
 	// xdid -q [NAME] [ID] [SWITCH]
@@ -289,8 +289,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto lMinRange = input.getnexttok().to_<long>();	// tok 4
-		const auto lMaxRange = input.getnexttok().to_<long>();	// tok 5
+		const auto lMinRange = input.getnexttokas<long>();	// tok 4
+		const auto lMaxRange = input.getnexttokas<long>();	// tok 5
 
 		this->setRangeMin(lMinRange);
 		this->setRangeMax(lMaxRange);
@@ -303,7 +303,7 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		m_colTransparent = input.getnexttok().to_<COLORREF>();	// tok 4
+		m_colTransparent = input.getnexttokas<COLORREF>();	// tok 4
 		this->redrawWindow();
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [VALUE]
@@ -338,7 +338,7 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto lLength = input.getnexttok().to_<UINT>();	// tok 4
+		const auto lLength = input.getnexttokas<UINT>();	// tok 4
 
 		this->setThumbLength(lLength);
 	}
@@ -350,7 +350,7 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto lPosition = input.getnexttok().to_<long>();	// tok 4
+		const auto lPosition = input.getnexttokas<long>();	// tok 4
 
 		this->setPos(lPosition);
 	}

@@ -28,11 +28,11 @@ SYSTEMTIME MircTimeToSystemTime(const long mircTime)
 	//mIRCLinker::eval(str, TEXT("$asctime(%,d m yyyy hh nn ss)"), mircTime);
 	//
 	//st.wDay = str.getfirsttok(1).to_<WORD>();
-	//st.wMonth = str.getnexttok().to_<WORD>();
-	//st.wYear = str.getnexttok().to_<WORD>();
-	//st.wHour = str.getnexttok().to_<WORD>();
-	//st.wMinute = str.getnexttok().to_<WORD>();
-	//st.wSecond = str.getnexttok().to_<WORD>();
+	//st.wMonth = str.getnexttokas<WORD>();
+	//st.wYear = str.getnexttokas<WORD>();
+	//st.wHour = str.getnexttokas<WORD>();
+	//st.wMinute = str.getnexttokas<WORD>();
+	//st.wSecond = str.getnexttokas<WORD>();
 	//
 	//return st;
 
@@ -41,7 +41,7 @@ SYSTEMTIME MircTimeToSystemTime(const long mircTime)
 	//mIRCLinker::eval(str, TEXT("$asctime(%,yyyy m d hh nn ss)"), mircTime);
 	mIRCLinker::eval(str, TEXT("$asctime(%,yyyy m d HH nn ss)"), mircTime); // fixes 24hr times showing wrong.
 
-	return { str.getfirsttok(1).to_<WORD>(), str.getnexttok().to_<WORD>(), 0, str.getnexttok().to_<WORD>(), str.getnexttok().to_<WORD>(), str.getnexttok().to_<WORD>(), str.getnexttok().to_<WORD>(), 0 };
+	return { str.getfirsttok(1).to_<WORD>(), str.getnexttokas<WORD>(), 0, str.getnexttokas<WORD>(), str.getnexttokas<WORD>(), str.getnexttokas<WORD>(), str.getnexttokas<WORD>(), 0 };
 }
 
 long SystemTimeToMircTime(const LPSYSTEMTIME pst)

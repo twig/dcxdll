@@ -391,7 +391,7 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 		case TEXT("seek"_hash): // seek
 		{
 			m_pControl->Pause(); // pause play
-			setPosition(input.getnexttok().to_<UINT64>());	// tok 5
+			setPosition(input.getnexttokas<UINT64>());	// tok 5
 			m_pControl->StopWhenReady(); // causes new image to be rendered.
 		}
 		break;
@@ -410,10 +410,10 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 			throw Dcx::dcxException("No File Loaded");
 
 		const auto tsFlags(input.getnexttok());
-		const auto fBrightness(input.getnexttok().to_<float>());
-		const auto fContrast(input.getnexttok().to_<float>());
-		const auto fHue(input.getnexttok().to_<float>());
-		const auto fSaturation(input.getnexttok().to_<float>());
+		const auto fBrightness(input.getnexttokas<float>());
+		const auto fContrast(input.getnexttokas<float>());
+		const auto fHue(input.getnexttokas<float>());
+		const auto fSaturation(input.getnexttokas<float>());
 		const auto fAlpha(input.getnexttokas<float>());
 
 		if (const auto hr = setVideo(tsFlags, fBrightness, fContrast, fHue, fSaturation, fAlpha); FAILED(hr))
@@ -440,7 +440,7 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 		{
 		case TEXT('v'): // Volume
 		{
-			if (const auto hr = this->setVolume(input.getnexttok().to_<float>()); FAILED(hr))
+			if (const auto hr = this->setVolume(input.getnexttokas<float>()); FAILED(hr))
 			{
 				DX_ERR(nullptr, TEXT("-V +v"), hr);
 				throw Dcx::dcxException("Unable to Set Volume");
@@ -449,7 +449,7 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 		break;
 		case TEXT('b'): // Balance
 		{
-			if (const auto hr = this->setBalance(input.getnexttok().to_<long>()); FAILED(hr))
+			if (const auto hr = this->setBalance(input.getnexttokas<long>()); FAILED(hr))
 			{
 				DX_ERR(nullptr, TEXT("-V +b"), hr);
 				throw Dcx::dcxException("Unable to Set Balance");

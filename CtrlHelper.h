@@ -2332,7 +2332,7 @@ namespace Dcx
 	/// <returns></returns>
 	[[nodiscard]] inline HTREEITEM dcxTreeView_GetFirstVisible(_In_ HWND hwnd) noexcept
 	{
-		return TreeView_GetFirstVisible(hwnd);
+		GSL_SUPPRESS(es.47) return TreeView_GetFirstVisible(hwnd);
 	}
 
 	/// <summary>
@@ -2879,7 +2879,7 @@ namespace Dcx
 	/// <returns>Returns the handle to the item if successful, or NULL otherwise.</returns>
 	[[nodiscard]] inline HTREEITEM dcxTreeView_GetLastVisible(_In_ HWND hTree) noexcept
 	{
-		return TreeView_GetLastVisible(hTree);
+		GSL_SUPPRESS(es.47) return TreeView_GetLastVisible(hTree);
 	}
 
 	/// <summary>

@@ -161,7 +161,7 @@ void DcxButton::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iColorStyles = parseColorFlags(input.getnexttok());	// tok 4
-		const auto clrColor = input.getnexttok().to_<COLORREF>();		// tok 5
+		const auto clrColor = input.getnexttokas<COLORREF>();		// tok 5
 
 		if (dcx_testflag(iColorStyles, BTNCS_NORMAL))
 			m_aColors[0] = clrColor;
@@ -184,7 +184,7 @@ void DcxButton::parseCommandRequest(const TString& input)
 		//	throw Dcx::dcxException("Command not supported by this button style.");
 		//
 		//const auto iColorStyles = parseColorFlags(input.getnexttok());	// tok 4
-		//const auto clrColor = input.getnexttok().to_<COLORREF>();		// tok 5
+		//const auto clrColor = input.getnexttokas<COLORREF>();		// tok 5
 		//
 		//auto filename(input.getlasttoks().trim());	// tok 6, -1
 		//
@@ -218,7 +218,7 @@ void DcxButton::parseCommandRequest(const TString& input)
 			throw Dcx::dcxException("Command not supported by this button style.");
 
 		const auto iColorStyles = parseColorFlags(input.getnexttok());	// tok 4
-		const auto clrColor = input.getnexttok().to_<COLORREF>();		// tok 5
+		const auto clrColor = input.getnexttokas<COLORREF>();		// tok 5
 
 		auto filename(input.getlasttoks().trim());	// tok 6, -1
 
@@ -255,7 +255,7 @@ void DcxButton::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		m_iIconSize = NumToIconSize(input.getnexttok().to_<int>());	// tok 4
+		m_iIconSize = NumToIconSize(input.getnexttokas<int>());	// tok 4
 
 		if (auto himl = getImageList(); himl)
 		{
@@ -297,7 +297,7 @@ void DcxButton::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto b = input.getnexttok().to_int();	// tok 4
+		const auto b = input.getnexttokas<int>();	// tok 4
 
 		m_bBitmapText = (b > 0);	// any value > 0 taken as being true
 		redrawWindow();

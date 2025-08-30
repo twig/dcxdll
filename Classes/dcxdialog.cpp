@@ -416,8 +416,8 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	else if (flags[TEXT('f')] && numtok > 4)
 	{
 		const auto iFlags = parseFlashFlags(input.getnexttok());	// tok 3
-		const auto iCount = input.getnexttok().to_<UINT>();				// tok 4
-		const auto dwTimeout = input.getnexttok().to_<DWORD>();	// tok 5
+		const auto iCount = input.getnexttokas<UINT>();				// tok 4
+		const auto dwTimeout = input.getnexttokas<DWORD>();	// tok 5
 		FLASHWINFO fli{ sizeof(FLASHWINFO), m_Hwnd, iFlags, iCount, dwTimeout };
 
 		FlashWindowEx(&fli);
@@ -429,7 +429,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 
 		if (dcx_testflag(m_uStyleBg, DBS_BKGCOLOR))
 		{
-			const auto clrColor = input.getnexttok().to_<COLORREF>();	// tok 4
+			const auto clrColor = input.getnexttokas<COLORREF>();	// tok 4
 
 			if (m_hBackBrush)
 			{
@@ -862,7 +862,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	else if (flags[TEXT('w')] && numtok > 4)
 	{
 		const auto tsFlags(input.getnexttok());			// tok 3
-		const auto index = input.getnexttok().to_int();	// tok 4
+		const auto index = input.getnexttokas<int>();	// tok 4
 		auto filename(input.getlasttoks().trim());		// tok 5, -1
 
 		ChangeHwndIcon(m_Hwnd, tsFlags, index, filename);
@@ -1040,7 +1040,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 
 			PreloadData();
 			//SetWindowRgn(m_Hwnd,nullptr,TRUE);
-			m_colTransparentBg = input.getnexttok().to_<COLORREF>();	// tok 4
+			m_colTransparentBg = input.getnexttokas<COLORREF>();	// tok 4
 			//this->m_uStyleBg = DBS_BKGBITMAP|DBS_BKGSTRETCH|DBS_BKGCENTER;
 			m_uStyleBg = DBS_BKGBITMAP;
 			auto filename(input.getlasttoks());								// tok 5, -1
@@ -1054,14 +1054,14 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		}
 		else if (xflags[TEXT('r')]) // rounded rect - radius args (optional)
 		{
-			const auto radius = (numtok > 3) ? input.getnexttok().to_int() : 20;	// tok 4
+			const auto radius = (numtok > 3) ? input.getnexttokas<int>() : 20;	// tok 4
 
 			hRegion = CreateRoundRectRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top, radius, radius);
 		}
 		else if (xflags[TEXT('c')]) // circle - radius arg (optional)
 		{
 			if (numtok > 3) {
-				auto radius = input.getnexttok().to_int();	// tok 4
+				auto radius = input.getnexttokas<int>();	// tok 4
 				if (radius < 1)
 					radius = 100; // handle cases where arg isnt a number or is a negative.
 
@@ -1099,11 +1099,11 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		else if (xflags[TEXT('d')]) // drag - <1|0>
 		{
 			noRegion = true;
-			m_bDoDrag = (input.getnexttok().to_<int>() > 0);	// tok 4
+			m_bDoDrag = (input.getnexttokas<int>() > 0);	// tok 4
 		}
 		else if (xflags[TEXT('g')]) // ghost drag - <0-255>
 		{
-			m_uGhostDragAlpha = gsl::narrow_cast<std::byte>(input.getnexttok().to_<UINT>() & 0xFF);	// tok 4
+			m_uGhostDragAlpha = gsl::narrow_cast<std::byte>(input.getnexttokas<UINT>() & 0xFF);	// tok 4
 
 			noRegion = true;
 		}
@@ -1207,10 +1207,10 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -V [NAME] [SWITCH] [left] [right] [top] [bottom]
 	else if (flags[TEXT('V')] && numtok > 5)
 	{
-		m_GlassOffsets.left = input.getnexttok().to_<LONG>();	// tok 3
-		m_GlassOffsets.right = input.getnexttok().to_<LONG>();	// tok 4
-		m_GlassOffsets.top = input.getnexttok().to_<LONG>();	// tok 5
-		m_GlassOffsets.bottom = input.getnexttok().to_<LONG>();	// tok 6
+		m_GlassOffsets.left = input.getnexttokas<LONG>();	// tok 3
+		m_GlassOffsets.right = input.getnexttokas<LONG>();	// tok 4
+		m_GlassOffsets.top = input.getnexttokas<LONG>();	// tok 5
+		m_GlassOffsets.bottom = input.getnexttokas<LONG>();	// tok 6
 
 		if (Dcx::DwmModule.isUseable())
 		{
@@ -1233,10 +1233,10 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -S [NAME] [SWITCH] [X Y W H]
 	else if (flags[TEXT('S')] && (numtok > 5))
 	{
-		auto x = input.getnexttok().to_int();	// tok 3
-		auto y = input.getnexttok().to_int();	// tok 4
-		auto w = input.getnexttok().to_int();	// tok 5
-		auto h = input.getnexttok().to_int();	// tok 6
+		auto x = input.getnexttokas<int>();	// tok 3
+		auto y = input.getnexttokas<int>();	// tok 4
+		auto w = input.getnexttokas<int>();	// tok 5
+		auto h = input.getnexttokas<int>();	// tok 6
 
 		RECT rcWindow{}, rcClient{};
 		UINT iFlags = SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOOWNERZORDER;
@@ -1641,7 +1641,7 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 	case L"isid"_hash:
 		if (numtok > 2)
 		{
-			const auto nID = input.getnexttok().to_<UINT>() + mIRC_ID_OFFSET;	// tok 3
+			const auto nID = input.getnexttokas<UINT>() + mIRC_ID_OFFSET;	// tok 3
 			szReturnValue = dcx_truefalse(IsWindow(GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(nID))) || (getControlByID(nID)));
 		}
 		break;
@@ -1765,7 +1765,7 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 	case L"zlayer"_hash:
 		if (numtok > 2)
 		{
-			const auto n = input.getnexttok().to_<VectorOfInts::size_type>();	// tok 3
+			const auto n = input.getnexttokas<VectorOfInts::size_type>();	// tok 3
 			const auto size = m_vZLayers.size();
 
 			if (n > size)

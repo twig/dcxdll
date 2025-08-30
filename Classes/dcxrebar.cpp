@@ -370,7 +370,7 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nIndex = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nIndex < 0 || nIndex >= this->getBandCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -390,7 +390,7 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto n = input.getnexttok().to_int() - 1; // tok 4
+		const auto n = input.getnexttokas<int>() - 1; // tok 4
 
 		if (n < 0 || n >= this->getBandCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -402,7 +402,7 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 	// $xdid([NAME], [ID], [N]).[PROP]
 	case L"markeditem"_hash:
 	{
-		const auto n = input.getnexttok().to_int() - 1;	// tok 4
+		const auto n = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (n < 0 || n >= this->getBandCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -420,7 +420,7 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 	// [NAME] [ID] [PROP] [N]
 	case L"width"_hash:
 	{
-		const auto n = input.getnexttok().to_int() - 1;	// tok 4
+		const auto n = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (n < 0 || n >= this->getBandCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -444,7 +444,7 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 	case L"rowheight"_hash:
 	{
 		// NB: n is a band number, not a row number. returns the height of the row containing the specified band.
-		const auto n = input.getnexttok().to_int() - 1;	// tok 4
+		const auto n = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (n < 0 || n >= this->getBandCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -486,11 +486,11 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		}
 		const auto nIndex = data.getfirsttok(4).to_<int>() - 1;			// tok 4
 		const auto tsFlags = data.getnexttok();							// tok 5
-		const auto cx = data.getnexttok().to_<UINT>();					// tok 6
-		const auto cy = data.getnexttok().to_<UINT>();					// tok 7
-		const auto width = data.getnexttok().to_<UINT>();				// tok 8
-		const auto nIcon = data.getnexttok().to_<int>() - 1;			// tok 9
-		const auto clrText = data.getnexttok().to_<COLORREF>();			// tok 10
+		const auto cx = data.getnexttokas<UINT>();					// tok 6
+		const auto cy = data.getnexttokas<UINT>();					// tok 7
+		const auto width = data.getnexttokas<UINT>();				// tok 8
+		const auto nIcon = data.getnexttokas<int>() - 1;			// tok 9
+		const auto clrText = data.getnexttokas<COLORREF>();			// tok 10
 		TString itemtext;
 		if (data.numtok() > 10)
 			itemtext = data.getlasttoks().trim();						// tok 11, -1
@@ -623,7 +623,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto Ns(input.getnexttok());	// tok 4
-		const auto nIcon = input.getnexttok().to_int() - 1;	// tok 5
+		const auto nIcon = input.getnexttokas<int>() - 1;	// tok 5
 
 		const auto nItemCnt = this->getBandCount();
 		const auto itEnd = Ns.end();
@@ -700,7 +700,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nIndex = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nIndex < 0 || nIndex >= this->getBandCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -713,7 +713,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nIndex = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nIndex < 0 || nIndex >= this->getBandCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -726,7 +726,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nRows = input.getnexttok().to_int();	// tok 4
+		const auto nRows = input.getnexttokas<int>();	// tok 4
 
 		if (nRows > -1)
 			this->m_iRowLimit = nRows;
@@ -818,8 +818,8 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nIndexFrom = input.getnexttok().to_int() - 1;	// tok 4
-		const auto nIndexTo = input.getnexttok().to_int() - 1;		// tok 4
+		const auto nIndexFrom = input.getnexttokas<int>() - 1;	// tok 4
+		const auto nIndexTo = input.getnexttokas<int>() - 1;		// tok 4
 		const auto nItems = this->getBandCount();
 
 		if (nIndexFrom < 0 || nIndexFrom >= nItems || nIndexTo < 0 || nIndexTo >= nItems)

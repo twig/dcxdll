@@ -46,7 +46,7 @@ mIRC(xstatusbar)
 
 			// Enable/Disable the Statusbar.
 			// -A [0|1] [options] = notheme grip tooltips nodivider disabled transparent
-			if (input.getnexttok().to_int() > 0)					// tok 2
+			if (input.getnexttokas<int>() > 0)					// tok 2
 			{
 				if (!DcxDock::InitStatusbar(input.getlasttoks()))	// tok 3, -1
 					throw DcxExceptions::dcxUnableToCreateWindow();
@@ -73,7 +73,7 @@ mIRC(xstatusbar)
 			if (numtok != 2)
 				throw DcxExceptions::dcxInvalidArguments();
 
-			if (const auto col = input.getnexttok().to_<COLORREF>(); col == CLR_INVALID)
+			if (const auto col = input.getnexttokas<COLORREF>(); col == CLR_INVALID)
 				DcxDock::status_setBkColor(CLR_DEFAULT);
 			else
 				DcxDock::status_setBkColor(col);
@@ -125,9 +125,9 @@ mIRC(xstatusbar)
 
 			const auto nPos = (tsTabOne.getfirsttok(2).to_int() - 1);			// tok 2
 			const auto flags(tsTabOne.getnexttok());							// tok 3
-			const auto icon = (tsTabOne.getnexttok().to_int() - 1);				// tok 4
-			const auto bkgClr = tsTabOne.getnexttok().to_<COLORREF>();			// tok 5
-			const auto txtClr = tsTabOne.getnexttok().to_<COLORREF>();			// tok 6
+			const auto icon = (tsTabOne.getnexttokas<int>() - 1);				// tok 4
+			const auto bkgClr = tsTabOne.getnexttokas<COLORREF>();			// tok 5
+			const auto txtClr = tsTabOne.getnexttokas<COLORREF>();			// tok 6
 
 			if (flags[0] != TEXT('+'))
 				throw DcxExceptions::dcxInvalidFlag();
@@ -174,11 +174,11 @@ mIRC(xstatusbar)
 			if (numtok < 4)
 				throw DcxExceptions::dcxInvalidArguments();
 
-			if (const auto nPos = (input.getnexttok().to_int() - 1); (nPos > -1 && nPos < DcxDock::status_getParts(SB_MAX_PARTSD, nullptr)))
+			if (const auto nPos = (input.getnexttokas<int>() - 1); (nPos > -1 && nPos < DcxDock::status_getParts(SB_MAX_PARTSD, nullptr)))
 			{
 				TString itemtext;
-				const auto bkgClr = input.getnexttok().to_<COLORREF>();	// tok 3
-				const auto txtClr = input.getnexttok().to_<COLORREF>();	// tok 4
+				const auto bkgClr = input.getnexttokas<COLORREF>();	// tok 3
+				const auto txtClr = input.getnexttokas<COLORREF>();	// tok 4
 
 				if (numtok > 4)
 					itemtext = input.getlasttoks();	// tok 5, -1
@@ -216,7 +216,7 @@ mIRC(xstatusbar)
 
 			auto himl = DcxDock::status_getImageList();
 			const auto flags(input.getnexttok());				// tok 2
-			const auto index = input.getnexttok().to_int();		// tok 3
+			const auto index = input.getnexttokas<int>();		// tok 3
 			auto filename(input.getlasttoks());					// tok 4, -1
 
 			if (!himl)
@@ -291,7 +291,7 @@ mIRC(_xstatusbar)
 		break;
 		case TEXT("text"_hash):
 		{
-			if (const auto iPart = (d.getnexttok().to_int() - 1), nParts = DcxDock::status_getParts(SB_MAX_PARTSD, nullptr); (iPart > -1 && iPart < nParts))
+			if (const auto iPart = (d.getnexttokas<int>() - 1), nParts = DcxDock::status_getParts(SB_MAX_PARTSD, nullptr); (iPart > -1 && iPart < nParts))
 			{
 				if (const auto iFlags = DcxDock::status_getPartFlags(iPart); dcx_testflag(iFlags, SBT_OWNERDRAW))
 				{
@@ -330,7 +330,7 @@ mIRC(_xstatusbar)
 		break;
 		case TEXT("tooltip"_hash):
 		{
-			if (const auto iPart = d.getnexttok().to_int(), nParts = DcxDock::status_getParts(SB_MAX_PARTSD, nullptr); (iPart > -1 && iPart < nParts))
+			if (const auto iPart = d.getnexttokas<int>(), nParts = DcxDock::status_getParts(SB_MAX_PARTSD, nullptr); (iPart > -1 && iPart < nParts))
 				DcxDock::status_getTipText(iPart, mIRCLinker::m_dwCharacters, data);
 		}
 		break;

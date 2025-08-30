@@ -229,7 +229,7 @@ void DcxMultiCombo::parseInfoRequest(const TString& input, const refString<TCHAR
 		if (input.numtok() < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nItem < -1 || nItem >= getCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -248,7 +248,7 @@ void DcxMultiCombo::parseInfoRequest(const TString& input, const refString<TCHAR
 		if (input.numtok() < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nItem < -1 || nItem >= getCount())
 			throw DcxExceptions::dcxInvalidItem();
@@ -341,7 +341,7 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		auto clr = input.getnexttok().to_<COLORREF>();
+		auto clr = input.getnexttokas<COLORREF>();
 		auto tsItemText(input.getlasttoks());
 
 		// add item to colour/listbox/listview/treeview dropdown
@@ -353,7 +353,7 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		if ((nItem < 0) || (nItem >= this->getCount()))
 			throw DcxExceptions::dcxInvalidItem();
@@ -423,7 +423,7 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		// show/hide drop window
-		if (const auto iState = input.getnexttok().to_<int>(); iState > 0)
+		if (const auto iState = input.getnexttokas<int>(); iState > 0)
 			SendMessage(m_Hwnd, MC_WM_SHOWDROP, 1, 0); // show drop window
 		else
 			SendMessage(m_Hwnd, MC_WM_SHOWDROP, 0, 0); // hide drop window
@@ -452,12 +452,12 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		if ((nItem < 0) || (nItem >= this->getCount()))
 			throw DcxExceptions::dcxInvalidItem();
 
-		const auto clr = input.getnexttok().to_<COLORREF>();	// tok 5
+		const auto clr = input.getnexttokas<COLORREF>();	// tok 5
 		const auto tsText(input.getlasttoks());	// tok 5
 
 		switch (const auto dStyle = getCurStyle(); dStyle)
@@ -484,13 +484,13 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nItem = input.getnexttokas<int>() - 1;	// tok 4
 
 		// nItem == -1, means add to the end.
 		if ((nItem < -1) || (nItem >= this->getCount()))
 			throw DcxExceptions::dcxInvalidItem();
 
-		const auto clr = input.getnexttok().to_<COLORREF>();	// tok 5
+		const auto clr = input.getnexttokas<COLORREF>();	// tok 5
 		const auto tsText(input.getlasttoks());	// tok 5
 
 		switch (const auto dStyle = getCurStyle(); dStyle)

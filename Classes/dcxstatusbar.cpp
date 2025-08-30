@@ -146,7 +146,7 @@ void DcxStatusBar::parseInfoRequest(const TString& input, const refString<TCHAR,
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const int iPart = input.getnexttok().to_int() - 1, nParts = getParts(DCX_STATUSBAR_MAX_PARTS, nullptr);	// tok 4
+		const int iPart = input.getnexttokas<int>() - 1, nParts = getParts(DCX_STATUSBAR_MAX_PARTS, nullptr);	// tok 4
 
 		if (iPart < 0 && iPart >= nParts)
 			throw Dcx::dcxException("Invalid Part");
@@ -187,7 +187,7 @@ void DcxStatusBar::parseInfoRequest(const TString& input, const refString<TCHAR,
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const int iPart = input.getnexttok().to_int(), nParts = getParts(DCX_STATUSBAR_MAX_PARTS, nullptr);	// tok 4
+		const int iPart = input.getnexttokas<int>(), nParts = getParts(DCX_STATUSBAR_MAX_PARTS, nullptr);	// tok 4
 
 		if (iPart < 0 && iPart >= nParts)
 			throw Dcx::dcxException("Invalid Part");
@@ -267,7 +267,7 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto col = input.getnexttok().to_<COLORREF>();	// tok 4
+		const auto col = input.getnexttokas<COLORREF>();	// tok 4
 		if (col == CLR_INVALID)
 			this->setBkColor(CLR_DEFAULT);
 		else
@@ -318,9 +318,9 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 		//if (numtok < 6)
 		//	throw DcxExceptions::dcxInvalidArguments();
 		//
-		//const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
+		//const auto nPos = input.getnexttokas<int>() - 1;	// tok 4
 		//const auto flag(input.getnexttok());			// tok 5
-		//const auto icon = input.getnexttok().to_int() - 1;	// tok 6
+		//const auto icon = input.getnexttokas<int>() - 1;	// tok 6
 		//const auto tsTabOne(input.getfirsttok(1, TSTABCHAR).trim());
 		//const auto tsTabTwo(input.getlasttoks().trim());
 		//
@@ -388,9 +388,9 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nPos = input.getnexttokas<int>() - 1;	// tok 4
 		const auto tsFlags(input.getnexttok());			// tok 5
-		const auto iIcon = input.getnexttok().to_int() - 1;	// tok 6
+		const auto iIcon = input.getnexttokas<int>() - 1;	// tok 6
 		const auto tsTabOne(input.getfirsttok(1, TSTABCHAR).trim());
 		const auto tsTooltip(input.getlasttoks().trim());
 
@@ -407,7 +407,7 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nPos = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nPos < 0 || nPos >= this->getParts(DCX_STATUSBAR_MAX_PARTS, nullptr))
 			throw Dcx::dcxException("Invalid Part");
@@ -436,7 +436,7 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 		//			throw DcxExceptions::dcxInvalidArguments();
 		//
 		//		const auto flag(input.getnexttok());			// tok 4
-		//		const auto index = input.getnexttok().to_int();		// tok 5
+		//		const auto index = input.getnexttokas<int>();		// tok 5
 		//		auto filename(input.getlasttoks());				// tok 6, -1
 		//
 		//		auto himl = getImageList();

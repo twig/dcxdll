@@ -142,7 +142,7 @@ void DcxScroll::parseCommandRequest( const TString & input )
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nLine = input.getnexttok().to_int();	// tok 4
+		const auto nLine = input.getnexttokas<int>();	// tok 4
 
 		if ( nLine > 0 )
 			this->m_nLine = nLine;
@@ -153,7 +153,7 @@ void DcxScroll::parseCommandRequest( const TString & input )
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nPage = input.getnexttok().to_int();	// tok 4
+		const auto nPage = input.getnexttokas<int>();	// tok 4
 
 		if ( nPage > 0 )
 			this->m_nPage = nPage;
@@ -164,8 +164,8 @@ void DcxScroll::parseCommandRequest( const TString & input )
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto L = input.getnexttok().to_int();	// tok 4
-		const auto R = input.getnexttok().to_int();	// tok 5
+		const auto L = input.getnexttokas<int>();	// tok 4
+		const auto R = input.getnexttokas<int>();	// tok 5
 
 		const SCROLLINFO si{ sizeof(SCROLLINFO),SIF_RANGE,L,R,0U,0,0 };
 
@@ -177,7 +177,7 @@ void DcxScroll::parseCommandRequest( const TString & input )
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto pos = input.getnexttok().to_int();	// tok 4
+		const auto pos = input.getnexttokas<int>();	// tok 4
 
 		const SCROLLINFO si{ sizeof(SCROLLINFO),SIF_POS,0,0,0U,pos,0 };
 

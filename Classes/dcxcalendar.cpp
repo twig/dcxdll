@@ -399,7 +399,7 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok());	// tok 4
-		const auto col = input.getnexttok().to_<COLORREF>();	// tok 5
+		const auto col = input.getnexttokas<COLORREF>();	// tok 5
 
 		// Set ALL colours at once
 		if (xflags[TEXT('A')])
@@ -444,7 +444,7 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto max = input.getnexttok().to_int();	// tok 4
+		const auto max = input.getnexttokas<int>();	// tok 4
 
 		MonthCal_SetMaxSelCount(m_Hwnd, max);
 	}
@@ -477,7 +477,7 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto min = input.getnexttok().to_<long>();	// tok 4
+		const auto min = input.getnexttokas<long>();	// tok 4
 		SYSTEMTIME range[2]{};
 
 		range[0] = MircTimeToSystemTime(min);
@@ -488,7 +488,7 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 			if (numtok < 5)
 				range[1] = range[0];
 			else {
-				const auto max = input.getnexttok().to_<long>();	// tok 5
+				const auto max = input.getnexttokas<long>();	// tok 5
 				range[1] = MircTimeToSystemTime(max);
 			}
 
@@ -503,7 +503,7 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto mircTime = input.getnexttok().to_<long>();	// tok 4
+		const auto mircTime = input.getnexttokas<long>();	// tok 4
 		const auto sysTime = MircTimeToSystemTime(mircTime);
 
 		MonthCal_SetToday(m_Hwnd, &sysTime);

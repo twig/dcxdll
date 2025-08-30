@@ -161,7 +161,7 @@ void DcxImage::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 		// $xdid(dname,id,frame).delay
 	case L"delay"_hash:
 	{
-		const UINT nFrame = input.getnexttok().to_<UINT>();
+		const UINT nFrame = input.getnexttokas<UINT>();
 		const long nDelay = getFrameDelay((nFrame == 0 ? m_FrameImage : nFrame));
 		_ts_snprintf(szReturnValue, TEXT("%d"), nDelay);
 	}
@@ -287,8 +287,8 @@ void DcxImage::parseCommandRequest(const TString& input)
 	if (flags[TEXT('w')] && numtok > 6)
 	{
 		//const auto flag(input.getnexttok());		// tok 4
-		//const auto index = input.getnexttok().to_int();	// tok 5
-		//const auto size = input.getnexttok().to_int();	// tok 6
+		//const auto index = input.getnexttokas<int>();	// tok 5
+		//const auto size = input.getnexttokas<int>();	// tok 6
 		//auto filename(input.getlasttoks().trim());	// tok 7, -1
 		//
 		//PreloadData();
@@ -315,7 +315,7 @@ void DcxImage::parseCommandRequest(const TString& input)
 
 		const auto flag(input.getnexttok());			// tok 4
 		const auto tsIndex(input.getnexttok());			// tok 5
-		const auto size = input.getnexttok().to_int();	// tok 6
+		const auto size = input.getnexttokas<int>();	// tok 6
 		auto filename(input.getlasttoks().trim());		// tok 7, -1
 
 		this->m_iIconSize = NumToIconSize(size);
@@ -371,7 +371,7 @@ void DcxImage::parseCommandRequest(const TString& input)
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags[TEXT('k')] && numtok > 3)
 	{
-		this->m_clrTransColor = input.getnexttok().to_<COLORREF>();	// tok 4
+		this->m_clrTransColor = input.getnexttokas<COLORREF>();	// tok 4
 		this->redrawWindow();
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [XOFFSET] [YOFFSET]
@@ -385,7 +385,7 @@ void DcxImage::parseCommandRequest(const TString& input)
 	// xdid -S [NAME] [ID] [SWITCH] [1|0]
 	else if (flags[TEXT('S')] && numtok > 3)
 	{
-		m_bResizeImage = (input.getnexttok().to_int() > 0);	// tok 4
+		m_bResizeImage = (input.getnexttokas<int>() > 0);	// tok 4
 
 		InvalidateRect(m_Hwnd, nullptr, TRUE);
 		//UpdateWindow(m_Hwnd);
@@ -401,7 +401,7 @@ void DcxImage::parseCommandRequest(const TString& input)
 		{
 			// enable/disable animation.
 
-			if (const bool bStart = (input.getnexttok().to_int() > 0); bStart)
+			if (const bool bStart = (input.getnexttokas<int>() > 0); bStart)
 			{
 				if (m_bIsAnimated)
 					StartAnimThread();
@@ -414,7 +414,7 @@ void DcxImage::parseCommandRequest(const TString& input)
 		else if (xflags[TEXT('f')])
 		{
 			// sets active frame
-			const auto nFrame = input.getnexttok().to_int();
+			const auto nFrame = input.getnexttokas<int>();
 			if ((nFrame < 0) || (gsl::narrow_cast<UINT>(nFrame) > m_FrameCount))
 				throw DcxExceptions::dcxInvalidArguments();
 
@@ -432,7 +432,7 @@ void DcxImage::parseCommandRequest(const TString& input)
 		else if (xflags[TEXT('d')])
 		{
 			// manually sets a delay between frames for broken gifs etc...
-			const auto nFrame = input.getnexttok().to_int();
+			const auto nFrame = input.getnexttokas<int>();
 			if (nFrame < 0)
 				throw DcxExceptions::dcxInvalidArguments();
 

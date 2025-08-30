@@ -214,7 +214,7 @@ void DcxLink::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nColor = (input.getnexttok().to_<size_t>() - 1);	// tok 4
+		const auto nColor = (input.getnexttokas<size_t>() - 1);	// tok 4
 
 		if (nColor >= std::size(m_aColors))
 			throw Dcx::dcxException("Invalid Colour Index");

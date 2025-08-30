@@ -156,7 +156,7 @@ TString XMenuBar::parseXMenuBarInfo(const TString& input) const
 	case L"menu"_hash:
 	{
 		const auto iSize = m_vpXMenuBar.size();
-		const auto i = input.getnexttok().to_<VectorOfXPopupMenu::size_type>();	// tok 2
+		const auto i = input.getnexttokas<VectorOfXPopupMenu::size_type>();	// tok 2
 
 		if (i > iSize)
 			throw Dcx::dcxException(TEXT("Invalid index: %"), i);

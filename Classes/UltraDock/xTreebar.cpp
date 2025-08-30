@@ -35,11 +35,11 @@ static void TraverseChildren(const HTREEITEM hParent, TString& buf, TString& res
 			pitem->iImage = (i < 0) ? I_IMAGENONE : i;
 	
 			// selected image (if none supplied use the standard image)
-			i = res.getnexttok().to_int() - 1;
+			i = res.getnexttokas<int>() - 1;
 			pitem->iSelectedImage = (i < 0) ? pitem->iImage : i;
 	
 			// expanded image (if none supplied use the standard image)
-			i = res.getnexttok().to_int() - 1;
+			i = res.getnexttokas<int>() - 1;
 			pitem->iExpandedImage = (i < 0) ? pitem->iImage : i;
 	
 			Dcx::dcxTreeView_SetItem(mIRCLinker::getTreeview(), pitem);
@@ -69,11 +69,11 @@ static void TraverseChildren(const HTREEITEM hParent, TString& buf, TString& res
 	//		pitem->iImage = (i < 0) ? I_IMAGENONE : i;
 	//
 	//		// selected image (if none supplied use the standard image)
-	//		i = res.getnexttok().to_int() - 1;
+	//		i = res.getnexttokas<int>() - 1;
 	//		pitem->iSelectedImage = (i < 0) ? pitem->iImage : i;
 	//
 	//		// expanded image (if none supplied use the standard image)
-	//		i = res.getnexttok().to_int() - 1;
+	//		i = res.getnexttokas<int>() - 1;
 	//		pitem->iExpandedImage = (i < 0) ? pitem->iImage : i;
 	//
 	//		TreeView_SetItem(mIRCLinker::getTreeview(), pitem);
@@ -97,10 +97,10 @@ static void TraverseChildren(const HTREEITEM hParent, TString& buf, TString& res
 	//			const auto iImage = res.getfirsttok(1).to_int() - 1;
 	//
 	//			// selected image (if none supplied use the standard image)
-	//			const auto iSelected = res.getnexttok().to_int() - 1;
+	//			const auto iSelected = res.getnexttokas<int>() - 1;
 	//
 	//			// expanded image (if none supplied use the standard image)
-	//			const auto iExpanded = res.getnexttok().to_int() - 1;
+	//			const auto iExpanded = res.getnexttokas<int>() - 1;
 	//
 	//			ptvitem.SetItemImages(iImage, iSelected, iExpanded);
 	//		}
@@ -145,11 +145,11 @@ static void TraverseTreebarItems(void)
 			item.iImage = (i < 0) ? I_IMAGENONE : i;
 	
 			// selected image (if none supplied use the standard image)
-			i = res.getnexttok().to_int() - 1;
+			i = res.getnexttokas<int>() - 1;
 			item.iSelectedImage = (i < 0) ? item.iImage : i;
 	
 			// expanded image (if none supplied use the standard image)
-			i = res.getnexttok().to_int() - 1;
+			i = res.getnexttokas<int>() - 1;
 			item.iExpandedImage = (i < 0) ? item.iImage : i;
 	
 			Dcx::dcxTreeView_SetItem(mIRCLinker::getTreeview(), &item);
@@ -181,11 +181,11 @@ static void TraverseTreebarItems(void)
 	//			item.iImage = (i < 0) ? I_IMAGENONE : i;
 	//
 	//			// selected image (if none supplied use the standard image)
-	//			i = res.getnexttok().to_int() - 1;
+	//			i = res.getnexttokas<int>() - 1;
 	//			item.iSelectedImage = (i < 0) ? item.iImage : i;
 	//
 	//			// expanded image (if none supplied use the standard image)
-	//			i = res.getnexttok().to_int() - 1;
+	//			i = res.getnexttokas<int>() - 1;
 	//			item.iExpandedImage = (i < 0) ? item.iImage : i;
 	//
 	//			TreeView_SetItem(mIRCLinker::getTreeview(), &item);
@@ -210,10 +210,10 @@ static void TraverseTreebarItems(void)
 	//			const auto iImage = res.getfirsttok(1).to_int() - 1;
 	//
 	//			// selected image (if none supplied use the standard image)
-	//			const auto iSelected = res.getnexttok().to_int() - 1;
+	//			const auto iSelected = res.getnexttokas<int>() - 1;
 	//
 	//			// expanded image (if none supplied use the standard image)
-	//			const auto iExpanded = res.getnexttok().to_int() - 1;
+	//			const auto iExpanded = res.getnexttokas<int>() - 1;
 	//
 	//			ptvitem.SetItemImages(iImage, iSelected, iExpanded);
 	//		}
@@ -556,7 +556,7 @@ mIRC(xtreebar)
 
 				auto iIndex = tsIndex.to_int() - 1;
 				const auto cflag(input.getnexttok().trim());	// tok 3
-				const auto fIndex = input.getnexttok().to_int(), iCnt = ImageList_GetImageCount(himl) - 1;	// tok 4
+				const auto fIndex = input.getnexttokas<int>(), iCnt = ImageList_GetImageCount(himl) - 1;	// tok 4
 				auto filename(input.getlasttoks().trim());	// tok 5, -1
 
 				// check index is within range.
@@ -589,8 +589,8 @@ mIRC(xtreebar)
 		break;
 		case TEXT('T'): // [1|0] (1|0)
 		{ // Take over Treebar drawing
-			DcxDock::g_bTakeOverTreebar = (input.getnexttok().to_int() > 0);	// tok 2
-			DcxDock::g_bTreebarThemedProgress = (input.getnexttok().to_int() > 0);	// tok 3
+			DcxDock::g_bTakeOverTreebar = (input.getnexttokas<int>() > 0);	// tok 2
+			DcxDock::g_bTreebarThemedProgress = (input.getnexttokas<int>() > 0);	// tok 3
 			if (DcxDock::g_bTakeOverTreebar)
 			{
 				if (mIRCLinker::isAlias(L"xtreebar_callback"_ts))
@@ -635,7 +635,7 @@ mIRC(_xtreebar)
 
 		const auto cnt = Dcx::dcxTreeView_GetCount(mIRCLinker::getTreeview());
 		const auto nHash = std::hash<TString>{}(d.getfirsttok(2));
-		auto index = d.getnexttok().to_<UINT>();
+		auto index = d.getnexttokas<UINT>();
 
 		if (index > cnt)
 			throw DcxExceptions::dcxInvalidItem(); // Dcx::dcxException("Invalid Item Index");

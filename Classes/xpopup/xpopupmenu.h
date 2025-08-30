@@ -565,7 +565,7 @@ public:
 	/// </summary>
 	/// <param name="hBitmap"></param>
 	/// <param name="tsFilename"></param>
-	void setBackBitmap(HBITMAP hBitmap, const TString& tsFilename) noexcept;
+	void setBackBitmap(HBITMAP hBitmap, const TString& tsFilename);
 
 	/// <summary>
 	/// Check if menu is using a rounded selector.
@@ -800,7 +800,7 @@ public:
 	/// </summary>
 	/// <param name="nPos"></param>
 	/// <param name="bEnable"></param>
-	void setItemCheckToggle(UINT nPos, bool bEnable);
+	void setItemCheckToggle(UINT nPos, bool bEnable) const;
 
 	/// <summary>
 	/// Check if a menu item is valid.

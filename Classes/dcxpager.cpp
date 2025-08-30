@@ -235,7 +235,7 @@ void DcxPager::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		this->setBorderSize(input.getnexttok().to_int());	// tok 4
+		this->setBorderSize(input.getnexttokas<int>());	// tok 4
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	else if (flags[TEXT('c')])

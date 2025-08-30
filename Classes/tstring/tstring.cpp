@@ -2028,8 +2028,95 @@ TString& TString::strip()
 	if (this->empty())
 		return *this;
 
-	const auto* start = this->m_pString;
-	const auto* end = this->m_pString + this->len();
+	//const auto* start = this->m_pString;
+	//const auto* end = this->m_pString + this->len();
+	//
+	//// Trim from start
+	//while (start != end && *start == L' ')
+	//	++start;
+	//
+	//// Trim from end
+	//while (end != start && *(--end) == L' ');
+	//
+	//const auto new_len = gsl::narrow_cast<size_type>((end - start) + 1);	// add one to take into account the previous decrement
+	//
+	//TString tmp(new_len + 1);				// add one for zero byte.
+	//
+	//// now strip all ctrl codes.
+	//const auto* const wtxt = start;
+	//auto* p = tmp.m_pString;
+	//auto pos = decltype(new_len){0};
+	//
+	//// strip out ctrl codes to correctly position text.
+	//for (auto c = wtxt[pos]; pos < new_len; c = wtxt[++pos])
+	//{
+	//	switch (c)
+	//	{
+	//	case 2:  // ctrl-b Bold
+	//	case 15: // ctrl-o
+	//	case 22: // ctrl-r Reverse
+	//	case 29: // ctrl-i Italics
+	//	case 31: // ctrl-u Underline
+	//		break;
+	//	case 3: // ctrl-k Colour
+	//	{
+	//		while (wtxt[pos + 1] == 3)
+	//			++pos; // remove multiple consecutive ctrl-k's
+	//
+	//		if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
+	//		{
+	//			++pos;
+	//
+	//			if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
+	//				++pos;
+	//
+	//			// maybe a background color
+	//			if (wtxt[pos + 1] == L',')
+	//			{
+	//				++pos;
+	//
+	//				if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
+	//				{
+	//					++pos;
+	//
+	//					if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
+	//						++pos;
+	//				}
+	//			}
+	//		}
+	//	}
+	//	break;
+	//	case 32:	// space character
+	//	{
+	//		while (wtxt[pos + 1] == 32)
+	//			++pos; // remove multiple consecutive spaces
+	//		// fall through to save first space
+	//	}
+	//	[[fallthrough]];
+	//	default:
+	//		*p++ = c;
+	//		break;
+	//	}
+	//}
+	//
+	//this->swap(tmp);
+	//
+	//GSL_SUPPRESS(lifetime.4) return *this;
+
+	return this->strip(this->m_pString);
+}
+
+TString& TString::strip(TString::const_pointer_const ptr)
+{
+	if (_ts_isEmpty(ptr))
+	{
+		this->clear();
+
+		return *this;
+	}
+
+	const auto* start = ptr;
+	const auto* end = ptr + _ts_strlen(ptr);
 
 	// Trim from start
 	while (start != end && *start == L' ')

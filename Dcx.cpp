@@ -4,7 +4,8 @@
 #include "Classes/custom/divider.h"
 #include "Classes/custom/DcxTrayIcon.h"
 
-namespace Dcx {
+namespace Dcx
+{
 	static TCHAR szLastError[MIRC_BUFFER_SIZE_CCH]{};
 	IClassFactory* m_pClassFactory{};
 	dcxVersionInfo VersInfo;
@@ -452,7 +453,6 @@ namespace Dcx {
 			MapWindowPoints(mHwnd, nullptr, &p, 1);
 			ImageList_DragMove(p.x, p.y);
 
-			// TODO: add code to highlite item we are above...
 			if (!m_pDragSourceCtrl)
 				break;
 

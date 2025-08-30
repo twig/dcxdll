@@ -182,7 +182,7 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nSel = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nSel < 0 || nSel >= Dcx::dcxListBox_GetCount(m_Hwnd))
 			throw DcxExceptions::dcxOutOfRange();
@@ -208,21 +208,38 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		{
 			if (const auto n = Dcx::dcxListBox_GetSelCount(m_Hwnd); n > 0)
 			{
-				auto p = std::make_unique<int[]>(gsl::narrow_cast<size_t>(n));
-				Dcx::dcxListBox_GetSelItems(m_Hwnd, n, p.get());
+				//auto p = std::make_unique<int[]>(gsl::narrow_cast<size_t>(n));
+				//Dcx::dcxListBox_GetSelItems(m_Hwnd, n, p.get());
+				//
+				//// get a unique value
+				//if (numtok > 3)
+				//{
+				//	const auto i = (input.getnexttokas<gsl::index>() - 1);	// tok 4
+				//
+				//	if ((i < 0) || (i >= n))
+				//		throw DcxExceptions::dcxOutOfRange();
+				//
+				//	nSel = gsl::at(p, i);
+				//}
+				//else
+				//	nSel = gsl::at(p, 0);	// no item requested, so return the first selected item.
+
+				VectorOfInts p(gsl::narrow_cast<size_t>(n));
+
+				Dcx::dcxListBox_GetSelItems(m_Hwnd, n, p.data());
 
 				// get a unique value
 				if (numtok > 3)
 				{
-					const auto i = (input.getnexttok().to_int() - 1);	// tok 4
+					const auto i = (input.getnexttokas<gsl::index>() - 1);	// tok 4
 
 					if ((i < 0) || (i >= n))
 						throw DcxExceptions::dcxOutOfRange();
 
-					nSel = gsl::at(p, gsl::narrow_cast<size_t>(i));
+					nSel = gsl::at(p, i);
 				}
 				else
-					nSel = gsl::at(p, 0U);	// no item requested, so return the first selected item.
+					nSel = gsl::at(p, 0);	// no item requested, so return the first selected item.
 			}
 		}
 		// single select
@@ -252,24 +269,48 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		{
 			if (const auto n = Dcx::dcxListBox_GetSelCount(m_Hwnd); n > 0)
 			{
-				auto p = std::make_unique<int[]>(gsl::narrow_cast<size_t>(n));
-				Dcx::dcxListBox_GetSelItems(m_Hwnd, n, p.get());
+				//auto p = std::make_unique<int[]>(gsl::narrow_cast<size_t>(n));
+				//Dcx::dcxListBox_GetSelItems(m_Hwnd, n, p.get());
+				//
+				//TString path;
+				//
+				//// get a unique value
+				//if (numtok > 3)
+				//{
+				//	if (const auto i = input.getnexttokas<gsl::index>(); i == 0)
+				//		path += n;	// get total number of selected items
+				//	else if ((i > 0) && (i <= n))
+				//		path += (gsl::at(p, i - 1) + 1);
+				//}
+				//else {
+				//	// get all items in a long comma seperated string
+				//
+				//	for (auto i = decltype(n){0}; i < n; ++i)
+				//		path.addtok((gsl::at(p, i) + 1), TSCOMMACHAR);
+				//}
+				//if (path.len() > MIRC_BUFFER_SIZE_CCH)
+				//	throw Dcx::dcxException("String too long");
+				//
+				//szReturnValue = path.to_chr();
+
+				VectorOfInts p(gsl::narrow_cast<size_t>(n));
+				Dcx::dcxListBox_GetSelItems(m_Hwnd, n, p.data());
 
 				TString path;
 
 				// get a unique value
 				if (numtok > 3)
 				{
-					if (const auto i = input.getnexttok().to_int(); i == 0)
+					if (const auto i = input.getnexttokas<gsl::index>(); i == 0)
 						path += n;	// get total number of selected items
 					else if ((i > 0) && (i <= n))
-						path += (gsl::at(p, gsl::narrow_cast<size_t>(i) - 1U) + 1);
+						path += (gsl::at(p, i - 1) + 1);
 				}
 				else {
 					// get all items in a long comma seperated string
 
 					for (auto i = decltype(n){0}; i < n; ++i)
-						path.addtok((gsl::at(p, gsl::narrow_cast<size_t>(i)) + 1), TSCOMMACHAR);
+						path.addtok((gsl::at(p, i) + 1), TSCOMMACHAR);
 				}
 				if (path.len() > MIRC_BUFFER_SIZE_CCH)
 					throw Dcx::dcxException("String too long");
@@ -380,7 +421,7 @@ void DcxList::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
+		auto nPos = input.getnexttokas<int>() - 1;	// tok 4
 		const auto tsItem(input.getlasttoks());			// tok 5, -1
 
 		if (nPos == -1)
@@ -581,7 +622,7 @@ void DcxList::parseCommandRequest(const TString& input)
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
+		auto nPos = input.getnexttokas<int>() - 1;	// tok 4
 		const TString tsFlags(input.getnexttok());
 		const TString tsArgs(input.getlasttoks().trim());
 
@@ -623,7 +664,7 @@ void DcxList::parseCommandRequest(const TString& input)
 			}
 		}
 		else {
-			auto nSel = (input.getnexttok().to_int() - 1);	// tok 4
+			auto nSel = (input.getnexttokas<int>() - 1);	// tok 4
 
 			if (nSel == -1)
 				nSel = nItems - 1;
@@ -705,7 +746,7 @@ void DcxList::parseCommandRequest(const TString& input)
 		const XSwitchFlags xflags(input.getnexttok());	// tok 4
 
 		if (xflags[TEXT('w')])
-			Dcx::dcxListBox_SetColumnWidth(m_Hwnd, input.getnexttok().to_int());	// tok 5
+			Dcx::dcxListBox_SetColumnWidth(m_Hwnd, input.getnexttokas<int>());	// tok 5
 		else if (xflags[TEXT('t')])
 		{
 			const auto Ns(input.getnexttok());	// tok 5
@@ -723,7 +764,7 @@ void DcxList::parseCommandRequest(const TString& input)
 
 				{
 					const auto itEnd = Ns.end();
-					UINT i = 0;
+					gsl::index i = 0;
 					for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 					{
 						gsl::at(tabs, i++) = (*itStart).to_int();	// tok i
@@ -740,7 +781,7 @@ void DcxList::parseCommandRequest(const TString& input)
 	//xdid -o -> [NAME] [ID] -o [N] [TEXT]
 	else if (flags[TEXT('o')])
 	{
-		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
+		auto nPos = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nPos == -1)
 			nPos = Dcx::dcxListBox_GetCount(m_Hwnd) - 1;
@@ -857,20 +898,10 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 			{
 			case LBN_SELCHANGE:
 			{
-				//#ifdef USE_FIX_01
-				//				if (isExStyle(WindowExStyle::Transparent) && !getParentDialog()->isExStyle(WindowExStyle::Composited))
-				//					redrawBufferedWindowClient();
-				//#endif
-
 				const auto nItem = Dcx::dcxListBox_GetCurSel(m_Hwnd);
 
 				if (nItem != LB_ERR) 
-				{
-					RECT rcItem{};
-					Dcx::dcxListBox_GetItemRect(m_Hwnd, nItem, &rcItem);
-					InvalidateRect(m_Hwnd, &rcItem, FALSE);
-					UpdateWindow(m_Hwnd);
-				}
+					this->InvalidateAndUpdate(nullptr);
 
 				if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
 				{
@@ -1282,8 +1313,8 @@ int DcxList::addItems(int nPos, const TString& tsFlags, const TString& tsArgs)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto htable(tsArgs.getfirsttok(1));
-		auto startN = tsArgs.getnexttok().to_int();	// tok 2
-		auto endN = tsArgs.getnexttok().to_int();		// tok 3
+		auto startN = tsArgs.getnexttokas<int>();	// tok 2
+		auto endN = tsArgs.getnexttokas<int>();		// tok 3
 
 		// get total items in table.
 		mIRCLinker::eval(tsRes, TEXT("$hget(%,0).item"), htable);
@@ -1337,7 +1368,7 @@ int DcxList::addItems(int nPos, const TString& tsFlags, const TString& tsArgs)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto startN = tsArgs.getfirsttok(1).to_int();
-		auto endN = tsArgs.getnexttok().to_int();	// tok 2
+		auto endN = tsArgs.getnexttokas<int>();	// tok 2
 		auto filename(tsArgs.getlasttoks());	// tok 3, -1
 
 		if (!IsFile(filename))

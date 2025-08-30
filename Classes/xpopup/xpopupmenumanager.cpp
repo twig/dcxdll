@@ -716,23 +716,23 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 
 		if (xflags[TEXT('a')]) // Set Alpha value of menu. 0-255 (when menu is non active but mouse is still over another submenu)
 		{
-			const std::byte alpha{ (input.getnexttok().to_<UINT>() & 0xFF) };	// tok 4
+			const std::byte alpha{ (input.getnexttokas<UINT>() & 0xFF) };	// tok 4
 
 			p_Menu->SetAlphaInactive(alpha);
 		}
 		else if (xflags[TEXT('A')]) // Set Alpha value of menu. 0-255 (for any time the conditions for +a are not met)
 		{
-			const std::byte alpha{ (input.getnexttok().to_<UINT>() & 0xFF) };	// tok 4
+			const std::byte alpha{ (input.getnexttokas<UINT>() & 0xFF) };	// tok 4
 
 			p_Menu->SetAlphaDefault(alpha);
 	}
 		else if (xflags[TEXT('r')]) // Set Rounded Selector on/off
-			p_Menu->SetRoundedSelector((input.getnexttok().to_int() > 0));	// tok 4
+			p_Menu->SetRoundedSelector((input.getnexttokas<int>() > 0));	// tok 4
 		else if (xflags[TEXT('R')]) // Set Rounded menu window on/off
-			p_Menu->SetRoundedWindow((input.getnexttok().to_int() > 0));	// tok 4
+			p_Menu->SetRoundedWindow((input.getnexttokas<int>() > 0));	// tok 4
 		else if (xflags[TEXT('t')]) // enable/disable tooltips for menu
 		{
-			p_Menu->setTooltipsState((input.getnexttok().to_int() ? true : false));
+			p_Menu->setTooltipsState((input.getnexttokas<int>() ? true : false));
 		}
 	}
 	// xpopup -s -> [MENU] [SWITCH] [+FLAGS] [X] [Y] (OVER HWND)
@@ -742,13 +742,13 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto mflags = this->parseTrackFlags(input.getnexttok());	// tok 3
-		auto x = input.getnexttok().to_int();								// tok 4
-		auto y = input.getnexttok().to_int();								// tok 5
+		auto x = input.getnexttokas<int>();								// tok 4
+		auto y = input.getnexttokas<int>();								// tok 5
 
 		/*
 		Add offsetting for multiple monitor based on supplied hwnd this menu is to be associated with
 		*/
-		if (const auto hTrack = to_hwnd(input.getnexttok().to_<ULONG_PTR>()); (hTrack && IsWindow(hTrack)))
+		if (const auto hTrack = to_hwnd(input.getnexttokas<ULONG_PTR>()); (hTrack && IsWindow(hTrack)))
 		{
 			// map window relative pos ($mouse.x/y) to screen pos for TrackPopupMenuEx()
 			POINT pt{ x, y };
@@ -943,7 +943,7 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 		if (numtok != 3)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nColor = gsl::narrow_cast<XPopupMenu::MenuColours>(input.getnexttok().to_<UINT>());	// tok 3
+		const auto nColor = gsl::narrow_cast<XPopupMenu::MenuColours>(input.getnexttokas<UINT>());	// tok 3
 		if (nColor < XPopupMenu::MenuColours::XPMC_MIN || nColor > XPopupMenu::MenuColours::XPMC_MAX)
 			throw Dcx::dcxException(TEXT("Invalid colour index used: %"), gsl::narrow_cast<UINT>(nColor));
 
@@ -1062,7 +1062,7 @@ const int XPopupMenuManager::parseMPopup(const TString& input)
 		throw DcxExceptions::dcxInvalidArguments();
 
 	const auto uMenuHash = std::hash<TString>{}(input.getfirsttok(1));
-	const auto iEnable = input.getnexttok().to_int();	// tok 2
+	const auto iEnable = input.getnexttokas<int>();	// tok 2
 	const auto tsCallback(input.getnexttok());
 
 	if (uMenuHash == TEXT("mirc"_hash))
@@ -2173,7 +2173,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 						{
 							// two ids assume its a position range.
 							const auto nFirst = tsIDs.getfirsttok(1).to_<UINT>() - 1;
-							const auto nLast = tsIDs.getnexttok().to_<UINT>() - 1;
+							const auto nLast = tsIDs.getnexttokas<UINT>() - 1;
 
 							CheckMenuRadioItem(hMenu, nFirst, nLast, gsl::narrow_cast<UINT>(wParam), MF_BYPOSITION);
 						}

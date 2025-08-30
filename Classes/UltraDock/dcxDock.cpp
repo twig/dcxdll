@@ -419,11 +419,11 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 			pTvis->itemex.iImage = (i < 0) ? I_IMAGENONE : i;
 
 			// selected image (if none set use image)
-			i = buf.getnexttok().to_int() - 1;
+			i = buf.getnexttokas<int>() - 1;
 			pTvis->itemex.iSelectedImage = (i < 0) ? pTvis->itemex.iImage : i;
 
 			// expanded image (if none set use image)
-			i = buf.getnexttok().to_int() - 1;
+			i = buf.getnexttokas<int>() - 1;
 			pTvis->itemex.iExpandedImage = (i < 0) ? pTvis->itemex.iImage : i;
 
 			pTvis->itemex.mask |= TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;

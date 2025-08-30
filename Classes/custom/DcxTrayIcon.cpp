@@ -38,7 +38,7 @@ mIRC(TrayIcon)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(d.getfirsttok(1));
-		const auto id = d.getnexttok().to_int();	// tok 2
+		const auto id = d.getnexttokas<int>();	// tok 2
 
 		// create and edit can use the same function
 		// Create/Edit   : xTray +c [id] [+flags] [icon index] [icon file] ([TAB] Tooltip text)
@@ -73,7 +73,7 @@ mIRC(TrayIcon)
 
 			// load the icon
 			const auto iconFlags(tsTabOne.getfirsttok(3));	// tok 3
-			const auto index = tsTabOne.getnexttok().to_int();	// tok 4
+			const auto index = tsTabOne.getnexttokas<int>();	// tok 4
 			auto filename(tsTabOne.getlasttoks());			// tok 5, -1
 
 			// add/edit the icon
@@ -96,7 +96,7 @@ mIRC(TrayIcon)
 
 			// set up info
 			const auto iconFlags(d.getnexttok());	// tok 3
-			const auto index = d.getnexttok().to_int();	// tok 4
+			const auto index = d.getnexttokas<int>();	// tok 4
 			auto filename(d.getlasttoks().trim());	// tok 5, -1
 
 			// TODO: twig
@@ -167,7 +167,7 @@ mIRC(TrayIcon)
 
 		//	// load the icon
 		//	const auto iconFlags(tsTabOne.getfirsttok(3));	// tok 3
-		//	const auto index = tsTabOne.getnexttok().to_int();	// tok 4
+		//	const auto index = tsTabOne.getnexttokas<int>();	// tok 4
 		//	auto filename(tsTabOne.getlasttoks());			// tok 5, -1
 
 		//	// add/edit the icon
@@ -188,7 +188,7 @@ mIRC(TrayIcon)
 
 		//	// set up info
 		//	const auto iconFlags(d.getnexttok());	// tok 3
-		//	const auto index = d.getnexttok().to_int();	// tok 4
+		//	const auto index = d.getnexttokas<int>();	// tok 4
 		//	auto filename(d.getlasttoks().trim());	// tok 5, -1
 
 		//	// TODO: twig

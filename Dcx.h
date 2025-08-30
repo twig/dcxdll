@@ -1140,7 +1140,7 @@ namespace Dcx
 			return m_data;
 		}
 
-		explicit operator bool () const noexcept
+		explicit operator bool() const noexcept
 		{
 			return (m_data != nullptr);
 		}
@@ -1327,7 +1327,7 @@ namespace Dcx
 		reverse_iter rend() const noexcept { return{ b }; }
 
 		T length() const noexcept { return (e - b) + 1; }
-		bool inRange(T f) const noexcept
+		inline bool inRange(T f) const noexcept
 		{
 			return ((b <= f) && (e >= f));
 		}

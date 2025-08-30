@@ -291,7 +291,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 			if (input.numtok() > 3)
 			{
 				const auto sepChars(Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd));
-				if (const auto nLine = input.getnexttok().to_int(); (nLine > 0 && nLine <= gsl::narrow_cast<int>(m_tsText.numtok(sepChars.to_chr()))))
+				if (const auto nLine = input.getnexttokas<int>(); (nLine > 0 && nLine <= gsl::narrow_cast<int>(m_tsText.numtok(sepChars.to_chr()))))
 					szReturnValue = m_tsText.gettok(nLine, sepChars.to_chr()).to_chr();
 			}
 			// Ook: should we return the entire line when no line number is given?
@@ -300,7 +300,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 			szReturnValue = m_tsText.to_chr();
 
 		// Ook: should use this instead?
-		//szReturnValue = getLine(input.getnexttok().to_int()).to_chr();
+		//szReturnValue = getLine(input.getnexttokas<int>()).to_chr();
 	}
 	break;
 
@@ -534,7 +534,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	//	if (numtok < 4)
 	//		throw DcxExceptions::dcxInvalidArguments();
 	//
-	//	auto pos = input.getnexttok().to_<long long>();
+	//	auto pos = input.getnexttokas<long long>();
 	//	if (pos < 0)
 	//	{
 	//		const auto oldPos = this->GetCaretPos();
@@ -552,7 +552,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 
 		//if (this->isStyle(WindowStyle::ES_MultiLine))
 		//{
-		//	const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
+		//	const auto nLine = input.getnexttokas<UINT>();	// tok 4
 		//	this->m_tsText.deltok(nLine, TEXT("\r\n"));
 		//	SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 		//}
@@ -591,7 +591,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 
 		const auto pos = this->GetCaretPos();
 
-		const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
+		const auto nLine = input.getnexttokas<UINT>();	// tok 4
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
@@ -613,12 +613,12 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		//const auto nChar = input.getnexttok().to_<UINT>();	// tok 4
+		//const auto nChar = input.getnexttokas<UINT>();	// tok 4
 		//TString tsLeft(this->m_tsText.sub(0, nChar));
 		//tsLeft += input.getlasttoks();
 		//tsLeft += this->m_tsText.sub(nChar, this->m_tsText.len());
 
-		const auto nChar = input.getnexttok().to_<UINT>();	// tok 4
+		const auto nChar = input.getnexttokas<UINT>();	// tok 4
 		const TString tsInsert(input.getlasttoks());
 
 		TString tsLeft(gsl::narrow_cast<TString::size_type>(this->m_tsText.len() + tsInsert.len()));
@@ -641,7 +641,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto i = input.getnexttok().to_<UINT>();	// tok 4
+		const auto i = input.getnexttokas<UINT>();	// tok 4
 		TCHAR cPassChar = input.getnexttok().at(0);	// tok 5
 
 		if (cPassChar == 0)
@@ -685,7 +685,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const BOOL enabled = (input.getnexttok().to_int() > 0);	// tok 4
+		const BOOL enabled = (input.getnexttokas<int>() > 0);	// tok 4
 
 		Dcx::dcxEdit_SetReadOnly(m_Hwnd, enabled);
 	}
@@ -695,7 +695,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
+		const auto nLine = input.getnexttokas<UINT>();	// tok 4
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
@@ -719,7 +719,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		if (const auto N = input.getnexttok().to_int(); N > -1)
+		if (const auto N = input.getnexttokas<int>(); N > -1)
 			Dcx::dcxEdit_LimitText(m_Hwnd, N);
 	}
 	// Used to prevent invalid flag message.
@@ -762,8 +762,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto istart = input.getnexttok().to_<DWORD>();	// tok 4
-		const auto iend = (numtok > 4) ? input.getnexttok().to_<DWORD>() : istart;
+		const auto istart = input.getnexttokas<DWORD>();	// tok 4
+		const auto iend = (numtok > 4) ? input.getnexttokas<DWORD>() : istart;
 
 		Dcx::dcxEdit_SetSel(m_Hwnd, istart, iend);
 		Dcx::dcxEdit_ScrollCaret(m_Hwnd);
@@ -803,7 +803,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		{
 			if (this->isStyle(WindowStyle::ES_MultiLine))
 			{
-				this->m_bShowLineNumbers = (input.getnexttok().to_int() > 0);	// tok 5
+				this->m_bShowLineNumbers = (input.getnexttokas<int>() > 0);	// tok 5
 				if (m_bShowLineNumbers)
 					setFmtRect();
 				else
@@ -1466,7 +1466,7 @@ Dcx::range_t<DWORD> DcxEdit::GetVisibleRange() const noexcept
 	const auto stop_line = Dcx::dcxEdit_LineFromChar(m_Hwnd, char_index);
 
 	// +1 to make range inclusive
-	return { start_line, stop_line + 1 };
+	return { start_line, stop_line /*+ 1*/ };
 }
 
 GSL_SUPPRESS(con.4)

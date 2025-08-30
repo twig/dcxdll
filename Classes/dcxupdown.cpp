@@ -187,8 +187,8 @@ void DcxUpDown::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto iMin = input.getnexttok().to_int();	// tok 4
-		const auto iMax = input.getnexttok().to_int();	// tok 5
+		const auto iMin = input.getnexttokas<int>();	// tok 4
+		const auto iMax = input.getnexttokas<int>();	// tok 5
 
 		setRange32(iMin, iMax);
 	}
@@ -200,7 +200,7 @@ void DcxUpDown::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nBase = input.getnexttok().to_int();	// tok 4
+		const auto nBase = input.getnexttokas<int>();	// tok 4
 
 		setBase(nBase);
 	}
@@ -212,7 +212,7 @@ void DcxUpDown::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nPos = input.getnexttok().to_int();	// tok 4
+		const auto nPos = input.getnexttokas<int>();	// tok 4
 
 		setPos32(nPos);
 	}

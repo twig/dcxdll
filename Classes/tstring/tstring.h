@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.22
+ * \version 1.23
  *
  * \b Revisions
  *	1.1
@@ -98,6 +98,7 @@
 #include <sstream>
 
 #include "string_support.h"
+#include <format>
 
 // use the StrToNum library for number conversions.
 //#if __has_include("StrToNum/StrToNum.h")
@@ -1065,6 +1066,13 @@ public:
 	/// <returns>A reference to this object after its stripped.</returns>
 	TString& strip();
 
+	/// <summary>
+	/// Change the contents to match the supplied string, thats had the extra spaces at the start and end of the string, and all ctrl codes in text removed.
+	/// </summary>
+	/// <param name="ptr">- String to strip and assign</param>
+	/// <returns>A reference to this object after its stripped.</returns>
+	TString& strip(TString::const_pointer_const ptr);
+
 #if TSTRING_TESTCODE
 	//	Replace
 	//		subString	-	String to be replaced (can be char/wchar_t/char */wchar_t */TString/std:string/std::wstring)
@@ -1969,13 +1977,43 @@ public:
 		return reinterpret_cast<T>(m_pString);
 	}
 
+#if TSTRING_STRTOUL
 	/// <summary>
 	/// Convert to numeric type
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <returns></returns>
+	/// <typeparam name="T">- The number type to convert too.</typeparam>
+	/// <returns>The string converted to a number.</returns>
+	template <TStringConcepts::IsFloat T>
+	[[nodiscard]] T to_() const
+	{
+		static_assert(is_Numeric_v<T>, "Type T must be (float, double, or long double)");
+
+		std::basic_istringstream<value_type> ss(m_pString);
+		T result{};
+		return ss >> result ? result : T();
+	}
+
+	/// <summary>
+	/// Convert to numeric type
+	/// </summary>
+	/// <typeparam name="T">- The number type to convert too.</typeparam>
+	/// <returns>The string converted to a number.</returns>
+	template <TStringConcepts::IsInteger T>
+	[[nodiscard]] T to_() const noexcept
+	{
+		static_assert(is_Numeric_v<T>, "Type T must be (int, long, ....)");
+
+		// no floats etc..
+		return gsl::narrow_cast<T>(_ts_strtoul<value_type>(m_pString, nullptr, 10));
+	}
+#else
+	/// <summary>
+	/// Convert to numeric type
+	/// </summary>
+	/// <typeparam name="T">- The number type to convert too.</typeparam>
+	/// <returns>The string converted to a number.</returns>
 	template <TStringConcepts::IsNumeric T>
-	[[nodiscard]] T to_() const noexcept(TSTRING_STRTOUL)
+	[[nodiscard]] T to_() const
 	{
 		static_assert(is_Numeric_v<T>, "Type T must be (int, long, float, double, ....)");
 
@@ -1985,19 +2023,18 @@ public:
 
 		// NB: StrToNum() has an issue with converting signed numbers into unsigned types, it will just fail.
 		return stn::StrToNum<T>(m_pString).value_or(0); // no copy made.
-#elif TSTRING_STRTOUL
-		// no floats etc..
-		return gsl::narrow_cast<T>(_ts_strtoul<value_type>(m_pString, nullptr, 10));
 #else
-		std::basic_istringstream<value_type> ss(m_pString);	// makes copy of string :(
+		std::basic_istringstream<value_type> ss(m_pString);
 		T result{};
 		return ss >> result ? result : T();
 #endif
 	}
-	[[nodiscard]] auto to_int() const { return to_<int>(); };
-	[[nodiscard]] auto to_num() const { return to_<__int64>(); };
+#endif
+
+	[[nodiscard]] auto to_int() const noexcept(TSTRING_STRTOUL) { return to_<int>(); };
+	[[nodiscard]] auto to_num() const noexcept(TSTRING_STRTOUL) { return to_<__int64>(); };
 	[[nodiscard]] auto to_float() const { return to_<float>(); };
-	[[nodiscard]] auto to_dword() const { return to_<DWORD>(); };
+	[[nodiscard]] auto to_dword() const noexcept(TSTRING_STRTOUL) { return to_<DWORD>(); };
 
 	template <TStringConcepts::IsNumeric T>
 	TString& append_number(_In_ T Number)
@@ -2024,6 +2061,24 @@ public:
 TString operator"" _ts(const char* p, size_t N);
 TString operator"" _ts(const WCHAR * p, size_t N);
 
+// These allow TString to work directly in std::format()
+template<>
+struct std::formatter<TString, char> : std::formatter<std::string, char>
+{
+	auto format(const TString& s, format_context& ctx) const
+	{
+		return std::formatter<std::string, char>::format(std::format("{}", s.c_str()), ctx);
+	}
+};
+
+template<>
+struct std::formatter<TString, wchar_t> : std::formatter<std::wstring, wchar_t>
+{
+	auto format(const TString &s, wformat_context &ctx) const
+	{
+		return std::formatter<std::wstring, wchar_t>::format(std::format(L"{}", s.to_wchr()), ctx);
+	}
+};
 
 //#pragma comment(lib,"tstring.lib")
 

@@ -653,7 +653,7 @@ mIRC(FontDialog)
 					if (numtok < 2)
 						throw DcxExceptions::dcxInvalidArguments();
 
-					cf.rgbColors = option.getnexttok().to_<COLORREF>();	// tok 2
+					cf.rgbColors = option.getnexttokas<COLORREF>();	// tok 2
 				}
 				break;
 				case TEXT("minmaxsize"_hash):
@@ -661,8 +661,8 @@ mIRC(FontDialog)
 					if (numtok < 3)
 						throw DcxExceptions::dcxInvalidArguments();
 
-					cf.nSizeMin = option.getnexttok().to_int();	// tok 2
-					cf.nSizeMax = option.getnexttok().to_int();	// tok 3
+					cf.nSizeMin = option.getnexttokas<int>();	// tok 2
+					cf.nSizeMax = option.getnexttokas<int>();	// tok 3
 
 					if (cf.nSizeMin > cf.nSizeMax)
 						throw DcxExceptions::dcxInvalidArguments();

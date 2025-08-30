@@ -228,9 +228,9 @@ void DcxIpAddress::parseCommandRequest(const TString& input)
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nField = input.getnexttok().to_int() - 1;				// tok 4
-		const auto min = gsl::narrow_cast<BYTE>(input.getnexttok().to_int() & 0xFF);	// tok 5
-		const auto max = gsl::narrow_cast<BYTE>(input.getnexttok().to_int() & 0xFF);	// tok 6
+		const auto nField = input.getnexttokas<int>() - 1;				// tok 4
+		const auto min = gsl::narrow_cast<BYTE>(input.getnexttokas<int>() & 0xFF);	// tok 5
+		const auto max = gsl::narrow_cast<BYTE>(input.getnexttokas<int>() & 0xFF);	// tok 6
 
 		if (nField < 0 || nField > 3)
 			throw DcxExceptions::dcxOutOfRange();
@@ -243,7 +243,7 @@ void DcxIpAddress::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nField = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nField = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nField < 0 || nField > 3)
 			throw DcxExceptions::dcxOutOfRange();

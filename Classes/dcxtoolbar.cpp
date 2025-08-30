@@ -223,7 +223,7 @@ void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
+		const auto iButton = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
 			throw DcxExceptions::dcxOutOfRange();
@@ -238,7 +238,7 @@ void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
+		const auto iButton = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
 			throw DcxExceptions::dcxOutOfRange();
@@ -256,7 +256,7 @@ void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
+		const auto iButton = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
 			throw DcxExceptions::dcxOutOfRange();
@@ -292,7 +292,7 @@ void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
+		const auto iButton = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
 			throw DcxExceptions::dcxOutOfRange();
@@ -307,7 +307,7 @@ void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
+		const auto iButton = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
 			throw DcxExceptions::dcxOutOfRange();
@@ -361,9 +361,9 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		if (numtok < 7)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto iButton = input.getnexttok().to_int() - 1;						// tok 4
+		const auto iButton = input.getnexttokas<int>() - 1;						// tok 4
 		const auto buttonStyles = parseButtonStyleFlags(input.getnexttok());		// tok 5
-		const auto clrColor = input.getnexttok().to_<COLORREF>();					// tok 6
+		const auto clrColor = input.getnexttokas<COLORREF>();					// tok 6
 		const auto removeButtonStyles = parseButtonStyleFlags(input.getnexttok());	// tok 7
 
 		if (iButton == -1 && this->getToolTipHWND())
@@ -437,7 +437,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		//if (const auto nButton = input.getnexttok().to_int() - 1; nButton > -1)
+		//if (const auto nButton = input.getnexttokas<int>() - 1; nButton > -1)
 		//	this->deleteButton(nButton);
 
 		TString tsButton(input.getnexttok());
@@ -476,7 +476,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const TString tsButton(input.getnexttok());
-		auto iImage = input.getnexttok().to_int() - 1;			// tok 5
+		auto iImage = input.getnexttokas<int>() - 1;			// tok 5
 
 		if (iImage < 0)
 			iImage = I_IMAGENONE;
@@ -515,8 +515,8 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nMin = input.getnexttok().to_int();	// tok 4
-		const auto nMax = input.getnexttok().to_int();	// tok 5	// was tok 4 should be 5
+		const auto nMin = input.getnexttokas<int>();	// tok 4
+		const auto nMax = input.getnexttokas<int>();	// tok 5	// was tok 4 should be 5
 
 		this->setButtonWidth(nMin, nMax);
 		this->autoSize();
@@ -527,7 +527,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto size = NumToIconSize(input.getnexttok().to_<UINT>());	// tok 4
+		const auto size = NumToIconSize(input.getnexttokas<UINT>());	// tok 4
 
 		// these are destroyed after being removed from toolbar by setImageList() function.
 		//ImageList_Destroy(this->getImageList(TB_IML_NORMAL));
@@ -559,7 +559,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nButton = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nButton = input.getnexttokas<int>() - 1;	// tok 4
 
 		if (nButton < 0 && nButton >= this->getButtonCount())
 			throw DcxExceptions::dcxOutOfRange();
@@ -625,8 +625,8 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto dxButton = input.getnexttok().to_int();		// tok 4
-		const auto dyButton = input.getnexttok().to_int();		// tok 5
+		const auto dxButton = input.getnexttokas<int>();		// tok 4
+		const auto dyButton = input.getnexttokas<int>();		// tok 5
 
 		if (!this->setButtonSize(dxButton, dyButton))
 			throw Dcx::dcxException("Unable to set button size.");
@@ -639,7 +639,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nButton = input.getnexttok().to_int() - 1;		// tok 4
+		const auto nButton = input.getnexttokas<int>() - 1;		// tok 4
 
 		if (nButton < 0 && nButton >= this->getButtonCount())
 			throw DcxExceptions::dcxOutOfRange();

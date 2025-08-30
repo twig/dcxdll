@@ -516,7 +516,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		if (const auto iHeight = input.getnexttok().to_int(); iHeight > -2) // NB: -1 height means reset to defaults
+		if (const auto iHeight = input.getnexttokas<int>(); iHeight > -2) // NB: -1 height means reset to defaults
 			Dcx::dcxTreeView_SetItemHeight(m_Hwnd, iHeight);
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
@@ -527,7 +527,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 
 		const auto iFlags = this->parseColorFlags(input.getnexttok());	// tok 4
 
-		const auto clr = input.getnexttok().to_<COLORREF>();	// tok 5
+		const auto clr = input.getnexttokas<COLORREF>();	// tok 5
 		if (dcx_testflag(iFlags, TVCOLOR_B))
 			Dcx::dcxTreeView_SetBkColor(m_Hwnd, clr);
 
@@ -568,8 +568,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		auto nIcon = icons.getfirsttok(1).to_int() - 1;
-		auto sIcon = icons.getnexttok().to_int() - 1;	// tok 2
-		auto eIcon = icons.getnexttok().to_int() - 1;	// tok 3
+		auto sIcon = icons.getnexttokas<int>() - 1;	// tok 2
+		auto eIcon = icons.getnexttokas<int>() - 1;	// tok 3
 		TVITEMEX tvi{};
 
 		tvi.mask = TVIF_HANDLE;
@@ -586,7 +586,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		if (icons.numtok() > 3)
 		{
 			// overlay is 1-based index
-			if (const auto oIcon = icons.getnexttok().to_int(); oIcon > -1)
+			if (const auto oIcon = icons.getnexttokas<int>(); oIcon > -1)
 				Dcx::dcxTreeView_SetItemState(m_Hwnd, tvi.hItem, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(oIcon)), TVIS_OVERLAYMASK);
 		}
 
@@ -641,7 +641,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto state = input.getnexttok().to_<UINT>();	// tok 4
+		const auto state = input.getnexttokas<UINT>();	// tok 4
 		const auto path(input.getlasttoks());		// tok 5, -1
 		const auto item = this->parsePath(path);
 
@@ -656,7 +656,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		m_iIconSize = NumToIconSize(input.getnexttok().to_<int>());	// tok 4
+		m_iIconSize = NumToIconSize(input.getnexttokas<int>());	// tok 4
 	}
 	// xdid -m [NAME] [ID] [SWITCH] N N N{TAB}N N N
 	else if (flags[TEXT('m')])
@@ -793,7 +793,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iFlags = this->parseItemFlags(input.getnexttok());	// tok 4
-		const auto clrText = input.getnexttok().to_<COLORREF>();		// tok 5
+		const auto clrText = input.getnexttokas<COLORREF>();		// tok 5
 		const auto path(input.getlasttoks());							// tok 6, -1
 		const auto item = this->parsePath(path);
 
@@ -967,8 +967,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto flag(input.getnexttok());			// tok 4
-		this->m_iXOffset = input.getnexttok().to_int();	// tok 5
-		this->m_iYOffset = input.getnexttok().to_int();	// tok 6
+		this->m_iXOffset = input.getnexttokas<int>();	// tok 5
+		this->m_iYOffset = input.getnexttokas<int>();	// tok 6
 		auto filename(input.getlasttoks());				// tok 7, -1
 
 		if (!this->m_bTransparent)
@@ -1050,16 +1050,16 @@ void DcxTreeView::insertItem(const TString& tsPath, const TString& tsData, const
 	tvi.mask = TVIF_STATE | TVIF_PARAM;
 
 	auto iFlags = this->parseItemFlags(tsData.getfirsttok(1));	// tok 1
-	const auto icon = tsData.getnexttok().to_int() - 1;			// tok 2
-	const auto sicon = tsData.getnexttok().to_int() - 1;		// tok 3
+	const auto icon = tsData.getnexttokas<int>() - 1;			// tok 2
+	const auto sicon = tsData.getnexttokas<int>() - 1;		// tok 3
 	int eicon = 0;
 	if (dcx_testflag(iFlags, TVIS_EXPANDEDICON))
-		eicon = tsData.getnexttok().to_int() - 1;				// tok 4
-	const auto overlay = tsData.getnexttok().to_int();			// tok 4
-	const auto state = tsData.getnexttok().to_int();			// tok 5
-	const auto integral = tsData.getnexttok().to_int() + 1;		// tok 6
-	const auto clrText = tsData.getnexttok().to_<COLORREF>();	// tok 7
-	const auto clrBkg = tsData.getnexttok().to_<COLORREF>();	// tok 8
+		eicon = tsData.getnexttokas<int>() - 1;				// tok 4
+	const auto overlay = tsData.getnexttokas<int>();			// tok 4
+	const auto state = tsData.getnexttokas<int>();			// tok 5
+	const auto integral = tsData.getnexttokas<int>() + 1;		// tok 6
+	const auto clrText = tsData.getnexttokas<COLORREF>();	// tok 7
+	const auto clrBkg = tsData.getnexttokas<COLORREF>();	// tok 8
 
 	// text
 	auto itemtext(tsData.getlasttoks());							// tok 9, -1

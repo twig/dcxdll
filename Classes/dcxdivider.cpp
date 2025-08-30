@@ -152,7 +152,7 @@ void DcxDivider::parseCommandRequest(const TString& input)
 
 		dvpi.fMask = DVPIM_CHILD | DVPIM_MIN | DVPIM_IDEAL;
 		dvpi.cxMin = data.getfirsttok(4).to_<UINT>();
-		dvpi.cxIdeal = data.getnexttok().to_<UINT>();	// tok 5
+		dvpi.cxIdeal = data.getnexttokas<UINT>();	// tok 5
 
 		if (control_data.numtok() < 6)
 			throw DcxExceptions::dcxInvalidArguments();
@@ -190,7 +190,7 @@ void DcxDivider::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		if (!setDivPos(input.getnexttok().to_<UINT>()))	// tok 4
+		if (!setDivPos(input.getnexttokas<UINT>()))	// tok 4
 			throw Dcx::dcxException("Divider position must be between bounds.");
 	}
 	// xdid -W [NAME] [ID] [SWITCH] [WIDTH]
@@ -199,7 +199,7 @@ void DcxDivider::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		if (!setBarWidth(input.getnexttok().to_<UINT>()))	// tok 4
+		if (!setBarWidth(input.getnexttokas<UINT>()))	// tok 4
 			throw DcxExceptions::dcxInvalidArguments();
 	}
 	// xdid -Q [NAME] [ID] [SWITCH] [COLOUR] [SELECTED COLOUR] [SELECTED BKG COLOUR] [HOVER COLOUR]
@@ -209,13 +209,13 @@ void DcxDivider::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		DVBARCOLORS dbc;
-		dbc.clrBar = input.getnexttok().to_<COLORREF>();
+		dbc.clrBar = input.getnexttokas<COLORREF>();
 		if (numtok > 4)
-			dbc.clrSelBarFg = input.getnexttok().to_<COLORREF>();
+			dbc.clrSelBarFg = input.getnexttokas<COLORREF>();
 		if (numtok > 5)
-			dbc.clrSelBarBg = input.getnexttok().to_<COLORREF>();
+			dbc.clrSelBarBg = input.getnexttokas<COLORREF>();
 		if (numtok > 6)
-			dbc.clrBarHover = input.getnexttok().to_<COLORREF>();
+			dbc.clrBarHover = input.getnexttokas<COLORREF>();
 
 		if (!setBarColor(dbc))
 			throw DcxExceptions::dcxInvalidArguments();
@@ -226,7 +226,7 @@ void DcxDivider::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const BOOL bState = ((input.getnexttok().to_<int>() > 0) ? TRUE : FALSE);
+		const BOOL bState = ((input.getnexttokas<int>() > 0) ? TRUE : FALSE);
 
 		SendMessage(m_Hwnd, DV_LOCKBAR, bState, 0L);
 	}

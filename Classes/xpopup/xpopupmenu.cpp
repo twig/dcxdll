@@ -101,8 +101,8 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 	//		throw DcxExceptions::dcxInvalidArguments();
 	//
 	//	const XSwitchFlags xflags(tsTabTwo.getfirsttok(1));		// tok 1 [+FLAGS]
-	//	const auto mID = tsTabTwo.getnexttok().to_<UINT>();		// tok 2 [ID]
-	//	const auto nIcon = tsTabTwo.getnexttok().to_int() - 1;	// tok 3 [ICON]
+	//	const auto mID = tsTabTwo.getnexttokas<UINT>();		// tok 2 [ID]
+	//	const auto nIcon = tsTabTwo.getnexttokas<int>() - 1;	// tok 3 [ICON]
 	//
 	//	TString tsItemText, tsTooltip;
 	//	//TString itemcom;
@@ -323,8 +323,8 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 //
 	//		if (xflags[TEXT('r')])
 	//		{
-	//			const auto nFirst = tsTabTwo.getnexttok().to_<UINT>() - 1;
-	//			const auto nLast = tsTabTwo.getnexttok().to_<UINT>() - 1;
+	//			const auto nFirst = tsTabTwo.getnexttokas<UINT>() - 1;
+	//			const auto nLast = tsTabTwo.getnexttokas<UINT>() - 1;
 	//			CheckMenuRadioItem(hMenu, nFirst, nLast, nPos, MF_BYPOSITION);
 	//		}
 	//		if (xflags[TEXT('R')])
@@ -389,7 +389,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 	//		path var is adjusted to be normal 3 4 3 style
 	//	3: a group id - =4
 	//		menu can have many diff values depending on the grouped items
-	//		groups are created by /xpopup -g command.
+	//		groups are created by /xpop -g command.
 	//	4: a selection of these - 3 4 3,:455,=4
 	//
 
@@ -1202,7 +1202,7 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 
 				const auto lpItem = p_Item.release();
 				mii.dwItemData = reinterpret_cast<ULONG_PTR>(lpItem);
-				this->m_vpMenuItem.push_back(lpItem);
+				this->m_vpMenuItem.emplace_back(lpItem);
 
 				//mii.dwItemData = reinterpret_cast<ULONG_PTR>(p_Item.get());
 				//this->m_vpMenuItem.push_back(p_Item.release());
@@ -1245,7 +1245,7 @@ void XPopupMenu::clearAllMenuItems() noexcept
 	this->m_vpMenuItem.clear();
 }
 
-void XPopupMenu::setBackBitmap(HBITMAP hBitmap, const TString& tsFilename) noexcept
+void XPopupMenu::setBackBitmap(HBITMAP hBitmap, const TString& tsFilename)
 {
 	this->m_hBitmap.reset();
 
@@ -1450,7 +1450,7 @@ HMENU XPopupMenu::CommandIDToPath(_In_ UINT mID, _Out_ TString& tsPath, _In_opt_
 	return nullptr;
 }
 
-void XPopupMenu::setItemCheckToggle(UINT nPos, bool bEnable)
+void XPopupMenu::setItemCheckToggle(UINT nPos, bool bEnable) const
 {
 	MENUITEMINFO mii{};
 	mii.cbSize = sizeof(MENUITEMINFO);
@@ -1768,8 +1768,8 @@ void XPopupMenu::xpop_a(HMENU hMenu, int nPos, const TString& path, const TStrin
 		throw DcxExceptions::dcxInvalidPath();
 
 	const XSwitchFlags xflags(tsTabTwo.getfirsttok(1));		// tok 1 [+FLAGS]
-	const auto mID = tsTabTwo.getnexttok().to_<UINT>();		// tok 2 [ID]
-	const auto nIcon = tsTabTwo.getnexttok().to_int() - 1;	// tok 3 [ICON]
+	const auto mID = tsTabTwo.getnexttokas<UINT>();		// tok 2 [ID]
+	const auto nIcon = tsTabTwo.getnexttokas<int>() - 1;	// tok 3 [ICON]
 
 	TString tsItemText, tsTooltip;
 	//TString itemcom;
@@ -1845,7 +1845,7 @@ void XPopupMenu::xpop_a(HMENU hMenu, int nPos, const TString& path, const TStrin
 	p_Item->setCommandID(mID);
 
 	mii.dwItemData = reinterpret_cast<ULONG_PTR>(p_Item.get());
-	this->m_vpMenuItem.push_back(p_Item.release());
+	this->m_vpMenuItem.emplace_back(p_Item.release());
 	InsertMenuItem(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
 }
 
@@ -1957,8 +1957,8 @@ void XPopupMenu::xpop_s(HMENU hMenu, int nPos, const TString& path, const TStrin
 
 		if (xflags[TEXT('r')])
 		{
-			const auto nFirst = tsTabTwo.getnexttok().to_<UINT>() - 1;
-			const auto nLast = tsTabTwo.getnexttok().to_<UINT>() - 1;
+			const auto nFirst = tsTabTwo.getnexttokas<UINT>() - 1;
+			const auto nLast = tsTabTwo.getnexttokas<UINT>() - 1;
 			CheckMenuRadioItem(hMenu, nFirst, nLast, nPos, MF_BYPOSITION);
 		}
 		if (xflags[TEXT('R')])

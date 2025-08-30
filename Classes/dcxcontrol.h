@@ -128,8 +128,8 @@ enum class dcxTextStyles
 enum class DcxIconSizes
 	: int
 {
-	SmallIcon = 16, MediumIcon = 24, LargeIcon = 32,
-	MaxSize = LargeIcon
+	SmallIcon = 16, MediumIcon = 24, LargeIcon = 32, FortyEight = 48, OneTwoEight = 128, TwoFiveSix = 256,
+	MaxSize = TwoFiveSix
 };
 
 class DcxDialog;

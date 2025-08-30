@@ -359,9 +359,9 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto x = input.getfirsttok(4).to_int();
-		auto y = input.getnexttok().to_int();	// tok 5
-		auto w = input.getnexttok().to_int();	// tok 6
-		auto h = input.getnexttok().to_int();	// tok 7
+		auto y = input.getnexttokas<int>();	// tok 5
+		auto w = input.getnexttokas<int>();	// tok 6
+		auto h = input.getnexttokas<int>();	// tok 7
 
 		const Dcx::dcxWindowRect rc(m_Hwnd, GetParent(m_Hwnd));
 
@@ -402,7 +402,7 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iFlags = this->parseColorFlags(input.getfirsttok(4));
-		const auto clrColor = input.getnexttok().to_<COLORREF>();	// tok 5
+		const auto clrColor = input.getnexttokas<COLORREF>();	// tok 5
 
 		{
 			// Background colour options.

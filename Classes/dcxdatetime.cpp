@@ -392,7 +392,7 @@ void DcxDateTime::parseCommandRequest( const TString &input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok());	// tok 4
-		const auto col = input.getnexttok().to_<COLORREF>();	// tok 5
+		const auto col = input.getnexttokas<COLORREF>();	// tok 5
 
 		// Set ALL colours at once
 		if (xflags[TEXT('A')])

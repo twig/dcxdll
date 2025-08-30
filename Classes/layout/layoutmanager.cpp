@@ -126,9 +126,9 @@ void LayoutManager::AddCell(const TString& input, const UINT iOffset, const DcxD
 
 	const TString tsID(p2.getnexttok());
 
-	const auto WGT = p2.getnexttok().to_<UINT>();	// tok 3
-	const auto W = p2.getnexttok().to_<INT>();	// tok 4
-	const auto H = p2.getnexttok().to_<INT>();	// tok 5
+	const auto WGT = p2.getnexttokas<UINT>();	// tok 3
+	const auto W = p2.getnexttokas<INT>();	// tok 4
+	const auto H = p2.getnexttokas<INT>();	// tok 5
 
 	const auto bPathRoot = (path == TEXT("root"));
 
