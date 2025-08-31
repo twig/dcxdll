@@ -473,7 +473,7 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 
 		const BOOL enabled = (input.getnexttokas<int>() > 0);	// tok 4
 		if (auto hEdit = this->getEditControl(); hEdit)
-			SendMessage(hEdit, EM_SETREADONLY, gsl::narrow_cast<WPARAM>(enabled), 0);
+			Dcx::dcxEdit_SetReadOnly(hEdit, enabled);
 	}
 	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]

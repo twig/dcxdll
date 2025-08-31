@@ -511,6 +511,49 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 
 		}
 	}
+	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
+	// xdid -E [NAME] [ID] [SWITCH] [+FLAGS] [CUE TEXT]
+	// xdid -E [NAME] [ID] [SWITCH] + [CUE TEXT]
+	// xdid -E [NAME] [ID] [SWITCH] +f [CUE TEXT]
+	else if (flags[TEXT('E')])
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto tsFlags(input.gettok(4));
+		bool bCueFocused{};
+		TString tsCue;
+		if (tsFlags[0] == TEXT('+'))
+		{
+			const XSwitchFlags xFlags(tsFlags);
+			tsCue = input.gettok(5, -1);	// tok 5, -1
+			bCueFocused = xFlags[TEXT('f')];
+		}
+		else {
+			bCueFocused = false;
+			tsCue = input.getlasttoks();	// tok 4, -1
+		}
+		if (auto ci = reinterpret_cast<LPMCOMBO_DATA>(SendMessage(m_Hwnd, MC_WM_GETCOMBOINFO, 0, 0)); ci)
+		{
+			if (IsWindow(ci->m_hEdit))
+				Dcx::dcxEdit_SetCueBannerTextFocused(ci->m_hEdit, tsCue.to_wchr(), bCueFocused);
+		}
+	}
+	// xdid -q [NAME] [ID] [SWITCH] [LIMIT]
+	else if (flags[TEXT('q')])
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		if (auto ci = reinterpret_cast<LPMCOMBO_DATA>(SendMessage(m_Hwnd, MC_WM_GETCOMBOINFO, 0, 0)); ci)
+		{
+			if (IsWindow(ci->m_hEdit))
+			{
+				if (const auto N = input.getnexttokas<int>(); N > -1)
+					Dcx::dcxEdit_LimitText(ci->m_hEdit, N);
+			}
+		}
+	}
 	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('r')])
