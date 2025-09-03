@@ -19,7 +19,7 @@ alias xtreebar_callback {
   }
   !if ($1 == gettooltip) {
     ; gettooltip <type> <text>
-    ; returns: tootlip text
+    ; returns: tooltip text
     !if ($2 == channel) {
       !if ($3 == #genscripts) return GenScripts Development!
       !if (#mircscript* iswm $3) return mIRC Scripting Channel
