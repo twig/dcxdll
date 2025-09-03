@@ -253,6 +253,9 @@ dcxWindowStyles DcxListView::parseControlStyles(const TString& tsStyles)
 		case L"groups"_hash:
 			m_bCustomGroups = true;
 			break;
+		case L"subitemsel"_hash:
+			m_bSubItemSelect = true;
+			break;
 		default:
 			break;
 		}
@@ -421,7 +424,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		Dcx::dcxListView_GetColumnOrderArray(m_Hwnd, count, val.data());
 
 		// increase each value by 1 for easy user indexing
-		for (auto &v: val)
+		for (auto& v : val)
 			++v;
 
 		// get specific column
@@ -434,7 +437,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		// collect all values
 		TString buff(gsl::narrow_cast<TString::size_type>(count * 32));
 
-		for (const auto &v: val)
+		for (const auto& v : val)
 			buff.addtok(v);
 
 		szReturnValue = buff.trim().to_chr();
@@ -1053,6 +1056,8 @@ void DcxListView::HandleDragDrop(int x, int y) noexcept
 	if (!m_Hwnd)
 		return;
 
+	Dcx::dcxListView_ClearInsertMark(m_Hwnd);
+
 	// Determine the dropped item
 	const int iItem = Dcx::dcxListView_GetItemAtPos(m_Hwnd, x, y);
 	// Out of the ListView?
@@ -1060,15 +1065,13 @@ void DcxListView::HandleDragDrop(int x, int y) noexcept
 	if (iItem == -1)
 		return;
 
-	Dcx::dcxListView_ClearInsertMark(m_Hwnd);
-
 	// Dropped item is selected?
-	if (Dcx::dcxListView_GetItemState(m_Hwnd, iItem, LVIS_SELECTED) == LVIS_SELECTED)
-		return;
+	//if (Dcx::dcxListView_GetItemState(m_Hwnd, iItem, LVIS_SELECTED) == LVIS_SELECTED)
+	//	return;
 
 	// Rearrange the items
 	for (int iPos = Dcx::dcxListView_GetNextItem(m_Hwnd, -1, LVNI_SELECTED); (iPos != -1); iPos = Dcx::dcxListView_GetNextItem(m_Hwnd, -1, LVNI_SELECTED))
-		this->MoveItem(iPos, iItem);
+		this->MoveItem(iPos, iItem, true);
 
 	//if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_DRAG))
 	//	execAliasEx(TEXT("enddrag,%u"), getUserID()); // allow blocking the drag?
@@ -1615,12 +1618,15 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto tsFlags(input.getnexttok());
+		const XSwitchFlags xFlags(input.getnexttok());
 		const auto tsItems(input.getnexttok());
 		const auto nDestItem = StringToItemNumber(input++);
 
 		// get total items
 		const auto nItemCnt = Dcx::dcxListView_GetItemCount(m_Hwnd);
+
+		if (!xFlags[L'+'])
+			throw DcxExceptions::dcxInvalidFlag();
 
 		// invalid info (allow moving to one item beyond last)
 		if ((nDestItem < 0) || (nDestItem > nItemCnt))
@@ -1640,7 +1646,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			// iterate through this range
 			for (auto nItem : ItemRange)
 			{
-				MoveItem(nItem, nDestItem);
+				MoveItem(nItem, nDestItem, xFlags[L's']);
 			}
 		}
 
@@ -1781,50 +1787,35 @@ void DcxListView::parseCommandRequest(const TString& input)
 	// xdid -t [NAME] [ID] [SWITCH] [+FLAGS] [#ICON] [WIDTH] (Header text) [{TAB} [+FLAGS] [#ICON] [WIDTH] Header text {TAB} ... ]
 	else if (flags[TEXT('t')])
 	{
-
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		this->DeleteColumns(-1);
 
 		auto nColumn = 0;
-		auto data(input.gettok(1, TSTAB).gettok(4, -1).trim());
-		auto tsflags(data++);					// tok 1
-		auto icon = data++.to_<int>() - 1;		// tok 2
-		auto width = data++.to_<int>();			// tok 3
+		for (auto tsIt = input.begin(TSTABCHAR); tsIt; ++tsIt)
+		{
+			auto data(*tsIt);
+			data.trim();
+			const auto tsflags(data.getfirsttok((nColumn == 0) ? 4 : 1));	// tok 1
+			const auto icon = data.getnexttokas<int>() - 1;					// tok 2
+			const auto width = data.getnexttokas<int>();					// tok 3
 
 		TString itemtext;
 		if (data.numtok() > 3)
-			itemtext = data.getlasttoks();		// tok 4, -1
+				itemtext = data.getlasttoks();								// tok 4, -1
 
 		this->addColumn(nColumn, -1, tsflags, icon, width, itemtext);
 
-		if (const auto tabs = input.numtok(TSTABCHAR); tabs > 1)
-		{
-			for (auto i = decltype(tabs){2}; i <= tabs; ++i)
-			{
 				++nColumn;
-
-				data = input.gettok(gsl::narrow_cast<int>(i), TSTABCHAR).trim();
-
-				tsflags = data++;
-				icon = data++.to_int() - 1;	// tok 2
-				width = data++.to_int();	// tok 3
-				itemtext.clear();	// = TEXT("");
-
-				if (data.numtok() > 3)
-					itemtext = data.getlasttoks();		// tok 4, -1
-
-				this->addColumn(nColumn, -1, tsflags, icon, width, itemtext);
 			}
 		}
-
-		//redrawWindow();
-	}
 	// xdid -u [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('u')])
 	{
 		Dcx::dcxListView_SetItemState(m_Hwnd, -1, 0, LVIS_SELECTED);
+		Dcx::dcxListView_SetSubItemListState(m_Hwnd, m_SubItemsSelected, 0, LVIS_SELECTED);
+		m_SubItemsSelected.clear();
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [N] [M] (ItemText)
 	else if (flags[TEXT('v')])
@@ -3078,27 +3069,22 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				else if (dcx_testflag(lvh.flags, LVHT_NOWHERE))
 					execAliasEx(TEXT("sclick,%u"), getUserID());
 			}
-			//#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
-			if (!dcx_testflag(lvexstyles, LVS_EX_FULLROWSELECT))
-			{ // make subitem show as selected. TEST CODE!!!!
 
-				LVITEM lvi{ LVIF_STATE, m_iSelectedItem, m_iSelectedSubItem, 0, LVIS_SELECTED, nullptr, 0, 0, 0, 0, 0, 0, nullptr, nullptr, 0 };
+			if (!dcx_testflag(lvexstyles, LVS_EX_FULLROWSELECT) && m_bSubItemSelect)
+			{ // make subitem show as selected.
 
-				// deselect previous
-				Dcx::dcxListView_SetItem(m_Hwnd, &lvi);
+				if (dcx_testflag(dcxGetWindowStyle(m_Hwnd), WindowStyle::LVS_SingleSelect) || (!dcx_testflag(nmia->uKeyFlags, LVKF_CONTROL) && !dcx_testflag(nmia->uKeyFlags, LVKF_SHIFT)))
+				{
+					Dcx::dcxListView_SetItemState(m_Hwnd, -1, 0, LVIS_SELECTED);
+					Dcx::dcxListView_SetSubItemListState(m_Hwnd, m_SubItemsSelected, 0, LVIS_SELECTED);
+					m_SubItemsSelected.clear();
+				}
 
 				// select new
-				m_iSelectedItem = lvh.iItem;
-				m_iSelectedSubItem = lvh.iSubItem;
-				lvi.iItem = lvh.iItem;
-				lvi.iSubItem = lvh.iSubItem;
-				lvi.mask = LVIF_STATE;
-				lvi.state = LVIS_SELECTED;
-				lvi.stateMask = LVIS_SELECTED;
+				Dcx::dcxListView_SetSubItemState(m_Hwnd, lvh.iItem, lvh.iSubItem, LVIS_SELECTED, LVIS_SELECTED);
 
-				Dcx::dcxListView_SetItem(m_Hwnd, &lvi);
+				m_SubItemsSelected.emplace_back(lvh.iItem, lvh.iSubItem);
 			}
-			//#endif
 		}
 		break;
 
@@ -5821,11 +5807,15 @@ void DcxListView::CopyItem(int iSrc, int iDest)
 	}
 }
 
-void DcxListView::MoveItem(int iSrc, int iDest) noexcept
+void DcxListView::MoveItem(int iSrc, int iDest, bool bPreseveState) noexcept
 {
 	// check for same item.
 	if ((!m_Hwnd) || (iSrc == iDest))
 		return;
+
+	const auto oldEvents = this->m_dEventMask;
+	this->m_dEventMask = 0;
+	Auto(this->m_dEventMask = oldEvents);
 
 	TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
 	LVITEM lvi{};
@@ -5843,6 +5833,8 @@ void DcxListView::MoveItem(int iSrc, int iDest) noexcept
 		lvi.iItem = iDest;
 
 		// dont want selected state
+		//const auto bSel = dcx_testflag(lvi.state, LVIS_SELECTED);
+
 		lvi.state &= ~gsl::narrow_cast<UINT>(LVIS_SELECTED);
 		lvi.stateMask &= ~gsl::narrow_cast<UINT>(LVIS_SELECTED);
 
@@ -5857,9 +5849,6 @@ void DcxListView::MoveItem(int iSrc, int iDest) noexcept
 		// Set the subitem text & image
 		for (int i = 1; i < this->getColumnCount(); ++i)
 		{
-			//Dcx::dcxListView_GetItemText(m_Hwnd, iSrc, i, &szBuf[0], std::size(szBuf));
-			//Dcx::dcxListView_SetItemText(m_Hwnd, iRet, i, &szBuf[0]);
-
 			lvi.mask = LVIF_TEXT | LVIF_IMAGE;
 			lvi.iItem = iSrc;
 			lvi.iSubItem = i;
@@ -5872,6 +5861,14 @@ void DcxListView::MoveItem(int iSrc, int iDest) noexcept
 				Dcx::dcxListView_SetItem(m_Hwnd, &lvi);
 			}
 		}
+
+		// always seems to set the check state as checked.
+		//if (dcx_testflag(Dcx::dcxListView_GetExtendedListViewStyle(m_Hwnd), LVS_EX_CHECKBOXES))
+		//	Dcx::dcxListView_SetCheckState(m_Hwnd, iRet, Dcx::dcxListView_GetCheckState(m_Hwnd, iSrc));
+
+		// setting select state cause lockup for some reason
+		//if (bPreseveState && bSel)
+		//	Dcx::dcxListView_SetItemState(m_Hwnd, iRet, LVIS_SELECTED, LVIS_SELECTED);
 
 		// need to remove PARAM before doing delete (as we are still using this data in the new moved item)
 		lvi.iItem = iSrc;

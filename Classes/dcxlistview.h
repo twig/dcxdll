@@ -392,7 +392,7 @@ private:
 	/// </summary>
 	/// <param name="iSrc"></param>
 	/// <param name="iDest"></param>
-	void MoveItem(int iSrc, int iDest) noexcept;
+	void MoveItem(int iSrc, int iDest, bool bPreseveState) noexcept;
 
 	/// <summary>
 	/// Get the margin rect.
@@ -565,9 +565,12 @@ private:
 	};
 	dcxListViewMarginData m_MarginData;
 
+	Dcx::VectorOfSubItemSelects m_SubItemsSelected;
+
 	bool m_bHasPBars{ false };			// true if listview has pbars at all, if it does, a slower update is used that checks & moves pbars. (better system needed)
 	bool m_bCustomGroups{ false };		// true if custom drawn group headers is enabled.
-	bool m_bReserved[2]{ false };
+	bool m_bSubItemSelect{ false };		// allow selecting of subitems.
+	bool m_bReserved{ false };
 };
 
 #endif // _DCXLISTVIEW_H_
