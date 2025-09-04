@@ -1176,6 +1176,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 	}
 	// xdid -c [NAME] [ID] [N,N2,N3-N4...]
 	// xdid -c -> [NAME] [ID] -c [N,N2,N3-N4...]
+	// xdid -c -> [NAME] [ID] -c [N:sub,N3:sub1-N3:sub4,N3:sub1-N4:sub4...]
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
@@ -1196,21 +1197,81 @@ void DcxListView::parseCommandRequest(const TString& input)
 				Dcx::dcxListView_SetItemState(m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
 		}
 		else {
-			{
-				const auto Ns(input.getnexttok());	// tok 4
-				const auto itEnd = Ns.end();
-				for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			//const auto Ns(input.getnexttok());	// tok 4
+			//const auto itEnd = Ns.end();
+			//for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			//{
+			//	const auto tsLine(*itStart);
+			//	const auto r = Dcx::getItemRange2(tsLine, nItemCnt);
+			//	if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+			//		throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+			//	for (const auto nItem : r)
+			//		Dcx::dcxListView_SetItemState(m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
+			//}
+
+			const auto nColumns = this->getColumnCount();
+
+			auto parseStringToSubItemSelects = [nItemCnt, nColumns](const TString& tsRanges) {
+				// tsLine = [N,N2,N3-N4...]
+				// or [N:sub,N3:sub1-N3:sub4,N3:sub1-N4:sub4...]
+				// these types can be mixed.
+				Dcx::VectorOfSubItemSelects vList;
+
+				const auto itEnd = tsRanges.end();
+				for (auto itStart = tsRanges.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 				{
 					const auto tsLine(*itStart);
+					if (tsLine.numtok(L':') > 1)
+					{
+						if (tsLine.numtok(L'-') == 2)
+						{
+							// N3:sub1-N3:sub4,N3:sub1-N4:sub4
+							const auto tsStart = tsLine.getfirsttok(1, TEXT('-'));
+							const auto tsEnd = tsLine.getnexttok(TEXT('-'));
+
+							const auto nItemStart = tsStart.getfirsttok(1, L':').to_<int>() - 1;
+							const auto nSubItemStart = tsStart.getnexttokas<int>(L':') - 1;
+							const auto nItemEnd = tsEnd.getfirsttok(1, L':').to_<int>() - 1;
+							const auto nSubItemEnd = tsEnd.getnexttokas<int>(L':') - 1;
+
+							if ((nItemStart > nItemEnd) || (nSubItemStart > nColumns) || (nSubItemEnd > nColumns) || ((nItemStart == nItemEnd) && (nSubItemStart > nSubItemEnd)))
+								throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+
+							for (auto nItem = nItemStart; nItem <= nItemEnd; ++nItem)
+			{
+								for (auto nSubItem = (nItem == nItemStart ? nSubItemStart : 0); nSubItem <= nColumns; ++nSubItem)
+				{
+									if ((nItem == nItemEnd) && (nSubItem > nSubItemEnd))
+										break;
+
+									vList.emplace_back(nItem, nSubItem);
+								}
+							}
+						}
+						else {
+							// N:sub
+							const auto nItem = tsLine.getfirsttok(1, L':').to_<int>();
+							const auto nSubItem = tsLine.getnexttokas<int>(L':');
+							vList.emplace_back(nItem, nSubItem);
+						}
+					}
+					else {
+						// N,N2,N3-N4
 					const auto r = Dcx::getItemRange2(tsLine, nItemCnt);
 
 					if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
 						throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
 					for (const auto nItem : r)
-						Dcx::dcxListView_SetItemState(m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
+							vList.emplace_back(nItem, 0);
 				}
 			}
+				return vList;
+			};
+			const auto vList = parseStringToSubItemSelects(input.getnexttok());
+			m_SubItemsSelected.insert(m_SubItemsSelected.end(), vList.begin(), vList.end());
+
+			Dcx::dcxListView_SetSubItemListState(m_Hwnd, vList, LVIS_SELECTED, LVIS_SELECTED);
 		}
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N,N2,N3-N4...]

@@ -110,6 +110,26 @@ namespace Dcx
 		ListView_SetItemState(hwnd, item, state, statemask);
 	}
 
+	inline void dcxListView_SetSubItemState(_In_ HWND hwnd, _In_ const int iItem, _In_ int iSubItem, _In_ const unsigned int state, _In_ const unsigned int statemask) noexcept
+	{
+		LVITEM lvi{ LVIF_STATE, iItem, iSubItem, state, statemask, nullptr, 0, 0, 0, 0, 0, 0, nullptr, nullptr, 0 };
+
+		dcxListView_SetItem(hwnd, &lvi);
+	}
+
+	struct SubItemSelect
+	{
+		int m_Item{ -1 };
+		int m_SubItem{ -1 };
+	};
+	using VectorOfSubItemSelects = std::vector<SubItemSelect>;
+
+	inline void dcxListView_SetSubItemListState(_In_ HWND hwnd, _In_ const std::vector<SubItemSelect>& vList, _In_ const unsigned int state, _In_ const unsigned int statemask) noexcept
+	{
+		for (const auto& item : vList)
+			dcxListView_SetSubItemState(hwnd, item.m_Item, item.m_SubItem, state, statemask);
+	}
+
 	/// <summary>
 	/// Set an items infotip popup.
 	/// </summary>
@@ -127,7 +147,7 @@ namespace Dcx
 	/// <param name="hwnd">- A handle to a list-view control.</param>
 	/// <param name="i"></param>
 	/// <param name="fCheck"></param>
-	inline void dcxListView_SetCheckState(_In_ HWND hwnd, _In_ const int i, _In_ const int fCheck) noexcept
+	inline void dcxListView_SetCheckState(_In_ HWND hwnd, _In_ const int i, _In_ const BOOL fCheck) noexcept
 	{
 		ListView_SetCheckState(hwnd, i, fCheck);
 	}
@@ -138,7 +158,7 @@ namespace Dcx
 	/// <param name="hwnd">- A handle to a list-view control.</param>
 	/// <param name="i">- The index of the item for which to retrieve the check state.</param>
 	/// <returns></returns>
-	inline UINT dcxListView_GetCheckState(_In_ HWND hwnd, _In_ const int i) noexcept
+	inline BOOL dcxListView_GetCheckState(_In_ HWND hwnd, _In_ const int i) noexcept
 	{
 		return ListView_GetCheckState(hwnd, i);
 	}
@@ -1646,7 +1666,7 @@ namespace Dcx
 	/// <para>and the string must end with two such characters. For example, the text for three buttons might appear in the string table as "/New/Open/Save//".</para>
 	/// <para>The message returns the index of "New" in the toolbar's string pool, and the other items are in consecutive positions.</para>
 	/// </remarks>
-	inline int dcxToolbar_AddString(_In_ HWND hwnd, _In_ HINSTANCE hInst, _In_ TCHAR *lpStrs) noexcept
+	inline int dcxToolbar_AddString(_In_ HWND hwnd, _In_ HINSTANCE hInst, _In_ TCHAR* lpStrs) noexcept
 	{
 		return gsl::narrow_cast<int>(SendMessage(hwnd, TB_ADDSTRING, reinterpret_cast<WPARAM>(hInst), reinterpret_cast<LPARAM>(lpStrs)));
 	}
@@ -1768,7 +1788,7 @@ namespace Dcx
 	/// If you use this message, first call the message passing NULL in the lParam, this returns the number of characters, excluding NULL that are required.
 	/// Then call the message a second time to retrieve the string.
 	/// </remarks>
-	inline int dcxToolbar_GetButtonText(_In_ HWND hwnd, _In_ UINT uIndex, _In_ TCHAR *szBuf) noexcept
+	inline int dcxToolbar_GetButtonText(_In_ HWND hwnd, _In_ UINT uIndex, _In_ TCHAR* szBuf) noexcept
 	{
 		return gsl::narrow_cast<int>(SendMessage(hwnd, TB_GETBUTTONTEXT, uIndex, reinterpret_cast<LPARAM>(szBuf)));
 	}
@@ -2598,7 +2618,7 @@ namespace Dcx
 	{
 		TreeView_SetCheckState(hwnd, hti, fCheck);
 	}
-	
+
 	/// <summary>
 	/// Expand items children.
 	/// </summary>
@@ -4279,6 +4299,21 @@ namespace Dcx
 	inline bool dcxTabCtrl_GetItemRect(_In_ HWND hwnd, _In_ int i, _Out_ LPRECT prc) noexcept
 	{
 		return (TabCtrl_GetItemRect(hwnd, i, prc) != FALSE);
+	}
+
+	inline int dcxTabCtrl_SetCurSel(_In_ HWND hwnd, _In_ int i) noexcept
+	{
+		return TabCtrl_SetCurSel(hwnd, i);
+	}
+
+	inline bool dcxTabCtrl_SetItem(_In_ HWND hwnd, _In_ int i, _In_ LPTCITEM pitem) noexcept
+	{
+		return (TabCtrl_SetItem(hwnd, i, pitem) != FALSE);
+	}
+
+	inline DWORD dcxTabCtrl_SetItemSize(_In_ HWND hwnd, _In_ int x, _In_ int y) noexcept
+	{
+		return TabCtrl_SetItemSize(hwnd, x, y);
 	}
 
 }
