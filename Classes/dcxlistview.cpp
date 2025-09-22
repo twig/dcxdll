@@ -3310,11 +3310,6 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				if (lpdcxlvi->pbar)
 					DestroyWindow(lpdcxlvi->pbar->getHwnd());
 
-				//for (auto& x : lpdcxlvi->vInfo)
-				//	delete x;
-				//
-				//lpdcxlvi->vInfo.clear();
-
 				delete lpdcxlvi;
 			}
 			bParsed = TRUE; // message has been handled.
@@ -4083,26 +4078,50 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString& styles)
 
 void DcxListView::UpdateScrollPbars()
 {
+	//if (!m_bHasPBars || !m_Hwnd)
+	//	return;
+	//
+	//const auto nCount = Dcx::dcxListView_GetItemCount(m_Hwnd);
+	//const auto nCols = getColumnCount();
+	//const auto iTop = getTopIndex();
+	//const auto iBottom = getBottomIndex() + 1;
+	//
+	//auto lvi = std::make_unique<LVITEM>();
+	//
+	//ZeroMemory(lvi.get(), sizeof(LVITEM));
+	//
+	//for (auto row = decltype(nCount){0}; row < nCount; ++row)
+	//	ScrollPbars(row, nCols, iTop, iBottom, lvi.get());
+
 	if (!m_bHasPBars || !m_Hwnd)
 		return;
 
 	const auto nCount = Dcx::dcxListView_GetItemCount(m_Hwnd);
 	const auto nCols = getColumnCount();
-	const auto iTop = getTopIndex();
-	const auto iBottom = getBottomIndex() + 1;
 
 	auto lvi = std::make_unique<LVITEM>();
 
 	ZeroMemory(lvi.get(), sizeof(LVITEM));
 
+	if (auto hdp = BeginDeferWindowPos(nCount); hdp)
+	{
 	for (auto row = decltype(nCount){0}; row < nCount; ++row)
-		ScrollPbars(row, nCols, iTop, iBottom, lvi.get());
+			ScrollPbars(row, nCols, hdp, lvi.get());
+
+		if (hdp)
+			EndDeferWindowPos(hdp);
+}
 }
 
 // BUG: when listview has horiz scrollbars pbar will be moved oddly when listview is scrolled horiz.
 //			pbars are positioned relative to visible area of control & as such arn't scrolled.
 void DcxListView::ScrollPbars(const int row, const int nCols, const int iTop, const int iBottom, LPLVITEM lvi) noexcept
 {
+	if (!lvi)
+		return;
+
+	const bool bVisible = Dcx::dcxListView_IsItemVisible(m_Hwnd, row);
+
 	for (auto col = decltype(nCols){0}; col < nCols; ++col)
 	{
 		lvi->iItem = row;
@@ -4125,17 +4144,17 @@ void DcxListView::ScrollPbars(const int row, const int nCols, const int iTop, co
 			continue;
 
 		// hide it if its scrolled off visible range
-		//if (!ListView_IsItemVisible(m_Hwnd, lvi->iItem)) {
-		//if ((lvi->iItem < iTop) || (lvi->iItem > iBottom))
+		if (!bVisible)
+		{
+			ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_HIDE);
+			continue;
+		}
+
+		//if (!Dcx::dcxListView_IsSubItemVisible(m_Hwnd, lvi->iItem, col))
 		//{
 		//	ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_HIDE);
-		//	break;
+		//	continue;
 		//}
-		//else
-		//	ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_SHOW);
-
-		if (Dcx::dcxListView_IsItemVisible(m_Hwnd, lvi->iItem))
-			ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_SHOW);
 
 		RECT rItem{};
 
@@ -4159,23 +4178,14 @@ void DcxListView::ScrollPbars(const int row, const int nCols, const int iTop, co
 				rcClient.top += (rcHeader.bottom - rcHeader.top);
 				if (rItem.top <= rcClient.top)
 				{
+					//if (rItem.bottom <= rcClient.top)
+					//{
 					ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_HIDE);
 					break;
+					//}
 				}
 			}
 		}
-
-		//RECT rcWin;
-		//if (GetWindowRect(lpdcxlvi->pbar->getHwnd(), &rcWin))
-		//{
-		//	MapWindowRect(nullptr, m_Hwnd, &rcWin);
-		//	if (!EqualRect(&rcWin, &rItem)) {
-		//		MoveWindow(lpdcxlvi->pbar->getHwnd(),
-		//			rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top),
-		//			FALSE);
-		//		InvalidateRect(lpdcxlvi->pbar->getHwnd(), nullptr, TRUE);
-		//	}
-		//}
 
 		if (RECT rcWin{}; GetWindowRectParent(lpdcxlvi->pbar->getHwnd(), &rcWin))
 		{
@@ -4185,6 +4195,86 @@ void DcxListView::ScrollPbars(const int row, const int nCols, const int iTop, co
 					rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top),
 					FALSE);
 				InvalidateRect(lpdcxlvi->pbar->getHwnd(), nullptr, TRUE);
+			}
+		}
+
+		ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_SHOW);
+		break;
+				}
+			}
+
+void DcxListView::ScrollPbars(const int row, const int nCols, HDWP& hdp, LPLVITEM lvi) noexcept
+{
+	if (!hdp || !lvi)
+		return;
+
+	const bool bVisible = Dcx::dcxListView_IsItemVisible(m_Hwnd, row);
+
+	for (auto col = decltype(nCols){0}; col < nCols; ++col)
+	{
+		lvi->iItem = row;
+		lvi->iSubItem = col;
+		lvi->mask = LVIF_PARAM;
+
+		if (!Dcx::dcxListView_GetItem(m_Hwnd, lvi))
+			continue;
+
+		const auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lvi->lParam);
+
+		if (!lpdcxlvi)
+			continue;
+
+		if (!lpdcxlvi->pbar)
+			continue;
+
+		// isnt the right column to scroll
+		if (lpdcxlvi->iPbarCol != col)
+			continue;
+
+		// hide it if its scrolled off visible range
+		if (!bVisible)
+		{
+			hdp = DeferWindowPos(hdp, lpdcxlvi->pbar->getHwnd(), nullptr,
+				0,0,0,0,
+				SWP_HIDEWINDOW | SWP_NOMOVE | SWP_NOSIZE);
+			continue;
+		}
+
+		RECT rItem{};
+
+		// get coordinates to move to
+		if (col == 0)
+			Dcx::dcxListView_GetItemRect(m_Hwnd, lvi->iItem, &rItem, LVIR_LABEL);
+		else
+			Dcx::dcxListView_GetSubItemRect(m_Hwnd, lvi->iItem, lvi->iSubItem, LVIR_LABEL, &rItem);
+
+		// Ook: testing a workaround for controls being drawn over headers
+		if (auto hHeader = Dcx::dcxListView_GetHeader(m_Hwnd); IsWindowVisible(hHeader))
+		{
+			if (RECT rcClient{}, rcHeader{}; (GetClientRect(m_Hwnd, &rcClient) && GetWindowRectParent(hHeader, &rcHeader)))
+			{
+				rcClient.top += (rcHeader.bottom - rcHeader.top);
+				if (rItem.top <= rcClient.top)
+				{
+					// only hide when fully covered by header (needs code to allow partial drawing of child controls)
+					//if (rItem.bottom <= rcClient.top)
+		//{
+						hdp = DeferWindowPos(hdp, lpdcxlvi->pbar->getHwnd(), nullptr,
+							0, 0, 0, 0,
+							SWP_HIDEWINDOW | SWP_NOMOVE | SWP_NOSIZE);
+						break;
+		//}
+				}
+			}
+		}
+
+		if (RECT rcWin{}; GetWindowRectParent(lpdcxlvi->pbar->getHwnd(), &rcWin))
+		{
+			if (!EqualRect(&rcWin, &rItem))
+			{
+				hdp = DeferWindowPos(hdp, lpdcxlvi->pbar->getHwnd(), nullptr,
+					rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top),
+					SWP_SHOWWINDOW);
 			}
 		}
 		break;
@@ -4633,22 +4723,19 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 	auto data(input.gettok(1, TSTABCHAR).gettok(4, -1).trim());
 
 	const auto indent = data.getfirsttok(2).to_<int>();			// tok 2
-	auto stateFlags = this->parseItemFlags(data++);				// tok 3
-	auto icon = data++.to_<int>() - 1;							// tok 4
-	const auto state = data++.to_<int>();						// tok 5
-	auto overlay = data++.to_<int>();							// tok 6
-	const auto group = data++.to_<int>();						// tok 7
-	//auto clrText = data.getnexttokas<COLORREF>();			// tok 8
-	//auto clrBack = data.getnexttokas<COLORREF>();			// tok 9
-	auto clrText = data++.to_<COLORREF>();						// tok 8
-	auto clrBack = data++.to_<COLORREF>();						// tok 9
+	auto stateFlags = this->parseItemFlags(data.getnexttok());	// tok 3
+	auto icon = data.getnexttokas<int>() - 1;							// tok 4
+	const auto state = data.getnexttokas<int>();						// tok 5
+	auto overlay = data.getnexttokas<int>();							// tok 6
+	const auto group = data.getnexttokas<int>();						// tok 7
+	auto clrText = data.getnexttokas<COLORREF>();				// tok 8
+	auto clrBack = data.getnexttokas<COLORREF>();				// tok 9
 
 	if (Dcx::dcxListView_GetItemCount(m_Hwnd) <= 0)
 		InvalidateRect(m_Hwnd, nullptr, TRUE);
 
 	auto lpmylvi = std::make_unique<DCXLVITEM>();
 	{
-		//auto ri = std::make_unique<DCXLVRENDERINFO>();
 		DCXLVRENDERINFO ri{};
 
 		lpmylvi->iPbarCol = 0;
@@ -4663,8 +4750,6 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 		if (dcx_testflag(stateFlags, LVIS_BGCOLOR))
 			ri.m_cBg = clrBack;
 
-		//lpmylvi->vInfo.push_back(ri.release());
-		//lpmylvi->vInfo.push_back(ri);
 		lpmylvi->vInfo.emplace_back(ri);
 	}
 	TString itemtext;
@@ -4690,8 +4775,8 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 	lvi.state = (stateFlags & 0xFFFF); // mask out higher number flags. These flags cause the add to fail & arnt needed here anyway.
 	lvi.stateMask = (LVIS_FOCUSED | LVIS_SELECTED | LVIS_CUT | LVIS_DROPHILITED); // only alter the controls flags, ignore our custom ones.
 	lvi.iImage = I_IMAGECALLBACK; // NB: using I_IMAGENONE causes a gap to be left for the icon for some reason. Using I_IMAGECALLBACK doesn't do this.
-	//lvi.lParam = reinterpret_cast<LPARAM>(lpmylvi.get());
-	lvi.lParam = Dcx::numeric_cast<LPARAM>(lpmylvi.get());
+	lvi.lParam = reinterpret_cast<LPARAM>(lpmylvi.get());
+	//lvi.lParam = Dcx::numeric_cast<LPARAM>(lpmylvi.get());
 	lvi.iGroupId = I_GROUPIDNONE;	// set item as belonging to NO group by default.
 	// otherwise if group flag isnt set I_GROUPIDCALLBACK is assumed.
 
@@ -4743,21 +4828,20 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 		// ADD check for num columns
 		for (auto i = decltype(tabs){2}; i <= tabs; ++i)
 		{
-			data = input.gettok(Dcx::numeric_cast<int>(i), TSTABCHAR).trim();
+			data = input.gettok(Dcx::numeric_cast<ptrdiff_t>(i), TSTABCHAR).trim();
 			const auto nToks = data.numtok();
 
 			if (nToks < 5)
 				throw Dcx::dcxException("Invalid subitem syntax");
 
-			stateFlags = parseItemFlags(data++);				// tok 1
-			icon = data++.to_<int>() - 1;						// tok 2
-			overlay = data++.to_<int>();						// tok 3
-			clrText = data++.to_<COLORREF>();					// tok 4
-			clrBack = data++.to_<COLORREF>();					// tok 5
+			stateFlags = parseItemFlags(data.getfirsttok(1));	// tok 1
+			icon = data.getnexttokas<int>() - 1;				// tok 2
+			overlay = data.getnexttokas<int>();					// tok 3
+			clrText = data.getnexttokas<COLORREF>();			// tok 4
+			clrBack = data.getnexttokas<COLORREF>();			// tok 5
 
 			// setup colum #
 			{
-				//auto ri = std::make_unique<DCXLVRENDERINFO>();
 				DCXLVRENDERINFO ri{};
 
 				ri.m_dFlags = stateFlags;
@@ -4766,8 +4850,6 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 
 				ri.m_cBg = (dcx_testflag(stateFlags, LVIS_BGCOLOR) ? clrBack : CLR_INVALID);
 
-				//tmp_lpmylvi->vInfo.push_back(ri.release());
-				//tmp_lpmylvi->vInfo.push_back(ri);
 				tmp_lpmylvi->vInfo.emplace_back(ri);
 			}
 			lvi.iSubItem = Dcx::numeric_cast<int>(i) - 1;
@@ -5849,11 +5931,8 @@ void DcxListView::CopyItem(int iSrc, int iDest)
 			iSrc++;
 
 		// Set the subitem text
-		for (int i = 1; i < this->getColumnCount(); i++)
+		for (int i = 1; i < this->getColumnCount(); ++i)
 		{
-			//Dcx::dcxListView_GetItemText(m_Hwnd, iSrc, i, &szBuf[0], std::size(szBuf));
-			//Dcx::dcxListView_SetItemText(m_Hwnd, iRet, i, &szBuf[0]);
-
 			lvi.mask = LVIF_TEXT | LVIF_IMAGE;
 			lvi.iItem = iSrc;
 			lvi.iSubItem = i;

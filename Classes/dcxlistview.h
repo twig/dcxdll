@@ -108,6 +108,7 @@ struct DCXLVRENDERINFO
 	COLORREF	m_cBg{ CLR_INVALID };		//!< Background Colour.
 	COLORREF	m_cOrigText{ CLR_INVALID };
 	COLORREF	m_cOrigBg{ CLR_INVALID };
+	//DcxControl* m_pCtrl{ nullptr };
 };
 using LPDCXLVRENDERINFO = DCXLVRENDERINFO*;
 
@@ -225,6 +226,7 @@ protected:
 private:
 	DcxControl * CreatePbar(LPLVITEM lvi, const TString & style);
 	void ScrollPbars(const int row, const int nCols, const int iTop, const int iBottom, LPLVITEM lvi) noexcept;
+	void ScrollPbars(const int row, const int nCols, HDWP& hdp, LPLVITEM lvi) noexcept;
 	void UpdateScrollPbars(void);
 	[[nodiscard]] gsl::strict_not_null<HIMAGELIST> initImageList(const int iImageList);
 
