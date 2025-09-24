@@ -4757,10 +4757,6 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 	{
 		itemtext = data.getlasttoks();		// tok 10, -1
 
-		//if (dcx_testflag(stateFlags, LVIS_HASHITEM))
-		//	mIRCLinker::tsEvalex(itemtext, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-		//else if (dcx_testflag(stateFlags, LVIS_HASHNUMBER))
-		//	mIRCLinker::tsEvalex(itemtext,  TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 		if (dcx_testflag(stateFlags, LVIS_HASHITEM))
 			mIRCLinker::eval(itemtext, TEXT("$hget(%,%)"), itemtext.getfirsttok(1), itemtext.getnexttok());
 		else if (dcx_testflag(stateFlags, LVIS_HASHNUMBER))
@@ -5617,7 +5613,7 @@ LRESULT DcxListView::DrawItem(LPNMLVCUSTOMDRAW lplvcd)
 
 void DcxListView::DrawGroupHeaderText(HDC hdc, HTHEME hTheme, int iStateId, LPCRECT rc, const TString& tsText, UINT uTextFlags, UINT uAlign, bool bCustomText, int iCol)
 {
-	RECT rcText{ *rc };
+	const RECT rcText{ *rc };
 	RECT rcRgn{ rcText };
 
 	if (const TString tsHeader(tsText.gettok(iCol + 1, TSTABCHAR)); !tsHeader.empty())
