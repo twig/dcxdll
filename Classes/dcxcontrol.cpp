@@ -3505,10 +3505,10 @@ void DcxControl::xmlSetStyle(const TiXmlElement* xStyle)
 	}
 	if (auto xTextOptions = xStyle->FirstChildElement("textoptions"); xTextOptions)
 	{
-		m_TextOptions.m_bNoCtrlCodes = (xTextOptions->Attribute("noformat") != nullptr);
-		m_TextOptions.m_bDoubleOutline = (xTextOptions->Attribute("dbloutline") != nullptr);
-		m_TextOptions.m_bFilledOutline = (xTextOptions->Attribute("filledoutline") != nullptr);
-		m_TextOptions.m_bGlow = (xTextOptions->Attribute("glow") != nullptr);
+		m_TextOptions.m_bNoCtrlCodes = (queryIntAttribute(xTextOptions, "noformat") > 0);
+		m_TextOptions.m_bDoubleOutline = (queryIntAttribute(xTextOptions, "dbloutline") > 0);
+		m_TextOptions.m_bFilledOutline = (queryIntAttribute(xTextOptions, "filledoutline") > 0);
+		m_TextOptions.m_bGlow = (queryIntAttribute(xTextOptions, "glow") > 0);
 		if (const TString tmp(queryAttribute(xTextOptions, "gtext")); !_ts_isEmpty(tmp))
 		{
 			m_TextOptions.m_bHorizGradientFill = (tmp == L"Horizontal");
@@ -3519,13 +3519,13 @@ void DcxControl::xmlSetStyle(const TiXmlElement* xStyle)
 			m_TextOptions.m_bHorizGradientOutline = (tmp == L"Horizontal");
 			m_TextOptions.m_bGradientOutline = true;
 		}
-		m_TextOptions.m_bNoColours = (queryIntAttribute(xTextOptions, "nocolours") == 0);
-		m_TextOptions.m_bOutline = (queryIntAttribute(xTextOptions, "outlineonly") == 0);
-		m_TextOptions.m_bTransparent = (queryIntAttribute(xTextOptions, "transparent") == 0);
+		m_TextOptions.m_bNoColours = (queryIntAttribute(xTextOptions, "nocolours") > 0);
+		m_TextOptions.m_bOutline = (queryIntAttribute(xTextOptions, "outlineonly") > 0);
+		m_TextOptions.m_bTransparent = (queryIntAttribute(xTextOptions, "transparent") > 0);
 
 		if (auto xItem = dynamic_cast<const TiXmlElement*>(xTextOptions->FirstChild("shadows")); xItem)
 		{
-			m_TextOptions.m_bShadow = (queryIntAttribute(xItem, "enable") == 0);
+			m_TextOptions.m_bShadow = (queryIntAttribute(xItem, "enable") > 0);
 
 			m_TextOptions.m_uShadowAlpha = gsl::narrow_cast<BYTE>(queryIntAttribute(xItem, "alpha", m_TextOptions.m_uShadowAlpha));
 			m_TextOptions.m_uShadowThickness = gsl::narrow_cast<BYTE>(queryIntAttribute(xItem, "size", m_TextOptions.m_uShadowThickness));
@@ -3535,7 +3535,7 @@ void DcxControl::xmlSetStyle(const TiXmlElement* xStyle)
 
 		if (auto xItem = dynamic_cast<const TiXmlElement*>(xTextOptions->FirstChild("glow")); xItem)
 		{
-			m_TextOptions.m_bGlow = (queryIntAttribute(xItem, "enable") == 0);
+			m_TextOptions.m_bGlow = (queryIntAttribute(xItem, "enable") > 0);
 
 			m_TextOptions.m_uGlowSize = gsl::narrow_cast<BYTE>(queryIntAttribute(xItem, "size", m_TextOptions.m_uGlowSize));
 		}
