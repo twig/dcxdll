@@ -149,7 +149,16 @@ void DcxEdit::toXml(TiXmlElement* const xml) const
 	if (this->m_bLockGutter)
 		xml->SetAttribute("lockgutter", "1");
 
-	xml->LinkEndChild(new TiXmlText(this->m_tsText.c_str()));
+	//xml->LinkEndChild(new TiXmlText(this->m_tsText.c_str()));	// this wont work when <textoptions> are stored
+
+	// now saves text in a <text></text> element
+	//TiXmlElement xText("text");
+	//TiXmlText xText2(this->m_tsText.c_str());
+	//xText.InsertEndChild(xText2);
+	//xml->InsertEndChild(xText);
+
+	if (auto xText = xml->LinkEndChild(new TiXmlElement("text")); xText)
+		xText->LinkEndChild(new TiXmlText(this->m_tsText.c_str()));
 }
 
 TiXmlElement* DcxEdit::toXml(void) const
@@ -195,7 +204,19 @@ void DcxEdit::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	m_bLockGutter = (queryIntAttribute(xThis, "lockgutter") > 0);
 
 	{
+		//this->m_tsText = xThis->GetText();
+		//SetWindowText(m_Hwnd, this->m_tsText.to_chr());
+		//Dcx::dcxEdit_SetModify(m_Hwnd, FALSE);
+
+		// check for old style text first
+		this->m_tsText.clear();
 		this->m_tsText = xThis->GetText();
+		if (this->m_tsText.empty())
+		{
+			// no text found, try <text></text> element
+			if (const auto xText = xThis->FirstChildElement("text"); xText)
+				this->m_tsText = xText->GetText();
+		}
 		SetWindowText(m_Hwnd, this->m_tsText.to_chr());
 		Dcx::dcxEdit_SetModify(m_Hwnd, FALSE);
 	}

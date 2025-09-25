@@ -350,7 +350,8 @@ void DcxText::DrawClientArea(HDC hdc)
 const TString DcxText::getStyles(void) const
 {
 	auto tsStyles(__super::getStyles());
-	const auto Styles = dcxGetWindowStyle(m_Hwnd);
+	//const auto Styles = dcxGetWindowStyle(m_Hwnd);
+	const auto Styles = this->m_uiStyle;
 
 	if (dcx_testflag(Styles, DT_SINGLELINE))
 		tsStyles.addtok(TEXT("nowrap"));
@@ -377,7 +378,18 @@ void DcxText::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	__super::fromXml(xDcxml, xThis);
 
+	//this->m_tsText = xThis->GetText();
+	//SetWindowText(m_Hwnd, this->m_tsText.to_chr());
+
+	// check for old style text first
+	this->m_tsText.clear();
 	this->m_tsText = xThis->GetText();
+	if (this->m_tsText.empty())
+	{
+		// no text found, try <text></text> element
+		if (const auto xText = xThis->FirstChildElement("text"); xText)
+			this->m_tsText = xText->GetText();
+	}
 	SetWindowText(m_Hwnd, this->m_tsText.to_chr());
 }
 
@@ -390,7 +402,16 @@ void DcxText::toXml(TiXmlElement* const xml) const
 
 	xml->SetAttribute("styles", getStyles().c_str());
 
-	xml->LinkEndChild(new TiXmlText(this->m_tsText.c_str()));
+	//xml->LinkEndChild(new TiXmlText(this->m_tsText.c_str()));	// this wont work when <textoptions> are stored
+
+	// now saves text in a <text></text> element
+	//TiXmlElement xText("text");
+	//TiXmlText xText2(this->m_tsText.c_str());
+	//xText.InsertEndChild(xText2);
+	//xml->InsertEndChild(xText);
+
+	if (auto xText = xml->LinkEndChild(new TiXmlElement("text")); xText)
+		xText->LinkEndChild(new TiXmlText(this->m_tsText.c_str()));
 }
 
 TiXmlElement* DcxText::toXml(void) const
