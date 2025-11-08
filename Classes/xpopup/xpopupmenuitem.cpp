@@ -277,12 +277,8 @@ void XPopupMenuItem::DrawButton(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XP
 
 	if (bThemed)
 	{
-		if (auto hCurrentMenu = reinterpret_cast<HMENU>(lpdis->hwndItem); hCurrentMenu)
+		if (auto hMenuStyleTheme = DcxUXModule::dcxOpenThemeData(nullptr, VSCLASS_BUTTON); hMenuStyleTheme)
 		{
-			if (const auto hMenuWin = Dcx::XPopups.getHWNDfromHMENU(hCurrentMenu); IsWindow(hMenuWin))
-			{
-				if (auto hMenuStyleTheme = Dcx::UXModule.dcxOpenThemeData(hMenuWin, VSCLASS_BUTTON); hMenuStyleTheme)
-				{
 					int iStyle{ PBS_NORMAL };
 					if (bReversed)
 						iStyle = PBS_PRESSED;
@@ -298,8 +294,6 @@ void XPopupMenuItem::DrawButton(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XP
 					bDoDraw = false;
 				}
 			}
-		}
-	}
 
 	if (bDoDraw)
 	{
@@ -317,7 +311,7 @@ void XPopupMenuItem::DrawButton(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XP
 			if (bSelected)
 			{
 				DrawFrameControl(lpdis->hDC, &lpdis->rcItem, DFC_BUTTON, uiStyle);
-				this->DrawItemSelection(lpdis, lpcol, bGrayed, false);
+				DrawItemSelection(lpdis, lpcol, bGrayed, false);
 			}
 		}
 		else
@@ -325,24 +319,21 @@ void XPopupMenuItem::DrawButton(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XP
 			DrawFrameControl(lpdis->hDC, &lpdis->rcItem, DFC_BUTTON, uiStyle);
 
 			if (bSelected)
-				this->DrawItemSelection(lpdis, lpcol, bGrayed, false);
+				DrawItemSelection(lpdis, lpcol, bGrayed, false);
 		}
 
 		lpdis->rcItem = rcSaved;
 	}
 }
 
-void XPopupMenuItem::DrawProgress(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc, _In_ bool bThemed) noexcept
+void XPopupMenuItem::DrawProgress(_In_ HDC hdc, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc, _In_ bool bThemed) noexcept
 {
 	bool bDoDraw{ true };
-	//WindowFromDC
 
 	if (bThemed)
 	{
-		if (const auto hMenuWin = Dcx::XPopups.getHWNDfromHMENU(hCurrentMenu); IsWindow(hMenuWin))
+		if (auto hMenuStyleTheme = DcxUXModule::dcxOpenThemeData(nullptr, VSCLASS_PROGRESS); hMenuStyleTheme)
 		{
-			if (auto hMenuStyleTheme = Dcx::UXModule.dcxOpenThemeData(hMenuWin, VSCLASS_PROGRESS); hMenuStyleTheme)
-			{
 			Auto(DcxUXModule::dcxCloseThemeData(hMenuStyleTheme));
 
 				constexpr int iStyle{ PBFS_NORMAL };
@@ -358,7 +349,6 @@ void XPopupMenuItem::DrawProgress(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ co
 				bDoDraw = false;
 			}
 		}
-	}
 
 	if (bDoDraw)
 	{
@@ -373,7 +363,7 @@ void XPopupMenuItem::DrawProgress(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ co
 	}
 }
 
-void XPopupMenuItem::DrawTrackbar(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ UINT uState, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc, _In_ bool bThemed) noexcept
+void XPopupMenuItem::DrawTrackbar(_In_ HDC hdc, _In_ UINT uState, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc, _In_ bool bThemed) noexcept
 {
 	bool bDoDraw{ true };
 
@@ -382,9 +372,7 @@ void XPopupMenuItem::DrawTrackbar(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ UI
 
 	if (bThemed)
 	{
-		if (const auto hMenuWin = Dcx::XPopups.getHWNDfromHMENU(hCurrentMenu); IsWindow(hMenuWin))
-		{
-			if (auto hMenuStyleTheme = Dcx::UXModule.dcxOpenThemeData(hMenuWin, VSCLASS_TRACKBAR); hMenuStyleTheme)
+		if (auto hMenuStyleTheme = DcxUXModule::dcxOpenThemeData(nullptr, VSCLASS_TRACKBAR); hMenuStyleTheme)
 			{
 			Auto(DcxUXModule::dcxCloseThemeData(hMenuStyleTheme));
 
@@ -410,7 +398,6 @@ void XPopupMenuItem::DrawTrackbar(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ UI
 				bDoDraw = false;
 			}
 		}
-	}
 
 	if (bDoDraw)
 	{
@@ -704,7 +691,7 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 		if (const auto iItemStyle = this->m_pXParentMenu->getItemStyle(); dcx_testflag(iItemStyle, XPS_VERTICALSEP))
 			rc.left += XPMI_BOXLPAD + XPMI_BOXWIDTH;
 
-		this->DrawProgress(lpdis->hDC, reinterpret_cast<HMENU>(lpdis->hwndItem), lpcol, m_uProgressValue, &rc, bThemed);
+		this->DrawProgress(lpdis->hDC, lpcol, m_uProgressValue, &rc, bThemed);
 	}
 	break;
 
@@ -722,7 +709,7 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 		if (const auto iItemStyle = this->m_pXParentMenu->getItemStyle(); dcx_testflag(iItemStyle, XPS_VERTICALSEP))
 			rc.left += XPMI_BOXLPAD + XPMI_BOXWIDTH;
 
-		this->DrawTrackbar(lpdis->hDC, reinterpret_cast<HMENU>(lpdis->hwndItem), lpdis->itemState, lpcol, m_uProgressValue, &rc, bThemed);
+		this->DrawTrackbar(lpdis->hDC, lpdis->itemState, lpcol, m_uProgressValue, &rc, bThemed);
 	}
 	break;
 

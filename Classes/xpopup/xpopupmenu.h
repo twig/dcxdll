@@ -181,6 +181,7 @@ struct XPMENUBARITEM
 			m_hBkg.fromXml(xImage);
 	}
 };
+
 struct XPMENUBAR
 {
 	HTHEME m_menuTheme{};
@@ -205,6 +206,141 @@ struct XPMENUBAR
 	{
 	}
 
+	static MainMenuStyle StyleFromString(const TString& tsStyle) noexcept
+	{
+		auto style = MainMenuStyle::XPMS_OFFICE2003;
+
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case TEXT("office2003rev"_hash):
+			style = MainMenuStyle::XPMS_OFFICE2003_REV;
+			break;
+		case TEXT("officexp"_hash):
+			style = MainMenuStyle::XPMS_OFFICEXP;
+			break;
+		case TEXT("icy"_hash):
+			style = MainMenuStyle::XPMS_ICY;
+			break;
+		case TEXT("icyrev"_hash):
+			style = MainMenuStyle::XPMS_ICY_REV;
+			break;
+		case TEXT("grade"_hash):
+			style = MainMenuStyle::XPMS_GRADE;
+			break;
+		case TEXT("graderev"_hash):
+			style = MainMenuStyle::XPMS_GRADE_REV;
+			break;
+		case TEXT("vertical"_hash):
+			style = MainMenuStyle::XPMS_VERTICAL;
+			break;
+		case TEXT("verticalrev"_hash):
+			style = MainMenuStyle::XPMS_VERTICAL_REV;
+			break;
+		case TEXT("normal"_hash):
+			style = MainMenuStyle::XPMS_NORMAL;
+			break;
+		case TEXT("custom"_hash):
+			style = MainMenuStyle::XPMS_CUSTOM;
+			break;
+		case TEXT("button"_hash):
+			style = MainMenuStyle::XPMS_BUTTON;
+			break;
+		case TEXT("buttonrev"_hash):
+			style = MainMenuStyle::XPMS_BUTTON_REV;
+			break;
+		case TEXT("button_themed"_hash):
+			style = MainMenuStyle::XPMS_BUTTON_THEMED;
+			break;
+		case TEXT("buttonrev_themed"_hash):
+			style = MainMenuStyle::XPMS_BUTTON_REV_THEMED;
+			break;
+		case TEXT("custombig"_hash):
+			style = MainMenuStyle::XPMS_CUSTOMBIG;
+			break;
+		case TEXT("progress"_hash):
+			style = MainMenuStyle::XPMS_PROGRESS;
+			break;
+		case TEXT("track"_hash):
+			style = MainMenuStyle::XPMS_TRACK;
+			break;
+		case TEXT("progress_themed"_hash):
+			style = MainMenuStyle::XPMS_PROGRESS_THEMED;
+			break;
+		case TEXT("track_themed"_hash):
+			style = MainMenuStyle::XPMS_TRACK_THEMED;
+			break;
+		case TEXT("themed"_hash):
+			style = MainMenuStyle::XPMS_THEMED;
+			break;
+		default:
+			break;
+		}
+		return style;
+	}
+
+	static TString StringFromStyle(MainMenuStyle ms)
+	{
+		TString tsRes(L"normal");
+
+		switch (ms)
+		{
+		case MainMenuStyle::XPMS_OFFICE2003:
+			tsRes = L"office2003";
+			break;
+		case MainMenuStyle::XPMS_OFFICE2003_REV:
+			tsRes = L"office2003rev";
+			break;
+		case MainMenuStyle::XPMS_OFFICEXP:
+			tsRes = L"officexp";
+			break;
+		case MainMenuStyle::XPMS_ICY:
+			tsRes = L"icy";
+			break;
+		case MainMenuStyle::XPMS_ICY_REV:
+			tsRes = L"icyrev";
+			break;
+		case MainMenuStyle::XPMS_GRADE:
+			tsRes = L"grade";
+			break;
+		case MainMenuStyle::XPMS_GRADE_REV:
+			tsRes = L"graderev";
+			break;
+		case MainMenuStyle::XPMS_CUSTOM:
+			tsRes = L"custom";
+			break;
+		case MainMenuStyle::XPMS_VERTICAL:
+			tsRes = L"vertical";
+			break;
+		case MainMenuStyle::XPMS_VERTICAL_REV:
+			tsRes = L"verticalrev";
+			break;
+		case MainMenuStyle::XPMS_BUTTON:
+			tsRes = L"button";
+			break;
+		case MainMenuStyle::XPMS_BUTTON_REV:
+			tsRes = L"buttonrev";
+			break;
+		case MainMenuStyle::XPMS_CUSTOMBIG:
+			tsRes = L"custombig";
+			break;
+		case MainMenuStyle::XPMS_THEMED:
+			tsRes = L"themed";
+			break;
+		case MainMenuStyle::XPMS_BUTTON_THEMED:
+			tsRes = L"button_themed";
+			break;
+		case MainMenuStyle::XPMS_BUTTON_REV_THEMED:
+			tsRes = L"buttonrev_themed";
+			break;
+		case MainMenuStyle::XPMS_None:
+		case MainMenuStyle::XPMS_NORMAL:
+		default:
+			tsRes = L"normal";
+			break;
+		}
+		return tsRes;
+	}
+
 	void toXml(TiXmlElement* xml) const
 	{
 		if (!xml)
@@ -218,6 +354,8 @@ struct XPMENUBAR
 			xml->SetAttribute("roundedborder", "1");
 		if (m_bDrawShadowText)
 			xml->SetAttribute("shadowtext", "1");
+
+		xml->SetAttribute("style", StringFromStyle(m_Style).c_str());
 
 		m_Default.toXml(xml);	// defaults NOT in an item.
 
@@ -246,15 +384,13 @@ struct XPMENUBAR
 		if (!xml)
 			return;
 
-		if (const auto tmp = queryIntAttribute(xml, "enable"); tmp)
-			m_bEnable = true;
+		m_bEnable = (queryIntAttribute(xml, "enable") > 0);
+		m_bDrawBorder = (queryIntAttribute(xml, "drawborder") > 0);
+		m_bDrawRoundedBorder = (queryIntAttribute(xml, "roundedborder") > 0);
+		m_bDrawShadowText = (queryIntAttribute(xml, "shadowtext") > 0);
 
-		if (const auto tmp = queryIntAttribute(xml, "drawborder"); tmp)
-			m_bDrawBorder = true;
-		if (const auto tmp = queryIntAttribute(xml, "roundedborder"); tmp)
-			m_bDrawRoundedBorder = true;
-		if (const auto tmp = queryIntAttribute(xml, "shadowtext"); tmp)
-			m_bDrawShadowText = true;
+		if (const TString tsStyle(queryAttribute(xml, "style", "normal")); !tsStyle.empty())
+			m_Style = StyleFromString(tsStyle);
 
 		m_Default.fromXml(xml);
 
@@ -439,6 +575,8 @@ public:
 	/// <returns></returns>
 	const MenuStyle& getStyle() const noexcept { return this->m_MenuStyle; }
 
+	TString getStyleString() const;
+
 	/// <summary>
 	/// Set the menus current style.
 	/// </summary>
@@ -506,6 +644,8 @@ public:
 	/// <returns>XPMENUCOLORS</returns>
 	const XPMENUCOLORS& getColors() const noexcept { return m_MenuColors; }
 
+	TString getColorsString() const;
+
 	/// <summary>
 	/// Set specified colours value.
 	/// </summary>
@@ -519,6 +659,8 @@ public:
 	/// <param name="nColor"></param>
 	/// <returns></returns>
 	COLORREF getColor(const MenuColours nColor) const noexcept;
+
+	TString getColorString(MenuColours nColor) const;
 
 	/// <summary>
 	/// Set specified colour to default setting.
@@ -871,8 +1013,8 @@ private:
 	void xpop_c(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
 	void xpop_d(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
 	void xpop_f(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
-	void xpop_i(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
-	void xpop_s(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
+	void xpop_i(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo) const;
+	void xpop_s(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo) const;
 	void xpop_t(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
 	void xpop_T(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo);
 

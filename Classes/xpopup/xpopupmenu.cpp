@@ -623,6 +623,62 @@ void XPopupMenu::destroyImageList() noexcept
 	this->m_hImageList = nullptr;
 }
 
+TString XPopupMenu::getStyleString() const
+{
+	switch (getStyle())
+	{
+	case XPopupMenu::MenuStyle::XPMS_OFFICE2003:
+		return TEXT("office2003");
+	case XPopupMenu::MenuStyle::XPMS_OFFICE2003_REV:
+		return TEXT("office2003rev");
+	case XPopupMenu::MenuStyle::XPMS_OFFICEXP:
+		return TEXT("officeXP");
+	case XPopupMenu::MenuStyle::XPMS_ICY:
+		return TEXT("icy");
+	case XPopupMenu::MenuStyle::XPMS_ICY_REV:
+		return TEXT("icyrev");
+	case XPopupMenu::MenuStyle::XPMS_GRADE:
+		return TEXT("grade");
+	case XPopupMenu::MenuStyle::XPMS_GRADE_REV:
+		return TEXT("graderev");
+	case XPopupMenu::MenuStyle::XPMS_VERTICAL:
+		return TEXT("vertical");
+	case XPopupMenu::MenuStyle::XPMS_VERTICAL_REV:
+		return TEXT("verticalrev");
+	case XPopupMenu::MenuStyle::XPMS_NORMAL:
+		return TEXT("normal");
+	case XPopupMenu::MenuStyle::XPMS_CUSTOM:
+		return TEXT("custom");
+	case XPopupMenu::MenuStyle::XPMS_BUTTON:
+		return TEXT("button");
+	case XPopupMenu::MenuStyle::XPMS_BUTTON_REV:
+		return TEXT("buttonrev");
+	case XPopupMenu::MenuStyle::XPMS_BUTTON_THEMED:
+		return TEXT("button_themed");
+	case XPopupMenu::MenuStyle::XPMS_BUTTON_REV_THEMED:
+		return TEXT("buttonrev_themed");
+	case XPopupMenu::MenuStyle::XPMS_CUSTOMBIG:
+		return TEXT("custombig");
+	default:
+		return TEXT("unknown");
+	}
+}
+
+TString XPopupMenu::getColorsString() const
+{
+	TString tsRes;
+	_ts_sprintf(tsRes, TEXT("% % % % % % % % % % % % % % % % % % % %"), getColor(XPopupMenu::MenuColours::XPMC_BACKGROUND), getColor(XPopupMenu::MenuColours::XPMC_ICONBOX),
+		getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX), getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_DISABLED), getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_DISABLED),
+		getColor(XPopupMenu::MenuColours::XPMC_TEXT_DISABLED), getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX), getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_BORDER),
+		getColor(XPopupMenu::MenuColours::XPMC_SEPARATOR), getColor(XPopupMenu::MenuColours::XPMC_TEXT), getColor(XPopupMenu::MenuColours::XPMC_SELECTEDTEXT),
+		getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_TICK), getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_FRAME), getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_TICK_DISABLED),
+		getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_FRAME_DISABLED), getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_HOT),
+		getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_TICK_HOT), getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_FRAME_HOT), getColor(XPopupMenu::MenuColours::XPMC_BORDER),
+		getColor(XPopupMenu::MenuColours::XPMC_VSEPARATOR)
+	);
+	return tsRes;
+}
+
 void XPopupMenu::setColor(const MenuColours nColor, const COLORREF clrColor) noexcept
 {
 	switch (nColor)
@@ -782,6 +838,16 @@ COLORREF XPopupMenu::getColor(const MenuColours nColor) const noexcept
 	default:
 		return 0;
 	}
+}
+
+TString XPopupMenu::getColorString(MenuColours nColor) const
+{
+	if (nColor < XPopupMenu::MenuColours::XPMC_MIN || nColor > XPopupMenu::MenuColours::XPMC_MAX)
+		throw Dcx::dcxException(TEXT("Invalid colour index used: %"), gsl::narrow_cast<UINT>(nColor));
+
+	TString tsRes;
+	tsRes += getColor(nColor);
+	return tsRes;
 }
 
 GSL_SUPPRESS(type.4)
@@ -1589,16 +1655,12 @@ void XPopupMenu::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, 
 	if (const TString tsMark(queryAttribute(xThis, "mark")); !tsMark.empty())
 		this->setMarkedText(tsMark);
 
-	if (const auto tmp = queryIntAttribute(xThis, "roundedselector"); tmp)
-		this->SetRoundedSelector(true);
-	if (const auto tmp = queryIntAttribute(xThis, "roundedwindow"); tmp)
-		this->SetRoundedWindow(true);
-	if (const auto tmp = queryIntAttribute(xThis, "tooltips"); tmp)
-		this->setTooltipsState(true);
-	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "alpha-inactive")); tmp < 255)
-		this->SetAlphaInactive(std::byte{ tmp });
-	if (const auto tmp = gsl::narrow_cast<BYTE>(queryIntAttribute(xThis, "alpha-default")); tmp < 255)
-		this->SetAlphaDefault(std::byte{ tmp });
+	this->SetRoundedSelector((queryIntAttribute(xThis, "roundedselector") > 0));
+	this->SetRoundedWindow((queryIntAttribute(xThis, "roundedwindow") > 0));
+	this->setTooltipsState((queryIntAttribute(xThis, "tooltips") > 0));
+
+	this->SetAlphaInactive(gsl::narrow_cast<std::byte>(queryIntAttribute(xThis, "alpha-inactive", 255)));
+	this->SetAlphaDefault(gsl::narrow_cast<std::byte>(queryIntAttribute(xThis, "alpha-default", 255)));
 
 	if (const TString tsCallback(queryAttribute(xThis, "callback")); !tsCallback.empty())
 		this->setCallback(tsCallback);
@@ -1916,7 +1978,7 @@ void XPopupMenu::xpop_f(HMENU hMenu, int nPos, const TString& path, const TStrin
 	DeleteMenu(hMenu, gsl::narrow_cast<UINT>(nPos), MF_BYPOSITION);
 }
 
-void XPopupMenu::xpop_i(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo)
+void XPopupMenu::xpop_i(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo) const
 {
 	const auto nIcon = tsTabTwo.to_int();
 
@@ -1930,7 +1992,7 @@ void XPopupMenu::xpop_i(HMENU hMenu, int nPos, const TString& path, const TStrin
 	p_Item->setItemIcon(nIcon);
 }
 
-void XPopupMenu::xpop_s(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo)
+void XPopupMenu::xpop_s(HMENU hMenu, int nPos, const TString& path, const TString& tsTabTwo) const
 {
 	const XSwitchFlags xflags(tsTabTwo.getfirsttok(1));
 
@@ -2036,74 +2098,76 @@ void XPopupMenu::DeleteSubMenu(HMENU hSubMenu) noexcept
  */
 XPopupMenu::MenuStyle XPopupMenu::parseStyle(const TString& tsStyle) noexcept
 {
-	auto style = XPopupMenu::MenuStyle::XPMS_OFFICE2003;
+	//auto style = XPopupMenu::MenuStyle::XPMS_OFFICE2003;
+	//
+	//switch (std::hash<TString>{}(tsStyle))
+	//{
+	//case TEXT("office2003rev"_hash):
+	//	style = MenuStyle::XPMS_OFFICE2003_REV;
+	//	break;
+	//case TEXT("officexp"_hash):
+	//	style = MenuStyle::XPMS_OFFICEXP;
+	//	break;
+	//case TEXT("icy"_hash):
+	//	style = MenuStyle::XPMS_ICY;
+	//	break;
+	//case TEXT("icyrev"_hash):
+	//	style = MenuStyle::XPMS_ICY_REV;
+	//	break;
+	//case TEXT("grade"_hash):
+	//	style = MenuStyle::XPMS_GRADE;
+	//	break;
+	//case TEXT("graderev"_hash):
+	//	style = MenuStyle::XPMS_GRADE_REV;
+	//	break;
+	//case TEXT("vertical"_hash):
+	//	style = MenuStyle::XPMS_VERTICAL;
+	//	break;
+	//case TEXT("verticalrev"_hash):
+	//	style = MenuStyle::XPMS_VERTICAL_REV;
+	//	break;
+	//case TEXT("normal"_hash):
+	//	style = MenuStyle::XPMS_NORMAL;
+	//	break;
+	//case TEXT("custom"_hash):
+	//	style = MenuStyle::XPMS_CUSTOM;
+	//	break;
+	//case TEXT("button"_hash):
+	//	style = MenuStyle::XPMS_BUTTON;
+	//	break;
+	//case TEXT("buttonrev"_hash):
+	//	style = MenuStyle::XPMS_BUTTON_REV;
+	//	break;
+	//case TEXT("button_themed"_hash):
+	//	style = MenuStyle::XPMS_BUTTON_THEMED;
+	//	break;
+	//case TEXT("buttonrev_themed"_hash):
+	//	style = MenuStyle::XPMS_BUTTON_REV_THEMED;
+	//	break;
+	//case TEXT("custombig"_hash):
+	//	style = MenuStyle::XPMS_CUSTOMBIG;
+	//	break;
+	//case TEXT("progress"_hash):
+	//	style = MenuStyle::XPMS_PROGRESS;
+	//	break;
+	//case TEXT("track"_hash):
+	//	style = MenuStyle::XPMS_TRACK;
+	//	break;
+	//case TEXT("progress_themed"_hash):
+	//	style = MenuStyle::XPMS_PROGRESS_THEMED;
+	//	break;
+	//case TEXT("track_themed"_hash):
+	//	style = MenuStyle::XPMS_TRACK_THEMED;
+	//	break;
+	//case TEXT("themed"_hash):
+	//	style = MenuStyle::XPMS_THEMED;
+	//	break;
+	//default:
+	//	break;
+	//}
+	//return style;
 
-	switch (std::hash<TString>{}(tsStyle))
-	{
-	case TEXT("office2003rev"_hash):
-		style = MenuStyle::XPMS_OFFICE2003_REV;
-		break;
-	case TEXT("officexp"_hash):
-		style = MenuStyle::XPMS_OFFICEXP;
-		break;
-	case TEXT("icy"_hash):
-		style = MenuStyle::XPMS_ICY;
-		break;
-	case TEXT("icyrev"_hash):
-		style = MenuStyle::XPMS_ICY_REV;
-		break;
-	case TEXT("grade"_hash):
-		style = MenuStyle::XPMS_GRADE;
-		break;
-	case TEXT("graderev"_hash):
-		style = MenuStyle::XPMS_GRADE_REV;
-		break;
-	case TEXT("vertical"_hash):
-		style = MenuStyle::XPMS_VERTICAL;
-		break;
-	case TEXT("verticalrev"_hash):
-		style = MenuStyle::XPMS_VERTICAL_REV;
-		break;
-	case TEXT("normal"_hash):
-		style = MenuStyle::XPMS_NORMAL;
-		break;
-	case TEXT("custom"_hash):
-		style = MenuStyle::XPMS_CUSTOM;
-		break;
-	case TEXT("button"_hash):
-		style = MenuStyle::XPMS_BUTTON;
-		break;
-	case TEXT("buttonrev"_hash):
-		style = MenuStyle::XPMS_BUTTON_REV;
-		break;
-	case TEXT("button_themed"_hash):
-		style = MenuStyle::XPMS_BUTTON_THEMED;
-		break;
-	case TEXT("buttonrev_themed"_hash):
-		style = MenuStyle::XPMS_BUTTON_REV_THEMED;
-		break;
-	case TEXT("custombig"_hash):
-		style = MenuStyle::XPMS_CUSTOMBIG;
-		break;
-	case TEXT("progress"_hash):
-		style = MenuStyle::XPMS_PROGRESS;
-		break;
-	case TEXT("track"_hash):
-		style = MenuStyle::XPMS_TRACK;
-		break;
-	case TEXT("progress_themed"_hash):
-		style = MenuStyle::XPMS_PROGRESS_THEMED;
-		break;
-	case TEXT("track_themed"_hash):
-		style = MenuStyle::XPMS_TRACK_THEMED;
-		break;
-	case TEXT("themed"_hash):
-		style = MenuStyle::XPMS_THEMED;
-		break;
-	default:
-		break;
-	}
-	return style;
+	return XPMENUBAR::StyleFromString(tsStyle);
 }
 
 void XPMENUBAR::UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept
@@ -2174,8 +2238,11 @@ void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
 	XPMENUBARITEM mCols = this->m_Default;
 	mCols.m_hBkg.m_hBitmap = nullptr;
 
+	try {
 	if (this->m_ItemSettings.contains(pUDMI->umi.iPosition))
 		mCols = this->m_ItemSettings[pUDMI->umi.iPosition];
+	}
+	catch (...) {};
 
 	COLORREF clrFill = mCols.m_Colours.m_clrBox;
 	COLORREF clrText = mCols.m_Colours.m_clrText;

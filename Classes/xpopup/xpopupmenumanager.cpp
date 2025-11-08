@@ -792,11 +792,6 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	}
 		}
 
-/*!
- * \brief blah
- *
- * blah [MENU] [PROP]
- */
 TString XPopupMenuManager::parseIdentifier(const TString& input) const
 {
 	const auto numtok = input.numtok();
@@ -868,43 +863,7 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 		if (!p_Menu)
 			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
 
-		switch (p_Menu->getStyle())
-		{
-		case XPopupMenu::MenuStyle::XPMS_OFFICE2003:
-			return TEXT("office2003");
-		case XPopupMenu::MenuStyle::XPMS_OFFICE2003_REV:
-			return TEXT("office2003rev");
-		case XPopupMenu::MenuStyle::XPMS_OFFICEXP:
-			return TEXT("officeXP");
-		case XPopupMenu::MenuStyle::XPMS_ICY:
-			return TEXT("icy");
-		case XPopupMenu::MenuStyle::XPMS_ICY_REV:
-			return TEXT("icyrev");
-		case XPopupMenu::MenuStyle::XPMS_GRADE:
-			return TEXT("grade");
-		case XPopupMenu::MenuStyle::XPMS_GRADE_REV:
-			return TEXT("graderev");
-		case XPopupMenu::MenuStyle::XPMS_VERTICAL:
-			return TEXT("vertical");
-		case XPopupMenu::MenuStyle::XPMS_VERTICAL_REV:
-			return TEXT("verticalrev");
-		case XPopupMenu::MenuStyle::XPMS_NORMAL:
-			return TEXT("normal");
-		case XPopupMenu::MenuStyle::XPMS_CUSTOM:
-			return TEXT("custom");
-		case XPopupMenu::MenuStyle::XPMS_BUTTON:
-			return TEXT("button");
-		case XPopupMenu::MenuStyle::XPMS_BUTTON_REV:
-			return TEXT("buttonrev");
-		case XPopupMenu::MenuStyle::XPMS_BUTTON_THEMED:
-			return TEXT("button_themed");
-		case XPopupMenu::MenuStyle::XPMS_BUTTON_REV_THEMED:
-			return TEXT("buttonrev_themed");
-		case XPopupMenu::MenuStyle::XPMS_CUSTOMBIG:
-			return TEXT("custombig");
-		default:
-			return TEXT("unknown");
-		}
+		return p_Menu->getStyleString();
 	}
 	break;
 	case TEXT("exstyle"_hash):
@@ -921,17 +880,7 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 		if (!p_Menu)
 			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
 
-		TString tsRes;
-		_ts_sprintf(tsRes, TEXT("% % % % % % % % % % % % % % % % % % % %"), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_BACKGROUND), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_ICONBOX),
-			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_DISABLED),
-			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_BORDER),
-			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SEPARATOR), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTEDTEXT),
-			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_TICK), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_FRAME), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_TICK_DISABLED),
-			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_FRAME_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_HOT),
-			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_TICK_HOT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_FRAME_HOT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_BORDER),
-			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_VSEPARATOR)
-		);
-		return tsRes;
+		return p_Menu->getColorsString();
 	}
 	break;
 	case TEXT("colour"_hash):
@@ -944,12 +893,8 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nColor = gsl::narrow_cast<XPopupMenu::MenuColours>(input.getnexttokas<UINT>());	// tok 3
-		if (nColor < XPopupMenu::MenuColours::XPMC_MIN || nColor > XPopupMenu::MenuColours::XPMC_MAX)
-			throw Dcx::dcxException(TEXT("Invalid colour index used: %"), gsl::narrow_cast<UINT>(nColor));
 
-		TString tsRes;
-		tsRes += p_Menu->getColor(nColor);
-		return tsRes;
+		return p_Menu->getColorString(nColor);
 	}
 	break;
 	case TEXT("isrounded"_hash):
@@ -1321,7 +1266,7 @@ HWND XPopupMenuManager::getFirstWin()
 void XPopupMenuManager::AddBackWin(HWND hwnd)
 {
 	std::scoped_lock lk(g_ListLock);
-	getGlobalMenuWindowList().push_back(hwnd);
+	getGlobalMenuWindowList().emplace_back(hwnd);
 }
 
 void XPopupMenuManager::RemoveBackWin()
@@ -2161,7 +2106,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 
 							if (auto& grp = xMenu->getGroup(nGroup); grp)
 							{
-								for (const auto gID : grp.m_GroupIDs)
+								for (const auto &gID : grp.m_GroupIDs)
 					{
 									setCheckState(hMenu, gID, TRUE, false);
 								}

@@ -246,9 +246,38 @@ public:
 	/// <param name="vIcons"></param>
 	void fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis, const VectorOfIcons& vIcons);
 
-	void DrawButton(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XPMENUCOLORS* const lpcol, _In_ bool bReversed, _In_ LPCRECT rc, _In_ bool bThemed) noexcept;
-	void DrawProgress(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc, _In_ bool bThemed) noexcept;
-	void DrawTrackbar(_In_ HDC hdc, _In_ HMENU hCurrentMenu, _In_ UINT uState, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc, _In_ bool bThemed) noexcept;
+	struct dcxDrawData
+	{
+		HDC hdc{};
+		RECT rc{};
+
+		UINT uState{};
+
+		COLORREF clrBkg{ CLR_INVALID };
+		COLORREF clrBorder{ CLR_INVALID };
+		COLORREF clrSelectedBkg{ CLR_INVALID };
+		COLORREF clrSelectedBorder{ CLR_INVALID };
+		COLORREF clrDisabledBkg{ CLR_INVALID };
+		COLORREF clrDisabledBorder{ CLR_INVALID };
+		COLORREF clrHotBkg{ CLR_INVALID };
+		COLORREF clrHotBorder{ CLR_INVALID };
+
+		bool bThemed{};
+		bool bGradientBkg{};
+		bool bHorizGrad{};
+		bool bTranslucentBkg{};
+
+		dcxDrawData() = default;
+
+		bool operator==(const dcxDrawData& other) const = default;
+	};
+	//void DrawButton(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ dcxDrawData &dd, _In_ bool bReversed) noexcept;
+	//void DrawProgress(_In_ dcxDrawData &dd, _In_ int iPos) noexcept;
+	//void DrawTrackbar(_In_ dcxDrawData &dd, _In_ int iPos) noexcept;
+
+	static void DrawButton(_In_ const LPDRAWITEMSTRUCT lpdis, _In_ const XPMENUCOLORS* const lpcol, _In_ bool bReversed, _In_ LPCRECT rc, _In_ bool bThemed) noexcept;
+	static void DrawProgress(_In_ HDC hdc, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc, _In_ bool bThemed) noexcept;
+	static void DrawTrackbar(_In_ HDC hdc, _In_ UINT uState, _In_ const XPMENUCOLORS* const lpcol, _In_ int iPos, _In_ LPCRECT rc, _In_ bool bThemed) noexcept;
 
 	UINT m_uProgressValue{};
 
@@ -265,8 +294,8 @@ protected:
 	bool m_bBigBitmap{ false };				//!< Single large bitmap image used for whole menu?
 	bool m_bSep{ false };					//!< Is Separator ?
 	bool m_bSubMenu{ false };				//!< Has A SubMenu ?
-	bool m_bCheckToggle{ false };				//!< Reserved for future use.
-	bool m_bRadioCheck{ false };
+	bool m_bCheckToggle{ false };			//!< Check state
+	bool m_bRadioCheck{ false };			//!< Is this a radio button check?
 };
 
 using VectorOfXPopupMenuItem = std::vector<XPopupMenuItem*>; //!< Vector of XPopupMenuItem Objects
