@@ -565,176 +565,6 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			throw DcxExceptions::dcxInvalidFlag();
 
 		this->m_CustomMenuBar.Setup(m_Hwnd, xflags, tsArgs);
-
-		//// Enable flag is used by its self, cant be combined with other flags.
-		//// e = enable, [ARGS] = 1 or 0
-		//// r = enable/disable rounded borders, [ARGS] = 1 or 0
-		//// O = enable/disable drawing borders, [ARGS] = 1 or 0
-		//// f = load background image (bmp format only atm), [ARGS] = path/filename.bmp or [ARGS] = [ITEM INDEX] path/filename.bmp
-		//// s = enable/disable shadow text, [ARGS] = 1 or 0
-		//// v = visible/invisible menubar (works with custom or standard menubars)
-		//// S = menubar style, [ARGS] = stylename
-		//// 
-		//// i = item specific. combines with other flags +it = set item text colour.
-		//// R = redraw menubar. (can be combined with any flags, or used by its self)
-		//// 
-		//// [ARGS] = [ITEM INDEX] [TEXT] [SELECTED TEXT] [HOT TEXT] [BACKGROUND] [SELECTED BACKGROUND] [HOT BACKGROUND] [BORDER] [SELECTED BORDER] [HOT BORDER]
-		//// or when not item specific
-		//// [ARGS] = [TEXT] [SELECTED TEXT] [HOT TEXT] [BACKGROUND] [SELECTED BACKGROUND] [HOT BACKGROUND] [BORDER] [SELECTED BORDER] [HOT BORDER]
-		////
-		//// t = text colour.
-		//// T = selected text colour.
-		//// H = hot text colour.
-		//// b = background colour
-		//// B = selected background colour.
-		//// h = hot background colour.
-		//// w = border colour.
-		//// W = selected border colour.
-		//// o = hot border colour.
-
-		//if (xflags[TEXT('e')])
-		//{
-		//	// enable/disable
-		//	m_CustomMenuBar.m_bEnable = (tsArgs == TEXT("1"));
-		//}
-		//else if (xflags[TEXT('r')])
-		//{
-		//	// enable/disable
-		//	m_CustomMenuBar.m_bDrawRoundedBorder = (tsArgs == TEXT("1"));
-		//}
-		//else if (xflags[TEXT('O')])
-		//{
-		//	// enable/disable
-		//	m_CustomMenuBar.m_bDrawBorder = (tsArgs == TEXT("1"));
-		//}
-		//else if (xflags[TEXT('f')] && !xflags[TEXT('i')])
-		//{
-		//	// load bkg image.
-
-		//	if (tsArgs.empty())
-		//		m_CustomMenuBar.m_Default.m_hBkg.reset();
-		//	else {
-		//		m_CustomMenuBar.m_Default.m_hBkg.m_tsFilename = tsArgs;
-		//		m_CustomMenuBar.m_Default.m_hBkg.m_hBitmap = dcxLoadBitmap(m_CustomMenuBar.m_Default.m_hBkg.m_hBitmap, tsArgs);
-		//	}
-		//}
-		//else if (xflags[TEXT('s')])
-		//{
-		//	// enable/disable
-		//	m_CustomMenuBar.m_bDrawShadowText = (tsArgs == TEXT("1"));
-		//}
-		//else if (xflags[TEXT('S')])
-		//{
-		//	// style
-		//	m_CustomMenuBar.m_Style = XPopupMenu::parseStyle(tsArgs);
-		//}
-		//else if (xflags[TEXT('v')])
-		//{
-		//	auto hTmp = GetMenu(m_Hwnd);
-
-		//	// visable/invisable
-		//	if (tsArgs == TEXT("1"))
-		//	{
-		//		if (m_hMenuBackup && m_hMenuBackup != hTmp && IsMenu(m_hMenuBackup))
-		//		{
-		//			SetMenu(m_Hwnd, m_hMenuBackup);
-		//			m_hMenuBackup = nullptr;
-		//		}
-		//	}
-		//	else {
-		//		if (!m_hMenuBackup && m_hMenuBackup != hTmp)
-		//		{
-		//			SetMenu(m_Hwnd, nullptr);
-		//			m_hMenuBackup = hTmp;
-		//		}
-		//	}
-		//}
-		//else {
-
-		//	auto _SetColours = [](const XSwitchFlags& xflags, const TString& tsArgs, const XPMENUBARCOLORS& colDefaults) {
-		//		XPMENUBARCOLORS cols{ colDefaults };
-
-		//		if (xflags[TEXT('t')])
-		//		{
-		//			cols.m_clrText = tsArgs.gettok(1).to_<COLORREF>();
-		//		}
-		//		if (xflags[TEXT('T')])
-		//		{
-		//			cols.m_clrSelectedText = tsArgs.gettok(2).to_<COLORREF>();
-		//		}
-		//		if (xflags[TEXT('H')])
-		//		{
-		//			cols.m_clrHotText = tsArgs.gettok(3).to_<COLORREF>();
-		//		}
-		//		if (xflags[TEXT('b')])
-		//		{
-		//			cols.m_clrBack = tsArgs.gettok(4).to_<COLORREF>();
-		//			cols.m_clrBox = cols.m_clrBack;
-		//		}
-		//		if (xflags[TEXT('B')])
-		//		{
-		//			cols.m_clrSelection = tsArgs.gettok(5).to_<COLORREF>();
-		//		}
-		//		if (xflags[TEXT('h')])
-		//		{
-		//			cols.m_clrHot = tsArgs.gettok(6).to_<COLORREF>();
-		//		}
-		//		if (xflags[TEXT('w')])
-		//		{
-		//			cols.m_clrBorder = tsArgs.gettok(7).to_<COLORREF>();
-		//		}
-		//		if (xflags[TEXT('W')])
-		//		{
-		//			cols.m_clrSelectionBorder = tsArgs.gettok(8).to_<COLORREF>();
-		//		}
-		//		if (xflags[TEXT('o')])
-		//		{
-		//			cols.m_clrHotBorder = tsArgs.gettok(9).to_<COLORREF>();
-		//		}
-		//		return cols;
-		//	};
-
-		//	if (xflags[TEXT('i')])
-		//	{
-		//		// item flags
-		//		const auto mItem = tsArgs.getfirsttok(1).to_int() - 1;
-		//		if (mItem < 0)
-		//			throw DcxExceptions::dcxInvalidItem();
-
-		//		XPMENUBARITEM xpItem;
-		//		xpItem.m_Colours = m_CustomMenuBar.m_Default.m_Colours;	// copy existing defaults first.
-		//		if (m_CustomMenuBar.m_ItemSettings.contains(mItem))	// see if custom item alrdy exists.
-		//			xpItem = m_CustomMenuBar.m_ItemSettings[mItem];	// if so copy it into new item.
-
-		//		if (xflags[TEXT('f')])
-		//		{
-		//			// load bkg image.
-
-		//			if (tsArgs.empty())
-		//				xpItem.m_hBkg.reset();
-		//			else {
-		//				xpItem.m_hBkg.m_tsFilename = tsArgs;
-		//				xpItem.m_hBkg.m_hBitmap = dcxLoadBitmap(xpItem.m_hBkg.m_hBitmap, tsArgs);
-		//			}
-		//		}
-		//		else {
-		//			if (numtok < 11)
-		//				throw DcxExceptions::dcxInvalidArguments();
-
-		//			xpItem.m_Colours = _SetColours(xflags, tsArgs.getlasttoks(), xpItem.m_Colours);
-		//		}
-		//		m_CustomMenuBar.m_ItemSettings[mItem] = xpItem;
-		//	}
-		//	else {
-		//		// general flags
-		//		if (numtok < 11)
-		//			throw DcxExceptions::dcxInvalidArguments();
-
-		//		m_CustomMenuBar.m_Default.m_Colours = _SetColours(xflags, tsArgs, m_CustomMenuBar.m_Default.m_Colours);
-		//	}
-		//}
-		//if (xflags[TEXT('R')])
-		//	DrawMenuBar(m_Hwnd);
 	}
 	// xdialog -r [NAME]
 	else if (flags[TEXT('r')])
@@ -1647,7 +1477,6 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 		break;
 		// [NAME] [PROP]
 	case L"nextid"_hash:
-		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), getUniqueID() - mIRC_ID_OFFSET);
 		_ts_snprintf(szReturnValue, TEXT("%u"), getUniqueID() - mIRC_ID_OFFSET);
 		break;
 		// [NAME] [PROP] [N|NAMEDID]
@@ -1874,6 +1703,122 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 			szReturnValue = TEXT('m');
 		else
 			szReturnValue = TEXT('n');
+	}
+	break;
+
+	case L"menu(istooltips)"_hash:
+	{
+		if (!m_popup)
+			throw DcxExceptions::dcxInvalidItem();
+
+		szReturnValue = dcx_truefalse(m_popup->IsToolTipsEnabled());
+	}
+	break;
+
+	case L"menu(style)"_hash:
+	{
+		if (!m_popup)
+			throw DcxExceptions::dcxInvalidItem();
+
+		szReturnValue = m_popup->getStyleString();
+	}
+	break;
+
+	case L"menu(exstyle)"_hash:
+	{
+		if (!m_popup)
+			throw DcxExceptions::dcxInvalidItem();
+
+		szReturnValue = m_popup->getItemStyleString();
+	}
+	break;
+
+	case L"menu(colors)"_hash:
+	case L"menu(colours)"_hash:
+	{
+		if (!m_popup)
+			throw DcxExceptions::dcxInvalidItem();
+
+		szReturnValue = m_popup->getColorsString();
+	}
+	break;
+
+	case L"menu(color)"_hash:
+	case L"menu(colour)"_hash:
+	{
+		if (!m_popup)
+			throw DcxExceptions::dcxInvalidItem();
+
+		const auto nColor = gsl::narrow_cast<XPopupMenu::MenuColours>(input.getnexttokas<UINT>());	// tok 3
+
+		szReturnValue = m_popup->getColorString(nColor);
+	}
+	break;
+
+	case L"menu(isrounded)"_hash:
+	{
+		if (!m_popup)
+			throw DcxExceptions::dcxInvalidItem();
+
+		szReturnValue = dcx_truefalse(m_popup->IsRoundedSelector());
+	}
+	break;
+
+	case L"menu(isroundedmenu)"_hash:
+	{
+		if (!m_popup)
+			throw DcxExceptions::dcxInvalidItem();
+
+		szReturnValue = dcx_truefalse(m_popup->IsRoundedWindow());
+	}
+	break;
+
+	case L"menu(alpha)"_hash:
+	{
+		if (!m_popup)
+			throw DcxExceptions::dcxInvalidItem();
+
+		TString tsRes;
+		tsRes += gsl::narrow_cast<uint8_t>(m_popup->IsAlphaInactive());
+		szReturnValue = tsRes;
+	}
+	break;
+
+	case L"menu(alpha-default)"_hash:
+	{
+		if (!m_popup)
+			throw DcxExceptions::dcxInvalidItem();
+
+		TString tsRes;
+		tsRes += gsl::narrow_cast<uint8_t>(m_popup->IsAlphaDefault());
+		szReturnValue = tsRes;
+	}
+	break;
+
+	case L"menu(marked)"_hash:
+	{
+		if (!m_popup)
+			throw DcxExceptions::dcxInvalidItem();
+
+		szReturnValue = m_popup->getMarkedText();
+	}
+	break;
+
+	case L"menu(imagefile)"_hash:
+	{
+		if (!m_popup)
+			throw DcxExceptions::dcxInvalidItem();
+
+		szReturnValue = m_popup->getBackBitmapFilename();
+	}
+	break;
+
+	case L"menu(callback)"_hash:
+	{
+		if (!m_popup)
+			throw DcxExceptions::dcxInvalidItem();
+
+		szReturnValue = m_popup->getCallback();
 	}
 	break;
 
@@ -4179,11 +4124,8 @@ void DcxDialog::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	if (const auto tmp = queryIntAttribute(xThis, "drag"); tmp)
 		this->m_bDoDrag = true;
 
-	if (const auto tmp = xThis->Attribute("caption"); tmp)
-	{
-		TString tsCaption(tmp);
+	if (const TString tsCaption(queryAttribute(xThis, "caption")); !tsCaption.empty())
 		SetWindowText(m_Hwnd, tsCaption.to_chr());
-	}
 
 	if (!xThis->Attribute("nocla"))
 	{
