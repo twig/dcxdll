@@ -1324,6 +1324,9 @@ bool dcxDrawTranslucentRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorde
 
 	Auto(DcxUXModule::dcxEndBufferedPaint(ai_Buffer, TRUE));
 
+	if (bRounded)
+		BitBlt(hdc, rc->left, rc->top, (rc->right - rc->left), (rc->bottom - rc->top), hDC, rc->left, rc->top, SRCCOPY);
+
 	return dcxDrawRect(hdc, rc, clr, clrBorder, bRounded);
 }
 
