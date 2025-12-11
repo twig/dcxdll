@@ -60,12 +60,6 @@ DcxRadio::DcxRadio(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialo
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 DcxRadio::~DcxRadio() noexcept
 {
 }
@@ -90,12 +84,6 @@ const TString DcxRadio::getStyles(void) const
 
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 dcxWindowStyles DcxRadio::parseControlStyles(const TString & tsStyles)
 {
 	dcxWindowStyles ws;
@@ -111,6 +99,9 @@ dcxWindowStyles DcxRadio::parseControlStyles(const TString & tsStyles)
 			break;
 		case L"center"_hash:
 			ws.m_Styles |= BS_CENTER;
+			break;
+		case L"vcenter"_hash:
+			ws.m_Styles |= BS_VCENTER;
 			break;
 		case L"ljustify"_hash:
 			ws.m_Styles |= BS_LEFT;
@@ -177,12 +168,6 @@ void DcxRadio::parseInfoRequest(const TString & input, const refString<TCHAR, MI
 	szReturnValue = parseInfoRequest(input).to_chr();
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void DcxRadio::parseCommandRequest(const TString & input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
@@ -210,11 +195,6 @@ void DcxRadio::parseCommandRequest(const TString & input)
 		this->parseGlobalCommandRequest(input, flags);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 LRESULT DcxRadio::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept
 {
 	return 0L;
@@ -250,6 +230,16 @@ LRESULT DcxRadio::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 	}
 	break;
 
+	case WM_ENABLE:
+	{
+		bParsed = TRUE;
+		setRedraw(FALSE);
+		const auto lRes = this->CallDefaultClassProc(uMsg, wParam, lParam);
+		setRedraw(TRUE);
+		this->DrawClientArea();
+		return lRes;
+	}
+
 	case WM_DESTROY:
 	{
 		this->CallDefaultClassProc(uMsg, wParam, lParam);
@@ -281,45 +271,289 @@ LRESULT DcxRadio::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 	return 0L;
 }
 
+void DcxRadio::DrawClientAreaThemed(HDC hdc, const UINT uMsg, LPARAM lParam)
+{
+	//CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+
+	dcxRadioData rd;
+
+	rd.m_hTheme = DcxUXModule::dcxOpenThemeData(m_Hwnd, VSCLASS_BUTTON);
+	//rd.m_hTheme = DcxUXModule::dcxGetWindowTheme(m_Hwnd);
+	if (!rd.m_hTheme)
+	{
+		DrawClientAreaNoTheme(hdc, uMsg, lParam);
+		return;
+	}
+	Auto(DcxUXModule::dcxCloseThemeData(rd.m_hTheme));
+
+	if (!GetClientRect(m_Hwnd, &rd.m_rc))
+		return;
+
+	if (IsRectEmpty(&rd.m_rc))
+		return;
+
+	rd.m_hdcPaint = hdc;
+
+	rd.m_WinStyle = dcxGetWindowStyle(m_Hwnd);
+	rd.m_iThemeState = RADIOBUTTONSTATES::RBS_UNCHECKEDNORMAL;
+	rd.m_ButtonState = Button_GetState(m_Hwnd);
+	rd.m_bHot = dcx_testflag(rd.m_ButtonState, BST_HOT);
+	rd.m_bPressed = dcx_testflag(rd.m_ButtonState, BST_PUSHED);
+	rd.m_bChecked = dcx_testflag(rd.m_ButtonState, BST_CHECKED); /*(Button_GetCheck(m_Hwnd) == BST_CHECKED);*/ /*(dcx_testflag(rd.m_ButtonState, BST_CHECKED) && !dcx_testflag(rd.m_ButtonState, BST_INDETERMINATE));*/
+	rd.m_bFocus = (GetFocus() == m_Hwnd);
+	rd.m_bRightJustify = dcx_testflag(rd.m_WinStyle, BS_RIGHT); //BST_DROPDOWNPUSHED = 0x400 BST_HOT = 0x200
+	rd.m_bHCenter = dcx_testflag(rd.m_WinStyle, BS_CENTER);
+	rd.m_bVCenter = dcx_testflag(rd.m_WinStyle, BS_VCENTER);
+	rd.m_bRightButton = dcx_testflag(rd.m_WinStyle, BS_RIGHTBUTTON);
+
+	rd.m_tsText = TGetWindowText(m_Hwnd);
+
+	if (!IsWindowEnabled(m_Hwnd))
+	{
+		if (rd.m_bChecked)
+			rd.m_iThemeState = RADIOBUTTONSTATES::RBS_CHECKEDDISABLED;
+		else
+			rd.m_iThemeState = RADIOBUTTONSTATES::RBS_UNCHECKEDDISABLED;
+	}
+	else {
+		if (rd.m_bChecked)
+		{
+			if (rd.m_bPressed)
+				rd.m_iThemeState = RADIOBUTTONSTATES::RBS_CHECKEDPRESSED;
+			else if (rd.m_bHot)
+				rd.m_iThemeState = RADIOBUTTONSTATES::RBS_CHECKEDHOT;
+			else
+				rd.m_iThemeState = RADIOBUTTONSTATES::RBS_CHECKEDNORMAL;
+		}
+		else {
+			if (rd.m_bPressed)
+				rd.m_iThemeState = RADIOBUTTONSTATES::RBS_UNCHECKEDPRESSED;
+			else if (rd.m_bHot)
+				rd.m_iThemeState = RADIOBUTTONSTATES::RBS_UNCHECKEDHOT;
+		}
+	}
+	//if (DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(rd.m_hTheme, BUTTONPARTS::BP_RADIOBUTTON, rd.m_iThemeState))
+	//	DcxUXModule::dcxDrawThemeParentBackground(m_Hwnd, rd.m_hdcPaint, &rd.m_rc);
+
+	if (this->isExStyle(WindowExStyle::Transparent))
+		this->DrawParentsBackground(rd.m_hdcPaint, &rd.m_rc);
+	else
+		DcxControl::DrawCtrlBackground(rd.m_hdcPaint, this, &rd.m_rc, rd.m_hTheme, BUTTONPARTS::BP_RADIOBUTTON, rd.m_iThemeState);
+
+	const auto hFontOld = Dcx::dcxSelectObject<HFONT>(rd.m_hdcPaint, getControlFont());
+	Auto(Dcx::dcxSelectObject<HFONT>(rd.m_hdcPaint, hFontOld));
+
+	rd.m_szRadioSize = DcxUXModule::dcxGetCheckBoxSize(rd.m_hTheme, m_Hwnd, rd.m_hdcPaint, &rd.m_rc);
+
+	// make sure radio & text are in correct order.
+	if (rd.m_bRightButton)
+	{
+		rd.m_rcRadio.left = rd.m_rc.right - rd.m_szRadioSize.cx;
+		rd.m_rcRadio.right = rd.m_rc.right;
+		rd.m_rcRadio.bottom = rd.m_szRadioSize.cy;
+
+		rd.m_rcText = rd.m_rc;
+		rd.m_rcText.right = rd.m_rcRadio.left - 1;
+	}
+	else {
+		rd.m_rcRadio.right = rd.m_szRadioSize.cx;
+		rd.m_rcRadio.bottom = rd.m_szRadioSize.cy;
+
+		rd.m_rcText = rd.m_rc;
+		rd.m_rcText.left = rd.m_rcRadio.right + 1;
+	}
+
+	// set vert positioning. (for checkbox, text, & focus)
+	if (rd.m_bVCenter)
+	{
+		// center checkbox vertically in control
+		OffsetRect(&rd.m_rcRadio, 0, (((rd.m_rc.bottom - rd.m_rc.top) / 2) - (rd.m_szRadioSize.cy / 2)));
+
+		// center text vertically in control
+		//cd.m_textFlags |= DT_VCENTER;	// Ook: doesnt seem to center correctly, needs looked at.
+
+		RECT rcTmp{};
+		calcTextRect(rd.m_hdcPaint, rd.m_tsText, std::addressof(rcTmp), rd.m_textFlags);
+
+		rd.m_rcText.top = (((rd.m_rc.bottom - rd.m_rc.top) / 2) - ((rcTmp.bottom - rcTmp.top) / 2));
+		rd.m_rcText.bottom = rd.m_rcText.top + (rcTmp.bottom - rcTmp.top);
+	}
+
+	// apply the set offsets
+	//OffsetRect(&cd.m_rcCheck, 0, m_CheckMargins.cyTopHeight);
+	//
+	//if (cd.m_bRightButton)
+	//{
+	//	OffsetRect(&cd.m_rcCheck, -m_CheckMargins.cxRightWidth, 0);
+	//	cd.m_rcText.right -= m_CheckMargins.cxRightWidth + m_CheckMargins.cxLeftWidth;
+	//}
+	//else {
+	//	OffsetRect(&cd.m_rcCheck, m_CheckMargins.cxLeftWidth, 0);
+	//	cd.m_rcText.left += m_CheckMargins.cxRightWidth + m_CheckMargins.cxLeftWidth;
+	//}
+
+	// set horiz positioning. (just for text & focus)
+	if (rd.m_bHCenter)
+	{
+		//center text within text area
+		rd.m_textFlags |= DT_CENTER;
+		rd.m_textFlags &= ~DT_RIGHT;
+	}
+	// weirdly BS_RIGHT seems to be set whenever we set BS_CENTER
+	else if (rd.m_bRightJustify)
+	{
+		//text to right of text area
+		rd.m_textFlags |= DT_RIGHT;
+		rd.m_textFlags &= ~DT_CENTER;
+	}
+
+	rd.m_rcFocus = rd.m_rcText;
+
+	//if (rd.m_bRightButton)
+	//{
+	//	rd.m_rcText.left += m_CheckMargins.cyBottomHeight;
+	//	rd.m_rcText.right -= (m_CheckMargins.cyBottomHeight + m_CheckMargins.cyBottomHeight);
+	//}
+	//else {
+	//	OffsetRect(&rd.m_rcText, m_CheckMargins.cyBottomHeight, 0);
+	//	rd.m_rcFocus.right += (m_CheckMargins.cyBottomHeight + m_CheckMargins.cyBottomHeight);
+	//}
+
+	// make sure edge of focus rect stays in view.
+	if (rd.m_rcFocus.right > rd.m_rc.right)
+		rd.m_rcFocus.right = rd.m_rc.right;
+	if (rd.m_rcFocus.left < rd.m_rc.left)
+		rd.m_rcFocus.left = rd.m_rc.left;
+
+	DcxUXModule::dcxDrawThemeBackground(rd.m_hTheme, rd.m_hdcPaint, BUTTONPARTS::BP_RADIOBUTTON, rd.m_iThemeState, &rd.m_rcRadio, nullptr);
+
+	if (rd.m_tsText.empty())
+		return;
+
+	if (!this->m_TextOptions.m_bUseNewStyle)
+	{
+		// not using newstyle text, so try themed first.
+		if (rd.m_hTheme)
+		{
+			// only used themed if no ctrl codes being used.
+			if (this->IsControlCodeTextDisabled())
+			{
+				DTTOPTS dtt{};
+				dtt.dwSize = sizeof(DTTOPTS);
+				if (this->isExStyle(WindowExStyle::Composited))
+				{
+					dtt.dwFlags |= DTT_COMPOSITED;
+				}
+				if (this->m_TextOptions.m_clrText != CLR_INVALID)
+				{
+					dtt.crText = this->m_TextOptions.m_clrText;
+					dtt.dwFlags |= DTT_TEXTCOLOR;
+				}
+				//if (!IsWindowEnabled(m_Hwnd))
+				//	tsText.strip();
+
+				DcxUXModule::dcxDrawThemeTextEx(rd.m_hTheme, rd.m_hdcPaint, BUTTONPARTS::BP_RADIOBUTTON, rd.m_iThemeState, rd.m_tsText.to_wchr(), gsl::narrow_cast<int>(rd.m_tsText.len()), rd.m_textFlags, std::addressof(rd.m_rcText), &dtt);
+				return;
+			}
+		}
+	}
+	ctrlDrawText(rd.m_hdcPaint, rd.m_tsText, std::addressof(rd.m_rcText), rd.m_textFlags);
+
+	if (rd.m_bFocus)
+	{
+		//CreatePen(PS_SOLID)
+		DrawFocusRect(rd.m_hdcPaint, std::addressof(rd.m_rcRadio));
+	}
+}
+
+void DcxRadio::DrawClientAreaNoTheme(HDC hdc, const UINT uMsg, LPARAM lParam)
+{
+	// get controls client area
+	if (RECT rcClient{}; GetClientRect(m_Hwnd, &rcClient))
+	{
+		if (const auto clr = getBackColor(); clr != CLR_INVALID)
+			SetBkColor(hdc, clr);
+
+		if (const auto clr = getTextColor(); clr != CLR_INVALID)
+			SetTextColor(hdc, clr);
+
+		const auto bWasTransp = this->isExStyle(WindowExStyle::Transparent);
+
+		// fill background.
+		if (bWasTransp)
+		{
+			if (!IsAlphaBlend())
+				this->DrawParentsBackground(hdc, &rcClient);
+		}
+		else
+			DcxControl::DrawCtrlBackground(hdc, this, &rcClient);
+
+		if (!bWasTransp)
+			this->addExStyle(WindowExStyle::Transparent);
+
+		CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+
+		if (!bWasTransp)
+			this->removeExStyle(WindowExStyle::Transparent);
+	}
+}
+
+void DcxRadio::DrawClientArea()
+{
+	if (HDC hdc = GetDC(m_Hwnd); hdc)
+	{
+		Auto(ReleaseDC(m_Hwnd, hdc));
+
+		DrawClientArea(hdc, WM_PAINT, 0);
+	}
+}
+
 void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 {
+	//CleanUpParentCache();
+
 	// Setup alpha blend if any.
 	auto ai = SetupAlphaBlend(&hdc);
 	Auto(FinishAlphaBlend(ai));
 
-	if (!IsThemed() || !DcxUXModule::dcxIsThemeActive())
-	{
-		// get controls client area
-		if (RECT rcClient{}; GetClientRect(m_Hwnd, &rcClient))
-		{
-			if (const auto clr = getBackColor(); clr != CLR_INVALID)
-				SetBkColor(hdc, clr);
+	//if (!IsThemed() || !DcxUXModule::dcxIsThemeActive())
+	//{
+	//	// get controls client area
+	//	if (RECT rcClient{}; GetClientRect(m_Hwnd, &rcClient))
+	//	{
+	//		if (const auto clr = getBackColor(); clr != CLR_INVALID)
+	//			SetBkColor(hdc, clr);
+	//
+	//		if (const auto clr = getTextColor(); clr != CLR_INVALID)
+	//			SetTextColor(hdc, clr);
+	//
+	//		const auto bWasTransp = this->isExStyle(WindowExStyle::Transparent);
+	//
+	//		// fill background.
+	//		if (bWasTransp)
+	//		{
+	//			if (!IsAlphaBlend())
+	//				this->DrawParentsBackground(hdc, &rcClient);
+	//		}
+	//		else
+	//			DcxControl::DrawCtrlBackground(hdc, this, &rcClient);
+	//
+	//		if (!bWasTransp)
+	//			this->addExStyle(WindowExStyle::Transparent);
+	//
+	//		CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+	//
+	//		if (!bWasTransp)
+	//			this->removeExStyle(WindowExStyle::Transparent);
+	//	}
+	//}
+	//else
+	//	CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 
-			if (const auto clr = getTextColor(); clr != CLR_INVALID)
-				SetTextColor(hdc, clr);
-
-			const auto bWasTransp = this->isExStyle(WindowExStyle::Transparent);
-
-			// fill background.
-			if (bWasTransp)
-			{
-				if (!IsAlphaBlend())
-					this->DrawParentsBackground(hdc, &rcClient);
-			}
-			else
-				DcxControl::DrawCtrlBackground(hdc, this, &rcClient);
-
-			if (!bWasTransp)
-				this->addExStyle(WindowExStyle::Transparent);
-
-			CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
-
-			if (!bWasTransp)
-				this->removeExStyle(WindowExStyle::Transparent);
-		}
-	}
+	if (IsThemed() && DcxUXModule::dcxIsThemeActive())
+		DrawClientAreaThemed(hdc, uMsg, lParam);
 	else
-		CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+		DrawClientAreaNoTheme(hdc, uMsg, lParam);
 }
 
 void DcxRadio::toXml(TiXmlElement *const xml) const

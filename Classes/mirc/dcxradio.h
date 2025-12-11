@@ -54,8 +54,45 @@ public:
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 private:
-	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
+	struct dcxRadioData
+	{
+		WindowStyle m_WinStyle{};
 
+		HTHEME m_hTheme{};
+
+		RECT m_rc{};
+		RECT m_rcRadio{};
+		RECT m_rcText{};
+		RECT m_rcFocus{};
+
+		SIZE m_szRadioSize{};
+
+		HDC m_hdcPaint{};
+
+		int m_ButtonState{};
+		int m_iThemeState{};
+
+		UINT m_DrawFrameState{};
+		UINT m_DrawState{};
+
+		DWORD m_textFlags{ DT_LEFT | DT_SINGLELINE };
+
+		bool m_bDisabled{};
+		bool m_bChecked{};
+		bool m_bFocus{};
+		bool m_bHot{};
+		bool m_bPressed{};
+		bool m_bRightJustify{};
+		bool m_bVCenter{};
+		bool m_bHCenter{};
+		bool m_bRightButton{};
+
+		TString m_tsText;
+	};
+	void DrawClientArea();
+	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
+	void DrawClientAreaThemed(HDC hdc, const UINT uMsg, LPARAM lParam);
+	void DrawClientAreaNoTheme(HDC hdc, const UINT uMsg, LPARAM lParam);
 };
 
 #endif // _DCXRADIO_H_
