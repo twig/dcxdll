@@ -144,6 +144,96 @@ function get_xdid_tab(&$XDID) {
 			),
 			'__notes' => 'No flags are defined at the moment, just use a +.',
 		),
+		'P' => array(
+	        '__desc' => 'This command lets you set the minimum tab width for all tabs.',
+	        '__cmd' => '[+FLAGS] [ARGS]',
+	        '__eg' => '+c 1',
+	        '__params' => array(
+	        	'+FLAGS' => array(
+                    '__desc' => 'Delete image flags.',
+                    '__values' => array(
+						'b' => 'background colour',
+						'c' => 'Cache bitmaps.',
+						'd' => 'Description text colour',
+						'e' => 'enable/disable peek ability',
+						'f' => 'font',
+						'm' => 'min size',
+						'M' => 'max size',
+						'o' => 'hover open delay',
+						'r' => 'rounded window',
+						't' => 'Title text colour',
+                    ),
+				),
+				'__args' => array(
+					'b' => array(
+						'__cmd' => '+b [RGB]',
+						'__params' => array(
+                            'RGB' => 'An RGB colour.',
+						),
+					),
+					'c' => array(
+						'__cmd' => '+c [N]',
+						'__params' => array(
+                            'N' => 'A 1 or 0.',
+						),
+					),
+					'd' => array(
+						'__cmd' => '+d [RGB]',
+						'__params' => array(
+                            'RGB' => 'An RGB colour.',
+						),
+					),
+					'e' => array(
+						'__cmd' => '+e [N]',
+						'__params' => array(
+                            'N' => 'A 1 or 0.',
+						),
+					),
+					'f' => array(
+						'__cmd' => '+f [+FLAGS] [CHARSET] [SIZE] [FONTNAME]',
+						'__params' => array(
+							'+FLAGS' => 'Font style flags.',
+							'CHARSET' => "Can be any of the following: [v]ansi[/v], [v]baltic[/v], [v]chinesebig[/v], [v]default[/v], [v]easteurope[/v], [v]gb2312[/v], [v]greek[/v], [v]hangul[/v], [v]mac[/v], [v]oem[/v], [v]russian[/v], [v]shiftjis[/v], [v]symbol[/v], [v]turkish[/v], or [v]vietnamese[/v]. (use [v]default[/v] for unicode)",
+							'SIZE' => "Font size in points.",
+							'FONTNAME' => "Font name. Ex: Tahoma, Courier New, Arial, ...",
+						),
+					),
+					'm' => array(
+						'__cmd' => '+m [minx] [miny]',
+						'__params' => array(
+                            'minx' => 'Min Width',
+							'miny' => 'Min Height',
+						),
+					),
+					'M' => array(
+						'__cmd' => '+M [maxx] [maxy]',
+						'__params' => array(
+                            'maxx' => 'Max Width',
+                            'maxy' => 'Max Height',
+						),
+					),
+					'o' => array(
+						'__cmd' => '+o [N]',
+						'__params' => array(
+                            'N' => 'Delay time in milliseconds (default is system setting which is usually 400)',
+						),
+					),
+					'r' => array(
+						'__cmd' => '+r [N]',
+						'__params' => array(
+                            'N' => 'A 1 or 0.',
+						),
+					),
+					't' => array(
+						'__cmd' => '+t [RGB]',
+						'__params' => array(
+                            'RGB' => 'An RGB colour.',
+						),
+					),
+				),
+			),
+			'__notes' => 'Flags can NOT be combined in a single command.',
+		),
 	);
 	
 	writeDcxLoadIcon($XDID, 'w', '+FLAGS', 1);

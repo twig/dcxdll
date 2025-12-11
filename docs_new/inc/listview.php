@@ -56,6 +56,8 @@ function get_styles_listview(&$STYLES) {
 		
 		'groups' => 'Enabled custom drawn groups.',
 
+		'subitemsel' => 'Enable selecting subitems.',
+
 		'__notes' => array(
 		     '[s]grid[/s] does not work with groups. See [cmd]/xdid -q[/cmd].',
 		     '[s]sortasc[/s] and [s]sortdesc[/s] only work with [s]report[/s] or [s]list[/s] views.'

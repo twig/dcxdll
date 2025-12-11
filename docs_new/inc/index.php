@@ -18,7 +18,7 @@ function get_intro_index() {
 
 <div class="divpink">DCX does not support mIRC controls (NOT EVEN mIRC TABS), nor anything related to mIRC normal dialogs except it's menus. DCX does not work like MDX so please read the manual and see dcx_demo.mrc and dcx_tools.mrc for examples.</div>
 
-<div class="divpink" style="color: #0000ff; padding-top: 0px;">DCX v3.1+ only works on mIRC v7+, Try & use the latest mIRC if possible (v7.76 at the time of writing)</div>
+<div class="divpink" style="color: #0000ff; padding-top: 0px;">DCX v3.1+ only works on mIRC v7+, Try & use the latest mIRC if possible (v7.83 at the time of writing)</div>
 
 The DLL creates the controls directly on the mIRC dialog and you use clone functions defined by /xdid and $xdid which behave like the regular /did
 and $did to interact with the controls.<br />

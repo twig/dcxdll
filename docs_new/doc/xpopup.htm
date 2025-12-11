@@ -201,7 +201,7 @@ The parameters you supply can take three basic forms<br />
 	</li>
 	<br/>
 	<li>
-		A singal group ID which has been pre defined by <a class='value' href='xpopup.htm#xpop.g'>/xpop -g</a> this can contain any number of item id's:<br />
+		A singal group ID which has been pre defined by <a class='value' href='xpopup.htm#xpopup.g'>/xpopup -g</a> this can contain any number of item id's:<br />
 		<br/>
 
 		<table>
@@ -443,6 +443,29 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 		<td><div class="example">/xpopup -d mymenu</div></td>
 	</tr>
 </table>
+<br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.g"></a>/xpopup -g	</td></tr>
+	<tr><td colspan="2">This command lets you add one or more icons to the menu image list.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -g [MENU] [+FLAGS] [GID] [ID,IDn,IDn-IDn,:IDn...]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -g mymenu +a 1 20<br />/xpopup -g mymenu +a 1 :1300,20-26<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">INDEX</td>
+		<td>Icon index in icon archive</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>Icon archive filename</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use 0 if the file is a single icon file.</td></tr></table>
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
@@ -1691,6 +1714,7 @@ The only difference is that you can load multiple icons by seperating the indexe
 		<a class='flag' href="#xpopup.b"><div>-b</div></a>
 		<a class='flag' href="#xpopup.c"><div>-c</div></a>
 		<a class='flag' href="#xpopup.d"><div>-d</div></a>
+		<a class='flag' href="#xpopup.g"><div>-g</div></a>
 		<a class='flag' href="#xpopup.i"><div>-i</div></a>
 		<a class='flag' href="#xpopup.j"><div>-j</div></a>
 		<a class='flag' href="#xpopup.l"><div>-l</div></a>
@@ -1750,7 +1774,7 @@ The only difference is that you can load multiple icons by seperating the indexe
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2025</td>
-		<td style="text-align: right;">Last Updated: 10th May, 25</td>
+		<td style="text-align: right;">Last Updated: 11th December, 25</td>
 	</tr>
 </table>
 <div style="text-align: center;">

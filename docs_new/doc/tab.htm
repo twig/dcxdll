@@ -405,6 +405,166 @@
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> No flags are defined at the moment, just use a +.</td></tr></table>
 <br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.P"></a>/xdid -P	</td></tr>
+	<tr><td colspan="2">This command lets you set the minimum tab width for all tabs.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -P [DNAME] [ID] [+FLAGS] [ARGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -P dcx 4 +c 1</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Delete image flags.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>background colour</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Cache bitmaps.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Description text colour</td>
+	</tr>
+	<tr>
+		<td class="value">e</td>
+		<td>enable/disable peek ability</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>font</td>
+	</tr>
+	<tr>
+		<td class="value">m</td>
+		<td>min size</td>
+	</tr>
+	<tr>
+		<td class="value">M</td>
+		<td>max size</td>
+	</tr>
+	<tr>
+		<td class="value">o</td>
+		<td>hover open delay</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>rounded window</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Title text colour</td>
+	</tr>
+	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
+	<tr>
+		<td class="param">b</td>
+		<td><div class="syntax">+b [RGB]</div></td>
+	</tr>
+	<tr>
+		<td class="value">RGB</td>
+		<td>An RGB colour.</td>
+	</tr>
+	<tr>
+		<td class="param">c</td>
+		<td><div class="syntax">+c [N]</div></td>
+	</tr>
+	<tr>
+		<td class="value">N</td>
+		<td>A 1 or 0.</td>
+	</tr>
+	<tr>
+		<td class="param">d</td>
+		<td><div class="syntax">+d [RGB]</div></td>
+	</tr>
+	<tr>
+		<td class="value">RGB</td>
+		<td>An RGB colour.</td>
+	</tr>
+	<tr>
+		<td class="param">e</td>
+		<td><div class="syntax">+e [N]</div></td>
+	</tr>
+	<tr>
+		<td class="value">N</td>
+		<td>A 1 or 0.</td>
+	</tr>
+	<tr>
+		<td class="param">f</td>
+		<td><div class="syntax">+f [+FLAGS] [CHARSET] [SIZE] [FONTNAME]</div></td>
+	</tr>
+	<tr>
+		<td class="value">+FLAGS</td>
+		<td>Font style flags.</td>
+	</tr>
+	<tr>
+		<td class="value">CHARSET</td>
+		<td>Can be any of the following: <a class="value">ansi</a>, <a class="value">baltic</a>, <a class="value">chinesebig</a>, <a class="value">default</a>, <a class="value">easteurope</a>, <a class="value">gb2312</a>, <a class="value">greek</a>, <a class="value">hangul</a>, <a class="value">mac</a>, <a class="value">oem</a>, <a class="value">russian</a>, <a class="value">shiftjis</a>, <a class="value">symbol</a>, <a class="value">turkish</a>, or <a class="value">vietnamese</a>. (use <a class="value">default</a> for unicode)</td>
+	</tr>
+	<tr>
+		<td class="value">SIZE</td>
+		<td>Font size in points.</td>
+	</tr>
+	<tr>
+		<td class="value">FONTNAME</td>
+		<td>Font name. Ex: Tahoma, Courier New, Arial, ...</td>
+	</tr>
+	<tr>
+		<td class="param">m</td>
+		<td><div class="syntax">+m [minx] [miny]</div></td>
+	</tr>
+	<tr>
+		<td class="value">minx</td>
+		<td>Min Width</td>
+	</tr>
+	<tr>
+		<td class="value">miny</td>
+		<td>Min Height</td>
+	</tr>
+	<tr>
+		<td class="param">M</td>
+		<td><div class="syntax">+M [maxx] [maxy]</div></td>
+	</tr>
+	<tr>
+		<td class="value">maxx</td>
+		<td>Max Width</td>
+	</tr>
+	<tr>
+		<td class="value">maxy</td>
+		<td>Max Height</td>
+	</tr>
+	<tr>
+		<td class="param">o</td>
+		<td><div class="syntax">+o [N]</div></td>
+	</tr>
+	<tr>
+		<td class="value">N</td>
+		<td>Delay time in milliseconds (default is system setting which is usually 400)</td>
+	</tr>
+	<tr>
+		<td class="param">r</td>
+		<td><div class="syntax">+r [N]</div></td>
+	</tr>
+	<tr>
+		<td class="value">N</td>
+		<td>A 1 or 0.</td>
+	</tr>
+	<tr>
+		<td class="param">t</td>
+		<td><div class="syntax">+t [RGB]</div></td>
+	</tr>
+	<tr>
+		<td class="value">RGB</td>
+		<td>An RGB colour.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Flags can NOT be combined in a single command.</td></tr></table>
+<br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
@@ -902,6 +1062,7 @@
 		<a class='flag' href="#xdid.w"><div>-w</div></a>
 		<a class='flag' href="#xdid.y"><div>-y</div></a>
 		<a class='flag' href="#xdid.big.M"><div>-M</div></a>
+		<a class='flag' href="#xdid.big.P"><div>-P</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
@@ -932,7 +1093,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2025</td>
-		<td style="text-align: right;">Last Updated: 16th June, 25</td>
+		<td style="text-align: right;">Last Updated: 11th December, 25</td>
 	</tr>
 </table>
 <div style="text-align: center;">
