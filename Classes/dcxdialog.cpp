@@ -459,14 +459,58 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	{
 		if (numtok > 2)
 		{
-			const auto tsID(input.getnexttok());	// tok 3
-			const auto id = NameToID(tsID);
+			//const auto tsID(input.getnexttok());	// tok 3
+			//const auto id = NameToID(tsID);
+			//
+			//if (!isIDValid(id))
+			//	throw Dcx::dcxException(TEXT("Could not find control %(%)"), tsID, id - mIRC_ID_OFFSET);
+			//
+			//if (const auto* const p_Control = getControlByID(id); p_Control)
+			//	p_Control->redrawWindow();
 
-			if (!isIDValid(id))
-				throw Dcx::dcxException(TEXT("Could not find control %(%)"), tsID, id - mIRC_ID_OFFSET);
+			const auto IDs(input.getnexttok());			// tok 2
+			const auto n = IDs.numtok(TSCOMMACHAR);
+			const auto HandleIDRange = [=](const TString& tsID) {
+				UINT id_start = 0, id_end = 0;
+				if (tsID.numtok(TEXT('-')) == 2)
+				{
+					id_start = tsID.getfirsttok(1, TEXT('-')).to_<UINT>();
+					id_end = tsID.getnexttok(TEXT('-')).to_<UINT>();
+				}
+				else
+					id_start = id_end = NameToUserID(tsID);
 
-			if (const auto* const p_Control = getControlByID(id); p_Control)
-				p_Control->redrawWindow();
+				if (id_end < id_start)
+					throw Dcx::dcxException(TEXT("Invalid ID : %(%)"), tsID, id_end);
+				if (id_start == 0)
+					throw Dcx::dcxException(TEXT("Invalid ID : %(%)"), tsID, id_start);
+				if (id_end == 0)
+					throw Dcx::dcxException(TEXT("Invalid ID : %(%)"), tsID, id_end);
+
+				for (auto id = id_start; id <= id_end; ++id)
+				{
+					const auto p_Control = getControlByID(id + mIRC_ID_OFFSET);
+
+					if (!p_Control)
+						throw Dcx::dcxException(TEXT("Unable to find control: %(%)"), tsID, id);
+
+					p_Control->redrawWindow();
+				}
+			};
+
+			// Multiple IDs id,id,id,id-id,id-id
+			if (n > 1)
+			{
+				const auto itEnd = IDs.end();
+				for (auto itStart = IDs.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+				{
+					HandleIDRange(*itStart);
+				}
+			}
+			//Single ID or single id-id
+			else {
+				HandleIDRange(IDs);
+			}
 		}
 		else
 			redrawWindow();
@@ -1028,7 +1072,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		this->setEventMask(tspFlags, tsnFlags);
 
 		// propergate event changes to all child controls. This mimics the begaviour of the previous version which only had a single event mask for the dialog.
-		for (auto a : m_vpControls)
+		for (const auto a : m_vpControls)
 		{
 			if (a)
 				a->setEventMask(tspFlags, tsnFlags);
@@ -1623,6 +1667,7 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 	case L"visible"_hash:
 		szReturnValue = dcx_truefalse((IsWindowVisible(m_Hwnd) != FALSE));
 		break;
+
 		// [NAME] [PROP]
 	case L"glasscolor"_hash:
 	{
@@ -1634,6 +1679,7 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 			szReturnValue = TEXT("-FAIL Unable to get Glass colour.");
 	}
 	break;
+
 	// [NAME] [PROP]
 	case L"dbutopixels"_hash:
 	{
