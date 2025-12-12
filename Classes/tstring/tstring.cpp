@@ -2400,11 +2400,11 @@ TString& TString::append(const_pointer_const cString, const size_type iChars)
 
 // literal operator
 // allows "sometext"_ts to be interpreted as TString("sometext")
-TString operator"" _ts(const char* p, size_t N)
+TString operator ""_ts(const char* p, size_t N)
 {
 	return TString{ p, N };
 }
-TString operator"" _ts(const WCHAR * p, size_t N)
+TString operator ""_ts(const WCHAR * p, size_t N)
 {
 	return TString{ p, N };
 }

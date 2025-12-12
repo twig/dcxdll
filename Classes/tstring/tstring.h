@@ -74,6 +74,8 @@
  *  1.22
  *		Fixed toupper & tolower
  * 
+ *  1.23
+ * 
  * © ScriptsDB.org - 2005-2021
  */
 
@@ -2058,8 +2060,8 @@ public:
 
 // literal operator
 // allows "sometext"_ts to be interpreted as TString("sometext")
-TString operator"" _ts(const char* p, size_t N);
-TString operator"" _ts(const WCHAR * p, size_t N);
+TString operator ""_ts(const char* p, size_t N);
+TString operator ""_ts(const WCHAR * p, size_t N);
 
 // These allow TString to work directly in std::format()
 template<>
