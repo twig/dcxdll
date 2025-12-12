@@ -1,9 +1,10 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.31
+// v1.32
 
 #include <tchar.h>
 #include <wtypes.h>
+#include <inttypes.h>
 #include <cstdlib>
 #include <codecvt>
 #include <string>
@@ -980,6 +981,48 @@ namespace details
 		}
 	};
 
+	template <typename T>
+	struct _impl_strtoull
+	{
+	};
+	template <>
+	struct _impl_strtoull<char>
+	{
+		auto operator()(_In_z_ const char* const buf, _Out_opt_ _Deref_post_z_ char** endptr, _In_ int radx) noexcept
+		{
+			return strtoull(buf, endptr, radx);
+		}
+	};
+	template <>
+	struct _impl_strtoull<wchar_t>
+	{
+		auto operator()(_In_z_ const wchar_t* const buf, _Out_opt_ _Deref_post_z_ wchar_t** endptr, _In_ int radx) noexcept
+		{
+			return wcstoull(buf, endptr, radx);
+		}
+	};
+
+	template <typename T>
+	struct _impl_strtoumax
+	{
+	};
+	template <>
+	struct _impl_strtoumax<char>
+	{
+		auto operator()(_In_z_ const char* const buf, _Out_opt_ _Deref_post_z_ char** endptr, _In_ int radx) noexcept
+		{
+			return strtoumax(buf, endptr, radx);
+		}
+	};
+	template <>
+	struct _impl_strtoumax<wchar_t>
+	{
+		auto operator()(_In_z_ const wchar_t* const buf, _Out_opt_ _Deref_post_z_ wchar_t** endptr, _In_ int radx) noexcept
+		{
+			return wcstoumax(buf, endptr, radx);
+		}
+	};
+
 	/// <summary>
 	/// Convert a string representation of a binary number to an unsigned long
 	/// </summary>
@@ -1290,6 +1333,22 @@ auto _ts_strtoul(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T * *endptr
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
 	return details::_impl_strtoul<T>()(buf, endptr, base);
+}
+
+template <details::IsPODText T>
+auto _ts_strtoull(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr, _In_ int base) noexcept
+{
+	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
+
+	return details::_impl_strtoull<T>()(buf, endptr, base);
+}
+
+template <details::IsPODText T>
+auto _ts_strtoumax(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr, _In_ int base) noexcept
+{
+	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
+
+	return details::_impl_strtoumax<T>()(buf, endptr, base);
 }
 
 /// <summary>

@@ -163,12 +163,12 @@ namespace CRC32
 }
 
 // turns a literal string into a hash number at compile time.
-constexpr unsigned int operator "" _crc32(const char* v, size_t c)
+constexpr unsigned int operator ""_crc32(const char* v, size_t c)
 {
 	return CRC32::crc32_helper(v, gsl::narrow_cast<UINT>(c), 0xFFFFFFFF);
 }
 // turns a literal string into a hash number at compile time.
-constexpr size_t operator""_crc32(const wchar_t* p, size_t N)
+constexpr size_t operator ""_crc32(const wchar_t* p, size_t N)
 {
 	return CRC32::crc32_helper(p, gsl::narrow_cast<UINT>(N), 0xFFFFFFFF);
 }
@@ -465,7 +465,7 @@ namespace ZobHash
 }	// namespace ZobHash
 
 // turns a literal string into a hash number at compile time.
-constexpr unsigned int operator "" _zob(const char* v, size_t c)
+constexpr unsigned int operator ""_zob(const char* v, size_t c)
 {
 	return ZobHash::ZobHash(v, gsl::narrow_cast<int32_t>(c));
 }
@@ -508,14 +508,14 @@ namespace FNV1a
 	}
 }
 // turns a literal string into a hash number at compile time.
-_CONSTEVAL FNV1a::hash_t operator""_fnv1a(const char* p, size_t N)
+_CONSTEVAL FNV1a::hash_t operator ""_fnv1a(const char* p, size_t N)
 {
 	//return FNV1a::fnv1a_hash(N - 1, p);
 	return FNV1a::cfnv1a_hash(p);
 }
 
 // turns a literal string into a hash number at compile time.
-_CONSTEVAL FNV1a::hash_t operator""_fnv1a(const wchar_t* p, size_t N)
+_CONSTEVAL FNV1a::hash_t operator ""_fnv1a(const wchar_t* p, size_t N)
 {
 	//return FNV1a::fnv1a_hash(N - 1, p);
 	return FNV1a::cfnv1a_hash(p);
@@ -764,7 +764,7 @@ namespace XXH3
 }
 
 // _xxh32 suffix for string which provides compile time string to XXH32 conversion
-_CONSTEVAL uint32_t operator "" _xxh32(const char* p, size_t N)
+_CONSTEVAL uint32_t operator ""_xxh32(const char* p, size_t N)
 {
 	constexpr uint32_t seed = 0;
 	return XXH3::xxh32(p, gsl::narrow_cast<int>(N - 1), seed);
@@ -772,7 +772,7 @@ _CONSTEVAL uint32_t operator "" _xxh32(const char* p, size_t N)
 
 
 // _xxh64 suffix for string which provides compile time string to XXH64 conversion
-_CONSTEVAL uint64_t operator "" _xxh64(const char* p, size_t N)
+_CONSTEVAL uint64_t operator ""_xxh64(const char* p, size_t N)
 {
 	constexpr uint64_t seed = 0;
 	return XXH3::xxh64(p, gsl::narrow_cast<int>(N - 1), seed);
@@ -870,7 +870,7 @@ _NODISCARD size_t dcx_hash(const T* const input) noexcept
 }
 
 // turns a literal string into a hash number at compile time.
-_CONSTEVAL size_t operator""_hash(const char* p, size_t N)
+_CONSTEVAL size_t operator ""_hash(const char* p, size_t N)
 {
 #if defined(HASH_USE_CRC32) && HASH_USE_CRC32
 	return CRC32::crc32_helper(p, N, 0xFFFFFFFF);
@@ -894,7 +894,7 @@ _CONSTEVAL size_t operator""_hash(const char* p, size_t N)
 }
 
 // turns a literal string into a hash number at compile time.
-_CONSTEVAL size_t operator""_hash(const wchar_t* p, size_t N)
+_CONSTEVAL size_t operator ""_hash(const wchar_t* p, size_t N)
 {
 #if defined(HASH_USE_CRC32) && HASH_USE_CRC32
 	return CRC32::crc32_helper(p, N, 0xFFFFFFFF);
