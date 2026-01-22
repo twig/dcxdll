@@ -739,6 +739,8 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		const auto index = input.getnexttokas<int>();	// tok 4
 		auto filename(input.getlasttoks().trim());		// tok 5, -1
 
+		_ts_sprintf(this->m_tsIconData, L"% % %", tsFlags, index, filename);
+
 		ChangeHwndIcon(m_Hwnd, tsFlags, index, filename);
 	}
 	// xdialog -z [NAME] [SWITCH] [+FLAGS] [N]
@@ -1519,10 +1521,12 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 			szReturnValue = dcx_truefalse(IsWindow(GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(nID))) || (getControlByID(nID)));
 		}
 		break;
+
 		// [NAME] [PROP]
 	case L"nextid"_hash:
 		_ts_snprintf(szReturnValue, TEXT("%u"), getUniqueID() - mIRC_ID_OFFSET);
 		break;
+
 		// [NAME] [PROP] [N|NAMEDID]
 	case L"id"_hash:
 		if (numtok > 2)
@@ -1548,6 +1552,7 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 				_ts_snprintf(szReturnValue, TEXT("%u"), gsl::at(m_vpControls, gsl::narrow_cast<UINT>(N))->getUserID());
 		}
 		break;
+
 	case L"namedid"_hash:
 		if (numtok > 2)
 		{
@@ -1556,27 +1561,33 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 			szReturnValue = this->UserIDToName(tsID.to_<int>()).to_chr();
 		}
 		break;
+
 		// [NAME] [PROP]
 	case L"ismenu"_hash:
 		szReturnValue = dcx_truefalse(GetMenu(m_Hwnd) != nullptr);
 		break;
+
 		// [NAME] [PROP]
 	case L"ismarked"_hash:
 		// no need to test anything, if it got here we already know its marked.
 		szReturnValue = TEXT("$true");
 		break;
+
 		// [NAME] [PROP]
 	case L"parent"_hash:
 		szReturnValue = getParentName().to_chr();
 		break;
+
 		// [NAME] [PROP]
 	case L"mouseid"_hash:
 		_ts_snprintf(szReturnValue, TEXT("%u"), m_MouseID);
 		break;
+
 		// [NAME] [PROP]
 	case L"focusid"_hash:
 		_ts_snprintf(szReturnValue, TEXT("%u"), m_FocusID);
 		break;
+
 		// [NAME] [PROP]
 	case L"mouse"_hash:
 	{
@@ -1593,6 +1604,7 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 #endif
 	}
 	break;
+
 	// [NAME] [PROP]
 	case L"key"_hash:
 	{
@@ -1630,10 +1642,12 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 		_ts_snprintf(szReturnValue, TEXT("%u"), iKeyState);
 	}
 	break;
+
 	// [NAME] [PROP]
 	case L"alias"_hash:
 		szReturnValue = getAliasName().to_chr();
 		break;
+
 		// [NAME] [PROP] [N]
 	case L"zlayer"_hash:
 		if (numtok > 2)
@@ -1659,10 +1673,12 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 				_ts_snprintf(szReturnValue, TEXT("%u"), gsl::at(m_vZLayers, n - 1) - mIRC_ID_OFFSET);
 		}
 		break;
+
 		// [NAME] [PROP]
 	case L"zlayercurrent"_hash:
 		_ts_snprintf(szReturnValue, TEXT("%u"), m_zLayerCurrent + 1);
 		break;
+
 		// [NAME] [PROP]
 	case L"visible"_hash:
 		szReturnValue = dcx_truefalse((IsWindowVisible(m_Hwnd) != FALSE));
@@ -1749,6 +1765,12 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 			szReturnValue = TEXT('m');
 		else
 			szReturnValue = TEXT('n');
+	}
+	break;
+
+	case L"icon"_hash:
+	{
+		szReturnValue = this->m_tsIconData;
 	}
 	break;
 

@@ -451,6 +451,8 @@ private:
 	TString m_tsAliasName;  //!< Callback Alias Name
 	TString m_tsParentName; //!< Parent name (only if docked)
 
+	TString m_tsIconData; // Dialogs icons data in format "+flags index filename"
+
 	VectorOfControlPtrs m_vpControls; //!< Vector of DCX Controls
 	VectorOfInts m_vZLayers;
 	VectorOfInts::size_type m_zLayerCurrent{};
