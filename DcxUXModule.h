@@ -214,6 +214,7 @@ class DcxUXModule final
 	static inline PFNDRAWTHEMEPARENTBACKGROUNDEX DrawThemeParentBackgroundExUx = nullptr;
 	static inline PFNGETTHEMERECT GetThemeRectUx = nullptr;
 	static inline PFNGETTHEMEPARTSIZE GetThemePartSizeUx = nullptr;
+	static inline decltype(::GetThemeBitmap)* GetThemeBitmapUx = nullptr;
 
 	// Vista Function pointers.
 	static inline PFNBUFFEREDPAINTINIT BufferedPaintInitUx = nullptr;
@@ -297,6 +298,7 @@ public:
 	static HRESULT dcxGetThemeInt(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ int* piVal) noexcept;
 	static HRESULT dcxGetThemeFont(_In_ HTHEME hTheme, _In_opt_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ LPLOGFONT plog) noexcept;
 	static HRESULT dcxGetThemeTextExtent(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_reads_(cchCharCount) LPCWSTR pszText, _In_ int cchCharCount, _In_ DWORD dwTextFlags, _In_opt_ LPCRECT pBoundingRect, _Out_ LPRECT pExtentRect) noexcept;
+	static HRESULT dcxGetThemeBitmap(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _In_ DWORD dwFlags, _Out_ HBITMAP* phBitmap) noexcept;
 	static HRESULT dcxDrawThemeParentBackgroundEx(_In_ HWND hwnd, _In_ HDC hdc, _In_ DWORD dwFlags, _In_opt_ LPCRECT prc) noexcept;
 	static inline const bool& IsBufferedPaintSupported(void) noexcept { return m_bBufferedPaintEnabled; }
 	static HRESULT dcxBufferedPaintInit(void) noexcept;

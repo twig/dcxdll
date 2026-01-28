@@ -650,7 +650,7 @@ The parameters you supply can take three basic forms<br />
 	</li>
 	<br/>
 	<li>
-		A singal group ID which has been pre defined by [cmd]/xpop -g[/cmd] this can contain any number of item id's:<br />
+		A singal group ID which has been pre defined by [cmd]/xpopup -g[/cmd] this can contain any number of item id's:<br />
 		<br/>
 
 		<table>

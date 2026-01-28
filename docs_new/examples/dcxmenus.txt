@@ -295,6 +295,8 @@ alias -l _dcx_setlightmode {
 }
 menu status,menubar {
   DCX
+  .Scripts
+  ..DCXMenus: dcxmenus
   .Unload DCX:udcx
   .Menu Item Types
   ..$xstyle(11,button) 88Button $xstyle(14,800) $xstyle(1,Button style item): noop

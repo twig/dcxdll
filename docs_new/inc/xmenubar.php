@@ -191,6 +191,53 @@ function get_xmenubar(&$XMENUBAR) {
             '__eg' => '159',
             '__notes' => 'This should only be used to access mIRCs original menu functionality if you have replaced it.',
         ),
+        'p' => array(
+            '__desc' => 'This command allows additional settings to be changed.',
+            '__cmd' => '[+FLAGS] [ARGS]',
+            '__eg' => array(
+                '+r 1',
+                '+itR 1 $rgb(255,203,0)',
+            ),
+            '__params' => array(
+				'+FLAGS' => array(
+					'__desc' => 'Item flags.',
+					'__values' => array(
+						'e' => 'Enable/disable',
+						'r' => 'Enable/disable rounded borders',
+						'O' => 'Enable/disable drawing borders',
+						'f' => 'Load background image (bmp format only atm)',
+						's' => 'Enable/disable shadow text',
+						'v' => 'Visible/invisible menubar (works with custom or standard menubars)',
+						'S' => 'menubar style',
+
+						'i' => 'Item specific. combines with flags [f]+ftTHbBhwWo[/f] to affect a specific item.',
+						'R' => 'Redraw menubar. (can be combined with any flags, or used by its self)',
+
+						't' => 'Text colour.',
+						'T' => 'Selected text colour.',
+                        'H' => 'Hot text colour.',
+						'b' => 'Background colour',
+						'B' => 'Selected background colour',
+						'h' => 'Hot background colour',
+						'w' => 'Border colour.',
+						'W' => 'Selected border colour.',
+						'o' => 'Hot border colour.',
+					),
+				),
+				'ARGS' => array(
+					'__desc' => 'Arguments dependant on [p]+FLAGS[/p]',
+					'__values' => array(
+						'e,r,O,s,v' => '1 or 0',
+                        'f' => 'path/filename.bmp or if combined with [f]+i[/f] [ITEM INDEX] path/filename.bmp',
+						'S' => 'stylename',
+						'i' => 'adds [ITEM INDEX] to the start of combined flags args.',
+                        'R' => 'no args',
+                        't,T,H,b,B,h,w,W,o' => '[RGB]',
+					),
+				),
+            ),
+            '__notes' => 'fun',
+        ),
     );
 }
 

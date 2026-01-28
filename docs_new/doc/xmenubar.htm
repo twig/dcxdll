@@ -224,6 +224,125 @@ Below is a list of special menu IDs for those wishing to redesign mIRC's menubar
 <br />
 <table class="xmenubar">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xmenubar.p"></a>/xmenubar -p	</td></tr>
+	<tr><td colspan="2">This command allows additional settings to be changed.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xmenubar -p [+FLAGS] [ARGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xmenubar -p +r 1<br />/xmenubar -p +itR 1 $rgb(255,203,0)<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Item flags.</td>
+	</tr>
+	<tr>
+		<td class="value">e</td>
+		<td>Enable/disable</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Enable/disable rounded borders</td>
+	</tr>
+	<tr>
+		<td class="value">O</td>
+		<td>Enable/disable drawing borders</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Load background image (bmp format only atm)</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Enable/disable shadow text</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Visible/invisible menubar (works with custom or standard menubars)</td>
+	</tr>
+	<tr>
+		<td class="value">S</td>
+		<td>menubar style</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Item specific. combines with flags <a class="value">+ftTHbBhwWo</a> to affect a specific item.</td>
+	</tr>
+	<tr>
+		<td class="value">R</td>
+		<td>Redraw menubar. (can be combined with any flags, or used by its self)</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Text colour.</td>
+	</tr>
+	<tr>
+		<td class="value">T</td>
+		<td>Selected text colour.</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>Hot text colour.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Background colour</td>
+	</tr>
+	<tr>
+		<td class="value">B</td>
+		<td>Selected background colour</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Hot background colour</td>
+	</tr>
+	<tr>
+		<td class="value">w</td>
+		<td>Border colour.</td>
+	</tr>
+	<tr>
+		<td class="value">W</td>
+		<td>Selected border colour.</td>
+	</tr>
+	<tr>
+		<td class="value">o</td>
+		<td>Hot border colour.</td>
+	</tr>
+	<tr>
+		<td class="param">ARGS</td>
+		<td>Arguments dependant on <a class="param">+FLAGS</a></td>
+	</tr>
+	<tr>
+		<td class="value">e,r,O,s,v</td>
+		<td>1 or 0</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>path/filename.bmp or if combined with <a class="value">+i</a> [ITEM INDEX] path/filename.bmp</td>
+	</tr>
+	<tr>
+		<td class="value">S</td>
+		<td>stylename</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>adds [ITEM INDEX] to the start of combined flags args.</td>
+	</tr>
+	<tr>
+		<td class="value">R</td>
+		<td>no args</td>
+	</tr>
+	<tr>
+		<td class="value">t,T,H,b,B,h,w,W,o</td>
+		<td>[RGB]</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> fun</td></tr></table>
+<br />
+<table class="xmenubar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xmenubar.r"></a>/xmenubar -r	</td></tr>
 	<tr><td colspan="2">This command resets the original mIRC menubar.</td></tr>
 	<tr>
@@ -294,6 +413,7 @@ Below is a list of special menu IDs for those wishing to redesign mIRC's menubar
 		<a class='flag' href="#xmenubar.d"><div>-d</div></a>
 		<a class='flag' href="#xmenubar.g"><div>-g</div></a>
 		<a class='flag' href="#xmenubar.l"><div>-l</div></a>
+		<a class='flag' href="#xmenubar.p"><div>-p</div></a>
 		<a class='flag' href="#xmenubar.r"><div>-r</div></a>
 		<a class='flag' href="#xmenubar.s"><div>-s</div></a>
 		<a class='flag' href="#xmenubar.big.M"><div>-M</div></a>
@@ -309,8 +429,8 @@ Below is a list of special menu IDs for those wishing to redesign mIRC's menubar
 <table class="bar">
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
-		<td style="text-align: center;">© 2005-2025</td>
-		<td style="text-align: right;">Last Updated: 11th December, 25</td>
+		<td style="text-align: center;">© 2005-2026</td>
+		<td style="text-align: right;">Last Updated: 28th January, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

@@ -45,6 +45,7 @@ bool DcxUXModule::load()
 		GetThemeTextExtentUx = (PFNGETTHEMETEXTEXTENT)GetProcAddress(m_hModule, "GetThemeTextExtent");
 		GetThemeRectUx = (PFNGETTHEMERECT)GetProcAddress(m_hModule, "GetThemeRect");
 		GetThemePartSizeUx = (PFNGETTHEMEPARTSIZE)GetProcAddress(m_hModule, "GetThemePartSize");
+		GetThemeBitmapUx = reinterpret_cast<decltype(::GetThemeBitmap)*>(::GetProcAddress(m_hModule, "GetThemeBitmap"));
 
 		// Get Vista function pointers.
 		DrawThemeParentBackgroundExUx = (PFNDRAWTHEMEPARENTBACKGROUNDEX)GetProcAddress(m_hModule, "DrawThemeParentBackgroundEx"); // Vista ONLY!
@@ -86,7 +87,8 @@ bool DcxUXModule::load()
 		if (SetWindowThemeUx && IsThemeActiveUx && OpenThemeDataUx && CloseThemeDataUx &&
 			DrawThemeBackgroundUx && GetThemeBackgroundContentRectUx && IsThemeBackgroundPartiallyTransparentUx &&
 			DrawThemeParentBackgroundUx && DrawThemeTextUx && DrawThemeTextExUx && GetThemeBackgroundRegionUx &&
-			GetWindowThemeUx && DrawThemeEdgeUx && GetThemeColorUx && GetThemeFontUx && GetThemeTextExtentUx && GetThemeRectUx && GetThemePartSizeUx)
+			GetWindowThemeUx && DrawThemeEdgeUx && GetThemeColorUx && GetThemeFontUx && GetThemeTextExtentUx &&
+			GetThemeRectUx && GetThemePartSizeUx && GetThemeBitmapUx)
 		{
 			DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Found XP+ Theme Functions"));
 			if (DrawThemeParentBackgroundExUx && BufferedPaintInitUx && BufferedPaintUnInitUx
@@ -299,6 +301,13 @@ HRESULT DcxUXModule::dcxGetThemeFont(_In_ HTHEME hTheme, _In_opt_ HDC hdc, _In_ 
 {
 	if (GetThemeFontUx)
 		return GetThemeFontUx(hTheme, hdc, iPartId, iStateId, iPropId, plog);
+	return E_NOTIMPL;
+}
+
+HRESULT DcxUXModule::dcxGetThemeBitmap(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _In_ DWORD dwFlags, _Out_ HBITMAP* phBitmap) noexcept
+{
+	if (GetThemeBitmapUx)
+		return GetThemeBitmapUx(hTheme, iPartId, iStateId, iPropId, dwFlags, phBitmap);
 	return E_NOTIMPL;
 }
 
