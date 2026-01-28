@@ -935,9 +935,23 @@ namespace Dcx
 	/// <param name="hwnd">- A handle to the list-view control.</param>
 	/// <param name="i"></param>
 	/// <returns></returns>
-	[[nodiscard]] inline BOOL dcxListView_IsItemVisible(_In_ HWND hwnd, _In_ int i) noexcept
+	[[nodiscard]] inline bool dcxListView_IsItemVisible(_In_ HWND hwnd, _In_ int i) noexcept
 	{
-		return ListView_IsItemVisible(hwnd, i);
+		return !!ListView_IsItemVisible(hwnd, i);
+	}
+
+	[[nodiscard]] inline bool dcxListView_IsSubItemVisible(_In_ HWND hwnd, _In_ int i, _In_ int iSub) noexcept
+	{
+		if (dcxListView_IsItemVisible(hwnd, i))
+		{
+			RECT rc{};
+			dcxListView_GetSubItemRect(hwnd, i, iSub, LVIR_BOUNDS, &rc);
+			auto hdc = GetDC(hwnd);
+			Auto(ReleaseDC(hwnd, hdc));
+
+			return !!RectVisible(hdc, &rc);
+		}
+		return false;
 	}
 
 	/// <summary>
