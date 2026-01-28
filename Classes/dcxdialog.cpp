@@ -47,6 +47,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, const TString& tsName, const TString& tsA
 	, m_tsName(tsName)
 	, m_tsAliasName(tsAliasName)
 	, m_pLayoutManager(std::make_unique<LayoutManager>(m_Hwnd))
+	, m_tsIconData(L"+ 0 default")
 {
 	if (!m_Hwnd)
 		return;
@@ -735,13 +736,21 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -w [NAME] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 4)
 	{
-		const auto tsFlags(input.getnexttok());			// tok 3
-		const auto index = input.getnexttokas<int>();	// tok 4
-		auto filename(input.getlasttoks().trim());		// tok 5, -1
+		//const auto tsFlags(input.getnexttok());			// tok 3
+		//const auto index = input.getnexttokas<int>();	// tok 4
+		//auto filename(input.getlasttoks().trim());		// tok 5, -1
+		//
+		//_ts_sprintf(this->m_tsIconData, L"% % %", tsFlags, index, filename);
+		//
+		//ChangeHwndIcon(m_Hwnd, tsFlags, index, filename);
 
-		_ts_sprintf(this->m_tsIconData, L"% % %", tsFlags, index, filename);
+		this->m_tsIconData = input.getlasttoks(); // tok 3, -1
 
-		ChangeHwndIcon(m_Hwnd, tsFlags, index, filename);
+		const auto tsFlags(this->m_tsIconData.getfirsttok(1));
+		const auto iIndex = this->m_tsIconData.getnexttokas<int>();
+		auto tsFilename(this->m_tsIconData.getlasttoks().trim());
+
+		ChangeHwndIcon(m_Hwnd, tsFlags, iIndex, tsFilename);
 	}
 	// xdialog -z [NAME] [SWITCH] [+FLAGS] [N]
 	else if (flags[TEXT('z')] && numtok > 3)

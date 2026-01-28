@@ -252,7 +252,7 @@ public:
 	LRESULT OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 	LRESULT OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
-	LRESULT OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam) const;
 
 	/// <summary>
 	/// Redraw all open menus.

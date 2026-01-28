@@ -414,7 +414,7 @@ LRESULT XPopupMenuManager::OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lPar
 	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_EXITMENULOOP, wParam, lParam);
 }
 
-LRESULT XPopupMenuManager::OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam)
+LRESULT XPopupMenuManager::OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam) const
 {
 	// Check if the message came from the menubar
 	if ((Dcx::dcxHIWORD(wParam) == 0) && (m_bIsMenuBar))
