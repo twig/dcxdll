@@ -2391,7 +2391,13 @@ void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
 					// data is a window, get icon ptr
 					iWidth = DcxDPIModule::dcxGetWindowMetrics(hIconWnd, SM_CXSMICON);
 					iHeight = DcxDPIModule::dcxGetWindowMetrics(hIconWnd, SM_CYSMICON);
-					hIcon = reinterpret_cast<HICON>(SendMessage(hIconWnd, WM_GETICON, 0, DcxDPIModule::dcxGetDpiForWindow(hIconWnd)));
+					hIcon = reinterpret_cast<HICON>(SendMessage(hIconWnd, WM_GETICON, ICON_SMALL2, DcxDPIModule::dcxGetDpiForWindow(hIconWnd)));
+
+					if (!hIcon)
+						hIcon = reinterpret_cast<HICON>(GetClassLongPtr(hIconWnd, GCLP_HICONSM));
+
+					if (!hIcon)
+						hIcon = reinterpret_cast<HICON>(GetClassLongPtr(hIconWnd, GCLP_HICON));
 				}
 				else {
 					// data is NOT a window, assume its an actual icon.
