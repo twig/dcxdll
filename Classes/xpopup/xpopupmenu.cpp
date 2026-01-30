@@ -2172,6 +2172,8 @@ XPopupMenu::MenuStyle XPopupMenu::parseStyle(const TString& tsStyle) noexcept
 
 void XPMENUBAR::UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept
 {
+	m_bDrawSysButtons = false;
+
 	if (!m_menuTheme)
 		m_menuTheme = DcxUXModule::dcxOpenThemeData(mHwnd, L"Menu");
 
@@ -2267,6 +2269,93 @@ static HBITMAP dcxGetMenuItemBitmap(HMENU hMenu, int iPos) noexcept
 	GetMenuItemInfo(hMenu, iPos, TRUE, &mii);
 
 	return mii.hbmpItem;
+}
+
+void XPMENUBAR::dcxDrawMenuIcon(HMENU hMenu, int iPos, HDC hdc, LPRECT prc) noexcept
+{
+	if (!prc || !hdc || !hMenu)
+		return;
+
+	// item is an icon.
+	if (auto hIconWnd = to_hwnd(dcxGetMenuItemData(hMenu, iPos)); hIconWnd)
+	{
+		int iWidth = 16;
+		int iHeight = 16;
+		HICON hIcon{};
+		if (IsWindow(hIconWnd))
+		{
+			// data is a window, get icon ptr
+			iWidth = DcxDPIModule::dcxGetWindowMetrics(hIconWnd, SM_CXSMICON);
+			iHeight = DcxDPIModule::dcxGetWindowMetrics(hIconWnd, SM_CYSMICON);
+			hIcon = reinterpret_cast<HICON>(SendMessage(hIconWnd, WM_GETICON, ICON_SMALL2, DcxDPIModule::dcxGetDpiForWindow(hIconWnd)));
+
+			if (!hIcon)
+				hIcon = reinterpret_cast<HICON>(GetClassLongPtr(hIconWnd, GCLP_HICONSM));
+
+			if (!hIcon)
+				hIcon = reinterpret_cast<HICON>(GetClassLongPtr(hIconWnd, GCLP_HICON));
+		}
+		else {
+			// data is NOT a window, assume its an actual icon.
+			const auto iDPI = DcxDPIModule::dcxGetDpiForSystem();
+			iWidth = DcxDPIModule::dcxGetSystemMetricsForDpi(SM_CXSMICON, iDPI);
+			iHeight = DcxDPIModule::dcxGetSystemMetricsForDpi(SM_CYSMICON, iDPI);
+			hIcon = reinterpret_cast<HICON>(hIconWnd);
+		}
+
+		if (hIcon)
+		{
+			//now center icon in item area.
+			const int iLeft = prc->left + (((prc->right - prc->left) - iWidth) / 2);
+			const int iTop = prc->top + (((prc->bottom - prc->top) - iHeight) / 2);
+
+			// finally draw icon
+			DrawIconEx(hdc, iLeft, iTop, hIcon, iWidth, iHeight, 0, nullptr, DI_NORMAL);
+		}
+	}
+}
+
+void XPMENUBAR::dcxDrawSystemButton(HTHEME hTheme, int iStateID, HDC hdc, LPRECT prc, HBITMAP hBm) noexcept
+{
+	if (!prc || !hBm)
+		return;
+
+	if (hTheme)
+	{
+		int iItemPartId = MENU_BARBACKGROUND;
+		if (hBm == HBMMENU_MBAR_CLOSE)
+		{
+			iItemPartId = MENU_SYSTEMCLOSE;
+			CopyRect(&m_rcClose, prc);
+		}
+		else if (hBm == HBMMENU_MBAR_MINIMIZE)
+		{
+			iItemPartId = MENU_SYSTEMMINIMIZE;
+			CopyRect(&m_rcMin, prc);
+		}
+		else if (hBm == HBMMENU_MBAR_RESTORE)
+		{
+			iItemPartId = MENU_SYSTEMRESTORE;
+			CopyRect(&m_rcRestore, prc);
+		}
+
+		DcxUXModule::dcxDrawThemeBackground(hTheme, hdc, iItemPartId, iStateID, prc, nullptr);
+	}
+	else {
+		// draw using non theme method.
+		LPWSTR szResource{};
+		if (hBm == HBMMENU_MBAR_MINIMIZE)
+			szResource = MAKEINTRESOURCEW(45);
+		else if (hBm == HBMMENU_MBAR_RESTORE)
+			szResource = MAKEINTRESOURCEW(46);
+		else if (hBm == HBMMENU_MBAR_CLOSE)
+			szResource = MAKEINTRESOURCEW(47);
+
+		const auto iWidth = (prc->right - prc->left);
+		const auto iHeight = (prc->bottom - prc->top);
+		if (auto hIcon = static_cast<HICON>(LoadImageW(GetModuleHandle(nullptr), szResource, IMAGE_ICON, iWidth, iHeight, LR_SHARED)); hIcon)
+			DrawIconEx(hdc, prc->left, prc->top, hIcon, iWidth, iHeight, 0, nullptr, DI_NORMAL);
+	}
 }
 
 void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
@@ -2381,74 +2470,14 @@ void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
 		else if (hBm == HBMMENU_SYSTEM)
 		{
 			// item is an icon.
-			if (auto hIconWnd = to_hwnd(dcxGetMenuItemData(pUDMI->um.hmenu, pUDMI->umi.iPosition)); hIconWnd)
-			{
-				int iWidth = 16;
-				int iHeight = 16;
-				HICON hIcon{};
-				if (IsWindow(hIconWnd))
-				{
-					// data is a window, get icon ptr
-					iWidth = DcxDPIModule::dcxGetWindowMetrics(hIconWnd, SM_CXSMICON);
-					iHeight = DcxDPIModule::dcxGetWindowMetrics(hIconWnd, SM_CYSMICON);
-					hIcon = reinterpret_cast<HICON>(SendMessage(hIconWnd, WM_GETICON, ICON_SMALL2, DcxDPIModule::dcxGetDpiForWindow(hIconWnd)));
-
-					if (!hIcon)
-						hIcon = reinterpret_cast<HICON>(GetClassLongPtr(hIconWnd, GCLP_HICONSM));
-
-					if (!hIcon)
-						hIcon = reinterpret_cast<HICON>(GetClassLongPtr(hIconWnd, GCLP_HICON));
+			dcxDrawMenuIcon(pUDMI->um.hmenu, pUDMI->umi.iPosition, pUDMI->um.hdc, &pUDMI->dis.rcItem);
 				}
 				else {
-					// data is NOT a window, assume its an actual icon.
-					const auto iDPI = DcxDPIModule::dcxGetDpiForSystem();
-					iWidth = DcxDPIModule::dcxGetSystemMetricsForDpi(SM_CXSMICON, iDPI);
-					iHeight = DcxDPIModule::dcxGetSystemMetricsForDpi(SM_CYSMICON, iDPI);
-					hIcon = reinterpret_cast<HICON>(hIconWnd);
-				}
-
-				if (hIcon)
-				{
-					//now center icon in item area.
-					const int iLeft = pUDMI->dis.rcItem.left + (((pUDMI->dis.rcItem.right - pUDMI->dis.rcItem.left) - iWidth) / 2);
-					const int iTop = pUDMI->dis.rcItem.top + (((pUDMI->dis.rcItem.bottom - pUDMI->dis.rcItem.top) - iHeight) / 2);
-
-					// finally draw icon
-					DrawIconEx(pUDMI->um.hdc, iLeft, iTop, hIcon, iWidth, iHeight, 0, nullptr, DI_NORMAL);
+			m_bDrawSysButtons = true;
+			dcxDrawSystemButton(this->m_menuTheme, iStateID, pUDMI->um.hdc, &pUDMI->dis.rcItem, hBm);
 				}
 			}
-		}
-		else if (this->m_menuTheme)
-		{
-			int iItemPartId = MENU_BARBACKGROUND;
-			if (hBm == HBMMENU_MBAR_CLOSE)
-				iItemPartId = MENU_SYSTEMCLOSE;
-			else if (hBm == HBMMENU_MBAR_MINIMIZE)
-				iItemPartId = MENU_SYSTEMMINIMIZE;
-			else if (hBm == HBMMENU_MBAR_RESTORE)
-				iItemPartId = MENU_SYSTEMRESTORE;
-
-			DcxUXModule::dcxDrawThemeBackground(this->m_menuTheme, pUDMI->um.hdc, iItemPartId, iStateID, &pUDMI->dis.rcItem, nullptr);
-		}
-		else {
-			// draw using non theme method.
-			LPWSTR szResource{};
-			if (hBm == HBMMENU_MBAR_CLOSE)
-				szResource = MAKEINTRESOURCEW(47);
-			else if (hBm == HBMMENU_MBAR_MINIMIZE)
-				szResource = MAKEINTRESOURCEW(45);
-			else if (hBm == HBMMENU_MBAR_RESTORE)
-				szResource = MAKEINTRESOURCEW(46);
-
-			const auto iWidth = (pUDMI->dis.rcItem.right - pUDMI->dis.rcItem.left);
-			const auto iHeight = (pUDMI->dis.rcItem.bottom - pUDMI->dis.rcItem.top);
-			auto hIcon = static_cast<HICON>(LoadImageW(GetModuleHandle(nullptr), szResource, IMAGE_ICON, iWidth, iHeight, LR_SHARED));
-			if (hIcon)
-				DrawIconEx(pUDMI->um.hdc, pUDMI->dis.rcItem.left, pUDMI->dis.rcItem.top, hIcon, iWidth, iHeight, 0, nullptr, DI_NORMAL);
-		}
-	}
-
-	if (!_ts_isEmpty(menuString))
+	else if (!_ts_isEmpty(menuString))
 	{
 	if (this->m_menuTheme)
 	{
@@ -2495,6 +2524,27 @@ void XPMENUBAR::UAHDrawMenuNCBottomLine(HWND hWnd) const noexcept
 	if (HDC hdc = GetWindowDC(hWnd); hdc)
 	{
 		Dcx::FillRectColour(hdc, &rcAnnoyingLine, m_Default.m_Colours.m_clrBack);
+		ReleaseDC(hWnd, hdc);
+	}
+}
+
+void XPMENUBAR::UAHDrawUpdateSysButtons(HWND hWnd, POINT pos) noexcept
+{
+	//POINT pos{};
+	//GetCursorPos(&pos);
+
+	RECT rcWindow{};
+	GetWindowRect(hWnd, &rcWindow);
+
+	pos.x -= rcWindow.left;
+	pos.y -= rcWindow.top;
+
+	if (HDC hdc = GetWindowDC(hWnd); hdc)
+	{
+		dcxDrawSystemButton(this->m_menuTheme, PtInRect(&m_rcClose, pos) ? MBI_HOT : MBI_NORMAL, hdc, &m_rcClose, HBMMENU_MBAR_CLOSE);
+		dcxDrawSystemButton(this->m_menuTheme, PtInRect(&m_rcMin, pos) ? MBI_HOT : MBI_NORMAL, hdc, &m_rcMin, HBMMENU_MBAR_MINIMIZE);
+		dcxDrawSystemButton(this->m_menuTheme, PtInRect(&m_rcRestore, pos) ? MBI_HOT : MBI_NORMAL, hdc, &m_rcRestore, HBMMENU_MBAR_RESTORE);
+
 		ReleaseDC(hWnd, hdc);
 	}
 }

@@ -192,10 +192,15 @@ struct XPMENUBAR
 	bool m_bDrawBorder{ false };					// draw border sound item?
 	bool m_bDrawRoundedBorder{ false };				// draw rounded border?
 	bool m_bDrawShadowText{ false };				// draw text with shadows?
+	bool m_bDrawSysButtons{ false };
 	MainMenuStyle m_Style{ MainMenuStyle::XPMS_None };
 
 	XPMENUBARITEM m_Default;						// colours for whole menubar (overridden by m_ItemSettings)
 	std::map<int, XPMENUBARITEM> m_ItemSettings;	// item specific colour settings.
+
+	RECT m_rcClose{};
+	RECT m_rcMin{};
+	RECT m_rcRestore{};
 
 	XPMENUBAR() noexcept = default;
 
@@ -409,9 +414,13 @@ struct XPMENUBAR
 		}
 	}
 
+	void dcxDrawMenuIcon(HMENU hMenu, int iPos, HDC hdc, LPRECT prc) noexcept;
+	void dcxDrawSystemButton(HTHEME hTheme, int iStateID, HDC hdc, LPRECT prc, HBITMAP hBm) noexcept;
+
 	void UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept;
 	void UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept;
 	void UAHDrawMenuNCBottomLine(HWND hWnd) const noexcept;
+	void UAHDrawUpdateSysButtons(HWND hWnd, POINT pos) noexcept;
 
 	// [+FLAGS] [ARGS]
 	void Setup(HWND mHwnd, const XSwitchFlags &xflags, TString tsArgs);
