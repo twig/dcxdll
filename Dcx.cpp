@@ -318,11 +318,15 @@ namespace Dcx
 	*/
 	LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
+		//const WindowMessages mm = gsl::narrow_cast<WindowMessages>(uMsg);
+
 		switch (uMsg)
 		{
 		case WM_SIZE:
+		{
 			if (dcxSignal.xdock)
 				mIRCLinker::signal(TEXT("size mIRC % % %"), from_hwnd(mHwnd), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
+		}
 			break;
 
 			//case WM_CONTEXTMENU:
@@ -543,6 +547,22 @@ namespace Dcx
 
 			XMenubar.m_Settings.UAHDrawMenuBarItem(mHwnd, pUDMI);
 			return 0L;
+		}
+		break;
+
+		case WM_NCHITTEST:
+		{
+			if (!XMenubar.m_Settings.m_bEnable)
+				break;
+			if (!XMenubar.m_Settings.m_bDrawSysButtons)
+				break;
+
+			const auto lRes = mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
+
+			const POINT pt{ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+			XMenubar.m_Settings.UAHDrawUpdateSysButtons(mHwnd, pt);
+
+			return lRes;
 		}
 		break;
 
