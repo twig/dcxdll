@@ -2237,7 +2237,7 @@ void XPMENUBAR::UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept
 
 static UINT dcxGetMenuItemType(HMENU hMenu, int iPos) noexcept
 {
-	MENUITEMINFO mii = { sizeof(mii), MIIM_TYPE };
+	MENUITEMINFO mii = { sizeof(mii), MIIM_TYPE }; //MUST be TYPE notr FTYPE
 
 	GetMenuItemInfo(hMenu, iPos, TRUE, &mii);
 
@@ -2320,6 +2320,8 @@ void XPMENUBAR::dcxDrawSystemButton(HTHEME hTheme, int iStateID, HDC hdc, LPRECT
 	if (!prc || !hBm)
 		return;
 
+	Dcx::FillRectColour(hdc, prc, m_Default.m_Colours.m_clrBack);
+
 	if (hTheme)
 	{
 		int iItemPartId = MENU_BARBACKGROUND;
@@ -2358,10 +2360,9 @@ void XPMENUBAR::dcxDrawSystemButton(HTHEME hTheme, int iStateID, HDC hdc, LPRECT
 	}
 }
 
-void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
+XPMENUTRICOLOUR XPMENUBAR::UAHGetMenuBarColours(UAHDRAWMENUITEM* pUDMI) noexcept
 {
 	XPMENUBARITEM mCols = this->m_Default;
-	mCols.m_hBkg.m_hBitmap = nullptr;
 
 	try {
 	if (this->m_ItemSettings.contains(pUDMI->umi.iPosition))
@@ -2369,29 +2370,41 @@ void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
 	}
 	catch (...) {};
 
-	COLORREF clrFill = mCols.m_Colours.m_clrBox;
-	COLORREF clrText = mCols.m_Colours.m_clrText;
-	COLORREF clrBorder = mCols.m_Colours.m_clrBox;
+	XPMENUTRICOLOUR clrs{ mCols.m_Colours.m_clrBox, mCols.m_Colours.m_clrText, mCols.m_Colours.m_clrBox, mCols.m_Colours.m_clrBack };
 
 	if (this->m_bDrawBorder)
-		clrBorder = mCols.m_Colours.m_clrBorder;
+		clrs.m_clrBorder = mCols.m_Colours.m_clrBorder;
 
-	// get the menu item string
-	wchar_t menuString[256]{};
-	MENUITEMINFO mii = { sizeof(mii), MIIM_STRING };
+	if (pUDMI->dis.itemState & ODS_HOTLIGHT)
 	{
-		mii.dwTypeData = &menuString[0];
-		mii.cch = gsl::narrow_cast<UINT>(std::size(menuString) - 1);
-
-		GetMenuItemInfo(pUDMI->um.hmenu, pUDMI->umi.iPosition, TRUE, &mii);
+		// hot tracking
+		clrs.m_clrFill = mCols.m_Colours.m_clrHot;
+		clrs.m_clrText = mCols.m_Colours.m_clrHotText;
+		if (this->m_bDrawBorder)
+			clrs.m_clrBorder = mCols.m_Colours.m_clrHotBorder;
+	}
+	if (pUDMI->dis.itemState & ODS_SELECTED)
+	{
+		clrs.m_clrFill = mCols.m_Colours.m_clrSelection;
+		clrs.m_clrText = mCols.m_Colours.m_clrSelectedText;
+		if (this->m_bDrawBorder)
+			clrs.m_clrBorder = mCols.m_Colours.m_clrSelectionBorder;
+	}
+	if ((pUDMI->dis.itemState & ODS_GRAYED) || (pUDMI->dis.itemState & ODS_DISABLED))
+	{
+		// disabled / grey text
+		clrs.m_clrFill = mCols.m_Colours.m_clrDisabled;
+		clrs.m_clrText = mCols.m_Colours.m_clrDisabledText;
+		if (this->m_bDrawBorder)
+			clrs.m_clrBorder = mCols.m_Colours.m_clrBorder;
 	}
 
-	// get the item state for drawing
+	return clrs;
+	}
 
-	DWORD dwFlags = DT_CENTER | DT_SINGLELINE | DT_VCENTER;
-
+BARITEMSTATES XPMENUBAR::UAHGetThemeState(UAHDRAWMENUITEM* pUDMI) noexcept
+{
 	auto iStateID = MBI_NORMAL;
-	{
 		//if ((pUDMI->dis.itemState & ODS_INACTIVE) | (pUDMI->dis.itemState & ODS_DEFAULT))
 		//{
 		//	// normal display
@@ -2402,21 +2415,11 @@ void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
 		{
 			// hot tracking
 			iStateID = MBI_HOT;
-
-			clrFill = mCols.m_Colours.m_clrHot;
-			clrText = mCols.m_Colours.m_clrHotText;
-			if (this->m_bDrawBorder)
-				clrBorder = mCols.m_Colours.m_clrHotBorder;
 		}
 		if (pUDMI->dis.itemState & ODS_SELECTED)
 		{
 			// clicked -- MENU_POPUPITEM has no state for this, though MENU_BARITEM does
 			iStateID = MBI_PUSHED;
-
-			clrFill = mCols.m_Colours.m_clrSelection;
-			clrText = mCols.m_Colours.m_clrSelectedText;
-			if (this->m_bDrawBorder)
-				clrBorder = mCols.m_Colours.m_clrSelectionBorder;
 		}
 		if ((pUDMI->dis.itemState & ODS_GRAYED) || (pUDMI->dis.itemState & ODS_DISABLED))
 		{
@@ -2434,27 +2437,45 @@ void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
 				iStateID = MBI_DISABLED;
 				break;
 			}
+	}
+	return iStateID;
+}
 
-			clrFill = mCols.m_Colours.m_clrDisabled;
-			clrText = mCols.m_Colours.m_clrDisabledText;
-			if (this->m_bDrawBorder)
-				clrBorder = mCols.m_Colours.m_clrBorder;
+void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
+{
+	const auto triclrs = UAHGetMenuBarColours(pUDMI);
+
+	// get the menu item string
+	wchar_t menuString[256]{};
+	MENUITEMINFO mii = { sizeof(mii), MIIM_STRING };
+	{
+		mii.dwTypeData = &menuString[0];
+		mii.cch = gsl::narrow_cast<UINT>(std::size(menuString) - 1);
+
+		GetMenuItemInfo(pUDMI->um.hmenu, pUDMI->umi.iPosition, TRUE, &mii);
 		}
+
+	// get the item state for drawing
+	DWORD dwFlags = DT_CENTER | DT_SINGLELINE | DT_VCENTER;
+
+	const auto iStateID = UAHGetThemeState(pUDMI);
+
 		if (pUDMI->dis.itemState & ODS_NOACCEL)
 			dwFlags |= DT_HIDEPREFIX;
-	}
 
 	if (!this->m_menuTheme)
 		this->m_menuTheme = DcxUXModule::dcxOpenThemeData(mHwnd, L"Menu");
 
-	if (mCols.m_hBkg.m_hBitmap)
-		dcxDrawBitMap(pUDMI->um.hdc, &pUDMI->dis.rcItem, mCols.m_hBkg.m_hBitmap, true, false);
-	else {
-		if (this->m_bDrawRoundedBorder)
-			Dcx::FillRectColour(pUDMI->um.hdc, &pUDMI->dis.rcItem, mCols.m_Colours.m_clrBack);
+	//pUDMI->dis.rcItem.bottom++; // removes gap
 
-		dcxDrawRect(pUDMI->um.hdc, &pUDMI->dis.rcItem, clrFill, clrBorder, this->m_bDrawRoundedBorder);
-	}
+	//if (mCols.m_hBkg.m_hBitmap)
+	//	dcxDrawBitMap(pUDMI->um.hdc, &pUDMI->dis.rcItem, mCols.m_hBkg.m_hBitmap, true, false);
+	//else {
+		if (this->m_bDrawRoundedBorder)
+		Dcx::FillRectColour(pUDMI->um.hdc, &pUDMI->dis.rcItem, triclrs.m_clrBack);
+
+	dcxDrawRect(pUDMI->um.hdc, &pUDMI->dis.rcItem, triclrs.m_clrFill, triclrs.m_clrBorder, this->m_bDrawRoundedBorder);
+	//}
 
 	if (const auto fType = dcxGetMenuItemType(pUDMI->um.hmenu, pUDMI->umi.iPosition); dcx_testflag(fType, MFT_BITMAP))
 	{
@@ -2481,15 +2502,15 @@ void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
 	{
 	if (this->m_menuTheme)
 	{
-		const DTTOPTS opts = { sizeof(opts), (this->m_bDrawShadowText ? DTT_TEXTCOLOR | DTT_SHADOWCOLOR : DTT_TEXTCOLOR), clrText,0,RGB(0,0,0) };
+			const DTTOPTS opts = { sizeof(opts), (this->m_bDrawShadowText ? DTT_TEXTCOLOR | DTT_SHADOWCOLOR : DTT_TEXTCOLOR), triclrs.m_clrText,0,RGB(0,0,0) };
 
 			DcxUXModule::dcxDrawThemeTextEx(this->m_menuTheme, pUDMI->um.hdc, MENU_BARITEM, iStateID, &menuString[0], mii.cch, dwFlags, &pUDMI->dis.rcItem, &opts);
 	}
 	else {
 		if (this->m_bDrawShadowText)
-			dcxDrawShadowText(pUDMI->um.hdc, &menuString[0], mii.cch, &pUDMI->dis.rcItem, dwFlags, clrText, RGB(0, 0, 0), 5, 5);
+				dcxDrawShadowText(pUDMI->um.hdc, &menuString[0], mii.cch, &pUDMI->dis.rcItem, dwFlags, triclrs.m_clrText, RGB(0, 0, 0), 5, 5);
 		else {
-			const auto clrOld = SetTextColor(pUDMI->um.hdc, clrText);
+				const auto clrOld = SetTextColor(pUDMI->um.hdc, triclrs.m_clrText);
 			DrawTextW(pUDMI->um.hdc, &menuString[0], mii.cch, &pUDMI->dis.rcItem, dwFlags);
 			SetTextColor(pUDMI->um.hdc, clrOld);
 		}
@@ -2520,6 +2541,9 @@ void XPMENUBAR::UAHDrawMenuNCBottomLine(HWND hWnd) const noexcept
 	rcAnnoyingLine.bottom = rcAnnoyingLine.top;
 	rcAnnoyingLine.top--;
 
+	//RECT rcAnnoyingLine = mbi.rcBar;
+	//rcAnnoyingLine.top = rcAnnoyingLine.bottom;
+	//rcAnnoyingLine.bottom = rcAnnoyingLine.top + 2;
 
 	if (HDC hdc = GetWindowDC(hWnd); hdc)
 	{
@@ -2720,9 +2744,7 @@ void XPMENUBAR::Setup(HWND mHwnd, const XSwitchFlags& xflags, TString tsArgs)
 		}
 		else {
 			// general flags
-			if (numtok < 9)
-				throw DcxExceptions::dcxInvalidArguments();
-
+			if (numtok == 9)
 			m_Default.m_Colours = _SetColours(xflags, tsArgs, m_Default.m_Colours);
 		}
 	}

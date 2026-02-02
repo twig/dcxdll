@@ -566,6 +566,23 @@ namespace Dcx
 		}
 		break;
 
+		case WM_NCMOUSELEAVE:
+		{
+			if (!XMenubar.m_Settings.m_bEnable)
+				break;
+			if (!XMenubar.m_Settings.m_bDrawSysButtons)
+				break;
+
+			const auto lRes = mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
+
+			POINT pt{};
+			GetCursorPos(&pt);
+			XMenubar.m_Settings.UAHDrawUpdateSysButtons(mHwnd, pt);
+
+			return lRes;
+		}
+		break;
+
 		case WM_NCPAINT:
 		case WM_NCACTIVATE:
 		{

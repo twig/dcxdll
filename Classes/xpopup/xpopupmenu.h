@@ -56,6 +56,14 @@ enum class MainMenuStyle : UINT
 	XPMS_TRACK_THEMED
 };
 
+struct XPMENUTRICOLOUR
+{
+	COLORREF m_clrFill{};
+	COLORREF m_clrText{};
+	COLORREF m_clrBorder{};
+	COLORREF m_clrBack{};
+};
+
 struct XPMENUBARCOLORS final
 {
 	COLORREF m_clrBack{ RGB(184, 199, 146) };				//!< Menu Item BackGround Color
@@ -416,6 +424,9 @@ struct XPMENUBAR
 
 	void dcxDrawMenuIcon(HMENU hMenu, int iPos, HDC hdc, LPRECT prc) noexcept;
 	void dcxDrawSystemButton(HTHEME hTheme, int iStateID, HDC hdc, LPRECT prc, HBITMAP hBm) noexcept;
+
+	XPMENUTRICOLOUR UAHGetMenuBarColours(UAHDRAWMENUITEM* pUDMI) noexcept;
+	BARITEMSTATES UAHGetThemeState(UAHDRAWMENUITEM* pUDMI) noexcept;
 
 	void UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept;
 	void UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept;
