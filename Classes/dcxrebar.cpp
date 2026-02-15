@@ -257,12 +257,6 @@ DcxControl* DcxReBar::getControl(const int index) const noexcept
 	return nullptr;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 dcxWindowStyles DcxReBar::parseControlStyles(const TString& tsStyles)
 {
 	auto ws = parseGeneralControlStyles(tsStyles);
@@ -318,11 +312,6 @@ dcxWindowStyles DcxReBar::parseControlStyles(const TString& tsStyles)
 
 	return ws;
 }
-/*!
- * \brief blah
- *
- * blah
- */
 
 HIMAGELIST DcxReBar::getImageList() const noexcept
 {
@@ -332,12 +321,6 @@ HIMAGELIST DcxReBar::getImageList() const noexcept
 
 	return ri.himl;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void DcxReBar::setImageList(HIMAGELIST himl) noexcept
 {
@@ -434,6 +417,38 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 		_ts_snprintf(szReturnValue, TEXT("%u"), rbi.cx);
 	}
 	break;
+	case L"ideal"_hash:
+	{
+		const auto n = input.getnexttokas<int>() - 1;	// tok 4
+
+		if (n < 0 || n >= this->getBandCount())
+			throw DcxExceptions::dcxInvalidItem();
+
+		REBARBANDINFO rbi{};
+		rbi.cbSize = sizeof(REBARBANDINFO);
+		rbi.fMask = RBBIM_IDEALSIZE;
+
+		getBandInfo(gsl::narrow_cast<UINT>(n), &rbi);
+
+		_ts_snprintf(szReturnValue, TEXT("%u"), rbi.cxIdeal);
+	}
+	break;
+	case L"maximized"_hash:
+	{
+		const auto n = input.getnexttokas<int>() - 1;	// tok 4
+
+		if (n < 0 || n >= this->getBandCount())
+			throw DcxExceptions::dcxInvalidItem();
+
+		REBARBANDINFO rbi{};
+		rbi.cbSize = sizeof(REBARBANDINFO);
+		rbi.fMask = RBBIM_IDEALSIZE | RBBIM_SIZE;
+
+		getBandInfo(gsl::narrow_cast<UINT>(n), &rbi);
+
+		szReturnValue = dcx_truefalse((rbi.cx == rbi.cxIdeal));
+	}
+	break;
 	// [NAME] [ID] [PROP]
 	case L"rows"_hash:
 	{
@@ -456,6 +471,7 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 		parseGlobalInfoRequest(input, szReturnValue);
 	}
 }
+
 /*!
  * \brief blah
  *
@@ -900,12 +916,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		this->parseGlobalCommandRequest(input, flags);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void DcxReBar::resetContents() noexcept
 {
 	auto nItems = gsl::narrow_cast<UINT>(this->getBandCount());
@@ -913,12 +923,6 @@ void DcxReBar::resetContents() noexcept
 	while (nItems--)
 		this->deleteBand(nItems);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 UINT DcxReBar::parseBandStyleFlags(const TString& flags) noexcept
 {
@@ -984,12 +988,6 @@ TString DcxReBar::parseBandStyleFlags(UINT flags) noexcept
 
 	return tsFlags;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void DcxReBar::addBand(int nIndex, UINT cx, UINT cy, UINT width, int nIcon, COLORREF clrText, const TString& tsFlags, const TString& tsText, const TString& tsControl_data, const TString& tsTooltip)
 {
@@ -1086,176 +1084,80 @@ bool DcxReBar::insertBand(const int uIndex, const LPREBARBANDINFO lprbbi) noexce
 	return !!SendMessage(m_Hwnd, RB_INSERTBAND, gsl::narrow_cast<WPARAM>(uIndex), reinterpret_cast<LPARAM>(lprbbi));
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 bool DcxReBar::deleteBand(const UINT uIndex) noexcept
 {
 	return !!SendMessage(m_Hwnd, RB_DELETEBAND, gsl::narrow_cast<WPARAM>(uIndex), gsl::narrow_cast<LPARAM>(0));
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 bool DcxReBar::getBandInfo(const UINT uBand, const LPREBARBANDINFO lprbbi) const noexcept
 {
 	return !!SendMessage(m_Hwnd, RB_GETBANDINFO, gsl::narrow_cast<WPARAM>(uBand), reinterpret_cast<LPARAM>(lprbbi));
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 bool DcxReBar::setBandInfo(const UINT uBand, const LPREBARBANDINFO lprbbi) noexcept
 {
 	return !!SendMessage(m_Hwnd, RB_SETBANDINFO, gsl::narrow_cast<WPARAM>(uBand), reinterpret_cast<LPARAM>(lprbbi));
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 bool DcxReBar::setBarInfo(const LPREBARINFO lprbi) noexcept
 {
 	return !!SendMessage(m_Hwnd, RB_SETBARINFO, gsl::narrow_cast<WPARAM>(0), reinterpret_cast<LPARAM>(lprbi));
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 bool DcxReBar::getBarInfo(const LPREBARINFO lprbi) const noexcept
 {
 	return !!SendMessage(m_Hwnd, RB_GETBARINFO, gsl::narrow_cast<WPARAM>(0), reinterpret_cast<LPARAM>(lprbi));
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 int DcxReBar::getRowCount() const noexcept
 {
 	return gsl::narrow_cast<int>(SendMessage(m_Hwnd, RB_GETROWCOUNT, gsl::narrow_cast<WPARAM>(0), gsl::narrow_cast<LPARAM>(0)));
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 int DcxReBar::hitTest(const LPRBHITTESTINFO lprbht) const noexcept
 {
 	return gsl::narrow_cast<int>(SendMessage(m_Hwnd, RB_HITTEST, gsl::narrow_cast<WPARAM>(0), reinterpret_cast<LPARAM>(lprbht)));
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 HWND DcxReBar::getToolTips() const noexcept
 {
 	return to_hwnd(SendMessage(m_Hwnd, RB_GETTOOLTIPS, gsl::narrow_cast<WPARAM>(0), gsl::narrow_cast<LPARAM>(0)));
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void DcxReBar::setToolTips(const HWND hwndToolTip) noexcept
 {
 	SendMessage(m_Hwnd, RB_SETTOOLTIPS, reinterpret_cast<WPARAM>(hwndToolTip), gsl::narrow_cast<LPARAM>(0));
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 int DcxReBar::getIDToIndex(const UINT uBandID) const noexcept
 {
 	return gsl::narrow_cast<int>(SendMessage(m_Hwnd, RB_IDTOINDEX, gsl::narrow_cast<WPARAM>(uBandID), gsl::narrow_cast<LPARAM>(0)));
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 int DcxReBar::getBandCount() const noexcept
 {
 	return gsl::narrow_cast<int>(SendMessage(m_Hwnd, RB_GETBANDCOUNT, gsl::narrow_cast<WPARAM>(0), gsl::narrow_cast<LPARAM>(0)));
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void DcxReBar::setReDraw(const BOOL uState) noexcept
 {
 	SendMessage(m_Hwnd, WM_SETREDRAW, gsl::narrow_cast<WPARAM>(uState), gsl::narrow_cast<LPARAM>(uState));
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 bool DcxReBar::showBand(const UINT uBand, const BOOL fShow) noexcept
 {
 	return !!SendMessage(m_Hwnd, RB_SHOWBAND, gsl::narrow_cast<WPARAM>(uBand), gsl::narrow_cast<LPARAM>(fShow));
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 bool DcxReBar::moveBand(const UINT iFrom, const UINT iTo) noexcept
 {
 	return !!SendMessage(m_Hwnd, RB_MOVEBAND, gsl::narrow_cast<WPARAM>(iFrom), gsl::narrow_cast<LPARAM>(iTo));
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void DcxReBar::maxBand(const UINT uBand, const BOOL fIdeal) noexcept
 {
 	SendMessage(m_Hwnd, RB_MAXIMIZEBAND, gsl::narrow_cast<WPARAM>(uBand), gsl::narrow_cast<LPARAM>(fIdeal));
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void DcxReBar::minBand(const UINT uBand, const BOOL fIdeal) noexcept
 {
@@ -1281,11 +1183,6 @@ void DcxReBar::loadIcon(const TString& tsFlags, const TString& tsIndex, const TS
 	Dcx::dcxLoadIconRange(himl, filename, false, tsFlags, tsIndex);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 LRESULT DcxReBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
