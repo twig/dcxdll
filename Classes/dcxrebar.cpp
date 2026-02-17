@@ -390,13 +390,14 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 		if (n < 0 || n >= this->getBandCount())
 			throw DcxExceptions::dcxInvalidItem();
 
-		REBARBANDINFO rbi{};
-		rbi.cbSize = sizeof(REBARBANDINFO);
-		rbi.fMask = RBBIM_LPARAM;
+		//REBARBANDINFO rbi{};
+		//rbi.cbSize = sizeof(REBARBANDINFO);
+		//rbi.fMask = RBBIM_LPARAM;
+		//getBandInfo(gsl::narrow_cast<UINT>(n), &rbi);
+		//if (auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(rbi.lParam); pdcxrbb)
+		//	szReturnValue = pdcxrbb->tsMarkText.to_chr();
 
-		getBandInfo(gsl::narrow_cast<UINT>(n), &rbi);
-
-		if (auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(rbi.lParam); pdcxrbb)
+		if (const auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(getBandInfo(gsl::narrow_cast<UINT>(n), RBBIM_LPARAM).lParam); pdcxrbb)
 			szReturnValue = pdcxrbb->tsMarkText.to_chr();
 	}
 	break;
@@ -408,15 +409,16 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 		if (n < 0 || n >= this->getBandCount())
 			throw DcxExceptions::dcxInvalidItem();
 
-		REBARBANDINFO rbi{};
-		rbi.cbSize = sizeof(REBARBANDINFO);
-		rbi.fMask = RBBIM_SIZE;
+		//REBARBANDINFO rbi{};
+		//rbi.cbSize = sizeof(REBARBANDINFO);
+		//rbi.fMask = RBBIM_SIZE;
+		//getBandInfo(gsl::narrow_cast<UINT>(n), &rbi);
+		//_ts_snprintf(szReturnValue, TEXT("%u"), rbi.cx);
 
-		getBandInfo(gsl::narrow_cast<UINT>(n), &rbi);
-
-		_ts_snprintf(szReturnValue, TEXT("%u"), rbi.cx);
+		_ts_snprintf(szReturnValue, TEXT("%u"), getBandInfo(gsl::narrow_cast<UINT>(n), RBBIM_SIZE).cx);
 	}
 	break;
+	// [NAME] [ID] [PROP] [N]
 	case L"ideal"_hash:
 	{
 		const auto n = input.getnexttokas<int>() - 1;	// tok 4
@@ -424,15 +426,10 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 		if (n < 0 || n >= this->getBandCount())
 			throw DcxExceptions::dcxInvalidItem();
 
-		REBARBANDINFO rbi{};
-		rbi.cbSize = sizeof(REBARBANDINFO);
-		rbi.fMask = RBBIM_IDEALSIZE;
-
-		getBandInfo(gsl::narrow_cast<UINT>(n), &rbi);
-
-		_ts_snprintf(szReturnValue, TEXT("%u"), rbi.cxIdeal);
+		_ts_snprintf(szReturnValue, TEXT("%u"), getBandInfo(gsl::narrow_cast<UINT>(n), RBBIM_IDEALSIZE).cxIdeal);
 	}
 	break;
+	// [NAME] [ID] [PROP] [N]
 	case L"maximized"_hash:
 	{
 		const auto n = input.getnexttokas<int>() - 1;	// tok 4
@@ -440,13 +437,26 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 		if (n < 0 || n >= this->getBandCount())
 			throw DcxExceptions::dcxInvalidItem();
 
-		REBARBANDINFO rbi{};
-		rbi.cbSize = sizeof(REBARBANDINFO);
-		rbi.fMask = RBBIM_IDEALSIZE | RBBIM_SIZE;
-
-		getBandInfo(gsl::narrow_cast<UINT>(n), &rbi);
-
+		const auto rbi = getBandInfo(gsl::narrow_cast<UINT>(n), RBBIM_IDEALSIZE | RBBIM_SIZE);
 		szReturnValue = dcx_truefalse((rbi.cx == rbi.cxIdeal));
+
+		//auto bRes{ false };
+		//if (auto rbb = reinterpret_cast<DCXRBBAND*>(this->getBandInfo(gsl::narrow_cast<UINT>(n), RBBIM_LPARAM).lParam); rbb)
+		//{
+		//	bRes = rbb->bMaximized;
+		//}
+		//szReturnValue = dcx_truefalse(bRes);
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"image"_hash:
+	{
+		const auto n = input.getnexttokas<int>() - 1;	// tok 4
+
+		if (n < 0 || n >= this->getBandCount())
+			throw DcxExceptions::dcxInvalidItem();
+
+		_ts_snprintf(szReturnValue, TEXT("%u"), getBandInfo(gsl::narrow_cast<UINT>(n), RBBIM_IMAGE).iImage);
 	}
 	break;
 	// [NAME] [ID] [PROP]
@@ -710,7 +720,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 			}
 		}
 	}
-	// xdid -m [NAME] [ID] [SWITCH] [N]
+	// xdid -m [NAME] [ID] [SWITCH] [N] (IDEAL)
 	else if (flags[TEXT('m')])
 	{
 		if (numtok < 4)
@@ -721,7 +731,9 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		if (nIndex < 0 || nIndex >= this->getBandCount())
 			throw DcxExceptions::dcxInvalidItem();
 
-		this->maxBand(nIndex, FALSE);
+		const auto bIdeal = (input.getnexttokas<int>() > 0);
+
+		this->maxBand(nIndex, bIdeal);
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('n')])
@@ -734,7 +746,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		if (nIndex < 0 || nIndex >= this->getBandCount())
 			throw DcxExceptions::dcxInvalidItem();
 
-		this->minBand(nIndex, FALSE);
+		this->minBand(nIndex);
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('q')])
@@ -991,6 +1003,9 @@ TString DcxReBar::parseBandStyleFlags(UINT flags) noexcept
 
 void DcxReBar::addBand(int nIndex, UINT cx, UINT cy, UINT width, int nIcon, COLORREF clrText, const TString& tsFlags, const TString& tsText, const TString& tsControl_data, const TString& tsTooltip)
 {
+	if (cx > width)
+		throw Dcx::dcxException("Invalid width: width is less than min width");
+
 	REBARBANDINFO rbBand{};
 	if (Dcx::DwmModule.isUseable()) // NB: when rbBand.cbSize is set to the Vista size on XP the insertband will FAIL!! fucking MS!
 		rbBand.cbSize = sizeof(REBARBANDINFO);
@@ -1009,6 +1024,8 @@ void DcxReBar::addBand(int nIndex, UINT cx, UINT cy, UINT width, int nIcon, COLO
 	rbBand.cx = width;
 	rbBand.cyIntegral = 1;
 	rbBand.cyChild = cy;
+
+	rbBand.cxIdeal = width;
 
 	if (!tsText.empty())
 	{
@@ -1063,7 +1080,7 @@ void DcxReBar::addBand(int nIndex, UINT cx, UINT cy, UINT width, int nIcon, COLO
 		if (const auto dct = p_Control->getControlType(); ((dct == DcxControlTypes::STATUSBAR) || (dct == DcxControlTypes::TOOLBAR)))
 			p_Control->addStyle(WindowStyle::CCS_NoParentAlign | CCS_NORESIZE);
 
-		rbBand.fMask |= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE | RBBIM_ID;
+		rbBand.fMask |= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE | RBBIM_ID | RBBIM_IDEALSIZE;
 		rbBand.hwndChild = p_Control->getHwnd();
 		rbBand.wID = p_Control->getID();
 	}
@@ -1092,6 +1109,17 @@ bool DcxReBar::deleteBand(const UINT uIndex) noexcept
 bool DcxReBar::getBandInfo(const UINT uBand, const LPREBARBANDINFO lprbbi) const noexcept
 {
 	return !!SendMessage(m_Hwnd, RB_GETBANDINFO, gsl::narrow_cast<WPARAM>(uBand), reinterpret_cast<LPARAM>(lprbbi));
+}
+
+REBARBANDINFO DcxReBar::getBandInfo(const UINT uBand, const UINT uMask) const noexcept
+{
+	REBARBANDINFO rbi{};
+	rbi.cbSize = sizeof(REBARBANDINFO);
+	rbi.fMask = uMask;
+
+	getBandInfo(uBand, &rbi);
+
+	return rbi;
 }
 
 bool DcxReBar::setBandInfo(const UINT uBand, const LPREBARBANDINFO lprbbi) noexcept
@@ -1139,11 +1167,6 @@ int DcxReBar::getBandCount() const noexcept
 	return gsl::narrow_cast<int>(SendMessage(m_Hwnd, RB_GETBANDCOUNT, gsl::narrow_cast<WPARAM>(0), gsl::narrow_cast<LPARAM>(0)));
 }
 
-void DcxReBar::setReDraw(const BOOL uState) noexcept
-{
-	SendMessage(m_Hwnd, WM_SETREDRAW, gsl::narrow_cast<WPARAM>(uState), gsl::narrow_cast<LPARAM>(uState));
-}
-
 bool DcxReBar::showBand(const UINT uBand, const BOOL fShow) noexcept
 {
 	return !!SendMessage(m_Hwnd, RB_SHOWBAND, gsl::narrow_cast<WPARAM>(uBand), gsl::narrow_cast<LPARAM>(fShow));
@@ -1159,9 +1182,9 @@ void DcxReBar::maxBand(const UINT uBand, const BOOL fIdeal) noexcept
 	SendMessage(m_Hwnd, RB_MAXIMIZEBAND, gsl::narrow_cast<WPARAM>(uBand), gsl::narrow_cast<LPARAM>(fIdeal));
 }
 
-void DcxReBar::minBand(const UINT uBand, const BOOL fIdeal) noexcept
+void DcxReBar::minBand(const UINT uBand) noexcept
 {
-	SendMessage(m_Hwnd, RB_MINIMIZEBAND, gsl::narrow_cast<WPARAM>(uBand), gsl::narrow_cast<LPARAM>(fIdeal));
+	SendMessage(m_Hwnd, RB_MINIMIZEBAND, gsl::narrow_cast<WPARAM>(uBand), 0);
 }
 
 void DcxReBar::loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc)

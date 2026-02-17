@@ -67,6 +67,7 @@ public:
 	bool insertBand(const int uIndex, const LPREBARBANDINFO lprbbi) noexcept;
 	bool deleteBand(const UINT uIndex) noexcept;
 	bool getBandInfo(const UINT uBand, const LPREBARBANDINFO lprbbi) const noexcept;
+	REBARBANDINFO getBandInfo(const UINT uBand, const UINT uMask) const noexcept;
 	bool setBandInfo(const UINT uBand, const LPREBARBANDINFO lprbbi) noexcept;
 	bool setBarInfo(const LPREBARINFO lprbi) noexcept;
 	bool getBarInfo(const LPREBARINFO lprbi) const noexcept;
@@ -76,11 +77,10 @@ public:
 	void setToolTips(const HWND hwndToolTip) noexcept;
 	int getIDToIndex(const UINT uBandID) const noexcept;
 	int getBandCount() const noexcept;
-	void setReDraw(const BOOL uState) noexcept;
 	bool showBand(const UINT uBand, const BOOL fShow) noexcept;
 	bool moveBand(const UINT iFrom, const UINT iTo) noexcept;
 	void maxBand(const UINT uBand, const BOOL fIdeal) noexcept;
-	void minBand(const UINT uBand, const BOOL fIdeal) noexcept;
+	void minBand(const UINT uBand) noexcept;
 
 	void loadIcon(const TString& tsFlags, const TString& tsIndex, const TString& tsSrc) override;
 
