@@ -56,12 +56,19 @@ enum class MainMenuStyle : UINT
 	XPMS_TRACK_THEMED
 };
 
-struct XPMENUTRICOLOUR
+struct XPMENUBARDRAWCOLOURS
 {
 	COLORREF m_clrFill{};
 	COLORREF m_clrText{};
 	COLORREF m_clrBorder{};
 	COLORREF m_clrBack{};
+};
+
+struct XPMENUBARITEMSTATEDATA
+{
+	XPMENUBARDRAWCOLOURS m_Clrs;
+	dcxImage		m_Img;
+	BARITEMSTATES	m_ThemeState{};
 };
 
 struct XPMENUBARCOLORS final
@@ -149,16 +156,21 @@ struct XPMENUBARCOLORS final
 using LPXPMENUBARCOLORS = XPMENUBARCOLORS*;
 struct XPMENUBARITEM
 {
-	XPMENUBARCOLORS m_Colours;		// colours for whole menubar (overridden by m_ItemSettings)
-	//HBITMAP m_hBkg{};				// bitmap to draw in menubar. (can be null, if null only colours are used)
-	dcxImage		m_hBkg{};		// bitmap to draw in menubar. (can be null, if null only colours are used)
+	XPMENUBARCOLORS m_Colours;		// colours for menubar item (overridden by m_ItemSettings)
+	dcxImage		m_hBkgNormal{};		// bitmap to draw in menubar item. (can be null, if null only colours are used)
+	dcxImage		m_hBkgSelected{};		// bitmap to draw in menubar item. (can be null, if null only colours are used)
+	dcxImage		m_hBkgHot{};		// bitmap to draw in menubar item. (can be null, if null only colours are used)
 
 	XPMENUBARITEM() noexcept = default;
+	//~XPMENUBARITEM()
+	//{
+	//	m_hBkg.reset();
+	//}
 
 	bool operator==(const XPMENUBARITEM& other) const = default;
 
-	XPMENUBARITEM(const XPMENUBARCOLORS& m_Colours, const dcxImage& m_hBkg)
-		: m_Colours(m_Colours), m_hBkg(m_hBkg)
+	XPMENUBARITEM(const XPMENUBARCOLORS& m_Colours, const dcxImage& m_hBkgNormal, const dcxImage& m_hBkgSelected, const dcxImage& m_hBkgHot)
+		: m_Colours(m_Colours), m_hBkgNormal(m_hBkgNormal), m_hBkgSelected(m_hBkgSelected), m_hBkgHot(m_hBkgHot)
 	{
 	}
 	void toXml(TiXmlElement* xml) const
@@ -167,8 +179,26 @@ struct XPMENUBARITEM
 			return;
 
 		xml->LinkEndChild(m_Colours.toXml());
-		if (!m_hBkg.m_tsFilename.empty() && m_hBkg.m_tsFilename != L"none")
-			xml->LinkEndChild(m_hBkg.toXml());
+		if (!m_hBkgNormal.m_tsFilename.empty() && m_hBkgNormal.m_tsFilename != L"none")
+		{
+			//xml->LinkEndChild(m_hBkgNormal.toXml());
+
+			TiXmlElement xImg("normalimage");
+			m_hBkgNormal.toXml(&xImg);
+			xml->InsertEndChild(xImg);
+	}
+		if (!m_hBkgSelected.m_tsFilename.empty() && m_hBkgSelected.m_tsFilename != L"none")
+		{
+			TiXmlElement xImg("selimage");
+			m_hBkgSelected.toXml(&xImg);
+			xml->InsertEndChild(xImg);
+		}
+		if (!m_hBkgHot.m_tsFilename.empty() && m_hBkgHot.m_tsFilename != L"none")
+		{
+			TiXmlElement xImg("hotimage");
+			m_hBkgHot.toXml(&xImg);
+			xml->InsertEndChild(xImg);
+		}
 	}
 	TiXmlElement* toXml() const
 	{
@@ -185,9 +215,18 @@ struct XPMENUBARITEM
 			m_Colours.fromXml(xColours);
 
 		// load image.
-		if (auto xImage = xml->FirstChildElement("image"); xImage)
-			m_hBkg.fromXml(xImage);
+		if (auto xImage = xml->FirstChildElement("normalimage"); xImage)
+			m_hBkgNormal.fromXml(xImage);
+		if (auto xImage = xml->FirstChildElement("selimage"); xImage)
+			m_hBkgSelected.fromXml(xImage);
+		if (auto xImage = xml->FirstChildElement("hotimage"); xImage)
+			m_hBkgHot.fromXml(xImage);
 	}
+
+	XPMENUBARDRAWCOLOURS GetDrawColours(UINT itemState) const noexcept;
+	static BARITEMSTATES GetThemeState(UAHDRAWMENUITEM* pUDMI) noexcept;
+	const dcxImage& GetStateImage(UINT itemState) const noexcept;
+	XPMENUBARITEMSTATEDATA getStateData(UAHDRAWMENUITEM* pUDMI) const noexcept;
 };
 
 struct XPMENUBAR
@@ -210,13 +249,25 @@ struct XPMENUBAR
 	RECT m_rcMin{};
 	RECT m_rcRestore{};
 
+	dcxImage		m_BkgImage{};		// bitmap to draw in menubar. (can be null, if null only colours are used)
+
 	XPMENUBAR() noexcept = default;
+	XPMENUBAR(const XPMENUBAR&) = default;
+	XPMENUBAR(XPMENUBAR&&) = default;
+
+	XPMENUBAR& operator=(const XPMENUBAR&) = default;
+	XPMENUBAR& operator=(XPMENUBAR&&) = default;
 
 	bool operator==(const XPMENUBAR& other) const = default;
 
-	XPMENUBAR(const HTHEME& m_menuTheme, const HMENU& m_hMenuBackup, bool m_bEnable, bool m_bDrawBorder, bool m_bDrawRoundedBorder, bool m_bDrawShadowText, const MainMenuStyle& m_Style, const XPMENUBARITEM& m_Default, const std::map<int, XPMENUBARITEM>& m_ItemSettings)
-		: m_menuTheme(m_menuTheme), m_hMenuBackup(m_hMenuBackup), m_bEnable(m_bEnable), m_bDrawBorder(m_bDrawBorder), m_bDrawRoundedBorder(m_bDrawRoundedBorder), m_bDrawShadowText(m_bDrawShadowText), m_Style(m_Style), m_Default(m_Default), m_ItemSettings(m_ItemSettings)
+	XPMENUBAR(const HTHEME& m_menuTheme, const HMENU& m_hMenuBackup, bool m_bEnable, bool m_bDrawBorder, bool m_bDrawRoundedBorder, bool m_bDrawShadowText, bool m_bDrawSysButtons, const MainMenuStyle& m_Style, const XPMENUBARITEM& m_Default, const std::map<int, XPMENUBARITEM>& m_ItemSettings, const RECT& m_rcClose, const RECT& m_rcMin, const RECT& m_rcRestore, const dcxImage& m_BkgImage)
+		: m_menuTheme(m_menuTheme), m_hMenuBackup(m_hMenuBackup), m_bEnable(m_bEnable), m_bDrawBorder(m_bDrawBorder), m_bDrawRoundedBorder(m_bDrawRoundedBorder), m_bDrawShadowText(m_bDrawShadowText), m_bDrawSysButtons(m_bDrawSysButtons), m_Style(m_Style), m_Default(m_Default), m_ItemSettings(m_ItemSettings), m_rcClose(m_rcClose), m_rcMin(m_rcMin), m_rcRestore(m_rcRestore), m_BkgImage(m_BkgImage)
 	{
+	}
+
+	~XPMENUBAR()
+	{
+		m_BkgImage.reset();
 	}
 
 	static MainMenuStyle StyleFromString(const TString& tsStyle) noexcept
@@ -425,8 +476,11 @@ struct XPMENUBAR
 	void dcxDrawMenuIcon(HMENU hMenu, int iPos, HDC hdc, LPRECT prc) noexcept;
 	void dcxDrawSystemButton(HTHEME hTheme, int iStateID, HDC hdc, LPRECT prc, HBITMAP hBm) noexcept;
 
-	XPMENUTRICOLOUR UAHGetMenuBarColours(UAHDRAWMENUITEM* pUDMI) noexcept;
-	BARITEMSTATES UAHGetThemeState(UAHDRAWMENUITEM* pUDMI) noexcept;
+	XPMENUBARITEM UAHGetMenuBarItemData(int iPosition) noexcept;
+	//XPMENUBARDRAWCOLOURS UAHGetMenuBarColours(const XPMENUBARITEM & mbi, UINT itemState) noexcept;
+	//XPMENUBARDRAWCOLOURS UAHGetMenuBarColours(int iPosition, UINT itemState) noexcept;
+	//XPMENUBARDRAWCOLOURS UAHGetMenuBarColours(UAHDRAWMENUITEM* pUDMI) noexcept;
+	//BARITEMSTATES UAHGetThemeState(UAHDRAWMENUITEM* pUDMI) noexcept;
 
 	void UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept;
 	void UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept;

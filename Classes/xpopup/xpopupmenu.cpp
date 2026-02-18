@@ -49,9 +49,6 @@ XPopupMenu::~XPopupMenu()
 
 	this->m_hBitmap.reset();
 
-	//if (this->m_hBitmap)
-	//	DeleteBitmap(this->m_hBitmap);
-
 	XPopupMenuManager::m_vpAllMenus.erase(m_hMenu);
 
 	//if (m_hMenu && m_menuNameHash != TEXT("mircbar"_hash) && m_menuNameHash != TEXT("dialog"_hash))
@@ -2213,7 +2210,12 @@ void XPMENUBAR::UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept
 	}
 	break;
 	case MainMenuStyle::XPMS_None:
+		break;
 	case MainMenuStyle::XPMS_CUSTOMBIG:
+	{
+		if (m_BkgImage.m_hBitmap)
+			dcxDrawBitMap(pUDM->hdc, &rc, m_BkgImage.m_hBitmap, (m_Style != MainMenuStyle::XPMS_CUSTOM), false);
+	}
 		break;
 	case MainMenuStyle::XPMS_OFFICEXP:
 	case MainMenuStyle::XPMS_CUSTOM:
@@ -2230,28 +2232,10 @@ void XPMENUBAR::UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept
 	break;
 	}
 
-	// if bitmap set draw it over the background colour.
-	if (m_Default.m_hBkg.m_hBitmap)
-		dcxDrawBitMap(pUDM->hdc, &rc, m_Default.m_hBkg.m_hBitmap, (m_Style != MainMenuStyle::XPMS_CUSTOM), false);
+	//// if bitmap set draw it over the background colour.
+	//if (m_BkgImage.m_hBitmap)
+	//	dcxDrawBitMap(pUDM->hdc, &rc, m_BkgImage.m_hBitmap, (m_Style != MainMenuStyle::XPMS_CUSTOM), false);
 }
-
-static UINT dcxGetMenuItemType(HMENU hMenu, int iPos) noexcept
-{
-	MENUITEMINFO mii = { sizeof(mii), MIIM_TYPE }; //MUST be TYPE notr FTYPE
-
-	GetMenuItemInfo(hMenu, iPos, TRUE, &mii);
-
-	return mii.fType;
-}
-
-//static UINT dcxGetMenuItemState(HMENU hMenu, int iPos) noexcept
-//{
-//	MENUITEMINFO mii = { sizeof(mii), MIIM_STATE };
-//
-//	GetMenuItemInfo(hMenu, iPos, TRUE, &mii);
-//
-//	return mii.fState;
-//}
 
 static ULONG_PTR dcxGetMenuItemData(HMENU hMenu, int iPos) noexcept
 {
@@ -2262,13 +2246,32 @@ static ULONG_PTR dcxGetMenuItemData(HMENU hMenu, int iPos) noexcept
 	return mii.dwItemData;
 }
 
-static HBITMAP dcxGetMenuItemBitmap(HMENU hMenu, int iPos) noexcept
+struct DCXMENUITEMINFO
 {
-	MENUITEMINFO mii = { sizeof(mii), MIIM_BITMAP };
+	MENUITEMINFO m_mi{ sizeof(MENUITEMINFO), MIIM_TYPE };
+	TCHAR m_szString[256]{};
+};
 
-	GetMenuItemInfo(hMenu, iPos, TRUE, &mii);
+static DCXMENUITEMINFO dcxGetMenubarItemInfo(HMENU hMenu, int iPos) noexcept
+{
+	DCXMENUITEMINFO mii;
 
-	return mii.hbmpItem;
+	if (!hMenu || iPos < 0)
+		return mii;
+
+	//NB: These must be done as seperate calls, they dont work when combined.
+	GetMenuItemInfo(hMenu, iPos, TRUE, &mii.m_mi);
+
+	mii.m_mi.fMask = MIIM_BITMAP;
+	GetMenuItemInfo(hMenu, iPos, TRUE, &mii.m_mi);
+
+	mii.m_mi.fMask = MIIM_STRING;
+	mii.m_mi.dwTypeData = &mii.m_szString[0];
+	mii.m_mi.cch = std::size(mii.m_szString) - 1;
+
+	GetMenuItemInfo(hMenu, iPos, TRUE, &mii.m_mi);
+
+	return mii;
 }
 
 void XPMENUBAR::dcxDrawMenuIcon(HMENU hMenu, int iPos, HDC hdc, LPRECT prc) noexcept
@@ -2320,6 +2323,7 @@ void XPMENUBAR::dcxDrawSystemButton(HTHEME hTheme, int iStateID, HDC hdc, LPRECT
 	if (!prc || !hBm)
 		return;
 
+	if (!m_Default.m_hBkgNormal.m_hBitmap)
 	Dcx::FillRectColour(hdc, prc, m_Default.m_Colours.m_clrBack);
 
 	if (hTheme)
@@ -2360,105 +2364,190 @@ void XPMENUBAR::dcxDrawSystemButton(HTHEME hTheme, int iStateID, HDC hdc, LPRECT
 	}
 }
 
-XPMENUTRICOLOUR XPMENUBAR::UAHGetMenuBarColours(UAHDRAWMENUITEM* pUDMI) noexcept
+XPMENUBARITEM XPMENUBAR::UAHGetMenuBarItemData(int iPosition) noexcept
 {
-	XPMENUBARITEM mCols = this->m_Default;
+	XPMENUBARITEM& mbi = this->m_Default;
+	//mbi.m_hBkg.m_hBitmap = nullptr;
 
 	try {
-	if (this->m_ItemSettings.contains(pUDMI->umi.iPosition))
-		mCols = this->m_ItemSettings[pUDMI->umi.iPosition];
+		if (this->m_ItemSettings.contains(iPosition))
+			mbi = this->m_ItemSettings[iPosition];
 	}
 	catch (...) {};
 
-	XPMENUTRICOLOUR clrs{ mCols.m_Colours.m_clrBox, mCols.m_Colours.m_clrText, mCols.m_Colours.m_clrBox, mCols.m_Colours.m_clrBack };
-
-	if (this->m_bDrawBorder)
-		clrs.m_clrBorder = mCols.m_Colours.m_clrBorder;
-
-	if (pUDMI->dis.itemState & ODS_HOTLIGHT)
-	{
-		// hot tracking
-		clrs.m_clrFill = mCols.m_Colours.m_clrHot;
-		clrs.m_clrText = mCols.m_Colours.m_clrHotText;
-		if (this->m_bDrawBorder)
-			clrs.m_clrBorder = mCols.m_Colours.m_clrHotBorder;
-	}
-	if (pUDMI->dis.itemState & ODS_SELECTED)
-	{
-		clrs.m_clrFill = mCols.m_Colours.m_clrSelection;
-		clrs.m_clrText = mCols.m_Colours.m_clrSelectedText;
-		if (this->m_bDrawBorder)
-			clrs.m_clrBorder = mCols.m_Colours.m_clrSelectionBorder;
-	}
-	if ((pUDMI->dis.itemState & ODS_GRAYED) || (pUDMI->dis.itemState & ODS_DISABLED))
-	{
-		// disabled / grey text
-		clrs.m_clrFill = mCols.m_Colours.m_clrDisabled;
-		clrs.m_clrText = mCols.m_Colours.m_clrDisabledText;
-		if (this->m_bDrawBorder)
-			clrs.m_clrBorder = mCols.m_Colours.m_clrBorder;
+	return mbi;
 	}
 
-	return clrs;
-	}
-
-BARITEMSTATES XPMENUBAR::UAHGetThemeState(UAHDRAWMENUITEM* pUDMI) noexcept
-{
-	auto iStateID = MBI_NORMAL;
-		//if ((pUDMI->dis.itemState & ODS_INACTIVE) | (pUDMI->dis.itemState & ODS_DEFAULT))
+//XPMENUBARDRAWCOLOURS XPMENUBAR::UAHGetMenuBarColours(const XPMENUBARITEM & mbi, UINT itemState) noexcept
 		//{
-		//	// normal display
-		//	iStateID = MBI_NORMAL;
+//	XPMENUBARDRAWCOLOURS clrs{ mbi.m_Colours.m_clrBox, mbi.m_Colours.m_clrText, mbi.m_Colours.m_clrBox, mbi.m_Colours.m_clrBack };
+//
+//	if (this->m_bDrawBorder)
+//		clrs.m_clrBorder = mbi.m_Colours.m_clrBorder;
+//
+//	if (itemState & ODS_HOTLIGHT)
+//	{
+//		// hot tracking
+//		clrs.m_clrFill = mbi.m_Colours.m_clrHot;
+//		clrs.m_clrText = mbi.m_Colours.m_clrHotText;
+//		if (this->m_bDrawBorder)
+//			clrs.m_clrBorder = mbi.m_Colours.m_clrHotBorder;
+//	}
+//	if (itemState & ODS_SELECTED)
+//	{
+//		clrs.m_clrFill = mbi.m_Colours.m_clrSelection;
+//		clrs.m_clrText = mbi.m_Colours.m_clrSelectedText;
+//		if (this->m_bDrawBorder)
+//			clrs.m_clrBorder = mbi.m_Colours.m_clrSelectionBorder;
+//	}
+//	if ((itemState & ODS_GRAYED) || (itemState & ODS_DISABLED))
+//	{
+//		// disabled / grey text
+//		clrs.m_clrFill = mbi.m_Colours.m_clrDisabled;
+//		clrs.m_clrText = mbi.m_Colours.m_clrDisabledText;
+//		if (this->m_bDrawBorder)
+//			clrs.m_clrBorder = mbi.m_Colours.m_clrBorder;
+//	}
+//
+//	return clrs;
 		//}
-
-		if (pUDMI->dis.itemState & ODS_HOTLIGHT)
-		{
-			// hot tracking
-			iStateID = MBI_HOT;
-		}
-		if (pUDMI->dis.itemState & ODS_SELECTED)
-		{
-			// clicked -- MENU_POPUPITEM has no state for this, though MENU_BARITEM does
-			iStateID = MBI_PUSHED;
-		}
-		if ((pUDMI->dis.itemState & ODS_GRAYED) || (pUDMI->dis.itemState & ODS_DISABLED))
-		{
-			// disabled / grey text
-			switch (iStateID)
-			{
-			case MBI_HOT:
-				iStateID = MBI_DISABLEDHOT;
-				break;
-			case MBI_PUSHED:
-				iStateID = MBI_DISABLEDPUSHED;
-				break;
-			case MBI_NORMAL:
-			default:
-				iStateID = MBI_DISABLED;
-				break;
-			}
-	}
-	return iStateID;
-}
+//
+//XPMENUBARDRAWCOLOURS XPMENUBAR::UAHGetMenuBarColours(int iPosition, UINT itemState) noexcept
+//{
+//	return UAHGetMenuBarColours(UAHGetMenuBarItemData(iPosition), itemState);
+//}
+//
+//XPMENUBARDRAWCOLOURS XPMENUBAR::UAHGetMenuBarColours(UAHDRAWMENUITEM* pUDMI) noexcept
+//{
+//	return UAHGetMenuBarColours(pUDMI->umi.iPosition, pUDMI->dis.itemState);
+//}
+//
+//BARITEMSTATES XPMENUBAR::UAHGetThemeState(UAHDRAWMENUITEM* pUDMI) noexcept
+//{
+//	auto iStateID = MBI_NORMAL;
+//	//if ((pUDMI->dis.itemState & ODS_INACTIVE) | (pUDMI->dis.itemState & ODS_DEFAULT))
+//	//{
+//	//	// normal display
+//	//	iStateID = MBI_NORMAL;
+//	//}
+//
+//	if (pUDMI->dis.itemState & ODS_HOTLIGHT)
+//	{
+//		// hot tracking
+//		iStateID = MBI_HOT;
+//	}
+//	if (pUDMI->dis.itemState & ODS_SELECTED)
+//	{
+//		// clicked -- MENU_POPUPITEM has no state for this, though MENU_BARITEM does
+//		iStateID = MBI_PUSHED;
+//	}
+//	if ((pUDMI->dis.itemState & ODS_GRAYED) || (pUDMI->dis.itemState & ODS_DISABLED))
+//	{
+//		// disabled / grey text
+//		switch (iStateID)
+//		{
+//		case MBI_HOT:
+//			iStateID = MBI_DISABLEDHOT;
+//			break;
+//		case MBI_PUSHED:
+//			iStateID = MBI_DISABLEDPUSHED;
+//			break;
+//		case MBI_NORMAL:
+//		default:
+//			iStateID = MBI_DISABLED;
+//			break;
+//		}
+//	}
+//	return iStateID;
+//}
 
 void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
-{
-	const auto triclrs = UAHGetMenuBarColours(pUDMI);
+		{
+	//const auto mbi = UAHGetMenuBarItemData(pUDMI->umi.iPosition);
+	//const auto mbistate = mbi.getStateData(pUDMI);
+	//
+	//// get the menu item string
+	//wchar_t menuString[256]{};
+	//MENUITEMINFO mii = { sizeof(mii), MIIM_STRING };
+	//{
+	//	mii.dwTypeData = &menuString[0];
+	//	mii.cch = gsl::narrow_cast<UINT>(std::size(menuString) - 1);
+	//
+	//	GetMenuItemInfo(pUDMI->um.hmenu, pUDMI->umi.iPosition, TRUE, &mii);
+	//}
+	//
+	//// get the item state for drawing
+	//DWORD dwFlags = DT_CENTER | DT_SINGLELINE | DT_VCENTER;
+	//
+	//if (pUDMI->dis.itemState & ODS_NOACCEL)
+	//	dwFlags |= DT_HIDEPREFIX;
+	//
+	//if (!this->m_menuTheme)
+	//	this->m_menuTheme = DcxUXModule::dcxOpenThemeData(mHwnd, L"Menu");
+	//
+	////pUDMI->dis.rcItem.bottom++; // removes gap
+	//
+	//if (mbistate.m_Img.m_hBitmap)
+	//	dcxDrawBitMap(pUDMI->um.hdc, &pUDMI->dis.rcItem, mbistate.m_Img.m_hBitmap, true, false);
+	//else {
+	//	if (this->m_BkgImage.m_hBitmap)
+	//		dcxDrawTranslucentRect(pUDMI->um.hdc, &pUDMI->dis.rcItem, mbistate.m_Clrs.m_clrFill, mbistate.m_Clrs.m_clrBorder, this->m_bDrawRoundedBorder);
+	//	else {
+	//		if (this->m_bDrawRoundedBorder)
+	//			Dcx::FillRectColour(pUDMI->um.hdc, &pUDMI->dis.rcItem, mbistate.m_Clrs.m_clrBack);
+	//
+	//		dcxDrawRect(pUDMI->um.hdc, &pUDMI->dis.rcItem, mbistate.m_Clrs.m_clrFill, mbistate.m_Clrs.m_clrBorder, this->m_bDrawRoundedBorder);
+	//	}
+	//}
+	//
+	//if (const auto fType = dcxGetMenuItemType(pUDMI->um.hmenu, pUDMI->umi.iPosition); dcx_testflag(fType, MFT_BITMAP))
+	//{
+	//	// item is a bitmap type, so its either the system menu icon, min, restore, or close
+	//	// (wont be max button, as it must already be max to have these items in the menubar)
+	//	const auto hBm = dcxGetMenuItemBitmap(pUDMI->um.hmenu, pUDMI->umi.iPosition);
+	//
+	//	if (hBm > HBMMENU_POPUP_MINIMIZE)
+	//	{
+	//		// not a preset bitmap type, assume its an actual bitmap.
+	//		dcxDrawBitMap(pUDMI->um.hdc, &pUDMI->dis.rcItem, hBm, true, false);
+	//	}
+	//	else if (hBm == HBMMENU_SYSTEM)
+	//	{
+	//		// item is an icon.
+	//		dcxDrawMenuIcon(pUDMI->um.hmenu, pUDMI->umi.iPosition, pUDMI->um.hdc, &pUDMI->dis.rcItem);
+	//	}
+	//	else {
+	//		m_bDrawSysButtons = true;
+	//		dcxDrawSystemButton(this->m_menuTheme, mbistate.m_ThemeState, pUDMI->um.hdc, &pUDMI->dis.rcItem, hBm);
+	//	}
+	//}
+	//else if (!_ts_isEmpty(menuString))
+	//{
+	//	if (this->m_menuTheme)
+	//	{
+	//		const DTTOPTS opts = { sizeof(opts), (this->m_bDrawShadowText ? DTT_TEXTCOLOR | DTT_SHADOWCOLOR : DTT_TEXTCOLOR), mbistate.m_Clrs.m_clrText,0,RGB(0,0,0) };
+	//
+	//		DcxUXModule::dcxDrawThemeTextEx(this->m_menuTheme, pUDMI->um.hdc, MENU_BARITEM, mbistate.m_ThemeState, &menuString[0], mii.cch, dwFlags, &pUDMI->dis.rcItem, &opts);
+	//	}
+	//	else {
+	//		if (this->m_bDrawShadowText)
+	//			dcxDrawShadowText(pUDMI->um.hdc, &menuString[0], mii.cch, &pUDMI->dis.rcItem, dwFlags, mbistate.m_Clrs.m_clrText, RGB(0, 0, 0), 5, 5);
+	//		else {
+	//			const auto clrOld = SetTextColor(pUDMI->um.hdc, mbistate.m_Clrs.m_clrText);
+	//			DrawTextW(pUDMI->um.hdc, &menuString[0], mii.cch, &pUDMI->dis.rcItem, dwFlags);
+	//			SetTextColor(pUDMI->um.hdc, clrOld);
+	//		}
+	//	}
+	//}
+
+	const auto mbi = UAHGetMenuBarItemData(pUDMI->umi.iPosition);
+	const auto mbistate = mbi.getStateData(pUDMI);
 
 	// get the menu item string
-	wchar_t menuString[256]{};
-	MENUITEMINFO mii = { sizeof(mii), MIIM_STRING };
-	{
-		mii.dwTypeData = &menuString[0];
-		mii.cch = gsl::narrow_cast<UINT>(std::size(menuString) - 1);
-
-		GetMenuItemInfo(pUDMI->um.hmenu, pUDMI->umi.iPosition, TRUE, &mii);
-		}
+	const auto mii = dcxGetMenubarItemInfo(pUDMI->um.hmenu, pUDMI->umi.iPosition);
 
 	// get the item state for drawing
 	DWORD dwFlags = DT_CENTER | DT_SINGLELINE | DT_VCENTER;
-
-	const auto iStateID = UAHGetThemeState(pUDMI);
 
 		if (pUDMI->dis.itemState & ODS_NOACCEL)
 			dwFlags |= DT_HIDEPREFIX;
@@ -2468,20 +2557,24 @@ void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
 
 	//pUDMI->dis.rcItem.bottom++; // removes gap
 
-	//if (mCols.m_hBkg.m_hBitmap)
-	//	dcxDrawBitMap(pUDMI->um.hdc, &pUDMI->dis.rcItem, mCols.m_hBkg.m_hBitmap, true, false);
-	//else {
+	if (mbistate.m_Img.m_hBitmap)
+		dcxDrawBitMap(pUDMI->um.hdc, &pUDMI->dis.rcItem, mbistate.m_Img.m_hBitmap, true, false);
+	else {
+		if (this->m_BkgImage.m_hBitmap)
+			dcxDrawTranslucentRect(pUDMI->um.hdc, &pUDMI->dis.rcItem, mbistate.m_Clrs.m_clrFill, mbistate.m_Clrs.m_clrBorder, this->m_bDrawRoundedBorder);
+		else {
 		if (this->m_bDrawRoundedBorder)
-		Dcx::FillRectColour(pUDMI->um.hdc, &pUDMI->dis.rcItem, triclrs.m_clrBack);
+				Dcx::FillRectColour(pUDMI->um.hdc, &pUDMI->dis.rcItem, mbistate.m_Clrs.m_clrBack);
 
-	dcxDrawRect(pUDMI->um.hdc, &pUDMI->dis.rcItem, triclrs.m_clrFill, triclrs.m_clrBorder, this->m_bDrawRoundedBorder);
-	//}
+			dcxDrawRect(pUDMI->um.hdc, &pUDMI->dis.rcItem, mbistate.m_Clrs.m_clrFill, mbistate.m_Clrs.m_clrBorder, this->m_bDrawRoundedBorder);
+		}
+	}
 
-	if (const auto fType = dcxGetMenuItemType(pUDMI->um.hmenu, pUDMI->umi.iPosition); dcx_testflag(fType, MFT_BITMAP))
+	if (dcx_testflag(mii.m_mi.fType, MFT_BITMAP))
 	{
 		// item is a bitmap type, so its either the system menu icon, min, restore, or close
 		// (wont be max button, as it must already be max to have these items in the menubar)
-		const auto hBm = dcxGetMenuItemBitmap(pUDMI->um.hmenu, pUDMI->umi.iPosition);
+		const auto hBm = mii.m_mi.hbmpItem;
 
 		if (hBm > HBMMENU_POPUP_MINIMIZE)
 		{
@@ -2495,23 +2588,23 @@ void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
 				}
 				else {
 			m_bDrawSysButtons = true;
-			dcxDrawSystemButton(this->m_menuTheme, iStateID, pUDMI->um.hdc, &pUDMI->dis.rcItem, hBm);
+			dcxDrawSystemButton(this->m_menuTheme, mbistate.m_ThemeState, pUDMI->um.hdc, &pUDMI->dis.rcItem, hBm);
 				}
 			}
-	else if (!_ts_isEmpty(menuString))
+	else if (!_ts_isEmpty(mii.m_szString))
 	{
 	if (this->m_menuTheme)
 	{
-			const DTTOPTS opts = { sizeof(opts), (this->m_bDrawShadowText ? DTT_TEXTCOLOR | DTT_SHADOWCOLOR : DTT_TEXTCOLOR), triclrs.m_clrText,0,RGB(0,0,0) };
+			const DTTOPTS opts = { sizeof(opts), (this->m_bDrawShadowText ? DTT_TEXTCOLOR | DTT_SHADOWCOLOR : DTT_TEXTCOLOR), mbistate.m_Clrs.m_clrText,0,RGB(0,0,0) };
 
-			DcxUXModule::dcxDrawThemeTextEx(this->m_menuTheme, pUDMI->um.hdc, MENU_BARITEM, iStateID, &menuString[0], mii.cch, dwFlags, &pUDMI->dis.rcItem, &opts);
+			DcxUXModule::dcxDrawThemeTextEx(this->m_menuTheme, pUDMI->um.hdc, MENU_BARITEM, mbistate.m_ThemeState, &mii.m_szString[0], mii.m_mi.cch, dwFlags, &pUDMI->dis.rcItem, &opts);
 	}
 	else {
 		if (this->m_bDrawShadowText)
-				dcxDrawShadowText(pUDMI->um.hdc, &menuString[0], mii.cch, &pUDMI->dis.rcItem, dwFlags, triclrs.m_clrText, RGB(0, 0, 0), 5, 5);
+				dcxDrawShadowText(pUDMI->um.hdc, &mii.m_szString[0], mii.m_mi.cch, &pUDMI->dis.rcItem, dwFlags, mbistate.m_Clrs.m_clrText, RGB(0, 0, 0), 5, 5);
 		else {
-				const auto clrOld = SetTextColor(pUDMI->um.hdc, triclrs.m_clrText);
-			DrawTextW(pUDMI->um.hdc, &menuString[0], mii.cch, &pUDMI->dis.rcItem, dwFlags);
+				const auto clrOld = SetTextColor(pUDMI->um.hdc, mbistate.m_Clrs.m_clrText);
+				DrawTextW(pUDMI->um.hdc, &mii.m_szString[0], mii.m_mi.cch, &pUDMI->dis.rcItem, dwFlags);
 			SetTextColor(pUDMI->um.hdc, clrOld);
 		}
 	}
@@ -2585,7 +2678,8 @@ void XPMENUBAR::Setup(HWND mHwnd, const XSwitchFlags& xflags, TString tsArgs)
 	// e = enable, [ARGS] = 1 or 0
 	// r = enable/disable rounded borders, [ARGS] = 1 or 0
 	// O = enable/disable drawing borders, [ARGS] = 1 or 0
-	// f = load background image (bmp format only atm), [ARGS] = path/filename.bmp or [ARGS] = [ITEM INDEX] path/filename.bmp
+	// f = load background image, [ARGS] = [+fileflags] path/filename.bmp or [ARGS] = [ITEM INDEX] [+fileflags] path/filename.bmp
+	// F = load background image for whole menubar, [ARGS] = path/filename.bmp or [ARGS] = [ITEM INDEX] path/filename.bmp
 	// s = enable/disable shadow text, [ARGS] = 1 or 0
 	// v = visible/invisible menubar (works with custom or standard menubars)
 	// S = menubar style, [ARGS] = stylename
@@ -2607,6 +2701,37 @@ void XPMENUBAR::Setup(HWND mHwnd, const XSwitchFlags& xflags, TString tsArgs)
 	// W = selected border colour.
 	// o = hot border colour.
 
+	auto _LoadMenuItemImage = [](XPMENUBARITEM& xpItem, const TString& tsFname, const XSwitchFlags& fFlags) {
+		if (fFlags[L'n']) //normal
+		{
+			if (tsFname.empty())
+				xpItem.m_hBkgNormal.reset();
+			else {
+				xpItem.m_hBkgNormal.m_tsFilename = tsFname;
+				xpItem.m_hBkgNormal.m_hBitmap = dcxLoadBitmap(xpItem.m_hBkgNormal.m_hBitmap, xpItem.m_hBkgNormal.m_tsFilename);
+			}
+		}
+
+		if (fFlags[L's']) //selected
+		{
+			if (tsFname.empty())
+				xpItem.m_hBkgSelected.reset();
+			else {
+				xpItem.m_hBkgSelected.m_tsFilename = tsFname;
+				xpItem.m_hBkgSelected.m_hBitmap = dcxLoadBitmap(xpItem.m_hBkgSelected.m_hBitmap, xpItem.m_hBkgSelected.m_tsFilename);
+			}
+		}
+
+		if (fFlags[L'h']) //hot
+		{
+			if (tsFname.empty())
+				xpItem.m_hBkgHot.reset();
+			else {
+				xpItem.m_hBkgHot.m_tsFilename = tsFname;
+				xpItem.m_hBkgHot.m_hBitmap = dcxLoadBitmap(xpItem.m_hBkgHot.m_hBitmap, xpItem.m_hBkgHot.m_tsFilename);
+			}
+		}
+	};
 	const auto numtok = tsArgs.numtok();
 
 	if (xflags[TEXT('e')])
@@ -2627,14 +2752,11 @@ void XPMENUBAR::Setup(HWND mHwnd, const XSwitchFlags& xflags, TString tsArgs)
 	else if (xflags[TEXT('f')] && !xflags[TEXT('i')])
 	{
 		// load bkg image.
+		const XSwitchFlags fFlags(tsArgs.getfirsttok(1));
+		const auto tsFname(tsArgs.getlasttoks());
 
-		if (tsArgs.empty())
-			m_Default.m_hBkg.reset();
-		else {
-			m_Default.m_hBkg.m_tsFilename = tsArgs;
-			m_Default.m_hBkg.m_hBitmap = dcxLoadBitmap(m_Default.m_hBkg.m_hBitmap, tsArgs);
+		_LoadMenuItemImage(m_Default, tsFname, fFlags);
 		}
-	}
 	else if (xflags[TEXT('s')])
 	{
 		// enable/disable
@@ -2670,43 +2792,71 @@ void XPMENUBAR::Setup(HWND mHwnd, const XSwitchFlags& xflags, TString tsArgs)
 
 		auto _SetColours = [](const XSwitchFlags& xflags, const TString& tsArgs, const XPMENUBARCOLORS& colDefaults) {
 			XPMENUBARCOLORS cols{ colDefaults };
+			const static XPMENUBARCOLORS defcols;
 
 			if (xflags[TEXT('t')])
 			{
-				cols.m_clrText = tsArgs.gettok(1).to_<COLORREF>();
+				if (const auto clr(tsArgs.gettok(1).to_<COLORREF>()); clr == CLR_INVALID)
+					cols.m_clrText = defcols.m_clrText;
+				else
+					cols.m_clrText = clr;
 			}
 			if (xflags[TEXT('T')])
 			{
-				cols.m_clrSelectedText = tsArgs.gettok(2).to_<COLORREF>();
+				if (const auto clr(tsArgs.gettok(2).to_<COLORREF>()); clr == CLR_INVALID)
+					cols.m_clrSelectedText = defcols.m_clrSelectedText;
+				else
+					cols.m_clrSelectedText = clr;
 			}
 			if (xflags[TEXT('H')])
 			{
-				cols.m_clrHotText = tsArgs.gettok(3).to_<COLORREF>();
+				if (const auto clr(tsArgs.gettok(3).to_<COLORREF>()); clr == CLR_INVALID)
+					cols.m_clrHotText = defcols.m_clrHotText;
+				else
+					cols.m_clrHotText = clr;
 			}
 			if (xflags[TEXT('b')])
 			{
-				cols.m_clrBack = tsArgs.gettok(4).to_<COLORREF>();
+				if (const auto clr(tsArgs.gettok(4).to_<COLORREF>()); clr == CLR_INVALID)
+					cols.m_clrBack = defcols.m_clrBack;
+				else
+					cols.m_clrBack = clr;
 				cols.m_clrBox = cols.m_clrBack;
 			}
 			if (xflags[TEXT('B')])
 			{
-				cols.m_clrSelection = tsArgs.gettok(5).to_<COLORREF>();
+				if (const auto clr(tsArgs.gettok(5).to_<COLORREF>()); clr == CLR_INVALID)
+					cols.m_clrSelection = defcols.m_clrSelection;
+				else
+					cols.m_clrSelection = clr;
 			}
 			if (xflags[TEXT('h')])
 			{
-				cols.m_clrHot = tsArgs.gettok(6).to_<COLORREF>();
+				if (const auto clr(tsArgs.gettok(6).to_<COLORREF>()); clr == CLR_INVALID)
+					cols.m_clrHot = defcols.m_clrHot;
+				else
+					cols.m_clrHot = clr;
 			}
 			if (xflags[TEXT('w')])
 			{
-				cols.m_clrBorder = tsArgs.gettok(7).to_<COLORREF>();
+				if (const auto clr(tsArgs.gettok(7).to_<COLORREF>()); clr == CLR_INVALID)
+					cols.m_clrBorder = defcols.m_clrBorder;
+				else
+					cols.m_clrBorder = clr;
 			}
 			if (xflags[TEXT('W')])
 			{
-				cols.m_clrSelectionBorder = tsArgs.gettok(8).to_<COLORREF>();
+				if (const auto clr(tsArgs.gettok(8).to_<COLORREF>()); clr == CLR_INVALID)
+					cols.m_clrSelectionBorder = defcols.m_clrSelectionBorder;
+				else
+					cols.m_clrSelectionBorder = clr;
 			}
 			if (xflags[TEXT('o')])
 			{
-				cols.m_clrHotBorder = tsArgs.gettok(9).to_<COLORREF>();
+				if (const auto clr(tsArgs.gettok(9).to_<COLORREF>()); clr == CLR_INVALID)
+					cols.m_clrHotBorder = defcols.m_clrHotBorder;
+				else
+					cols.m_clrHotBorder = clr;
 			}
 			return cols;
 		};
@@ -2726,14 +2876,11 @@ void XPMENUBAR::Setup(HWND mHwnd, const XSwitchFlags& xflags, TString tsArgs)
 			if (xflags[TEXT('f')])
 			{
 				// load bkg image.
+				const XSwitchFlags fFlags(tsArgs.getnexttok());
+				const auto tsFname(tsArgs.getlasttoks());
 
-				if (tsArgs.empty())
-					xpItem.m_hBkg.reset();
-				else {
-					xpItem.m_hBkg.m_tsFilename = tsArgs;
-					xpItem.m_hBkg.m_hBitmap = dcxLoadBitmap(xpItem.m_hBkg.m_hBitmap, tsArgs);
+				_LoadMenuItemImage(xpItem, tsFname, fFlags);
 				}
-			}
 			else {
 				if (numtok < 9)
 					throw DcxExceptions::dcxInvalidArguments();
@@ -2744,10 +2891,111 @@ void XPMENUBAR::Setup(HWND mHwnd, const XSwitchFlags& xflags, TString tsArgs)
 		}
 		else {
 			// general flags
-			if (numtok == 9)
+			if (xflags[TEXT('F')])
+			{
+				// load bkg image.
+				m_BkgImage.m_tsFilename = tsArgs;
+				if (m_BkgImage.m_tsFilename.empty())
+					m_BkgImage.reset();
+				else
+					m_BkgImage.m_hBitmap = dcxLoadBitmap(m_BkgImage.m_hBitmap, m_BkgImage.m_tsFilename);
+			}
+			else if (numtok == 9)
 			m_Default.m_Colours = _SetColours(xflags, tsArgs, m_Default.m_Colours);
 		}
 	}
 	if (xflags[TEXT('R')])
 		DrawMenuBar(mHwnd);
+}
+
+XPMENUBARDRAWCOLOURS XPMENUBARITEM::GetDrawColours(UINT itemState) const noexcept
+{
+	XPMENUBARDRAWCOLOURS clrs{ m_Colours.m_clrBox, m_Colours.m_clrText, m_Colours.m_clrBorder, m_Colours.m_clrBack };
+
+	if (itemState & ODS_HOTLIGHT)
+	{
+		// hot tracking
+		clrs.m_clrFill = m_Colours.m_clrHot;
+		clrs.m_clrText = m_Colours.m_clrHotText;
+		clrs.m_clrBorder = m_Colours.m_clrHotBorder;
+	}
+	if (itemState & ODS_SELECTED)
+	{
+		clrs.m_clrFill = m_Colours.m_clrSelection;
+		clrs.m_clrText = m_Colours.m_clrSelectedText;
+		clrs.m_clrBorder = m_Colours.m_clrSelectionBorder;
+	}
+	if ((itemState & ODS_GRAYED) || (itemState & ODS_DISABLED))
+	{
+		// disabled / grey text
+		clrs.m_clrFill = m_Colours.m_clrDisabled;
+		clrs.m_clrText = m_Colours.m_clrDisabledText;
+		clrs.m_clrBorder = m_Colours.m_clrBorder;
+	}
+
+	return clrs;
+}
+
+BARITEMSTATES XPMENUBARITEM::GetThemeState(UAHDRAWMENUITEM* pUDMI) noexcept
+{
+	auto iStateID = MBI_NORMAL;
+	//if ((pUDMI->dis.itemState & ODS_INACTIVE) | (pUDMI->dis.itemState & ODS_DEFAULT))
+	//{
+	//	// normal display
+	//	iStateID = MBI_NORMAL;
+	//}
+
+	if (pUDMI->dis.itemState & ODS_HOTLIGHT)
+	{
+		// hot tracking
+		iStateID = MBI_HOT;
+	}
+	if (pUDMI->dis.itemState & ODS_SELECTED)
+	{
+		// clicked -- MENU_POPUPITEM has no state for this, though MENU_BARITEM does
+		iStateID = MBI_PUSHED;
+	}
+	if ((pUDMI->dis.itemState & ODS_GRAYED) || (pUDMI->dis.itemState & ODS_DISABLED))
+	{
+		// disabled / grey text
+		switch (iStateID)
+		{
+		case MBI_HOT:
+			iStateID = MBI_DISABLEDHOT;
+			break;
+		case MBI_PUSHED:
+			iStateID = MBI_DISABLEDPUSHED;
+			break;
+		case MBI_NORMAL:
+		default:
+			iStateID = MBI_DISABLED;
+			break;
+		}
+	}
+	return iStateID;
+}
+
+const dcxImage& XPMENUBARITEM::GetStateImage(UINT itemState) const noexcept
+{
+	if ((itemState & ODS_GRAYED) || (itemState & ODS_DISABLED))
+		return m_hBkgNormal; // disabled / grey text
+
+	if (itemState & ODS_SELECTED)
+		return m_hBkgSelected;	// selected
+
+	if (itemState & ODS_HOTLIGHT)
+		return m_hBkgHot; // hot tracking
+
+	return m_hBkgNormal;
+}
+
+XPMENUBARITEMSTATEDATA XPMENUBARITEM::getStateData(UAHDRAWMENUITEM* pUDMI) const noexcept
+{
+	XPMENUBARITEMSTATEDATA bisd{};
+
+	bisd.m_ThemeState = GetThemeState(pUDMI);
+	bisd.m_Clrs = GetDrawColours(pUDMI->dis.itemState);
+	bisd.m_Img = GetStateImage(pUDMI->dis.itemState);
+
+	return bisd;
 }
