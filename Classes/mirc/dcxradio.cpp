@@ -449,8 +449,6 @@ void DcxRadio::DrawClientAreaThemed(HDC hdc, const UINT uMsg, LPARAM lParam)
 					dtt.crText = this->m_TextOptions.m_clrText;
 					dtt.dwFlags |= DTT_TEXTCOLOR;
 				}
-				//if (!IsWindowEnabled(m_Hwnd))
-				//	tsText.strip();
 
 				DcxUXModule::dcxDrawThemeTextEx(rd.m_hTheme, rd.m_hdcPaint, BUTTONPARTS::BP_RADIOBUTTON, rd.m_iThemeState, rd.m_tsText.to_wchr(), gsl::narrow_cast<int>(rd.m_tsText.len()), rd.m_textFlags, std::addressof(rd.m_rcText), &dtt);
 				return;

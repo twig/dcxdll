@@ -1163,9 +1163,6 @@ void DcxCheck::ctrlDrawCheckText(dcxCheckData& cd)
 	if (cd.m_tsText.empty())
 		return;
 
-	//RECT rcBase{ cd.m_rcText };
-	//rcBase.left += m_CheckMargins.cyBottomHeight;
-
 	if (!this->m_TextOptions.m_bUseNewStyle)
 	{
 		// not using newstyle text, so try themed first.
@@ -1185,8 +1182,6 @@ void DcxCheck::ctrlDrawCheckText(dcxCheckData& cd)
 					dtt.crText = this->m_TextOptions.m_clrText;
 					dtt.dwFlags |= DTT_TEXTCOLOR;
 				}
-				//if (!IsWindowEnabled(m_Hwnd))
-				//	tsText.strip();
 
 				DcxUXModule::dcxDrawThemeTextEx(cd.m_hTheme, cd.m_hdcPaint, BUTTONPARTS::BP_CHECKBOX, cd.m_iState, cd.m_tsText.to_wchr(), gsl::narrow_cast<int>(cd.m_tsText.len()), cd.m_textFlags, std::addressof(cd.m_rcText), &dtt);
 				return;
@@ -1194,18 +1189,6 @@ void DcxCheck::ctrlDrawCheckText(dcxCheckData& cd)
 		}
 	}
 	ctrlDrawText(cd.m_hdcPaint, cd.m_tsText, std::addressof(cd.m_rcText), cd.m_textFlags);
-
-	//// get height of text. NB: DT_VCENTER messes things up for some reason...
-	//calcTextRect(cd.m_hdcPaint, cd.m_tsText, std::addressof(cd.m_rcText), cd.m_textFlags);
-
-	//// set right hand limit to the size of the control.
-	//cd.m_rcText.right = rcBase.right;
-
-	//// offset text to right of checkbox, & vertically centered.
-	//OffsetRect(std::addressof(cd.m_rcText), rcBase.left, ((rcBase.bottom - rcBase.top) / 2) - ((cd.m_rcText.bottom - cd.m_rcText.top) / 2));
-
-	//// finally draw text.
-	//ctrlDrawText(cd.m_hdcPaint, cd.m_tsText, std::addressof(cd.m_rcText), cd.m_textFlags);
 }
 
 LRESULT DcxCheck::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
