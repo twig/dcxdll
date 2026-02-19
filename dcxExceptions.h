@@ -10,28 +10,32 @@
 
 //#include <stdexcept>
 #include "Classes\tstring\tstring.h"
-namespace Dcx {
+namespace Dcx
+{
 	class dcxException final
 		: public std::exception
 	{
 	public:
-		explicit dcxException(const char *const msg)
+		dcxException() = default;
+		explicit dcxException(const char* const msg)
 			: exception(msg)
 		{
 			tsErr = msg;
 		}
-		explicit dcxException(const wchar_t *const msg)
+		explicit dcxException(const wchar_t* const msg)
 			: exception(TString(msg).c_str())
 		{
 			tsErr = msg;
 		}
 		template <typename Format, typename Value, typename... Arguments>
-		dcxException(const Format &fmt, const Value &val, Arguments&&... args)
+		dcxException(const Format& fmt, const Value& val, Arguments&&... args)
 			: exception(_ts_sprintf(tsErr, fmt, val, args...).c_str())
 		{
 			
 		}
-		const TCHAR *const reason() const noexcept { return !tsErr.empty() ? tsErr.to_chr() : &sUnknown_Err[0]; }
+		bool operator==(const dcxException& other) const = default;
+
+		const TCHAR* const reason() const noexcept { return !tsErr.empty() ? tsErr.to_chr() : &sUnknown_Err[0]; }
 	private:
 		inline static TString tsErr;
 		static constexpr TCHAR sUnknown_Err[] = TEXT("Unknown Exception");
@@ -41,6 +45,8 @@ namespace Dcx {
 	class dcxException2 final
 	{
 	public:
+		dcxException2() = default;
+
 		explicit dcxException2(const TCHAR* const msg)
 		{
 			tsErr.clear();
@@ -65,6 +71,9 @@ namespace Dcx {
 		//{
 		//	tsErr = std::format(fmt, std::forward<Arguments>(args)...);
 		//}
+
+		bool operator==(const dcxException2& other) const = default;
+
 		const TCHAR* const reason() const noexcept { return !tsErr.empty() ? tsErr.c_str() : &sUnknown_Err[0]; }
 	private:
 		inline static std::basic_string<TCHAR> tsErr;
@@ -81,6 +90,8 @@ namespace DcxExceptions
 		dcxUnableToCreateWindow() noexcept
 			: exception("Unable To Create Window")
 		{}
+
+		bool operator==(const dcxUnableToCreateWindow& other) const = default;
 	};
 	class dcxInvalidArguments final
 		: public std::exception
@@ -89,6 +100,8 @@ namespace DcxExceptions
 		dcxInvalidArguments() noexcept
 			: exception("Invalid Arguments")
 		{}
+
+		bool operator==(const dcxInvalidArguments& other) const = default;
 	};
 	class dcxInvalidFilename final
 		: public std::exception
@@ -97,6 +110,8 @@ namespace DcxExceptions
 		dcxInvalidFilename() noexcept
 			: exception("Invalid Filename")
 		{}
+
+		bool operator==(const dcxInvalidFilename& other) const = default;
 	};
 	class dcxInvalidFlag final
 		: public std::exception
@@ -105,6 +120,8 @@ namespace DcxExceptions
 		dcxInvalidFlag() noexcept
 			: exception("Invalid Flag")
 		{}
+
+		bool operator==(const dcxInvalidFlag& other) const = default;
 	};
 	class dcxInvalidPath final
 		: public std::exception
@@ -113,9 +130,11 @@ namespace DcxExceptions
 		dcxInvalidPath() noexcept
 			: exception("Invalid Path")
 		{}
-		dcxInvalidPath(const char *szPath) noexcept
+		dcxInvalidPath(const char* szPath) noexcept
 			: exception(szPath)
 		{}
+
+		bool operator==(const dcxInvalidPath& other) const = default;
 	};
 	class dcxInvalidCommand final
 		: public std::exception
@@ -124,6 +143,8 @@ namespace DcxExceptions
 		dcxInvalidCommand() noexcept
 			: exception("Invalid Command")
 		{}
+
+		bool operator==(const dcxInvalidCommand& other) const = default;
 	};
 	class dcxInvalidItem final
 		: public std::exception
@@ -132,6 +153,8 @@ namespace DcxExceptions
 		dcxInvalidItem() noexcept
 			: exception("Invalid Item")
 		{}
+
+		bool operator==(const dcxInvalidItem& other) const = default;
 	};
 	class dcxOutOfRange final
 		: public std::exception
@@ -140,6 +163,8 @@ namespace DcxExceptions
 		dcxOutOfRange() noexcept
 			: exception("Out Of Range")
 		{}
+
+		bool operator==(const dcxOutOfRange& other) const = default;
 	};
 	class dcxIDAlreadyExists final
 		: public std::exception
@@ -148,6 +173,8 @@ namespace DcxExceptions
 		dcxIDAlreadyExists() noexcept
 			: exception("Invalid ID, already exists")
 		{}
+
+		bool operator==(const dcxIDAlreadyExists& other) const = default;
 	};
 	class dcxUnableToCreateImageList final
 		: public std::exception
@@ -156,6 +183,8 @@ namespace DcxExceptions
 		dcxUnableToCreateImageList() noexcept
 			: exception("Unable To Create ImageList")
 		{}
+
+		bool operator==(const dcxUnableToCreateImageList& other) const = default;
 	};
 	class dcxUnableToLoadIcon final
 		: public std::exception
@@ -164,6 +193,8 @@ namespace DcxExceptions
 		dcxUnableToLoadIcon() noexcept
 			: exception("Unable To Load Icon")
 		{}
+
+		bool operator==(const dcxUnableToLoadIcon& other) const = default;
 	};
 	class dcxUnableToAddImage final
 		: public std::exception
@@ -172,6 +203,8 @@ namespace DcxExceptions
 		dcxUnableToAddImage() noexcept
 			: exception("Unable To Add Image to ImageList")
 		{}
+
+		bool operator==(const dcxUnableToAddImage& other) const = default;
 	};
 	class dcxUnableToGetItem final
 		: public std::exception
@@ -180,6 +213,8 @@ namespace DcxExceptions
 		dcxUnableToGetItem() noexcept
 			: exception("Unable To Get Item")
 		{}
+
+		bool operator==(const dcxUnableToGetItem& other) const = default;
 	};
 }
 
