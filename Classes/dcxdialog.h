@@ -438,6 +438,8 @@ public:
 
 	const bool isIDValid(_In_ const UINT ID, _In_ const bool bUnused = false) const noexcept;
 
+	void UpdateAllToolbars(int iWidth, int iHeight) noexcept;
+
 	void createTooltip(const TString& tsFlags);
 
 	static LRESULT WINAPI WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -477,7 +479,6 @@ private:
 	CursorPair m_hCursor;
 	CursorPair m_hCursorList[22];
 
-	//HBITMAP m_bitmapBg{ nullptr };
 	dcxImage m_BackgroundImage;
 
 	HBITMAP m_hVistaBitmap{ nullptr };

@@ -92,10 +92,16 @@ DcxDialog::~DcxDialog() noexcept
 		GSL_SUPPRESS(lifetime.1) DestroyWindow(getToolTipHWND());
 
 #if DCX_CUSTOM_MENUS
-	m_CustomMenuBar.m_Default.m_hBkg.reset();
+	m_CustomMenuBar.m_Default.m_hBkgNormal.reset();
+	m_CustomMenuBar.m_Default.m_hBkgSelected.reset();
+	m_CustomMenuBar.m_Default.m_hBkgHot.reset();
 
 	for (auto& a : m_CustomMenuBar.m_ItemSettings)
-		a.second.m_hBkg.reset();
+	{
+		a.second.m_hBkgNormal.reset();
+		a.second.m_hBkgSelected.reset();
+		a.second.m_hBkgHot.reset();
+	}
 
 	if (m_CustomMenuBar.m_menuTheme)
 		DcxUXModule::dcxCloseThemeData(m_CustomMenuBar.m_menuTheme);
@@ -722,6 +728,46 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 				this->addExStyle(WindowExStyle::Layered | WS_EX_TRANSPARENT);
 		}
 		break;
+		case TEXT("titlecolor"_hash):
+		case TEXT("titlecolour"_hash):
+		{
+			//Windows 11 Build 22000+
+			// NB: -1 is a valid value, as this means reset to default.
+			const auto clrColor = tsArgs.to_<COLORREF>();
+			DcxDWMModule::dcxDwmSetWindowAttribute(m_Hwnd, DWMWA_CAPTION_COLOR, &clrColor, sizeof(clrColor));
+		}
+		break;
+		case TEXT("titletxtcolor"_hash):
+		case TEXT("titletxtcolour"_hash):
+		{
+			//Windows 11 Build 22000+
+			// NB: -1 is a valid value, as this means reset to default.
+			const auto clrColor = tsArgs.to_<COLORREF>();
+			DcxDWMModule::dcxDwmSetWindowAttribute(m_Hwnd, DWMWA_TEXT_COLOR, &clrColor, sizeof(clrColor));
+		}
+		break;
+		case TEXT("cornerpref"_hash):
+		{
+			//Windows 11 Build 22000+
+			DWM_WINDOW_CORNER_PREFERENCE wcp{ DWM_WINDOW_CORNER_PREFERENCE::DWMWCP_DEFAULT };
+			switch (std::hash<TString>{}(tsArgs))
+			{
+			case TEXT("default"_hash):
+		default:
+				break;
+			case TEXT("round"_hash):
+				wcp = DWM_WINDOW_CORNER_PREFERENCE::DWMWCP_ROUND;
+				break;
+			case TEXT("roundsmall"_hash):
+				wcp = DWM_WINDOW_CORNER_PREFERENCE::DWMWCP_ROUNDSMALL;
+				break;
+			case TEXT("donotround"_hash):
+				wcp = DWM_WINDOW_CORNER_PREFERENCE::DWMWCP_DONOTROUND;
+				break;
+			}
+			DcxDWMModule::dcxDwmSetWindowAttribute(m_Hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &wcp, sizeof(wcp));
+		}
+		break;
 		default:
 			throw Dcx::dcxException("Unknown Switch");
 		}
@@ -736,14 +782,6 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -w [NAME] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 4)
 	{
-		//const auto tsFlags(input.getnexttok());			// tok 3
-		//const auto index = input.getnexttokas<int>();	// tok 4
-		//auto filename(input.getlasttoks().trim());		// tok 5, -1
-		//
-		//_ts_sprintf(this->m_tsIconData, L"% % %", tsFlags, index, filename);
-		//
-		//ChangeHwndIcon(m_Hwnd, tsFlags, index, filename);
-
 		this->m_tsIconData = input.getlasttoks(); // tok 3, -1
 
 		const auto tsFlags(this->m_tsIconData.getfirsttok(1));
@@ -1026,57 +1064,6 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -E [NAME] [SWITCH] [+flags] [-flags]
 	else if (flags[TEXT('E')] && numtok > 3)
 	{
-		//auto mask = m_dEventMask;
-		//const XSwitchFlags xpFlags(input.getnexttok());	// tok 3
-		//const XSwitchFlags xnFlags(input.getnexttok());	// tok 4
-		//
-		//if (!xpFlags[TEXT('+')] || !xnFlags[TEXT('-')])
-		//	throw DcxExceptions::dcxInvalidFlag();
-		//
-		//if (xpFlags[TEXT('c')])
-		//	mask |= DCX_EVENT_CLICK;
-		//if (xpFlags[TEXT('d')])
-		//	mask |= DCX_EVENT_DRAG;
-		//if (xpFlags[TEXT('e')])
-		//	mask |= DCX_EVENT_EDIT;
-		//if (xpFlags[TEXT('f')])
-		//	mask |= DCX_EVENT_FOCUS;
-		//if (xpFlags[TEXT('h')])
-		//	mask |= DCX_EVENT_HELP;
-		//if (xpFlags[TEXT('m')])
-		//	mask |= DCX_EVENT_MOUSE;
-		//if (xpFlags[TEXT('s')])
-		//	mask |= DCX_EVENT_SIZE;
-		//if (xpFlags[TEXT('t')])
-		//	mask |= DCX_EVENT_THEME;
-		//if (xpFlags[TEXT('C')])
-		//	mask |= DCX_EVENT_CLOSE;
-		//if (xpFlags[TEXT('M')])
-		//	mask |= DCX_EVENT_MOVE;
-		//
-		//if (xnFlags[TEXT('c')])
-		//	mask &= ~DCX_EVENT_CLICK;
-		//if (xnFlags[TEXT('d')])
-		//	mask &= ~DCX_EVENT_DRAG;
-		//if (xnFlags[TEXT('e')])
-		//	mask &= ~DCX_EVENT_EDIT;
-		//if (xnFlags[TEXT('f')])
-		//	mask &= ~DCX_EVENT_FOCUS;
-		//if (xnFlags[TEXT('h')])
-		//	mask &= ~DCX_EVENT_HELP;
-		//if (xnFlags[TEXT('m')])
-		//	mask &= ~DCX_EVENT_MOUSE;
-		//if (xnFlags[TEXT('s')])
-		//	mask &= ~DCX_EVENT_SIZE;
-		//if (xnFlags[TEXT('t')])
-		//	mask &= ~DCX_EVENT_THEME;
-		//if (xnFlags[TEXT('C')])
-		//	mask &= ~DCX_EVENT_CLOSE;
-		//if (xnFlags[TEXT('M')])
-		//	mask &= ~DCX_EVENT_MOVE;
-		//
-		//m_dEventMask = mask;
-
 		const TString tspFlags(input.getnexttok());	// tok 3
 		const TString tsnFlags(input.getnexttok());	// tok 4
 
@@ -2595,41 +2582,19 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		//}
 		//DeleteObject(hRGN);
 
+		RECT rc{ 0, 0, Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam) };
+
 		if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE))
-			p_this->execAliasEx(TEXT("sizing,0,%d,%d"), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
+			p_this->execAliasEx(TEXT("sizing,0,%d,%d"), rc.right, rc.bottom);
 
 		// do not do SizingTypes::Toolbar as this is handled after
-		p_this->HandleChildSizing(SizingTypes::ReBar | SizingTypes::Status | SizingTypes::Panel /*| SizingTypes::MultiCombo*/);
+		p_this->HandleChildSizing(SizingTypes::ReBar | SizingTypes::Status | SizingTypes::Panel);
 		
-		for (HWND bars = FindWindowEx(mHwnd, nullptr, DCX_TOOLBARCLASS, nullptr); bars; bars = FindWindowEx(mHwnd, bars, DCX_TOOLBARCLASS, nullptr))
-		{
-			if (const auto t = dynamic_cast<DcxToolBar*>(p_this->getControlByHWND(bars)); t)
-				t->autoPosition(Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
-		}
-		
-		RECT rc{ 0, 0, Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam) };
+		p_this->UpdateAllToolbars(rc.right, rc.bottom);
 		
 		p_this->SetVistaStyleSize();
 		p_this->updateLayout(rc);
 
-		//p_this->SetVistaStyleSize();
-		//if (RECT rc{ 0, 0, Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam) };
-		//	!p_this->updateLayout(rc))
-		//{
-		//	p_this->HandleChildSizing(SizingTypes::ReBar | SizingTypes::Status | SizingTypes::Panel /*| SizingTypes::MultiCombo*/);
-
-		//	for (HWND bars = FindWindowEx(mHwnd, nullptr, DCX_TOOLBARCLASS, nullptr); bars; bars = FindWindowEx(mHwnd, bars, DCX_TOOLBARCLASS, nullptr))
-		//	{
-		//		if (const auto t = dynamic_cast<DcxToolBar*>(p_this->getControlByHWND(bars)); t)
-		//			t->autoPosition(Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
-		//	}
-		//}
-
-		//This is needed (or some other solution) to update the bkg image & transp controls on it
-//#if defined(NDEBUG) && !defined(DCX_DEV_BUILD)
-//				p_this->redrawWindow(); // Causes alot of flicker.
-//#else
-				// Only included in debug & dev builds atm.
 		if (p_this->IsVistaStyle() || p_this->isExStyle(WindowExStyle::Composited))
 			p_this->redrawWindow();
 		else {
@@ -2641,7 +2606,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				RedrawWindow(bars, nullptr, nullptr, RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_INVALIDATE | RDW_ERASE | RDW_FRAME);
 			}
 		}
-		//#endif
 		break;
 	}
 
@@ -4296,6 +4260,15 @@ const bool DcxDialog::isIDValid(_In_ const UINT ID, _In_ const bool bUnused) con
 		return ((ID > (mIRC_ID_OFFSET - 1)) && !IsWindow(GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(ID))) && (!getControlByID(ID)));
 	//a control that already exists.
 	return ((ID > (mIRC_ID_OFFSET - 1)) && (IsWindow(GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(ID))) || (getControlByID(ID))));
+}
+
+void DcxDialog::UpdateAllToolbars(int iWidth, int iHeight) noexcept
+{
+	for (HWND bars = FindWindowEx(m_Hwnd, nullptr, DCX_TOOLBARCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_TOOLBARCLASS, nullptr))
+	{
+		if (const auto t = dynamic_cast<DcxToolBar*>(getControlByHWND(bars)); t)
+			t->autoPosition(iWidth, iHeight);
+	}
 }
 
 void DcxDialog::createTooltip(const TString& tsFlags)
