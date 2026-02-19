@@ -867,7 +867,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		LVITEM lvi{ LVIF_PARAM, nItem };
 
 		if (!Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
-			throw Dcx::dcxException("Unable to get Item");
+			throw DcxExceptions::dcxUnableToGetItem();
 
 		const auto lvdcx = reinterpret_cast<LPDCXLVITEM>(lvi.lParam);
 
@@ -2822,7 +2822,7 @@ void DcxListView::loadIcon(const TString& tsFlags, const TString& tsIndex, const
 	{
 		// overlay id offset
 		const auto io = tsFlags.find(TEXT('o'), 1) + 1;
-		overlayindex = tsFlags.mid(io, gsl::narrow_cast<int>(tsFlags.len() - io)).to_int();
+		overlayindex = tsFlags.mid(io, gsl::narrow_cast<ptrdiff_t>(tsFlags.len() - io)).to_int();
 
 		if (overlayindex < 1 || overlayindex > 15)
 			throw Dcx::dcxException("Overlay index out of range (1 -> 15)");
@@ -3203,7 +3203,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		{
 			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
-				if (LVHITTESTINFO lvh{ Dcx::dcxListView_CursorHitTest(m_Hwnd) }; lvh.flags & LVHT_ONITEM)
+				if (const LVHITTESTINFO lvh{ Dcx::dcxListView_CursorHitTest(m_Hwnd) }; lvh.flags & LVHT_ONITEM)
 					execAliasEx(TEXT("hover,%u,%d,%d"), getUserID(), lvh.iItem + 1, lvh.iSubItem + 1);
 				else
 					execAliasEx(TEXT("hover,%u"), getUserID());
@@ -3525,8 +3525,11 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			if (LVITEM lvi{ LVIF_PARAM, pGetInfoTip->iItem, pGetInfoTip->iSubItem }; Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
 			{
 				// return tooltip text, if any.
-				if (auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lvi.lParam); !lpdcxlvi->tsTipText.empty())
+				if (auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lvi.lParam); lpdcxlvi)
+				{
+					if (!lpdcxlvi->tsTipText.empty())
 					pGetInfoTip->pszText = lpdcxlvi->tsTipText.to_chr();
+				}
 				bParsed = TRUE;
 			}
 		}
@@ -4040,10 +4043,6 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString& styles)
 	// controls within a listview have a problem in that they cant set an item height,
 	// so they all appear very small, & dont look very good. (this can maybe be solved within NM_CUSTOMDRAW prepaint stage)
 	const auto tsID(styles.getfirsttok(1));
-	//const auto ID = mIRC_ID_OFFSET + tsID.to_<UINT>();
-
-	//if (!this->getParentDialog()->isIDValid(ID, true))
-	//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
 
 	try {
 		// this method allows named id's and the possibility of adding other control types...
@@ -4051,18 +4050,8 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString& styles)
 		// pbar/ipaddress/button/image/panel only version
 		//<id> <type> <x y w h> <styles>
 		const TString tsType(styles.getnexttok());	// tok 2
-		//ctrl_args.tsprintf(TEXT("%s %s %d %d %d %d %s"), tsID.to_chr(), tsType.to_chr(), rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top), styles.getlasttoks().to_chr());	// tok 3-
 		_ts_sprintf(ctrl_args, TEXT("% % % % % % %"), tsID, tsType, rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top), styles.getlasttoks());	// tok 3-
 		lpdcxlvi->pbar = getParentDialog()->addControl(ctrl_args, 1, DcxAllowControls::ALLOW_PBAR | DcxAllowControls::ALLOW_IPADDRESS | DcxAllowControls::ALLOW_BUTTON | DcxAllowControls::ALLOW_IMAGE | DcxAllowControls::ALLOW_PANEL, m_Hwnd);
-
-		//// pbar only version
-		////<id> pbar <x y w h> <styles>
-		//ctrl_args.tsprintf(TEXT("%s pbar %d %d %d %d %s"), tsID.to_chr(), rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top), styles.getlasttoks().to_chr());
-		//lpdcxlvi->pbar = this->getParentDialog()->addControl(ctrl_args,1,DcxAllowControls::ALLOW_PBAR,m_Hwnd);
-
-		////lpdcxlvi->pbar = new DcxProgressBar(this->getID(), this->m_pParentDialog, m_Hwnd, &rItem, styles);
-		//lpdcxlvi->pbar = new DcxProgressBar(ID, this->m_pParentDialog, m_Hwnd, &rItem, styles.getlasttoks());
-		//this->getParentDialog()->addControl(lpdcxlvi->pbar);
 
 		m_bHasPBars = true;
 
@@ -4074,7 +4063,6 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString& styles)
 		throw;
 	}
 }
-
 
 void DcxListView::UpdateScrollPbars()
 {
@@ -4798,7 +4786,7 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 		lvi.iIndent = indent;
 	}
 
-	// set text in case of pbar
+	// dont set text in case of pbar
 	if (!dcx_testflag(stateFlags, LVIS_PBAR))
 	{
 		lvi.mask |= LVIF_TEXT;
@@ -4873,10 +4861,6 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 			{
 				itemtext = data.getlasttoks();	// tok 6, -1
 
-				//if ((dcx_testflag(stateFlags, LVIS_HASHITEM)) && (itemtext.numtok() == 2))
-				//	mIRCLinker::tsEvalex(itemtext, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-				//else if ((dcx_testflag(stateFlags, LVIS_HASHNUMBER)) && (itemtext.numtok() == 2))
-				//	mIRCLinker::tsEvalex(itemtext,  TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 				if ((dcx_testflag(stateFlags, LVIS_HASHITEM)) && (itemtext.numtok() == 2))
 					mIRCLinker::eval(itemtext, TEXT("$hget(%,%)"), itemtext.getfirsttok(1), itemtext.getnexttok());
 				else if ((dcx_testflag(stateFlags, LVIS_HASHNUMBER)) && (itemtext.numtok() == 2))
@@ -5086,7 +5070,7 @@ TString DcxListView::ItemToString(int nItem, int iColumns) const
 				fgclr = CLR_NONE;
 				if (lpmylvi)
 				{
-					if (nSubItem < gsl::narrow_cast<int>(std::size(lpmylvi->vInfo)))
+					if (nSubItem < gsl::narrow_cast<int>(lpmylvi->vInfo.size()))
 					{
 						//if (auto ri = gsl::at(lpmylvi->vInfo, gsl::narrow_cast<size_t>(nSubItem)); ri)
 						{
@@ -6229,10 +6213,12 @@ void DcxListView::toXml(TiXmlElement* const xml) const
 		if (auto himl = this->getImageList(LVSIL_GROUPHEADER); himl)
 			xmlSaveImageList(himl, xml, L"+gB"_ts);
 	}
+
+	TCHAR szBuffer[MIRC_BUFFER_SIZE_CCH]{};
+
 	// save column info
 	{
 		const auto count = this->getColumnCount();
-		TCHAR szBuffer[MIRC_BUFFER_SIZE_CCH]{};
 		LVCOLUMN lc{};
 		lc.mask = LVCF_TEXT | LVCF_FMT | LVCF_IMAGE | LVCF_WIDTH | LVCF_ORDER;
 
@@ -6282,10 +6268,10 @@ void DcxListView::toXml(TiXmlElement* const xml) const
 			}
 		}
 	}
+
 	// save group info
 	{
 		const auto count = Dcx::dcxListView_GetGroupCount(m_Hwnd);
-		TCHAR szBuffer[MIRC_BUFFER_SIZE_CCH]{};
 		LVGROUP lvg{};
 
 		for (int i{}; i < count; ++i)
