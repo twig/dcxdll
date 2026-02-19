@@ -38,6 +38,11 @@ namespace mIRCLinker {
 		return getMainVersion() > main || (getMainVersion() == main && getSubVersion() >= sub);
 	}
 
+	bool isBeta() noexcept
+	{
+		return (m_dwBeta != 0);
+	}
+
 	bool isAlias(const TString& aliasName)
 	{
 		// check if the alias exists

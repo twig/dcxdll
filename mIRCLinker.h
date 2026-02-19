@@ -57,6 +57,7 @@ namespace mIRCLinker
 	bool setTreeFont(const HFONT newFont) noexcept;
 	bool isOrNewerVersion(const WORD main, const WORD sub) noexcept;
 	bool isVersion(const WORD main, const WORD sub) noexcept;
+	bool isBeta() noexcept;
 	const bool& isDebug() noexcept;
 	__inline const bool& isUnicode() noexcept { return m_bUnicodemIRC; };
 

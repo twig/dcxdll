@@ -124,12 +124,6 @@ DcxControl::~DcxControl() noexcept
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 dcxWindowStyles DcxControl::parseGeneralControlStyles(const TString& styles, dcxWindowStyles& ws)
 {
 	ws.m_Styles |= WS_CLIPCHILDREN | WS_VISIBLE;
@@ -2062,9 +2056,9 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl* const p_thi
 			//	//DcxUXModule::dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, nullptr);
 
 				COLORREF clr{ CLR_INVALID };
-				DcxUXModule::dcxGetThemeColor(hTheme, iPartId, iStateId, TMT_BTNFACE, &clr);
+				auto hRes = DcxUXModule::dcxGetThemeColor(hTheme, iPartId, iStateId, TMT_BTNFACE, &clr);
 
-				if (clr == CLR_INVALID)
+				if ((hRes != S_OK) || (clr == CLR_INVALID))
 					clr = GetSysColor(COLOR_3DFACE);
 
 				Dcx::FillRectColour(hdc, &rc, clr);
@@ -3738,6 +3732,9 @@ void DcxControl::InitializeDcxControls()
 
 	// Custom RichEdit
 	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering RichEdit..."));
+	if (mIRCLinker::isOrNewerVersion(7,83))
+		dcxRegisterClass<DcxRichEdit>(MSFTEDIT_CLASS, DCX_RICHEDITCLASS);
+	else
 	dcxRegisterClass<DcxRichEdit>(RICHEDIT_CLASS, DCX_RICHEDITCLASS);
 
 	// Custom RebarCtrl

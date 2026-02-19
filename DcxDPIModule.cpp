@@ -214,7 +214,7 @@ UINT DcxDPIModule::dcxGetDpiForSystem() noexcept
 {
 	if (GetDpiForSystemUx)
 		return GetDpiForSystemUx();
-	return 96;
+	return 96u;
 }
 
 /// <summary>
@@ -239,7 +239,7 @@ UINT DcxDPIModule::dcxGetDpiFromDpiAwarenessContext(_In_ DPI_AWARENESS_CONTEXT v
 	if (GetDpiFromDpiAwarenessContextUx)
 		return GetDpiFromDpiAwarenessContextUx(value);
 	SetLastError(ERROR_INVALID_FUNCTION);
-	return 0;
+	return 0u;
 }
 
 /// <summary>
@@ -253,7 +253,7 @@ UINT DcxDPIModule::dcxGetSystemDpiForProcess(HANDLE hProcess) noexcept
 	if (GetSystemDpiForProcessUx)
 		return GetSystemDpiForProcessUx(hProcess);
 	// return default dpi of 100% when no function available.
-	return 96;
+	return 96u;
 }
 
 /// <summary>

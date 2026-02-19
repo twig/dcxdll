@@ -4330,4 +4330,36 @@ namespace Dcx
 		return TabCtrl_SetItemSize(hwnd, x, y);
 	}
 
+	inline COLORREF dcxRebarCtrl_GetTextColor(_In_ HWND hwnd) noexcept
+	{
+		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, RB_GETTEXTCOLOR, 0, 0));
+	}
+
+	inline COLORREF dcxRebarCtrl_GetBKColor(_In_ HWND hwnd) noexcept
+	{
+		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, RB_GETBKCOLOR, 0, 0));
+	}
+
+	inline COLORSCHEME dcxRebarCtrl_GetColorScheme(_In_ HWND hwnd) noexcept
+	{
+		COLORSCHEME cs{ sizeof(COLORSCHEME) };
+		SendMessage(hwnd, RB_GETCOLORSCHEME, 0, reinterpret_cast<LPARAM>(&cs));
+		return cs;
+	}
+
+	inline COLORREF dcxRebarCtrl_SetTextColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
+	{
+		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, RB_SETTEXTCOLOR, 0, gsl::narrow_cast<LPARAM>(clr)));
+	}
+
+	inline COLORREF dcxRebarCtrl_SetBKColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
+	{
+		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, RB_SETBKCOLOR, 0, gsl::narrow_cast<LPARAM>(clr)));
+	}
+
+	inline void dcxRebarCtrl_SetColorScheme(_In_ HWND hwnd, const COLORSCHEME &cs) noexcept
+	{
+		SendMessage(hwnd, RB_SETCOLORSCHEME, 0, reinterpret_cast<LPARAM>(&cs));
+	}
+
 }
