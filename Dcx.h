@@ -43,6 +43,12 @@ namespace Dcx
 {
 	extern std::byte m_iGhostDrag;
 	extern IClassFactory* m_pClassFactory;
+	extern ITaskbarList3* m_pTaskbarList;
+	extern UINT m_uTBBCMessage;
+	extern HIMAGELIST m_hTaskbarImages;
+	extern bool m_bTaskbarButtonsAdded;
+	extern THUMBBUTTON m_ThumbButtons[7];
+
 	extern bool m_bDX9Installed;
 
 	extern dcxVersionInfo VersInfo;
@@ -73,6 +79,7 @@ namespace Dcx
 	extern std::byte m_CurrentMenuAlphaInactive;
 	extern std::byte m_CurrentMenuAlphaDefault;
 	extern bool m_CurrentMenuRounded;
+	constexpr UINT m_uMenuDrawTimer{ 158 };
 
 	/// <summary>
 	/// Converts a Range to a std::vector.

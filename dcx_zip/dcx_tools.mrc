@@ -63,6 +63,12 @@ alias dcxml {
   dcx dcxml $1-
 }
 
+; [+flag] [args]
+alias xThumbnail {
+  !if ($isid) returnex $dcx(xThumbnail,$1-)
+  dcx xThumbnail $1-
+}
+
 ; $1 = hwnd needs .prop
 alias xGetWindowProps {
   if (($0 != 1) || ($prop == $null)) { echo 4 -smlbfti2 [ERROR] xGetWindowProps: Invalid Args - $1- | halt }

@@ -30,6 +30,7 @@ SetmIRCCursors
 SetDCXSettings
 GetDCXSettings
 SaveClipboard
+Thumbnail
 
 xdid
 _xdid

@@ -7,17 +7,29 @@
 namespace Dcx
 {
 	static TCHAR szLastError[MIRC_BUFFER_SIZE_CCH]{};
+
 	IClassFactory* m_pClassFactory{};
+
+	ITaskbarList3* m_pTaskbarList{};
+	UINT m_uTBBCMessage{};
+	HIMAGELIST m_hTaskbarImages{};
+	bool m_bTaskbarButtonsAdded{};
+	THUMBBUTTON m_ThumbButtons[7]{};
+
 	dcxVersionInfo VersInfo;
+
 	DcxGDIModule GDIModule;
 	DcxUXModule UXModule;
 	DcxDWMModule DwmModule;
 	DcxDPIModule DpiModule;
 	DcxWebView2Module WebViewModule;
 	DcxDCompModule DCompModule;
+
 	DcxDialogCollection Dialogs;
+
 	XPopupMenuManager XPopups;
 	XMenuBar XMenubar;
+
 	std::byte m_iGhostDrag{ 255 };
 	bool m_bDX9Installed{ false };
 	bool m_bErrorTriggered{ false };
@@ -96,6 +108,19 @@ namespace Dcx
 			// failed...
 			DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Unable to get WebBrowser..."));
 		}
+
+		// setup thumbnail buttons
+		UINT id{ 666 };
+		for (auto& a : Dcx::m_ThumbButtons)
+		{
+			a.iId = id++;
+			a.dwMask = THB_FLAGS;
+			a.dwFlags = THBF_DISABLED | THBF_HIDDEN;
+		}
+
+		// Compute the value for the TaskbarButtonCreated message
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Compute TaskbarButtonCreated Message"));
+		m_uTBBCMessage = RegisterWindowMessage(L"TaskbarButtonCreated");
 
 		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Initializing Controls..."));
 		DcxControl::InitializeDcxControls();
@@ -340,7 +365,16 @@ namespace Dcx
 			return Dcx::XPopups.OnInitMenuPopup(mHwnd, wParam, lParam);
 
 		case WM_COMMAND:
+		{
+			if (dcxHIWORD(wParam) == THBN_CLICKED)
+			{
+				const auto id = (dcxLOWORD(wParam) - 665u);
+				mIRCLinker::signal(TEXT("thumb mIRC %"), id);
+			}
+			else
 			return Dcx::XPopups.OnCommand(mHwnd, wParam, lParam);
+		}
+		break;
 
 		case WM_EXITMENULOOP:
 			return Dcx::XPopups.OnExitMenuLoop(mHwnd, wParam, lParam);
@@ -517,6 +551,7 @@ namespace Dcx
 			}
 			break;
 		}
+
 #if DCX_CUSTOM_MENUS
 		case WM_UAHDRAWMENU:
 		{

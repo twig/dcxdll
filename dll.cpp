@@ -1899,7 +1899,7 @@ mIRC(WindowProps)
 					if (iVPos > -1)
 					{
 						SetScrollPos(hScrollbar, SB_CTL, iVPos, bRedraw);
-						SendMessage(hStatic, WM_VSCROLL, MAKEWPARAM(SB_THUMBTRACK,iVPos), from_hwnd(hScrollbar));
+						SendMessage(hStatic, WM_VSCROLL, MAKEWPARAM(SB_THUMBTRACK, iVPos), from_hwnd(hScrollbar));
 					}
 					if (hScrollbar = FindWindowExW(hStatic, hScrollbar, WC_SCROLLBAR, nullptr); hScrollbar)
 					{
@@ -2322,12 +2322,14 @@ mIRC(SetDCXSettings)
 			Dcx::setting_bStaticColours = (d.getnexttokas<int>() > 0);
 			break;
 		}
+
 		case L"UpdateColors"_hash:
 		case L"UpdateColours"_hash:
 		{
 			getmIRCPalette(true); // force colours to update
 			break;
 		}
+
 		case L"DarkMode"_hash:
 		{
 			const bool bEnable = (d.getnexttokas<int>() > 0);
@@ -2337,6 +2339,49 @@ mIRC(SetDCXSettings)
 			DcxUXModule::dcxRefreshTitleBarThemeColor(mIRCLinker::m_mIRCHWND);
 			break;
 		}
+		case TEXT("titlecolor"_hash):
+		case TEXT("titlecolour"_hash):
+		{
+			//Windows 11 Build 22000+
+			// NB: -1 is a valid value, as this means reset to default.
+			const auto clrColor = d.getnexttokas<COLORREF>();
+			DcxDWMModule::dcxDwmSetWindowAttribute(mIRCLinker::m_mIRCHWND, DWMWA_CAPTION_COLOR, &clrColor, sizeof(clrColor));
+		}
+		break;
+
+		case TEXT("titletxtcolor"_hash):
+		case TEXT("titletxtcolour"_hash):
+		{
+			//Windows 11 Build 22000+
+			// NB: -1 is a valid value, as this means reset to default.
+			const auto clrColor = d.getnexttokas<COLORREF>();
+			DcxDWMModule::dcxDwmSetWindowAttribute(mIRCLinker::m_mIRCHWND, DWMWA_TEXT_COLOR, &clrColor, sizeof(clrColor));
+		}
+		break;
+
+		case TEXT("cornerpref"_hash):
+		{
+			//Windows 11 Build 22000+
+			DWM_WINDOW_CORNER_PREFERENCE wcp{ DWM_WINDOW_CORNER_PREFERENCE::DWMWCP_DEFAULT };
+			switch (std::hash<TString>{}(d.getnexttok()))
+			{
+			case TEXT("default"_hash):
+		default:
+				break;
+			case TEXT("round"_hash):
+				wcp = DWM_WINDOW_CORNER_PREFERENCE::DWMWCP_ROUND;
+				break;
+			case TEXT("roundsmall"_hash):
+				wcp = DWM_WINDOW_CORNER_PREFERENCE::DWMWCP_ROUNDSMALL;
+				break;
+			case TEXT("donotround"_hash):
+				wcp = DWM_WINDOW_CORNER_PREFERENCE::DWMWCP_DONOTROUND;
+				break;
+			}
+			DcxDWMModule::dcxDwmSetWindowAttribute(mIRCLinker::m_mIRCHWND, DWMWA_WINDOW_CORNER_PREFERENCE, &wcp, sizeof(wcp));
+		}
+		break;
+
 		default:
 			throw DcxExceptions::dcxInvalidArguments();
 		}
@@ -2352,7 +2397,7 @@ mIRC(SetDCXSettings)
 	}
 
 	mIRCLinker::echo(TEXT("/dcx SetDCXSettings [option] (option args)"));
-	mIRCLinker::echo(TEXT("[option] = StaticColours,UpdateColours,DarkMode"));
+	mIRCLinker::echo(TEXT("[option] = StaticColours,UpdateColours,DarkMode,titletxtcolor,titlecolor,cornerpref"));
 	mIRCLinker::echo(TEXT("(option args) = optional, args contents depends on the option used."));
 	return 0;
 }
@@ -2414,6 +2459,149 @@ mIRC(GetDCXSettings)
 	}
 
 	mIRCLinker::echo(TEXT("$!dcx(GetDCXSettings,[option])"));
-	mIRCLinker::echo(TEXT("[option] = StaticColours,dpi,darkmode,usingdarkmode,dpiaware"));
+	mIRCLinker::echo(TEXT("[option] = StaticColours,dpi,DarkMode,UsingDarkMode,dpiaware"));
+	return 0;
+}
+
+mIRC(Thumbnail)
+{
+	TString d(data);
+
+	data[0] = 0;
+
+	try {
+		d.trim();
+
+		if (d.empty())
+			throw DcxExceptions::dcxInvalidArguments();
+
+		// [+FLAGS] [ARGS]
+		// +w [INDEX] [FILENAME]
+		// +W [FILENAME]
+		// +e [1|0]
+		// +y
+		// +b [ID 0->6] [IMAGE] [TOOLTIP]
+		// +r [ID 0->6]
+		const auto tsFlags(d.getfirsttok(1));
+		const XSwitchFlags xFlags(tsFlags);
+
+		if (!xFlags[L'+'])
+			throw DcxExceptions::dcxInvalidFlag();
+
+		if (!Dcx::m_pTaskbarList)
+		{
+			if (FAILED(CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&Dcx::m_pTaskbarList))))
+				throw Dcx::dcxException("Unable to create instance.");
+			if (!Dcx::m_pTaskbarList)
+				throw Dcx::dcxException("Unable to create instance.");
+			if (FAILED(Dcx::m_pTaskbarList->HrInit()))
+				throw Dcx::dcxException("Unable to init instance.");
+		}
+
+		if (xFlags[L'w'])
+		{
+			// load icon
+			if (!Dcx::m_hTaskbarImages)
+				Dcx::m_hTaskbarImages = ImageList_Create(Dcx::DpiModule.dcxGetWindowMetrics(mIRCLinker::m_mIRCHWND, SM_CXSMICON), Dcx::DpiModule.dcxGetWindowMetrics(mIRCLinker::m_mIRCHWND, SM_CYSMICON), ILC_COLOR32, 3, 1);
+
+			if (!Dcx::m_hTaskbarImages)
+				throw DcxExceptions::dcxUnableToCreateImageList();
+
+			const auto iIndex = d.getnexttokas<int>();
+			auto tsFilename(d.getlasttoks());
+
+			AddFileIcons(Dcx::m_hTaskbarImages, tsFilename, false, iIndex);
+		}
+		else if (xFlags[L'W'])
+		{
+			// load image
+			if (!Dcx::m_hTaskbarImages)
+				Dcx::m_hTaskbarImages = ImageList_Create(Dcx::DpiModule.dcxGetWindowMetrics(mIRCLinker::m_mIRCHWND, SM_CXSMICON), Dcx::DpiModule.dcxGetWindowMetrics(mIRCLinker::m_mIRCHWND, SM_CYSMICON), ILC_COLOR32, 3, 1);
+
+			if (!Dcx::m_hTaskbarImages)
+				throw DcxExceptions::dcxUnableToCreateImageList();
+
+			auto tsFilename(d.getlasttoks());
+
+			if (auto hBm = dcxLoadBitmap(nullptr, tsFilename); hBm)
+			{
+				Auto(DeleteBitmap(hBm));
+
+				ImageList_Add(Dcx::m_hTaskbarImages, hBm, nullptr);
+			}
+		}
+		else if (xFlags[L'y'])
+		{
+			// clear images
+			if (Dcx::m_hTaskbarImages)
+				ImageList_Destroy(Dcx::m_hTaskbarImages);
+			Dcx::m_hTaskbarImages = nullptr;
+		}
+		else if (xFlags[L'b'])
+		{
+			// add button
+			const auto uIndex = d.getnexttokas<UINT>() - 1;
+			const auto uImage = d.getnexttokas<UINT>() - 1;
+			const auto tsToolTip(d.getlasttoks().trim());
+
+			if (uIndex >= std::size(Dcx::m_ThumbButtons))
+				throw DcxExceptions::dcxInvalidItem();
+
+			Dcx::m_ThumbButtons[uIndex].iBitmap = uImage;
+			_ts_strcpyn(&Dcx::m_ThumbButtons[uIndex].szTip[0], tsToolTip.to_chr(), std::size(Dcx::m_ThumbButtons[uIndex].szTip));
+			Dcx::m_ThumbButtons[uIndex].dwMask = THB_FLAGS | THB_BITMAP | THB_TOOLTIP;
+			Dcx::m_ThumbButtons[uIndex].dwFlags = THBF_ENABLED | THBF_DISMISSONCLICK;
+		}
+		else if (xFlags[L'r'])
+		{
+			// remove button
+			const auto uIndex = d.getnexttokas<UINT>();
+
+			if (uIndex >= std::size(Dcx::m_ThumbButtons))
+				throw DcxExceptions::dcxInvalidItem();
+
+			Dcx::m_ThumbButtons[uIndex].dwMask = THB_FLAGS;
+			Dcx::m_ThumbButtons[uIndex].dwFlags = THBF_DISABLED | THBF_HIDDEN;
+		}
+		else if (xFlags[L'e'])
+		{
+			// enable
+			// 
+			// set image list
+			if (!Dcx::m_hTaskbarImages)
+				throw Dcx::dcxException("No Images to add.");
+
+			if (FAILED(Dcx::m_pTaskbarList->ThumbBarSetImageList(mIRCLinker::m_mIRCHWND, Dcx::m_hTaskbarImages)))
+				throw Dcx::dcxException("Unable to set image list.");
+
+			if (!Dcx::m_bTaskbarButtonsAdded)
+			{
+				ChangeWindowMessageFilterEx(mIRCLinker::m_mIRCHWND, Dcx::m_uTBBCMessage, MSGFLT_ALLOW, nullptr); // win7+
+
+				if (FAILED(Dcx::m_pTaskbarList->ThumbBarAddButtons(mIRCLinker::m_mIRCHWND, std::size(Dcx::m_ThumbButtons), &Dcx::m_ThumbButtons[0])))
+					throw Dcx::dcxException("Unable to add buttons.");
+
+				Dcx::m_bTaskbarButtonsAdded = true;
+			}
+			else {
+				if (FAILED(Dcx::m_pTaskbarList->ThumbBarUpdateButtons(mIRCLinker::m_mIRCHWND, std::size(Dcx::m_ThumbButtons), &Dcx::m_ThumbButtons[0])))
+					throw Dcx::dcxException("Unable to update buttons.");
+			}
+		}
+
+		return 3;
+	}
+	catch (const std::exception& e)
+	{
+		Dcx::error(TEXT("$!dcx(thumbnail,[+flag] [args])"), TEXT("\"%\" error: %"), d, e.what());
+	}
+	catch (...) {
+		// stop any left over exceptions...
+		Dcx::error(TEXT("$!dcx(thumbnail,[+flag] [args])"), TEXT("\"%\" error: Unknown Exception"), d);
+	}
+
+	mIRCLinker::echo(TEXT("$!dcx(Thumbnail,[+flag] [args])"));
+	mIRCLinker::echo(TEXT("[+flag] = +w,W,e,r,b,y"));
+	mIRCLinker::echo(TEXT("[args] = the args for the specified flag."));
 	return 0;
 }
