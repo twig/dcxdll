@@ -65,8 +65,8 @@ alias dcxml {
 
 ; [+flag] [args]
 alias xThumbnail {
-  !if ($isid) returnex $dcx(xThumbnail,$1-)
-  dcx xThumbnail $1-
+  !if ($isid) returnex $dcx(Thumbnail,$1-)
+  dcx Thumbnail $1-
 }
 
 ; $1 = hwnd needs .prop
