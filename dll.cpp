@@ -59,7 +59,7 @@ namespace
 		// add pid of mIRC.exe to name so mutex is specific to this instance of mIRC.
 		// GetModuleHandle(nullptr) was returning a consistant result.
 		_ts_snprintf(std::addressof(mutex[0]), std::size(mutex), TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
-																														   // Enforce only one instance of dcx.dll loaded at a time.
+		// Enforce only one instance of dcx.dll loaded at a time.
 		hDcxMutex = CreateMutex(nullptr, TRUE, std::addressof(mutex[0]));
 
 		if ((!hDcxMutex) || (GetLastError() == ERROR_ALREADY_EXISTS))
@@ -177,13 +177,14 @@ _INTEL_DLL_ int WINAPI UnloadDll(int timeout)
 		return 0;
 }
 
-/*!
-* \brief DCX DLL Version Function
-*/
 #if DCX_DEBUG_OUTPUT
 #if __has_include(<ColourString.h>)
 #include <ColourString.h>
 #endif
+
+/*!
+* \brief DCX DLL Version Function
+*/
 mIRC(Version)
 {
 	try {
@@ -1404,6 +1405,21 @@ mIRC(xdialog)
 		if (!p_Dialog)
 			throw Dcx::dcxException(TEXT("Unknown dialog \"%\": see Mark command"), tsDname);
 
+		//if (!p_Dialog)
+		//{
+		//	if (d.getnexttok() == L"--")	// special -- flag
+		//	{
+		//		if (d.numtok() == 3)	// xdialog -- dname table
+		//		{
+		//			const auto oldContext = Dcx::DpiModule.dcxSetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+		//			Auto(Dcx::DpiModule.dcxSetThreadDpiAwarenessContext(oldContext));
+		//			mIRCLinker::exec(L"/dialog -m % %", tsDname, d.getnexttok());
+		//			return 1;
+		//		}
+		//	}
+		//	throw Dcx::dcxException(TEXT("Unknown dialog \"%\": see Mark command"), tsDname);
+		//}
+
 		p_Dialog->parseCommandRequest(d);
 		return 1;
 	}
@@ -1500,6 +1516,8 @@ mIRC(xpop)
 			throw Dcx::dcxException("Invalid menu name : mirc or mircbar menus don't have access to this feature.");
 
 		const auto p_Menu = Dcx::XPopups.getMenuByHash(uHash, false);
+
+		//const auto p_Menu = Dcx::XPopups.getMenuByHash(uHash, true);
 
 		if (!p_Menu)
 			throw Dcx::dcxException(TEXT("Unknown menu \"%\": see /xpopup -c command"), tsMenu);
@@ -1901,14 +1919,6 @@ mIRC(WindowProps)
 						SetScrollPos(hScrollbar, SB_CTL, iVPos, bRedraw);
 						SendMessage(hStatic, WM_VSCROLL, MAKEWPARAM(SB_THUMBTRACK, iVPos), from_hwnd(hScrollbar));
 					}
-					if (hScrollbar = FindWindowExW(hStatic, hScrollbar, WC_SCROLLBAR, nullptr); hScrollbar)
-					{
-						if (iHPos > -1)
-						{
-							SetScrollPos(hScrollbar, SB_CTL, iHPos, bRedraw);
-							SendMessage(hStatic, WM_HSCROLL, MAKEWPARAM(SB_THUMBTRACK, iHPos), from_hwnd(hScrollbar));
-						}
-					}
 				}
 			}
 			else if (auto hListbox = FindWindowExW(hwnd, nullptr, WC_LISTBOX, nullptr); hListbox)
@@ -1919,6 +1929,54 @@ mIRC(WindowProps)
 					SetScrollPos(hListbox, SB_HORZ, iHPos, bRedraw);
 			}
 		}
+		//// Add/Remove window styles.
+		//// +s [+style] [-style] ...
+		//// +s -visible
+		//else if (xflags[TEXT('s')])
+		//{
+		//	auto ChangeStyle = [hwnd](bool bAdd, const TCHAR* szStyle) noexcept {
+		//		DWORD dwStyle{}, dwExStyle{};
+		//		switch (std::hash<const TCHAR*>()(szStyle))
+		//		{
+		//		case L"visible"_hash:
+		//			dwStyle = WS_VISIBLE;
+		//			break;
+		//		default:
+		//			break;
+		//		}
+		//		if (dwStyle != 0)
+		//		{
+		//			if (bAdd)
+		//				AddStyles(hwnd, GWL_STYLE, dwStyle);
+		//			else
+		//				RemStyles(hwnd, GWL_STYLE, dwStyle);
+		//		}
+		//		else if (dwExStyle != 0)
+		//		{
+		//			if (bAdd)
+		//				AddStyles(hwnd, GWL_EXSTYLE, dwExStyle);
+		//			else
+		//				RemStyles(hwnd, GWL_EXSTYLE, dwExStyle);
+		//		}
+		//	};
+		//	const TString tsStyles(input.getlasttoks());
+		//	for (const auto a : tsStyles)
+		//	{
+		//		if (a[0] == L'+')
+		//		{
+		//			//ShowWindow(hwnd, SW_HIDE);
+		//			// add style
+		//			ChangeStyle(true, &a.to_chr()[1]);
+		//		}
+		//		else if (a[0] == L'-')
+		//		{
+		//			// remove style
+		//			ChangeStyle(false, &a.to_chr()[1]);
+		//		}
+		//		// otherwise ignore it
+		//	}
+		//	RedrawWindow(hwnd, nullptr, nullptr, RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_ERASE | RDW_FRAME | RDW_UPDATENOW);
+		//}
 		return 1;
 	}
 	catch (const std::exception& e)
@@ -1991,30 +2049,48 @@ static TString dcxGetWindowProps(HWND hwnd, size_t prop)
 	case TEXT("scrollpos"_hash):	// scrollpos
 	{
 		// Only works on a window that has a "ScrollBar" child (channel, custom (not picwin), etc..)
-		// returns vertpos horizpos
+		// returns vertpos vertpagesize horizpos horizpagesize
 		// vertpos or horizpos == -1 then scrollbar is disabled.
 
 		if (auto hStatic = FindWindowExW(hwnd, nullptr, WC_STATIC, nullptr); hStatic)
 		{
 			if (auto hScrollbar = FindWindowExW(hStatic, nullptr, WC_SCROLLBAR, nullptr); hScrollbar)
 			{
-				int iPos{ -1 };
+				SCROLLINFO si{};
+				si.cbSize = sizeof(SCROLLINFO);
+				si.fMask = SIF_POS | SIF_PAGE;
+				si.nPos = -1;
 				if (IsWindowEnabled(hScrollbar))
-					iPos = GetScrollPos(hScrollbar, SB_CTL);
-				tsRes.addtok(iPos);
+					GetScrollInfo(hScrollbar, SB_CTL, &si);
+				tsRes.addtok(si.nPos);
+				tsRes.addtok(si.nPage);
+				// should only be vert scrollbar for this type.
+				si.nPos = -1;
+				si.nPage = 0;
 				if (hScrollbar = FindWindowExW(hStatic, hScrollbar, WC_SCROLLBAR, nullptr); hScrollbar)
 				{
-					iPos = -1;
 					if (IsWindowEnabled(hScrollbar))
-						iPos = GetScrollPos(hScrollbar, SB_CTL);
-					tsRes.addtok(iPos);
+						GetScrollInfo(hScrollbar, SB_CTL, &si);
 				}
+				tsRes.addtok(si.nPos);
+				tsRes.addtok(si.nPage);
 			}
 		}
 		else if (auto hListbox = FindWindowExW(hwnd, nullptr, WC_LISTBOX, nullptr); hListbox)
 		{
-			tsRes.addtok(GetScrollPos(hListbox, SB_VERT));
-			tsRes.addtok(GetScrollPos(hListbox, SB_HORZ));
+			SCROLLINFO si{};
+			si.cbSize = sizeof(SCROLLINFO);
+			si.fMask = SIF_POS | SIF_PAGE;
+			si.nPos = -1;
+			GetScrollInfo(hListbox, SB_VERT, &si);
+			tsRes.addtok(si.nPos);
+			tsRes.addtok(si.nPage);
+
+			si.nPos = -1;
+			si.nPage = 0;
+			GetScrollInfo(hListbox, SB_HORZ, &si);
+			tsRes.addtok(si.nPos);
+			tsRes.addtok(si.nPage);
 		}
 	}
 	break;
@@ -2366,7 +2442,7 @@ mIRC(SetDCXSettings)
 			switch (std::hash<TString>{}(d.getnexttok()))
 			{
 			case TEXT("default"_hash):
-		default:
+			default:
 				break;
 			case TEXT("round"_hash):
 				wcp = DWM_WINDOW_CORNER_PREFERENCE::DWMWCP_ROUND;
@@ -2463,6 +2539,172 @@ mIRC(GetDCXSettings)
 	return 0;
 }
 
+//namespace
+//{
+//	HWND CreateSpecialTrackingToolTip(HWND hDlg, LPTOOLINFO pti) noexcept
+//	{
+//		if (!hDlg || !pti)
+//			return nullptr;
+//
+//		// Create a tooltip.
+//		HWND hwndTT = CreateWindowExW(WS_EX_TOPMOST, TOOLTIPS_CLASS, nullptr,
+//			WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
+//			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+//			hDlg, nullptr, GetModuleHandle(nullptr), nullptr);
+//
+//		if (!hwndTT)
+//			return nullptr;
+//
+//		// Set up the tool information. In this case, the "tool" is the entire parent window.
+//
+//		pti->cbSize = sizeof(TOOLINFO);
+//		pti->uFlags = TTF_IDISHWND | TTF_TRACK | TTF_ABSOLUTE | TTF_PARSELINKS;
+//		pti->hwnd = hDlg;
+//		pti->hinst = GetModuleHandle(nullptr);
+//		pti->lpszText = nullptr;
+//		pti->uId = from_hwnd<UINT_PTR>(hDlg);
+//
+//		GetClientRect(hDlg, &pti->rect);
+//
+//		// Associate the tooltip with the tool window.
+//
+//		SendMessage(hwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(pti));
+//
+//		return hwndTT;
+//	}
+//}
+
+////#include "Classes/dcxToolTip.h"
+
+// [+FLAGS] [x] [y] (TEXT) $chr(9) (image)
+// +c
+// +s
+// +p [x] [y]
+// +t (TEXT)
+// +i $chr(9) (IMAGEFILE)
+// +spt [x] [y] (TEXT)
+// +spti [x] [y] (TEXT) $chr(9) (IMAGEFILE)
+//mIRC(ShowToolTip)
+//{
+//	static HWND hSpecialToolTip{};
+//	static TOOLINFO ti{};
+//
+//	//static dcxToolTip::DcxToolTipInfo ti;
+//	//static std::unique_ptr<dcxToolTip> dcxtool;
+//
+//	TString d(data);
+//
+//	data[0] = 0;
+//
+//	try {
+//		d.trim();
+//
+//		if (d.empty())
+//			throw DcxExceptions::dcxInvalidArguments();
+//
+//		TString tsArgs(d.getfirsttok(1, TSTABCHAR));
+//		TString tsFilename(d.getlasttoks());
+//		const XSwitchFlags xFlags(tsArgs.getfirsttok(1));
+//
+//		if (!xFlags[L'+'])
+//			throw DcxExceptions::dcxInvalidFlag();
+//
+//		if (xFlags[L'c'])
+//		{
+//			// close
+//			if (hSpecialToolTip && IsWindow(hSpecialToolTip))
+//				DestroyWindow(hSpecialToolTip);
+//			hSpecialToolTip = nullptr;
+//
+//			//if (dcxtool)
+//			//	dcxtool->Close();
+//		}
+//		else {
+//			if (!hSpecialToolTip || !IsWindow(hSpecialToolTip))
+//				hSpecialToolTip = CreateSpecialTrackingToolTip(mWnd, &ti);
+//
+//			if (!hSpecialToolTip || !IsWindow(hSpecialToolTip))
+//				throw DcxExceptions::dcxUnableToCreateWindow();
+//
+//			//if (!dcxtool)
+//			//{
+//			//	dcxtool = std::make_unique<dcxToolTip>(0, mWnd);
+//			//
+//			//	ti.m_Info.cbSize = sizeof(TOOLINFO);
+//			//	ti.m_Info.uFlags = TTF_IDISHWND | TTF_TRACK | TTF_ABSOLUTE | TTF_PARSELINKS;
+//			//	ti.m_Info.hwnd = mWnd;
+//			//	ti.m_Info.hinst = GetModuleHandle(nullptr);
+//			//	ti.m_Info.lpszText = nullptr;
+//			//	ti.m_Info.uId = from_hwnd<UINT_PTR>(mWnd);
+//			//
+//			//	GetClientRect(mWnd, &ti.m_Info.rect);
+//			//
+//			//	dcxtool->AddTool(ti);
+//			//}
+//			//if (!dcxtool)
+//			//	throw DcxExceptions::dcxUnableToCreateWindow();
+//
+//			if (xFlags[L'p'])
+//			{
+//				// change pos
+//
+//				POINT pt{};
+//				pt.x = tsArgs.getnexttokas<LONG>();
+//				pt.y = tsArgs.getnexttokas<LONG>();
+//
+//				if (xFlags[L'm'])
+//					MapWindowPoints(mWnd, nullptr, &pt, 1);
+//
+//				Dcx::dcxToolTip_TrackPosition(hSpecialToolTip, pt.x, pt.y);
+//
+//				//dcxtool->SetPos(&pt);
+//			}
+//			if (xFlags[L't'])
+//			{
+//				// set text
+//				auto tsText(tsArgs.getlasttoks().trim());
+//
+//				ti.lpszText = tsText.to_chr();
+//				Dcx::dcxToolTip_SetToolInfo(hSpecialToolTip, &ti);
+//
+//				//dcxtool->SetText(tsText);
+//			}
+//			if (xFlags[L'i'])
+//			{
+//				// load background image.
+//				Dcx::dcxToolTip_TrackActivate(hSpecialToolTip, TRUE, &ti);
+//
+//				//dcxtool->SetImage(tsFilename);
+//			}
+//			if (xFlags[L's'])
+//			{
+//				// show
+//
+//				Dcx::dcxToolTip_TrackActivate(hSpecialToolTip, TRUE, &ti);
+//
+//				//dcxtool->Show();
+//			}
+//		}
+//		return 3;
+//	}
+//	catch (const std::exception& e)
+//	{
+//		Dcx::error(TEXT("$!dcx(ShowToolTip,[+FLAGS] [x] [y] (TEXT) $chr(9) [FILENAME])"), TEXT("\"%\" error: %"), d, e.what());
+//	}
+//	catch (...) {
+//		// stop any left over exceptions...
+//		Dcx::error(TEXT("$!dcx(ShowToolTip,[+FLAGS] [x] [y] (TEXT) $chr(9) [FILENAME])"), TEXT("\"%\" error: Unknown Exception"), d);
+//	}
+//
+//	mIRCLinker::echo(TEXT("$!dcx(ShowToolTip,[+FLAGS] [x] [y] (TEXT) $chr(9) [FILENAME])"));
+//	mIRCLinker::echo(TEXT("[+FLAGS] = flags"));
+//	mIRCLinker::echo(TEXT("[X] = flags"));
+//	mIRCLinker::echo(TEXT("[Y] = flags"));
+//	mIRCLinker::echo(TEXT("(TEXT) = The text to display"));
+//	mIRCLinker::echo(TEXT("[FILENAME] = The background image to display"));
+//	return 0;
+//}
+
 mIRC(Thumbnail)
 {
 	TString d(data);
@@ -2476,12 +2718,12 @@ mIRC(Thumbnail)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		// [+FLAGS] [ARGS]
-		// +w [INDEX] [FILENAME]
+		// +w [+ICON FLAGS] [N,N2-N3,...] [FILENAME]
 		// +W [FILENAME]
 		// +e [1|0]
 		// +y
-		// +b [ID 0->6] [IMAGE] [TOOLTIP]
-		// +r [ID 0->6]
+		// +b [ID 1->7] [IMAGE] [TOOLTIP]
+		// +r [ID 1->7|all]
 		const auto tsFlags(d.getfirsttok(1));
 		const XSwitchFlags xFlags(tsFlags);
 
@@ -2507,10 +2749,18 @@ mIRC(Thumbnail)
 			if (!Dcx::m_hTaskbarImages)
 				throw DcxExceptions::dcxUnableToCreateImageList();
 
-			const auto iIndex = d.getnexttokas<int>();
+			//const auto iIndex = d.getnexttokas<int>();
+			//auto tsFilename(d.getlasttoks());
+			//AddFileIcons(Dcx::m_hTaskbarImages, tsFilename, false, iIndex);
+
+			const auto tsIconFlags(d.getnexttok());
+			const auto tsIndexes(d.getnexttok());
 			auto tsFilename(d.getlasttoks());
 
-			AddFileIcons(Dcx::m_hTaskbarImages, tsFilename, false, iIndex);
+			if (tsIndexes == L"-1")
+				AddFileIcons(Dcx::m_hTaskbarImages, tsFilename, false, -1);
+			else
+				Dcx::dcxLoadIconRange(Dcx::m_hTaskbarImages, tsFilename, false, tsIconFlags, tsIndexes);
 		}
 		else if (xFlags[L'W'])
 		{
@@ -2555,36 +2805,63 @@ mIRC(Thumbnail)
 		else if (xFlags[L'r'])
 		{
 			// remove button
-			const auto uIndex = d.getnexttokas<UINT>();
+			if (const auto tsIndex(d.getnexttok()); tsIndex == L"all")
+			{
+				for (auto& a : Dcx::m_ThumbButtons)
+				{
+					a.dwMask = THB_FLAGS;
+					a.dwFlags = THBF_DISABLED | THBF_HIDDEN;
+				}
+			}
+			else {
+				const auto uIndex = tsIndex.to_<UINT>() - 1;
 
-			if (uIndex >= std::size(Dcx::m_ThumbButtons))
-				throw DcxExceptions::dcxInvalidItem();
+				if (uIndex >= std::size(Dcx::m_ThumbButtons))
+					throw DcxExceptions::dcxInvalidItem();
 
-			Dcx::m_ThumbButtons[uIndex].dwMask = THB_FLAGS;
-			Dcx::m_ThumbButtons[uIndex].dwFlags = THBF_DISABLED | THBF_HIDDEN;
+				Dcx::m_ThumbButtons[uIndex].dwMask = THB_FLAGS;
+				Dcx::m_ThumbButtons[uIndex].dwFlags = THBF_DISABLED | THBF_HIDDEN;
+			}
 		}
 		else if (xFlags[L'e'])
 		{
-			// enable
+			// enable/disable
+			// applies all changes made.
 			// 
 			// set image list
 			if (!Dcx::m_hTaskbarImages)
 				throw Dcx::dcxException("No Images to add.");
 
-			if (FAILED(Dcx::m_pTaskbarList->ThumbBarSetImageList(mIRCLinker::m_mIRCHWND, Dcx::m_hTaskbarImages)))
-				throw Dcx::dcxException("Unable to set image list.");
-
-			if (!Dcx::m_bTaskbarButtonsAdded)
+			if (d.getnexttokas<int>() > 0)
 			{
-				ChangeWindowMessageFilterEx(mIRCLinker::m_mIRCHWND, Dcx::m_uTBBCMessage, MSGFLT_ALLOW, nullptr); // win7+
+				if (FAILED(Dcx::m_pTaskbarList->ThumbBarSetImageList(mIRCLinker::m_mIRCHWND, Dcx::m_hTaskbarImages)))
+					throw Dcx::dcxException("Unable to set image list.");
 
-				if (FAILED(Dcx::m_pTaskbarList->ThumbBarAddButtons(mIRCLinker::m_mIRCHWND, std::size(Dcx::m_ThumbButtons), &Dcx::m_ThumbButtons[0])))
-					throw Dcx::dcxException("Unable to add buttons.");
+				if (!Dcx::m_bTaskbarButtonsAdded)
+				{
+					ChangeWindowMessageFilterEx(mIRCLinker::m_mIRCHWND, Dcx::m_uTBBCMessage, MSGFLT_ALLOW, nullptr); // win7+
 
-				Dcx::m_bTaskbarButtonsAdded = true;
+					if (FAILED(Dcx::m_pTaskbarList->ThumbBarAddButtons(mIRCLinker::m_mIRCHWND, std::size(Dcx::m_ThumbButtons), &Dcx::m_ThumbButtons[0])))
+						throw Dcx::dcxException("Unable to add buttons.");
+
+					Dcx::m_bTaskbarButtonsAdded = true;
+				}
+				else {
+					if (FAILED(Dcx::m_pTaskbarList->ThumbBarUpdateButtons(mIRCLinker::m_mIRCHWND, std::size(Dcx::m_ThumbButtons), &Dcx::m_ThumbButtons[0])))
+						throw Dcx::dcxException("Unable to update buttons.");
+				}
 			}
 			else {
-				if (FAILED(Dcx::m_pTaskbarList->ThumbBarUpdateButtons(mIRCLinker::m_mIRCHWND, std::size(Dcx::m_ThumbButtons), &Dcx::m_ThumbButtons[0])))
+				THUMBBUTTON ThumbButtons[7]{};
+
+				UINT id{ Dcx::m_uThumbButtonBaseID };
+				for (auto& a : ThumbButtons)
+				{
+					a.iId = id++;
+					a.dwMask = THB_FLAGS;
+					a.dwFlags = THBF_DISABLED | THBF_HIDDEN;
+				}
+				if (FAILED(Dcx::m_pTaskbarList->ThumbBarUpdateButtons(mIRCLinker::m_mIRCHWND, std::size(ThumbButtons), &ThumbButtons[0])))
 					throw Dcx::dcxException("Unable to update buttons.");
 			}
 		}
@@ -2605,3 +2882,65 @@ mIRC(Thumbnail)
 	mIRCLinker::echo(TEXT("[args] = the args for the specified flag."));
 	return 0;
 }
+
+//#include "Classes/custom/SearchHelper.h"
+//
+//mIRC(PCRE2)
+//{
+//	TString d(data);
+//
+//	data[0] = 0;
+//
+//	try {
+//		d.trim();
+//
+//		if (d.empty())
+//			throw DcxExceptions::dcxInvalidArguments();
+//
+//		const auto tsProp(d.getfirsttok(1, WCHAR{ 1 }).trim());
+//		const auto tsPattern(d.getnexttok(WCHAR{ 1 }).trim());
+//		const auto tsText(d.getlasttoks().trim());
+//
+//		switch (std::hash<TString>()(tsProp))
+//		{
+//		case L"pos"_hash:
+//		{
+//			if (auto res = DcxSearchHelper::getRegexMatchOffset(tsText.to_wchr(), tsPattern.to_wchr()); res.has_value())
+//			{
+//				_ts_snprintf(data, mIRCLinker::m_dwCharacters, L"+MATCH %d %d", res->nStart, res->nEnd);
+//			}
+//			else {
+//				_ts_strcpyn(data, L"+NOMATCH", mIRCLinker::m_dwCharacters);
+//			}
+//		}
+//		break;
+//
+//		default:
+//		{
+//			if (DcxSearchHelper::isRegexMatch(tsText.to_wchr(), tsPattern.to_wchr()))
+//			{
+//				_ts_strcpyn(data, L"+MATCH", mIRCLinker::m_dwCharacters);
+//			}
+//			else {
+//				_ts_strcpyn(data, L"+NOMATCH", mIRCLinker::m_dwCharacters);
+//			}
+//		}
+//		break;
+//		}
+//
+//		return 3;
+//	}
+//	catch (const std::exception& e)
+//	{
+//		Dcx::error(TEXT("$!dcx(PCRE2,[pattern] $!chr(1) [text])"), TEXT("\"%\" error: %"), d, e.what());
+//	}
+//	catch (...) {
+//		// stop any left over exceptions...
+//		Dcx::error(TEXT("$!dcx(PCRE2,[pattern] $!chr(1) [text])"), TEXT("\"%\" error: Unknown Exception"), d);
+//	}
+//
+//	mIRCLinker::echo(TEXT("$!dcx(PCRE2,[pattern] $!chr(1) [text])"));
+//	mIRCLinker::echo(TEXT("[pattern] = regex pattern to match"));
+//	mIRCLinker::echo(TEXT("[text] = the text to match against"));
+//	return 0;
+//}
