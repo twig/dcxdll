@@ -110,8 +110,8 @@ namespace Dcx
 		}
 
 		// setup thumbnail buttons
-		UINT id{ 666 };
-		for (auto& a : Dcx::m_ThumbButtons)
+		UINT id{ m_uThumbButtonBaseID };
+		for (auto& a : m_ThumbButtons)
 		{
 			a.iId = id++;
 			a.dwMask = THB_FLAGS;
@@ -154,6 +154,21 @@ namespace Dcx
 		DcxControl::UnInitializeDcxControls();
 
 		UnregisterClass(DCX_VISTACLASS, GetModuleHandle(nullptr));
+
+		if (m_pTaskbarList)
+		{
+			for (auto& a : m_ThumbButtons)
+			{
+				a.dwMask = THB_FLAGS;
+				a.dwFlags = THBF_DISABLED | THBF_HIDDEN;
+			}
+			m_pTaskbarList->ThumbBarUpdateButtons(mIRCLinker::m_mIRCHWND, std::size(m_ThumbButtons), &m_ThumbButtons[0]);
+
+			m_pTaskbarList->Release();
+		}
+		if (m_hTaskbarImages)
+			ImageList_Destroy(m_hTaskbarImages);
+		m_hTaskbarImages = nullptr;
 
 		// Class Factory of Web Control
 		if (m_pClassFactory)

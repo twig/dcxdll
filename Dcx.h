@@ -48,6 +48,7 @@ namespace Dcx
 	extern HIMAGELIST m_hTaskbarImages;
 	extern bool m_bTaskbarButtonsAdded;
 	extern THUMBBUTTON m_ThumbButtons[7];
+	constexpr UINT m_uThumbButtonBaseID{ 666u };
 
 	extern bool m_bDX9Installed;
 
