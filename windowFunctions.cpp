@@ -842,7 +842,7 @@ void dcxDrawEdge(HDC hdc, const LPRECT rc, COLORREF clr) noexcept
 /// <returns></returns>
 void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept
 {
-	if (!hdc || !lprc)
+	if (!hdc || !lprc || clr == CLR_INVALID)
 		return;
 
 	LOGPEN oLogPen{};
