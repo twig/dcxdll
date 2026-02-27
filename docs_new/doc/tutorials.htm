@@ -44,13 +44,14 @@
 		<li>DCX Features
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
-                                <a href="dcxml.htm"><div>DCXML</div></a>
+                <a href="dcxml.htm"><div>DCXML</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
-                                <a href="xmenubar.htm"><div>XMenuBar</div></a>
-                                <a href="xpopup.htm"><div>XPopup</div></a>
-                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
+                <a href="xmenubar.htm"><div>XMenuBar</div></a>
+                <a href="xpopup.htm"><div>XPopup</div></a>
+                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
-                                <a href="xtreebar.htm"><div>XTreebar</div></a>
+                <a href="xtreebar.htm"><div>XTreebar</div></a>
+				<a href="xthumbnail.htm"><div>XThumbnail</div></a>
 			</ul>
 		</li>
 		<li>About DCX
@@ -619,14 +620,56 @@ alias _setupmircmenubar {
 
   _dcx_setmenustyle %m darknormal
 
-  xmenubar -M _mircmenubar_callback
-  xmenubar -a %m &gt;|
+  _dcx_setmenubarstyle darknormal
 
-  xmenubar -p +S normal
-  xmenubar -p +HowWbtTBh $rgb(188,188,188) $rgb(188,188,188) $rgb(188,188,188) $color(88) $rgb(54,54,54) $rgb(54,54,54) 0 $rgb(19,19,19) $rgb(19,19,19)
-  xmenubar -p +O 0
-  ;xmenubar -p +r 1
-  xmenubar -p +e 1
+  xmenubar -a %m &gt;|
+}
+; $1 = style, $2- background pic (for custom, &amp; custombig)
+alias _dcx_setmenubarstyle {
+  if (!$xmenubar().callback) xmenubar -M _mircmenubar_callback
+
+  if ($1 == darknormal) {
+    xmenubar -p +S normal
+    xmenubar -p +HowWbtTBh $rgb(188,188,188) $rgb(188,188,188) $rgb(188,188,188) $color(88) $rgb(54,54,54) $rgb(54,54,54) 0 $rgb(19,19,19) $rgb(19,19,19)
+    xmenubar -p +O 0
+    xmenubar -p +f +nhs
+    xmenubar -p +F
+    xmenubar -p +e 1
+  }
+  elseif ($1 == normal) {
+    xmenubar -p +S normal
+    xmenubar -p +HowWbtTBh -1 $color(04) -1 $rgb(240,240,240) $color(83) $color(83) -1 $color(59) -1
+    xmenubar -p +O 0
+    xmenubar -p +f +nhs
+    xmenubar -p +F
+    xmenubar -p +e 1
+  }
+  elseif ($1 == custombig) {
+    ;var %f = $mircdirtop_bg.jpg
+    var %f = $mircdirImages\orange-blue_grad.bmp
+    if (!$isfile(%f)) return
+    xmenubar -p +S custombig
+    xmenubar -p +F %f
+    ;var %f = $mircdirImages\orange-blue_grad.bmp
+    ;if (!$isfile(%f)) return
+    ;xmenubar -p +f %f
+    var %f = $mircdirImages\small-norm.bmp
+    if (!$isfile(%f)) return
+    xmenubar -p +f +n %f
+    var %f = $mircdirImages\small-clicked.bmp
+    if (!$isfile(%f)) return
+    xmenubar -p +f +s %f
+    var %f = $mircdirImages\small-hover.bmp
+    if (!$isfile(%f)) return
+    xmenubar -p +f +h %f
+    xmenubar -p +e 1
+  }
+  else {
+    xmenubar -p +e 0
+    xmenubar -p +O 0
+    xmenubar -p +f
+    xmenubar -p +F
+  }
 }
 ; changes the menu to a random style.
 ; $1 = menu
@@ -697,7 +740,10 @@ alias _dcx_setmenustyle {
     xpopup -l $1 19 $xpopup($1,1).color
   }
 
-  if ($1 == mircbar) .timer 1 0 _dcx_setmenustyle scriptpopup $2
+  if ($1 == mircbar) {
+    _dcx_setmenubarstyle $2
+    .timer 1 0 _dcx_setmenustyle scriptpopup $2
+  }
 }
 ; $1 = menu name, $2 = style name
 alias -l _dcx_ismenustyle {
@@ -812,8 +858,9 @@ alias -l _dcx_setdarkmode {
   _dcx_setmenustyle mircbar darknormal
   _dcx_setmenustyle mirc darknormal
   _dcx_setmenustyle mircmenubar_switch darknormal
+  _dcx_setmenubarstyle darknormal
 
-  xmenubar -p +e 1
+  ;xmenubar -p +e 1
   set %dcx_darkmode_enabled 1
   set %dcx_darkmode_bkgdark_colour $color(88)
   set %dcx_darkmode_bkglight_colour $rgb(54,54,54)
@@ -836,8 +883,9 @@ alias -l _dcx_setlightmode {
   _dcx_setmenustyle mircbar normal
   _dcx_setmenustyle mirc normal
   _dcx_setmenustyle mircmenubar_switch normal
+  _dcx_setmenubarstyle normal
 
-  xmenubar -p +e 0
+  ;xmenubar -p +e 1
   set %dcx_darkmode_enabled 0
   background -lx
   background -bx
@@ -864,6 +912,7 @@ menu status,menubar {
   .Settings
   ..Set Dark Mode: _dcx_setdarkmode
   ..Set Light Mode: _dcx_setlightmode
+  ..Set Default: _dcx_setmenubarstyle default
   ..Menu Options
   ...Menubar
   ....Menu Styles
@@ -1863,7 +1912,7 @@ ON *:SIGNAL:XPopup-_dcx_webbrowser: {
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 28th January, 26</td>
+		<td style="text-align: right;">Last Updated: 27th February, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

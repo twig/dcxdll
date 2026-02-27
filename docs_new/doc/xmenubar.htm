@@ -44,13 +44,14 @@
 		<li>DCX Features
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
-                                <a href="dcxml.htm"><div>DCXML</div></a>
+                <a href="dcxml.htm"><div>DCXML</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
-                                <a href="xmenubar.htm"><div>XMenuBar</div></a>
-                                <a href="xpopup.htm"><div>XPopup</div></a>
-                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
+                <a href="xmenubar.htm"><div>XMenuBar</div></a>
+                <a href="xpopup.htm"><div>XPopup</div></a>
+                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
-                                <a href="xtreebar.htm"><div>XTreebar</div></a>
+                <a href="xtreebar.htm"><div>XTreebar</div></a>
+				<a href="xthumbnail.htm"><div>XThumbnail</div></a>
 			</ul>
 		</li>
 		<li>About DCX
@@ -253,7 +254,11 @@ Below is a list of special menu IDs for those wishing to redesign mIRC's menubar
 	</tr>
 	<tr>
 		<td class="value">f</td>
-		<td>Load background image (bmp format only atm)</td>
+		<td>Load background image for menubar items (bmp format only atm)</td>
+	</tr>
+	<tr>
+		<td class="value">F</td>
+		<td>Load background image for menubar (bmp format only atm)</td>
 	</tr>
 	<tr>
 		<td class="value">s</td>
@@ -321,7 +326,11 @@ Below is a list of special menu IDs for those wishing to redesign mIRC's menubar
 	</tr>
 	<tr>
 		<td class="value">f</td>
-		<td>path/filename.bmp or if combined with <a class="value">+i</a> [ITEM INDEX] path/filename.bmp</td>
+		<td>[+FLAGS] path/filename.bmp or if combined with <a class="value">+i</a> [ITEM INDEX] [+FLAGS] path/filename.bmp</td>
+	</tr>
+	<tr>
+		<td class="value">F</td>
+		<td>path/filename.bmp</td>
 	</tr>
 	<tr>
 		<td class="value">S</td>
@@ -339,7 +348,7 @@ Below is a list of special menu IDs for those wishing to redesign mIRC's menubar
 		<td class="value">t,T,H,b,B,h,w,W,o</td>
 		<td>[RGB]</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> fun</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When <a class="value">+f</a> is used by its self without <a class="value">+i</a> the default image for all items is set.</td></tr></table>
 <br />
 <table class="xmenubar">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -430,7 +439,7 @@ Below is a list of special menu IDs for those wishing to redesign mIRC's menubar
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 28th January, 26</td>
+		<td style="text-align: right;">Last Updated: 27th February, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

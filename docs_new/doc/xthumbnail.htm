@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-<title>DCX XTray - Dialog Control Xtension DLL v3.1 by ClickHeRe, twig* &amp; Ook</title>
+<title>DCX XThumbnail - Dialog Control Xtension DLL v3.1 by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -65,33 +65,98 @@
 	</ul>
 	</td>
 <td><table class="description">
-	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>XTray</td></tr>
-	<tr><td>XTray allows you to create and modify icons in the system tray. They provide a useful indication of your status, tooltips, and can also receive basic mouse events.<br /><br />
+	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>XThumbnail</td></tr>
+	<tr><td>XThumbnail allows you to create and modify buttons in the taskbar preview window. These can be used to execute scripted commands without activating the mIRC window.<br /><br />
 <div style="text-align: center;">
-	<img src="images/xtray.png" alt="" />
+	<img src="images/xthumbnail.png" alt="" />
 </div>
 </td></tr>
 </table>
 <table class="description">
-	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xtray"></a>/xtray Command</td></tr>
-	<tr><td>The /xtray command is used to manipulate icons in the system tray.</td></tr>
+	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xthumbnail"></a>/xthumbnail Command</td></tr>
+	<tr><td>The /xthumbnail command is used to manipulate buttons in the taskbar preview window.</td></tr>
 </table>
-<table class="xtray">
+<table class="xthumbnail">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xtray.c"></a>/xtray -c	</td></tr>
-	<tr><td colspan="2">This command creates a trayicon.</td></tr>
+			<a name="xthumbnail.b"></a>/xthumbnail -b	</td></tr>
+	<tr><td colspan="2">This command adds a button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtray -c [ID] [+FLAGS] [INDEX] [FILENAME] (TAB) (TOOLTIP)</div></td>
+		<td><div class="syntax">/xthumbnail -b [ID] [IMAGE] [TOOLTIP]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xtray -c 3 + 4 mirc.exe $chr(9) This is the trayicon tooltip<br />/xtray -c 3 +g 2 mirc.exe<br /></div></td>
+		<td><div class="example">/xthumbnail -b 1 4 This is a new button</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ID</td>
+		<td>The unique ID that this button will be recognised by. (1-7)</td>
+	</tr>
+	<tr>
+		<td class="param">IMAGE</td>
+		<td>The image index to use.</td>
+	</tr>
+	<tr>
+		<td class="param">TOOLTIP</td>
+		<td>The tooltip for the trayicon.</td>
+	</tr>
+</table>
+<br />
+<table class="xthumbnail">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xthumbnail.e"></a>/xthumbnail -e	</td></tr>
+	<tr><td colspan="2">This command applies all changes made and enables or disables buttons.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xthumbnail -e [1|0]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xthumbnail -e 1</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">STATE</td>
+		<td>1 == Enable or 0 == disable.</td>
+	</tr>
+</table>
+<br />
+<table class="xthumbnail">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xthumbnail.r"></a>/xthumbnail -r	</td></tr>
+	<tr><td colspan="2">This command removes a button.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xthumbnail -r </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xthumbnail -r</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">ID</td>
 		<td>The unique ID that this trayicon will be recognised by.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
+<br />
+<table class="xthumbnail">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xthumbnail.w"></a>/xthumbnail -w	</td></tr>
+	<tr><td colspan="2">This command adds an icon to the internal list.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xthumbnail -w [+FLAGS] [INDEX] [FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xthumbnail -w + 4 mirc.exe<br />/xthumbnail -w +g 2 mirc.exe<br />/xthumbnail -w +P 0 image.png<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">INDEX</td>
+		<td>Icon index in icon archive</td>
 	</tr>
 	<tr>
 		<td class="param">+FLAGS</td>
@@ -114,219 +179,77 @@
 		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
 	</tr>
 	<tr>
-		<td class="param">INDEX</td>
-		<td>Icon index in icon archive</td>
-	</tr>
-	<tr>
 		<td class="param">FILENAME</td>
 		<td>Icon archive filename</td>
 	</tr>
-	<tr>
-		<td class="param">TOOLTIP</td>
-		<td>The tooltip for the trayicon.</td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</li><li>Use <a class="value">-1</a> for <a class="param">INDEX</a> to load all icons in a file.</li><li><a class="param">INDEX</a> supports ranges eg: 1-7,12</li></ul></td></tr></table>
 <br />
-<table class="xtray">
+<table class="xthumbnail">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xtray.d"></a>/xtray -d	</td></tr>
-	<tr><td colspan="2">This command deletes the trayicon.</td></tr>
+			<a name="xthumbnail.y"></a>/xthumbnail -y	</td></tr>
+	<tr><td colspan="2">This command clears the image list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtray -d [ID] </div></td>
+		<td><div class="syntax">/xthumbnail -y </div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xtray -d 3</div></td>
+		<td><div class="example">/xthumbnail -y</div></td>
 	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">ID</td>
-		<td>The unique ID that this trayicon will be recognised by.</td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
+</table>
 <br />
-<table class="xtray">
+<table class="xthumbnail">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xtray.e"></a>/xtray -e	</td></tr>
-	<tr><td colspan="2">This command edits a trayicon.</td></tr>
+			<a name="xthumbnail.big.W"></a>/xthumbnail -W	</td></tr>
+	<tr><td colspan="2">This command adds a bitmap file.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtray -e [ID] [+FLAGS] [INDEX] [FILENAME] ([TAB] TOOLTIP)</div></td>
+		<td><div class="syntax">/xthumbnail -W [FILENAME]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xtray -e 3 + 4 mirc.exe $chr(9) This is the new trayicon tooltip<br />/xtray -e 3 +g 2 mirc.exe<br /></div></td>
+		<td><div class="example">/xthumbnail -W image.bmp</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">ID</td>
-		<td>The unique ID that this trayicon will be recognised by.</td>
-	</tr>
-	<tr>
-		<td class="param">+FLAGS</td>
-		<td>Icon flags</td>
-	</tr>
-	<tr>
-		<td class="value">a</td>
-		<td>Uses the icon associated with the given file (as shown in Windows Explorer).<br /><a class="note">Note:</a> File must exist.</td>
-	</tr>
-	<tr>
-		<td class="value">f</td>
-		<td>Uses the icon associated with the given filetype.<br /><a class="note">Note:</a> Filename is the extension (eg. BMP, PNG, AVI, etc).</td>
-	</tr>
-	<tr>
-		<td class="value">g</td>
-		<td>Convert to grayscale icon.</td>
-	</tr>
-	<tr>
-		<td class="value">P</td>
-		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
-	</tr>
-	<tr>
-		<td class="param">INDEX</td>
-		<td>Icon index in icon archive</td>
-	</tr>
 	<tr>
 		<td class="param">FILENAME</td>
-		<td>Icon archive filename</td>
-	</tr>
-	<tr>
-		<td class="param">TOOLTIP</td>
-		<td>The tooltip for the trayicon.</td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
-<br />
-<table class="xtray">
-	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xtray.i"></a>/xtray -i	</td></tr>
-	<tr><td colspan="2">This command edits the trayicon icon.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtray -i [ID] [+FLAGS] [INDEX] [FILENAME]</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xtray -i 3 + 4 mirc.exe</div></td>
-	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">ID</td>
-		<td>The unique ID that this trayicon will be recognised by.</td>
-	</tr>
-	<tr>
-		<td class="param">+FLAGS</td>
-		<td>Icon flags</td>
-	</tr>
-	<tr>
-		<td class="value">a</td>
-		<td>Uses the icon associated with the given file (as shown in Windows Explorer).<br /><a class="note">Note:</a> File must exist.</td>
-	</tr>
-	<tr>
-		<td class="value">f</td>
-		<td>Uses the icon associated with the given filetype.<br /><a class="note">Note:</a> Filename is the extension (eg. BMP, PNG, AVI, etc).</td>
-	</tr>
-	<tr>
-		<td class="value">g</td>
-		<td>Convert to grayscale icon.</td>
-	</tr>
-	<tr>
-		<td class="value">P</td>
-		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
-	</tr>
-	<tr>
-		<td class="param">INDEX</td>
-		<td>Icon index in icon archive</td>
-	</tr>
-	<tr>
-		<td class="param">FILENAME</td>
-		<td>Icon archive filename</td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
-<br />
-<table class="xtray">
-	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xtray.big.T"></a>/xtray -T	</td></tr>
-	<tr><td colspan="2">This command edits the trayicon tooltip.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtray -T [ID] [TOOLTIP]</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xtray -T 3 This is the new trayicon tooltip</div></td>
-	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">ID</td>
-		<td>The unique ID that this trayicon will be recognised by.</td>
-	</tr>
-	<tr>
-		<td class="param">TOOLTIP</td>
-		<td>The tooltip for the trayicon.</td>
+		<td>Image filename</td>
 	</tr>
 </table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>XTray Signals</td></tr>
+	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>xThumbnail Signals</td></tr>
 	<tr><td><table class="event">
-	<tr><td colspan="2">XTray signals are enabled by default and sent to mIRC containing information about mouse activity over the trayicon. To enable or disable signal messages for trayicons, refer to <a class="value"><a href="dcx.htm#general.xSignal">/dcx xSignal</a></a></td></tr>
+	<tr><td colspan="2">XThumbnail signals are always enabled and sent to mIRC when a button is pressed.</td></tr>
 	<tr>
 		<td class="syntax">Signal:</td>
-		<td><div class="syntax">DCX trayicon EVENT ID</div></td>
+		<td><div class="syntax">DCX thumb mIRC ID</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">DCX trayicon dclick 1</div></td>
+		<td><div class="example">DCX thumb mIRC 1</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
-		<td class="param">trayicon</td>
+		<td class="param">thumb</td>
 		<td>The event signal identifier.</td>
 	</tr>
 	<tr>
-		<td class="param">EVENT</td>
-		<td>Information about event occurred.</td>
-	</tr>
-	<tr>
-		<td class="value">dclick</td>
-		<td>The trayicon was double clicked.</td>
-	</tr>
-	<tr>
-		<td class="value">rdclick</td>
-		<td>The trayicon was double right-clicked.</td>
-	</tr>
-	<tr>
-		<td class="value">mdclick</td>
-		<td>The trayicon was double middle-clicked.</td>
-	</tr>
-	<tr>
-		<td class="value">sclick</td>
-		<td>The trayicon was single left-clicked.</td>
-	</tr>
-	<tr>
-		<td class="value">rclick</td>
-		<td>The trayicon was single right-clicked.</td>
-	</tr>
-	<tr>
-		<td class="value">mclick</td>
-		<td>The trayicon was single middle-clicked.</td>
-	</tr>
-	<tr>
 		<td class="param">ID</td>
-		<td>The unique ID which the trayicon was created with.</td>
+		<td>The unique ID which the button was created with. (1-7)</td>
 	</tr>
 </table>
 </td></tr>
 </table>
 </td><td width="80%" valign="top" class="menuright">
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
-	<a class='header' href="#xtray"><div style='background:#6A7CB0;'>/xtray Flags</div></a>
-		<a class='flag' href="#xtray.c"><div>c</div></a>
-		<a class='flag' href="#xtray.d"><div>d</div></a>
-		<a class='flag' href="#xtray.e"><div>e</div></a>
-		<a class='flag' href="#xtray.i"><div>i</div></a>
-		<a class='flag' href="#xtray.big.T"><div>T</div></a>
+	<a class='header' href="#xthumbnail"><div style='background:#6A7CB0;'>/xthumbnail</div></a>
+		<a class='flag' href="#xthumbnail.b"><div>-b</div></a>
+		<a class='flag' href="#xthumbnail.e"><div>-e</div></a>
+		<a class='flag' href="#xthumbnail.r"><div>-r</div></a>
+		<a class='flag' href="#xthumbnail.w"><div>-w</div></a>
+		<a class='flag' href="#xthumbnail.y"><div>-y</div></a>
+		<a class='flag' href="#xthumbnail.big.W"><div>-W</div></a>
 	</div>
 </td>
   </tr>
