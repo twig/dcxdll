@@ -5733,7 +5733,12 @@ LRESULT DcxListView::DrawGroup(LPNMLVCUSTOMDRAW lplvcd)
 			//DcxUXModule::dcxHitTestThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_COLLAPSEBUTTON, iButtonStateId, HTTB_BACKGROUNDSEG, &lplvcd->rcText, nullptr, pt, &wHitCode);
 
 			if (PtInRect(&rcButton, pt))
+			{
+				if ((GetKeyState(VK_LBUTTON) & 0x8000) != 0)
+					iButtonStateId = LVEB_PUSHED;
+				else
 				iButtonStateId = LVEB_HOVER;
+			}
 
 			if (IsGroupCollapsed(gsl::narrow_cast<int>(lplvcd->nmcd.dwItemSpec)))
 				DcxUXModule::dcxDrawThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_EXPANDBUTTON, iButtonStateId, &rcButton, nullptr);
