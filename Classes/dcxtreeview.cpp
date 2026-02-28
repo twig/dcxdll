@@ -47,6 +47,9 @@ DcxTreeView::DcxTreeView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 	if (ws.m_NoTheme)
 		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
+	if (m_bExplorerTheme)
+		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L"explorer", nullptr);
+
 	setNoThemed(ws.m_NoTheme);
 
 	SendMessage(m_Hwnd, CCM_SETVERSION, COMCTL32_VERSION, 0);
@@ -137,6 +140,9 @@ dcxWindowStyles DcxTreeView::parseControlStyles(const TString& tsStyles)
 			break;
 		case L"custom"_hash:
 			m_bCustomDraw = true;
+			break;
+		case L"explorer"_hash:
+			m_bExplorerTheme = true;
 			break;
 		default:
 			break;

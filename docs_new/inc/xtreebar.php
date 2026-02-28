@@ -170,6 +170,8 @@ function get_xtreebar(&$XTREEBAR) {
 
                 'richtooltip' => 'Allow rich tooltips in the tree view (custom drawn with icon and text). [o]Vista[/o]',
                 'norichtooltip' => 'Disables rich tooltips in the tree view (custom drawn with icon and text). [o]Vista[/o]',
+
+           		'explorer' => 'Set control to use the explorer style expand buttons. [o]Vista[/o]',
             ),
             '__notes' => array(
                 'Using [s]noscroll[/s] while the scrollbar is visible may lead to graphical glitches.',

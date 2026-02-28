@@ -438,6 +438,11 @@ mIRC(xtreebar)
 						RemStyles(tips, GWL_STYLE, TTS_BALLOON);
 				}
 				break;
+				case L"explorer"_hash: // explorer
+				{
+					DcxUXModule::dcxSetWindowTheme(mIRCLinker::getTreeview(), L"explorer", nullptr);
+				}
+				break;
 				default: // unknown style ignore.
 					throw Dcx::dcxException(TEXT("Unknown Style: %"), x);
 				}
@@ -509,10 +514,10 @@ mIRC(xtreebar)
 			case TEXT('H'): // hot bkg colour
 				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)) = clr;
 				break;
-			case TEXT('p'): // hot bkg colour
+			case TEXT('p'): // Percent bar colour
 				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR)) = clr;
 				break;
-			case TEXT('P'): // hot bkg colour
+			case TEXT('P'): // Percent bar bkg colour
 				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG)) = clr;
 				break;
 			default:

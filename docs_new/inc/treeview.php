@@ -49,6 +49,8 @@ function get_styles_treeview(&$STYLES) {
 		'richtooltip' => 'Allow rich tooltips in the tree view (custom drawn with icon and text). [o]Vista[/o]',
 		'dimmedchecks' => 'Adds a checkbox on the leftmost side of a given item that contains an icon of a dimmed check mark, that can indicate that a node is selected because its parent is selected. This includes a dimmed checkbox state in addition to 2 normal checkbox states. Do NOT use at the same time as the [s]checkbox[/s] style',
 
+		'explorer' => 'Set control to use the explorer style expand buttons. [o]Vista[/o]',
+
 		'custom' => 'Enable custom drawing code. (this allows mirc ctrl codes in text)',
 
 //TVS_EX_DIMMEDCHECKBOXES 

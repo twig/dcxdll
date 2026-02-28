@@ -300,6 +300,8 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 	if (!pthis)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
+	//const WindowMessages mm = gsl::narrow_cast<WindowMessages>(uMsg);
+
 	switch (uMsg)
 	{
 		//case WM_SIZE:
@@ -529,6 +531,8 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 	const auto pthis = Dcx::dcxGetProp<DcxDock*>(mHwnd, TEXT("DcxDock"));
 	if (!pthis)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+
+	//const WindowMessages mm = gsl::narrow_cast<WindowMessages>(uMsg);
 
 	switch (uMsg)
 	{
@@ -816,18 +820,6 @@ void DcxDock::UnInitStatusbar() noexcept
 		DcxDock::status_cleanPartIcons();
 		DestroyWindow(g_StatusBar);
 
-		//auto itStart = DcxDock::g_vParts.begin();
-		//auto itEnd = DcxDock::g_vParts.end();
-		//
-		//while (itStart != itEnd) {
-		//	if (*itStart != nullptr) {
-		//		if ((*itStart)->m_BkgCol != nullptr)
-		//			DeleteBrush((*itStart)->m_BkgCol);
-		//		delete *itStart;
-		//	}
-		//	++itStart;
-		//}
-
 		for (const auto& x : DcxDock::g_vParts)
 		{
 			if (x)
@@ -852,7 +844,7 @@ void DcxDock::UnInitStatusbar() noexcept
 
 bool DcxDock::IsStatusbar() noexcept
 {
-	return (IsWindow(g_StatusBar) != FALSE);
+	return !!IsWindow(g_StatusBar);
 }
 
 std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxDock::status_parseControlStyles(const TString& styles)
@@ -872,9 +864,6 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxDock::status_parseControlStyl
 			break;
 		case TEXT("tooltips"_hash):
 			Styles |= SBARS_TOOLTIPS;
-			break;
-		case TEXT("nodivider"_hash):
-			Styles |= CCS_NODIVIDER;
 			break;
 		case TEXT("notheme"_hash):
 			bNoTheme = true;
@@ -1483,17 +1472,3 @@ bool DcxDock::treebar_GetInfoTip(LPNMTVGETINFOTIP tcgit)
 	}
 	return true;
 }
-
-//UINT DcxDock::getTreebarChildState(const HTREEITEM hParent, LPTVITEMEX pitem)
-//{
-//	ZeroMemory(pitem, sizeof(TVITEMEX));
-//	for (HTREEITEM ptvitem = TreeView_GetChild(mIRCLinker::getTreeview(), hParent); ptvitem != nullptr; ptvitem = TreeView_GetNextSibling(mIRCLinker::getTreeview(), ptvitem)) {
-//		pitem->hItem = ptvitem;
-//		pitem->mask = TVIF_STATE|TVIF_CHILDREN;
-//		pitem->stateMask = TVIS_EXPANDED;
-//
-//		if (TreeView_GetItem(mIRCLinker::getTreeview(), pitem)) {
-//		}
-//		TraverseChildren(ptvitem, buf, res, pitem);
-//	}
-//}
