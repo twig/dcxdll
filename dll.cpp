@@ -2717,18 +2717,17 @@ mIRC(Thumbnail)
 		if (d.empty())
 			throw DcxExceptions::dcxInvalidArguments();
 
-		// [+FLAGS] [ARGS]
-		// +w [+ICON FLAGS] [N,N2-N3,...] [FILENAME]
-		// +W [FILENAME]
-		// +e [1|0]
-		// +y
-		// +b [ID 1->7] [IMAGE] [TOOLTIP]
-		// +r [ID 1->7|all]
-		const auto tsFlags(d.getfirsttok(1));
-		const XSwitchFlags xFlags(tsFlags);
+		// [-CMD] [ARGS]
+		// -w [+ICON FLAGS] [N,N2-N3,...] [FILENAME]
+		// -W [FILENAME]
+		// -e [1|0]
+		// -y
+		// -b [ID 1->7] [IMAGE] [TOOLTIP]
+		// -r [ID 1->7|all]
+		const XSwitchFlags xCmd(d.getfirsttok(1));
 
-		if (!xFlags[L'+'])
-			throw DcxExceptions::dcxInvalidFlag();
+		if (!xCmd[L'-'])
+			throw DcxExceptions::dcxInvalidCommand();
 
 		if (!Dcx::m_pTaskbarList)
 		{
@@ -2740,7 +2739,7 @@ mIRC(Thumbnail)
 				throw Dcx::dcxException("Unable to init instance.");
 		}
 
-		if (xFlags[L'w'])
+		if (xCmd[L'w'])
 		{
 			// load icon
 			if (!Dcx::m_hTaskbarImages)
@@ -2762,7 +2761,7 @@ mIRC(Thumbnail)
 			else
 				Dcx::dcxLoadIconRange(Dcx::m_hTaskbarImages, tsFilename, false, tsIconFlags, tsIndexes);
 		}
-		else if (xFlags[L'W'])
+		else if (xCmd[L'W'])
 		{
 			// load image
 			if (!Dcx::m_hTaskbarImages)
@@ -2780,14 +2779,14 @@ mIRC(Thumbnail)
 				ImageList_Add(Dcx::m_hTaskbarImages, hBm, nullptr);
 			}
 		}
-		else if (xFlags[L'y'])
+		else if (xCmd[L'y'])
 		{
 			// clear images
 			if (Dcx::m_hTaskbarImages)
 				ImageList_Destroy(Dcx::m_hTaskbarImages);
 			Dcx::m_hTaskbarImages = nullptr;
 		}
-		else if (xFlags[L'b'])
+		else if (xCmd[L'b'])
 		{
 			// add button
 			const auto uIndex = d.getnexttokas<UINT>() - 1;
@@ -2802,7 +2801,7 @@ mIRC(Thumbnail)
 			Dcx::m_ThumbButtons[uIndex].dwMask = THB_FLAGS | THB_BITMAP | THB_TOOLTIP;
 			Dcx::m_ThumbButtons[uIndex].dwFlags = THBF_ENABLED | THBF_DISMISSONCLICK;
 		}
-		else if (xFlags[L'r'])
+		else if (xCmd[L'r'])
 		{
 			// remove button
 			if (const auto tsIndex(d.getnexttok()); tsIndex == L"all")
@@ -2823,7 +2822,7 @@ mIRC(Thumbnail)
 				Dcx::m_ThumbButtons[uIndex].dwFlags = THBF_DISABLED | THBF_HIDDEN;
 			}
 		}
-		else if (xFlags[L'e'])
+		else if (xCmd[L'e'])
 		{
 			// enable/disable
 			// applies all changes made.
