@@ -11,7 +11,8 @@ function get_styles_statusbar(&$STYLES) {
 		"top" => "The statusbar is auto-positioned at top of dialog window.",
 		'noresize' => "Status isn't auto-resized when dialog's size changes",
 		'noparentalign' => "Status isn't auto-positioned when dialog's size changes.",
-                'noauto' => "Prevents the statusbar from being auto-positioned and resized by the parent window. The user will be responsible for the positioning and resizing of the statusbar.",
+        'noauto' => "Prevents the statusbar from being auto-positioned and resized by the parent window. The user will be responsible for the positioning and resizing of the statusbar.",
+       	#"nodivider" => "Don't show a divider between cells.",
 	);
 }
 

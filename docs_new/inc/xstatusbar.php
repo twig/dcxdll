@@ -61,9 +61,17 @@ function get_xstatusbar(&$XSTATUSBAR) {
         'A' => array(
             '__desc' => 'This command enables/disables a statusbar in the mIRC window and applies the styles specified.',
             '__cmd' => '[1|0] (STYLE)',
-            '__eg' => '1 notheme',
+            '__eg' => array(
+                '1',
+                '1 notheme',
+            ),
             '__params' => array(
-                'STYLE' => 'Styles supported by the <a href="statusbar.htm">StatusBar</a> control.',
+        		#"grip" => "Status bar displays a sizing grip. (the grip can display even if not specificly enabled, this is os dependant)",
+		        "tooltips" => "Status bar has tooltips (tooltips only work for cells that have no text or cells where the text does not fit in the cell width).",
+	        	#"nodivider" => "Don't show a divider between cells.",
+	        	"notheme" => "Draw the statusbar without themes.",
+	        	"disabled" => "Disable the control.",
+	        	"transparent" => "Draw the statusbar transparently.",
             ),
             '__notes' => array(
                 'Syntax for controlling the mIRC StatusBar using /xstatusbar is identical to the syntax for the DCX <a href="statusbar.htm">StatusBar</a> control.<br />',

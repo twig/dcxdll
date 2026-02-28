@@ -158,12 +158,16 @@ function get_xtreebar(&$XTREEBAR) {
 
                 'autohscroll' => 'Remove the horizontal scrollbar and auto-scroll depending on mouse position. [o]Vista[/o]',
                 'noautohscroll' => 'Enables the horizontal scrollbar and auto-scroll depending on mouse position. [o]Vista[/o]',
+
                 'doublebuffer' => 'Specifies how the background is erased or filled. [o]Vista[/o]',
                 'nodoublebuffer' => 'Specifies how the background is erased or filled. [o]Vista[/o]',
+
                 'fadebuttons' => 'Fade expand buttons in or out when the mouse moves away or into a state of hovering over the control. [o]Vista[/o]',
                 'nofadebuttons' => 'Does not fade expand buttons in or out when the mouse moves away or into a state of hovering over the control. [o]Vista[/o]',
+
                 'indent' => 'Indents the tree view for the expand buttons. [o]Vista[/o]',
                 'noindent' => 'Does not indent the tree view for the expand buttons. [o]Vista[/o]',
+
                 'richtooltip' => 'Allow rich tooltips in the tree view (custom drawn with icon and text). [o]Vista[/o]',
                 'norichtooltip' => 'Disables rich tooltips in the tree view (custom drawn with icon and text). [o]Vista[/o]',
             ),
