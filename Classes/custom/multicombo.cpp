@@ -862,9 +862,9 @@ void MultiCombo_OnThemeChange(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 		lpmcdata->m_hTheme = nullptr;
 	}
 	if (lpmcdata->m_hEdit && IsWindow(lpmcdata->m_hEdit))
-		DcxUXModule::dcxSetWindowTheme(lpmcdata->m_hEdit, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(lpmcdata->m_hEdit, VSCLASS_COMBOBOX, nullptr);
 	if (lpmcdata->m_hDropCtrl && IsWindow(lpmcdata->m_hDropCtrl))
-		DcxUXModule::dcxSetWindowTheme(lpmcdata->m_hDropCtrl, L" ", L" ");
+		DcxUXModule::dcxSetWindowTheme(lpmcdata->m_hDropCtrl, VSCLASS_COMBOBOX, nullptr);
 }
 
 RECT MultiCombo_GetEditRect(LPCRECT rcBase) noexcept
@@ -936,7 +936,7 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 		lpmcdata->m_hBase = mHwnd;
 		lpmcdata->m_Styles = cs->style & MCS_STYLEMASK;
-		lpmcdata->m_hTheme = DcxUXModule::dcxOpenThemeData(mHwnd, WC_COMBOBOXW);
+		lpmcdata->m_hTheme = DcxUXModule::dcxOpenThemeData(mHwnd, VSCLASS_COMBOBOX);
 
 		// ES_NOHIDESEL
 
@@ -979,10 +979,10 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		}
 
 		if (lpmcdata->m_hEdit && IsWindow(lpmcdata->m_hEdit))
-			DcxUXModule::dcxSetWindowTheme(lpmcdata->m_hEdit, WC_COMBOBOXW, nullptr);
+			DcxUXModule::dcxSetWindowTheme(lpmcdata->m_hEdit, VSCLASS_COMBOBOX, nullptr);
 		if (lpmcdata->m_hDropCtrl && IsWindow(lpmcdata->m_hDropCtrl))
 		{
-			DcxUXModule::dcxSetWindowTheme(lpmcdata->m_hDropCtrl, WC_COMBOBOXW, nullptr);
+			DcxUXModule::dcxSetWindowTheme(lpmcdata->m_hDropCtrl, VSCLASS_COMBOBOX, nullptr);
 
 			SetPropW(lpmcdata->m_hDropCtrl, TEXT("mc_data"), lpmcdata.get());
 		}
@@ -1019,7 +1019,7 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 			}
 
 			if (lpmcdata->m_hDropChild)
-				DcxUXModule::dcxSetWindowTheme(lpmcdata->m_hDropChild, WC_COMBOBOXW, nullptr);
+				DcxUXModule::dcxSetWindowTheme(lpmcdata->m_hDropChild, VSCLASS_COMBOBOX, nullptr);
 		}
 	}
 
