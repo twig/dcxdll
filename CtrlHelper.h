@@ -10,6 +10,14 @@
 
 namespace Dcx
 {
+	// Class
+
+	template <typename T>
+	inline T dcxClass_GetPtr(HWND hwnd, int iIndex) noexcept
+	{
+		return reinterpret_cast<T>(GetClassLongPtr(hwnd, iIndex));
+	}
+
 	// Window
 
 	/// <summary>
