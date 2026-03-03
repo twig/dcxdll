@@ -151,6 +151,19 @@ void DcxImage::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 	case L"fname"_hash:
 		szReturnValue = m_tsFilename.to_chr();
 		break;
+
+	case L"index"_hash:
+	{
+		_ts_snprintf(szReturnValue, TEXT("%d"), m_iIconIndex);
+	}
+	break;
+
+	case L"iconsize"_hash:
+	{
+		_ts_snprintf(szReturnValue, TEXT("%d"), m_iIconSize);
+	}
+	break;
+
 #ifdef DCX_USE_GDIPLUS
 	case L"frames"_hash:
 		_ts_snprintf(szReturnValue, TEXT("%u"), m_FrameCount);
