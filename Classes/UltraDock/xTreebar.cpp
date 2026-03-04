@@ -392,11 +392,11 @@ mIRC(xtreebar)
 					tvexstylef &= ~TVS_EX_FADEINOUTEXPANDOS;
 					tvexstylemask |= TVS_EX_FADEINOUTEXPANDOS;
 					break;
-				case L"ident"_hash: // indent
+				case L"indent"_hash: // indent
 					tvexstylef &= ~TVS_EX_NOINDENTSTATE;
 					tvexstylemask |= TVS_EX_NOINDENTSTATE;
 					break;
-				case L"noident"_hash: // noident
+				case L"noindent"_hash: // noident
 					tvexstylef |= TVS_EX_NOINDENTSTATE;
 					tvexstylemask |= TVS_EX_NOINDENTSTATE;
 					break;
