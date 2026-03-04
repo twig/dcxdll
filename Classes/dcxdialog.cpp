@@ -1534,16 +1534,9 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 			{
 				if (tsID == TEXT('0'))	// check its an actual zero, not some text name (which also gives a zero result)
 					_ts_snprintf(szReturnValue, TEXT("%u"), m_vpControls.size());
-				else
-				{
-					//const auto it = m_NamedIds.find(tsID);
-					//if (it != m_NamedIds.end())
-					//	_ts_snprintf(szReturnValue, TEXT("%u"), it->second - mIRC_ID_OFFSET);
-
-					if (const auto nID = this->NameToUserID(tsID); nID > 0)
+				else if (const auto nID = this->NameToUserID(tsID); nID > 0)
 						_ts_snprintf(szReturnValue, TEXT("%u"), nID);
 				}
-			}
 			else if ((N > -1) && (N < gsl::narrow_cast<int>(m_vpControls.size())))
 				_ts_snprintf(szReturnValue, TEXT("%u"), gsl::at(m_vpControls, gsl::narrow_cast<UINT>(N))->getUserID());
 		}
@@ -1552,9 +1545,10 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 	case L"namedid"_hash:
 		if (numtok > 2)
 		{
-			const auto tsID(input.getnexttok());	// tok 3
+			//const auto tsID(input.getnexttok());	// tok 3
+			//szReturnValue = this->UserIDToName(tsID.to_<int>()).to_chr();
 
-			szReturnValue = this->UserIDToName(tsID.to_<int>()).to_chr();
+			szReturnValue = this->UserIDToName(input.getnexttokas<UINT>()).to_chr();
 		}
 		break;
 
@@ -1653,13 +1647,6 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 
 			if (n > size)
 				throw Dcx::dcxException("Out Of Range");
-
-			//// return total number of id's
-			//if (n == 0)
-			//	wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), size);
-			//// return the Nth id
-			//else
-			//	wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_vZLayers[n - 1] - mIRC_ID_OFFSET);
 
 			// return total number of id's
 			if (n == 0)
@@ -1767,6 +1754,26 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 	case L"icon"_hash:
 	{
 		szReturnValue = this->m_tsIconData;
+	}
+	break;
+
+	case L"font"_hash:
+	{
+		TString tsResult;
+
+		auto hFontControl = GetWindowFont(m_Hwnd);
+
+		if (!hFontControl)
+			hFontControl = Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT);
+
+		if (hFontControl)
+		{
+			if (auto [code, lfCurrent] = Dcx::dcxGetObject<LOGFONT>(hFontControl); code != 0)
+			{
+				tsResult = ParseLogfontToCommand(&lfCurrent);
+			}
+		}
+		szReturnValue = tsResult;
 	}
 	break;
 
