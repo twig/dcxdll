@@ -106,6 +106,8 @@ function get_xdidprops_image(&$XDIDPROPS) {
         'fname' => 'This property returns loaded filename (if any).',
         'frames' => 'This property returns the number of frames in an animation (if any).',
         'isanimated' => 'This property returns if a loaded image is an animation.',
+        'index' => 'This property returns the index of the loaded icon.',
+        'iconsize' => 'This property returns the size of the loaded icon.',
 		"delay" => array(
 		    '__desc' => "This property returns the frame delay for the specified frame.",
 		    '__cmd' => '[N]',

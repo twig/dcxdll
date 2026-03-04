@@ -645,6 +645,10 @@ function get_xdialogprops_xdialog(&$XDIALOGPROPS) {
         ),
         'zlayercurrent' => 'This property retrieves the currently selected internal list index.',
 		'glasscolor' => 'Returns the colour used by the system for glass effect.',
+		"font" => array(
+			'__desc' => "This property returns the font used for text in the dialog.",
+			'__notes' => 'The return value is in the format [v]+flags[/v] [v]charset[/v] [v]size[/v] [v]fontname[/v], where [v]+flags[/v] is specfied in <a class="xdid" href="xdid.htm#xdid.f">/xdid -f</a>',
+		),
 	);
 }
 
