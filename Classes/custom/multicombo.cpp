@@ -1758,7 +1758,10 @@ void MultiCombo_SetEditToCurSel(HWND mHwnd) noexcept
 			{
 				lpmcdata->m_CurrentEditBkgColour = lpdata->m_clrItem;
 				lpmcdata->m_CurrentEditColour = CreateSolidBrush(lpdata->m_clrItem);
-				lpmcdata->m_CurrentEditTextColour = lpdata->m_clrText;
+				if (lpdata->m_clrText != CLR_INVALID)
+					lpmcdata->m_CurrentEditTextColour = lpdata->m_clrText;
+				else
+					lpmcdata->m_CurrentEditTextColour = GetContrastColour(lpdata->m_clrItem);
 				SetWindowText(lpmcdata->m_hEdit, lpdata->m_tsItemText.to_chr());
 			}
 		}

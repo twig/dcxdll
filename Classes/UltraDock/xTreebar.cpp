@@ -372,10 +372,12 @@ mIRC(xtreebar)
 				case L"noscroll"_hash: // noscroll (NB: this can lead to gfx glitches with scroll bars already shown)
 					stylef |= TVS_NOSCROLL;
 					break;
-				case L"showsel"_hash: // showsel (on by default)
+				case L"showsel"_hash: // showselalways (on by default)
+				case L"showselalways"_hash: // showselalways (on by default)
 					stylef |= TVS_SHOWSELALWAYS;
 					break;
-				case L"noshowsel"_hash: // noshowsel
+				case L"noshowsel"_hash: // noshowselalways
+				case L"noshowselalways"_hash: // noshowselalways
 					stylef &= ~TVS_SHOWSELALWAYS;
 					break;
 				case L"transparent"_hash: // transparent
@@ -441,6 +443,11 @@ mIRC(xtreebar)
 				case L"explorer"_hash: // explorer
 				{
 					DcxUXModule::dcxSetWindowTheme(mIRCLinker::getTreeview(), L"explorer", nullptr);
+				}
+				break;
+				case L"noexplorer"_hash: // noexplorer
+				{
+					DcxUXModule::dcxSetWindowTheme(mIRCLinker::getTreeview(), VSCLASS_TREEVIEW, nullptr);
 				}
 				break;
 				default: // unknown style ignore.
@@ -760,9 +767,9 @@ mIRC(_xtreebar)
 			else
 				tsRes.addtok(TEXT("indent"));
 			if (dcx_testflag(tvexstylef, TVS_EX_DOUBLEBUFFER))
-				tsRes.addtok(TEXT("buffer"));
+				tsRes.addtok(TEXT("doublebuffer"));
 			else
-				tsRes.addtok(TEXT("nobuffer"));
+				tsRes.addtok(TEXT("nodoublebuffer"));
 			if (dcx_testflag(tvexstylef, TVS_EX_AUTOHSCROLL))
 				tsRes.addtok(TEXT("autohscroll"));
 			else
