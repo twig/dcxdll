@@ -151,9 +151,9 @@ LRESULT DcxMultiCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 				if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				{
-					const auto nItem = getCurSel();
+					const auto nItem = getCurSel() + 1;
 
-					this->execAliasEx(TEXT("sclick,%u,%d"), getUserID(), nItem + 1);
+					this->execAliasEx(TEXT("sclick,%u,%d"), getUserID(), nItem);
 				}
 			}
 			break;
@@ -164,9 +164,9 @@ LRESULT DcxMultiCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 				if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 				{
-					const auto nItem = getCurSel();
+					const auto nItem = getCurSel() + 1;
 
-					this->execAliasEx(TEXT("dclick,%u,%d"), getUserID(), nItem + 1);
+					this->execAliasEx(TEXT("dclick,%u,%d"), getUserID(), nItem);
 				}
 			}
 			break;
@@ -183,18 +183,17 @@ LRESULT DcxMultiCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 		if ((lpmis->CtlType == MCOMBO_TYPE) && (lpmis->itemID == MC_ID_DROP))
 		{
-			//lpMeasureItem->itemHeight = 160;
-			//lpMeasureItem->itemWidth = 200;
-
-			//const auto pDialog = getParentDialog();
-			//if (!pDialog)
-			//	break;
-
 			if (dcx_testflag(getEventMask(), DCX_EVENT_SIZE))
 			{
 				TString tsBuf(gsl::narrow_cast<TString::size_type>(128u));
 				evalAliasEx(tsBuf.to_chr(), gsl::narrow_cast<int>(tsBuf.capacity_cch()), TEXT("measureitem,%u,%u,%u"), getUserID(), lpmis->itemWidth, lpmis->itemHeight);
 
+				if (tsBuf.empty())
+				{
+					lpmis->itemHeight = 240u;
+					lpmis->itemWidth = 250u;
+				}
+				else
 				{
 					const UINT width = tsBuf.getfirsttok(1).to_<UINT>();
 					const UINT height = tsBuf.getlasttoks().to_<UINT>();
@@ -388,7 +387,7 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 			const auto tsMatchText(input.getnexttok());
 
 			const dcxSearchData srch_data(tsMatchText, FlagsToSearchType(xFlags));
-			for (auto nPos = Ns.to_int(); nPos < nItems; ++nPos)
+			for (auto nPos = Ns.to_int() - 1; nPos < nItems; ++nPos)
 			{
 				if (this->matchItemText(nPos, srch_data))
 					SendMessage(m_Hwnd, MC_WM_DELETEITEM, nPos--, 0); // NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again

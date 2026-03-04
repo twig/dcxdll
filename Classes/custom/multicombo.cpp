@@ -153,6 +153,34 @@ namespace
 		//}
 		//break;
 
+		//case WM_WINDOWPOSCHANGING:
+		//{
+		//	//wParam
+		//	//	This parameter is not used.
+		//	//lParam
+		//	//	A pointer to a WINDOWPOS structure that contains information about the window's new size and position.
+
+		//	LPWINDOWPOS wp = reinterpret_cast<LPWINDOWPOS>(lParam);
+
+		//	// size drop window child to match drop window.
+		//	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
+		//	if (!lpmcdata)
+		//		break;
+
+		//	if (IsWindow(lpmcdata->m_hDropChild))
+		//	{
+		//		//wp->
+		//		if (RECT rcClient{}; GetClientRect(mHwnd, &rcClient))
+		//		{
+		//			const auto width = rcClient.right;
+		//			const auto height = rcClient.bottom;
+		//			SetWindowPos(lpmcdata->m_hDropChild, nullptr, 0, 0, width, height, SWP_NOACTIVATE | SWP_NOOWNERZORDER);
+		//		}
+
+		//	}
+		//}
+		//break;
+
 		case WM_SIZE:
 		{
 			// size drop window child to match drop window.
@@ -487,7 +515,9 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 			lpmcdata->m_hDropChild = hChild;
 			SetParent(lpmcdata->m_hDropChild, lpmcdata->m_hDropCtrl);
 			MultiCombo_AdjustDropRectPos(mHwnd, lpmcdata);
-			SetWindowPos(lpmcdata->m_hDropChild, nullptr, 0, 0, (lpmcdata->m_rcDrop.right - lpmcdata->m_rcDrop.left), (lpmcdata->m_rcDrop.bottom - lpmcdata->m_rcDrop.top), SWP_NOACTIVATE);
+			//SetWindowPos(lpmcdata->m_hDropChild, nullptr, 0, 0, (lpmcdata->m_rcDrop.right - lpmcdata->m_rcDrop.left), (lpmcdata->m_rcDrop.bottom - lpmcdata->m_rcDrop.top), SWP_NOACTIVATE);
+			const Dcx::dcxClientRect rcClient(lpmcdata->m_hDropCtrl);
+			SetWindowPos(lpmcdata->m_hDropChild, nullptr, 0, 0, rcClient.Width(), rcClient.Height(), SWP_NOACTIVATE);
 		}
 		return 0L;
 	}
@@ -521,11 +551,11 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		if (!lpmcdata)
 			return FALSE;
 
-		RECT rc = lpmcdata->m_rcDrop;
-		MapWindowRect(nullptr, mHwnd, &rc);
+		//RECT rc = lpmcdata->m_rcDrop;
+		//MapWindowRect(nullptr, mHwnd, &rc);
+		//*(reinterpret_cast<LPRECT>(lParam)) = rc;
 
-		*(reinterpret_cast<LPRECT>(lParam)) = rc;
-		//return MAKELRESULT((rc.right - rc.left), (rc.bottom - rc.top));
+		*(reinterpret_cast<LPRECT>(lParam)) = lpmcdata->m_rcDrop;
 		return TRUE;
 	}
 	break;
@@ -538,11 +568,13 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		if (!lpmcdata)
 			return 0L;
 
-		RECT oldRC{ lpmcdata->m_rcDrop };
-		MapWindowRect(nullptr, mHwnd, &oldRC);
+		//RECT oldRC{ lpmcdata->m_rcDrop };
+		//MapWindowRect(nullptr, mHwnd, &oldRC);
 
-		RECT rc{ oldRC.left, oldRC.top, gsl::narrow_cast<LONG>(wParam), gsl::narrow_cast<LONG>(lParam) };
-		MapWindowRect(mHwnd, nullptr, &rc);
+		//RECT rc{ oldRC.left, oldRC.top, gsl::narrow_cast<LONG>(wParam), gsl::narrow_cast<LONG>(lParam) };
+		//MapWindowRect(mHwnd, nullptr, &rc);
+
+		const RECT rc{ lpmcdata->m_rcDrop.left, lpmcdata->m_rcDrop.top, gsl::narrow_cast<LONG>(wParam), gsl::narrow_cast<LONG>(lParam) };
 
 		lpmcdata->m_rcDrop = rc;
 
@@ -563,9 +595,10 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		if (!IsWindowVisible(lpmcdata->m_hDropCtrl))
 			return 0l;
 
-		MultiCombo_AdjustDropRectPos(mHwnd, lpmcdata);
-		if (IsWindow(lpmcdata->m_hDropCtrl))
-			MoveWindow(lpmcdata->m_hDropCtrl, lpmcdata->m_rcDrop.left, lpmcdata->m_rcDrop.top, (lpmcdata->m_rcDrop.right - lpmcdata->m_rcDrop.left), (lpmcdata->m_rcDrop.bottom - lpmcdata->m_rcDrop.top), FALSE);
+		//MultiCombo_AdjustDropRectPos(mHwnd, lpmcdata);
+		//if (IsWindow(lpmcdata->m_hDropCtrl))
+		//	MoveWindow(lpmcdata->m_hDropCtrl, lpmcdata->m_rcDrop.left, lpmcdata->m_rcDrop.top, (lpmcdata->m_rcDrop.right - lpmcdata->m_rcDrop.left), (lpmcdata->m_rcDrop.bottom - lpmcdata->m_rcDrop.top), FALSE);
+		MultiCombo_SizeDropWindow(mHwnd, lpmcdata);
 		return 0L;
 	}
 	break;
@@ -717,6 +750,39 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 }
 
+void MultiCombo_SizeDropWindow(HWND mHwnd, LPMCOMBO_DATA lpmcdata) noexcept
+{
+	if (!mHwnd || !lpmcdata)
+		return;
+
+	MultiCombo_AdjustDropRectPos(mHwnd, lpmcdata);
+	if (IsWindow(lpmcdata->m_hDropCtrl))
+	{
+		if (IsWindow(lpmcdata->m_hDropChild))
+		{
+			const RECT rcDrop = lpmcdata->m_rcDrop;
+			RECT rcWin = lpmcdata->m_rcDrop;
+			MapWindowRect(nullptr, lpmcdata->m_hDropCtrl, &rcWin);
+			OffsetRect(&rcWin, -rcWin.left, -rcWin.top);
+
+			SetWindowPos(lpmcdata->m_hDropChild, HWND_TOPMOST, 0, 0, (rcWin.right - rcWin.left), (rcWin.bottom - rcWin.top), SWP_NOACTIVATE);
+
+			// If the resize of the child window to match the drop window for some reason failed (usually due to INTEGRALHEIGHT style in listbox)
+			// then resize drop window to match actual child size.
+			RECT rcChild{}, rcChildMap{};
+			GetWindowRect(lpmcdata->m_hDropChild, &rcChild);
+			rcChildMap = rcChild;
+			MapWindowRect(nullptr, lpmcdata->m_hDropCtrl, &rcChildMap);
+			if (!EqualRect(&rcWin, &rcChildMap))
+			{
+				lpmcdata->m_rcDrop.right = lpmcdata->m_rcDrop.left + (rcChild.right - rcChild.left);
+				lpmcdata->m_rcDrop.bottom = lpmcdata->m_rcDrop.top + (rcChild.bottom - rcChild.top);
+			}
+		}
+		SetWindowPos(lpmcdata->m_hDropCtrl, HWND_TOPMOST, lpmcdata->m_rcDrop.left, lpmcdata->m_rcDrop.top, (lpmcdata->m_rcDrop.right - lpmcdata->m_rcDrop.left), (lpmcdata->m_rcDrop.bottom - lpmcdata->m_rcDrop.top), SWP_NOACTIVATE | SWP_NOSENDCHANGING);
+	}
+}
+
 void MultiCombo_SizeBaseWindowContents(HWND mHwnd, WORD cx, WORD cy) noexcept
 {
 	if (!mHwnd)
@@ -734,10 +800,7 @@ void MultiCombo_SizeBaseWindowContents(HWND mHwnd, WORD cx, WORD cy) noexcept
 
 	lpmcdata->m_rcButton = MultiCombo_GetButtonRect(&rc);
 
-	MultiCombo_AdjustDropRectPos(mHwnd, lpmcdata);
-
-	if (lpmcdata->m_hDropCtrl && IsWindow(lpmcdata->m_hDropCtrl))
-		MoveWindow(lpmcdata->m_hDropCtrl, lpmcdata->m_rcDrop.left, lpmcdata->m_rcDrop.top, (lpmcdata->m_rcDrop.right - lpmcdata->m_rcDrop.left), (lpmcdata->m_rcDrop.bottom - lpmcdata->m_rcDrop.top), FALSE);
+	MultiCombo_SizeDropWindow(mHwnd, lpmcdata);
 }
 
 void MultiCombo_OnLButtonDown(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
@@ -772,24 +835,27 @@ void MultiCombo_OnLButtonUp(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 	{
 		if (!IsWindowVisible(lpmcdata->m_hDropCtrl))
 		{
-			MultiCombo_AdjustDropRectPos(mHwnd, lpmcdata);
+			//MultiCombo_AdjustDropRectPos(mHwnd, lpmcdata);
+			//
+			//SetWindowPos(lpmcdata->m_hDropCtrl, HWND_TOPMOST, lpmcdata->m_rcDrop.left, lpmcdata->m_rcDrop.top, (lpmcdata->m_rcDrop.right - lpmcdata->m_rcDrop.left), (lpmcdata->m_rcDrop.bottom - lpmcdata->m_rcDrop.top), SWP_NOACTIVATE);
+			//ShowWindow(lpmcdata->m_hDropCtrl, SW_SHOWNA);
+			//
+			//{
+			//	// If the resize of the child window to match the drop window for some reason failed (usually due to INTEGRALHEIGHT style in listbox)
+			//	// then resize drop window to match actual child size.
+			//	RECT rcDrop{};
+			//	RECT rcChild{};
+			//	GetWindowRect(lpmcdata->m_hDropCtrl, &rcDrop);
+			//	GetWindowRect(lpmcdata->m_hDropChild, &rcChild);
+			//	if (!EqualRect(&rcDrop, &rcChild))
+			//	{
+			//		lpmcdata->m_rcDrop = rcChild;
+			//		SetWindowPos(lpmcdata->m_hDropCtrl, HWND_TOPMOST, lpmcdata->m_rcDrop.left, lpmcdata->m_rcDrop.top, (lpmcdata->m_rcDrop.right - lpmcdata->m_rcDrop.left), (lpmcdata->m_rcDrop.bottom - lpmcdata->m_rcDrop.top), SWP_NOACTIVATE);
+			//	}
+			//}
 
-			SetWindowPos(lpmcdata->m_hDropCtrl, HWND_TOPMOST, lpmcdata->m_rcDrop.left, lpmcdata->m_rcDrop.top, (lpmcdata->m_rcDrop.right - lpmcdata->m_rcDrop.left), (lpmcdata->m_rcDrop.bottom - lpmcdata->m_rcDrop.top), SWP_NOACTIVATE);
+			MultiCombo_SizeDropWindow(mHwnd, lpmcdata);
 			ShowWindow(lpmcdata->m_hDropCtrl, SW_SHOWNA);
-
-			{
-				// If the resize of the child window to match the drop window for some reason failed (usually due to INTEGRALHEIGHT style in listbox)
-				// then resize drop window to match actual child size.
-				RECT rcDrop{};
-				RECT rcChild{};
-				GetWindowRect(lpmcdata->m_hDropCtrl, &rcDrop);
-				GetWindowRect(lpmcdata->m_hDropChild, &rcChild);
-				if (!EqualRect(&rcDrop, &rcChild))
-				{
-					lpmcdata->m_rcDrop = rcChild;
-					SetWindowPos(lpmcdata->m_hDropCtrl, HWND_TOPMOST, lpmcdata->m_rcDrop.left, lpmcdata->m_rcDrop.top, (lpmcdata->m_rcDrop.right - lpmcdata->m_rcDrop.left), (lpmcdata->m_rcDrop.bottom - lpmcdata->m_rcDrop.top), SWP_NOACTIVATE);
-				}
-			}
 		}
 		else {
 			ShowWindow(lpmcdata->m_hDropCtrl, SW_HIDE);
@@ -907,8 +973,6 @@ RECT MultiCombo_GetDropRect(HWND mHwnd, UINT mID) noexcept
 
 	rc.right = std::max<UINT>(mis.itemWidth, 20U);
 	rc.bottom = std::max<UINT>(mis.itemHeight, 20U);
-
-	MapWindowRect(mHwnd, nullptr, &rc);
 
 	return rc;
 }
@@ -1129,17 +1193,19 @@ void MultiCombo_AdjustDropRectPos(HWND mHwnd, LPMCOMBO_DATA lpmcdata) noexcept
 
 	HWND hParent = GetParent(mHwnd);
 
-	const RECT rcDrop = MultiCombo_GetDropRect(hParent, lpmcdata->m_BaseID);
+	RECT rcDrop = lpmcdata->m_rcDrop;
+	if (IsRectEmpty(&rcDrop))
+		rcDrop = MultiCombo_GetDropRect(hParent, lpmcdata->m_BaseID);
 
-	RECT rcWin{};
-	GetWindowRect(mHwnd, &rcWin);
+	if (RECT rcWin{}; GetWindowRect(mHwnd, &rcWin))
+	{
+		lpmcdata->m_rcDrop.left = rcWin.left;
+		lpmcdata->m_rcDrop.right = rcWin.left + rcDrop.right;
+		lpmcdata->m_rcDrop.top = rcWin.bottom;
+		lpmcdata->m_rcDrop.bottom = rcWin.bottom + rcDrop.bottom;
 
-	lpmcdata->m_rcDrop.left = rcWin.left;
-	lpmcdata->m_rcDrop.right = /*rcWin.left + */rcDrop.right;
-	lpmcdata->m_rcDrop.top = rcWin.bottom;
-	lpmcdata->m_rcDrop.bottom = /*rcWin.bottom + */rcDrop.bottom;
-
-	//OffsetRect(&lpmcdata->m_rcDrop, rcWin.left, rcWin.bottom);
+		//OffsetRect(&lpmcdata->m_rcDrop, rcWin.left, rcWin.bottom);
+	}
 }
 
 void MultiCombo_AdjustDropRectPos(HWND mHwnd) noexcept
@@ -1311,13 +1377,13 @@ BOOL MultiCombo_DrawItem(HWND mHwnd, LPDRAWITEMSTRUCT lpdis)
 		MoveToEx(lpdis->hDC, rcItem.left, rcItem.top, nullptr);
 		LineTo(lpdis->hDC, rcItem.right, rcItem.top);
 
-		MoveToEx(lpdis->hDC, rcItem.right, rcItem.top, nullptr);
+		//MoveToEx(lpdis->hDC, rcItem.right, rcItem.top, nullptr);
 		LineTo(lpdis->hDC, rcItem.right, rcItem.bottom);
 
-		MoveToEx(lpdis->hDC, rcItem.right, rcItem.bottom, nullptr);
+		//MoveToEx(lpdis->hDC, rcItem.right, rcItem.bottom, nullptr);
 		LineTo(lpdis->hDC, rcItem.left, rcItem.bottom);
 
-		MoveToEx(lpdis->hDC, rcItem.left, rcItem.bottom, nullptr);
+		//MoveToEx(lpdis->hDC, rcItem.left, rcItem.bottom, nullptr);
 		LineTo(lpdis->hDC, rcItem.left, rcItem.top);
 	}
 

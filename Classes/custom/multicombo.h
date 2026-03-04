@@ -122,6 +122,7 @@ using LPMCOMBO_DATA = MCOMBO_DATA*;
 
 LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+void MultiCombo_SizeDropWindow(HWND mHwnd, LPMCOMBO_DATA lpmcdata) noexcept;
 void MultiCombo_SizeBaseWindowContents(HWND mHwnd, WORD cx, WORD cy) noexcept;
 void MultiCombo_OnLButtonDown(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 void MultiCombo_OnLButtonUp(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
