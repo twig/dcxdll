@@ -609,6 +609,10 @@ namespace Dcx
 
 			const auto lRes = mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
 
+			// a quick hack to "fix" win10 drawing issue. Does not affect win7, win8 & 11 are untested.
+			if (Dcx::VersInfo.isWin10())
+				KillTimer(mHwnd, Dcx::m_uMenuDrawTimer);
+
 			const POINT pt{ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 			XMenubar.m_Settings.UAHDrawUpdateSysButtons(mHwnd, pt);
 
