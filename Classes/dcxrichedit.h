@@ -137,13 +137,13 @@ protected:
 	{
 		RECT rc{};
 		if (m_Hwnd)
-			Edit_GetRect(m_Hwnd, &rc);
+			Dcx::dcxEdit_GetRect(m_Hwnd, &rc);
 		return rc;
 	}
 	void resetFmtRect() noexcept
 	{
 		if (m_Hwnd)
-			Edit_SetRect(m_Hwnd, nullptr);
+			Dcx::dcxEdit_SetRect(m_Hwnd, nullptr);
 	}
 
 	//void setFmtRect(bool bReset = false) noexcept
@@ -156,7 +156,7 @@ protected:
 	//		GetClientRect(m_Hwnd, &rcClient);
 	//
 	//		rcClient.left += DCX_EDIT_GUTTER_WIDTH;
-	//		Edit_SetRect(m_Hwnd, &rcClient);
+	//		Dcx::dcxEdit_SetRect(m_Hwnd, &rcClient);
 	//	}
 	//}
 
@@ -169,9 +169,9 @@ protected:
 		{
 			rcFmt.left = m_GutterWidth;
 			if (bRedraw)
-				Edit_SetRect(m_Hwnd, &rcFmt);
+				Dcx::dcxEdit_SetRect(m_Hwnd, &rcFmt);
 			else
-				Edit_SetRectNoPaint(m_Hwnd, &rcFmt);
+				Dcx::dcxEdit_SetRectNoPaint(m_Hwnd, &rcFmt);
 		}
 	}
 	RECT getGutterRect() const noexcept
