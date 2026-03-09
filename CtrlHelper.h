@@ -4276,6 +4276,67 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Get Item info.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="index"></param>
+	/// <param name="tcItem"></param>
+	/// <returns></returns>
+	inline bool dcxTabCtrl_GetItem(_In_opt_ HWND hwnd, _In_ int index, _Inout_ const LPTCITEM tcItem) noexcept
+	{
+		if (!hwnd)
+			return false;
+
+		return (TabCtrl_GetItem(hwnd, index, tcItem) != FALSE);
+	}
+
+	/// <summary>
+	/// Get number of items.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns></returns>
+	inline int dcxTabCtrl_GetItemCount(_In_opt_ HWND hwnd) noexcept
+	{
+		if (!hwnd)
+			return -1;
+
+		return TabCtrl_GetItemCount(hwnd);
+	}
+
+	/// <summary>
+	/// Returns the index of the item that has the focus in a tab control.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <returns>Returns the index of the tab item that has the focus.</returns>
+	/// <remarks>The item that has the focus may be different than the selected item.
+	/// </remarks>
+	inline int dcxTabCtrl_GetCurFocus(_In_opt_ HWND hwnd) noexcept
+	{
+		if (!hwnd)
+			return -1;
+
+		return TabCtrl_GetCurFocus(hwnd);
+	}
+
+	/// <summary>
+	/// Inserts a new tab in a tab control.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="index">- Index of the new tab.</param>
+	/// <param name="ptcItem">
+	/// <para>- Pointer to a TCITEM structure that specifies the attributes of the tab.</para>
+	/// <para>The dwState and dwStateMask members of this structure are ignored by this message.</para>
+	/// </param>
+	/// <returns>Returns the index of the new tab if successful, or -1 otherwise.</returns>
+	inline int dcxTabCtrl_InsertItem(_In_opt_ HWND hwnd, _In_ int index, _In_ const LPTCITEM ptcItem) noexcept
+	{
+		if (!hwnd)
+			return -1;
+
+		return TabCtrl_InsertItem(hwnd, index, ptcItem);
+	}
+
+	/// <summary>
 	/// Calculates a tab control's display area given a window rectangle, or calculates the window rectangle that would correspond to a specified display area.
 	/// </summary>
 	/// <param name="hwnd">- Handle to the tab control.</param>
