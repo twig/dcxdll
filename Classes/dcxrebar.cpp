@@ -347,6 +347,21 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 	case L"num"_hash:
 		_ts_snprintf(szReturnValue, TEXT("%d"), this->getBandCount());
 		break;
+	case L"txtcolour"_hash:
+	case L"txtcolor"_hash:
+		_ts_snprintf(szReturnValue, TEXT("%u"), Dcx::dcxRebarCtrl_GetTextColor(m_Hwnd));
+		break;
+	case L"bkcolour"_hash:
+	case L"bkcolor"_hash:
+		_ts_snprintf(szReturnValue, TEXT("%u"), Dcx::dcxRebarCtrl_GetBKColor(m_Hwnd));
+		break;
+	case L"colourscheme"_hash:
+	case L"colorscheme"_hash:
+	{
+		const auto cs = Dcx::dcxRebarCtrl_GetColorScheme(m_Hwnd);
+		_ts_snprintf(szReturnValue, TEXT("%u %u"), cs.clrBtnHighlight, cs.clrBtnShadow);
+	}
+	break;
 	// [NAME] [ID] [PROP] [N]
 	case L"text"_hash:
 	{
@@ -390,13 +405,6 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 		if (n < 0 || n >= this->getBandCount())
 			throw DcxExceptions::dcxInvalidItem();
 
-		//REBARBANDINFO rbi{};
-		//rbi.cbSize = sizeof(REBARBANDINFO);
-		//rbi.fMask = RBBIM_LPARAM;
-		//getBandInfo(gsl::narrow_cast<UINT>(n), &rbi);
-		//if (auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(rbi.lParam); pdcxrbb)
-		//	szReturnValue = pdcxrbb->tsMarkText.to_chr();
-
 		if (const auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(getBandInfo(gsl::narrow_cast<UINT>(n), RBBIM_LPARAM).lParam); pdcxrbb)
 			szReturnValue = pdcxrbb->tsMarkText.to_chr();
 	}
@@ -408,12 +416,6 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 
 		if (n < 0 || n >= this->getBandCount())
 			throw DcxExceptions::dcxInvalidItem();
-
-		//REBARBANDINFO rbi{};
-		//rbi.cbSize = sizeof(REBARBANDINFO);
-		//rbi.fMask = RBBIM_SIZE;
-		//getBandInfo(gsl::narrow_cast<UINT>(n), &rbi);
-		//_ts_snprintf(szReturnValue, TEXT("%u"), rbi.cx);
 
 		_ts_snprintf(szReturnValue, TEXT("%u"), getBandInfo(gsl::narrow_cast<UINT>(n), RBBIM_SIZE).cx);
 	}
@@ -487,7 +489,6 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
  *
  * \param input [NAME] [SWITCH] [ID] (OPTIONS)
  */
-
 void DcxReBar::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
@@ -1085,7 +1086,7 @@ void DcxReBar::addBand(int nIndex, UINT cx, UINT cy, UINT width, int nIcon, COLO
 		rbBand.wID = p_Control->getID();
 	}
 
-	if (this->insertBand(nIndex, &rbBand) == 0L)
+	if (!this->insertBand(nIndex, &rbBand))
 	{ // 0L means failed.
 		this->getParentDialog()->deleteControl(p_Control);
 		if (rbBand.hwndChild)
