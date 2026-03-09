@@ -85,6 +85,7 @@ protected:
 	bool CloseButtonHitTest(_In_ const int iTab) const noexcept;
 
 	LRESULT DrawClientArea(HDC hdc, UINT uMsg, LPARAM lParam);
+	LRESULT DrawItem(_In_ LPDRAWITEMSTRUCT idata);
 
 	void CreatePeek() noexcept;
 	void SetPeekSource(_In_ int iTab, _In_ int iTabSel, _In_opt_ LPCRECT rcItem) const noexcept;

@@ -380,7 +380,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		if (nItem < 0 && nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
 
-		TabCtrl_SetCurSel(m_Hwnd, nItem);
+		Dcx::dcxTabCtrl_SetCurSel(m_Hwnd, nItem);
 		this->activateSelectedTab();
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
@@ -417,9 +417,9 @@ void DcxTab::parseCommandRequest(const TString& input)
 		if (const auto iTotal = getTabCount(); ((curSel == nItem) && (iTotal > 0)))
 		{
 			if (nItem < iTotal)
-				TabCtrl_SetCurSel(m_Hwnd, nItem);
+				Dcx::dcxTabCtrl_SetCurSel(m_Hwnd, nItem);
 			else
-				TabCtrl_SetCurSel(m_Hwnd, iTotal - 1);	// nItem -1
+				Dcx::dcxTabCtrl_SetCurSel(m_Hwnd, iTotal - 1);	// nItem -1
 
 			this->activateSelectedTab();
 		}
@@ -440,7 +440,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		tci.mask = TCIF_IMAGE;
 		tci.iImage = nIcon;
 
-		TabCtrl_SetItem(m_Hwnd, nItem, &tci);
+		Dcx::dcxTabCtrl_SetItem(m_Hwnd, nItem, &tci);
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [X] [Y]
 	else if (xflags[TEXT('m')])
@@ -451,7 +451,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		const auto X = input.getnexttokas<int>();	// tok 4
 		const auto Y = input.getnexttokas<int>();	// tok 5
 
-		TabCtrl_SetItemSize(m_Hwnd, X, Y);
+		Dcx::dcxTabCtrl_SetItemSize(m_Hwnd, X, Y);
 	}
 	// This it to avoid an invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -478,7 +478,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		tci.mask = TCIF_TEXT;
 		tci.pszText = itemtext.to_chr();
 
-		TabCtrl_SetItem(m_Hwnd, nItem, &tci);
+		Dcx::dcxTabCtrl_SetItem(m_Hwnd, nItem, &tci);
 
 		tci.mask = TCIF_PARAM;
 		if (getTab(nItem, &tci))
@@ -532,7 +532,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		// select the next tab item if its the current one
 		if (curSel >= 0)
 		{
-			TabCtrl_SetCurSel(m_Hwnd, curSel);
+			Dcx::dcxTabCtrl_SetCurSel(m_Hwnd, curSel);
 
 			this->activateSelectedTab();
 		}
@@ -604,7 +604,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		this->activateSelectedTab();
 	}
 	// xdid -P [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
-	// xdid -P -> [NAME] [ID] -M [+FLAGS] [ARGS]
+	// xdid -P -> [NAME] [ID] -P [+FLAGS] [ARGS]
 	else if (xflags[TEXT('P')])
 	{
 		if (numtok < 5)
@@ -873,18 +873,12 @@ void DcxTab::updateAllTab()
 
 bool DcxTab::getTab(const int index, const LPTCITEM tcItem) const noexcept
 {
-	if (!m_Hwnd)
-		return false;
-
-	return (TabCtrl_GetItem(m_Hwnd, index, tcItem) != FALSE);
+	return Dcx::dcxTabCtrl_GetItem(m_Hwnd, index, tcItem);
 }
 
 int DcxTab::getTabCount() const noexcept
 {
-	if (!m_Hwnd)
-		return -1;
-
-	return TabCtrl_GetItemCount(m_Hwnd);
+	return Dcx::dcxTabCtrl_GetItemCount(m_Hwnd);
 }
 
 DcxControl* DcxTab::addTab(int nIndex, int iIcon, const TString& tsText, const TString& tsCtrl, const TString& tsTooltip)
@@ -935,7 +929,12 @@ DcxControl* DcxTab::addTab(int nIndex, int iIcon, const TString& tsText, const T
 	}
 	tci.lParam = reinterpret_cast<LPARAM>(lpdtci.release());
 
-	TabCtrl_InsertItem(m_Hwnd, nIndex, &tci);
+	if (Dcx::dcxTabCtrl_InsertItem(m_Hwnd, nIndex, &tci) == -1)
+	{
+		delete p_Control;
+		delete reinterpret_cast<DCXTCITEM*>(tci.lParam);
+		return nullptr;
+	}
 
 	// Ook: this fixes the incorrectly positioned controls on additional tabs.
 	this->activateTab(nIndex);
@@ -1124,7 +1123,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 		{
 			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
 			{
-				if (const auto tab = TabCtrl_GetCurFocus(m_Hwnd); tab != -1)
+				if (const auto tab = Dcx::dcxTabCtrl_GetCurFocus(m_Hwnd); tab != -1)
 				{
 					if (CloseButtonHitTest(tab))
 						execAliasEx(TEXT("closetab,%u,%d"), getUserID(), tab + 1);
@@ -1155,97 +1154,8 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 
 		dcxlParam(LPDRAWITEMSTRUCT, idata);
 
-		if ((!idata) || (!IsWindow(idata->hwndItem)))
-			break;
-
-		if (!idata->hDC)
-			break;
-
-		RECT rect{};
-		const auto nTabIndex = gsl::narrow_cast<int>(idata->itemID);
-		const bool bCurSel = (Dcx::dcxTabCtrl_GetCurSel(m_Hwnd) == nTabIndex);
-
-		CopyRect(&rect, &idata->rcItem);
-
-		const auto savedDC = SaveDC(idata->hDC);
-		Auto(RestoreDC(idata->hDC, savedDC));
-
-		if (!bCurSel && !isStyle(WindowStyle::TCS_Buttons))
-		{
-			// Ook: This is a hack to fix the gap left between a non-selected tab & the tab area when NOT TCS_BUTTONS
-			rect.bottom += DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CYEDGE); // 2
-		}
-
-		if (this->m_bGradientFill)
-		{
-			if (this->m_TextOptions.m_clrTextBackground == CLR_INVALID)
-				// Gives a nice silver/gray gradient
-				XPopupMenuItem::DrawGradient(idata->hDC, &rect, GetSysColor(COLOR_BTNHIGHLIGHT), GetSysColor(COLOR_BTNFACE), !this->m_bGradientVertical);
-			else
-				XPopupMenuItem::DrawGradient(idata->hDC, &rect, GetSysColor(COLOR_BTNHIGHLIGHT), this->m_TextOptions.m_clrTextBackground, !this->m_bGradientVertical);
-		}
-		else
-			DcxControl::DrawCtrlBackground(idata->hDC, this, &rect);
-
-		rect.left += 1 + DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CXEDGE); // move in past border.
-		rect.top += 1 + DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CYEDGE); //4;
-
-		TCHAR szLabel[MIRC_BUFFER_SIZE_CCH]{};
-
-		TCITEM tci{ TCIF_TEXT | TCIF_IMAGE | TCIF_STATE, 0, TCIS_HIGHLIGHTED, &szLabel[0], MIRC_BUFFER_SIZE_CCH, 0, 0 };
-
-		if (!getTab(nTabIndex, &tci))
-		{
-			showError(nullptr, TEXT("DcxTab Fatal Error"), TEXT("Invalid item"));
-			break;
-		}
-
-		const TString label(tci.pszText);	// copy buffer, this may not be the same buffer as provided by us.
-
-		// set transparent so text background isnt annoying
-		SetBkMode(idata->hDC, TRANSPARENT);
-
-		// Draw icon on left side if the item has an icon
-		if (tci.iImage != -1)
-		{
-			if (ImageList_DrawEx(getImageList(), tci.iImage, idata->hDC, rect.left, rect.top, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT))
-			{
-				int iSizeX = 0, iSizeY = 0;
-				if (ImageList_GetIconSize(getImageList(), &iSizeX, &iSizeY))
-					rect.left += iSizeX;
-			}
-		}
-		// Draw 'Close button' at right side
-		if (m_bClosable)
-		{
-			RECT rcCloseButton(GetCloseButtonRect(rect));
-
-			// Draw systems close button ? or do you want a custom close button?
-			DrawFrameControl(idata->hDC, &rcCloseButton, DFC_CAPTION, DFCS_CAPTIONCLOSE | DFCS_FLAT | DFCS_TRANSPARENT);
-
-			rect.right = rcCloseButton.left - 2;
-		}
-
-		//DrawGlow(nTabIndex, idata->hDC, rect);
-
-		if (dcx_testflag(tci.dwState, TCIS_HIGHLIGHTED))
-			SetTextColor(idata->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
-
-		uint32_t uDrawFlags = DT_WORD_ELLIPSIS | DT_SINGLELINE;
-
-		if (isStyle(WindowStyle::TCS_ForceLeftAlign))
-		{
-			// force text to be left aligned
-			rect.left += DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CXEDGE);	//5 add padding for left of text, make this a settable option for text alignment.
-		}
-		else {
-			// center text on control (default)
-			uDrawFlags |= DT_CENTER;
-		}
-		//if (dcx_testflag(dcxGetWindowStyle(m_Hwnd), TCS_HOTTRACK))
-		//	m_TextOptions.m_bGlow = (nTabIndex == this->m_iHotItem);
-
-		this->ctrlDrawText(idata->hDC, label, &rect, uDrawFlags);
+		bParsed = TRUE;
+		DrawItem(idata);
 		break;
 	}
 
@@ -1658,6 +1568,102 @@ LRESULT DcxTab::DrawClientArea(HDC hdc, UINT uMsg, LPARAM lParam)
 	Auto(this->FinishAlphaBlend(ai));
 
 	return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+}
+
+LRESULT DcxTab::DrawItem(LPDRAWITEMSTRUCT idata)
+{
+	if ((!idata) || (!IsWindow(idata->hwndItem)))
+		return 0L;
+
+	if (!idata->hDC)
+		return 0L;
+
+	RECT rect{};
+	const auto nTabIndex = gsl::narrow_cast<int>(idata->itemID);
+	const bool bCurSel = (Dcx::dcxTabCtrl_GetCurSel(m_Hwnd) == nTabIndex);
+
+	CopyRect(&rect, &idata->rcItem);
+
+	const auto savedDC = SaveDC(idata->hDC);
+	Auto(RestoreDC(idata->hDC, savedDC));
+
+	if (!bCurSel && !isStyle(WindowStyle::TCS_Buttons))
+	{
+		// Ook: This is a hack to fix the gap left between a non-selected tab & the tab area when NOT TCS_BUTTONS
+		rect.bottom += DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CYEDGE); // 2
+	}
+
+	if (this->m_bGradientFill)
+	{
+		if (this->m_TextOptions.m_clrTextBackground == CLR_INVALID)
+			// Gives a nice silver/gray gradient
+			XPopupMenuItem::DrawGradient(idata->hDC, &rect, GetSysColor(COLOR_BTNHIGHLIGHT), GetSysColor(COLOR_BTNFACE), !this->m_bGradientVertical);
+		else
+			XPopupMenuItem::DrawGradient(idata->hDC, &rect, GetSysColor(COLOR_BTNHIGHLIGHT), this->m_TextOptions.m_clrTextBackground, !this->m_bGradientVertical);
+	}
+	else
+		DcxControl::DrawCtrlBackground(idata->hDC, this, &rect);
+
+	rect.left += 1 + DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CXEDGE); // move in past border.
+	rect.top += 1 + DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CYEDGE); //4;
+
+	TCHAR szLabel[MIRC_BUFFER_SIZE_CCH]{};
+
+	TCITEM tci{ TCIF_TEXT | TCIF_IMAGE | TCIF_STATE, 0, TCIS_HIGHLIGHTED, &szLabel[0], MIRC_BUFFER_SIZE_CCH, 0, 0 };
+
+	if (!getTab(nTabIndex, &tci))
+	{
+		showError(nullptr, TEXT("DcxTab Fatal Error"), TEXT("Invalid item"));
+		return 0L;
+	}
+
+	const TString label(tci.pszText);	// copy buffer, this may not be the same buffer as provided by us.
+
+	// set transparent so text background isnt annoying
+	SetBkMode(idata->hDC, TRANSPARENT);
+
+	// Draw icon on left side if the item has an icon
+	if (tci.iImage != -1)
+	{
+		if (ImageList_DrawEx(getImageList(), tci.iImage, idata->hDC, rect.left, rect.top, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT))
+		{
+			int iSizeX = 0, iSizeY = 0;
+			if (ImageList_GetIconSize(getImageList(), &iSizeX, &iSizeY))
+				rect.left += iSizeX;
+		}
+	}
+	// Draw 'Close button' at right side
+	if (m_bClosable)
+	{
+		RECT rcCloseButton(GetCloseButtonRect(rect));
+
+		// Draw systems close button ? or do you want a custom close button?
+		DrawFrameControl(idata->hDC, &rcCloseButton, DFC_CAPTION, DFCS_CAPTIONCLOSE | DFCS_FLAT | DFCS_TRANSPARENT);
+
+		rect.right = rcCloseButton.left - 2;
+	}
+
+	//DrawGlow(nTabIndex, idata->hDC, rect);
+
+	if (dcx_testflag(tci.dwState, TCIS_HIGHLIGHTED))
+		SetTextColor(idata->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
+
+	uint32_t uDrawFlags = DT_WORD_ELLIPSIS | DT_SINGLELINE;
+
+	if (isStyle(WindowStyle::TCS_ForceLeftAlign))
+	{
+		// force text to be left aligned
+		rect.left += DcxDPIModule::dcxGetWindowMetrics(m_Hwnd, SM_CXEDGE);	//5 add padding for left of text, make this a settable option for text alignment.
+	}
+	else {
+		// center text on control (default)
+		uDrawFlags |= DT_CENTER;
+	}
+	if (dcx_testflag(dcxGetWindowStyle(m_Hwnd), TCS_HOTTRACK))
+		m_TextOptions.m_bGlow = (nTabIndex == this->m_iHotItem);
+
+	this->ctrlDrawText(idata->hDC, label, &rect, uDrawFlags);
+	return 0L;
 }
 
 void DcxTab::CreatePeek() noexcept
