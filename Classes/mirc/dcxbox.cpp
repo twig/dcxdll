@@ -183,12 +183,6 @@ void DcxBox::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 	szReturnValue = parseInfoRequest(input).to_chr();
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void DcxBox::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
@@ -284,12 +278,6 @@ void DcxBox::parseCommandRequest(const TString& input)
 	else
 		parseGlobalCommandRequest(input, flags);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 BOOL CALLBACK DcxBox::EnumBoxChildren(HWND hwnd, const DCXENUM* const de) noexcept
 {
@@ -415,11 +403,6 @@ void DcxBox::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 	xmlParseElements(L"root"_ts, xThis, nullptr);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 LRESULT DcxBox::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
 {
 	return 0L;
@@ -684,9 +667,10 @@ void DcxBox::EraseBackground(HDC hdc)
 			DrawParentsBackground(hdc, &rc);
 		else // normal bkg
 			DcxControl::DrawCtrlBackground(hdc, this, &rc);
-		// Update CLA if any.
-		if (m_pLayoutManager)
-			m_pLayoutManager->updateLayout(rc);
+		//// Update CLA if any.
+		//// NB: This cause richedit controls to fail!!
+		//if (m_pLayoutManager)
+		//	m_pLayoutManager->updateLayout(rc);
 	}
 }
 

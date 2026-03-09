@@ -381,11 +381,6 @@ void DcxPanel::parseCommandRequest(const TString& input)
 		this->parseGlobalCommandRequest(input, flags);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 LRESULT DcxPanel::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
 {
 	return 0L;
@@ -515,11 +510,12 @@ LRESULT DcxPanel::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 			DcxControl::DrawCtrlBackground(reinterpret_cast<HDC>(wParam), this);
 
 		// Update CLA if any.
-		{
-			if (m_pLayoutManager)
-				if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
-					m_pLayoutManager->updateLayout(rc);
-		}
+		// NB: This cause richedit controls to fail!!
+		//{
+		//	if (m_pLayoutManager)
+		//		if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
+		//			m_pLayoutManager->updateLayout(rc);
+		//}
 
 		bParsed = TRUE;
 		return TRUE;
