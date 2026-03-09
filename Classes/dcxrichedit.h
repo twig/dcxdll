@@ -20,6 +20,7 @@
 #include "Classes/custom/SearchHelper.h"
 #include <richedit.h>
 #include <sstream>
+//#include <TextServ.h>
 
 class DcxDialog;
 

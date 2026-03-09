@@ -1908,11 +1908,6 @@ const TString DcxRichEdit::getStyles(void) const
 	return styles;
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
 LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
@@ -1928,8 +1923,9 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		{
 		case EN_LINK:
 		{
-			if (dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
-			{
+			if (!dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
+				break;
+
 				if (dcxlParam(ENLINK*, enl); (enl) && ((enl->msg == WM_LBUTTONDOWN) || (enl->msg == WM_LBUTTONDBLCLK) || (enl->msg == WM_RBUTTONDOWN)))
 				{
 					TEXTRANGE tr{};
@@ -1953,7 +1949,6 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 					this->execAliasEx(TEXT("link,%u,%s,%s"), getUserID(), tsEvent.to_chr(), tr.lpstrText);
 				}
-			}
 		} // EN_LINK
 		break;
 
@@ -1966,25 +1961,40 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			if (const auto pSelChange = reinterpret_cast<SELCHANGE*>(lParam); pSelChange && pSelChange->seltyp == SEL_EMPTY && m_bShowLineNumbers)
 				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
 
-			if (dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
-			{
-				if (const auto* const sel = reinterpret_cast<SELCHANGE*>(lParam); (sel) && (sel->seltyp != SEL_EMPTY))
-				{
-					auto str = std::make_unique<TCHAR[]>((sel->chrg.cpMax - sel->chrg.cpMin) + 1U);
+			if (!dcx_testflag(getEventMask(), DCX_EVENT_EDIT))
+				break;
 
-					TEXTRANGE tr{};
+			// returning the actual selected text has issues when text is long or contains characters thah mess up mirc identifiers.
+			// use $xdid().seltext instead
+			//if (const auto* const sel = reinterpret_cast<SELCHANGE*>(lParam); (sel) && (sel->seltyp != SEL_EMPTY))
+			//{
+			//	auto str = std::make_unique<TCHAR[]>((sel->chrg.cpMax - sel->chrg.cpMin) + 1U);
+			//
+			//	TEXTRANGE tr{};
+			//
+			//	// get information about selected text
+			//	tr.chrg = sel->chrg;
+			//	tr.lpstrText = str.get();
+			//	Dcx::dcxRichEdit_GetTextRange(m_Hwnd, tr);
+			//
+			//	this->execAliasEx(TEXT("selchange,%u,%d,%d,%s"), getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
+			//}
 
-					// get information about selected text
-					tr.chrg = sel->chrg;
-					tr.lpstrText = str.get();
-					Dcx::dcxRichEdit_GetTextRange(m_Hwnd, tr);
+			if (const auto* const sel = reinterpret_cast<SELCHANGE*>(lParam); (sel) && (sel->seltyp != SEL_EMPTY))
+				this->execAliasEx(TEXT("selchange,%u,%d,%d"), getUserID(), sel->chrg.cpMin, sel->chrg.cpMax);
 
-					this->execAliasEx(TEXT("selchange,%u,%d,%d,%s"), getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
-				}
-			}
 		} // EN_SELCHANGE
 		break;
 
+		// this is based on msfts help page (https://learn.microsoft.com/en-us/windows/win32/controls/en-change--rich-edit-control-)
+		// but its broken & non functional, help page is wrong...
+		//case EN_CHANGE:
+		//{
+		//	dcxlParam(CHANGENOTIFY*, cn);
+		//	if (cn->dwChangeType == CN_GENERIC)
+		//		break;
+		//}
+		//[[fallthrough]];
 		case EN_UPDATE:
 		{
 			if (m_bShowLineNumbers)
@@ -2113,9 +2123,9 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		//const auto lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 		//if (m_bShowLineNumbers)
 		//	DrawGutter(hdc);
+		//return lRes;
 
 		DrawClientArea(hdc);
-
 		return 0L;
 	}
 	break;
@@ -2124,12 +2134,15 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	{
 		//CleanUpParentCache();
 		//
+		//dcxwParam(HDC, hdc);
+		//
 		//if (this->IsAlphaBlend())
 		//{
 		//	PAINTSTRUCT ps{};
 		//
-		//	auto hdc = BeginPaint(m_Hwnd, &ps);
-		//	Auto(EndPaint(m_Hwnd, &ps));
+		//	if (!wParam)
+		//		hdc = BeginPaint(m_Hwnd, &ps);
+		//	Auto({ if (!wParam) EndPaint(m_Hwnd, &ps); });
 		//
 		//	bParsed = TRUE;
 		//
@@ -2140,7 +2153,6 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		//	const auto lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 		//
 		//	if (m_bShowLineNumbers)
-		//		//PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
 		//		DrawGutter(hdc);
 		//
 		//	return lRes;
@@ -2150,9 +2162,8 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		//	bParsed = TRUE;
 		//	const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
 		//
-		//	//PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
-		//	if (wParam)
-		//		DrawGutter(reinterpret_cast<HDC>(wParam));
+		//	if (hdc)
+		//		DrawGutter(hdc);
 		//	else
 		//		DrawGutter();
 		//
@@ -2246,6 +2257,7 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		{
 			m_bDraggingGutter = true;
 			SetCapture(m_Hwnd);
+			HideCaret(m_Hwnd);
 
 			bParsed = TRUE;
 			return 0L;
@@ -2253,6 +2265,7 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
 	}
 	break;
+
 	case WM_LBUTTONUP:
 	{
 		if (m_bDraggingGutter)
@@ -2266,6 +2279,7 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 				m_GutterWidth = DCX_EDIT_GUTTER_WIDTH;
 			}
 			setFmtRect();
+			ShowCaret(m_Hwnd);
 			ReleaseCapture();
 			m_bDraggingGutter = false;
 
@@ -2275,6 +2289,7 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
 	}
 	break;
+
 	case WM_MOUSEMOVE:
 	{
 		if (m_bDraggingGutter)
@@ -2290,15 +2305,18 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 			//if (auto hdc = GetDC(m_Hwnd); hdc)
 			//{
 			//	Auto(ReleaseDC(m_Hwnd, hdc));
-			//	DrawGutter(hdc);
-			//	//SendMessage(m_Hwnd, WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT|PRF_ERASEBKGND);
-			//	//SendMessage(m_Hwnd, WM_PAINT, reinterpret_cast<WPARAM>(hdc), 0);
+			//	//DrawGutter(hdc);
+			//	DrawClientArea(hdc);
 			//}
 
-			//DrawGutter();
+			//if (isExStyle(WindowExStyle::Transparent))
+			//	DrawGutter();
 
 			//const RECT rc = getFmtRect();
-			//InvalidateRect(m_Hwnd, &rc, FALSE);
+
+			//RECT rc{};
+			//GetClientRect(m_Hwnd, &rc);
+			//InvalidateRect(m_Hwnd, &rc, TRUE);
 
 			bParsed = TRUE;
 			return 0L;
