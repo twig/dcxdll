@@ -116,6 +116,23 @@ dcxWindowStyles DcxWindow::parseBorderStyles(const TString& tsFlags) noexcept
 	return { Styles, ExStyles };
 }
 
+TString DcxWindow::getFontAsString(HFONT hFont)
+{
+	TString tsResult;
+
+	if (!hFont)
+		hFont = Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT);
+
+	if (hFont)
+	{
+		if (auto [code, lfCurrent] = Dcx::dcxGetObject<LOGFONT>(hFont); code != 0)
+		{
+			tsResult = ParseLogfontToCommand(&lfCurrent);
+		}
+	}
+	return tsResult;
+}
+
 const UINT& DcxWindow::getID() const noexcept
 {
 	return m_ID;
@@ -260,6 +277,12 @@ void DcxWindow::HandleChildSizing(SizingTypes sz) const noexcept
 	if (dcx_testflag(sz, SizingTypes::Toolbar))
 		for (auto bars = FindWindowEx(m_Hwnd, nullptr, DCX_TOOLBARCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_TOOLBARCLASS, nullptr))
 			SendMessage(bars, WM_SIZE, 0U, 0);
+
+	// NB: This only fixed richedit controls that are direct children of the dialog NOT grandchildren.
+	// workaround added for RichText controls which seem to not redraw correctly via WM_PRINT
+	if (dcx_testflag(sz, SizingTypes::Richedit))
+		for (HWND bars = FindWindowEx(m_Hwnd, nullptr, DCX_RICHEDITCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_RICHEDITCLASS, nullptr))
+			RedrawWindow(bars, nullptr, nullptr, RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_INVALIDATE | RDW_ERASE | RDW_FRAME);
 
 	//auto hDWP = BeginDeferWindowPos(1);
 	//if (dcx_testflag(sz, SizingTypes::ReBar))

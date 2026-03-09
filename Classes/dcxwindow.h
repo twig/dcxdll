@@ -121,10 +121,9 @@ enum class SizingTypes
 	ReBar = 1,
 	Status = 2,
 	Panel = 4,
-	Toolbar = 8
+	Toolbar = 8,
+	Richedit = 16
 };
-
-//using CursorValue = Dcx::CodeValue<HCURSOR, bool >;
 
 /// <summary>
 /// Cursor data
@@ -249,6 +248,7 @@ public:
 	[[nodiscard]] static UINT parseCursorArea(const TString& flags) noexcept;
 	[[nodiscard("Memory Leak")]] static HIMAGELIST createImageList(bool bBigIcons = false) noexcept;
 	[[nodiscard]] static dcxWindowStyles parseBorderStyles(const TString& tsFlags) noexcept;
+	[[nodiscard]] static TString getFontAsString(HFONT hFont);
 
 protected:
 	HWND m_Hwnd{ nullptr };
