@@ -652,9 +652,10 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nColor = input.getnexttokas<int>();	// tok 4
+		const auto nColor = input.getnexttokas<UINT>();	// tok 4
 
-		if (nColor < 0 || nColor >= gsl::narrow_cast<int>(std::size(m_aColorPalette)))
+		// only first 16 colours are changeable
+		if (nColor >= std::min(std::size(m_aColorPalette), gsl::narrow_cast<size_t>(16U)))
 			throw Dcx::dcxException("Invalid Colour");
 
 		gsl::at(this->m_aColorPalette, nColor) = input.getnexttokas<COLORREF>();	// tok 5
@@ -754,6 +755,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 		const auto nColor = numtok - 3;
 
+		// only first 16 colours are changeable
 		if (nColor >= std::min(std::size(m_aColorPalette), gsl::narrow_cast<size_t>(16U)))
 			throw Dcx::dcxException("Invalid Colour Count");
 
@@ -929,11 +931,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		this->parseGlobalCommandRequest(input, flags);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
 GSL_SUPPRESS(bounds.3)
 void DcxRichEdit::setContentsFont() noexcept
 {
@@ -974,11 +971,6 @@ void DcxRichEdit::setContentsFont() noexcept
 	this->setCharFormat(SCF_ALL, &chrf);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
 void DcxRichEdit::clearContents() noexcept
 {
 	this->hideSelection(TRUE);
@@ -990,11 +982,6 @@ void DcxRichEdit::clearContents() noexcept
 	//this->setContentsFont( );
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
 void DcxRichEdit::parseContents(const BOOL fNewLine) noexcept
 { // old function
 	this->m_bIgnoreInput = true;
@@ -1675,11 +1662,6 @@ void DcxRichEdit::insertText(const TCHAR* const text, bool bline, bool uline, bo
 	this->hideSelection(FALSE);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
 LRESULT DcxRichEdit::setAutoUrlDetect(const BOOL iEnable) noexcept
 {
 	//return SendMessage(m_Hwnd, EM_AUTOURLDETECT, gsl::narrow_cast<WPARAM>(iEnable), 0);
@@ -1688,51 +1670,25 @@ LRESULT DcxRichEdit::setAutoUrlDetect(const BOOL iEnable) noexcept
 	return Dcx::dcxRichEdit_AutoUrlDetect(m_Hwnd, iEnable, nullptr);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
 void DcxRichEdit::hideSelection(const BOOL iHide) noexcept
 {
 	Dcx::dcxRichEdit_HideSelection(m_Hwnd, iHide);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
 void DcxRichEdit::setSel(const int iStart, const int iEnd) noexcept
 {
 	Dcx::dcxEdit_SetSel(m_Hwnd, iStart, iEnd);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
 void DcxRichEdit::replaceSel(const BOOL bUndo, LPCTSTR lpstr) noexcept
 {
 	Dcx::dcxEdit_ReplaceSel(m_Hwnd, bUndo, lpstr);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
 DWORD DcxRichEdit::getCharFormat(const UINT iType, CHARFORMAT2* const cfm) const noexcept
 {
 	return Dcx::dcxRichEdit_GetCharFormat(m_Hwnd, iType, *cfm);
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 bool DcxRichEdit::setCharFormat(const UINT iType, CHARFORMAT2* const cfm) noexcept
 {
