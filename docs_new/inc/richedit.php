@@ -78,7 +78,7 @@ function get_xdid_richedit(&$XDID) {
 	        '__cmd' => '[N] [RGB]',
 	        '__eg' => '5 $rgb(255,0,0)',
 	        '__params' => array(
-	            "N" => "An index between 1-16",
+	            "N" => "An index between 0-15",
 			),
 		),
 		'm' => array(
@@ -245,13 +245,13 @@ function get_events_richedit(&$EVENTS) {
 		),
 		'selchange' => array(
 			'__desc' => "When the selection range is changed.",
-			'__cmd' => 'START END TEXT',
-			'__eg' => '2 6 text has been sel',
+			'__cmd' => 'START END',
+			'__eg' => '2 6',
 			'__params' => array(
 				'START' => 'The starting position of the selection range.',
 				'END' => 'The ending position of the selection range.',
-				'TEXT' => 'The text selected.',
 			),
+			'__notes' => 'Previous versions returned [v]TEXT[/v] as well, you must now use [prop]$xdid().seltext[/prop] instead',
 		),
 		'sclick' => 'When the left mouse button is clicked.',
 		'lbup' => 'When the left mouse button is released.',

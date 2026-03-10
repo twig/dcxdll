@@ -2180,17 +2180,6 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT* const rcBounds
 	else
 		rcClient = *rcBounds;
 
-	// if themes are active use them.
-//	if (dcxIsThemeActive() && !this->m_bNoTheme) {
-//#ifdef DCX_USE_WINSDK
-//		if (DrawThemeParentBackgroundExUx != nullptr)
-//			DrawThemeParentBackgroundExUx(hwnd, hdc, 0, &rcClient); // Vista only, does basicly the same as below.
-//		else
-//#endif
-//			DrawThemeParentBackgroundUx(hwnd, hdc, &rcClient); // XP+
-//		return;
-//	}
-
 	/*
 		The following code draws the parents background & client area,
 		followed by all child controls covered by this one.

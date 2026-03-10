@@ -35,17 +35,26 @@ function get_xdid_check(&$XDID) {
 			'__eg' => '+r +r',
 			'__params' => array(
 				'+FLAGS' => array(
-                    '__desc' => "Color Flags.",
+                    '__desc' => "Config Flags.",
                     '__values' => array(
                         'r' => "Rounded checkbox.",
+						'm' => 'Margins.',
                     ),
                 ),
 				'+MASK' => array(
-                    '__desc' => "Color Flags.",
+                    '__desc' => "Config Flags.",
                     '__values' => array(
                         'r' => "Enable Rounded checkbox.",
+						'm' => 'Set border margins for custom drawing.',
                     ),
                 ),
+                'ARGS' => array(
+                    '__desc' => "The arguments for the given [v]+FLAGS[/v]",
+                    '__values' => array(
+						'r' => 'no args',
+						'm' => 'if also supplied in [v]+MASK[/v], [LEFT] [TOP] [RIGHT] [BOTTOM] otherwise no args',
+					),
+				),
             ),
 			'__notes' => 'This command may change alot.',
 		),
@@ -65,17 +74,17 @@ function get_xdid_check(&$XDID) {
 				'+FLAGS' => array(
                     '__desc' => "Color Flags.",
                     '__values' => array(
-                            'b' => "Background color.",
-                            'g' => 'Sets the start gradient color.',
-                            'G' => 'Sets the end gradient color.',
-                            'k' => "Text background Color.",
-                            'r' => "Border color.",
-                            't' => "Text color.",
-                            'c' => "Checkbox background color.",
-                            'C' => "Checkbox Tick color.",
-                            'f' => "Checkbox Frame color.",
-                            'h' => "Hot color.<br/>Use in conjunction with other flags",
-                            'd' => "Disabled color.<br/>Use in conjunction with other flags",
+                        'b' => "Background color.",
+                        'g' => 'Sets the start gradient color.',
+                        'G' => 'Sets the end gradient color.',
+                        'k' => "Text background Color.",
+                        'r' => "Border color.",
+                        't' => "Text color.",
+                        'c' => "Checkbox background color.",
+                        'C' => "Checkbox Tick color.",
+                        'f' => "Checkbox Frame color.",
+                        'h' => "Hot color.<br/>Use in conjunction with other flags",
+                        'd' => "Disabled color.<br/>Use in conjunction with other flags",
                     ),
                 ),
             ),
