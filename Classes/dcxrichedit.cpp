@@ -446,22 +446,38 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		CopyToClipboard(m_Hwnd, this->m_tsText);
 	}
 
-	//// xdid -C [NAME] [ID] [SWITCH] [POS]
-	//else if (flags[TEXT('C')])
-	//{
-	//	if (numtok < 4)
-	//		throw DcxExceptions::dcxInvalidArguments();
-	//
-	//	auto pos = input.getnexttokas<long long>();
-	//	if (pos < 0)
-	//	{
-	//		const auto oldPos = this->GetCaretPos();
-	//		pos += oldPos;
-	//		if (pos < 0)
-	//			pos = 0;
-	//	}
-	//	this->setCaretPos(gsl::narrow_cast<DWORD>(pos));
-	//}
+	// xdid -C [DNAME] [ID] [+FLAGS] [COLOR]
+	// [DNAME] [ID] -C [+FLAGS] [COLOR]
+	else if (flags[TEXT('C')])
+	{
+		if (numtok < 5)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const XSwitchFlags xFlags(input.getfirsttok(4));
+		const auto clr = input.getnexttokas<COLORREF>();
+
+		if (xFlags[L't'])
+		{
+			CHARFORMAT2 chr{};
+			chr.cbSize = sizeof(CHARFORMAT2);
+			chr.dwMask = CFM_COLOR;
+			if (clr != CLR_INVALID)
+				chr.crTextColor = clr;
+			else
+				chr.dwEffects = CFE_AUTOCOLOR;
+
+			Dcx::dcxRichEdit_SetCharFormat(m_Hwnd, SCF_ALL, chr);
+		}
+		else if (xFlags[L'b']) 
+		{
+			if (clr == CLR_INVALID)
+				Dcx::dcxRichEdit_SetBkgndColor(m_Hwnd, FALSE, clr);
+			else
+				Dcx::dcxRichEdit_SetBkgndColor(m_Hwnd, TRUE, 0);
+		}
+
+		this->parseGlobalCommandRequest(input, flags);
+	}
 
 	// xdid -d [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('d')])
@@ -641,7 +657,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		}
 		else
 		{
-			Dcx::dcxRichEdit_SetBkgndColor(m_Hwnd, 0, clrColor);
+			Dcx::dcxRichEdit_SetBkgndColor(m_Hwnd, FALSE, clrColor);
 			this->setTextBackColor(clrColor);
 		}
 		this->redrawWindow();
