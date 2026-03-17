@@ -162,7 +162,7 @@ namespace Dcx
 				a.dwMask = THB_FLAGS;
 				a.dwFlags = THBF_DISABLED | THBF_HIDDEN;
 			}
-			m_pTaskbarList->ThumbBarUpdateButtons(mIRCLinker::m_mIRCHWND, std::size(m_ThumbButtons), &m_ThumbButtons[0]);
+			m_pTaskbarList->ThumbBarUpdateButtons(mIRCLinker::m_mIRCHWND, gsl::narrow_cast<UINT>(std::size(m_ThumbButtons)), &m_ThumbButtons[0]);
 
 			m_pTaskbarList->Release();
 		}

@@ -2840,13 +2840,13 @@ mIRC(Thumbnail)
 				{
 					ChangeWindowMessageFilterEx(mIRCLinker::m_mIRCHWND, Dcx::m_uTBBCMessage, MSGFLT_ALLOW, nullptr); // win7+
 
-					if (FAILED(Dcx::m_pTaskbarList->ThumbBarAddButtons(mIRCLinker::m_mIRCHWND, std::size(Dcx::m_ThumbButtons), &Dcx::m_ThumbButtons[0])))
+					if (FAILED(Dcx::m_pTaskbarList->ThumbBarAddButtons(mIRCLinker::m_mIRCHWND, gsl::narrow_cast<UINT>(std::size(Dcx::m_ThumbButtons)), &Dcx::m_ThumbButtons[0])))
 						throw Dcx::dcxException("Unable to add buttons.");
 
 					Dcx::m_bTaskbarButtonsAdded = true;
 				}
 				else {
-					if (FAILED(Dcx::m_pTaskbarList->ThumbBarUpdateButtons(mIRCLinker::m_mIRCHWND, std::size(Dcx::m_ThumbButtons), &Dcx::m_ThumbButtons[0])))
+					if (FAILED(Dcx::m_pTaskbarList->ThumbBarUpdateButtons(mIRCLinker::m_mIRCHWND, gsl::narrow_cast<UINT>(std::size(Dcx::m_ThumbButtons)), &Dcx::m_ThumbButtons[0])))
 						throw Dcx::dcxException("Unable to update buttons.");
 				}
 			}
@@ -2860,7 +2860,7 @@ mIRC(Thumbnail)
 					a.dwMask = THB_FLAGS;
 					a.dwFlags = THBF_DISABLED | THBF_HIDDEN;
 				}
-				if (FAILED(Dcx::m_pTaskbarList->ThumbBarUpdateButtons(mIRCLinker::m_mIRCHWND, std::size(ThumbButtons), &ThumbButtons[0])))
+				if (FAILED(Dcx::m_pTaskbarList->ThumbBarUpdateButtons(mIRCLinker::m_mIRCHWND, gsl::narrow_cast<UINT>(std::size(ThumbButtons)), &ThumbButtons[0])))
 					throw Dcx::dcxException("Unable to update buttons.");
 			}
 		}
