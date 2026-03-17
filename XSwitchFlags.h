@@ -143,10 +143,14 @@ struct XSwitchFlags final
 	/// Counts the number of flags set.
 	/// </summary>
 	/// <returns></returns>
-	const UINT count() const noexcept
+	const size_t count() const noexcept
 	{
 		// NB: NO 64bit popcnt in 32bit mode.
+#ifdef _AMD64_
+		return __popcnt64(m_dFlagMask);
+#else
 		return __popcnt(gsl::narrow_cast<UINT>(m_dFlagMask & 0x00000000FFFFFFFF)) + __popcnt(gsl::narrow_cast<UINT>((m_dFlagMask >> 32) & 0x00000000FFFFFFFF));
+#endif // _AMD64_
 	}
 	const bool operator[](const TCHAR c) const noexcept { return isSet(c); }
 	explicit operator ULONGLONG() const noexcept { return m_dFlagMask; }
