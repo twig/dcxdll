@@ -3713,6 +3713,17 @@ namespace Dcx
 	TString dcxEdit_GetEndOfLineCharacters(_In_ HWND hwnd);
 
 	/// <summary>
+	/// <para>Gets the position of the scroll box (thumb) in the vertical scroll bar of a multiline edit control.</para>
+	/// <para>You can send this message to either an edit control or a rich edit control.</para>
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <returns>The return value is the position of the scroll box.</returns>
+	inline int dcxEdit_GetThumb(_In_ HWND hwnd) noexcept
+	{
+		return gsl::narrow_cast<int>(SendMessage(hwnd, EM_GETTHUMB, 0, 0));
+	}
+
+	/// <summary>
 	/// Gets the character index of the caret location for a given edit control.
 	/// NB: Works on winXP+
 	/// </summary>
@@ -4173,6 +4184,23 @@ namespace Dcx
 	inline DWORD dcxRichEdit_GetTextRange(_In_ HWND hwnd, _Inout_ TEXTRANGE& rng) noexcept
 	{
 		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, EM_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&rng)));
+	}
+
+	/// <summary>
+	/// Obtains the current scroll position of the edit control.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="pt">
+	/// <para>- Pointer to a POINT structure.</para>
+	/// <para>After calling EM_GETSCROLLPOS, this parameters contains a point in the virtual text space of the document, expressed in pixels.</para>
+	/// <para>This point will be the point that is currently located in the upper-left corner of the edit control window.</para>
+	/// </param>
+	/// <remarks>
+	/// The values returned in the POINT structure are 16-bit values (even in the 32-bit wide fields).
+	/// </remarks>
+	inline void dcxRichEdit_GetScrollPos(_In_ HWND hwnd, _Inout_ POINT& pt) noexcept
+	{
+		SendMessage(hwnd, EM_GETSCROLLPOS, 0, reinterpret_cast<LPARAM>(&pt));
 	}
 
 	// Animate
