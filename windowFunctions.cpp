@@ -845,14 +845,32 @@ void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept
 	if (!hdc || !lprc || clr == CLR_INVALID)
 		return;
 
-	LOGPEN oLogPen{};
+	//LOGPEN oLogPen{};
+	//
+	//auto hOld = SelectObject(hdc, GetStockObject(BLACK_PEN));
+	//GetObject(hOld, sizeof(oLogPen), &oLogPen);
+	//oLogPen.lopnColor = clr;
+	//
+	////Don't attempt to delete stock object
+	//SelectObject(hdc, CreatePenIndirect(&oLogPen));
+	//
+	//if (dwBorder & BF_LEFT)
+	//	dcxDrawLine(hdc, lprc->left, lprc->top, lprc->left, lprc->bottom);
+	//if (dwBorder & BF_TOP)
+	//	dcxDrawLine(hdc, lprc->left, lprc->top, lprc->right, lprc->top);
+	//if (dwBorder & BF_RIGHT)
+	//	dcxDrawLine(hdc, lprc->right, lprc->top, lprc->right, lprc->bottom);
+	//if (dwBorder & BF_BOTTOM)
+	//	dcxDrawLine(hdc, lprc->left, lprc->bottom, lprc->right, lprc->bottom);
+	//
+	//DeleteObject(SelectObject(hdc, hOld));
 
-	auto hOld = SelectObject(hdc, GetStockObject(BLACK_PEN));
-	GetObject(hOld, sizeof(oLogPen), &oLogPen);
-	oLogPen.lopnColor = clr;
+	if (auto hPen = CreatePen(PS_SOLID, 1, clr); hPen)
+	{
+		Auto(DeleteObject(hPen));
 
-	//Don't attempt to delete stock object
-	SelectObject(hdc, CreatePenIndirect(&oLogPen));
+		const auto oldPen = Dcx::dcxSelectObject<HPEN>(hdc, hPen);
+		Auto(Dcx::dcxSelectObject<HPEN>(hdc, oldPen));
 
 	if (dwBorder & BF_LEFT)
 		dcxDrawLine(hdc, lprc->left, lprc->top, lprc->left, lprc->bottom);
@@ -862,8 +880,7 @@ void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept
 		dcxDrawLine(hdc, lprc->right, lprc->top, lprc->right, lprc->bottom);
 	if (dwBorder & BF_BOTTOM)
 		dcxDrawLine(hdc, lprc->left, lprc->bottom, lprc->right, lprc->bottom);
-
-	DeleteObject(SelectObject(hdc, hOld));
+}
 }
 
 void dcxDrawArrow(_In_ HDC hdc, _In_ LPCRECT lprc, _In_ COLORREF clr, _In_ dcxArrowFlags eFlags) noexcept
