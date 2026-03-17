@@ -704,7 +704,7 @@ auto readFile(const TString& filename)
 	// return memory block containing file data
 	return fileContents;
 #else
-	auto file = dcx_fopen(filename, TEXT("rb"));
+	auto file = dcx_fopen(filename.to_wchr(), TEXT("rb"));
 
 	// Open file in binary mode and read
 	if (!file)
@@ -2829,6 +2829,13 @@ HFONT CopyHDCSettings(_In_ HDC hSrc, _In_ HDC hDst) noexcept
 	SetPolyFillMode(hDst, GetPolyFillMode(hSrc));
 	SetStretchBltMode(hDst, GetStretchBltMode(hSrc));
 	SetGraphicsMode(hDst, GetGraphicsMode(hSrc));
+
+	//if (POINT pt{}; GetWindowOrgEx(hSrc, &pt))
+	//	SetWindowOrgEx(hDst, pt.x, pt.y, nullptr);
+
+	if (POINT pt{}; GetViewportOrgEx(hSrc, &pt))
+		SetViewportOrgEx(hDst, pt.x, pt.y, nullptr);
+
 	return Dcx::dcxSelectObject(hDst, Dcx::dcxGetCurrentObject<HFONT>(hSrc, OBJ_FONT));
 }
 
