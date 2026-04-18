@@ -20,21 +20,21 @@ LayoutCellFixed::LayoutCellFixed(DcxControl * dcxc, const FixedType nType) noexc
 {
 }
 
+LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const RECT& rc, const FixedType nType) noexcept
+	: LayoutCell(mHwnd, rc)
+	, m_nType(nType)
+{
+}
+
 LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const FixedType nType) noexcept
+	//: LayoutCellFixed(mHwnd, RECT{}, nType) // causes cla of fixed size cells to fail due to zero size rect
 	: LayoutCell(mHwnd)
 	, m_nType(nType)
 {
 }
 
 LayoutCellFixed::LayoutCellFixed(const RECT & rc, const FixedType nType) noexcept
-	: LayoutCell(nullptr, rc)
-	, m_nType(nType)
-{
-}
-
-LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedType nType) noexcept
-	: LayoutCell(mHwnd, rc)
-	, m_nType(nType)
+	: LayoutCellFixed(nullptr, rc, nType)
 {
 }
 
@@ -78,7 +78,7 @@ HDWP LayoutCellFixed::ExecuteLayout(const HDWP hdwp) noexcept
 {
 	auto hdwpdef = hdwp;
 
-	if (m_Hwnd && IsWindow(m_Hwnd))
+	if (m_Hwnd && hdwp && IsWindow(m_Hwnd))
 	{
 		const RECT rc = this->getClientRect();
 

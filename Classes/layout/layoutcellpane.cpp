@@ -43,7 +43,6 @@ LayoutCell* LayoutCellPane::addChild(gsl::owner<LayoutCell*> p_Cell, const UINT 
 			p_Last->setSibling(p_Cell);
 	}
 
-	//m_vpCells.push_back( CellNode( p_Cell, nWeight ) );
 	m_vpCells.emplace_back(p_Cell, nWeight);
 	++m_iCount;
 
@@ -82,11 +81,14 @@ void LayoutCellPane::LayoutChild() noexcept
 HDWP LayoutCellPane::ExecuteLayout(const HDWP hdwp)
 {
 	HDWP hdwpdef = hdwp;
-	// Send Layout Command one layer lower
-	for (const auto& x : this->m_vpCells)
+	if (hdwp)
 	{
-		if (x.first)
-			hdwpdef = x.first->ExecuteLayout(hdwpdef);
+		// Send Layout Command one layer lower
+		for (const auto& x : this->m_vpCells)
+		{
+			if (x.first)
+				hdwpdef = x.first->ExecuteLayout(hdwpdef);
+		}
 	}
 	return hdwpdef;
 }
@@ -181,12 +183,6 @@ TiXmlElement* LayoutCellPane::toXml(void)
 	return xml.release();
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void LayoutCellPane::AdjustMinSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 {
 	const RECT rc = getClientRect();
@@ -231,12 +227,6 @@ void LayoutCellPane::AdjustMinSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 		pChild->setRect(rect);
 	}
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void LayoutCellPane::AdjustSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 {
@@ -299,12 +289,6 @@ void LayoutCellPane::AdjustSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 	nTotalWeight = nNewTotalWeight;
 	nSizeLeft = nNewSizeLeft;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 void LayoutCellPane::AdjustPos() noexcept
 {
