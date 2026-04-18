@@ -24,14 +24,14 @@ LayoutCell::LayoutCell() noexcept
 LayoutCell::LayoutCell(const HWND mHwnd) noexcept
 	: LayoutCell(mHwnd, RECT())
 {
-	if (m_Hwnd)
-	{
+	if (!m_Hwnd)
+		return;
+
 		//GetWindowRect(m_Hwnd, &m_rcWindow);
 
 		const Dcx::dcxWindowRect rc(m_Hwnd, GetParent(m_Hwnd));
 		m_rcWindow = rc.CopyRect();
 	}
-}
 
 LayoutCell::LayoutCell(const HWND mHwnd, const RECT& rc) noexcept
 	: m_Hwnd(mHwnd)
@@ -39,34 +39,34 @@ LayoutCell::LayoutCell(const HWND mHwnd, const RECT& rc) noexcept
 {
 	SetRectEmpty(&m_rcBorders);
 
-	if (mHwnd)
-	{
+	if (!mHwnd)
+		return;
+
 		if (Dcx::Dialogs.getDialogByHandle(mHwnd) == nullptr)
 		{
 			if (const auto* const d = Dcx::Dialogs.getDialogByChildHandle(mHwnd); d)
 				m_BaseControl = d->getControlByHWND(mHwnd);
 		}
 	}
-}
 
 LayoutCell::LayoutCell(DcxControl* dcxc) noexcept
 	: LayoutCell()
 {
 	m_BaseControl = dcxc;
 
-	if (dcxc)
-	{
+	if (!dcxc)
+		return;
+
 		m_Hwnd = dcxc->getHwnd();
 
-		if (m_Hwnd)
-		{
+	if (!m_Hwnd)
+		return;
+
 			//GetWindowRect(m_Hwnd, &m_rcWindow);
 
 			const Dcx::dcxWindowRect rc(m_Hwnd, GetParent(m_Hwnd));
 			m_rcWindow = rc.CopyRect();
 		}
-	}
-}
 
 void LayoutCell::setParent(LayoutCell* const p_Cell) noexcept
 {
@@ -105,14 +105,14 @@ bool LayoutCell::setRect(RECT& rc) noexcept
 
 	getMinMaxInfo(&cmmi);
 
-	if (rc.right - rc.left < cmmi.m_MinSize.x)
-		rc.right = rc.left + cmmi.m_MinSize.x;
-	if (rc.right - rc.left > cmmi.m_MaxSize.x)
-		rc.right = rc.left + cmmi.m_MaxSize.x;
-	if (rc.bottom - rc.top < cmmi.m_MinSize.y)
-		rc.bottom = rc.top + cmmi.m_MinSize.y;
-	if (rc.bottom - rc.top > cmmi.m_MaxSize.y)
-		rc.bottom = rc.top + cmmi.m_MaxSize.y;
+	if ((rc.right - rc.left) < cmmi.m_MinSize.x)
+		rc.right = (rc.left + cmmi.m_MinSize.x);
+	if ((rc.right - rc.left) > cmmi.m_MaxSize.x)
+		rc.right = (rc.left + cmmi.m_MaxSize.x);
+	if ((rc.bottom - rc.top) < cmmi.m_MinSize.y)
+		rc.bottom = (rc.top + cmmi.m_MinSize.y);
+	if ((rc.bottom - rc.top) > cmmi.m_MaxSize.y)
+		rc.bottom = (rc.top + cmmi.m_MaxSize.y);
 
 	if (EqualRect(&rc, &m_rcWindow))
 		return false;
@@ -157,11 +157,6 @@ void LayoutCell::setBorder(const int& nBorder) noexcept
 	const RECT rc{ nBorder, nBorder, nBorder, nBorder };
 	setBorder(rc);
 }
-
-//void LayoutCell::getBorder(RECT& rc) const noexcept
-//{
-//	rc = m_rcBorders;
-//}
 
 const RECT& LayoutCell::getBorder() const noexcept
 {

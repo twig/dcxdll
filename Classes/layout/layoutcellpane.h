@@ -17,22 +17,11 @@
 
 #include "Classes/layout/layoutcell.h"
 
- /*!
-  * \brief blah
-  *
-  * blah
-  */
-
 class LayoutCellPane final
 	: public LayoutCell
 {
 public:
 
-	/*!
-	* \brief blah
-	*
-	* blah
-	*/
 	enum class PaneType
 		: UINT
 	{

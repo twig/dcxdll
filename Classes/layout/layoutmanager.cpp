@@ -65,9 +65,6 @@ const bool LayoutManager::updateLayout(RECT& rc)
 void LayoutManager::setRoot(std::unique_ptr<LayoutCell> p_Root) noexcept
 {
 	// clean memory in case we use more than once
-	//delete m_pRoot;
-	//m_pRoot = p_Root;
-
 	m_pRoot = std::move(p_Root);
 }
 
