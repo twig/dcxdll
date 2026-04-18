@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.23
+ * \version 1.24
  *
  * \b Revisions
  *	1.1
@@ -75,6 +75,9 @@
  *		Fixed toupper & tolower
  * 
  *  1.23
+ * 
+ *  1.24
+ *		Fixed incorrect savedpos increase in getfirsttok()
  * 
  * © ScriptsDB.org - 2005-2021
  */
@@ -1646,8 +1649,11 @@ public:
 		m_savedtotaltoks = gsl::narrow_cast<size_type>(rng.m_count);
 		m_savedpos = rng.m_pEnd;
 
+		//if (m_savedpos)
+		//	++m_savedpos;
+
 		if (m_savedpos)
-			++m_savedpos;
+			m_savedpos += _ts_strlen(sepChars);
 
 		return TString(rng);
 		//return rng;
