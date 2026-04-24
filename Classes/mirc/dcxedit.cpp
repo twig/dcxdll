@@ -417,8 +417,8 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 
 		Dcx::dcxEdit_GetSel(m_Hwnd, &dwSelStart, &dwSelEnd);
 
-		const auto tmp = (dwSelEnd - dwSelStart);
-		szReturnValue = m_tsText.mid(gsl::narrow_cast<int>(dwSelStart), gsl::narrow_cast<int>(tmp)).to_chr();
+		const auto tmp = (dwSelEnd - dwSelStart) - 1;
+		szReturnValue = m_tsText.mid(gsl::narrow_cast<ptrdiff_t>(dwSelStart), gsl::narrow_cast<ptrdiff_t>(tmp)).to_chr();
 	}
 	break;
 
