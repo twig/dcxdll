@@ -276,7 +276,7 @@ const DcxSearchTypes DcxSearchHelper::FlagsToSearchType(const XSwitchFlags& xFla
 	return SearchType;
 }
 
-std::optional<DcxSearchResults> DcxSearchHelper::matchText(const TString &txt, const size_t nChar, const TString& search, const DcxSearchTypes& SearchType)
+std::optional<DcxSearchResults> DcxSearchHelper::matchText(const TString& txt, const size_t nChar, const TString& search, const DcxSearchTypes& SearchType)
 {
 	const dcxSearchData srch_data(search, SearchType);
 
@@ -311,7 +311,7 @@ std::optional<DcxSearchResults> DcxSearchHelper::matchText(const TString& txt, c
 	return matchText(txt, nChar, search, SearchType);
 }
 
-std::optional<DcxSearchResults> DcxSearchHelper::matchText(const TString &txt, const size_t nChar, const dcxSearchData& srch_data) noexcept
+std::optional<DcxSearchResults> DcxSearchHelper::matchText(const TString& txt, const size_t nChar, const dcxSearchData& srch_data) noexcept
 {
 	if (nChar >= txt.len())
 		return { };
@@ -336,7 +336,8 @@ std::optional<DcxSearchResults> DcxSearchHelper::matchText(const TString &txt, c
 		if (const auto bFound = _ts_WildcardMatch(szStart, srch_data.m_tsSearch); bFound)
 		{
 			const auto nStart = gsl::narrow_cast<size_t>(szStart - txt.to_chr());
-			const auto nEnd = nStart + txt.len();
+			//const auto nEnd = nStart + txt.len();
+			const auto nEnd = txt.len();
 
 			return { DcxSearchResults{ true, nStart, nEnd } };
 		}
@@ -359,32 +360,70 @@ std::optional<DcxSearchResults> DcxSearchHelper::matchText(const TString &txt, c
 	return { };
 }
 
-TString DcxSearchHelper::findTextRange(const TString&  tsText, const TString& tsMatchText, const TString& tsParams)
+TString DcxSearchHelper::findTextRange(const TString& tsText, const TString& tsMatchText, const TString& tsParams)
 {
 	// get search type to use.
-	const auto SearchType = CharToSearchType(tsParams++[0]);
+	const auto SearchType = CharToSearchType(tsParams.getfirsttok(1)[0]);
 
 	// find the Nth match (zero for count all matches)
-	const auto N = tsParams++.to_<size_t>();		// tok 2
+	const auto N = tsParams.getnexttokas<size_t>();		// tok 2
 	// get line to search from
-	const auto nLine = tsParams++.to_<size_t>();	// tok 3
+	const auto tsLine(tsParams.getnexttok());
+	const auto nLine = tsLine.to_<size_t>();	// tok 3
 	// get the char on that line to search from
-	auto nChar = tsParams++.to_<size_t>();	// tok 4
+	auto nChar = tsParams.getnexttokas<size_t>();	// tok 4
 
 	// nLine is either lines or chars, either must be > 0
 	if (nLine < 1)
 		throw DcxExceptions::dcxInvalidArguments();
 
+	auto fnFinalSearch = [&nChar, nLine, N, SearchType, tsMatchText](const TString& tsText) {
+		TString tsRes;
+
+		size_t count{};
+
+		// NB: nChar is 1-based at this point.
+		--nChar;
+
+		for (auto match = matchText(tsText, nChar, tsMatchText, SearchType); match.has_value(); match = matchText(tsText, match->m_nEnd + 1, tsMatchText, SearchType))
+		{
+			++count;
+
+			// found Nth matching
+			if (count == N)
+			{
+				_ts_snprintf(tsRes, TEXT("%zu %zu"), match->m_nStart + 1, match->m_nEnd); // return the char offset.
+				return tsRes;
+			}
+		}
+		// count total
+		if (N == 0)
+			_ts_snprintf(tsRes, TEXT("%zu"), count);
+		else
+			tsRes = TEXT("-1");
+
+		return tsRes;
+	};
+
 	if (tsParams.numtok() == 4)
 	{
 		// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N] [LINE] [SUBCHAR]
 		// [LINE] & [SUBCHAR] supplied.
+		// [LINE] can be N or N-
+		// N = search this line ONLY
+		// N- = search all lines after this one (inclusive)
 		// nLine = line
 		// nChar = char offset in that line (can be zero)
 		// 
 		// adjust nChar to the correct pos.
 		if (nLine > tsText.numtok(TEXT("\r\n")))
 			throw DcxExceptions::dcxInvalidArguments();
+
+		if (tsLine.right(1) != L"-")
+		{
+			const auto tsTxt(tsText.gettok(nLine, L"\r\n"));
+			return fnFinalSearch(tsTxt);
+		}
 
 		// only add lines if > than first line.
 		if (nLine > 1)
@@ -401,37 +440,6 @@ TString DcxSearchHelper::findTextRange(const TString&  tsText, const TString& ts
 		// nLine = chars
 		// nChar = unset untill now
 		nChar = nLine; // nLine is chars
-	// NB: nChar is 1-based at this point.
-	--nChar;
 
-	TString tsRes;
-
-	// count total
-	if (N == 0)
-	{
-		size_t count{};
-		for (auto match = matchText(tsText, nChar, tsMatchText, SearchType); match.has_value(); match = matchText(tsText, match->m_nEnd + 1, tsMatchText, SearchType))
-			++count;
-
-		_ts_snprintf(tsRes, TEXT("%zu"), count);
-	}
-	// find Nth matching
-	else {
-		size_t count{};
-
-		for (auto match = matchText(tsText, nChar, tsMatchText, SearchType); match.has_value(); match = matchText(tsText, match->m_nEnd + 1, tsMatchText, SearchType))
-		{
-			++count;
-
-			// found Nth matching
-			if (count == N)
-			{
-				_ts_snprintf(tsRes, TEXT("%zu %zu"), match->m_nStart + 1, match->m_nEnd); // return the char offset.
-				return tsRes;
-			}
-		}
-		tsRes = TEXT("-1");
-	} // else
-
-	return tsRes;
+	return fnFinalSearch(tsText);
 }
