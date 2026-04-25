@@ -442,6 +442,19 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	}
 	break;
 
+	// [NAME] [ID] [PROP] [N]
+	case L"lineindex"_hash:
+	{
+		auto nLine = input.getnexttokas<int>() - 1;
+		if (nLine < 0)
+			nLine = Dcx::dcxEdit_LineFromChar(m_Hwnd, Dcx::dcxEdit_GetCaretIndex(m_Hwnd));
+
+		const auto nStart = Dcx::dcxEdit_GetLineIndex(m_Hwnd, nLine) + 1;
+		const auto nEnd = Dcx::dcxEdit_GetLineIndex(m_Hwnd, nLine + 1);
+		_ts_snprintf(szReturnValue, TEXT("%d %d"), nStart, nEnd);
+	}
+	break;
+
 	case L"cue"_hash:
 	{
 		if (!this->m_tsCue.empty())
