@@ -1192,31 +1192,24 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 		if (const auto pDialog = getParentDialog(); pDialog)
 			pDialog->setMouseControl(getUserID());
 
-		//m_bHover = false;
 		m_iHoverItem = -1;
 
 		if (!m_bTracking)
 			m_bTracking = TrackMouseEvents(TME_LEAVE | TME_HOVER, m_iHoverDelay);
+
 		if (!m_bHot)
-		{
 			m_bHot = true;
-			//InvalidateRect(m_Hwnd, nullptr, FALSE);
-		}
+
 		const POINT pt{ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 		if (const auto iTab = Dcx::dcxTabCtrl_GetPointItem(m_Hwnd, pt); iTab >= 0)
 		{
 			if (iTab != this->m_iHotItem)
 			{
 				RECT rcItem{};
-				//if (this->m_iHotItem >= 0)
-				//{
-				//	Dcx::dcxTabCtrl_GetItemRect(m_Hwnd, this->m_iHotItem, &rcItem);
-				//	InvalidateRect(m_Hwnd, &rcItem, FALSE);
-				//}
+
 				this->m_iHotItem = iTab;
 
 				Dcx::dcxTabCtrl_GetItemRect(m_Hwnd, iTab, &rcItem);
-				//InvalidateRect(m_Hwnd, &rcItem, FALSE);
 
 				SetPeekSource(iTab, Dcx::dcxTabCtrl_GetCurSel(m_Hwnd), &rcItem);
 
@@ -1238,8 +1231,6 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 		{
 			m_bHover = true;
 			m_bTracking = false;
-
-			//InvalidateRect(m_Hwnd, nullptr, FALSE);
 
 			const POINT pt{ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 			if (const auto iTab = Dcx::dcxTabCtrl_GetPointItem(m_Hwnd, pt); iTab >= 0)
@@ -1281,7 +1272,6 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 
 			m_iHotItem = -1;
 			m_iHoverItem = -1;
-			//InvalidateRect(m_Hwnd, nullptr, FALSE);
 
 			PeekCtrl_ResetCache(m_hPeek);
 		}
