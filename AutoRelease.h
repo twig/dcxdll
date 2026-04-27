@@ -42,3 +42,9 @@ private:
 AutoOutOfScope<decltype(TOKEN_PASTE(auto_func_, counter))> TOKEN_PASTE(auto_, counter)(TOKEN_PASTE(auto_func_, counter));
 
 #define Auto(Destructor) Auto_INTERNAL(Destructor, __COUNTER__)
+
+#define Auto_INTERNAL2(Destructor, counter) \
+	const auto TOKEN_PASTE(auto_func_, counter) = [&]() noexcept { Destructor; }; \
+gsl::final_action<decltype(TOKEN_PASTE(auto_func_, counter))> TOKEN_PASTE(auto_, counter)(TOKEN_PASTE(auto_func_, counter));
+
+#define Auto2(Destructor) Auto_INTERNAL2(Destructor, __COUNTER__)
