@@ -363,7 +363,7 @@ std::optional<DcxSearchResults> DcxSearchHelper::matchText(const TString& txt, c
 TString DcxSearchHelper::findTextRange(const TString& tsText, const TString& tsMatchText, const TString& tsParams)
 {
 	// get search type to use.
-	const auto SearchType = CharToSearchType(tsParams.getfirsttok(1)[0]);
+	const auto SearchType = CharToSearchType(tsParams.getfirsttok(1).at(0));
 
 	// find the Nth match (zero for count all matches)
 	const auto N = tsParams.getnexttokas<size_t>();		// tok 2
