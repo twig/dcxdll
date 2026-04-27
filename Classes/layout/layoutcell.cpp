@@ -36,18 +36,9 @@ LayoutCell::LayoutCell(const HWND mHwnd) noexcept
 LayoutCell::LayoutCell(const HWND mHwnd, const RECT& rc) noexcept
 	: m_Hwnd(mHwnd)
 	, m_rcWindow(rc)
-{
-	SetRectEmpty(&m_rcBorders);
-
-	if (!mHwnd)
-		return;
-
-		if (Dcx::Dialogs.getDialogByHandle(mHwnd) == nullptr)
+	, m_BaseControl(Dcx::dcxGetProp<DcxControl*>(mHwnd, L"dcx_cthis"))
 		{
-			if (const auto* const d = Dcx::Dialogs.getDialogByChildHandle(mHwnd); d)
-				m_BaseControl = d->getControlByHWND(mHwnd);
 		}
-	}
 
 LayoutCell::LayoutCell(DcxControl* dcxc) noexcept
 	: LayoutCell()
