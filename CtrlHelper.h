@@ -3502,6 +3502,28 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Scrolls the text in a multiline edit control.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="xChars">- The number of characters to scroll horizontally.</param>
+	/// <param name="yLines">- The number of lines to scroll vertically.</param>
+	/// <returns>
+	/// <para>If the message is sent to a multiline edit control, the return value is TRUE.</para>
+	///	<para>If the message is sent to a single - line edit control, the return value is FALSE.</para>
+	///	</returns>
+	/// <remarks>
+	/// The control does not scroll vertically past the last line of text in the edit control.
+	/// If the current line plus the number of lines specified by the lParam parameter exceeds the total number of lines in the edit control,
+	/// the value is adjusted so that the last line of the edit control is scrolled to the top of the edit-control window.
+	/// The EM_LINESCROLL message scrolls the text vertically or horizontally in a multiline edit control.
+	/// The EM_LINESCROLL message can be used to scroll horizontally past the last character of any line.
+	/// </remarks>
+	inline bool dcxEdit_LineScroll(_In_ HWND hwnd, DWORD xChars, DWORD yLines) noexcept
+	{
+		return !!SendMessageW(hwnd, EM_LINESCROLL, gsl::narrow_cast<WPARAM>(xChars), gsl::narrow_cast<LPARAM>(yLines));
+	}
+
+	/// <summary>
 	/// 
 	/// </summary>
 	/// <param name="hwnd"></param>
@@ -4139,6 +4161,22 @@ namespace Dcx
 	inline LRESULT dcxRichEdit_InsertImage(_In_ HWND hwnd, _In_ RICHEDIT_IMAGE_PARAMETERS* lpRIP) noexcept
 	{
 		return SendMessage(hwnd, EM_INSERTIMAGE, 0, reinterpret_cast<LPARAM>(lpRIP));
+	}
+	/// <summary>
+	/// Scrolls the text in a multiline edit control.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="yLines">- The number of lines to scroll vertically.</param>
+	/// <returns>
+	/// <para>If the message is sent to a multiline edit control, the return value is TRUE.</para>
+	///	<para>If the message is sent to a single - line edit control, the return value is FALSE.</para>
+	///	</returns>
+	/// <remarks>
+	/// Supported in Microsoft Rich Edit 1.0 and later. The EM_LINESCROLL message scrolls the text vertically in a multiline edit control.
+	/// </remarks>
+	inline bool dcxRichEdit_LineScroll(_In_ HWND hwnd, DWORD yLines) noexcept
+	{
+		return !!SendMessageW(hwnd, EM_LINESCROLL, 0, gsl::narrow_cast<LPARAM>(yLines));
 	}
 
 	/// <summary>
