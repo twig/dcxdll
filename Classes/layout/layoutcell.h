@@ -227,6 +227,12 @@ public:
 	/// <param name="sz"></param>
 	void setMinSize(const SIZE& sz) noexcept { m_szMin = sz; }
 
+	void setStep(const SIZE& sz) noexcept { m_szStep = sz; }
+	const SIZE& getStep() const noexcept { return m_szStep; }
+	bool AllowStep(const RECT &rc) const noexcept;
+
+	DcxControl* getBaseCtrl() const noexcept { return m_BaseControl; }
+
 protected:
 
 	HWND m_Hwnd{}; //!< Cell Control Window Handle (nullptr if Container Cell)
@@ -241,6 +247,7 @@ protected:
 	LayoutCell* m_NextSibling{ nullptr }; //!< Used for navigation
 
 	size_t		m_iCount{};	//!< Total number of child cells for this cell.
+	SIZE		m_szStep{ 5,5 };
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

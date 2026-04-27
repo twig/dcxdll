@@ -158,3 +158,18 @@ const bool LayoutCell::isVisible() const noexcept
 {
 	return (m_Hwnd == nullptr || (IsWindow(m_Hwnd) && IsWindowVisible(m_Hwnd)));
 }
+
+bool LayoutCell::AllowStep(const RECT& rc) const noexcept
+{
+	const auto xDiff = ((rc.right - rc.left) - (m_rcWindow.right - m_rcWindow.left));
+	const auto yDiff = ((rc.bottom - rc.top) - (m_rcWindow.bottom - m_rcWindow.top));
+
+	// force update on shrinking
+	if ((xDiff < 0) || (yDiff < 0))
+		return true;
+
+	if ((abs(xDiff) < m_szStep.cx) && (abs(yDiff) < m_szStep.cy))
+		return false;
+
+	return true;
+}

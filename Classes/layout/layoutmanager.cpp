@@ -231,7 +231,6 @@ void LayoutManager::AddCell(const TString& input, const UINT iOffset, const DcxD
 			if (p_GetCell->getType() != LayoutCell::CellType::PANE)
 				throw Dcx::dcxException("Invalid parent Cell");
 
-			//const auto p_PaneCell = (LayoutCellPane *)p_GetCell;
 			const auto p_PaneCell = reinterpret_cast<LayoutCellPane*>(p_GetCell);
 			p_PaneCell->addChild(p_Cell.release(), WGT);
 		} // else if ( com == TEXT("cell") )
@@ -270,6 +269,24 @@ void LayoutManager::AddCell(const TString& input, const UINT iOffset, const DcxD
 	} // else if ( com == TEXT("space") )
 	else
 		throw DcxExceptions::dcxInvalidCommand();
+}
+
+bool LayoutManager::AllowStep(const RECT& rc) const noexcept
+{
+	if (!m_pRoot)
+		return false;
+
+	//const RECT rcWin = m_pRoot->getRect();
+	//
+	//const auto xDiff = ((rc.right - rc.left) - (rcWin.right - rcWin.left));
+	//const auto yDiff = ((rc.bottom - rc.top) - (rcWin.bottom - rcWin.top));
+	//
+	//if ((abs(xDiff) < m_szStep.cx) && (abs(yDiff) < m_szStep.cy))
+	//	return false;
+	//
+	//return true;
+
+	return m_pRoot->AllowStep(rc);
 }
 
 const CLATypes LayoutManager::parseLayoutFlags(const TString& flags) noexcept

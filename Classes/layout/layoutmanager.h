@@ -77,6 +77,8 @@ public:
 	/// <param name="dialog"></param>
 	void AddCell(const TString &input, const UINT iOffset = 3, const DcxDialog * dialog = nullptr);
 
+	bool AllowStep(const RECT& rc) const noexcept;
+
 	/// <summary>
 	/// Get the number of cells.
 	/// </summary>
