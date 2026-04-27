@@ -48,7 +48,7 @@ public:
 	/// </summary>
 	/// <param name="rc"></param>
 	/// <returns></returns>
-	const bool updateLayout(RECT & rc);
+	const bool updateLayout(RECT & rc, bool bForce = false);
 
 	/// <summary>
 	/// Set the root cell.

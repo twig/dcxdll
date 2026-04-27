@@ -19,7 +19,7 @@ LayoutManager::LayoutManager(HWND mHwnd) noexcept
 {
 }
 
-const bool LayoutManager::updateLayout(RECT& rc)
+const bool LayoutManager::updateLayout(RECT& rc, bool bForce)
 {
 	//if (empty())
 	//	return false;
@@ -56,10 +56,45 @@ const bool LayoutManager::updateLayout(RECT& rc)
 	//m_pRoot->LayoutChild();
 	//return (EndDeferWindowPos(m_pRoot->ExecuteLayout(BeginDeferWindowPos(gsl::narrow_cast<int>(m_iCount)))) != FALSE);
 
-	const auto bRedraw = m_pRoot->setRect(rc);
+	//if (!AllowStep(rc))
+	//{
+	//	m_pRoot->LayoutChild();
+	//	std::ignore = EndDeferWindowPos(m_pRoot->ExecuteLayout(BeginDeferWindowPos(gsl::narrow_cast<int>(m_iCount))));
+	//	return false;
+	//}
+
+	//const auto bRedraw = m_pRoot->setRect(rc);
+	//m_pRoot->LayoutChild();
+	//std::ignore = EndDeferWindowPos(m_pRoot->ExecuteLayout(BeginDeferWindowPos(gsl::narrow_cast<int>(m_iCount))));
+	//return bRedraw;
+
+	//bool bRedraw{};
+	//if (AllowStep(rc))
+	//	bRedraw = m_pRoot->setRect(rc);
+	//m_pRoot->LayoutChild();
+	//std::ignore = EndDeferWindowPos(m_pRoot->ExecuteLayout(BeginDeferWindowPos(gsl::narrow_cast<int>(m_iCount))));
+	//return bRedraw;
+
+	bool bRedraw = bForce;
+	if (bForce)
+		m_pRoot->setRect(rc);
+	else if (AllowStep(rc))
+		bRedraw = m_pRoot->setRect(rc);
 	m_pRoot->LayoutChild();
 	std::ignore = EndDeferWindowPos(m_pRoot->ExecuteLayout(BeginDeferWindowPos(gsl::narrow_cast<int>(m_iCount))));
 	return bRedraw;
+
+	//bool bRedraw = bForce;
+	//if (bForce)
+	//	m_pRoot->setRect(rc);
+	//else if (AllowStep(rc))
+	//	bRedraw = m_pRoot->setRect(rc);
+	//if (bRedraw)
+	//{
+	//	m_pRoot->LayoutChild();
+	//	std::ignore = EndDeferWindowPos(m_pRoot->ExecuteLayout(BeginDeferWindowPos(gsl::narrow_cast<int>(m_iCount))));
+	//}
+	//return bRedraw;
 }
 
 void LayoutManager::setRoot(std::unique_ptr<LayoutCell> p_Root) noexcept
@@ -275,16 +310,6 @@ bool LayoutManager::AllowStep(const RECT& rc) const noexcept
 {
 	if (!m_pRoot)
 		return false;
-
-	//const RECT rcWin = m_pRoot->getRect();
-	//
-	//const auto xDiff = ((rc.right - rc.left) - (rcWin.right - rcWin.left));
-	//const auto yDiff = ((rc.bottom - rc.top) - (rcWin.bottom - rcWin.top));
-	//
-	//if ((abs(xDiff) < m_szStep.cx) && (abs(yDiff) < m_szStep.cy))
-	//	return false;
-	//
-	//return true;
 
 	return m_pRoot->AllowStep(rc);
 }
