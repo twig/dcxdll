@@ -154,16 +154,10 @@ public:
 
 	void deleteAllControls() noexcept;
 
-	const bool updateLayout(RECT& rc);
+	const bool updateLayout(RECT& rc, bool bForce = false);
 
 	void setMouseControl(const UINT mUID);
 	void setFocusControl(const UINT mUID);
-
-#if DCX_CUSTOM_MENUS
-	//void UAHDrawMenuNCBottomLine(HWND hWnd) const noexcept;
-	//void UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept;
-	//void UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept;
-#endif
 
 	/// <summary>
 	/// Get the dialogs name.
@@ -212,9 +206,7 @@ public:
 	};
 	//inline const HWND& getToolTip(void) const noexcept { return m_ToolTipHWND; };
 
-	inline const XPopupMenu* getXMenu() const noexcept {
-		return m_popup.get();
-	};
+	inline const XPopupMenu* getXMenu() const noexcept { return m_popup.get(); };
 
 	void loadCursor(const TString &tsFlags, const TString &tsFilename);
 
@@ -340,10 +332,7 @@ public:
 	/// </summary>
 	/// <param name="local_id">- The UserID number</param>
 	/// <returns>TString - The name associated with that ID number. Returns an empty string on failure.</returns>
-	const TString& UserIDToName(const UINT local_id) const noexcept
-	{
-		return IDToName(local_id + mIRC_ID_OFFSET);
-	}
+	const TString& UserIDToName(const UINT local_id) const noexcept { return IDToName(local_id + mIRC_ID_OFFSET); }
 
 	/// <summary>
 	/// Get a unique ID
