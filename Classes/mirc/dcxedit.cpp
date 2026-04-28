@@ -502,6 +502,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	}
 	break;
 
+	// [NAME] [ID] [PROP] (N)
 	case L"len"_hash:
 	{
 		if (this->isStyle(WindowStyle::ES_MultiLine) && (input.numtok() == 4))
@@ -509,7 +510,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 			const auto nLine = input.getnexttokas<UINT>();
 			const auto sepChars(Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd));
 
-			if (nLine > m_tsText.numtok(sepChars.to_chr()))
+			if ((nLine > m_tsText.numtok(sepChars.to_chr())) || (nLine == 0))
 				throw DcxExceptions::dcxInvalidArguments();
 
 			const auto nLen = m_tsText.gettok(nLine, sepChars.to_chr()).len();
@@ -583,13 +584,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
-
-		//if (this->isStyle(WindowStyle::ES_MultiLine))
-		//{
-		//	const auto nLine = input.getnexttokas<UINT>();	// tok 4
-		//	this->m_tsText.deltok(nLine, TEXT("\r\n"));
-		//	SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
-		//}
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
@@ -1520,107 +1514,6 @@ void DcxEdit::setCaretPos(DWORD pos) noexcept
 {
 	Dcx::dcxEdit_SetCaretIndex2(m_Hwnd, pos);
 }
-
-//const DcxSearchTypes DcxEdit::CharToSearchType(const TCHAR& cType) const noexcept
-//{
-//	switch (cType)
-//	{
-//	case TEXT('R'):
-//	case TEXT('r'):
-//		return DcxSearchTypes::SEARCH_R;
-//	case TEXT('W'):
-//	case TEXT('w'):
-//		return DcxSearchTypes::SEARCH_W;
-//	default:
-//		return DcxSearchTypes::SEARCH_E;
-//	}
-//}
-
-//std::optional<DcxEdit::Edit_SearchResults> DcxEdit::matchText(const UINT nLine, const UINT nSubChar, const TString& search, const DcxSearchTypes& SearchType) const
-//{
-//	if (nLine == 0)
-//		return { };
-//
-//	// [LINE] & [SUBCHAR] supplied.
-//	// adjust nChar to the correct pos.
-//
-//	// is line number to high?
-//	if (nLine > m_tsText.numtok(TEXT("\r\n")))
-//		return { };
-//
-//	// find line character offset.
-//	const auto LineOffset = m_tsText.find(TEXT("\r\n"), nLine);
-//
-//	// couldnt find line?
-//	if (LineOffset == -1)
-//		return { };
-//
-//	const UINT nChar = LineOffset + nSubChar;
-//
-//	// is char outside of range allowed?
-//	if (nChar >= m_tsText.len())
-//		return { };
-//
-//	return matchText(nChar, search, SearchType);
-//}
-
-//std::optional<DcxEdit::Edit_SearchResults> DcxEdit::matchText(const UINT nChar, const TString& search, const DcxSearchTypes& SearchType) const
-//{
-//	const dcxSearchData srch_data(search, SearchType);
-//
-//	return matchText(nChar, srch_data);
-//}
-
-//std::optional<DcxEdit::Edit_SearchResults> DcxEdit::matchText(const UINT nChar, const dcxSearchData& srch_data) const
-//{
-//	//if (nChar == 0) // nChar must be >= 1
-//	//	return { Edit_SearchResults{ false, 0, 0 } };
-//
-//	if (nChar >= m_tsText.len())
-//		return { };
-//
-//	const auto szStart = &m_tsText.to_chr()[nChar];
-//
-//	switch (srch_data.m_SearchType)
-//	{
-//	case DcxSearchTypes::SEARCH_R:	// regex match
-//	{
-//		if (const auto m = getRegexMatchOffset(szStart, srch_data); m.has_value())
-//		{
-//			const auto nStart = m->nStart + nChar;
-//			const auto nEnd = m->nEnd + nChar;
-//
-//			return { Edit_SearchResults{ true, nStart, nEnd } };
-//		}
-//	}
-//	break;
-//	case DcxSearchTypes::SEARCH_W:	// wildcard match
-//	{
-//		if (const auto bFound = _ts_WildcardMatch(szStart, srch_data.m_tsSearch); bFound)
-//		{
-//			const auto nStart = gsl::narrow_cast<size_t>(szStart - m_tsText.to_chr());
-//			const auto nEnd = nStart + m_tsText.len();
-//
-//			return { Edit_SearchResults{ true, nStart, nEnd } };
-//		}
-//	}
-//	break;
-//	case DcxSearchTypes::SEARCH_E:   // exact match
-//	{
-//		if (const auto szFound = _ts_find(szStart, srch_data.m_tsSearch.to_chr()); szFound)
-//		{
-//			const auto nStart = gsl::narrow_cast<UINT>((szFound - m_tsText.to_chr()));
-//			const auto nEnd = nStart + srch_data.m_tsSearch.len();
-//
-//			return { Edit_SearchResults{ true, nStart, nEnd } };
-//		}
-//	}
-//	break;
-//	default:
-//		break;
-//	}
-//	return { };
-//}
 
 void DcxEdit::DrawClientRect(HDC hdc, unsigned int uMsg, LPARAM lParam)
 {
