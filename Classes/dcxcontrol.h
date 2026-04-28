@@ -18,6 +18,7 @@
 #include "defines.h"
 #include "dcxwindow.h"
 #include "CtrlHelper.h"
+#include "Classes/layout/layoutmanager.h"
 
  //#include "DcxTextRender.h"
 
@@ -133,6 +134,7 @@ enum class DcxIconSizes
 };
 
 class DcxDialog;
+class LayoutManager;
 
 struct ALPHAINFO
 {
@@ -485,6 +487,8 @@ public:
 		showError(prop, cmd, _ts_sprintf(tsErr, fmt, val, args...).to_chr());
 	}
 
+	bool updateLayout(RECT& rc, bool bForce = false);
+
 	virtual void HandleDragDrop(int x, int y) noexcept;
 	virtual void HandleDragMove(int x, int y) noexcept;
 
@@ -508,6 +512,8 @@ protected:
 
 	//DcxDialog* m_pParentDialog{ nullptr };	//!< Parent DcxDialog object
 	gsl::strict_not_null<DcxDialog*> m_pParentDialog;	//!< Parent DcxDialog object
+
+	std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
 
 	HFONT m_hFont{ nullptr };					//!< Control Font
 

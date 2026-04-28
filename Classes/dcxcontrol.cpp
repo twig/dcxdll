@@ -380,6 +380,7 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		this->removeStyle(WindowStyle::Border | WS_DLGFRAME);
 		this->removeExStyle(WindowExStyle::ClientEdge | WS_EX_DLGMODALFRAME | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
 
+		// cant use std::ignore here
 		const auto [Styles, ExStyles, bIgnoreThis] = parseBorderStyles(input.gettok(4));
 
 		this->addStyle(Styles);
@@ -1167,8 +1168,8 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 	{
 		COLORREF cref = CLR_INVALID;
 
-		if (getToolTipHWND())
-			cref = Dcx::dcxToolTip_GetTipBkColor(getToolTipHWND());
+		if (auto& hwnd = getToolTipHWND(); hwnd)
+			cref = Dcx::dcxToolTip_GetTipBkColor(hwnd);
 
 		tsResult += cref;
 	}
@@ -1179,8 +1180,8 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 	{
 		COLORREF cref = CLR_INVALID;
 
-		if (getToolTipHWND())
-			cref = Dcx::dcxToolTip_GetTipTextColor(getToolTipHWND());
+		if (auto& hwnd = getToolTipHWND(); hwnd)
+			cref = Dcx::dcxToolTip_GetTipTextColor(hwnd);
 
 		tsResult += cref;
 	}
@@ -1258,6 +1259,14 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 		break;
 	}
 	return tsResult;
+}
+
+bool DcxControl::updateLayout(RECT& rc, bool bForce)
+{
+	if (!m_pLayoutManager)
+		return false;
+
+	return m_pLayoutManager->updateLayout(rc, bForce);
 }
 
 void DcxControl::HandleDragDrop(int x, int y) noexcept
@@ -2056,7 +2065,7 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl* const p_thi
 			//	//DcxUXModule::dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, nullptr);
 
 				COLORREF clr{ CLR_INVALID };
-				auto hRes = DcxUXModule::dcxGetThemeColor(hTheme, iPartId, iStateId, TMT_BTNFACE, &clr);
+				const auto hRes = DcxUXModule::dcxGetThemeColor(hTheme, iPartId, iStateId, TMT_BTNFACE, &clr);
 
 				if ((hRes != S_OK) || (clr == CLR_INVALID))
 					clr = GetSysColor(COLOR_3DFACE);
@@ -3721,7 +3730,7 @@ void DcxControl::InitializeDcxControls()
 
 	// Custom RichEdit
 	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering RichEdit..."));
-	if (mIRCLinker::isOrNewerVersion(7,83))
+	if (mIRCLinker::isOrNewerVersion(7, 83))
 		dcxRegisterClass<DcxRichEdit>(MSFTEDIT_CLASS, DCX_RICHEDITCLASS);
 	else
 	dcxRegisterClass<DcxRichEdit>(RICHEDIT_CLASS, DCX_RICHEDITCLASS);

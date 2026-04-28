@@ -90,7 +90,7 @@ private:
 
 	LONG m_iBoxStyles{}; //!< Custom Box Styles
 
-	std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
+	//std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
 
 	RECT m_rcCheck{};
 	bool m_bTitleChecked{ true };

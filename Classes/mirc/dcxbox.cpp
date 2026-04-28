@@ -252,7 +252,7 @@ void DcxBox::parseCommandRequest(const TString& input)
 			if (!GetClientRect(m_Hwnd, &rc))
 				throw Dcx::dcxException("Unable to get client rect!");
 
-			m_pLayoutManager->updateLayout(rc);
+			this->updateLayout(rc, true);
 
 			redrawWindow();
 		}
@@ -506,7 +506,10 @@ LRESULT DcxBox::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 		if (m_pLayoutManager && !dcx_testflag(wp->flags, SWP_HIDEWINDOW))
 		{
 			RECT rc{ 0, 0, wp->cx, wp->cy };
-			m_pLayoutManager->updateLayout(rc);
+			//m_pLayoutManager->updateLayout(rc);
+			//this->updateLayout(rc);
+			if (this->updateLayout(rc))
+				this->redrawWindow();
 		}
 	}
 	break;

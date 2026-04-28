@@ -349,7 +349,7 @@ void DcxPanel::parseCommandRequest(const TString& input)
 			if (!GetClientRect(m_Hwnd, &rc))
 				throw Dcx::dcxException("Unable to get client rect!");
 
-			m_pLayoutManager->updateLayout(rc);
+			this->updateLayout(rc, true);
 
 			redrawWindow();
 		}
@@ -490,7 +490,11 @@ LRESULT DcxPanel::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 
 			//if (this->m_pLayoutManager->updateLayout( rc ))
 			//	this->redrawWindow( );
-			m_pLayoutManager->updateLayout(rc);
+			//m_pLayoutManager->updateLayout(rc);
+
+			//this->updateLayout(rc);
+			if (this->updateLayout(rc))
+				this->redrawWindow();
 		}
 	}
 	break;

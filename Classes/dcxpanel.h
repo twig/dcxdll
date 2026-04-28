@@ -54,7 +54,7 @@ public:
 
 protected:
 
-	std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
+	//std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
 };
 
 #endif // _DCXPANEL_H_
