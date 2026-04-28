@@ -510,8 +510,11 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 			const auto nLine = input.getnexttokas<UINT>();
 			const auto sepChars(Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd));
 
+			if (nLine != 1)
+			{
 			if ((nLine > m_tsText.numtok(sepChars.to_chr())) || (nLine == 0))
 				throw DcxExceptions::dcxInvalidArguments();
+			}
 
 			const auto nLen = m_tsText.gettok(nLine, sepChars.to_chr()).len();
 
