@@ -164,7 +164,10 @@ void LayoutManager::AddCell(const TString& input, const UINT iOffset, const DcxD
 
 	const auto bPathRoot = (path == TEXT("root"));
 
-	if ((com == TEXT("root"_hash)) || com == TEXT("cell"_hash))
+	switch (com)
+	{
+	case TEXT("root"_hash):
+	case TEXT("cell"_hash):
 	{
 		const auto ID = (dialog) ? dialog->NameToUserID(tsID) : tsID.to_<UINT>();
 		const auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(mIRC_ID_OFFSET + ID));
@@ -271,9 +274,9 @@ void LayoutManager::AddCell(const TString& input, const UINT iOffset, const DcxD
 		} // else if ( com == TEXT("cell") )
 
 		++m_iCount;
-
-	} // if ( com ==  TEXT("root") || com == TEXT("cell") )
-	else if (com == TEXT("space"_hash))
+	}
+	break;
+	case TEXT("space"_hash):
 	{
 		auto p_GetCell = getRoot();
 
@@ -301,9 +304,27 @@ void LayoutManager::AddCell(const TString& input, const UINT iOffset, const DcxD
 		}
 
 		p_GetCell->setBorder(rc);
-	} // else if ( com == TEXT("space") )
-	else
+	}
+	break;
+	case TEXT("step"_hash):
+	{
+		auto p_GetCell = getRoot();
+
+		if (!bPathRoot)
+			p_GetCell = getCell(path);
+
+		if (!p_GetCell)
+			throw DcxExceptions::dcxInvalidPath();
+
+		const SIZE szStep{ W, H };
+
+		p_GetCell->setStep(szStep);
+	}
+	break;
+	default:
 		throw DcxExceptions::dcxInvalidCommand();
+		break;
+	}
 }
 
 bool LayoutManager::AllowStep(const RECT& rc) const noexcept
