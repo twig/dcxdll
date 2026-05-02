@@ -98,6 +98,9 @@ void LayoutCellPane::getMinMaxInfo(CellMinMaxInfo* const pCMMI) const noexcept
 	if (!pCMMI)
 		return;
 
+	if (!isMinMaxValid(pCMMI))
+		return;
+
 	const auto nMaxWidthX = pCMMI->m_MaxSize.x;
 	const auto nMaxWidthY = pCMMI->m_MaxSize.y;
 
@@ -132,10 +135,13 @@ void LayoutCellPane::getMinMaxInfo(CellMinMaxInfo* const pCMMI) const noexcept
 
 	pCMMI->m_MinSize.x = std::max(pCMMI->m_MinSize.x, this->m_szMin.cx);
 	pCMMI->m_MinSize.y = std::max(pCMMI->m_MinSize.y, this->m_szMin.cy);
-	//pCMMI->m_MaxSize.x = std::min(pCMMI->m_MaxSize.x, gsl::narrow_cast<LONG>(GetSystemMetrics(SM_CXMAXTRACK)));
-	//pCMMI->m_MaxSize.y = std::min(pCMMI->m_MaxSize.y, gsl::narrow_cast<LONG>(GetSystemMetrics(SM_CYMAXTRACK)));
 	pCMMI->m_MaxSize.x = std::min(pCMMI->m_MaxSize.x, gsl::narrow_cast<LONG>(Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CXMAXTRACK)));
 	pCMMI->m_MaxSize.y = std::min(pCMMI->m_MaxSize.y, gsl::narrow_cast<LONG>(Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CYMAXTRACK)));
+
+	//pCMMI->m_MinSize.x = std::max(pCMMI->m_MinSize.x, this->m_szMin.cx);
+	//pCMMI->m_MinSize.y = std::max(pCMMI->m_MinSize.y, this->m_szMin.cy);
+	//pCMMI->m_MaxSize.x = std::max(pCMMI->m_MinSize.x, std::min(pCMMI->m_MaxSize.x, gsl::narrow_cast<LONG>(Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CXMAXTRACK))));
+	//pCMMI->m_MaxSize.y = std::max(pCMMI->m_MinSize.y, std::min(pCMMI->m_MaxSize.y, gsl::narrow_cast<LONG>(Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CYMAXTRACK))));
 }
 
 void LayoutCellPane::toXml(TiXmlElement* const xml)
@@ -187,6 +193,9 @@ void LayoutCellPane::AdjustMinSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 {
 	const RECT rc = getClientRect();
 
+	if (((rc.bottom - rc.top) <= 0) || ((rc.right - rc.left) <= 0))
+		return;
+
 	int nSize = 0;
 
 	if (m_nType == PaneType::HORZ)
@@ -232,6 +241,9 @@ void LayoutCellPane::AdjustSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 {
 	const RECT rc = this->getClientRect();
 
+	if (((rc.bottom - rc.top) <= 0) || ((rc.right - rc.left) <= 0))
+		return;
+
 	UINT nNewTotalWeight = 0U;
 	auto nNewSizeLeft = nSizeLeft;
 
@@ -263,7 +275,7 @@ void LayoutCellPane::AdjustSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 
 				pChild->getMinMaxInfo(&cmmiChild);
 
-				if (rectNew.right - rectNew.left != cmmiChild.m_MaxSize.x)
+				if ((rectNew.right - rectNew.left) != cmmiChild.m_MaxSize.x)
 					nNewTotalWeight += nWeight;
 			}
 		}
@@ -294,6 +306,9 @@ void LayoutCellPane::AdjustPos() noexcept
 {
 	int nPos = 0;
 	const RECT rect = this->getClientRect();
+
+	if (((rect.bottom - rect.top) <= 0) || ((rect.right - rect.left) <= 0))
+		return;
 
 	if (m_nType == PaneType::HORZ)
 		nPos = rect.left;

@@ -159,6 +159,16 @@ public:
 	virtual void toXml(TiXmlElement* const xml) = 0;
 	virtual TiXmlElement* toXml(void) = 0;
 
+	bool isMinMaxValid(CellMinMaxInfo* const pCMMI) const noexcept
+	{
+		return (pCMMI->m_MaxSize.x >= 0) &&
+			(pCMMI->m_MaxSize.y >= 0) &&
+			(pCMMI->m_MinSize.x >= 0) &&
+			(pCMMI->m_MinSize.y >= 0) &&
+			(pCMMI->m_MaxSize.x >= pCMMI->m_MinSize.x) &&
+			(pCMMI->m_MaxSize.y >= pCMMI->m_MinSize.y);
+	}
+
 	/// <summary>
 	/// Set sibling for this cells.
 	/// </summary>
@@ -247,7 +257,7 @@ protected:
 	LayoutCell* m_NextSibling{ nullptr }; //!< Used for navigation
 
 	size_t		m_iCount{};	//!< Total number of child cells for this cell.
-	SIZE		m_szStep{ 5,5 };
+	SIZE		m_szStep{};
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )
