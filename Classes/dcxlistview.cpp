@@ -3673,12 +3673,6 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 				if (!pHeader)
 					break;
 
-				//TCHAR ret[256];
-				//evalAliasEx( ret, Dcx::countof(ret), TEXT("trackbegin,%u,%d"), getUserID(), pHeader->iItem +1);
-				//
-				//if (ts_strcmp(TEXT("notrack"), ret) == 0)
-				//	return TRUE;
-
 				const stString<256> sRet;
 				evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("trackbegin,%u,%d"), getUserID(), pHeader->iItem + 1);
 
@@ -4304,85 +4298,6 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString& dataset, TStrin
 
 bool DcxListView::xmlLoadListview(const int nPos, const TiXmlElement* xElm)
 {
-	//TString tsBuf((UINT)MIRC_BUFFER_SIZE_CCH);
-	//int nItem{ nPos };
-	//
-	//if (nPos < 1)
-	//	nItem = Dcx::dcxListView_GetItemCount(m_Hwnd);
-	//
-	//for (const auto* xNode = xElm->FirstChildElement("item"); xNode; xNode = xNode->NextSiblingElement("item"))
-	//{
-	//	TString tsText(queryAttribute(xNode, "text"));
-	//	const TiXmlElement *xCtrl{};
-	//
-	//	if (xCtrl = xNode->FirstChildElement("control"); xCtrl)
-	//	{
-	//		const auto iX = queryIntAttribute(xCtrl, "x");
-	//		const auto iY = queryIntAttribute(xCtrl, "y");
-	//		const auto iWidth = queryIntAttribute(xCtrl, "width");
-	//		const auto iHeight = queryIntAttribute(xCtrl, "height");
-	//		TString tsID(queryAttribute(xCtrl, "id"));
-	//		auto szType = queryAttribute(xCtrl, "type");
-	//		auto szStyles = queryAttribute(xCtrl, "styles");
-	//
-	//		// ID is NOT a number!
-	//		if (tsID.empty()) // no id, generate one.
-	//			tsID.addtok(getParentDialog()->getUniqueID());
-	//
-	//		_ts_sprintf(tsText, TEXT("% % % % % % %"), tsID, szType, iX, iY, iWidth, iHeight, szStyles);
-	//	}
-	//	_ts_sprintf(tsBuf, L"dname id -a % % % % % % % % % %",
-	//		nItem,
-	//		queryIntAttribute(xNode, "indent"),
-	//		queryAttribute(xNode, "flags","+"),
-	//		queryIntAttribute(xNode, "icon"),
-	//		queryIntAttribute(xNode, "stateicon", -1),
-	//		queryIntAttribute(xNode, "overlayicon"),
-	//		queryIntAttribute(xNode, "groupid"),
-	//		queryColourAttribute(xNode, "textcolour"),
-	//		queryColourAttribute(xNode, "bgcolour"),
-	//		tsText);
-	//
-	//	for (const auto* xSubNode = xNode->FirstChildElement("subitem"); xSubNode; xSubNode = xSubNode->NextSiblingElement("subitem"))
-	//	{
-	//		TString tsSub;
-	//		TString tsSubText(queryAttribute(xSubNode, "text"));
-	//		if (xCtrl = xSubNode->FirstChildElement("control"); xCtrl)
-	//		{
-	//			const auto iX = queryIntAttribute(xCtrl, "x");
-	//			const auto iY = queryIntAttribute(xCtrl, "y");
-	//			const auto iWidth = queryIntAttribute(xCtrl, "width");
-	//			const auto iHeight = queryIntAttribute(xCtrl, "height");
-	//			TString tsID(queryAttribute(xCtrl, "id"));
-	//			auto szType = queryAttribute(xCtrl, "type");
-	//			auto szStyles = queryAttribute(xCtrl, "styles");
-	//
-	//			// ID is NOT a number!
-	//			if (tsID.empty()) // no id, generate one.
-	//				tsID.addtok(getParentDialog()->getUniqueID());
-	//
-	//			_ts_sprintf(tsSubText, TEXT("% % % % % % %"), tsID, szType, iX, iY, iWidth, iHeight, szStyles);
-	//		}
-	//		_ts_sprintf(tsSub, L"\t% % % % % %",
-	//			queryAttribute(xSubNode, "flags", "+"),
-	//			queryIntAttribute(xSubNode, "icon"),
-	//			queryIntAttribute(xSubNode, "overlayicon"),
-	//			queryColourAttribute(xSubNode, "textcolour"),
-	//			queryColourAttribute(xSubNode, "bgcolour"),
-	//			tsSubText);
-	//
-	//		tsBuf += tsSub;
-	//	}
-	//	//xdid -a [NAME] [ID] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
-	//	//[N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
-	//	if (!tsBuf.empty())
-	//	{
-	//		Command_a(tsBuf);
-	//		++nItem;
-	//	}
-	//}
-	//return true;
-
 	TString tsBuf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
 	int nItem{ nPos };
 
@@ -4922,51 +4837,6 @@ void DcxListView::parseText2Item(const TString& tsTxt, TString& tsItem, const TS
 		tsItem += tsTok;
 	}
 }
-
-//void DcxListView::getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range)
-//{
-////	int iStart, iEnd;
-////	if (tsItems.numtok(TEXT('-')) == 2) {
-////		iStart = tsItems.getfirsttok(1, TEXT('-')).to_int() -1;
-////		iEnd = tsItems.getnexttok(TEXT('-')).to_int() -1;
-////
-////		if (iEnd == -1)	// special case
-////			iEnd = nItemCnt -1;
-////	}
-////	else {
-////		iEnd = tsItems.to_int() -1;
-////
-////		if (iEnd == -1)	// special case
-////			iStart = iEnd = nItemCnt -1;
-////		else
-////			iStart = iEnd;
-////	}
-////	*iStart_range = iStart;
-////	*iEnd_range = iEnd;
-//
-//	std::tie(*iStart_range, *iEnd_range) = getItemRange(tsItems, nItemCnt);
-//}
-//
-//std::pair<int, int> DcxListView::getItemRange(const TString &tsItems, const int nItemCnt)
-//{
-//	int iStart, iEnd;
-//	if (tsItems.numtok(TEXT('-')) == 2) {
-//		iStart = tsItems.getfirsttok(1, TEXT('-')).to_int() - 1;
-//		iEnd = tsItems.getnexttok(TEXT('-')).to_int() - 1;
-//
-//		if (iEnd == -1)	// special case
-//			iEnd = nItemCnt - 1;
-//	}
-//	else {
-//		iEnd = tsItems.to_int() - 1;
-//
-//		if (iEnd == -1)	// special case
-//			iStart = iEnd = nItemCnt - 1;
-//		else
-//			iStart = iEnd;
-//	}
-//	return std::make_pair(iStart, iEnd);
-//}
 
 void DcxListView::DeleteColumns(const int nColumn) noexcept
 {
@@ -6084,7 +5954,7 @@ void DcxListView::Command_a(const TString& input)
 	{
 		// load all data from a mIRC hashtable.
 		//this->xLoadListview(nPos, data, TEXT("$hget(%s)"), TEXT("$hget(%s,0).item"), TEXT("$hget(%s,%d)"), TEXT("$hget(%s,%s)"));
-		this->xLoadListview(nPos, data, TEXT("$hget(%)"), TEXT("$hget(%,0).item"), TEXT("$hget(%,%)"), TEXT("$hget(%,%)"));
+		this->xLoadListview(nPos, data, TEXT("$hget(%)"), TEXT("$hget(%,0).item"), TEXT("$hget(%,%).data"), TEXT("$hget(%,%)"));
 		return;
 	}
 
@@ -6109,7 +5979,7 @@ void DcxListView::Command_a(const TString& input)
 /// <summary>
 /// 
 /// </summary>
-/// <param name="input"></param>
+/// <param name="input">[NAME] [ID] [SWITCH] [N] [M] (ItemText)</param>
 void DcxListView::Command_v(const TString& input)
 {
 	if (!m_Hwnd)
@@ -6120,8 +5990,8 @@ void DcxListView::Command_v(const TString& input)
 	if (numtok < 5)
 		throw DcxExceptions::dcxInvalidArguments();
 
-	const auto tsItems(input.getnexttok());		// tok 4
-	const auto tsSubItems(input.getnexttok());	// tok 5
+	auto tsItems(input.getnexttok());		// tok 4
+	auto tsSubItems(input.getnexttok());	// tok 5
 	auto itemtext(input.getlasttoks().trim());	// tok 6, -1
 
 	if (tsItems == TEXT("-1"))
@@ -6138,6 +6008,19 @@ void DcxListView::Command_v(const TString& input)
 	const auto nItemCnt = Dcx::dcxListView_GetItemCount(m_Hwnd);
 	// get total subitems
 	const auto nSubItemCnt = this->getColumnCount();
+
+	if (tsItems == TEXT("0"))
+	{
+		// special case 0 supplied as item number, sets text for last item.
+		tsItems.clear();
+		tsItems.addtok(nItemCnt);
+	}
+	if (tsSubItems == TEXT("0"))
+	{
+		// special case 0 supplied as subitem number, sets text for last subitem.
+		tsSubItems.clear();
+		tsSubItems.addtok(nSubItemCnt);
+	}
 
 	// iterate through all item ranges supplied
 	const auto itEnd = tsItems.end();

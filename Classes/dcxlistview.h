@@ -332,10 +332,17 @@ private:
 	RECT GetHeaderButtonRect(_In_ LPCRECT rcHeader) const noexcept
 	{
 		RECT rcButton{ *rcHeader };
+
+		// button on right (default)
 		rcButton.left = rcButton.right - (rcHeader->bottom - rcHeader->top);
 		InflateRect(&rcButton, 0, -2);
-		//OffsetRect(&rcButton, -10, 0);
 		OffsetRect(&rcButton, -2, 0);
+
+		// button on left
+		//rcButton.right = rcButton.left + (rcHeader->bottom - rcHeader->top);
+		//InflateRect(&rcButton, 0, -2);
+		//OffsetRect(&rcButton, -2, 0);
+
 		return rcButton;
 	}
 
@@ -350,8 +357,11 @@ private:
 	RECT GetHeaderButtonRect(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iStateId, _In_ LPCRECT rcHeader) const noexcept
 	{
 		RECT rcButton{};
-		const RECT rcBounds{ *rcHeader };
-		DcxUXModule::dcxGetThemeBackgroundContentRect(hTheme, hdc, LVP_COLLAPSEBUTTON, iStateId, &rcBounds, &rcButton);
+
+		//const RECT rcBounds{ *rcHeader };
+		//DcxUXModule::dcxGetThemeBackgroundContentRect(hTheme, hdc, LVP_COLLAPSEBUTTON, iStateId, &rcBounds, &rcButton);
+
+		DcxUXModule::dcxGetThemeBackgroundContentRect(hTheme, hdc, LVP_COLLAPSEBUTTON, iStateId, rcHeader, &rcButton);
 
 		return rcButton;
 	}
