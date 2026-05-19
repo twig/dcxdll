@@ -205,7 +205,8 @@ function get_xmenubar(&$XMENUBAR) {
 						'e' => 'Enable/disable',
 						'r' => 'Enable/disable rounded borders',
 						'O' => 'Enable/disable drawing borders',
-						'f' => 'Load background image (bmp format only atm)',
+						'f' => 'Load background image for menubar items (bmp format only atm)',
+						'F' => 'Load background image for menubar (bmp format only atm)',
 						's' => 'Enable/disable shadow text',
 						'v' => 'Visible/invisible menubar (works with custom or standard menubars)',
 						'S' => 'menubar style',
@@ -228,7 +229,8 @@ function get_xmenubar(&$XMENUBAR) {
 					'__desc' => 'Arguments dependant on [p]+FLAGS[/p]',
 					'__values' => array(
 						'e,r,O,s,v' => '1 or 0',
-                        'f' => 'path/filename.bmp or if combined with [f]+i[/f] [ITEM INDEX] path/filename.bmp',
+                        'f' => '[+FLAGS] path/filename.bmp or if combined with [f]+i[/f] [ITEM INDEX] [+FLAGS] path/filename.bmp',
+                        'F' => 'path/filename.bmp',
 						'S' => 'stylename',
 						'i' => 'adds [ITEM INDEX] to the start of combined flags args.',
                         'R' => 'no args',
@@ -236,7 +238,7 @@ function get_xmenubar(&$XMENUBAR) {
 					),
 				),
             ),
-            '__notes' => 'fun',
+            '__notes' => 'When [f]+f[/f] is used by its self without [f]+i[/f] the default image for all items is set.',
         ),
     );
 }

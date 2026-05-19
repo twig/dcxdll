@@ -523,6 +523,8 @@ function get_xdid_listview(&$XDID) {
 			),
 			'__notes' => array(
 				'Use [p]TEXT[/p] as [v]-v 80[/v] to set the value of a progress bar.',
+				'If [p]N[/p] == 0 then set the last item.',
+				'If [p]NSUB[/p] == 0 then set text for last subitem.',
 				'If [p]N[/p] == -1 then sets the empty listview text which is displayed when the listview contains no items.',
 				'If [p]NSUB[/p] == 2 when [p]N[/p] == -1 then redraw after setting empty text.'
 			),
@@ -667,6 +669,7 @@ function get_xdid_listview(&$XDID) {
 						'n' => 'Numerical sorting.',
 						's' => 'Case-sensitive sorting. (With Alpha-numeric)',
 						't' => 'Alpha-numeric sorting. ([v]Default[/v])',
+						'i' => 'IRC sorting.',
 					),
 				),
 				'COLUMN' => 'Column to be used for sorting.',

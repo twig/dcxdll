@@ -14,7 +14,7 @@ function get_xdid_web2ctrl(&$XDID) {
 	    'g' => array(
 	        '__desc' => 'This command is like hitting the Home button in a browser.',
 	        '__cmd' => '(URL)',
-	        '__eg' => "http://dcx.scriptsdb.org",
+	        '__eg' => "http://github.com/twig/dcxdll",
 			'__notes' => "If a url is supplied then it is set as the home url for all future calls.",
 		),
 		'i' => array(
@@ -31,7 +31,7 @@ function get_xdid_web2ctrl(&$XDID) {
 		'm' => array(
 	        '__desc' => 'This does the same as [cmd]/xdid -n[/cmd] but allows setting some flags too.',
 	        '__cmd' => '[+FLAGS] [+MASK] (URL)',
-	        '__eg' => "+bf +b http://dcx.scriptsdb.org",
+	        '__eg' => "+bf +b http://github.com/twig/dcxdll",
 			'__params' => array(
 				'+FLAGS' => array(
 					'__desc' => 'Can be any combination of',
@@ -55,7 +55,7 @@ function get_xdid_web2ctrl(&$XDID) {
 		'n' => array(
 	        '__desc' => 'This command lets you navigate to an url.',
 	        '__cmd' => '[URL]',
-	        '__eg' => "http://dcx.scriptsdb.org",
+	        '__eg' => "http://github.com/twig/dcxdll",
 		),
 		'r' => array(
 	        '__desc' => 'This command is like hitting the Refresh button in a browser.',
@@ -166,13 +166,13 @@ function get_events_web2ctrl(&$EVENTS) {
 	    "nav_begin" => array(
 			'__desc' => "When the text is clicked.",
 			'__cmd' => 'URL',
-			'__eg' => 'http://dcx.scriptsdb.org/',
+			'__eg' => 'http://github.com/twig/dcxdll',
 			'__return' => "[r]cancel[/r] return this value to block the navigation."
 		),
 		"nav_complete" => array(
 			'__desc' => "When the control is finished navigating to the URL.",
 			'__cmd' => 'URL',
-			'__eg' => 'http://dcx.scriptsdb.org/',
+			'__eg' => 'http://github.com/twig/dcxdll',
 		),
 		"status" => array(
 			'__desc' => "When the statusbar text changes.",

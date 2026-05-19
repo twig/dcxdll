@@ -28,7 +28,7 @@ function get_xdid_comboex(&$XDID) {
 	        '__desc' => 'This command lets you add an item to the comboex.',
 	        '__cmd' => '[N] [INDENT] [#ICON] [#SELECTED] [#OVERLAY] [Item Text] or [N] [+FLAGS] [INDENT] [#ICON] [#SELECTED] [#OVERLAY] [DATA]',
 	        '__eg' => array(
-				'3 0 1 2 0 Visit scriptsdb.org',
+				'3 0 1 2 0 Visit github.com/twig/dcxdll',
 				'3 +T 0 1 2 0 44 these,are,some,tokens',
 				'3 +F 0 1 2 0 44 1 -1 file.txt',
 			),

@@ -44,7 +44,7 @@ function gdiplus() {
 ?>
 For advanced support for images (such as extra file formats and drawing routines), Microsoft has released a library called GDI+. This is included in Windows XP, however older versions of Windows may not have this.<br />
 <br />
-Use [link page="dcx" section="general" flag="IsUsingGDI"]$dcx(IsUsingGDI)[/link] to check whether or not you have GDI+ support on your computer. If you do not, you can download it <a href="http://dcx.scriptsdb.org/gdiplus.zip">here</a>.<br />
+Use [link page="dcx" section="general" flag="IsUsingGDI"]$dcx(IsUsingGDI)[/link] to check whether or not you have GDI+ support on your computer.
 <?php
     $str = ob_get_clean();
     
@@ -55,7 +55,7 @@ Use [link page="dcx" section="general" flag="IsUsingGDI"]$dcx(IsUsingGDI)[/link]
 function latest_changes() {
 	ob_start();
 ?>
-If you notice any inconsistancies or errors with the documentation, please put a post on the forum on this <a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=394">thread</a>!<br />
+If you notice any inconsistancies or errors with the documentation, please put a post on the forum on this <a href="http://github.com/twig/dcxdll/issues">thread</a>!<br />
 <br />
 <?php
 	$str = ob_get_clean() . format_changes_latest();
@@ -174,11 +174,11 @@ function credits() {
 	<tr>
 		<td><a>Tutorials</a></td>
 		<td>
-			<a href="http://perso.wanadoo.fr/jiveda/dcx/index.html">j0x's DCX Tutorials (French)</a><br />
-			<a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=120">DCX Forum: Help: CLA</a><br />
-			<a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=127">DCX Forum: CLA :(</a><br />
-			<a href="http://www.mircscripts.org/comments.php?cid=2977">Mpdreamz's Cell Layout Algorithm Tutorial</a><br />
-			<a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=320">EinsteinXXL's CLA Tutorial (German)</a>
+			<a href="https://perso.wanadoo.fr/jiveda/dcx/index.html">j0x's DCX Tutorials (French)</a><br />
+			<a href="https://github.com/twig/dcxdll/issues">DCX Forum: Help: CLA</a><br />
+			<a href="https://github.com/twig/dcxdll/issues">DCX Forum: CLA :(</a><br />
+			<a href="https://github.com/twig/dcxdll/issues">Mpdreamz's Cell Layout Algorithm Tutorial</a><br />
+			<a href="https://github.com/twig/dcxdll/issues">EinsteinXXL's CLA Tutorial (German)</a>
 		</td>
 	</tr>
 	<tr><td colspan="2">&nbsp;</td></tr>
@@ -208,7 +208,7 @@ function credits() {
 				</tr>
 				<tr>
 					<td>Italian</td>
-					<td><a href="mailto:clickhere@scriptsdb.org">Still need someone!</a></td>
+					<td>Still need someone!</td>
 				</tr>
 				<tr>
 					<td>Malaysian</td>
@@ -237,8 +237,8 @@ function credits() {
 	<tr>
 		<td><a>Website</a></td>
 		<td>
-			<a href="http://dcx.scriptsdb.org">http://dcx.scriptsdb.org</a><br />
-			<a href="http://dcx.scriptsdb.org/forum">Forums</a>
+			<a href="http://github.com/twig/dcxdll/">http://github.com/twig/dcxdll/</a><br />
+			<a href="http://github.com/twig/dcxdll/issues">Forums</a>
 		</td>
 	</tr>
 	<tr><td colspan="2">&nbsp;</td></tr>

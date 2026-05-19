@@ -516,7 +516,7 @@ ON *:SIGNAL:Xpopup-*: {
                 else if ($1 == 2) { echo -a command 2 }
         }
         else if (%m == menu_help) {
-                if ($1 == 1) { url http://dcx.scriptsdb.org }
+                if ($1 == 1) { url http://github.com/twig/dcxdll }
                 else if ($1 == 2) { echo -a command aboutbox }
         }
         else {

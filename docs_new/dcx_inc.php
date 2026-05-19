@@ -328,7 +328,7 @@ else
 		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
 			<a style="color:#000000;" href='index.htm'>Home</a> |
 			<a style="color:#000000;" href="https://github.com/twig/dcxdll/releases">Download</a> |
-			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a style="color:#000000;" href="http://github.com/twig/dcxdll/issues">Forum</a> |
 			<a style="color:#000000;" href="https://github.com/twig/dcxdll/issues">Bug Tracker</a><br />
                         <div class="version">v<?php echo $VERSION; ?></div>
 		</td>
@@ -474,7 +474,8 @@ function flag_sort($a, $b) {
 		return 0;
 
 	// check for numbers
-	$regex = '/[0-9]/';
+	//$regex = '/[0-9]/';
+	$regex = '/\d/';
 	$a_num = (preg_match($regex, $a));
 	$b_num = (preg_match($regex, $b));
 
@@ -517,7 +518,8 @@ function flag_sort_rightmenu($a, $b) {
 		return 0;
 
 	// check for numbers
-	$regex = '/[0-9]/';
+	//$regex = '/[0-9]/';
+	$regex = '/\d/';
 	$a_num = (preg_match($regex, $a));
 	$b_num = (preg_match($regex, $b));
 

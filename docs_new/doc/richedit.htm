@@ -16,7 +16,7 @@
 		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
 			<a style="color:#000000;" href='index.htm'>Home</a> |
 			<a style="color:#000000;" href="https://github.com/twig/dcxdll/releases">Download</a> |
-			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a style="color:#000000;" href="http://github.com/twig/dcxdll/issues">Forum</a> |
 			<a style="color:#000000;" href="https://github.com/twig/dcxdll/issues">Bug Tracker</a><br />
                         <div class="version">v3.1</div>
 		</td>
@@ -240,7 +240,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">N</td>
-		<td>An index between 1-16</td>
+		<td>An index between 0-15</td>
 	</tr>
 </table>
 <br />
@@ -626,7 +626,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx link 4 sclick http://dcx.scriptsdb.org</div></td>
+		<td><div class="example">/cb_alias dcx link 4 sclick http://github.com/twig/dcxdll</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -699,11 +699,11 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 	<tr><td colspan="2">When the selection range is changed.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME selchange ID START END TEXT</div></td>
+		<td><div class="syntax">/cb_alias DNAME selchange ID START END</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx selchange 4 2 6 text has been sel</div></td>
+		<td><div class="example">/cb_alias dcx selchange 4 2 6</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -714,11 +714,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 		<td class="param">END</td>
 		<td>The ending position of the selection range.</td>
 	</tr>
-	<tr>
-		<td class="param">TEXT</td>
-		<td>The text selected.</td>
-	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Previous versions returned <a class="value">TEXT</a> as well, you must now use <a class='value' href='richedit.htm#xdidprop.seltext'>$xdid().seltext</a> instead</td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #CCACC7; color: #CCACC7;"><a name="ctrldcxml"></a>Generic &lt;dcxml&gt;</td></tr>
@@ -1018,9 +1014,9 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 
 <table class="bar">
 	<tr>
-	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
+	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 27th February, 26</td>
+		<td style="text-align: right;">Last Updated: 19th May, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

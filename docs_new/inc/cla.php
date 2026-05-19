@@ -121,10 +121,10 @@ function cla_examples() {
 ?>If the DCX documentation is unsufficient for you to start off using CLA (most likely it would have confused you like hell!), here are a few links you can visit for further reading.<br />
 <br />
 <ul>
-	<li><a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=120">DCX Forum: Help: CLA</a></li>
-	<li><a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=127">DCX Forum: CLA :(</a></li>
-	<li><a href="http://www.mircscripts.org/comments.php?cid=2977">Mpdreamz's Cell Layout Algorithm Tutorial</a></li><?php //'; ?>
-	<li><a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=320">EinsteinXXL's CLA Tutorial (German)</a></li>
+	<li><a href="https://github.com/twig/dcxdll/issues">DCX Forum: Help: CLA</a></li>
+	<li><a href="https://github.com/twig/dcxdll/issues">DCX Forum: CLA :(</a></li>
+	<li><a href="https://github.com/twig/dcxdll/issues">Mpdreamz's Cell Layout Algorithm Tutorial</a></li><?php //'; ?>
+	<li><a href="https://github.com/twig/dcxdll/issues">EinsteinXXL's CLA Tutorial (German)</a></li>
 </ul>
 <br />
 Feel free to post any messages after reading those threads if you still need any help.

@@ -230,7 +230,7 @@ function get_events_richedit(&$EVENTS) {
 		'link' => array(
 		    '__desc' => "When a link is clicked.",
 	        '__cmd' => 'EVENT LINK',
-	        '__eg' => 'sclick http://dcx.scriptsdb.org',
+	        '__eg' => 'sclick http://github.com/twig/dcxdll',
 	        '__params' => array(
             	'EVENT' => array(
 					'__desc' => "Mouse event which triggered the callback",

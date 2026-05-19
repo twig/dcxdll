@@ -61,7 +61,7 @@ function get_xdid_webctrl(&$XDID) {
 		'm' => array(
 	        '__desc' => 'This does the same as [cmd]/xdid -n[/cmd] but allows setting some flags too.',
 	        '__cmd' => '[+FLAGS] [+MASK] (URL)',
-	        '__eg' => "+bf +b http://dcx.scriptsdb.org",
+	        '__eg' => "+bf +b http://github.com/twig/dcxdll",
 			'__params' => array(
 				'+FLAGS' => array(
 					'__desc' => 'Can be any combination of',
@@ -86,7 +86,7 @@ function get_xdid_webctrl(&$XDID) {
 		'n' => array(
 	        '__desc' => 'This command lets you navigate to an url.',
 	        '__cmd' => '[URL]',
-	        '__eg' => "http://dcx.scriptsdb.org",
+	        '__eg' => "http://github.com/twig/dcxdll",
 		),
 		'r' => array(
 	        '__desc' => 'This command is like hitting the Refresh button in IE.',
@@ -130,18 +130,18 @@ function get_events_webctrl(&$EVENTS) {
 	    "nav_begin" => array(
 			'__desc' => "When the text is clicked.",
 			'__cmd' => 'URL',
-			'__eg' => 'http://dcx.scriptsdb.org/',
+			'__eg' => 'http://github.com/twig/dcxdll',
 			'__return' => "[r]cancel[/r] return this value to block the navigation."
 		),
 		"nav_complete" => array(
 			'__desc' => "When the control is finished navigating to the URL.",
 			'__cmd' => 'URL',
-			'__eg' => 'http://dcx.scriptsdb.org/',
+			'__eg' => 'http://github.com/twig/dcxdll',
 		),
 		"nav_error" => array(
 			'__desc' => "When the control has encountered an error navigating to the URL.",
 			'__cmd' => 'CODE URL',
-			'__eg' => '404 http://dcx.scriptsdb.org/',
+			'__eg' => '404 http://github.com/twig/dcxdll',
 			'__notes' => array(
 				"The code shown is an example only, don't expect that value.",
 			),
@@ -149,7 +149,7 @@ function get_events_webctrl(&$EVENTS) {
 		"doc_complete" => array(
 			'__desc' => "When the document has been downloaded.",
 			'__cmd' => 'URL',
-			'__eg' => 'http://dcx.scriptsdb.org/',
+			'__eg' => 'http://github.com/twig/dcxdll',
 		),
 		"dl_begin" => "When downloading is about to begin.",
 		"dl_progress" => array(
@@ -161,7 +161,7 @@ function get_events_webctrl(&$EVENTS) {
 				'TOTAL' => 'Maximum download position.'
 			),
 			'__notes' => array(
-				'[p]CURRENT[/p] can be [v]-1[/v]. If anyone knows why this occurs, please let us know <a href="http://dcx.scriptsdb.org/bug/?do=details&id=447">here</a>.',
+				'[p]CURRENT[/p] can be [v]-1[/v]. If anyone knows why this occurs, please let us know <a href="http://github.com/twig/dcxdll/issues">here</a>.',
 				'[p]TOTAL[/p] can be [v]0[/v], so make sure to check this before performing any calculation with it.',
 				'It is advised you use the values provided by [p]CURRENT[/p] and [p]TOTAL[/p] to display progress as these values may change with later revisions of Internet Explorer.',
 			),
