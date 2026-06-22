@@ -1018,7 +1018,7 @@ namespace Dcx
 	/// Undocumented message.
 	/// Ensure a specified subitem is visible.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iItem"></param>
 	/// <param name="iSubItem"></param>
 	/// <returns></returns>
@@ -1031,7 +1031,7 @@ namespace Dcx
 	/// Undocumented message.
 	/// Get the ListViews COM interface.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iid"></param>
 	/// <param name="pUnkn"></param>
 	/// <returns></returns>
@@ -1047,7 +1047,7 @@ namespace Dcx
 	/// Undocumented message.
 	/// Set the ListViews left, right, top, bottom margins.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="pRC"></param>
 	/// <returns></returns>
 	inline BOOL dcxListView_SetViewMargin(_In_ HWND hwnd, _In_ LPCRECT pRC) noexcept
@@ -1059,7 +1059,7 @@ namespace Dcx
 	/// Undocumented message.
 	/// Get the ListViews left, right, top, bottom margins.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="pRC"></param>
 	/// <returns></returns>
 	inline BOOL dcxListView_GetViewMargin(_In_ HWND hwnd, _Inout_ LPRECT pRC) noexcept
@@ -1070,7 +1070,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="pRC"></param>
 	/// <returns></returns>
 	inline BOOL dcxListView_GetViewRect(_In_ HWND hwnd, _Inout_ LPRECT pRC) noexcept
@@ -1904,7 +1904,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="pti"></param>
 	/// <returns></returns>
 	inline bool dcxToolTip_GetCurrentTool(_In_ HWND hwnd, _Inout_ LPTOOLINFO pti) noexcept
@@ -1915,7 +1915,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="bActivate"></param>
 	/// <param name="pti"></param>
 	inline void dcxToolTip_TrackActivate(_In_ HWND hwnd, _In_ BOOL bActivate, _In_ LPTOOLINFO pti) noexcept
@@ -1926,7 +1926,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	inline void dcxToolTip_Pop(_In_ HWND hwnd) noexcept
 	{
 		SendMessage(hwnd, TTM_POP, 0, 0);
@@ -1935,7 +1935,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	inline void dcxToolTip_PopUp(_In_ HWND hwnd) noexcept
 	{
 		SendMessage(hwnd, TTM_POPUP, 0, 0);
@@ -1944,7 +1944,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="pti"></param>
 	inline void dcxToolTip_SetToolInfo(_In_ HWND hwnd, _Inout_ LPTOOLINFO pti) noexcept
 	{
@@ -1992,7 +1992,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="x"></param>
 	/// <param name="y"></param>
 	inline void dcxToolTip_TrackPosition(_In_ HWND hwnd, _In_ int x, _In_ int y) noexcept
@@ -2003,7 +2003,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="pti"></param>
 	inline void dcxToolTip_UpdateTipText(_In_ HWND hwnd, _In_ LPTOOLINFO pti) noexcept
 	{
@@ -2013,7 +2013,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="ctrl"></param>
 	/// <param name="id"></param>
 	/// <param name="str"></param>
@@ -2033,7 +2033,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="bState"></param>
 	inline void dcxToolTip_Activate(_In_ HWND hwnd, _In_ BOOL bState) noexcept
 	{
@@ -2043,7 +2043,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="pti"></param>
 	/// <returns></returns>
 	inline bool dcxToolTip_AddTool(_In_ HWND hwnd, _In_ LPTOOLINFO pti) noexcept
@@ -2054,7 +2054,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="bState"></param>
 	/// <param name="prc"></param>
 	/// <returns></returns>
@@ -2066,7 +2066,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	inline COLORREF dcxToolTip_GetTipBkColor(_In_ HWND hwnd) noexcept
 	{
@@ -2076,7 +2076,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	inline COLORREF dcxToolTip_GetTipTextColor(_In_ HWND hwnd) noexcept
 	{
@@ -2086,7 +2086,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="clr"></param>
 	/// <returns></returns>
 	inline COLORREF dcxToolTip_SetTipBkColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
@@ -2097,7 +2097,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="clr"></param>
 	/// <returns></returns>
 	inline COLORREF dcxToolTip_SetTipTextColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
@@ -3033,7 +3033,7 @@ namespace Dcx
 	/// <summary>
 	/// Get the length of the note text.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	inline LRESULT dcxButton_GetNoteLength(_In_ HWND hwnd) noexcept
 	{
@@ -3046,7 +3046,7 @@ namespace Dcx
 	/// <summary>
 	/// Get the note text.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="szBuf"></param>
 	/// <param name="l"></param>
 	/// <returns></returns>
@@ -3061,14 +3061,14 @@ namespace Dcx
 	/// <summary>
 	/// Get the note text.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	TString dcxButton_GetNote(_In_ HWND hwnd);
 
 	/// <summary>
 	/// Set a buttons note text.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="szBuf"></param>
 	inline void dcxButton_SetNote(_In_ HWND hwnd, _In_z_ const TCHAR* szBuf) noexcept
 	{
@@ -3081,7 +3081,7 @@ namespace Dcx
 	/// <summary>
 	/// Set a buttons text, this just maps to SetWindowText
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="szBuf"></param>
 	inline void dcxButton_SetText(_In_ HWND hwnd, _In_z_ const TCHAR* szBuf) noexcept
 	{
@@ -3094,7 +3094,7 @@ namespace Dcx
 	/// <summary>
 	/// Set a buttons style.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="dwStyle"></param>
 	/// <param name="bRedraw"></param>
 	inline void dcxButton_SetStyle(_In_ HWND hwnd, _In_ DWORD dwStyle, BOOL bRedraw) noexcept
@@ -3110,7 +3110,7 @@ namespace Dcx
 	/// <summary>
 	/// Set controls extended styles.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="mask"></param>
 	/// <param name="dw"></param>
 	/// <returns></returns>
@@ -3122,7 +3122,7 @@ namespace Dcx
 	/// <summary>
 	/// Get controls extended styles.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	[[nodiscard]] inline DWORD dcxComboEx_GetExtendedStyles(_In_ HWND hwnd) noexcept
 	{
@@ -3132,7 +3132,7 @@ namespace Dcx
 	/// <summary>
 	/// Set the controls horizontal extent, This adjusts the horizontal scroll bar.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iWidth"></param>
 	/// <returns></returns>
 	inline DWORD dcxCombo_SetHorizExtent(_In_ HWND hwnd, _In_ const WPARAM iWidth) noexcept
@@ -3143,7 +3143,7 @@ namespace Dcx
 	/// <summary>
 	/// Get the controls horizontal extent.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	[[nodiscard]] inline DWORD dcxCombo_GetHorizExtent(_In_ HWND hwnd) noexcept
 	{
@@ -3153,7 +3153,7 @@ namespace Dcx
 	/// <summary>
 	/// Set an existing items info.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="lpcCBItem"></param>
 	/// <returns></returns>
 	inline bool dcxComboEx_SetItem(_In_ HWND hwnd, _In_ const PCOMBOBOXEXITEM lpcCBItem) noexcept
@@ -3164,7 +3164,7 @@ namespace Dcx
 	/// <summary>
 	/// Get an items info.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="lpcCBItem"></param>
 	/// <returns></returns>
 	inline LRESULT dcxComboEx_GetItem(_In_ HWND hwnd, const PCOMBOBOXEXITEM lpcCBItem) noexcept
@@ -3175,7 +3175,7 @@ namespace Dcx
 	/// <summary>
 	/// Add/Insert an item.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="lpcCBItem"></param>
 	/// <returns></returns>
 	inline LRESULT dcxComboEx_InsertItem(_In_ HWND hwnd, _In_ const PCOMBOBOXEXITEM lpcCBItem) noexcept
@@ -3186,7 +3186,7 @@ namespace Dcx
 	/// <summary>
 	/// Get edit control part.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	GSL_SUPPRESS(lifetime.4)
 		[[nodiscard]] inline HWND dcxComboEx_GetEditControl(_In_ HWND hwnd) noexcept
@@ -3197,7 +3197,7 @@ namespace Dcx
 	/// <summary>
 	/// Get the combo control part.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	GSL_SUPPRESS(lifetime.4)
 		[[nodiscard]] inline HWND dcxComboEx_GetComboControl(_In_ HWND hwnd) noexcept
@@ -3210,7 +3210,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iPart"></param>
 	/// <returns></returns>
 	UINT dcxStatusBar_GetTextLength(_In_ HWND hwnd, _In_ int iPart) noexcept;
@@ -3218,7 +3218,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iPart"></param>
 	/// <param name="lpstr"></param>
 	/// <returns></returns>
@@ -3230,7 +3230,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="clrBk"></param>
 	/// <returns></returns>
 	inline COLORREF dcxStatusBar_SetBkColor(_In_ HWND hwnd, _In_ COLORREF clrBk) noexcept
@@ -3241,7 +3241,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="nParts"></param>
 	/// <param name="aWidths"></param>
 	/// <returns></returns>
@@ -3253,7 +3253,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="nParts"></param>
 	/// <param name="aWidths"></param>
 	/// <returns></returns>
@@ -3265,7 +3265,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iPart"></param>
 	/// <param name="Style"></param>
 	/// <param name="lpstr"></param>
@@ -3278,7 +3278,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iPart"></param>
 	/// <returns></returns>
 	UINT dcxStatusBar_GetPartFlags(_In_ HWND hwnd, _In_ int iPart) noexcept;
@@ -3286,7 +3286,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iPart"></param>
 	/// <returns></returns>
 	TString dcxStatusBar_GetText(_In_ HWND hwnd, _In_ int iPart);
@@ -3295,7 +3295,7 @@ namespace Dcx
 	/// 
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iPart"></param>
 	/// <returns></returns>
 	template <typename T>
@@ -3311,7 +3311,7 @@ namespace Dcx
 	/// 
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iPart"></param>
 	/// <param name="Style"></param>
 	/// <param name="pPart"></param>
@@ -3325,7 +3325,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iPart"></param>
 	/// <param name="lpstr"></param>
 	inline void dcxStatusBar_SetTipText(_In_ HWND hwnd, _In_ int iPart, _In_z_ const WCHAR* const lpstr) noexcept
@@ -3336,7 +3336,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iPart"></param>
 	/// <param name="nSize"></param>
 	/// <param name="lpstr"></param>
@@ -3348,7 +3348,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iPart"></param>
 	/// <returns></returns>
 	TString dcxStatusBar_GetTipText(_In_ HWND hwnd, _In_ int iPart);
@@ -3356,7 +3356,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iPart"></param>
 	/// <param name="lprc"></param>
 	/// <returns></returns>
@@ -3368,7 +3368,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iPart"></param>
 	/// <param name="hIcon"></param>
 	/// <returns></returns>
@@ -3380,7 +3380,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iPart"></param>
 	/// <returns></returns>
 	GSL_SUPPRESS(lifetime.4)
@@ -3392,7 +3392,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="h"></param>
 	inline void dcxStatusBar_SetMinHeight(_In_ HWND hwnd, _In_ int h) noexcept
 	{
@@ -3402,7 +3402,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="aWidths"></param>
 	/// <returns></returns>
 	inline bool dcxStatusBar_GetBorders(_In_ HWND hwnd, _In_ LPINT aWidths) noexcept
@@ -3422,7 +3422,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="bEnable"></param>
 	/// <returns></returns>
 	inline bool dcxEdit_SetReadOnly(_In_ HWND hwnd, _In_ BOOL bEnable) noexcept
@@ -3433,7 +3433,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="prc"></param>
 	inline void dcxEdit_SetRect(_In_ HWND hwnd, _In_ LPCRECT prc) noexcept
 	{
@@ -3443,7 +3443,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="prc"></param>
 	inline void dcxEdit_SetRectNoPaint(_In_ HWND hwnd, _In_ LPCRECT prc) noexcept
 	{
@@ -3453,7 +3453,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="dwStyle"></param>
 	/// <param name="dwMask"></param>
 	inline void dcxEdit_SetExtendedStyle(_In_ HWND hwnd, _In_ DWORD dwStyle, _In_ DWORD dwMask) noexcept
@@ -3462,9 +3462,44 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Sets the end-of-line character used when a linebreak is inserted. (win10+?)
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="eolType">
+	/// <para>- Specifies the end-of-line character used when a linebreak is inserted.</para>
+	/// <para>This can be one of the following values.</para>
+	/// <para>EC_ENDOFLINE_DETECTFROMCONTENT - Sets the end - of - line character used for new linebreaks to the character used by the current document.</para>
+	///	<para>EC_ENDOFLINE_CRLF - Sets the end - of - line character used for new linebreaks to carriage return followed by linefeed(CRLF).</para>
+	///	<para>EC_ENDOFLINE_CR - Sets the end - of - line character used for new linebreaks to carriage return (CR).</para>
+	///	<para>EC_ENDOFLINE_LF - Sets the end - of - line character used for new linebreaks to linefeed(LF).</para>
+	/// </param>
+	/// <returns>
+	/// <para>If the operation succeeds, the return value is true.</para>
+	/// <para>If the operation fails, the return value is false.</para>
+	/// </returns>
+	/// <remarks>
+	/// When the end-of-line character set is EC_ENDOFLINE_DETECTFROMCONTENT, the edit control will only detect end-of-line characters supported according to its extended window style.
+	/// </remarks>
+	inline bool dcxEdit_SetEndOfLine(_In_ HWND hwnd, _In_ DWORD eolType) noexcept
+	{
+		return !!Edit_SetEndOfLine(hwnd, eolType);
+	}
+
+	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="bEnable"></param>
+	/// <returns></returns>
+	inline bool dcxEdit_EnableWebSearch(_In_ HWND hwnd, _In_ bool bEnable) noexcept
+	{
+		return !!Edit_EnableSearchWeb(hwnd, bEnable);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="iMax"></param>
 	inline void dcxEdit_LimitText(_In_ HWND hwnd, _In_ int iMax) noexcept
 	{
@@ -3474,7 +3509,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="chr"></param>
 	inline void dcxEdit_SetPasswordChar(_In_ HWND hwnd, _In_ TCHAR chr) noexcept
 	{
@@ -3484,7 +3519,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	inline TCHAR dcxEdit_GetPasswordChar(_In_ HWND hwnd) noexcept
 	{
@@ -3494,7 +3529,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="prc"></param>
 	inline void dcxEdit_GetRect(_In_ HWND hwnd, _In_ LPRECT prc) noexcept
 	{
@@ -3504,7 +3539,7 @@ namespace Dcx
 	/// <summary>
 	/// Scrolls the text in a multiline edit control.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="xChars">- The number of characters to scroll horizontally.</param>
 	/// <param name="yLines">- The number of lines to scroll vertically.</param>
 	/// <returns>
@@ -3518,7 +3553,7 @@ namespace Dcx
 	/// The EM_LINESCROLL message scrolls the text vertically or horizontally in a multiline edit control.
 	/// The EM_LINESCROLL message can be used to scroll horizontally past the last character of any line.
 	/// </remarks>
-	inline bool dcxEdit_LineScroll(_In_ HWND hwnd, DWORD xChars, DWORD yLines) noexcept
+	inline bool dcxEdit_LineScroll(_In_ HWND hwnd, int xChars, int yLines) noexcept
 	{
 		return !!SendMessageW(hwnd, EM_LINESCROLL, gsl::narrow_cast<WPARAM>(xChars), gsl::narrow_cast<LPARAM>(yLines));
 	}
@@ -3526,7 +3561,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	inline bool dcxEdit_ScrollCaret(_In_ HWND hwnd) noexcept
 	{
@@ -3536,18 +3571,18 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwndCtl"></param>
+	/// <param name="hwndCtl">- A handle to the control.</param>
 	/// <param name="newCaretPosition"></param>
 	/// <returns></returns>
 	inline bool dcxEdit_SetCaretIndex(_In_ HWND hwndCtl, _In_ DWORD newCaretPosition) noexcept
 	{
-		return (Edit_SetCaretIndex(hwndCtl, newCaretPosition) != FALSE);
+		return !!Edit_SetCaretIndex(hwndCtl, newCaretPosition);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwndCtl"></param>
+	/// <param name="hwndCtl">- A handle to the control.</param>
 	/// <param name="bModified"></param>
 	inline void dcxEdit_SetModify(_In_ HWND hwndCtl, _In_ BOOL bModified) noexcept
 	{
@@ -3557,7 +3592,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwndCtl"></param>
+	/// <param name="hwndCtl">- A handle to the control.</param>
 	/// <returns></returns>
 	inline bool dcxEdit_GetModify(_In_ HWND hwndCtl) noexcept
 	{
@@ -3567,7 +3602,7 @@ namespace Dcx
 	/// <summary>
 	/// Sets the zoom ratio for a multiline edit control or a rich edit control. The ratio must be a value between 1/64 and 64. The edit control needs to have the ES_EX_ZOOMABLE extended style set, for this message to have an effect, see Edit Control Extended Styles.
 	/// </summary>
-	/// <param name="hwndCtl"></param>
+	/// <param name="hwndCtl">- A handle to the control.</param>
 	/// <param name="iNumerator">- Numerator of the zoom ratio.</param>
 	/// <param name="iDenomerator">- Denominator of the zoom ratio. These parameters can have the following values.</param>
 	/// <returns><para>If the new zoom setting is accepted, the return value is TRUE.</para>
@@ -3575,6 +3610,17 @@ namespace Dcx
 	inline bool dcxEdit_SetZoom(_In_ HWND hwndCtl, _In_ int iNumerator, _In_ int iDenomerator) noexcept
 	{
 		return !!Edit_SetZoom(hwndCtl, iNumerator, iDenomerator);
+	}
+
+	/// <summary>
+	/// Displays a balloon tip associated with an edit control.
+	/// </summary>
+	/// <param name="hwndCtl">- A handle to the control.</param>
+	/// <param name="pEditBalloonTip">- A pointer to an EDITBALLOONTIP structure that contains information about the balloon tip to display.</param>
+	/// <returns>true on success</returns>
+	inline bool dcxEdit_ShowBalloonTip(_In_ HWND hwndCtl, _In_ PEDITBALLOONTIP pEditBalloonTip) noexcept
+	{
+		return !!Edit_ShowBalloonTip(hwndCtl, pEditBalloonTip);
 	}
 
 	/// <summary>
@@ -3656,6 +3702,103 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Copies a line of text from an edit control, independently of how lines are displayed on the screen, and places it in a specified buffer. (win10+)
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="iLine">- The zero-based index of the line to retrieve from a multiline edit control. A value of zero specifies the topmost line.</param>
+	/// <param name="lpch">- A pointer to the buffer that receives a copy of the line.</param>
+	/// <param name="cchMax">- The maximum number of characters to be copied to the buffer.</param>
+	/// <returns>The return value is the number of TCHARs copied. The return value is zero if the line number specified by the wParam parameter is greater than the number of lines in the edit control.</returns>
+	inline DWORD dcxEdit_GetFileLine(_In_ HWND hwnd, _In_ int iLine, _Inout_z_ LPTSTR lpch, _In_ WORD cchMax) noexcept
+	{
+		*(reinterpret_cast<WORD*>(lpch)) = cchMax;
+		auto cchCopied = Edit_GetFileLine(hwnd, iLine, lpch);
+		// make sure cchCopied is < cchMax
+		if (cchCopied >= cchMax)
+			cchCopied = cchMax - 1;
+		// make sure string is zero terminated.
+		lpch[cchCopied] = 0;
+		return cchCopied;
+	}
+
+	/// <summary>
+	/// Gets the number of file (or logical) lines (text wrap delimiters are ignored). (win10+)
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <returns>
+	/// <para>The return value is an integer specifying the total number of text lines in the multiline edit control,</para>
+	/// <para>independently of how lines are displayed on the screen.</para>
+	/// <para>If the control has no text, the return value is 1.</para>
+	/// <para>The return value will never be less than 1.</para>
+	/// </returns>
+	/// <remarks>
+	/// <para>The EM_GETFILELINECOUNT message retrieves the total number of text lines, independently of how lines are displayed on the screen,</para>
+	/// <para>not just the number of lines that are currently visible.</para>
+	/// <para>Word - wrap does not change the number of lines this message returns, as this message works independently of how lines are displayed on the screen.</para>
+	/// </remarks>
+	inline DWORD dcxEdit_GetFileLineCount(_In_ HWND hwnd) noexcept
+	{
+		return Edit_GetFileLineCount(hwnd);
+	}
+
+	/// <summary>
+	/// Gets the index of the file (or logical) line of text that includes the specified character index (text wrap delimiters are ignored). (win10+)
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="iIndex">
+	/// <para>- The 0-based character index.</para>
+	/// <para>If iIndex = -1, retrieves either the line number of the current line (the line containing the caret) or,</para>
+	/// <para>if there is a selection, the line number of the line containing the beginning of the selection.</para>
+	/// </param>
+	/// <returns>The logical line index.</returns>
+	inline DWORD dcxEdit_GetFileLineFromChar(_In_ HWND hwnd, _In_ int iIndex) noexcept
+	{
+		return Edit_GetFileLineFromChar(hwnd, iIndex);
+	}
+
+	/// <summary>
+	/// Gets the index of the file (or logical) line of text based on the specified visible line.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="iLine">- The file line number, where the number of the first line is 0. If iLine = -1, the file line with the caret is used.</param>
+	/// <returns>The logical line index.</returns>
+	inline DWORD dcxEdit_GetFileLineIndex(_In_ HWND hwnd, _In_ int iLine) noexcept
+	{
+		return Edit_GetFileLineIndex(hwnd, iLine);
+	}
+
+	/// <summary>
+	/// Gets the length of the file (or logical) line of text from the specified character index (text wrap delimiters are ignored).
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="iIndex">- The character index. If iIndex = -1, the caret location index is used, not including the length of any selected text.</param>
+	/// <returns>The logical line length, from the specified character index.</returns>
+	inline DWORD dcxEdit_GetFileLineLength(_In_ HWND hwnd, _In_ int iIndex) noexcept
+	{
+		return Edit_GetFileLineLength(hwnd, iIndex);
+	}
+
+	/// <summary>
+	/// Hides any balloon tip associated with an edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <returns>true on success</returns>
+	inline bool dcxEdit_HideBaloonTip(_In_ HWND hwnd) noexcept
+	{
+		return !!Edit_HideBalloonTip(hwnd);
+	}
+
+	/// <summary>
+	/// Invokes the "Search with Bing…" context menu item in edit controls.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <remarks>If the "Search the web" feature is disabled using the EM_ENABLESEARCHWEB message, this message has no effect.</remarks>
+	inline void dcxEdit_SearchWeb(_In_ HWND hwnd) noexcept
+	{
+		Edit_SearchWeb(hwnd);
+	}
+
+	/// <summary>
 	/// Gets the character index of the first character of a specified line in a multiline edit control. A character index is the zero-based index of the character from the beginning of the edit control. You can send this message to either an edit control or a rich edit control.
 	/// </summary>
 	/// <param name="hwnd">- A handle to the control.</param>
@@ -3717,6 +3860,16 @@ namespace Dcx
 	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns>One of the EC_ENDOFLINE values.</returns>
 	EC_ENDOFLINE dcxEdit_GetEndOfLine(_In_ HWND hwnd) noexcept;
+
+	/// <summary>
+	/// Gets the extended styles that are currently in use for a given edit control. (win10+?)
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <returns>Returns a DWORD value that represents the styles currently in use for a given edit control.</returns>
+	inline DWORD dcxEdit_GetExtendedStyle(_In_ HWND hwnd) noexcept
+	{
+		return Edit_GetExtendedStyle(hwnd);
+	}
 
 	/// <summary>
 	/// Gets the current zoom ratio for a multiline edit control or a rich edit control. The zoom ration is always between 1/64 and 64.
@@ -3789,6 +3942,18 @@ namespace Dcx
 	/// <para>It is better to use the values returned in nStart and nEnd because they are full 32 - bit values.</para>
 	/// </returns>
 	int dcxEdit_GetSel(_In_ HWND hwnd, _In_opt_ DWORD* nStart, _In_opt_ DWORD* nEnd) noexcept;
+
+	/// <summary>
+	/// Gets the text that is displayed as a textual cue, or tip, in an edit control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="lpwText">- A pointer to a Unicode string that receives the text that is set as the cue banner.</param>
+	/// <param name="cchText">- A LONG that specifies the number of WCHARs in the string referenced by lpwText.</param>
+	/// <returns>true on success</returns>
+	inline bool dcxEdit_GetCueBannerText(_In_ HWND hwnd, _Inout_z_ LPCWSTR lpwText, _In_ LONG cchText) noexcept
+	{
+		return !!Edit_GetCueBannerText(hwnd, lpwText, cchText);
+	}
 
 	// RichEdit
 
@@ -4165,7 +4330,7 @@ namespace Dcx
 	/// <summary>
 	/// Scrolls the text in a multiline edit control.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="yLines">- The number of lines to scroll vertically.</param>
 	/// <returns>
 	/// <para>If the message is sent to a multiline edit control, the return value is TRUE.</para>
@@ -4174,7 +4339,7 @@ namespace Dcx
 	/// <remarks>
 	/// Supported in Microsoft Rich Edit 1.0 and later. The EM_LINESCROLL message scrolls the text vertically in a multiline edit control.
 	/// </remarks>
-	inline bool dcxRichEdit_LineScroll(_In_ HWND hwnd, DWORD yLines) noexcept
+	inline bool dcxRichEdit_LineScroll(_In_ HWND hwnd, int yLines) noexcept
 	{
 		return !!SendMessageW(hwnd, EM_LINESCROLL, 0, gsl::narrow_cast<LPARAM>(yLines));
 	}
@@ -4227,7 +4392,7 @@ namespace Dcx
 	/// <summary>
 	/// Obtains the current scroll position of the edit control.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="pt">
 	/// <para>- Pointer to a POINT structure.</para>
 	/// <para>After calling EM_GETSCROLLPOS, this parameters contains a point in the virtual text space of the document, expressed in pixels.</para>
@@ -4257,7 +4422,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="hInst"></param>
 	/// <param name="pszName"></param>
 	/// <returns></returns>
@@ -4269,7 +4434,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	inline bool dcxAnimate_Close(_In_ HWND hwnd) noexcept
 	{
@@ -4279,7 +4444,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	inline bool dcxAnimate_IsPlaying(_In_ HWND hwnd) noexcept
 	{
@@ -4289,7 +4454,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="uFrom"></param>
 	/// <param name="uTo"></param>
 	/// <param name="uRep"></param>
@@ -4302,7 +4467,7 @@ namespace Dcx
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="uFrame"></param>
 	/// <returns></returns>
 	inline bool dcxAnimate_Seek(_In_ HWND hwnd, _In_ UINT uFrame) noexcept
@@ -4323,7 +4488,7 @@ namespace Dcx
 	/// <summary>
 	/// Set the tab padding.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="cx"></param>
 	/// <param name="cy"></param>
 	inline void dcxTabCtrl_SetPadding(_In_ HWND hwnd, _In_ UINT cx, _In_ UINT cy) noexcept
@@ -4344,7 +4509,7 @@ namespace Dcx
 	/// <summary>
 	/// Get Item info.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="index"></param>
 	/// <param name="tcItem"></param>
 	/// <returns></returns>
@@ -4359,7 +4524,7 @@ namespace Dcx
 	/// <summary>
 	/// Get number of items.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns></returns>
 	inline int dcxTabCtrl_GetItemCount(_In_opt_ HWND hwnd) noexcept
 	{
@@ -4372,7 +4537,7 @@ namespace Dcx
 	/// <summary>
 	/// Returns the index of the item that has the focus in a tab control.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <returns>Returns the index of the tab item that has the focus.</returns>
 	/// <remarks>The item that has the focus may be different than the selected item.
 	/// </remarks>
@@ -4387,7 +4552,7 @@ namespace Dcx
 	/// <summary>
 	/// Inserts a new tab in a tab control.
 	/// </summary>
-	/// <param name="hwnd"></param>
+	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="index">- Index of the new tab.</param>
 	/// <param name="ptcItem">
 	/// <para>- Pointer to a TCITEM structure that specifies the attributes of the tab.</para>
