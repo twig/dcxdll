@@ -78,6 +78,8 @@
  * 
  *  1.24
  *		Fixed incorrect savedpos increase in getfirsttok()
+ *		Fixed TString(char *start_ptr, length) not properly limiting its self to supplied length.
+ *		Made the settings defines presetable.
  * 
  * © ScriptsDB.org - 2005-2021
  */
@@ -112,7 +114,9 @@
 //#endif
 
 // use _ts_strtoul() for number conversions.
+#ifndef TSTRING_STRTOUL
 #define TSTRING_STRTOUL 0
+#endif
 
 // pre-defined for concepts
 class TString;
@@ -203,15 +207,23 @@ template<TStringConcepts::IsNumeric T>
 constexpr auto TS_wgetmemsize(T x) noexcept { return (TS_getmemsize((x) * sizeof(WCHAR)) / sizeof(WCHAR)); }
 
 // enable this define if you wish to use the mIRC extra functions
+#ifndef INCLUDE_MIRC_EXTRAS
 #define INCLUDE_MIRC_EXTRAS 0
+#endif
 
 // Enable/Disable test code...
+#ifndef TSTRING_TESTCODE
 #define TSTRING_TESTCODE 1
+#endif
 
 // enable this to include a small internal buffer that avoids an allocation for small strings. (always used now)
+#ifndef TSTRING_INTERNALBUFFER
 #define TSTRING_INTERNALBUFFER 1
+#endif
 // internal buffer size in characters
+#ifndef TSTRING_INTERNALBUFFERSIZE_CCH
 #define TSTRING_INTERNALBUFFERSIZE_CCH TS_getmemsize(64)
+#endif
 // internal buffer size in bytes
 #define TSTRING_INTERNALBUFFERSIZE_BYTES (TSTRING_INTERNALBUFFERSIZE_CCH*sizeof(value_type))
 
@@ -528,7 +540,10 @@ public:
 	{
 		if ((cString) && (cString[0] != 0) && iLen > 0)
 		{
-			m_buffer = charToWchar(cString, &m_buffersize);
+			const auto iTmpLen = iLen + 1;
+			auto szTmp = std::make_unique<char[]>(iTmpLen);
+			_ts_strcpyn(szTmp.get(), cString, iTmpLen);
+			m_buffer = charToWchar(szTmp.get(), &m_buffersize);
 			m_pString = m_buffer.get();
 
 			if (!m_pString)
@@ -1936,7 +1951,7 @@ public:
 	// extras for mIRC
 	bool isnum(const bool bAllowNegatives) const noexcept;
 	bool isincs(const_value_type let) const noexcept;
-	UINT countchar(const_value_type chr) const noexcept;
+	size_type countchar(const_value_type chr) const noexcept;
 	bool ishostmask(void) const noexcept;
 
 	TString toupper(void) const;
