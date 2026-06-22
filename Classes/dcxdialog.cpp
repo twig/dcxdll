@@ -1027,14 +1027,13 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		else if (xflags[TEXT('D')]) // set drag state - <1|0>
 		{
 			noRegion = true;
+			const UINT uMsg = ((input.getnexttokas<int>() > 0) ? WM_NCLBUTTONDOWN : WM_NCLBUTTONUP);
 #if DCX_USE_WRAPPERS
 			if (const Dcx::dcxCursorPos pt; pt)
-				PostMessage(m_Hwnd, WM_NCLBUTTONDOWN, HTCAPTION, Dcx::dcxMAKELPARAM(pt.x, pt.y));
-			//this->m_bDrag = false;
+				PostMessage(m_Hwnd, uMsg, HTCAPTION, Dcx::dcxMAKELPARAM(pt.x, pt.y));
 #else
 			if (POINT pt{}; GetCursorPos(&pt))
-				PostMessage(m_Hwnd, WM_NCLBUTTONDOWN, HTCAPTION, Dcx::dcxMAKELPARAM(pt.x, pt.y));
-			//this->m_bDrag = false;
+				PostMessage(m_Hwnd, uMsg, HTCAPTION, Dcx::dcxMAKELPARAM(pt.x, pt.y));
 #endif
 		}
 		else if (xflags[TEXT('g')]) // ghost drag - <0-255>
