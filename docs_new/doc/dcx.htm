@@ -117,6 +117,10 @@
 		<td class="param">hoveritem</td>
 		<td>The ListBox item under the mouse pointer in the active window.</td>
 	</tr>
+	<tr>
+		<td class="param">mouseover</td>
+		<td>Is the mouse cursor over the active window?</td>
+	</tr>
 </table>
 <br />
 <table class="general">
@@ -600,11 +604,11 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr><td colspan="2">Returns properties of the specified window.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$dcx(GetWindowProps, [HWND] [PROP])</div></td>
+		<td><div class="syntax">$dcx(GetWindowProps, [HWND|treebar|toolbar|switchbar|mdi] [PROP])</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$dcx(GetWindowProps, $window($active).hwnd caption)</div></td>
+		<td><div class="example">$dcx(GetWindowProps, $window($active).hwnd caption)<br />$dcx(GetWindowProps, treebar mouseover)<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -638,6 +642,10 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr>
 		<td class="param">hoveritem</td>
 		<td>The ListBox item under the mouse pointer in the window.</td>
+	</tr>
+	<tr>
+		<td class="param">mouseover</td>
+		<td>Is the mouse cursor over the supplied window?</td>
 	</tr>
 </table>
 <br />
@@ -1203,7 +1211,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th May, 26</td>
+		<td style="text-align: right;">Last Updated: 22nd June, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

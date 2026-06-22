@@ -409,12 +409,14 @@ function get_xdialog_xdialog(&$XDIALOG) {
 			'__eg' => array(
 				'+f $rgb(255,0,255) dialog_shape.bmp',
 				'+p 0,0 $+($dialog(dcxtest).w,$chr(44),0) $+($calc($dialog(dcxtest).w /2),$chr(44),$dialog(dcxtest).h)',
+				'+d 1',
 			),
 			'__params' => array(
 				'+FLAGS' => array(
 					'__desc' => "Region flags.",
 					'__values' => array(
                         'd' => 'Allows dragging of the window by clicking anywhere on it.',						
+                        'D' => 'Sets the window to a drag state.',						
                         'f' => "Region is defined in bitmap file.",
                         'g' => 'Allows the dialog to be ghosted while dragging.',
                         's' => 'Adds a shadow effect to the dialog.',
@@ -432,6 +434,7 @@ function get_xdialog_xdialog(&$XDIALOG) {
 				),
 				'__args' => array(
 					'd' => "[1|0]",
+					'D' => "[1|0]",
 					'f' => "[TRANSPARENT_COLOR] [FILENAME]",
                     'g' => array(
                         '__cmd' => '[VALUE]',

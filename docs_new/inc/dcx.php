@@ -51,13 +51,17 @@ function get_general_dcx(&$GENERAL) {
 				'dpi' => "The DPI of the active window.",
 				'class' => "The WindowClass of the active window.",
 				'hoveritem' => "The ListBox item under the mouse pointer in the active window.",
+				'mouseover' => "Is the mouse cursor over the active window?",
 			),
 		),
 		"GetWindowProps" => array(
 			'__desc' => "Returns properties of the specified window.",
 			'__isid' => true,
-			'__cmd' => "[HWND] [PROP]",
-			'__eg' => '$window($active).hwnd caption',
+			'__cmd' => "[HWND|treebar|toolbar|switchbar|mdi] [PROP]",
+			'__eg' => array(
+				'$window($active).hwnd caption',
+				'treebar mouseover',
+			),
 			'__params' => array(
 				'caption' => 'Returns the caption of the window.',
 				'x' => "The left position of the window.",
@@ -67,6 +71,7 @@ function get_general_dcx(&$GENERAL) {
 				'dpi' => "The DPI of the window.",
 				'class' => "The WindowClass of the window.",
 				'hoveritem' => "The ListBox item under the mouse pointer in the window.",
+				'mouseover' => "Is the mouse cursor over the supplied window?",
 			),
 		),
 		'BrowseDialog' => array(

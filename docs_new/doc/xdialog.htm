@@ -1211,7 +1211,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -R dcx +f $rgb(255,0,255) dialog_shape.bmp<br />/xdialog -R dcx +p 0,0 $+($dialog(dcxtest).w,$chr(44),0) $+($calc($dialog(dcxtest).w /2),$chr(44),$dialog(dcxtest).h)<br /></div></td>
+		<td><div class="example">/xdialog -R dcx +f $rgb(255,0,255) dialog_shape.bmp<br />/xdialog -R dcx +p 0,0 $+($dialog(dcxtest).w,$chr(44),0) $+($calc($dialog(dcxtest).w /2),$chr(44),$dialog(dcxtest).h)<br />/xdialog -R dcx +d 1<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1221,6 +1221,10 @@
 	<tr>
 		<td class="value">d</td>
 		<td>Allows dragging of the window by clicking anywhere on it.</td>
+	</tr>
+	<tr>
+		<td class="value">D</td>
+		<td>Sets the window to a drag state.</td>
 	</tr>
 	<tr>
 		<td class="value">f</td>
@@ -1269,6 +1273,10 @@
 	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
 	<tr>
 		<td class="param">d</td>
+		<td><div class="syntax">[1|0]</div></td>
+	</tr>
+	<tr>
+		<td class="param">D</td>
 		<td><div class="syntax">[1|0]</div></td>
 	</tr>
 	<tr>
@@ -3117,7 +3125,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th May, 26</td>
+		<td style="text-align: right;">Last Updated: 22nd June, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">
