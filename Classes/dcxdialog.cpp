@@ -1024,6 +1024,19 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			noRegion = true;
 			m_bDoDrag = (input.getnexttokas<int>() > 0);	// tok 4
 		}
+		else if (xflags[TEXT('D')]) // set drag state - <1|0>
+		{
+			noRegion = true;
+#if DCX_USE_WRAPPERS
+			if (const Dcx::dcxCursorPos pt; pt)
+				PostMessage(m_Hwnd, WM_NCLBUTTONDOWN, HTCAPTION, Dcx::dcxMAKELPARAM(pt.x, pt.y));
+			//this->m_bDrag = false;
+#else
+			if (POINT pt{}; GetCursorPos(&pt))
+				PostMessage(m_Hwnd, WM_NCLBUTTONDOWN, HTCAPTION, Dcx::dcxMAKELPARAM(pt.x, pt.y));
+			//this->m_bDrag = false;
+#endif
+		}
 		else if (xflags[TEXT('g')]) // ghost drag - <0-255>
 		{
 			m_uGhostDragAlpha = gsl::narrow_cast<std::byte>(input.getnexttokas<UINT>() & 0xFF);	// tok 4
