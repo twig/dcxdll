@@ -27,7 +27,12 @@ DcxWebControl2::DcxWebControl2(const UINT ID, gsl::strict_not_null<DcxDialog* co
 DcxWebControl2::~DcxWebControl2() noexcept
 {
 	if (m_webviewCompositionController)
-		m_webviewCompositionController->put_RootVisualTarget(nullptr);
+	{
+		try {
+			m_webviewCompositionController->put_RootVisualTarget(nullptr);
+		}
+		catch (...) {}
+	}
 	if (m_dcompWebViewVisual)
 	{
 		m_dcompWebViewVisual->RemoveAllVisuals();
@@ -108,9 +113,7 @@ LRESULT DcxWebControl2::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 				if (m_dcompDevice && m_dcompRootVisual)
 				{
-					SIZE webViewSize{};
-					webViewSize.cx = (m_webViewBounds.right - m_webViewBounds.left);
-					webViewSize.cy = (m_webViewBounds.bottom - m_webViewBounds.top);
+					const SIZE webViewSize{ (m_webViewBounds.right - m_webViewBounds.left), (m_webViewBounds.bottom - m_webViewBounds.top) };
 
 					m_dcompRootVisual->SetClip({ 0, 0, gsl::narrow_cast<float>(webViewSize.cx), gsl::narrow_cast<float>(webViewSize.cy) });
 					m_dcompDevice->Commit();
