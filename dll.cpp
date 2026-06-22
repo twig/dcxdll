@@ -2046,6 +2046,12 @@ static TString dcxGetWindowProps(HWND hwnd, size_t prop)
 		}
 	}
 	break;
+	case L"mouseover"_hash:			// mouseover
+	{
+		const Dcx::dcxCursorPos pos;
+		tsRes = dcx_truefalse(!!PtInRect(&wi.rcWindow, pos));
+	}
+	break;
 	case TEXT("scrollpos"_hash):	// scrollpos
 	{
 		// Only works on a window that has a "ScrollBar" child (channel, custom (not picwin), etc..)
@@ -2110,6 +2116,7 @@ static TString dcxGetWindowProps(HWND hwnd, size_t prop)
  * $dcx(GetWindowProps, hwnd dpi)
  * $dcx(GetWindowProps, hwnd class)
  * $dcx(GetWindowProps, hwnd hoveritem)
+ * $dcx(GetWindowProps, hwnd mouseover)
  */
 mIRC(GetWindowProps)
 {
@@ -2125,7 +2132,26 @@ mIRC(GetWindowProps)
 		if (numtok < 2)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto hwnd = to_hwnd(input.getfirsttok(1).to_<size_t>());
+		const TString tsHWND(input.getfirsttok(1).trim());
+		HWND hwnd{};
+		switch (std::hash<TString>{}(tsHWND))
+		{
+		default:
+			hwnd = to_hwnd(tsHWND.to_<size_t>());
+			break;
+		case L"treebar"_hash:
+			hwnd = mIRCLinker::m_hTreebar;
+			break;
+		case L"toolbar"_hash:
+			hwnd = mIRCLinker::m_hToolbar;
+			break;
+		case L"switchbar"_hash:
+			hwnd = mIRCLinker::m_hSwitchbar;
+			break;
+		case L"mdi"_hash:
+			hwnd = mIRCLinker::m_hMDI;
+			break;
+		}
 
 		_ts_strcpyn(data, dcxGetWindowProps(hwnd, std::hash<TString>{}(input.getnexttok())).to_chr(), mIRCLinker::c_mIRC_Buffer_Size_cch);
 		return 3;
