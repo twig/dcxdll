@@ -1771,22 +1771,8 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 
 	case L"font"_hash:
 	{
-		TString tsResult;
-
-		auto hFontControl = GetWindowFont(m_Hwnd);
-
-		if (!hFontControl)
-			hFontControl = Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT);
-
-		if (hFontControl)
-		{
-			if (auto [code, lfCurrent] = Dcx::dcxGetObject<LOGFONT>(hFontControl); code != 0)
-			{
-				tsResult = ParseLogfontToCommand(&lfCurrent);
+		szReturnValue = getFontAsString(GetWindowFont(m_Hwnd));
 			}
-		}
-		szReturnValue = tsResult;
-	}
 	break;
 
 	case L"menu(istooltips)"_hash:
