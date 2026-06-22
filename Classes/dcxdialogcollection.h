@@ -19,13 +19,6 @@
 class DcxDialog;
 
 using VectorOfDialogPtrs = std::vector<DcxDialog *>; //!< blah
-//using VectorOfDialogPtrs = std::vector<std::unique_ptr<DcxDialog>>; //!< blah
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 class DcxDialogCollection
 {

@@ -24,7 +24,6 @@
 void DcxDialogCollection::markDialog(const HWND mHwnd, const TString& tsName, const TString& tsAliasName)
 {
 	m_vpDialog.push_back(new DcxDialog(mHwnd, tsName, tsAliasName));
-	//m_vpDialog.push_back(std::make_unique<DcxDialog>(mHwnd, tsName, tsAliasName));
 }
 
 /// <summary>
@@ -43,17 +42,6 @@ DcxDialog* DcxDialogCollection::getDialogByHandle(const HWND mHwnd) const noexce
 			return x;
 	}
 	return nullptr;
-
-	//if (const auto itEnd = m_vpDialog.end(), itGot = std::find_if(m_vpDialog.begin(), itEnd, [mHwnd](const auto &x) { return (x->getHwnd() == mHwnd); }); itGot != itEnd)
-	//	return *itGot;
-	//return nullptr;
-
-	//for (const auto& x : m_vpDialog)
-	//{
-	//	if (x->getHwnd() == mHwnd)
-	//		return x.get();
-	//}
-	//return nullptr;
 }
 
 /// <summary>
