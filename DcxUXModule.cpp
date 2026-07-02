@@ -201,14 +201,14 @@ HRESULT DcxUXModule::dcxSetWindowTheme(_In_ const HWND hwnd, _In_opt_ const LPCW
 	return E_NOTIMPL;
 }
 
-[[gsl::suppress(lifetime)]] HTHEME DcxUXModule::dcxGetWindowTheme(_In_ HWND hWnd) noexcept
+GSL_SUPPRESS(lifetime) HTHEME DcxUXModule::dcxGetWindowTheme(_In_ HWND hWnd) noexcept
 {
 	if (GetWindowThemeUx)
 		return GetWindowThemeUx(hWnd);
 	return nullptr;
 }
 
-[[gsl::suppress(lifetime)]] gsl::owner<HTHEME> DcxUXModule::dcxOpenThemeData(_In_opt_ HWND hwnd, _In_ LPCWSTR pszClassList) noexcept
+GSL_SUPPRESS(lifetime) gsl::owner<HTHEME> DcxUXModule::dcxOpenThemeData(_In_opt_ HWND hwnd, _In_ LPCWSTR pszClassList) noexcept
 {
 	if (OpenThemeDataUx)
 		return OpenThemeDataUx(hwnd, pszClassList);
@@ -269,7 +269,7 @@ HRESULT DcxUXModule::dcxDrawThemeTextEx(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ i
 	return E_NOTIMPL;
 }
 
-[[gsl::suppress(lifetime)]] HRESULT DcxUXModule::dcxGetThemeBackgroundRegion(_In_ HTHEME hTheme, _In_opt_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT pRect, _Out_ HRGN* pRegion) noexcept
+GSL_SUPPRESS(lifetime) HRESULT DcxUXModule::dcxGetThemeBackgroundRegion(_In_ HTHEME hTheme, _In_opt_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT pRect, _Out_ HRGN* pRegion) noexcept
 {
 	if (GetThemeBackgroundRegionUx)
 		return GetThemeBackgroundRegionUx(hTheme, hdc, iPartId, iStateId, pRect, pRegion);
@@ -325,7 +325,7 @@ HRESULT DcxUXModule::dcxDrawThemeParentBackgroundEx(_In_ HWND hwnd, _In_ HDC hdc
 	return E_NOTIMPL;
 }
 
-[[gsl::suppress(lifetime, Enum.3)]] _Success_(return != NULL) gsl::owner<HPAINTBUFFER> DcxUXModule::dcxBeginBufferedPaint(_In_ HDC hdcTarget, _In_ LPCRECT prcTarget, _In_ BP_BUFFERFORMAT dwFormat, _In_opt_ BP_PAINTPARAMS * pPaintParams, _Out_ HDC * phdc) noexcept
+[[gsl::suppress("lifetime", "Enum.3")]] _Success_(return != NULL) gsl::owner<HPAINTBUFFER> DcxUXModule::dcxBeginBufferedPaint(_In_ HDC hdcTarget, _In_ LPCRECT prcTarget, _In_ BP_BUFFERFORMAT dwFormat, _In_opt_ BP_PAINTPARAMS * pPaintParams, _Out_ HDC * phdc) noexcept
 {
 	if (BeginBufferedPaintUx)
 		return BeginBufferedPaintUx(hdcTarget, prcTarget, dwFormat, pPaintParams, phdc);
@@ -546,8 +546,7 @@ SIZE DcxUXModule::dcxGetCheckBoxSize(HTHEME hTheme, HWND hwnd, HDC hdc, LPCRECT 
 		//if (dcxGetThemePartSize(hTheme, hdc, BUTTONPARTS::BP_CHECKBOX, CHECKBOXSTATES::CBS_UNCHECKEDNORMAL, prc, TS_TRUE, &sz) == S_OK)
 		//	bGet = false;
 
-		auto res = dcxGetThemePartSize(hTheme, hdc, BUTTONPARTS::BP_CHECKBOX, CHECKBOXSTATES::CBS_UNCHECKEDNORMAL, prc, TS_TRUE, &sz);
-		if (res == S_OK)
+		if (const auto res = dcxGetThemePartSize(hTheme, hdc, BUTTONPARTS::BP_CHECKBOX, CHECKBOXSTATES::CBS_UNCHECKEDNORMAL, prc, TS_TRUE, &sz); res == S_OK)
 		{
 			// possible quick fix for checkboxes being to small here...
 			//sz.cx += DcxDPIModule::dcxGetWindowMetrics(hwnd, SM_CXBORDER); // 2;

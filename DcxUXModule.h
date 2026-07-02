@@ -292,7 +292,7 @@ public:
 	static HRESULT dcxDrawThemeParentBackground(_In_ HWND hwnd, _In_ HDC hdc, _In_opt_ LPCRECT prc) noexcept;
 	static HRESULT dcxDrawThemeText(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_reads_(cchText) LPCWSTR pszText, _In_ int cchText, _In_ DWORD dwTextFlags, _In_ DWORD dwTextFlags2, _In_ LPCRECT pRect) noexcept;
 	static HRESULT dcxDrawThemeTextEx(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_reads_(cchText) LPCWSTR pszText, _In_ int cchText, _In_ DWORD dwTextFlags, _Inout_ LPRECT pRect, _In_opt_ const DTTOPTS* pOptions) noexcept;
-	static HRESULT dcxGetThemeBackgroundRegion(_In_ HTHEME hTheme, _In_opt_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT pRect, _Out_ HRGN* pRegion) noexcept;
+	GSL_SUPPRESS(lifetime) static HRESULT dcxGetThemeBackgroundRegion(_In_ HTHEME hTheme, _In_opt_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT pRect, _Out_ HRGN* pRegion) noexcept;
 	static HRESULT dcxDrawThemeEdge(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT pDestRect, _In_ UINT uEdge, _In_ UINT uFlags, _Out_opt_ LPRECT pContentRect) noexcept;
 	static HRESULT dcxGetThemeColor(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ COLORREF* pColor) noexcept;
 	static HRESULT dcxGetThemeInt(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ int* piVal) noexcept;
@@ -303,7 +303,7 @@ public:
 	static inline const bool& IsBufferedPaintSupported(void) noexcept { return m_bBufferedPaintEnabled; }
 	static HRESULT dcxBufferedPaintInit(void) noexcept;
 	static HRESULT dcxBufferedPaintUnInit(void) noexcept;
-	[[gsl::suppress(lifetime, Enum.3)]] [[nodiscard("Memory Leak")]] _Success_(return != NULL) static gsl::owner<HPAINTBUFFER> dcxBeginBufferedPaint(_In_ HDC hdcTarget, _In_ LPCRECT prcTarget, _In_ BP_BUFFERFORMAT dwFormat, _In_opt_ BP_PAINTPARAMS* pPaintParams, _Out_ HDC* phdc) noexcept;
+	[[gsl::suppress("lifetime", "Enum.3")]] [[nodiscard("Memory Leak")]] _Success_(return != NULL) static gsl::owner<HPAINTBUFFER> dcxBeginBufferedPaint(_In_ HDC hdcTarget, _In_ LPCRECT prcTarget, _In_ BP_BUFFERFORMAT dwFormat, _In_opt_ BP_PAINTPARAMS * pPaintParams, _Out_ HDC * phdc) noexcept;
 	static HRESULT dcxEndBufferedPaint(_In_ gsl::owner<HPAINTBUFFER> hBufferedPaint, _In_ BOOL fUpdateTarget) noexcept;
 	static HRESULT dcxBufferedPaintSetAlpha(_In_ HPAINTBUFFER hBufferedPaint, _In_opt_ LPCRECT prc, _In_ BYTE alpha) noexcept;
 	static HRESULT dcxBufferedPaintClear(_In_ HPAINTBUFFER hBufferedPaint, _In_opt_ LPCRECT prc) noexcept;
