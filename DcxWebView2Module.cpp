@@ -17,9 +17,11 @@ bool DcxWebView2Module::load()
 
 	// WebView2Module Loading
 	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Loading WebView2Loader.dll..."));
+	// try loading dll from mircdir
 	m_hModule = LoadLibrary(TEXT("WebView2Loader.dll"));
 	if (!m_hModule)
 	{
+		// failed to load from mircdir, try dll dir
 		TString tsBuf(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
 		GetModuleFileNameW(getDllModule(), tsBuf.to_wchr(), gsl::narrow_cast<DWORD>(tsBuf.capacity_cch()));
 		tsBuf.deltok(gsl::narrow_cast<UINT>(tsBuf.numtok(L'\\')), L'\\');
