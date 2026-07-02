@@ -1085,10 +1085,16 @@ TString ParseLogfontToCommand(const LPLOGFONT lf)
 
 	if (TEXTMETRIC tm{}; GetTextMetricsW(hdc, &tm))
 	{
-		//auto ptSize = (int) (-1 * (lfCurrent.lfHeight * 72 / GetDeviceCaps(hdc, LOGPIXELSY)));
-		const auto ptSize = MulDiv(tm.tmHeight - tm.tmInternalLeading, 72, GetDeviceCaps(hdc, LOGPIXELSY));
+		////auto ptSize = (int) (-1 * (lfCurrent.lfHeight * 72 / GetDeviceCaps(hdc, LOGPIXELSY)));
+		//const auto ptSize = MulDiv(tm.tmHeight - tm.tmInternalLeading, 72, GetDeviceCaps(hdc, LOGPIXELSY));
+		//// [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
+		//_ts_sprintf(tmp, TEXT("% % % %"), flags, charset, ptSize, lf->lfFaceName);
+
 		// [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
-		_ts_sprintf(tmp, TEXT("% % % %"), flags, charset, ptSize, lf->lfFaceName);
+		tmp = flags;
+		tmp.addtok(charset);
+		tmp.addtok(MulDiv(tm.tmHeight - tm.tmInternalLeading, 72, GetDeviceCaps(hdc, LOGPIXELSY)));
+		tmp.addtok(lf->lfFaceName);
 	}
 	return tmp;
 }
@@ -1210,22 +1216,6 @@ HBITMAP dcxLoadBitmap(HBITMAP dest, TString& filename)
 #ifdef DCX_USE_GDIPLUS
 	if (Dcx::GDIModule.isUseable())
 	{
-		//const auto p_Img = std::make_unique<Gdiplus::Bitmap>(filename.to_wchr());
-		//
-		//// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
-		//if (auto status = p_Img->GetLastStatus(); status != Gdiplus::Status::Ok)
-		//	Dcx::error(TEXT("dcxLoadBitmap"), GetLastStatusStr(status));
-		//else {
-		//	status = p_Img->GetHBITMAP(Gdiplus::Color(), &dest);
-		//	if (status != Gdiplus::Status::Ok)
-		//	{
-		//		Dcx::error(TEXT("dcxLoadBitmap"), TEXT("Unable to Get GDI+ Bitmap Info"));
-		//		Dcx::error(TEXT("dcxLoadBitmap"), GetLastStatusStr(status));
-		//		dest = nullptr;
-		//	}
-		//	GdiFlush();
-		//}
-
 		Gdiplus::Bitmap img(filename.to_wchr());
 
 		// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
