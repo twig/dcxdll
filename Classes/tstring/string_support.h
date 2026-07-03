@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.32
+// v1.33
 
 #include <tchar.h>
 #include <wtypes.h>
@@ -528,6 +528,104 @@ namespace details
 			//return t;
 
 			return lstrcpynW(pDest, pSrc, gsl::narrow_cast<int>(length));
+		}
+	};
+
+	template <typename T>
+	struct _impl_strcpyn_s
+	{
+	};
+	template <>
+	struct _impl_strcpyn_s<char>
+	{
+		errno_t operator()(_Out_writes_z_(_SizeInCharacters) char* _Destination, _In_ rsize_t _SizeInCharacters, _In_reads_or_z_(_MaxCount) char const* _Source, _In_ rsize_t _MaxCount) noexcept
+		{
+			return strncpy_s(_Destination, _SizeInCharacters, _Source, _MaxCount);
+		}
+	};
+	template <>
+	struct _impl_strcpyn_s<wchar_t>
+	{
+		errno_t operator()(_Out_writes_z_(_SizeInCharacters) wchar_t* _Destination, _In_ rsize_t _SizeInCharacters, _In_reads_or_z_(_MaxCount) wchar_t const* _Source, _In_ rsize_t _MaxCount) noexcept
+		{
+			return wcsncpy_s(_Destination, _SizeInCharacters, _Source, _MaxCount);
+		}
+	};
+
+	template <typename T>
+	struct _impl_strscpy
+	{
+	};
+	template <>
+	struct _impl_strscpy<char>
+	{
+		ptrdiff_t operator()(_Out_writes_(length) char* const pDest, _In_reads_or_z_(length) const char* const pSrc, _In_ size_t length) noexcept
+		{
+			if ((length == 0) || (length > INT_MAX))
+			  return -E2BIG;
+
+			ptrdiff_t cnt{};
+			char* p1 = pDest;
+			const char* p2 = pSrc;
+
+			--length; // make space for zero character.
+
+			//while (*p2 && length >= sizeof(DWORD))
+			//{
+			//	*((DWORD*)p1) = *((DWORD*)p2);
+			//	length -= sizeof(DWORD);
+			//	p1 += sizeof(DWORD);
+			//	p2 += sizeof(DWORD);
+			//}
+
+			while (*p2 && length)
+			{
+				*p1++ = *p2++;
+				++cnt;
+				--length;
+			}
+			*p1 = 0;
+			if (*p2 != 0)
+				return -E2BIG;
+			return cnt;
+		}
+	};
+	template <>
+	struct _impl_strscpy<wchar_t>
+	{
+		ptrdiff_t operator()(_Out_writes_(length) wchar_t* const pDest, _In_reads_or_z_(length) const wchar_t* const pSrc, _In_ size_t length) noexcept
+		{
+			if ((length == 0) || (length > INT_MAX))
+				return -E2BIG;
+
+			ptrdiff_t cnt{};
+			wchar_t* p1 = pDest;
+			const wchar_t* p2 = pSrc;
+
+			--length; // make space for zero character.
+
+			//while (*p2 && length >= sizeof(DWORD))
+			//{
+			//	const DWORD c = *((DWORD*)p2);
+			//	*((DWORD*)p1) = c;
+			//	length -= sizeof(DWORD)/sizeof(wchar_t);
+			//	p1 += sizeof(DWORD);
+			//	if ((c & 0x0000FFFF) != 0)
+			//		p2 += sizeof(DWORD);
+			//	else
+			//		++p2;
+			//}
+
+			while (*p2 && length)
+			{
+				*p1++ = *p2++;
+				++cnt;
+				--length;
+			}
+			*p1 = 0;
+			if (*p2 != 0)
+				return -E2BIG;
+			return cnt;
 		}
 	};
 
@@ -1149,11 +1247,6 @@ inline bool _ts_isEmpty(_In_ const T& str) noexcept
 	return details::_ts_isEmpty(str);
 }
 
-//template <details::HasNoClearFunction T>
-//inline void _ts_clear(_In_ T& str) noexcept
-//{
-//}
-
 template <details::HasClearFunction T>
 inline void _ts_clear(_In_ T& str) noexcept
 {
@@ -1193,6 +1286,43 @@ T* _ts_strcpyn(_Out_writes_(iChars) T* const sDest, _In_reads_or_z_(iChars) cons
 	//#endif
 
 	return details::_impl_strcpyn<T>()(sDest, sSrc, iChars);
+}
+
+/// <summary>
+/// Copies one string to another.
+/// </summary>
+/// <typeparam name="T">- data type, either char or wchar_t</typeparam>
+/// <param name="_Destination">- Destination string.</param>
+/// <param name="_SizeInCharacters">- The size of the destination string, in characters.</param>
+/// <param name="_Source">- Source string.</param>
+/// <param name="_MaxCount">- Number of characters to be copied, or _TRUNCATE.</param>
+/// <returns></returns>
+template <details::IsPODText T>
+errno_t _ts_strncpy_s(_Out_writes_z_(_SizeInCharacters) T* _Destination, _In_ rsize_t _SizeInCharacters, _In_reads_or_z_(_MaxCount) T const* _Source, _In_ rsize_t _MaxCount) noexcept
+{
+	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
+
+	return details::_impl_strcpyn<T>()(_Destination, _SizeInCharacters, _Source, _MaxCount);
+}
+
+/// <summary>
+/// Copy a string from pSrc to pDest, copying no more than iChars characters.
+/// if pDest and pSrc are valid and iChars is > zero then pDest is always null terminated.
+/// </summary>
+/// <typeparam name="T">either char or wchar_t</typeparam>
+/// <param name="sDest">- Destination buffer.</param>
+/// <param name="sSrc">- Source zero terminated string.</param>
+/// <param name="iChars">- Max Number of characters that can be copied into pDest.</param>
+/// <returns>The number of characters copied or -E2BIG if the dest buffer is to small for the string.</returns>
+template <details::IsPODText T>
+_Success_(return >= 0) ptrdiff_t _ts_strscpy(_Out_writes_(iChars) T* const sDest, _In_reads_or_z_(iChars) const T* const sSrc, _In_ size_t iChars) noexcept
+{
+	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
+
+	if ((!sDest) || (!sSrc))
+		return -E2BIG;
+
+	return details::_impl_strscpy<T>()(sDest, sSrc, iChars);
 }
 
 template <details::IsPODText T>
