@@ -2067,6 +2067,44 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					break;
 					}
 
+					auto handleState = [xMenu, hMenu, wParam](const TString& tsIDs)
+					{
+						switch (tsIDs.numtok())
+						{
+						case 1:
+						{
+							// one id assume its a group id.
+							const auto nGroup = tsIDs.getfirsttok(1).to_<UINT>();
+
+							if (const auto& grp = Dcx::XPopups.getGroup(nGroup); grp)
+							{
+								for (const auto& gID : grp.m_GroupIDs)
+								{
+									TString tsPath;
+									if (auto gMenu = xMenu->CommandIDToPath(gID, tsPath); gMenu)
+										setCheckState(gMenu, gID, FALSE, false);
+								}
+							}
+							setCheckState(hMenu, gsl::narrow_cast<UINT>(wParam), TRUE, true);
+						}
+						break;
+						case 2:
+						{
+							// two ids assume its a position range.
+							const auto nFirst = tsIDs.getfirsttok(1).to_<UINT>() - 1;
+							const auto nLast = tsIDs.getnexttokas<UINT>() - 1;
+
+							CheckMenuRadioItem(hMenu, nFirst, nLast, gsl::narrow_cast<UINT>(wParam), MF_BYPOSITION);
+						}
+						break;
+						default:
+						{
+							// no ids, just check this item.
+							setCheckState(hMenu, gsl::narrow_cast<UINT>(wParam), TRUE, true);
+						}
+						break;
+						}
+					};
 					switch (std::hash<TString>()(tsRes.getfirsttok(1)))
 					{
 						// if alias returns "$true" then simply halt menu closing (its assumed the script has done whatever needed doing)
@@ -2074,6 +2112,47 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					return 0L;
 					default:
 						break;
+					case L"opts"_hash:
+					{
+						// tsRes == <+flags> <flag args>
+						const XSwitchFlags xFlags(tsRes.getnexttok());
+						auto tsArgs(tsRes.getlasttoks());
+
+						bool bRedraw = false;
+
+						// set item value (can be combined with either +c or +u)
+						// if +v <flag args> == <value> <item text>
+						// if +c <flag args> == (<id1> (id2))
+						// if +u <flag args> ==
+						// if +vc <flag args> == (<id1> (id2))$chr(1)<value> <item text>
+						// if +vu <flag args> == <value> <item text>
+						if (xFlags[L'v'])
+						{
+							TString tsText;
+							if (xFlags[L'c'])
+								tsText = tsArgs.getfirsttok(2, L'\1').trim();
+							else
+								tsText = tsArgs.trim();
+							xItem->m_uProgressValue = tsText.getfirsttok(1).to_<UINT>();
+							xItem->setItemText(tsText.getlasttoks());
+
+							bRedraw = true;
+						}
+						// set item checked (cant be used with +u)
+						if (xFlags[L'c'])
+						{
+							const TString tsText(tsArgs.getfirsttok(1, L'\1').trim());
+							handleState(tsText);
+						}
+						// set item unchecked (cant be used with +c)
+						else if (xFlags[L'u'])
+							setCheckState(hMenu, gsl::narrow_cast<UINT>(wParam), TRUE, false);
+
+						if (bRedraw)
+							RedrawMenuItem(mHwnd, hMenu, gsl::narrow_cast<UINT>(wParam));
+						return 0L;
+					}
+					break;
 					// if the alias returns "msg" then send the menu selection back to the menus owner & halt menu closing.
 					case L"msg"_hash:
 					{
@@ -2097,39 +2176,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					}
 					case L"check"_hash:
 					{
-						switch (const auto tsIDs(tsRes.getlasttoks()); tsIDs.numtok())
-						{
-						case 1:
-						{
-							// one id assume its a group id.
-							const auto nGroup = tsIDs.getfirsttok(1).to_<UINT>();
-
-							if (auto& grp = xMenu->getGroup(nGroup); grp)
-							{
-								for (const auto &gID : grp.m_GroupIDs)
-					{
-									setCheckState(hMenu, gID, TRUE, false);
-								}
-							}
-							setCheckState(hMenu, gsl::narrow_cast<UINT>(wParam), TRUE, true);
-						}
-							break;
-						case 2:
-						{
-							// two ids assume its a position range.
-							const auto nFirst = tsIDs.getfirsttok(1).to_<UINT>() - 1;
-							const auto nLast = tsIDs.getnexttokas<UINT>() - 1;
-
-							CheckMenuRadioItem(hMenu, nFirst, nLast, gsl::narrow_cast<UINT>(wParam), MF_BYPOSITION);
-						}
-							break;
-						default:
-						{
-							// no ids, just check this item.
-							setCheckState(hMenu, gsl::narrow_cast<UINT>(wParam), TRUE, true);
-						}
-								break;
-						}
+						handleState(tsRes.getlasttoks());
 						return 0L;
 						}
 					case L"uncheck"_hash:
