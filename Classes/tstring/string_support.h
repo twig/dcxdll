@@ -1059,6 +1059,132 @@ namespace details
 	};
 
 	template <typename T>
+	struct _impl_strtof
+	{
+	};
+	template <>
+	struct _impl_strtof<char>
+	{
+		auto operator()(_In_z_ const char* const buf, _Out_opt_ _Deref_post_z_ char** endptr) noexcept
+		{
+			return strtof(buf, endptr);
+		}
+	};
+	template <>
+	struct _impl_strtof<wchar_t>
+	{
+		auto operator()(_In_z_ const wchar_t* const buf, _Out_opt_ _Deref_post_z_ wchar_t** endptr) noexcept
+		{
+			return wcstof(buf, endptr);
+		}
+	};
+
+	template <typename T>
+	struct _impl_strtod
+	{
+	};
+	template <>
+	struct _impl_strtod<char>
+	{
+		auto operator()(_In_z_ const char* const buf, _Out_opt_ _Deref_post_z_ char** endptr) noexcept
+		{
+			return strtod(buf, endptr);
+		}
+	};
+	template <>
+	struct _impl_strtod<wchar_t>
+	{
+		auto operator()(_In_z_ const wchar_t* const buf, _Out_opt_ _Deref_post_z_ wchar_t** endptr) noexcept
+		{
+			return wcstod(buf, endptr);
+		}
+	};
+
+	template <typename T>
+	struct _impl_strtold
+	{
+	};
+	template <>
+	struct _impl_strtold<char>
+	{
+		auto operator()(_In_z_ const char* const buf, _Out_opt_ _Deref_post_z_ char** endptr) noexcept
+		{
+			return strtold(buf, endptr);
+		}
+	};
+	template <>
+	struct _impl_strtold<wchar_t>
+	{
+		auto operator()(_In_z_ const wchar_t* const buf, _Out_opt_ _Deref_post_z_ wchar_t** endptr) noexcept
+		{
+			return wcstold(buf, endptr);
+		}
+	};
+
+	template <typename T>
+	struct _impl_strtol
+	{
+	};
+	template <>
+	struct _impl_strtol<char>
+	{
+		auto operator()(_In_z_ const char* const buf, _Out_opt_ _Deref_post_z_ char** endptr, _In_ int radx) noexcept
+		{
+			return strtol(buf, endptr, radx);
+		}
+	};
+	template <>
+	struct _impl_strtol<wchar_t>
+	{
+		auto operator()(_In_z_ const wchar_t* const buf, _Out_opt_ _Deref_post_z_ wchar_t** endptr, _In_ int radx) noexcept
+		{
+			return wcstol(buf, endptr, radx);
+		}
+	};
+
+	template <typename T>
+	struct _impl_strtoll
+	{
+	};
+	template <>
+	struct _impl_strtoll<char>
+	{
+		auto operator()(_In_z_ const char* const buf, _Out_opt_ _Deref_post_z_ char** endptr, _In_ int radx) noexcept
+		{
+			return strtoll(buf, endptr, radx);
+		}
+	};
+	template <>
+	struct _impl_strtoll<wchar_t>
+	{
+		auto operator()(_In_z_ const wchar_t* const buf, _Out_opt_ _Deref_post_z_ wchar_t** endptr, _In_ int radx) noexcept
+		{
+			return wcstoll(buf, endptr, radx);
+		}
+	};
+
+	template <typename T>
+	struct _impl_strtoimax
+	{
+	};
+	template <>
+	struct _impl_strtoimax<char>
+	{
+		auto operator()(_In_z_ const char* const buf, _Out_opt_ _Deref_post_z_ char** endptr, _In_ int radx) noexcept
+		{
+			return strtoimax(buf, endptr, radx);
+		}
+	};
+	template <>
+	struct _impl_strtoimax<wchar_t>
+	{
+		auto operator()(_In_z_ const wchar_t* const buf, _Out_opt_ _Deref_post_z_ wchar_t** endptr, _In_ int radx) noexcept
+		{
+			return wcstoimax(buf, endptr, radx);
+		}
+	};
+
+	template <typename T>
 	struct _impl_strtoul
 	{
 	};
@@ -1311,7 +1437,7 @@ errno_t _ts_strncpy_s(_Out_writes_z_(_SizeInCharacters) T* _Destination, _In_ rs
 /// </summary>
 /// <typeparam name="T">either char or wchar_t</typeparam>
 /// <param name="sDest">- Destination buffer.</param>
-/// <param name="sSrc">- Source zero terminated string.</param>
+/// <param name="sSrc">- Source zero terminated string. NB: Source length is NOT checked except for zero byte.</param>
 /// <param name="iChars">- Max Number of characters that can be copied into pDest.</param>
 /// <returns>The number of characters copied or -E2BIG if the dest buffer is to small for the string.</returns>
 template <details::IsPODText T>
@@ -1458,6 +1584,30 @@ auto _ts_itoa(_In_ const int val, _Pre_notnull_ _Post_z_ T* const buf, _In_ cons
 }
 
 template <details::IsPODText T>
+auto _ts_strtol(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr, _In_ int base) noexcept
+{
+	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
+
+	return details::_impl_strtol<T>()(buf, endptr, base);
+}
+
+template <details::IsPODText T>
+auto _ts_strtoll(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr, _In_ int base) noexcept
+{
+	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
+
+	return details::_impl_strtoll<T>()(buf, endptr, base);
+}
+
+template <details::IsPODText T>
+auto _ts_strtoimax(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr, _In_ int base) noexcept
+{
+	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
+
+	return details::_impl_strtoimax<T>()(buf, endptr, base);
+}
+
+template <details::IsPODText T>
 auto _ts_strtoul(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T * *endptr, _In_ int base) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
@@ -1479,6 +1629,30 @@ auto _ts_strtoumax(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endpt
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
 	return details::_impl_strtoumax<T>()(buf, endptr, base);
+}
+
+template <details::IsPODText T>
+auto _ts_strtof(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr) noexcept
+{
+	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
+
+	return details::_impl_strtof<T>()(buf, endptr);
+}
+
+template <details::IsPODText T>
+auto _ts_strtod(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr) noexcept
+{
+	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
+
+	return details::_impl_strtod<T>()(buf, endptr);
+}
+
+template <details::IsPODText T>
+auto _ts_strtold(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr) noexcept
+{
+	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
+
+	return details::_impl_strtold<T>()(buf, endptr);
 }
 
 /// <summary>
