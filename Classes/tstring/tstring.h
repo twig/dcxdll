@@ -470,6 +470,12 @@ public:
 	{
 	}
 
+	template <TStringConcepts::IsSTDString T>
+	explicit TString(const T tString)
+		: TString(tString.c_str(), tString.length())
+	{
+	}
+
 	/// <summary>
 	/// Move constructor
 	/// </summary>
@@ -2007,13 +2013,17 @@ public:
 	/// <typeparam name="T">- The number type to convert too.</typeparam>
 	/// <returns>The string converted to a number.</returns>
 	template <TStringConcepts::IsFloat T>
-	[[nodiscard]] T to_() const
+	[[nodiscard]] T to_() const noexcept
 	{
 		static_assert(is_Numeric_v<T>, "Type T must be (float, double, or long double)");
 
-		std::basic_istringstream<value_type> ss(m_pString);
-		T result{};
-		return ss >> result ? result : T();
+		if constexpr (std::is_same_v<float, std::remove_all_extents_t<T>>)
+			return gsl::narrow_cast<T>(_ts_strtof<value_type>(m_pString, nullptr));
+		else
+			if constexpr (std::is_same_v<double, std::remove_all_extents_t<T>>)
+				return gsl::narrow_cast<T>(_ts_strtod<value_type>(m_pString, nullptr));
+			else
+				return gsl::narrow_cast<T>(_ts_strtold<value_type>(m_pString, nullptr));
 	}
 
 	/// <summary>
@@ -2027,7 +2037,10 @@ public:
 		static_assert(is_Numeric_v<T>, "Type T must be (int, long, ....)");
 
 		// no floats etc..
-		return gsl::narrow_cast<T>(_ts_strtoul<value_type>(m_pString, nullptr, 10));
+		if constexpr(std::is_signed_v<T>)
+			return gsl::narrow_cast<T>(_ts_strtoimax<value_type>(m_pString, nullptr, 10));
+		else
+			return gsl::narrow_cast<T>(_ts_strtoumax<value_type>(m_pString, nullptr, 10));
 	}
 #else
 	/// <summary>
@@ -2056,7 +2069,7 @@ public:
 
 	[[nodiscard]] auto to_int() const noexcept(TSTRING_STRTOUL) { return to_<int>(); };
 	[[nodiscard]] auto to_num() const noexcept(TSTRING_STRTOUL) { return to_<__int64>(); };
-	[[nodiscard]] auto to_float() const { return to_<float>(); };
+	[[nodiscard]] auto to_float() const noexcept(TSTRING_STRTOUL) { return to_<float>(); };
 	[[nodiscard]] auto to_dword() const noexcept(TSTRING_STRTOUL) { return to_<DWORD>(); };
 
 	template <TStringConcepts::IsNumeric T>
