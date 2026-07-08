@@ -206,7 +206,7 @@ namespace
 	bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR* find, const TString& flag)
 	{
 
-		if ((FindUltraDock(temp)) || (GetProp(temp, TEXT("dcx_docked"))))
+		if ((FindUltraDock(temp)) || (Dcx::dcxGetProp<size_t>(temp, TEXT("dcx_docked"))))
 			throw Dcx::dcxException("Window is Already docked.");
 
 		HWND sWnd{ nullptr };
@@ -239,13 +239,13 @@ namespace
 #endif
 
 		// if prop not alrdy set then set it & subclass.
-		if (!GetProp(sWnd, TEXT("dcx_dock")))
+		if (!Dcx::dcxGetProp<LPDCXDOCK>(sWnd, TEXT("dcx_dock")))
 		{
 			// subclass window.
 			{
 				auto dd = std::make_unique<DCXDOCK>(SubclassWindow(sWnd, mIRCDockWinProc), mWnd, 0U, find);
 
-				if (!SetProp(sWnd, TEXT("dcx_dock"), dd.release()))
+				if (!Dcx::dcxSetProp(sWnd, TEXT("dcx_dock"), dd.release()))
 					throw Dcx::dcxException("Unable to SetProp");
 
 			}
@@ -265,7 +265,7 @@ namespace
 		if (xflags[TEXT('B')])
 			flags |= DockFlags::DOCKF_SHOWSCROLLBARS;	// make scrollbars visible & don't overlap them.
 
-		SetProp(temp, TEXT("dcx_docked"), reinterpret_cast<HANDLE>(flags));
+		Dcx::dcxSetProp(temp, TEXT("dcx_docked"), reinterpret_cast<HANDLE>(flags));
 		//ShowScrollBar(sWnd,SB_BOTH,FALSE);
 		AddStyles(sWnd, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN); // this helps with rendering glitches.
 		// set parent and move it to top-left corner
@@ -278,8 +278,7 @@ namespace
 #if DCX_USE_TESTCODE
 	bool DockChanTypeWindow(const HWND mWnd, const HWND temp, const TCHAR* find, const TString& flag)
 	{
-
-		if ((FindUltraDock(temp)) || (GetProp(temp, TEXT("dcx_docked"))))
+		if ((FindUltraDock(temp)) || (Dcx::dcxGetProp<size_t>(temp, TEXT("dcx_docked"))))
 			throw Dcx::dcxException("Window is Already docked.");
 
 		HWND sWnd{ mWnd };
@@ -310,7 +309,7 @@ namespace
 #endif
 
 		// if prop not alrdy set then set it & subclass.
-		if (!GetProp(sWnd, TEXT("dcx_dock")))
+		if (!Dcx::dcxGetProp<LPDCXDOCK>(sWnd, TEXT("dcx_dock")))
 		{
 			// subclass window.
 			{
@@ -340,7 +339,7 @@ namespace
 		else if (xflags[TEXT('A')])
 			flags |= DockFlags::DOCKF_ABOVESTATIC;
 
-		SetProp(temp, TEXT("dcx_docked"), reinterpret_cast<HANDLE>(flags));
+		Dcx::dcxSetProp(temp, TEXT("dcx_docked"), reinterpret_cast<HANDLE>(flags));
 		//ShowScrollBar(sWnd,SB_BOTH,FALSE);
 		AddStyles(sWnd, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN); // this helps with rendering glitches.
 		// set parent and move it to top-left corner
@@ -353,7 +352,7 @@ namespace
 
 	void UnDock(const HWND hwnd)
 	{
-		if (!GetProp(hwnd, TEXT("dcx_docked")))
+		if (!Dcx::dcxGetProp<size_t>(hwnd, TEXT("dcx_docked")))
 			throw Dcx::dcxException("Window is not docked");
 
 		// Remove Style for undocking purpose
@@ -379,7 +378,7 @@ BOOL CALLBACK EnumDocked(HWND hwnd, LPARAM lParam)
 		SubclassWindow(hwnd, dd->oldProc);
 		delete dd;
 	}
-	if (GetProp(hwnd, TEXT("dcx_docked")))
+	if (Dcx::dcxGetProp<size_t>(hwnd, TEXT("dcx_docked")))
 		UnDock(hwnd);
 	return TRUE;
 }
@@ -443,11 +442,6 @@ mIRC(xdock)
 		// [-S] [1|0]
 		if ((switches[1] == TEXT('S')) && (numtok == 2))
 		{
-			//if ((dockHwnd) && !IsWindowVisible(mIRCLinker::getSwitchbar()))
-			//	SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(112, 0), 0);
-			//else if ((!dockHwnd) && IsWindowVisible(mIRCLinker::getSwitchbar()))
-			//	SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(112, 0), 0);
-
 			if (dockHwnd)
 			{
 				if (!IsWindowVisible(mIRCLinker::getSwitchbar()))
@@ -464,11 +458,6 @@ mIRC(xdock)
 		// [-T] [1|0]
 		else if ((switches[1] == TEXT('T')) && (numtok == 2))
 		{
-			//if ((dockHwnd > 0) && (!IsWindowVisible(mIRCLinker::getToolbar())))
-			//	SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(111, 0), 0);
-			//else if ((dockHwnd == 0) && (IsWindowVisible(mIRCLinker::getToolbar())))
-			//	SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(111, 0), 0);
-
 			if (dockHwnd)
 			{
 				if (!IsWindowVisible(mIRCLinker::getToolbar()))
@@ -485,11 +474,6 @@ mIRC(xdock)
 		// [-R] [1|0]
 		else if ((switches[1] == TEXT('R')) && (numtok == 2))
 		{
-			//if ((dockHwnd > 0) && (!IsWindowVisible(mIRCLinker::getTreebar())))
-			//	SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(210, 0), 0);
-			//else if ((dockHwnd == 0) && (IsWindowVisible(mIRCLinker::getTreebar())))
-			//	SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(210, 0), 0);
-
 			if (dockHwnd)
 			{
 				if (!IsWindowVisible(mIRCLinker::getTreebar()))
@@ -506,11 +490,6 @@ mIRC(xdock)
 		// [-M] [1|0]
 		else if ((switches[1] == TEXT('M')) && (numtok == 2))
 		{
-			//if ((dockHwnd > 0) && (!GetMenu(mIRCWnd)))
-			//	SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(110, 0), 0);
-			//else if ((dockHwnd == 0) && (GetMenu(mIRCWnd)))
-			//	SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(110, 0), 0);
-
 			if (dockHwnd)
 			{
 				if (!GetMenu(mIRCWnd))
