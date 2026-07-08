@@ -7,19 +7,6 @@
 #include "Classes/UltraDock/dcxDock.h"
 #include "Dcx.h"
 
-// statusbar stuff
-//HWND DcxDock::g_StatusBar{ nullptr };
-//HIMAGELIST DcxDock::g_hImageList{ nullptr };
-//INT DcxDock::g_iDynamicParts[SB_MAX_PARTSD] = { 0 };
-//INT DcxDock::g_iFixedParts[SB_MAX_PARTSD] = { 0 };
-//HFONT DcxDock::g_StatusFont{ nullptr };
-//VectorOfDParts DcxDock::g_vParts;
-
-// treebar stuff
-//bool DcxDock::g_bTakeOverTreebar{ false };
-//COLORREF DcxDock::g_clrTreebarColours[gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MAX) + 1] = { CLR_INVALID };
-//WORD DcxDock::g_wid{};
-
 DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType) noexcept
 	: m_OldRefWndProc(nullptr)
 	, m_OldDockWndProc(nullptr)
@@ -30,12 +17,12 @@ DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType) noexcept
 {
 	if (IsWindow(m_RefHwnd))
 	{
-		SetProp(m_RefHwnd, TEXT("DcxDock"), this);
+		Dcx::dcxSetProp(m_RefHwnd, TEXT("DcxDock"), this);
 		m_OldRefWndProc = SubclassWindow(m_RefHwnd, DcxDock::mIRCRefWinProc);
 	}
 	if (IsWindow(m_hParent))
 	{
-		SetProp(m_hParent, TEXT("DcxDock"), this);
+		Dcx::dcxSetProp(m_hParent, TEXT("DcxDock"), this);
 		this->m_OldDockWndProc = SubclassWindow(m_hParent, DcxDock::mIRCDockWinProc);
 	}
 	//if (dockType == DOCK_TYPE_TREE)
@@ -192,7 +179,7 @@ LPDCXULTRADOCK DcxDock::GetDock(const HWND hwnd) const
 
 bool DcxDock::isDocked(const HWND hwnd) const
 {
-	return (FindDock(hwnd) || (GetProp(hwnd, TEXT("dcx_docked"))));
+	return (FindDock(hwnd) || (Dcx::dcxGetProp<size_t>(hwnd, TEXT("dcx_docked"))));
 }
 
 void DcxDock::AdjustRect(WINDOWPOS* wp) noexcept
@@ -204,16 +191,10 @@ void DcxDock::AdjustRect(WINDOWPOS* wp) noexcept
 		return;
 
 	RECT rcDocked{};
-	int x = 0, y = 0, w = 0, h = 0; //nWin = this->m_VectorDocks.size();
+	int x = 0, y = 0, w = 0, h = 0;
 
 	// count visible docked windows.
-
-	//for (const auto &x: this->m_VectorDocks) {
-	//	if ((x != nullptr) && IsWindowVisible(x->hwnd))
-	//		nWin++;
-	//}
-
-	const auto nWin = m_VectorDocks.size(); // for loop unneeded, max size will do
+	const auto nWin = m_VectorDocks.size(); // max size will do
 	if (nWin == 0)
 		return;
 
