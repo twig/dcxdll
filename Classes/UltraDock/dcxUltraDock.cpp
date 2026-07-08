@@ -86,7 +86,7 @@ void UltraDock(const HWND mWnd, HWND temp, const TString &flag)
 	// mWnd is unused.
 	if (!g_dockMDI || !mWnd || !temp)
 		return;
-	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,TEXT("dcx_docked"))))
+	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (Dcx::dcxGetProp<size_t>(temp,TEXT("dcx_docked"))))
 		throw Dcx::dcxException("Window already docked");
 
 	GSL_SUPPRESS(lifetime.1) g_dockMDI->DockWindow(temp, flag);
@@ -111,7 +111,7 @@ void TreebarDock(HWND temp, const TString &flag)
 	// mWnd is unused.
 	if (!g_dockTreebar || !temp)
 		return;
-	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,TEXT("dcx_docked"))))
+	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (Dcx::dcxGetProp<size_t>(temp,TEXT("dcx_docked"))))
 		throw Dcx::dcxException("Window already docked");
 	
 	GSL_SUPPRESS(lifetime.1) g_dockTreebar->DockWindow(temp, flag);
