@@ -183,11 +183,6 @@ void DcxText::parseCommandRequest(const TString& input)
 			this->redrawWindow();
 		}
 	}
-	// This is to avoid invalid flag message.
-	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('r')])
-	{
-	}
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
 	else if (flags[TEXT('t')])
 	{
@@ -200,6 +195,11 @@ void DcxText::parseCommandRequest(const TString& input)
 			this->InvalidateParentRect(m_Hwnd);
 			this->redrawWindow();
 		}
+	}
+	// This is to avoid invalid flag message. (MUST be last)
+	// xdid -r [NAME] [ID] [SWITCH]
+	else if (flags[TEXT('r')])
+	{
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
