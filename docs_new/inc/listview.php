@@ -844,7 +844,11 @@ function get_xdidprops_listview(&$XDIDPROPS) {
 			'__cmd' => '[ROW] [COLUMN]',
 	        '__eg' => '3, 1',
 		),
-		'icons' => 'This property returns a count of the icons loaded.',
+		'icons' => array(
+			'__desc' => 'This property returns a count of the icons loaded.',
+			'__cmd' => '[+FLAGS]',
+	        '__eg' => '+n',
+		),
 		'margin' => 'This property return the current view margin.',
 	);
 }
