@@ -1951,6 +1951,17 @@ namespace Dcx
 		SendMessage(hwnd, TTM_SETTOOLINFO, 0, reinterpret_cast<LPARAM>(pti));
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="pti"></param>
+	/// <returns>true on success</returns>
+	inline bool dcxToolTip_GetToolInfo(_In_ HWND hwnd, _Inout_ LPTOOLINFO pti) noexcept
+	{
+		return !!SendMessage(hwnd, TTM_GETTOOLINFO, 0, reinterpret_cast<LPARAM>(pti));
+	}
+
 	enum class dcxToolTipTitleIcons
 		: int
 	{
@@ -2061,6 +2072,16 @@ namespace Dcx
 	inline bool dcxToolTip_AdjustRect(_In_ HWND hwnd, _In_ BOOL bState, _Inout_ LPRECT prc) noexcept
 	{
 		return (SendMessage(hwnd, TTM_ADJUSTRECT, bState, reinterpret_cast<LPARAM>(prc)) != 0);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="pti"></param>
+	inline void dcxToolTip_NewToolRect(_In_ HWND hwnd, _In_ LPTOOLINFO pti) noexcept
+	{
+		SendMessage(hwnd, TTM_NEWTOOLRECT, 0, reinterpret_cast<LPARAM>(pti));
 	}
 
 	/// <summary>
