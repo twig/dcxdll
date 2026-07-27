@@ -139,7 +139,7 @@
 	</tr>
 	<tr>
 		<td class="style"><a name="style.columnoverflow" class="style">columnoverflow</a></td>
-		<td>Indicates that an overflow button should be displayed in icon/tile view if there is not enough client width to display the complete set of header items. (<a class='style' href='listview.htm#style.headeralways'>headeralways</a> needed) (<a class='style' href='listview.htm#style.icon'>icon</a> & <a class='style' href='listview.htm#style.smallicon'>smallicon</a> view)</td>
+		<td>Indicates that an overflow button should be displayed in <a class='style' href='listview.htm#style.icon'>icon</a>/<a class='style' href='listview.htm#style.tile'>tile</a> view if there is not enough client width to display the complete set of header items. (<a class='style' href='listview.htm#style.headeralways'>headeralways</a> needed) (<a class='style' href='listview.htm#style.icon'>icon</a> & <a class='style' href='listview.htm#style.smallicon'>smallicon</a> view)</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.columnsnap" class="style">columnsnap</a></td>
@@ -235,7 +235,7 @@
 	</tr>
 	<tr>
 		<td class="style"><a name="style.subitemsel" class="style">subitemsel</a></td>
-		<td>Enable selecting subitems.</td>
+		<td>Enable selecting subitems. (can't be used with <a class='style' href='listview.htm#style.fullrow'>fullrow</a>)</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.tooltip" class="style">tooltip</a></td>
@@ -317,10 +317,6 @@
 		<td>Autosize according to header text width.</td>
 	</tr>
 	<tr>
-		<td class="value">H</td>
-		<td>Allows you to load an item from a hash table by name. Cannot be used with <a class="value">+n</a></td>
-	</tr>
-	<tr>
 		<td class="value">i</td>
 		<td>The item is italic.</td>
 	</tr>
@@ -331,10 +327,6 @@
 	<tr>
 		<td class="value">m</td>
 		<td>Autosize the column to fit header or content.</td>
-	</tr>
-	<tr>
-		<td class="value">n</td>
-		<td>Allows you to load an item from a hash table by index. Cannot be used with <a class="value">+H</a></td>
 	</tr>
 	<tr>
 		<td class="value">s</td>
@@ -354,15 +346,15 @@
 	</tr>
 	<tr>
 		<td class="value">w</td>
-		<td><a class="param">(TEXT)</a> is [+IFLAGS] [TABLE NAME] [N|N1-N2|name]</td>
+		<td><a class="param">(TEXT)</a> is [+IFLAGS] [TABLE NAME] [N,N1-N2...|name]</td>
 	</tr>
 	<tr>
 		<td class="value">y</td>
-		<td><a class="param">(TEXT)</a> is [+IFLAGS] [@windowname] [N|N1-N2]</td>
+		<td><a class="param">(TEXT)</a> is [+IFLAGS] [@windowname] [N,N1-N2...]</td>
 	</tr>
 	<tr>
 		<td class="value">z</td>
-		<td><a class="param">(TEXT)</a> is [+IFLAGS] [DIALOG] [ID] (N|N1-N2)</td>
+		<td><a class="param">(TEXT)</a> is [+IFLAGS] [DIALOG] [ID] (N,N1-N2...)</td>
 	</tr>
 	<tr>
 		<td class="param">ICON</td>
@@ -404,7 +396,7 @@
 		<td class="param">TEXT</td>
 		<td>The text to display in the cell.<br />If used with <a class="value">+p</a> <a class="param">+FLAGS</a>, then this is the DCX ProgressBar <a class='style' href='listview.htm#style.style'>style</a>.<br />If used with <a class="value">+H</a> or <a class="value">+n</a> <a class="param">+FLAGS</a>, then this is either <a class="value">HASHTABLE</a> <a class="value">ITEM</a> or <a class="value">HASHTABLE</a> <a class="value">INDEX</a> respectively.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Icons must be added prior to be used in the listview using <a class='value' href='listview.htm#xdid.w'>/xdid -w</a></li><li>The <a class="param">INDENT</a> parameter only works if you are using normal icons in the listview.</li><li>Even if there are icons in the icon lists and <a class="value">0</a> is used for no icon, there will be the an icon indent space in front of the item text. (normal and state icon lists)</li><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class='style' href='listview.htm#style.checkbox'>checkbox</a> style in order to use checkboxes in the listview.</li><li><a class="param">+IFLAGS</a> is a combination of</li><li> <a class="value">+</a>   No Flags specified. <a class="param">N</a> provided, add a single item as text only.</li><li> <a class="value">+a</a>  item(s) contain all the flags & icon info etc.. for the item(s) to be added from <a class="param">INDENT</a> onwards.</li><li> <a class="value">+A</a>  add all items starting at <a class="param">N</a></li><li> <a class="value">+n</a>  <a class="param">N1-N2</a> numeric range supplied. Add all items in range. (can't be used with <a class="value">+A</a>)</li><li>- <a class="param">N1</a> must be > 0</li><li>- <a class="param">N2</a> can't be 0, but can be a negative.</li><li> <a class="value">+i</a>  <a class="param">name</a> single named item to be added. (can't be used with <a class="value">+n</a> or <a class="value">+A</a>)</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Icons must be added prior to be used in the listview using <a class='value' href='listview.htm#xdid.w'>/xdid -w</a></li><li>The <a class="param">INDENT</a> parameter only works if you are using normal icons in the listview.</li><li>Even if there are icons in the icon lists and <a class="value">0</a> is used for no icon, there will be the an icon indent space in front of the item text. (normal and state icon lists)</li><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class='style' href='listview.htm#style.checkbox'>checkbox</a> style in order to use checkboxes in the listview.</li><li><a class="param">+IFLAGS</a> is a combination of</li><li> <a class="value">+</a>   No Flags specified. <a class="param">N,N1-N2</a> numeric range supplied. Add all items in range.</li><li>- <a class="param">N</a> must be > 0, can be supplied as a single number.</li><li>- <a class="param">N1</a> must be > 0</li><li>- <a class="param">N2</a> must be >= <a class="param">N1</a>.</li><li> <a class="value">+a</a>  item(s) contain all the flags & icon info etc.. for the item(s) to be added from <a class="param">INDENT</a> onwards.</li><li> <a class="value">+A</a>  add all items starting at <a class="param">N</a> (can't be used with <a class="value">+i</a>).</li><li> <a class="value">+i</a>  <a class="param">name</a> single named item to be added. (can't be used with <a class="value">+A</a>, only applies to hashtables)</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -1832,11 +1824,11 @@
 	<tr><td colspan="2">This property returns a count of the icons loaded.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdid(dialog, ID).icons</div></td>
+		<td><div class="syntax">$xdid(dialog, ID, [+FLAGS]).icons</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4).icons</div></td>
+		<td><div class="example">$xdid(dcx, 4, +n).icons</div></td>
 	</tr>
 </table>
 <br />
@@ -2742,7 +2734,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th May, 26</td>
+		<td style="text-align: right;">Last Updated: 27th July, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

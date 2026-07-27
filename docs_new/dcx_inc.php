@@ -23,6 +23,7 @@ define('SECTION_XTREEBARPROPS', 'xtreebarprop');
 define('SECTION_XTREEBARCALLBACK', 'xtreebarcallback');
 define('SECTION_XMENUBAR'     , 'xmenubar');
 define('SECTION_XMENUBARPROPS', 'xmenubarprop');
+define('SECTION_XTHUMBNAIL'   , 'xthumbnail');
 
 // global variables
 $VERSION = '3.1';
@@ -53,6 +54,7 @@ $XTREEBARPROPS = array();
 $XTREEBARCALLBACK = array();
 $XMENUBAR = array();
 $XMENUBARPROPS = array();
+$XTHUMBNAIL = array();
 
 $CURRENTPAGE = '';
 $SECTION = 0;
@@ -67,6 +69,7 @@ $PAGES = array(
     'xtreebar' => 'XTreebar',
     'xmenubar' => 'XMenuBar',
 	'dcxml' => 'DCXML',
+	'xthumbnail' => 'XThumbnail',
 
     'cla' => 'Cell Layout Algorithm',
     'dcxvsmdx' => 'DCX vs MDX',
@@ -361,7 +364,7 @@ function dcxdoc_menu_left() {
 	asort($pages);
 
 	foreach ($pages as $page => $pagelabel) {
-		if (in_array($page, array('index', 'changes','dcxml', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock', 'tutorials', 'dcx', 'xdialog', 'xdid', 'xtray', 'xstatusbar', 'xtreebar', 'xmenubar', 'howtocompile')))
+		if (in_array($page, array('index', 'changes','dcxml', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock', 'tutorials', 'dcx', 'xdialog', 'xdid', 'xtray', 'xstatusbar', 'xtreebar', 'xmenubar', 'howtocompile','xthumbnail')))
 			continue;
 
 	    echo "<a href=\"$page.htm\"><div>$pagelabel</div></a>";
@@ -379,6 +382,7 @@ function dcxdoc_menu_left() {
                                 <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
                                 <a href="xtreebar.htm"><div>XTreebar</div></a>
+				<a href="xthumbnail.htm"><div>XThumbnail</div></a>
 			</ul>
 		</li>
 		<li>About DCX
@@ -398,7 +402,7 @@ function dcxdoc_menu_left() {
 function dcxdoc_menu_right($page) {
 	global $SECTION, $XDID, $XDIALOG, $XDIDPROPS, $XDIALOGPROPS, $EVENTS, $GENERAL,
 	$STYLES, $XPOPUP, $XPOPUPPROPS, $XPOP, $XPOPPROPS, $XDOCK, $XDOCKPROPS, $XDOCKEVENTS, $XTRAY,
-        $XSTATUSBAR, $XSTATUSBARPROPS, $XTREEBAR, $XTREEBARPROPS, $XTREEBARCALLBACK, $XMENUBAR, $XMENUBARPROPS;
+    $XSTATUSBAR, $XSTATUSBARPROPS, $XTREEBAR, $XTREEBARPROPS, $XTREEBARCALLBACK, $XMENUBAR, $XMENUBARPROPS, $XTHUMBNAIL;
 
 ?><td width="80%" valign="top" class="menuright">
 <?php
@@ -430,6 +434,8 @@ function dcxdoc_menu_right($page) {
     print_menu_items($XMENUBAR, SECTION_XMENUBAR, "/xmenubar");
     print_menu_items($XMENUBARPROPS, SECTION_XMENUBARPROPS, "\$xmenubar()");
 
+    print_menu_items($XTHUMBNAIL, SECTION_XTHUMBNAIL, "/xthumbnail");
+
     print_menu_items($EVENTS, SECTION_EVENTS, "Events");
 	//echo "<a href=\"#\">$page Notes</a><br />";
 ?>
@@ -442,7 +448,7 @@ function print_menu_items(&$arr, $sec, $sectext) {
 
 	if (count($arr)) {
 		$color = get_section_color($sec);
-		$prefix = in_array($sec, array(SECTION_XDID, SECTION_XDIALOG, SECTION_XDOCK, SECTION_XSTATUSBAR, SECTION_XTREEBAR, SECTION_XPOP, SECTION_XPOPUP, SECTION_XMENUBAR)) ? '-' : '';
+		$prefix = in_array($sec, array(SECTION_XDID, SECTION_XDIALOG, SECTION_XDOCK, SECTION_XSTATUSBAR, SECTION_XTREEBAR, SECTION_XPOP, SECTION_XPOPUP, SECTION_XMENUBAR, SECTION_XTHUMBNAIL)) ? '-' : '';
 
 		echo "<div class='rightmenu' style='border:1px solid $color'>\n\t<a class='header' href=\"#$sec\"><div style='background:$color;'>$sectext</div></a>";
 
@@ -651,6 +657,10 @@ function dcxdoc_format_xmenubarprops($event, $data) {
 
 function dcxdoc_format_xtray($event, $data) {
 	format_xcmd(SECTION_XTRAY, $event, $data);
+}
+
+function dcxdoc_format_xthumbnail($event, $data) {
+	format_xcmd(SECTION_XTHUMBNAIL, $event, $data);
 }
 
 function format_xcmd($section, $flag, $data) {
@@ -929,6 +939,13 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 			$examplefmt[$NOARGS] = "/xtray -$flag 3";
 			break;
 
+	    case SECTION_XTHUMBNAIL:
+			$heading = "/xthumbnail -$flag";
+			$syntax = "/xthumbnail -$flag {$data['__cmd']}";
+			$examplefmt[$ARGS]   = "/xthumbnail -$flag [-EXAMPLE]";
+			$examplefmt[$NOARGS] = "/xthumbnail -$flag";
+			break;
+
 		// unknown section type, failed
 		default:
 		    return false;
@@ -1128,6 +1145,8 @@ function get_section_color($section = 0) {
 
 		case SECTION_XTRAY			: return '#6A7CB0'; // blue
 
+		case SECTION_XTHUMBNAIL		: return '#6A7CB0'; // blue
+
 		case SECTION_INTRO:
 		default                     : return '#000000';
 	}
@@ -1170,6 +1189,8 @@ function get_section_name($section = 0) {
 		case SECTION_XMENUBARPROPS		: return 'xmenubarprops'; // light blue
 
 		case SECTION_XTRAY				: return 'xtray'; // blue
+
+		case SECTION_XTHUMBNAIL			: return 'xthumbnail'; // blue
 
 		case SECTION_INTRO:
 		default:

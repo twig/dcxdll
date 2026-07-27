@@ -1533,7 +1533,7 @@ $CHANGES = array(
             'updated list of controls available for /xdialog -c',
             'updated list of controls which box, divider, pager, panel, rebar and statusbar support',
             'changed the format which box, divider, pager, panel, rebar and statusbar list supported controls',
-            'a list of these controls can be found at http://dcx.scriptsdb.org/controls.xls',
+            'a list of these controls can be found at http://invalid_url/controls.xls',
             'updated main page PARAM = $4-',
             'removed /xdid -l NSUB being 0-based index when it isnt',
             "added comment to 'editlabel' style in listview",
@@ -2105,7 +2105,7 @@ $CHANGES = array(
 		'Fixed example with /xdid -C (rgb not showing)',
 	),
     'v1.3.1' => array(
-		'rewriting documentation, if you find any errors or inconsistancies with the old documentation, please post a message <a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=171">here</a>',
+		'rewriting documentation, if you find any errors or inconsistancies with the old documentation, please post a message <a href="http://github.com/twig/dcxdll/issues">here</a>',
 		'fixed focus using tabbing on edit controls on dialog (box tabbing and focus still being researched)',
 		'changed treeview and listview rclick events so it would fire even without an item being selected',
 		'added a callback sclick when /xdid -c is called for comboex',
