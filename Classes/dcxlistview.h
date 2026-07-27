@@ -108,7 +108,8 @@ struct DCXLVRENDERINFO
 	COLORREF	m_cBg{ CLR_INVALID };		//!< Background Colour.
 	COLORREF	m_cOrigText{ CLR_INVALID };
 	COLORREF	m_cOrigBg{ CLR_INVALID };
-	//DcxControl* m_pCtrl{ nullptr };
+	DcxControl* m_pCtrl{ nullptr };
+	TString		m_tsTipText;	//!< Tooltip text
 };
 using LPDCXLVRENDERINFO = DCXLVRENDERINFO*;
 
@@ -135,8 +136,8 @@ struct DCXLVITEM
 {
 	TString tsTipText;	//!< Tooltip text
 	TString tsMark;		// Marked text
-	DcxControl* pbar{ nullptr };
-	int iPbarCol{};
+	//DcxControl* pbar{ nullptr };
+	//int iPbarCol{};
 	VectorOfRenderInfo	vInfo;	//!< Render Info for each column
 };
 using LPDCXLVITEM = DCXLVITEM*;
@@ -225,7 +226,7 @@ protected:
 
 private:
 	DcxControl * CreatePbar(LPLVITEM lvi, const TString & style);
-	void ScrollPbars(const int row, const int nCols, const int iTop, const int iBottom, LPLVITEM lvi) noexcept;
+	//void ScrollPbars(const int row, const int nCols, const int iTop, const int iBottom, LPLVITEM lvi) noexcept;
 	void ScrollPbars(const int row, const int nCols, HDWP& hdp, LPLVITEM lvi) noexcept;
 	void UpdateScrollPbars(void);
 	[[nodiscard]] gsl::strict_not_null<HIMAGELIST> initImageList(const int iImageList);
@@ -444,7 +445,7 @@ private:
 	/// </summary>
 	/// <param name="ts">- The string to convert.</param>
 	/// <returns>A zero index item number</returns>
-	[[nodiscard]] int StringToItemNumber(const TString& ts) const
+	[[nodiscard]] int StringToItemNumber(const TString& ts) const noexcept(TSTRING_STRTOUL)
 	{
 		auto nItem = ts.to_int() - 1;
 
@@ -537,6 +538,20 @@ private:
 				return CreateFontIndirectW(&logFont);
 		}
 		return nullptr;
+	}
+
+	LPDCXLVRENDERINFO getRenderInfo(_In_ int iItem, _In_ int iSubItem) const
+	{
+		LVITEM lvi{ LVIF_PARAM, iItem, iSubItem };
+
+		if (!Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
+			return nullptr;
+
+		const auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lvi.lParam);
+		if (lpdcxlvi->vInfo.empty() || gsl::narrow_cast<size_t>(iItem) >= lpdcxlvi->vInfo.size())
+		return nullptr;
+
+		return &gsl::at(lpdcxlvi->vInfo, iSubItem);
 	}
 
 	//
