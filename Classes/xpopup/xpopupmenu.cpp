@@ -413,12 +413,12 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 		{
 			// GID
 			const auto gid = path.right(-1).to_<UINT>();
-			for (const auto& a : getGroups())
+			for (const auto& a : Dcx::XPopups.getGroups())
 			{
 				if (gid == a.m_ID)
 				{
 					// found matching group
-					// proccess all id's in group.
+					// proccess all id's in group. (id's are positions, or command id's)
 					for (const auto& id : a.m_GroupIDs)
 					{
 						TString tsNewInput;
@@ -1450,25 +1450,6 @@ int XPopupMenu::getMenuItemPossibleValue(HWND mHwnd, HMENU hMenu, UINT mID) cons
 	return uValue;
 }
 
-
-/// <summary>
-/// Get an item group from a group id.
-/// </summary>
-/// <param name="nID"></param>
-/// <returns>The item group requested or an empty group.</returns>
-
-const DcxMenuItemGroup& XPopupMenu::getGroup(UINT nID) const noexcept
-{
-	const static DcxMenuItemGroup gEmpty;
-	const auto& grps = getGroups();
-	for (const auto& a : grps)
-	{
-		if (nID == a.m_ID)
-			return a;
-	}
-	return gEmpty;
-}
-
 HMENU XPopupMenu::CommandIDToPath(_In_ UINT mID, _Out_ TString& tsPath, _In_opt_ HMENU hMenu) const
 {
 	MENUITEMINFO mii{};
@@ -1792,27 +1773,27 @@ bool XPopupMenu::DrawBorder(_In_opt_ HWND hWnd, _In_opt_ HDC hdc) const noexcept
 		//}
 		//else {
 			// make window rect zero based.
-			::OffsetRect(&rect, -rect.left, -rect.top);
+		::OffsetRect(&rect, -rect.left, -rect.top);
 
-			//exclude non border area from drawing.
-			::ExcludeClipRect(hdc, rect.left + borderXThiness, rect.top + borderYThiness, rect.right - borderXThiness, rect.bottom - borderYThiness);
+		//exclude non border area from drawing.
+		::ExcludeClipRect(hdc, rect.left + borderXThiness, rect.top + borderYThiness, rect.right - borderXThiness, rect.bottom - borderYThiness);
 
-			if (auto hPen = CreatePen(PS_INSIDEFRAME, 1, clr); hPen)
+		if (auto hPen = CreatePen(PS_INSIDEFRAME, 1, clr); hPen)
+		{
+			auto hOldPen = SelectPen(hdc, hPen);
+			if (auto hBrush = CreateSolidBrush(getColor(MenuColours::XPMC_BACKGROUND)); hBrush)
 			{
-				auto hOldPen = SelectPen(hdc, hPen);
-				if (auto hBrush = CreateSolidBrush(getColor(MenuColours::XPMC_BACKGROUND)); hBrush)
-				{
-					auto hOldBrush = SelectBrush(hdc, hBrush);
+				auto hOldBrush = SelectBrush(hdc, hBrush);
 				if (this->IsRoundedWindow())
 					RoundRect(hdc, rect.left, rect.top, rect.right, rect.bottom, 5, 5);
 				else
-						Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
-					SelectBrush(hdc, hOldBrush);
-					DeleteBrush(hBrush);
-				}
-				SelectPen(hdc, hOldPen);
-				DeletePen(hPen);
+					Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
+				SelectBrush(hdc, hOldBrush);
+				DeleteBrush(hBrush);
 			}
+			SelectPen(hdc, hOldPen);
+			DeletePen(hPen);
+		}
 		//}
 	}
 	return true;
@@ -2216,7 +2197,7 @@ void XPMENUBAR::UAHDrawMenuBar(HWND mHwnd, UAHMENU* pUDM) noexcept
 		if (m_BkgImage.m_hBitmap)
 			dcxDrawBitMap(pUDM->hdc, &rc, m_BkgImage.m_hBitmap, (m_Style != MainMenuStyle::XPMS_CUSTOM), false);
 	}
-		break;
+	break;
 	case MainMenuStyle::XPMS_OFFICEXP:
 	case MainMenuStyle::XPMS_CUSTOM:
 	case MainMenuStyle::XPMS_NORMAL:
@@ -2250,6 +2231,15 @@ struct DCXMENUITEMINFO
 {
 	MENUITEMINFO m_mi{ sizeof(MENUITEMINFO), MIIM_TYPE };
 	TCHAR m_szString[256]{};
+
+	DCXMENUITEMINFO() = default;
+
+	DCXMENUITEMINFO(const MENUITEMINFO& m_mi) noexcept
+		: m_mi(m_mi)
+	{
+	}
+
+	bool operator==(const DCXMENUITEMINFO& other) const = default;
 };
 
 static DCXMENUITEMINFO dcxGetMenubarItemInfo(HMENU hMenu, int iPos) noexcept
@@ -2267,7 +2257,7 @@ static DCXMENUITEMINFO dcxGetMenubarItemInfo(HMENU hMenu, int iPos) noexcept
 
 	mii.m_mi.fMask = MIIM_STRING;
 	mii.m_mi.dwTypeData = &mii.m_szString[0];
-	mii.m_mi.cch = std::size(mii.m_szString) - 1;
+	mii.m_mi.cch = gsl::narrow_cast<UINT>(std::size(mii.m_szString) - 1);
 
 	GetMenuItemInfo(hMenu, iPos, TRUE, &mii.m_mi);
 
@@ -2290,13 +2280,13 @@ void XPMENUBAR::dcxDrawMenuIcon(HMENU hMenu, int iPos, HDC hdc, LPRECT prc) noex
 			// data is a window, get icon ptr
 			iWidth = DcxDPIModule::dcxGetWindowMetrics(hIconWnd, SM_CXSMICON);
 			iHeight = DcxDPIModule::dcxGetWindowMetrics(hIconWnd, SM_CYSMICON);
-			hIcon = reinterpret_cast<HICON>(SendMessage(hIconWnd, WM_GETICON, ICON_SMALL2, DcxDPIModule::dcxGetDpiForWindow(hIconWnd)));
+			hIcon = Dcx::dcxWindow_GetIcon(hIconWnd, ICON_SMALL2, DcxDPIModule::dcxGetDpiForWindow(hIconWnd));
 
 			if (!hIcon)
-				hIcon = reinterpret_cast<HICON>(GetClassLongPtr(hIconWnd, GCLP_HICONSM));
+				hIcon = Dcx::dcxClass_GetPtr<HICON>(hIconWnd, GCLP_HICONSM);
 
 			if (!hIcon)
-				hIcon = reinterpret_cast<HICON>(GetClassLongPtr(hIconWnd, GCLP_HICON));
+				hIcon = Dcx::dcxClass_GetPtr<HICON>(hIconWnd, GCLP_HICON);
 		}
 		else {
 			// data is NOT a window, assume its an actual icon.
@@ -2324,7 +2314,7 @@ void XPMENUBAR::dcxDrawSystemButton(HTHEME hTheme, int iStateID, HDC hdc, LPRECT
 		return;
 
 	if (!m_Default.m_hBkgNormal.m_hBitmap)
-	Dcx::FillRectColour(hdc, prc, m_Default.m_Colours.m_clrBack);
+		Dcx::FillRectColour(hdc, prc, m_Default.m_Colours.m_clrBack);
 
 	if (hTheme)
 	{
@@ -2376,10 +2366,10 @@ XPMENUBARITEM XPMENUBAR::UAHGetMenuBarItemData(int iPosition) noexcept
 	catch (...) {};
 
 	return mbi;
-	}
+}
 
 //XPMENUBARDRAWCOLOURS XPMENUBAR::UAHGetMenuBarColours(const XPMENUBARITEM & mbi, UINT itemState) noexcept
-		//{
+//{
 //	XPMENUBARDRAWCOLOURS clrs{ mbi.m_Colours.m_clrBox, mbi.m_Colours.m_clrText, mbi.m_Colours.m_clrBox, mbi.m_Colours.m_clrBack };
 //
 //	if (this->m_bDrawBorder)
@@ -2410,7 +2400,7 @@ XPMENUBARITEM XPMENUBAR::UAHGetMenuBarItemData(int iPosition) noexcept
 //	}
 //
 //	return clrs;
-		//}
+//}
 //
 //XPMENUBARDRAWCOLOURS XPMENUBAR::UAHGetMenuBarColours(int iPosition, UINT itemState) noexcept
 //{
@@ -2462,7 +2452,7 @@ XPMENUBARITEM XPMENUBAR::UAHGetMenuBarItemData(int iPosition) noexcept
 //}
 
 void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
-		{
+{
 	//const auto mbi = UAHGetMenuBarItemData(pUDMI->umi.iPosition);
 	//const auto mbistate = mbi.getStateData(pUDMI);
 	//
@@ -2549,8 +2539,8 @@ void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
 	// get the item state for drawing
 	DWORD dwFlags = DT_CENTER | DT_SINGLELINE | DT_VCENTER;
 
-		if (pUDMI->dis.itemState & ODS_NOACCEL)
-			dwFlags |= DT_HIDEPREFIX;
+	if (pUDMI->dis.itemState & ODS_NOACCEL)
+		dwFlags |= DT_HIDEPREFIX;
 
 	if (!this->m_menuTheme)
 		this->m_menuTheme = DcxUXModule::dcxOpenThemeData(mHwnd, L"Menu");
@@ -2563,7 +2553,7 @@ void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
 		if (this->m_BkgImage.m_hBitmap)
 			dcxDrawTranslucentRect(pUDMI->um.hdc, &pUDMI->dis.rcItem, mbistate.m_Clrs.m_clrFill, mbistate.m_Clrs.m_clrBorder, this->m_bDrawRoundedBorder);
 		else {
-		if (this->m_bDrawRoundedBorder)
+			if (this->m_bDrawRoundedBorder)
 				Dcx::FillRectColour(pUDMI->um.hdc, &pUDMI->dis.rcItem, mbistate.m_Clrs.m_clrBack);
 
 			dcxDrawRect(pUDMI->um.hdc, &pUDMI->dis.rcItem, mbistate.m_Clrs.m_clrFill, mbistate.m_Clrs.m_clrBorder, this->m_bDrawRoundedBorder);
@@ -2585,30 +2575,30 @@ void XPMENUBAR::UAHDrawMenuBarItem(HWND mHwnd, UAHDRAWMENUITEM* pUDMI) noexcept
 		{
 			// item is an icon.
 			dcxDrawMenuIcon(pUDMI->um.hmenu, pUDMI->umi.iPosition, pUDMI->um.hdc, &pUDMI->dis.rcItem);
-				}
-				else {
+		}
+		else {
 			m_bDrawSysButtons = true;
 			dcxDrawSystemButton(this->m_menuTheme, mbistate.m_ThemeState, pUDMI->um.hdc, &pUDMI->dis.rcItem, hBm);
-				}
-			}
+		}
+	}
 	else if (!_ts_isEmpty(mii.m_szString))
 	{
-	if (this->m_menuTheme)
-	{
+		if (this->m_menuTheme)
+		{
 			const DTTOPTS opts = { sizeof(opts), (this->m_bDrawShadowText ? DTT_TEXTCOLOR | DTT_SHADOWCOLOR : DTT_TEXTCOLOR), mbistate.m_Clrs.m_clrText,0,RGB(0,0,0) };
 
 			DcxUXModule::dcxDrawThemeTextEx(this->m_menuTheme, pUDMI->um.hdc, MENU_BARITEM, mbistate.m_ThemeState, &mii.m_szString[0], mii.m_mi.cch, dwFlags, &pUDMI->dis.rcItem, &opts);
-	}
-	else {
-		if (this->m_bDrawShadowText)
-				dcxDrawShadowText(pUDMI->um.hdc, &mii.m_szString[0], mii.m_mi.cch, &pUDMI->dis.rcItem, dwFlags, mbistate.m_Clrs.m_clrText, RGB(0, 0, 0), 5, 5);
+		}
 		else {
+			if (this->m_bDrawShadowText)
+				dcxDrawShadowText(pUDMI->um.hdc, &mii.m_szString[0], mii.m_mi.cch, &pUDMI->dis.rcItem, dwFlags, mbistate.m_Clrs.m_clrText, RGB(0, 0, 0), 5, 5);
+			else {
 				const auto clrOld = SetTextColor(pUDMI->um.hdc, mbistate.m_Clrs.m_clrText);
 				DrawTextW(pUDMI->um.hdc, &mii.m_szString[0], mii.m_mi.cch, &pUDMI->dis.rcItem, dwFlags);
-			SetTextColor(pUDMI->um.hdc, clrOld);
+				SetTextColor(pUDMI->um.hdc, clrOld);
+			}
 		}
 	}
-}
 }
 
 void XPMENUBAR::UAHDrawMenuNCBottomLine(HWND hWnd) const noexcept
@@ -2756,7 +2746,7 @@ void XPMENUBAR::Setup(HWND mHwnd, const XSwitchFlags& xflags, TString tsArgs)
 		const auto tsFname(tsArgs.getlasttoks());
 
 		_LoadMenuItemImage(m_Default, tsFname, fFlags);
-		}
+	}
 	else if (xflags[TEXT('s')])
 	{
 		// enable/disable
@@ -2796,66 +2786,68 @@ void XPMENUBAR::Setup(HWND mHwnd, const XSwitchFlags& xflags, TString tsArgs)
 
 			if (xflags[TEXT('t')])
 			{
-				if (const auto clr(tsArgs.gettok(1).to_<COLORREF>()); clr == CLR_INVALID)
+				// value of -1 (CLR_INVALID) means ignore.
+				// value of `def` means set to default.
+				if (const auto tsClr(tsArgs.gettok(1)); tsClr == L"def")
 					cols.m_clrText = defcols.m_clrText;
-				else
+				else if (const auto clr(tsClr.to_<COLORREF>()); clr != CLR_INVALID)
 					cols.m_clrText = clr;
 			}
 			if (xflags[TEXT('T')])
 			{
-				if (const auto clr(tsArgs.gettok(2).to_<COLORREF>()); clr == CLR_INVALID)
+				if (const auto tsClr(tsArgs.gettok(2)); tsClr == L"def")
 					cols.m_clrSelectedText = defcols.m_clrSelectedText;
-				else
+				else if (const auto clr(tsClr.to_<COLORREF>()); clr != CLR_INVALID)
 					cols.m_clrSelectedText = clr;
 			}
 			if (xflags[TEXT('H')])
 			{
-				if (const auto clr(tsArgs.gettok(3).to_<COLORREF>()); clr == CLR_INVALID)
+				if (const auto tsClr(tsArgs.gettok(3)); tsClr == L"def")
 					cols.m_clrHotText = defcols.m_clrHotText;
-				else
+				else if (const auto clr(tsClr.to_<COLORREF>()); clr != CLR_INVALID)
 					cols.m_clrHotText = clr;
 			}
 			if (xflags[TEXT('b')])
 			{
-				if (const auto clr(tsArgs.gettok(4).to_<COLORREF>()); clr == CLR_INVALID)
+				if (const auto tsClr(tsArgs.gettok(4)); tsClr == L"def")
 					cols.m_clrBack = defcols.m_clrBack;
-				else
+				else if (const auto clr(tsClr.to_<COLORREF>()); clr != CLR_INVALID)
 					cols.m_clrBack = clr;
 				cols.m_clrBox = cols.m_clrBack;
 			}
 			if (xflags[TEXT('B')])
 			{
-				if (const auto clr(tsArgs.gettok(5).to_<COLORREF>()); clr == CLR_INVALID)
+				if (const auto tsClr(tsArgs.gettok(5)); tsClr == L"def")
 					cols.m_clrSelection = defcols.m_clrSelection;
-				else
+				else if (const auto clr(tsClr.to_<COLORREF>()); clr != CLR_INVALID)
 					cols.m_clrSelection = clr;
 			}
 			if (xflags[TEXT('h')])
 			{
-				if (const auto clr(tsArgs.gettok(6).to_<COLORREF>()); clr == CLR_INVALID)
+				if (const auto tsClr(tsArgs.gettok(6)); tsClr == L"def")
 					cols.m_clrHot = defcols.m_clrHot;
-				else
+				else if (const auto clr(tsClr.to_<COLORREF>()); clr != CLR_INVALID)
 					cols.m_clrHot = clr;
 			}
 			if (xflags[TEXT('w')])
 			{
-				if (const auto clr(tsArgs.gettok(7).to_<COLORREF>()); clr == CLR_INVALID)
+				if (const auto tsClr(tsArgs.gettok(7)); tsClr == L"def")
 					cols.m_clrBorder = defcols.m_clrBorder;
-				else
+				else if (const auto clr(tsClr.to_<COLORREF>()); clr != CLR_INVALID)
 					cols.m_clrBorder = clr;
 			}
 			if (xflags[TEXT('W')])
 			{
-				if (const auto clr(tsArgs.gettok(8).to_<COLORREF>()); clr == CLR_INVALID)
+				if (const auto tsClr(tsArgs.gettok(8)); tsClr == L"def")
 					cols.m_clrSelectionBorder = defcols.m_clrSelectionBorder;
-				else
+				else if (const auto clr(tsClr.to_<COLORREF>()); clr != CLR_INVALID)
 					cols.m_clrSelectionBorder = clr;
 			}
 			if (xflags[TEXT('o')])
 			{
-				if (const auto clr(tsArgs.gettok(9).to_<COLORREF>()); clr == CLR_INVALID)
+				if (const auto tsClr(tsArgs.gettok(9)); tsClr == L"def")
 					cols.m_clrHotBorder = defcols.m_clrHotBorder;
-				else
+				else if (const auto clr(tsClr.to_<COLORREF>()); clr != CLR_INVALID)
 					cols.m_clrHotBorder = clr;
 			}
 			return cols;
@@ -2880,7 +2872,7 @@ void XPMENUBAR::Setup(HWND mHwnd, const XSwitchFlags& xflags, TString tsArgs)
 				const auto tsFname(tsArgs.getlasttoks());
 
 				_LoadMenuItemImage(xpItem, tsFname, fFlags);
-				}
+			}
 			else {
 				if (numtok < 9)
 					throw DcxExceptions::dcxInvalidArguments();
@@ -2901,7 +2893,7 @@ void XPMENUBAR::Setup(HWND mHwnd, const XSwitchFlags& xflags, TString tsArgs)
 					m_BkgImage.m_hBitmap = dcxLoadBitmap(m_BkgImage.m_hBitmap, m_BkgImage.m_tsFilename);
 			}
 			else if (numtok == 9)
-			m_Default.m_Colours = _SetColours(xflags, tsArgs, m_Default.m_Colours);
+				m_Default.m_Colours = _SetColours(xflags, tsArgs, m_Default.m_Colours);
 		}
 	}
 	if (xflags[TEXT('R')])

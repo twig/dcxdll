@@ -186,7 +186,7 @@ struct XPMENUBARITEM
 			TiXmlElement xImg("normalimage");
 			m_hBkgNormal.toXml(&xImg);
 			xml->InsertEndChild(xImg);
-	}
+		}
 		if (!m_hBkgSelected.m_tsFilename.empty() && m_hBkgSelected.m_tsFilename != L"none")
 		{
 			TiXmlElement xImg("selimage");
@@ -472,7 +472,7 @@ struct XPMENUBAR
 			m_ItemSettings[id] = item;
 		}
 	}
-
+	
 	void dcxDrawMenuIcon(HMENU hMenu, int iPos, HDC hdc, LPRECT prc) noexcept;
 	void dcxDrawSystemButton(HTHEME hTheme, int iStateID, HDC hdc, LPRECT prc, HBITMAP hBm) noexcept;
 
@@ -490,20 +490,6 @@ struct XPMENUBAR
 	// [+FLAGS] [ARGS]
 	void Setup(HWND mHwnd, const XSwitchFlags &xflags, TString tsArgs);
 };
-
-using VectorOfGroupIDs = VectorOfInts;
-
-struct DcxMenuItemGroup
-{
-	UINT m_ID{};					// ID of this group.
-	VectorOfGroupIDs m_GroupIDs;	// these IDs are the command ids of items in the group. IDs can be in more than one group.
-
-	operator bool() const noexcept {
-		return (m_ID > 0 && !m_GroupIDs.empty());
-	}
-};
-
-using VectorOfMenuItemGroups = std::vector<DcxMenuItemGroup>;
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( push )
@@ -984,25 +970,6 @@ public:
 	int getMenuItemPossibleValue(_In_opt_ HWND mHwnd, _In_ HMENU hMenu, _In_ UINT mID) const noexcept;
 
 	/// <summary>
-	/// Gets groups data.
-	/// </summary>
-	/// <returns>VectorOfMenuItemGroups&amp;</returns>
-	VectorOfMenuItemGroups& getGroups() noexcept { return m_Groups; }
-
-	/// <summary>
-	/// Gets groups data.
-	/// </summary>
-	/// <returns>const VectorOfMenuItemGroups&amp;</returns>
-	const VectorOfMenuItemGroups& getGroups() const noexcept { return m_Groups; }
-
-	/// <summary>
-	/// Get an item group from a group id.
-	/// </summary>
-	/// <param name="nID"></param>
-	/// <returns>The item group requested or an empty group.</returns>
-	const DcxMenuItemGroup &getGroup(UINT nID) const noexcept;
-
-	/// <summary>
 	/// Converts a CommandID to a menu &amp; path.
 	/// </summary>
 	/// <param name="mID">- CommandID to convert.</param>
@@ -1119,8 +1086,6 @@ protected:
 	dcxImage m_hBitmap;					//!< Menu Item Background Image in Custom(Big) Style
 
 	XPMENUCOLORS m_MenuColors;			//!< Menu Colors
-
-	VectorOfMenuItemGroups m_Groups;
 
 	std::byte m_uiAlphaInactive{ 255 };			//!< Menus alpha level when inactive. 0 -> 255
 	std::byte m_uiAlphaDefault{ 255 };			//!< Menu alpha level when in its default state. 0 -> 255

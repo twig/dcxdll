@@ -1218,6 +1218,56 @@ XPopupMenuItem* XPopupMenuManager::getMenuItemByCommandID(_In_opt_ const HMENU h
 }
 
 
+DcxMenuItemGroup& XPopupMenuManager::getGroup(UINT nID) noexcept
+{
+	static DcxMenuItemGroup gEmpty;
+	auto& grps = getGroups();
+	for (auto& a : grps)
+	{
+		if (nID == a.m_ID)
+			return a;
+	}
+	return gEmpty;
+}
+
+const DcxMenuItemGroup& XPopupMenuManager::getGroup(UINT nID) const noexcept
+{
+	const static DcxMenuItemGroup gEmpty;
+	const auto& grps = getGroups();
+	for (const auto& a : grps)
+	{
+		if (nID == a.m_ID)
+			return a;
+	}
+	return gEmpty;
+}
+
+bool XPopupMenuManager::addGroup(UINT mID)
+{
+	DcxMenuItemGroup tmp;
+	tmp.m_ID = mID;
+	getGroups().emplace_back(tmp);
+
+	return true;
+}
+
+void XPopupMenuManager::deleteGroup(UINT mID)
+{
+	if (auto& grp = getGroup(mID); grp)
+	{
+		auto itEnd = grp.m_GroupIDs.end();
+		auto itGet = std::find(grp.m_GroupIDs.begin(), itEnd, mID);
+		if (itGet != itEnd)
+			grp.m_GroupIDs.erase(itGet);
+
+		if (grp.m_GroupIDs.empty())
+		{
+			auto& grps = getGroups();
+			Dcx::eraseIfFound(grps, grp);
+		}
+	}
+}
+
 HMENU XPopupMenuManager::getWindowsMenu(_In_opt_ HWND mHwnd) noexcept
 {
 	if (!mHwnd)

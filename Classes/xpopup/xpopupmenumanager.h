@@ -68,6 +68,20 @@ return
 
 */
 
+using VectorOfGroupIDs = std::vector<UINT>;
+
+struct DcxMenuItemGroup
+{
+	UINT m_ID{};					// ID of this group.
+	VectorOfGroupIDs m_GroupIDs;	// these IDs are the command ids of items in the group. IDs can be in more than one group.
+
+	operator bool() const noexcept {
+		return (m_ID > 0 /*&& !m_GroupIDs.empty()*/);
+	}
+};
+
+using VectorOfMenuItemGroups = std::vector<DcxMenuItemGroup>;
+
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( push )
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
@@ -88,6 +102,8 @@ private:
 
 	HMENU m_hMenuCustom{ nullptr };
 	HWND m_hMenuOwner{ nullptr }; //!< Menu Owner Window Which Processes WM_ Menu Messages 
+
+	VectorOfMenuItemGroups m_vGroups;
 
 public:
 
@@ -147,6 +163,41 @@ public:
 	HWND getOwnerWindow() const noexcept {
 		return m_hOwnerWindow;
 	}
+
+	/// <summary>
+	/// Gets groups data.
+	/// </summary>
+	/// <returns>VectorOfMenuItemGroups&amp;</returns>
+	VectorOfMenuItemGroups& getGroups() noexcept { return m_vGroups; }
+
+	/// <summary>
+	/// Gets groups data.
+	/// </summary>
+	/// <returns>const VectorOfMenuItemGroups&amp;</returns>
+	const VectorOfMenuItemGroups& getGroups() const noexcept { return m_vGroups; }
+
+	/// <summary>
+	/// Get an item group from a group id.
+	/// </summary>
+	/// <param name="nID"></param>
+	/// <returns>The item group requested or an empty group.</returns>
+	DcxMenuItemGroup& getGroup(UINT nID) noexcept;
+
+	/// <summary>
+	/// Get an item group from a group id.
+	/// </summary>
+	/// <param name="nID"></param>
+	/// <returns>The item group requested or an empty group.</returns>
+	const DcxMenuItemGroup& getGroup(UINT nID) const noexcept;
+
+	/// <summary>
+	/// Adds an id to a group, creating it if it doesnt exist.
+	/// </summary>
+	/// <param name="mID"></param>
+	/// <returns></returns>
+	bool addGroup(UINT mID);
+
+	void deleteGroup(UINT mID);
 
 	/// <summary>
 	/// Get the HMENU for the supplied menus HWND.
