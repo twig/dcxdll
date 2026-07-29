@@ -62,16 +62,12 @@ DcxListView::DcxListView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 	Dcx::dcxListView_SetExtendedListViewStyleEx(m_Hwnd, gsl::narrow_cast<WPARAM>(lvExStyles), gsl::narrow_cast<LPARAM>(lvExStyles));
 
 	setToolTipHWND(Dcx::dcxListView_GetToolTips(m_Hwnd));
-
 	if (getToolTipHWND())
 	{
 		if (styles.istok(TEXT("balloon")))
 			AddStyles(getToolTipHWND(), GWL_STYLE, TTS_BALLOON);
-
-		//if (styles.istok(TEXT("tooltips"))) {
-		//	this->m_ToolTipHWND = p_Dialog->getToolTip();
-		//	AddToolTipToolInfo(this->m_ToolTipHWND,m_Hwnd);
-		//}
+		//if (styles.istok(TEXT("tooltips")))
+		//	AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
 
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
@@ -3795,44 +3791,47 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 				}
 			}
 			break;
-			// LVN_GETTOOLTIP/TTN_GETDISPINFO/TTN_LINKCLICK fail....
-			//case LVN_GETINFOTIP:
-			//	{
-			//	}
-			//	break;
-			//case TTN_GETDISPINFO:
-			//	{
-			//		LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
-			//		LVHITTESTINFO hti;
-			//		GetCursorPos( &hti.pt );
-			//		ScreenToClient( m_Hwnd, &hti.pt );
-			//		ZeroMemory(&hti,sizeof(LVHITTESTINFO));
-			//		hti.flags = LVHT_ONITEM;
-			//		if (ListView_SubItemHitTest(m_Hwnd,&hti) != -1) {
-			//			if (hti.flags & LVHT_ONITEM) {
-			//				LVITEM lvi;
-			//				ZeroMemory(&lvi,sizeof(LVITEM));
-			//				lvi.mask = LVIF_PARAM;
-			//				lvi.iItem = hti.iItem;
-			//				lvi.iSubItem = hti.iSubItem;
-			//				if (ListView_GetItem(m_Hwnd,&lvi)) {
-			//					LPDCXLVITEM dci = (LPDCXLVITEM) lvi.lParam;
-			//					if (dci != nullptr)
-			//						di->lpszText = dci->tsTipText.to_chr();
-			//				}
-			//			}
-			//		}
-			//		//di->lpszText = this->m_tsToolTip.to_chr();
-			//		di->hinst = nullptr;
-			//		bParsed = TRUE;
-			//	}
-			//	break;
-			//case TTN_LINKCLICK:
-			//	{
-			//		bParsed = TRUE;
-			//		this->execAliasEx(TEXT("%s,%d"), TEXT("tooltiplink"), this->getUserID( ) );
-			//	}
-			//	break;
+
+			case TTN_GETDISPINFO:
+			{
+				dcxlParam(LPNMTTDISPINFO, di);
+				LVHITTESTINFO lvht{};
+				GetCursorPos(&lvht.pt);
+				ScreenToClient(m_Hwnd, &lvht.pt);
+				if (Dcx::dcxListView_SubItemHitTest(m_Hwnd, &lvht) != -1)
+				{
+					if (lvht.flags & LVHT_ONITEM)
+					{
+						if (auto pri = this->getRenderInfo(lvht.iItem, lvht.iSubItem); pri)
+						{
+							if (pri->m_tsTipText.empty())
+								break;
+
+							di->lpszText = pri->m_tsTipText.to_wchr();
+						}
+					}
+				}
+				di->hinst = nullptr;
+				bParsed = TRUE;
+			}
+			break;
+			case TTN_LINKCLICK:
+			{
+				bParsed = TRUE;
+				this->execAliasEx(TEXT("%s,%d"), TEXT("tooltiplink"), this->getUserID());
+			}
+			break;
+			case TTN_SHOW:
+			{
+				dcxlParam(LPNMHDR, pnmh);
+
+				if (POINT pt{};	GetCursorPos(&pt))
+					SetWindowPos(pnmh->hwndFrom, HWND_TOP, pt.x, pt.y, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+
+				bParsed = TRUE;
+				return TRUE;
+			}
+			break;
 			default:
 				break;
 
@@ -3840,12 +3839,6 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		}
 	}
 	break;
-
-	//case WM_MOUSEMOVE:
-	//{
-	//	lRes = CommonMessage(uMsg, wParam, lParam, bParsed);
-	//}
-	//break;
 
 	case WM_MOUSEHOVER:
 	{
@@ -3867,7 +3860,7 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		{ // make subitem show as selected.
 			if (const auto lvexstyles = Dcx::dcxListView_GetExtendedListViewStyle(m_Hwnd); !dcx_testflag(lvexstyles, LVS_EX_FULLROWSELECT))
 			{
-				if (auto itGet = std::find_if(m_SubItemsSelected.begin(), m_SubItemsSelected.end(), [lvht](const Dcx::SubItemSelect& item) noexcept {
+				if (const auto itGet = std::find_if(m_SubItemsSelected.cbegin(), m_SubItemsSelected.cend(), [lvht](const Dcx::SubItemSelect& item) noexcept {
 					return ((lvht.iItem == item.m_Item) && (lvht.iSubItem == item.m_SubItem));
 					}); itGet == m_SubItemsSelected.end())
 				{
@@ -3885,33 +3878,7 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 				}
 			}
 		}
-		if (auto pri = this->getRenderInfo(lvht.iItem, lvht.iSubItem); pri)
-		{
-			if (pri->m_tsTipText.empty())
-				return lRes;
 
-			if (auto hTip = Dcx::dcxListView_GetToolTips(m_Hwnd); hTip)
-			{
-				TOOLINFO ti{};
-				ti.cbSize = sizeof(TOOLINFO);
-				ti.hwnd = m_Hwnd;
-
-				if (Dcx::dcxToolTip_GetToolInfo(hTip, &ti))
-				{
-					Dcx::dcxToolTip_TrackActivate(hTip, TRUE, &ti);
-
-					ti.lpszText = pri->m_tsTipText.to_wchr();
-					ti.uFlags |= TTF_ABSOLUTE | TTF_TRACK;
-					Dcx::dcxToolTip_SetToolInfo(hTip, &ti);
-
-					MapWindowPoints(m_Hwnd, nullptr, &lvht.pt, 1);
-					Dcx::dcxToolTip_TrackPosition(hTip, lvht.pt.x, lvht.pt.y);
-
-					//OffsetRect(&ti.rect, lvht.pt.x, lvht.pt.y);
-					//Dcx::dcxToolTip_NewToolRect(hTip, &ti);
-				}
-			}
-		}
 		return lRes;
 	}
 	break;

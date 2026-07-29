@@ -804,7 +804,8 @@ bool CopyToClipboard(const HWND owner, const TString& str) noexcept
 
 	Auto(CloseClipboard());
 
-	const size_t cbsize = (str.len() + 1) * sizeof(TCHAR);
+	const size_t copy_size = (str.len() + 1);
+	const size_t cbsize = copy_size * sizeof(TCHAR);
 	EmptyClipboard();
 	auto hglbCopy = GlobalAlloc(GMEM_MOVEABLE, cbsize);
 
@@ -824,7 +825,7 @@ bool CopyToClipboard(const HWND owner, const TString& str) noexcept
 			return false;
 		}
 
-		dcx_strcpyn(strCopy, str.to_chr(), str.len() + 1);
+		dcx_strcpyn(strCopy, str.to_chr(), copy_size);
 
 		GlobalUnlock(hglbCopy);
 	}
@@ -933,7 +934,7 @@ GSL_SUPPRESS(bounds.3) bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT 
 		lf->lfUnderline = TRUE;
 
 	dcx_strcpyn(&lf->lfFaceName[0], fName.to_chr(), std::size(lf->lfFaceName));
-	gsl::at(lf->lfFaceName, std::size(lf->lfFaceName) - 1) = 0;
+	//gsl::at(lf->lfFaceName, std::size(lf->lfFaceName) - 1) = 0; // dcx_strcpyn() should zero terminate
 
 	return true;
 }
@@ -1459,7 +1460,7 @@ void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl) noexcept
 	ti.uId = reinterpret_cast<UINT_PTR>(ctrl);
 	ti.lpszText = LPSTR_TEXTCALLBACK;
 
-	SendMessage(tiphwnd, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti));
+	Dcx::dcxToolTip_AddTool(tiphwnd, &ti);
 }
 
 void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT* pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset) noexcept
