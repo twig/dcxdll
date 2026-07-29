@@ -3808,17 +3808,17 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 								break;
 
 							di->lpszText = pri->m_tsTipText.to_wchr();
+							di->hinst = nullptr;
+							bParsed = TRUE;
 						}
 					}
 				}
-				di->hinst = nullptr;
-				bParsed = TRUE;
 			}
 			break;
 			case TTN_LINKCLICK:
 			{
 				bParsed = TRUE;
-				this->execAliasEx(TEXT("%s,%d"), TEXT("tooltiplink"), this->getUserID());
+				this->execAliasEx(TEXT("tooltiplink,%u"), this->getUserID());
 			}
 			break;
 			case TTN_SHOW:
@@ -3826,8 +3826,17 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 				dcxlParam(LPNMHDR, pnmh);
 
 				if (POINT pt{};	GetCursorPos(&pt))
-					SetWindowPos(pnmh->hwndFrom, HWND_TOP, pt.x, pt.y, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+				{
+					RECT rc{};
+					GetWindowRect(pnmh->hwndFrom, &rc);
 
+					if (GetWindowStyle(pnmh->hwndFrom) & TTS_BALLOON)
+						OffsetRect(&rc, (rc.left - pt.x + 20), (rc.top - pt.y + 25));
+					else
+						OffsetRect(&rc, (rc.left - pt.x), (rc.top - pt.y));
+
+					SetWindowPos(pnmh->hwndFrom, HWND_TOP, rc.left, rc.top, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+				}
 				bParsed = TRUE;
 				return TRUE;
 			}
