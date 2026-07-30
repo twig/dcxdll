@@ -848,12 +848,17 @@ alias _dcx_mircmenu_callback {
   elseif (($2 == 800) || ($2 == 803)) return value 0 $+(,$base($r(0,88),10,10,2),Button)
   ; 801-805 are progressbar &amp; trackbar items, which support setting an value (0 - 100%)
   elseif (($2 == 801) || ($2 == 804)) {
-    set $+(%,dcxmenus_value_,$2) $4
-    return value $4 88Progress $4 $+ %
+    set $+(%,dcxmenus_value_,$2) $max(0,$4)
+    return value $max(0,$4) 88Progress $max(0,$4) $+ %
   }
   elseif (($2 == 802) || ($2 == 805)) {
-    set $+(%,dcxmenus_value_,$2) $4
-    return value $4 88Track $4 $+ %
+    set $+(%,dcxmenus_value_,$2) $max(0,$4)
+    return value $max(0,$4) 88Track $max(0,$4) $+ %
+  }
+  elseif ($2 == 806) {
+    set $+(%,dcxmenus_value_,$2) $max(0,$4)
+    if ($4 isnum 1-) return opts +cv $chr(1) $max(0,$4) 88Track $max(0,$4) $+ %
+    return opts +uv $max(0,$4) 88Track $max(0,$4) $+ %
   }
 }
 alias -l _dcx_setdarkmode {
@@ -907,6 +912,7 @@ menu status,menubar {
   ..$xstyle(11,button_themed) 88Button $xstyle(14,803) $xstyle(1,Button style item): noop
   ..$xstyle(11,progress_themed) 88Progress %dcxmenus_value_804 $+ % $xstyle(14,804) $xstyle(16,%dcxmenus_value_804) $xstyle(1,Progressbar style item): noop
   ..$xstyle(11,track_themed) 88Track %dcxmenus_value_805 $+ % $xstyle(14,805) $xstyle(16,%dcxmenus_value_805) $xstyle(1,Trackbar style item): noop
+  ..$iif(%dcxmenus_value_806,$style(1)) $xstyle(11,track_themed) 88Track %dcxmenus_value_806 $+ % $xstyle(14,806) $xstyle(16,%dcxmenus_value_806) $xstyle(1,Trackbar style item with check): noop
   ..$xstyle(11,grade) 88Gradient $xstyle(1,Gradient style item): noop
   ..$xstyle(11,custom) 88Custom $xstyle(1,Custom style item): noop
   ..$xstyle(11,icy) 88Icy $xstyle(1,Icy style item): noop
@@ -1914,7 +1920,7 @@ ON *:SIGNAL:XPopup-_dcx_webbrowser: {
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th May, 26</td>
+		<td style="text-align: right;">Last Updated: 30th July, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

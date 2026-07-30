@@ -508,14 +508,17 @@ function get_xdid_listview(&$XDID) {
 		'T' => array(
 			'__desc' => 'This command lets you set a tooltip for a specific item.',
 			'__cmd' => '[N] [NSUB] (TOOLTIP)',
-			'__eg' => '2 1 This tooltip applies to Item 2',
-			'__notes' => 'This currently only works for the first column.',
+			'__eg' => '2 1 This tooltip applies to Item 2 SubItem 1',
+			'__notes' => array(
+				'If [v]N[/v] is zero apply to the last item.',
+				'If [v]NSUB[/v] is zero, apply to the last subitem.',
+			),
 		),
 		'u' => 'This command makes the currently selected listview item unselected.',
 		'v' => array(
 			'__desc' => 'This command lets you change the listview item text. If the target item is a DCX control, then this allows you to send /xdid commands to the embedded control.',
 			'__cmd' => '[N] [NSUB] (TEXT)',
-			'__eg' => '1 2 5',
+			'__eg' => '1 2 Mystery text',
 			'__params' => array(
 				'N' => 'Item row.',
 				'NSUB' => 'Column index.',
