@@ -2014,37 +2014,58 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		LVITEM lvi{ LVIF_PARAM, input.getnexttokas<int>() - 1, input.getnexttokas<int>() };
+		//LVITEM lvi{ LVIF_PARAM, input.getnexttokas<int>() - 1, input.getnexttokas<int>() - 1 };
+		//
+		//// check if item supplied was 0 (now -1), last item in list.
+		//if (lvi.iItem == -1)
+		//{
+		//	lvi.iItem = Dcx::dcxListView_GetItemCount(m_Hwnd) - 1;
+		//
+		//	if (lvi.iItem < 0)
+		//		throw Dcx::dcxException("Invalid Item: No Items in list");
+		//}
+		//
+		//if ((lvi.iItem < 0) || (lvi.iSubItem < 0))
+		//	throw Dcx::dcxException(TEXT("Invalid Item: % Subitem: %"), lvi.iItem + 1, lvi.iSubItem + 1);
+		//
+		//if (!Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
+		//	throw Dcx::dcxException(TEXT("Unable To Get Item: % Subitem: %"), lvi.iItem + 1, lvi.iSubItem + 1);
+		//
+		//const auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lvi.lParam);
+		//
+		//if (!lpdcxlvi)
+		//	throw Dcx::dcxException("Unable to get DCX Item Information, something very wrong!");
+		//
+		//if ((lvi.iSubItem >= 0) && !lpdcxlvi->vInfo.empty() && (gsl::narrow_cast<size_t>(lvi.iSubItem) < lpdcxlvi->vInfo.size()))
+		//{
+		//	auto& ri = gsl::at(lpdcxlvi->vInfo, lvi.iSubItem);
+		//	ri.m_tsTipText = (numtok > 5 ? input.getlasttoks() : TEXT(""));
+		//}
+
+		auto iItem = input.getnexttokas<int>() - 1;
+		auto iSubItem = input.getnexttokas<int>() - 1;
 
 		// check if item supplied was 0 (now -1), last item in list.
-		if (lvi.iItem == -1)
+		if (iItem == -1)
 		{
-			lvi.iItem = Dcx::dcxListView_GetItemCount(m_Hwnd) - 1;
+			iItem = Dcx::dcxListView_GetItemCount(m_Hwnd) - 1;
 
-			if (lvi.iItem < 0)
+			if (iItem < 0)
 				throw Dcx::dcxException("Invalid Item: No Items in list");
 		}
-
-		if ((lvi.iItem < 0) || (lvi.iSubItem < 0))
-			throw Dcx::dcxException(TEXT("Invalid Item: % Subitem: %"), lvi.iItem + 1, lvi.iSubItem);
-
-		if (!Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
-			throw Dcx::dcxException(TEXT("Unable To Get Item: % Subitem: %"), lvi.iItem + 1, lvi.iSubItem);
-
-		const auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lvi.lParam);
-
-		if (!lpdcxlvi)
-			throw Dcx::dcxException("Unable to get DCX Item Information, something very wrong!");
-
-		//lpdcxlvi->tsTipText = (numtok > 5 ? input.getlasttoks() : TEXT(""));	// tok 6, -1
-		//LVSETINFOTIP it{ sizeof(LVSETINFOTIP), 0, lpdcxlvi->tsTipText.to_chr(), lvi.iItem, lvi.iSubItem };
-		//Dcx::dcxListView_SetInfoTip(m_Hwnd, &it);
-
-		if ((lvi.iSubItem >= 0) && !lpdcxlvi->vInfo.empty() && (gsl::narrow_cast<size_t>(lvi.iSubItem) < lpdcxlvi->vInfo.size()))
+		// check if subitem supplied was 0 (now -1), last subitem in list.
+		if (iSubItem == -1)
 		{
-			auto& ri = gsl::at(lpdcxlvi->vInfo, lvi.iSubItem);
-			ri.m_tsTipText = (numtok > 5 ? input.getlasttoks() : TEXT(""));
-	}
+			iSubItem = this->getColumnCount() - 1;
+		}
+
+		if ((iItem < 0) || (iSubItem < 0))
+			throw Dcx::dcxException(TEXT("Invalid Item: % Subitem: %"), iItem + 1, iSubItem + 1);
+
+		if (auto pri = getRenderInfo(iItem, iSubItem); pri)
+			pri->m_tsTipText = (numtok > 5 ? input.getlasttoks() : TEXT(""));
+		else
+			throw Dcx::dcxException(TEXT("Unable To Get Item: % Subitem: %"), iItem + 1, iSubItem + 1);
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [%]
 	else if (flags[TEXT('Z')])
@@ -3796,10 +3817,13 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 			{
 				dcxlParam(LPNMTTDISPINFO, di);
 				LVHITTESTINFO lvht{};
-				GetCursorPos(&lvht.pt);
-				ScreenToClient(m_Hwnd, &lvht.pt);
-				if (Dcx::dcxListView_SubItemHitTest(m_Hwnd, &lvht) != -1)
-				{
+				if (!GetCursorPos(&lvht.pt))
+					break;
+				if (!ScreenToClient(m_Hwnd, &lvht.pt))
+					break;
+				if (Dcx::dcxListView_SubItemHitTest(m_Hwnd, &lvht) == -1)
+					break;
+
 					if (lvht.flags & LVHT_ONITEM)
 					{
 						if (auto pri = this->getRenderInfo(lvht.iItem, lvht.iSubItem); pri)
@@ -3813,7 +3837,6 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 						}
 					}
 				}
-			}
 			break;
 			case TTN_LINKCLICK:
 			{
@@ -3827,18 +3850,19 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 				if (POINT pt{};	GetCursorPos(&pt))
 				{
-					RECT rc{};
-					GetWindowRect(pnmh->hwndFrom, &rc);
-
+					if (RECT rc{}; GetWindowRect(pnmh->hwndFrom, &rc))
+					{
 					if (GetWindowStyle(pnmh->hwndFrom) & TTS_BALLOON)
 						OffsetRect(&rc, (rc.left - pt.x + 20), (rc.top - pt.y + 25));
 					else
 						OffsetRect(&rc, (rc.left - pt.x), (rc.top - pt.y));
 
 					SetWindowPos(pnmh->hwndFrom, HWND_TOP, rc.left, rc.top, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
-				}
+
 				bParsed = TRUE;
 				return TRUE;
+			}
+				}
 			}
 			break;
 			default:
@@ -5012,8 +5036,6 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 	{
 		DCXLVRENDERINFO ri{};
 
-		//lpmylvi->iPbarCol = 0;
-		//lpmylvi->pbar = nullptr;
 		lpmylvi->vInfo.clear();
 
 		// setup colum zero
