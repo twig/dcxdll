@@ -1923,22 +1923,24 @@ const RECT DcxControl::getWindowPosition() const noexcept
 
 TString DcxControl::FontToCommand() const
 {
-	TString tsResult;
+	//TString tsResult;
+	//
+	//auto hFontControl = getControlFont();
+	//
+	//if (!hFontControl)
+	//	hFontControl = Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT);
+	//
+	//if (hFontControl)
+	//{
+	//	if (auto [code, lfCurrent] = Dcx::dcxGetObject<LOGFONT>(hFontControl); code != 0)
+	//	{
+	//		tsResult = ParseLogfontToCommand(&lfCurrent);
+	//	}
+	//}
+	//return tsResult;
 
-	auto hFontControl = getControlFont();
-
-	if (!hFontControl)
-		hFontControl = Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT);
-
-	if (hFontControl)
-	{
-		if (auto [code, lfCurrent] = Dcx::dcxGetObject<LOGFONT>(hFontControl); code != 0)
-		{
-			tsResult = ParseLogfontToCommand(&lfCurrent);
+	return getFontAsString(getControlFont());
 		}
-	}
-	return tsResult;
-}
 
 dcxTextStyles DcxControl::parseTextStyles(const TString& tsStyles)
 {
@@ -2196,8 +2198,8 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT* const rcBounds
 	updateParentCtrl(); // find the host control, if any.
 
 	const auto pDialog = getParentDialog();
-	if (!pDialog)
-		return;
+	//if (!pDialog)
+	//	return;
 
 	//If in Vista mode
 	if (pDialog->IsVistaStyle())
@@ -2961,7 +2963,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 
 void DcxControl::HandleChildControlSize()
 {
-	HandleChildSizing(SizingTypes::ReBar | SizingTypes::Status | SizingTypes::Toolbar);
+	HandleChildSizing(SizingTypes::ReBar | SizingTypes::Status | SizingTypes::Toolbar /*| SizingTypes::Richedit*/);
 
 	if (dcx_testflag(getEventMask(), DCX_EVENT_SIZE))
 		execAliasEx(TEXT("sizing,%u"), getUserID());
@@ -3357,22 +3359,40 @@ bool DcxControl::xmlAddControl(const TString& tsParentPath, const TString& tsCur
 	if (!pd)
 		return false;
 
-	auto szX = queryAttribute(xCtrl, "x", "0");
-	auto szY = queryAttribute(xCtrl, "y", "0");
-	const auto iWidth = queryIntAttribute(xCtrl, "width");
-	const auto iHeight = queryIntAttribute(xCtrl, "height");
-	TString tsID(queryAttribute(xCtrl, "id"));
-	auto szType = queryAttribute(xCtrl, "type");
-	auto szStyles = queryAttribute(xCtrl, "styles");
+	//TString tsID(queryAttribute(xCtrl, "id"));
+	//// ID is NOT a number!
+	//if (tsID.empty()) // no id, generate one.
+	//	tsID.addtok(pd->getUniqueID());
+	//
+	//auto szX = queryAttribute(xCtrl, "x", "0");
+	//auto szY = queryAttribute(xCtrl, "y", "0");
+	//const auto iWidth = queryIntAttribute(xCtrl, "width");
+	//const auto iHeight = queryIntAttribute(xCtrl, "height");
+	//auto szType = queryAttribute(xCtrl, "type", "missing");
+	//auto szStyles = queryAttribute(xCtrl, "styles");
+	//
+	//// fixed position control, no cla
+	//// xdid -c dname id [newid] [type] [x] [y] [width] [height] [styles...]
+	//TString tsInput;
+	//_ts_sprintf(tsInput, TEXT("% % % % % % %"), tsID, szType, szX, szY, iWidth, iHeight, szStyles);
 
+	TString tsID(queryAttribute(xCtrl, "id"));
 	// ID is NOT a number!
 	if (tsID.empty()) // no id, generate one.
 		tsID.addtok(pd->getUniqueID());
 
+	TString tsInput(tsID);
+	tsInput.addtok(queryAttribute(xCtrl, "type", "missing"));
+	tsInput.addtok(queryAttribute(xCtrl, "x", "0"));
+	tsInput.addtok(queryAttribute(xCtrl, "y", "0"));
+	const auto iWidth = queryIntAttribute(xCtrl, "width");
+	tsInput.addtok(iWidth);
+	const auto iHeight = queryIntAttribute(xCtrl, "height");
+	tsInput.addtok(iHeight);
+	tsInput.addtok(queryAttribute(xCtrl, "styles"));
+
 	// fixed position control, no cla
 	// xdid -c dname id [newid] [type] [x] [y] [width] [height] [styles...]
-	TString tsInput;
-	_ts_sprintf(tsInput, TEXT("% % % % % % %"), tsID, szType, szX, szY, iWidth, iHeight, szStyles);
 	if (auto ctrl = pd->addControl(tsInput, 1, DcxAllowControls::ALLOW_ALL, m_Hwnd); ctrl)
 	{
 		ctrl->fromXml(xParent, xCtrl);
@@ -3681,12 +3701,33 @@ void DcxControl::xmlSaveImageList(HIMAGELIST himl, TiXmlElement* xml, const TStr
 // Convert a number into the closest icon size
 DcxIconSizes DcxControl::NumToIconSize(const int& num) noexcept
 {
+	//// if size is > max allowed, return max
+	//if (num >= gsl::narrow_cast<int>(DcxIconSizes::MaxSize))
+	//	return DcxIconSizes::MaxSize;
+	//// we now know that size is < max allowed, so if its > smallest size, return medium
+	//if (num > gsl::narrow_cast<int>(DcxIconSizes::SmallIcon))
+	//	return DcxIconSizes::MediumIcon;
+	//// otherwise return small
+	//return DcxIconSizes::SmallIcon;
+
 	// if size is > max allowed, return max
 	if (num >= gsl::narrow_cast<int>(DcxIconSizes::MaxSize))
 		return DcxIconSizes::MaxSize;
-	// we now know that size is < max allowed, so if its > smallest size, return medium
-	if (num > gsl::narrow_cast<int>(DcxIconSizes::SmallIcon))
+
+	// same as Max
+	//if (num >= gsl::narrow_cast<int>(DcxIconSizes::TwoFiveSix))
+	//	return DcxIconSizes::TwoFiveSix;
+	if (num >= gsl::narrow_cast<int>(DcxIconSizes::OneTwoEight))
+		return DcxIconSizes::OneTwoEight;
+	if (num >= gsl::narrow_cast<int>(DcxIconSizes::SixtyFour))
+		return DcxIconSizes::SixtyFour;
+	if (num >= gsl::narrow_cast<int>(DcxIconSizes::FortyEight))
+		return DcxIconSizes::FortyEight;
+	if (num >= gsl::narrow_cast<int>(DcxIconSizes::LargeIcon))
+		return DcxIconSizes::LargeIcon;
+	if (num >= gsl::narrow_cast<int>(DcxIconSizes::MediumIcon))
 		return DcxIconSizes::MediumIcon;
+
 	// otherwise return small
 	return DcxIconSizes::SmallIcon;
 }
