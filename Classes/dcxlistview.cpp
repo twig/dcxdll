@@ -4241,7 +4241,7 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString& styles)
 	}
 }
 
-void DcxListView::UpdateScrollPbars()
+void DcxListView::UpdateScrollPbars() noexcept
 {
 	//if (!m_bHasPBars || !m_Hwnd)
 	//	return;
@@ -4258,20 +4258,37 @@ void DcxListView::UpdateScrollPbars()
 	//for (auto row = decltype(nCount){0}; row < nCount; ++row)
 	//	ScrollPbars(row, nCols, iTop, iBottom, lvi.get());
 
+	//if (!m_bHasPBars || !m_Hwnd)
+	//	return;
+	//
+	//const auto nCount = Dcx::dcxListView_GetItemCount(m_Hwnd);
+	//const auto nCols = getColumnCount();
+	//
+	//auto lvi = std::make_unique<LVITEM>();
+	//
+	//ZeroMemory(lvi.get(), sizeof(LVITEM));
+	//
+	//if (auto hdp = BeginDeferWindowPos(nCount); hdp)
+	//{
+	//	for (auto row = decltype(nCount){0}; row < nCount; ++row)
+	//		ScrollPbars(row, nCols, hdp, lvi.get());
+	//
+	//	if (hdp)
+	//		EndDeferWindowPos(hdp);
+	//}
+
 	if (!m_bHasPBars || !m_Hwnd)
 		return;
 
 	const auto nCount = Dcx::dcxListView_GetItemCount(m_Hwnd);
 	const auto nCols = getColumnCount();
 
-	auto lvi = std::make_unique<LVITEM>();
-
-	ZeroMemory(lvi.get(), sizeof(LVITEM));
+	LVITEM lvi{};
 
 	if (auto hdp = BeginDeferWindowPos(nCount); hdp)
 	{
 	for (auto row = decltype(nCount){0}; row < nCount; ++row)
-			ScrollPbars(row, nCols, hdp, lvi.get());
+			ScrollPbars(row, nCols, hdp, &lvi);
 
 		if (hdp)
 			EndDeferWindowPos(hdp);
@@ -5034,9 +5051,15 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 
 	auto lpmylvi = std::make_unique<DCXLVITEM>();
 	{
-		DCXLVRENDERINFO ri{};
-
 		lpmylvi->vInfo.clear();
+
+		// create a renderinfo for all subitems
+		const auto cols = getColumnCount();
+		if (cols < 1)
+			throw Dcx::dcxException(TEXT("No Columns Set"));
+		lpmylvi->vInfo.resize(cols);
+
+		auto& ri = lpmylvi->vInfo[0];
 
 		// setup colum zero
 		ri.m_dFlags = stateFlags;
@@ -5045,8 +5068,6 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 
 		if (dcx_testflag(stateFlags, LVIS_BGCOLOR))
 			ri.m_cBg = clrBack;
-
-		lpmylvi->vInfo.emplace_back(ri);
 	}
 	TString itemtext;
 	if (data.numtok() > 9U)
@@ -5113,9 +5134,7 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 		CreatePbar(&lvi, itemtext);	// tok 1, -1
 
 	// subitems
-	const auto tabs = input.numtok(TSTABCHAR);
-
-	if (tabs > 1)
+	if (const auto tabs = input.numtok(TSTABCHAR); tabs > 1)
 	{
 		// ADD check for num columns
 		for (auto i = decltype(tabs){2}; i <= tabs; ++i)
@@ -5133,18 +5152,22 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 			clrBack = data.getnexttokas<COLORREF>();			// tok 5
 
 			// setup colum #
+			lvi.iSubItem = Dcx::numeric_cast<int>(i) - 1;
 			{
-				DCXLVRENDERINFO ri{};
+				//DCXLVRENDERINFO ri{};
+				//ri.m_dFlags = stateFlags;
+				//ri.m_cText = (dcx_testflag(stateFlags, LVIS_COLOR) ? clrText : CLR_INVALID);
+				//ri.m_cBg = (dcx_testflag(stateFlags, LVIS_BGCOLOR) ? clrBack : CLR_INVALID);
+				//tmp_lpmylvi->vInfo.emplace_back(ri);
+
+				auto& ri = tmp_lpmylvi->vInfo[lvi.iSubItem];
 
 				ri.m_dFlags = stateFlags;
 
 				ri.m_cText = (dcx_testflag(stateFlags, LVIS_COLOR) ? clrText : CLR_INVALID);
 
 				ri.m_cBg = (dcx_testflag(stateFlags, LVIS_BGCOLOR) ? clrBack : CLR_INVALID);
-
-				tmp_lpmylvi->vInfo.emplace_back(ri);
 			}
-			lvi.iSubItem = Dcx::numeric_cast<int>(i) - 1;
 			lvi.mask = LVIF_TEXT | LVIF_IMAGE;
 
 			// icon
