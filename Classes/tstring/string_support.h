@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.33
+// v1.34
 
 #include <tchar.h>
 #include <wtypes.h>
@@ -472,7 +472,7 @@ namespace details
 	{
 		size_t operator()(_In_reads_or_z_(length) const char* const ptr, _In_ size_t length) noexcept
 		{
-			return strnlen(ptr, length);
+			return strnlen_s(ptr, length);
 		}
 	};
 	template <>
@@ -480,7 +480,7 @@ namespace details
 	{
 		size_t operator()(_In_reads_or_z_(length) const wchar_t* const ptr, _In_ size_t length) noexcept
 		{
-			return wcsnlen(ptr, length);
+			return wcsnlen_s(ptr, length);
 		}
 	};
 	template <>
@@ -570,13 +570,38 @@ namespace details
 
 			--length; // make space for zero character.
 
-			//while (*p2 && length >= sizeof(DWORD))
-			//{
-			//	*((DWORD*)p1) = *((DWORD*)p2);
-			//	length -= sizeof(DWORD);
-			//	p1 += sizeof(DWORD);
-			//	p2 += sizeof(DWORD);
-			//}
+			while (*p2 && length >= sizeof(DWORD))
+			{
+				DWORD cOut{};
+				// we alrdy know the first char is ok
+				DWORD c = *p2++;
+				cOut |= c;
+				++cnt;
+
+				c = *p2++;
+				if (c)
+				{
+					cOut |= (c << 8);
+					++cnt;
+
+					c = *p2++;
+					if (c)
+					{
+						cOut |= (c << 16);
+						++cnt;
+
+						c = *p2++;
+						if (c)
+						{
+							cOut |= (c << 24);
+							++cnt;
+						}
+					}
+				}
+				*(reinterpret_cast<DWORD*>(p1)) = cOut;
+				length -= sizeof(DWORD);
+				p1 += sizeof(DWORD);
+			}
 
 			while (*p2 && length)
 			{
@@ -603,18 +628,6 @@ namespace details
 			const wchar_t* p2 = pSrc;
 
 			--length; // make space for zero character.
-
-			//while (*p2 && length >= sizeof(DWORD))
-			//{
-			//	const DWORD c = *((DWORD*)p2);
-			//	*((DWORD*)p1) = c;
-			//	length -= sizeof(DWORD)/sizeof(wchar_t);
-			//	p1 += sizeof(DWORD);
-			//	if ((c & 0x0000FFFF) != 0)
-			//		p2 += sizeof(DWORD);
-			//	else
-			//		++p2;
-			//}
 
 			while (*p2 && length)
 			{
