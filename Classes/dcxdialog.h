@@ -278,7 +278,7 @@ public:
 	/// </summary>
 	/// <param name="NamedID">- The name to convert</param>
 	/// <returns>UINT - The ID associated with that name or zero on failure.</returns>
-	const UINT NameToID(const TString& NamedID) const
+	const UINT NameToID(const TString& NamedID) const noexcept(TSTRING_STRTOUL)
 	{
 		const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
 
@@ -295,7 +295,7 @@ public:
 	/// </summary>
 	/// <param name="NamedID">- The name to convert</param>
 	/// <returns>UINT - The UserID associated with that name or zero on failure.</returns>
-	const UINT NameToUserID(const TString& NamedID) const
+	const UINT NameToUserID(const TString& NamedID) const noexcept(TSTRING_STRTOUL)
 	{
 		//const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
 		//for (const auto& [tsStoredName, uStoredID] : m_NamedIds)

@@ -1026,6 +1026,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		}
 		else if (xflags[TEXT('D')]) // set drag state - <1|0>
 		{
+			SetFocus(nullptr);
 			noRegion = true;
 			const UINT uMsg = ((input.getnexttokas<int>() > 0) ? WM_NCLBUTTONDOWN : WM_NCLBUTTONUP);
 #if DCX_USE_WRAPPERS
@@ -3068,7 +3069,7 @@ void DcxDialog::i_showError(const TCHAR* const cType, const TCHAR* const prop, c
 	if (IsVerbose())
 	{
 		//TString res;
-		//if (prop != nullptr)
+		//if (prop)
 		//	res.tsprintf(TEXT("D_IERROR %s(%s).%s: %s"), cType, getName().to_chr(), prop, err);
 		//else
 		//	res.tsprintf(TEXT("D_CERROR %s %s %s: %s"), cType, cmd, getName().to_chr(), err);
@@ -3083,7 +3084,6 @@ void DcxDialog::i_showError(const TCHAR* const cType, const TCHAR* const prop, c
 	}
 
 	constexpr TCHAR szNone[] = TEXT("none");
-	//const_cast<DcxDialog*>(this)->execAliasEx(TEXT("error,0,dialog,%s,%s,%s"), (prop ? prop : &szNone[0]), (cmd ? cmd : &szNone[0]), err);
 	this->execAliasEx(TEXT("error,0,dialog,%s,%s,%s"), (prop ? prop : &szNone[0]), (cmd ? cmd : &szNone[0]), err);
 
 	m_bErrorTriggered = false;
@@ -4160,25 +4160,93 @@ void DcxDialog::xmlAddPane(const TString& tsParentPath, const TString& tsCurrent
 
 bool DcxDialog::xmlAddControl(const TString& tsParentPath, const TString& tsCurrentPath, const TiXmlElement* xParent, const TiXmlElement* xCtrl)
 {
+	//if (!xParent || !xCtrl || tsParentPath.empty())
+	//	return false;
+	//
+	//auto szX = queryAttribute(xCtrl, "x", "0");
+	//auto szY = queryAttribute(xCtrl, "y", "0");
+	//const auto iWidth = queryIntAttribute(xCtrl, "width");
+	//const auto iHeight = queryIntAttribute(xCtrl, "height");
+	//TString tsID(queryAttribute(xCtrl, "id"));
+	//auto szType = queryAttribute(xCtrl, "type");
+	//auto szStyles = queryAttribute(xCtrl, "styles");
+	//
+	//// ID is NOT a number!
+	//if (tsID.empty()) // no id, generate one.
+	//	tsID.addtok(this->getUniqueID());
+	//
+	//// fixed position control, no cla
+	//// xdialog -c dname [id] [type] [x] [y] [width] [height] [styles...]
+	//TString tsInput;
+	//_ts_sprintf(tsInput, TEXT("% % % % % % %"), tsID, szType, szX, szY, iWidth, iHeight, szStyles);
+
+	//if (!xParent || !xCtrl || tsParentPath.empty())
+	//	return false;
+	//
+	//const TString szX(queryAttribute(xCtrl, "x", "0"));
+	//const TString szY(queryAttribute(xCtrl, "y", "0"));
+	//const auto iWidth = queryIntAttribute(xCtrl, "width");
+	//const auto iHeight = queryIntAttribute(xCtrl, "height");
+	//TString tsID(queryAttribute(xCtrl, "id"));
+	//const TString szType(queryAttribute(xCtrl, "type"));
+	//const TString szStyles(queryAttribute(xCtrl, "styles"));
+	//
+	//// ID is NOT a number!
+	//if (tsID.empty()) // no id, generate one.
+	//	tsID.addtok(this->getUniqueID());
+	//
+	//// fixed position control, no cla
+	//// xdialog -c dname [id] [type] [x] [y] [width] [height] [styles...]
+	//const TString tsInput(std::format(TEXT("{} {} {} {} {} {} {}"), tsID, szType, szX, szY, iWidth, iHeight, szStyles));
+	//if (auto ctrl = addControl(tsInput, 1, DcxAllowControls::ALLOW_ALL, nullptr); ctrl)
+	//{
+	//	ctrl->fromXml(xParent, xCtrl);
+	//
+	//	// x & y makes this a fixed control, not cla
+	//	if (!xCtrl->Attribute("x") && !xCtrl->Attribute("y") && !xParent->Attribute("nocla"))
+	//	{
+	//		// assume its cla now.
+	//		const auto iWeight = queryIntAttribute(xCtrl, "weight", 1);
+	//		TString tsFlags("i"); // id included
+	//		if (xCtrl->Attribute("width"))
+	//		{
+	//			tsFlags += L'f'; // fixed size
+	//			if (xCtrl->Attribute("height"))
+	//				tsFlags += L'w'; // both
+	//			else
+	//				tsFlags += L'h'; // horizontal
+	//
+	//		}
+	//		else if (xCtrl->Attribute("height"))
+	//			tsFlags += L"fv"; // fixed vertical
+	//		else
+	//			tsFlags += L'l'; // fill
+	//
+	//		this->parseCommandRequestEX(L"%s -l cell %s \t +%s %s %d %d %d", this->getName().to_chr(), tsParentPath.to_chr(), tsFlags.to_chr(), tsID.to_chr(), iWeight, iWidth, iHeight);
+	//		return true;
+	//	}
+	//}
+	//return false;
+
 	if (!xParent || !xCtrl || tsParentPath.empty())
 		return false;
 
-	auto szX = queryAttribute(xCtrl, "x", "0");
-	auto szY = queryAttribute(xCtrl, "y", "0");
-	const auto iWidth = queryIntAttribute(xCtrl, "width");
-	const auto iHeight = queryIntAttribute(xCtrl, "height");
 	TString tsID(queryAttribute(xCtrl, "id"));
-	auto szType = queryAttribute(xCtrl, "type");
-	auto szStyles = queryAttribute(xCtrl, "styles");
-
 	// ID is NOT a number!
 	if (tsID.empty()) // no id, generate one.
 		tsID.addtok(this->getUniqueID());
+	TString tsInput(tsID);
+	tsInput.addtok(queryAttribute(xCtrl, "type", "missing"));	// use "missing" as placeholder to show up in errors
+	tsInput.addtok(queryAttribute(xCtrl, "x", "0"));
+	tsInput.addtok(queryAttribute(xCtrl, "y", "0"));
+	const auto iWidth = queryIntAttribute(xCtrl, "width");
+	tsInput.addtok(iWidth);
+	const auto iHeight = queryIntAttribute(xCtrl, "height");
+	tsInput.addtok(iHeight);
+	tsInput.addtok(queryAttribute(xCtrl, "styles"));	// can be missing or empty...
 
 	// fixed position control, no cla
 	// xdialog -c dname [id] [type] [x] [y] [width] [height] [styles...]
-	TString tsInput;
-	_ts_sprintf(tsInput, TEXT("% % % % % % %"), tsID, szType, szX, szY, iWidth, iHeight, szStyles);
 	if (auto ctrl = addControl(tsInput, 1, DcxAllowControls::ALLOW_ALL, nullptr); ctrl)
 	{
 		ctrl->fromXml(xParent, xCtrl);
