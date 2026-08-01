@@ -507,8 +507,11 @@ function get_xdid_listview(&$XDID) {
 		),
 		'T' => array(
 			'__desc' => 'This command lets you set a tooltip for a specific item.',
-			'__cmd' => '[N] [NSUB] (TOOLTIP)',
-			'__eg' => '2 1 This tooltip applies to Item 2 SubItem 1',
+			'__cmd' => '[N(,N,N-N,...)] [NSUB(,NSUB,NSUB-NSUB,...)] (TOOLTIP)',
+			'__eg' => array(
+				'2 1 This tooltip applies to Item 2 SubItem 1',
+				'1,3,4 1,3-5 This tooltip applies to Items 1,3,4 SubItems 1,3,4,5',
+			),
 			'__notes' => array(
 				'If [v]N[/v] is zero apply to the last item.',
 				'If [v]NSUB[/v] is zero, apply to the last subitem.',

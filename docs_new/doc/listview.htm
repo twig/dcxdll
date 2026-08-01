@@ -1419,11 +1419,11 @@
 	<tr><td colspan="2">This command lets you set a tooltip for a specific item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -T [DNAME] [ID] [N] [NSUB] (TOOLTIP)</div></td>
+		<td><div class="syntax">/xdid -T [DNAME] [ID] [N(,N,N-N,...)] [NSUB(,NSUB,NSUB-NSUB,...)] (TOOLTIP)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -T dcx 4 2 1 This tooltip applies to Item 2 SubItem 1</div></td>
+		<td><div class="example">/xdid -T dcx 4 2 1 This tooltip applies to Item 2 SubItem 1<br />/xdid -T dcx 4 1,3,4 1,3-5 This tooltip applies to Items 1,3,4 SubItems 1,3,4,5<br /></div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="value">N</a> is zero apply to the last item.</li><li>If <a class="value">NSUB</a> is zero, apply to the last subitem.</li></ul></td></tr></table>
 <br />
@@ -2734,7 +2734,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 30th July, 26</td>
+		<td style="text-align: right;">Last Updated: 1st August, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

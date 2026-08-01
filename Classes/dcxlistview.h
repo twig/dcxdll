@@ -228,7 +228,7 @@ private:
 	DcxControl * CreatePbar(LPLVITEM lvi, const TString & style);
 	//void ScrollPbars(const int row, const int nCols, const int iTop, const int iBottom, LPLVITEM lvi) noexcept;
 	void ScrollPbars(const int row, const int nCols, HDWP& hdp, LPLVITEM lvi) noexcept;
-	void UpdateScrollPbars(void);
+	void UpdateScrollPbars(void) noexcept;
 	[[nodiscard]] gsl::strict_not_null<HIMAGELIST> initImageList(const int iImageList);
 
 	bool xmlLoadListview(const int nPos, const TString& dataset, TString& filename);
@@ -548,7 +548,7 @@ private:
 			return nullptr;
 
 		const auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lvi.lParam);
-		if (lpdcxlvi->vInfo.empty() || gsl::narrow_cast<size_t>(iItem) >= lpdcxlvi->vInfo.size())
+		if (lpdcxlvi->vInfo.empty() || gsl::narrow_cast<size_t>(iSubItem) >= lpdcxlvi->vInfo.size())
 		return nullptr;
 
 		return &gsl::at(lpdcxlvi->vInfo, iSubItem);

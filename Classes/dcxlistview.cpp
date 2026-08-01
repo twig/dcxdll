@@ -1142,7 +1142,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 		nRow--;
 		nCol--;
 
-		//LVITEM lvi{ LVIF_PARAM, nRow, nCol, 0U, 0U, nullptr, 0, 0, 0U, 0, 0, 0U, nullptr, nullptr, 0 };
 		LVITEM lvi{ LVIF_PARAM, nRow, nCol };
 
 		// Couldnt retrieve info
@@ -2007,65 +2006,96 @@ void DcxListView::parseCommandRequest(const TString& input)
 		Dcx::dcxListView_SortItemsEx(m_Hwnd, DcxListView::sortItemsEx, lvsort.get());
 	}
 	// xdid -T [NAME] [ID] [SWITCH] [nItem] [nSubItem] (ToolTipText)
-	// atm this only seems works for subitem 0. Mainly due to the callback LVN_GETINFOTIP only being sent for sub 0.
+	// xdid -T [NAME] [ID] [SWITCH] [nItem,N-N2,...] [nSubItem,N-N2,...] (ToolTipText)
 	// This overrides the Global T command for tooltips
 	else if (flags[TEXT('T')])
 	{
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		//LVITEM lvi{ LVIF_PARAM, input.getnexttokas<int>() - 1, input.getnexttokas<int>() - 1 };
+		//auto iItem = input.getnexttokas<int>() - 1;
+		//auto iSubItem = input.getnexttokas<int>() - 1;
 		//
 		//// check if item supplied was 0 (now -1), last item in list.
-		//if (lvi.iItem == -1)
+		//if (iItem == -1)
 		//{
-		//	lvi.iItem = Dcx::dcxListView_GetItemCount(m_Hwnd) - 1;
+		//	iItem = Dcx::dcxListView_GetItemCount(m_Hwnd) - 1;
 		//
-		//	if (lvi.iItem < 0)
+		//	if (iItem < 0)
 		//		throw Dcx::dcxException("Invalid Item: No Items in list");
 		//}
-		//
-		//if ((lvi.iItem < 0) || (lvi.iSubItem < 0))
-		//	throw Dcx::dcxException(TEXT("Invalid Item: % Subitem: %"), lvi.iItem + 1, lvi.iSubItem + 1);
-		//
-		//if (!Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
-		//	throw Dcx::dcxException(TEXT("Unable To Get Item: % Subitem: %"), lvi.iItem + 1, lvi.iSubItem + 1);
-		//
-		//const auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lvi.lParam);
-		//
-		//if (!lpdcxlvi)
-		//	throw Dcx::dcxException("Unable to get DCX Item Information, something very wrong!");
-		//
-		//if ((lvi.iSubItem >= 0) && !lpdcxlvi->vInfo.empty() && (gsl::narrow_cast<size_t>(lvi.iSubItem) < lpdcxlvi->vInfo.size()))
+		//// check if subitem supplied was 0 (now -1), last subitem in list.
+		//if (iSubItem == -1)
 		//{
-		//	auto& ri = gsl::at(lpdcxlvi->vInfo, lvi.iSubItem);
-		//	ri.m_tsTipText = (numtok > 5 ? input.getlasttoks() : TEXT(""));
+		//	iSubItem = this->getColumnCount() - 1;
 		//}
+		//
+		//if ((iItem < 0) || (iSubItem < 0))
+		//	throw Dcx::dcxException(TEXT("Invalid Item: % Subitem: %"), iItem + 1, iSubItem + 1);
+		//
+		//if (auto pri = getRenderInfo(iItem, iSubItem); pri)
+		//	pri->m_tsTipText = (numtok > 5 ? input.getlasttoks() : TEXT(""));
+		//else
+		//	throw Dcx::dcxException(TEXT("Unable To Get Item: % Subitem: %"), iItem + 1, iSubItem + 1);
 
-		auto iItem = input.getnexttokas<int>() - 1;
-		auto iSubItem = input.getnexttokas<int>() - 1;
+		auto tsItems(input.getnexttok());
+		auto tsSubItems(input.getnexttok());
+		const auto tsTipText(input.getlasttoks());
 
-		// check if item supplied was 0 (now -1), last item in list.
-		if (iItem == -1)
-		{
-			iItem = Dcx::dcxListView_GetItemCount(m_Hwnd) - 1;
+		const auto item_count = Dcx::dcxListView_GetItemCount(m_Hwnd);
+		const auto col_count = this->getColumnCount();
 
-			if (iItem < 0)
+		if (item_count < 1)
 				throw Dcx::dcxException("Invalid Item: No Items in list");
-		}
-		// check if subitem supplied was 0 (now -1), last subitem in list.
-		if (iSubItem == -1)
+		if (col_count < 1)
+			throw Dcx::dcxException("Invalid SubItem: No Columns defined");
+
+		// check if item supplied is 0, last item in list.
+		if (tsItems == L"0")
 		{
-			iSubItem = this->getColumnCount() - 1;
+			tsItems.clear();
+			tsItems.addtok(item_count);
+		}
+		// check if subitem supplied is 0, last subitem in list.
+		if (tsSubItems == L"0")
+		{
+			tsSubItems.clear();
+			tsSubItems.addtok(col_count);
 		}
 
+		const auto itEnd = tsItems.end();
+		for (auto itStart = tsItems.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		{
+			const auto tsLine(*itStart);
+			const auto rItems = Dcx::make_range(tsLine, item_count, 1);
+
+			if ((rItems.b < 0) || (rItems.e < 0) || (rItems.b > rItems.e))
+				throw DcxExceptions::dcxInvalidArguments();
+
+			for (const auto iItem : rItems)
+			{
+				const auto itSubEnd = tsSubItems.end();
+				for (auto itSubStart = tsSubItems.begin(TSCOMMACHAR); itSubStart != itSubEnd; ++itSubStart)
+				{
+					const auto tsSubLine(*itSubStart);
+					const auto rSubItems = Dcx::make_range(tsSubLine, col_count, 1);
+
+					if ((rSubItems.b < 0) || (rSubItems.e < 0) || (rSubItems.b > rSubItems.e))
+						throw DcxExceptions::dcxInvalidArguments();
+
+					for (const auto iSubItem : rSubItems)
+					{
 		if ((iItem < 0) || (iSubItem < 0))
 			throw Dcx::dcxException(TEXT("Invalid Item: % Subitem: %"), iItem + 1, iSubItem + 1);
 
 		if (auto pri = getRenderInfo(iItem, iSubItem); pri)
-			pri->m_tsTipText = (numtok > 5 ? input.getlasttoks() : TEXT(""));
+							pri->m_tsTipText = tsTipText;
 		else
 			throw Dcx::dcxException(TEXT("Unable To Get Item: % Subitem: %"), iItem + 1, iSubItem + 1);
+	}
+				}
+			}
+		}
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [%]
 	else if (flags[TEXT('Z')])
@@ -2093,9 +2123,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		Dcx::dcxListView_GetItemRect(m_Hwnd, 0, &rc, LVIR_BOUNDS);
 		const auto height = count * (rc.bottom - rc.top);
 
-		//pos = std::lroundf(gsl::narrow_cast<float>(height) * gsl::narrow_cast<float>(pos) / gsl::narrow_cast<float>(100.0));
 		pos = dcx_round(gsl::narrow_cast<float>(height) * gsl::narrow_cast<float>(pos) / 100.0f);
-		//pos = Dcx::dcxRound<int>(height * pos / 100.0);
 
 		Dcx::dcxListView_EnsureVisible(m_Hwnd, 0, FALSE);
 		Dcx::dcxListView_Scroll(m_Hwnd, 0, pos);
@@ -6209,9 +6237,14 @@ void DcxListView::CopyItem(int iSrc, int iDest)
 		lvi.iItem = iDest;
 
 		// copy item data too (needs subctrl fixed)
+		{
 		auto item_data = new DCXLVITEM(*(reinterpret_cast<LPDCXLVITEM>(lvi.lParam)));
-		//item_data->pbar = nullptr;
+
+			for (auto& ri : item_data->vInfo)
+				ri.m_pCtrl = nullptr;
+
 		lvi.lParam = reinterpret_cast<LPARAM>(item_data);
+		}
 
 		// Insert the main item
 		const int iRet = Dcx::dcxListView_InsertItem(m_Hwnd, &lvi);
