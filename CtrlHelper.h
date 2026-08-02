@@ -2063,12 +2063,12 @@ namespace Dcx
 	}
 
 	/// <summary>
-	/// 
+	/// Calculates a tooltip control's text display rectangle from its window rectangle, or the tooltip window rectangle needed to display a specified text display rectangle.
 	/// </summary>
 	/// <param name="hwnd">- A handle to the control.</param>
-	/// <param name="bState"></param>
-	/// <param name="prc"></param>
-	/// <returns></returns>
+	/// <param name="bState">- Value that specifies which operation to perform. If TRUE, lParam is used to specify a text-display rectangle and it receives the corresponding window rectangle. If FALSE, lParam is used to specify a window rectangle and it receives the corresponding text display rectangle.</param>
+	/// <param name="prc">- RECT structure to hold either a tooltip window rectangle or a text display rectangle.</param>
+	/// <returns>true on success</returns>
 	inline bool dcxToolTip_AdjustRect(_In_ HWND hwnd, _In_ BOOL bState, _Inout_ LPRECT prc) noexcept
 	{
 		return (SendMessage(hwnd, TTM_ADJUSTRECT, bState, reinterpret_cast<LPARAM>(prc)) != 0);

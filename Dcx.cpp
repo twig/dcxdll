@@ -939,6 +939,58 @@ namespace Dcx
 		return make_range(tsItems, nItemCnt, 1);
 	}
 
+	std::vector<range_t<int>> sortRanges(const TString& tsRanges, int iUpperLimit, bool bReverseOrder)
+	{
+		std::vector<range_t<int>> vRanges;
+		vRanges.reserve(tsRanges.numtok(TSCOMMACHAR));
+
+		const auto itEnd = tsRanges.end();
+		for (auto itStart = tsRanges.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		{
+			const auto tsLine(*itStart);
+
+			const auto Range = getItemRange2(tsLine, iUpperLimit);
+
+			if ((Range.b < 0) || (Range.e < 0) || (Range.b > Range.e))
+				throw dcxException(TEXT("Invalid Range %."), tsLine);
+
+			vRanges.emplace_back(Range);
+		}
+
+		// make sure the ranges are in order.
+		if (bReverseOrder)
+			std::sort(vRanges.begin(), vRanges.end(), [](const range_t<int>& a, const range_t<int>& b) noexcept {
+				return a < b;
+				});
+		else
+			std::sort(vRanges.begin(), vRanges.end(), [](const range_t<int>& a, const range_t<int>& b) noexcept {
+				return a > b;
+				});
+		return vRanges;
+	}
+
+	void CallOnRange(const TString& tsItems, int iMax, int iAdjust, std::function<void(int iItem)> fnt)
+	{
+		const int iAdjustedMax = (iMax - iAdjust);
+		const auto itEnd = tsItems.end();
+		for (auto itStart = tsItems.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		{
+			const auto tsLine(*itStart);
+			const auto rItems = Dcx::make_range(tsLine, iMax, iAdjust);
+
+			if ((rItems.b < 0) || (rItems.e < 0) || (rItems.b > rItems.e))
+				throw DcxExceptions::dcxInvalidArguments();
+
+			for (const auto iItem : rItems)
+			{
+				if (iItem > iAdjustedMax)
+					throw DcxExceptions::dcxInvalidArguments();
+
+				fnt(iItem);
+			}
+		}
+	}
+
 	void dcxLoadIconRange(HIMAGELIST himl, TString& tsFilename, const bool bLarge, const TString& tsFlags, const range_t<int>& Range)
 	{
 		if ((Range.b < 0) || (Range.e < 0) || (Range.b > Range.e))

@@ -795,6 +795,14 @@ namespace Dcx
 			else m_ok = (GetWindowRect(hwnd, this) != FALSE);
 		}
 
+		explicit dcxWindowRect(_In_ const RECT& rc) noexcept
+		{
+			this->left = rc.left;
+			this->top = rc.top;
+			this->right = rc.right;
+			this->bottom = rc.bottom;
+		}
+
 		// Gets the window rect for hwnd & maps it to hMap
 		dcxWindowRect(_In_opt_ HWND hwnd, _In_ HWND hMap) noexcept
 			: dcxWindowRect(hwnd)
@@ -1339,6 +1347,53 @@ namespace Dcx
 		{
 			return ((b <= f) && (e >= f));
 		}
+		inline bool inRange(const range_t& tOther) const noexcept
+		{
+			return ((tOther.b >= b) && (tOther.e <= e));
+		}
+		//bool canMerge(const range_t& tOther) const noexcept
+		//{
+		//	//return (inRange(tOther) || tOther.inRange(*this) || (b == (tOther.e + 1)) || (e == (tOther.b - 1)));
+		//	if ((b <= (tOther.e + 1)) && (b >= (tOther.b - 1)))
+		//		return true;
+
+		//	return ( (e >= (tOther.b - 1)) && (e >= (tOther.e - 1)) );
+		//}
+		//range_t& Merge(const range_t& tOther) noexcept
+		//{
+		//	// other range is within this one, no change required.
+		//	if (inRange(tOther))
+		//		return *this;
+
+		//	// this range is within the other one, change this one to match other.
+		//	if (tOther.inRange(*this))
+		//		*this = tOther;
+		//	// this range continues from the end of the other
+		//	else if (b == (tOther.e + 1))
+		//		b = tOther.b;
+		//	// the other range continues from the end of this one.
+		//	else if (e == (tOther.b - 1))
+		//		e = tOther.e;
+
+		//	return *this;
+		//}
+		range_t& operator +=(const range_t& tOther) noexcept
+		{
+			if (tOther.b < b)
+				b = tOther.b;
+			if (tOther.e > e)
+				e = tOther.e;
+
+			return *this;
+		}
+		bool operator <(const range_t& tOther) const noexcept
+		{
+			return (tOther.e < b);
+		}
+		bool operator >(const range_t& tOther) const noexcept
+		{
+			return (tOther.e > b);
+		}
 
 		T b, e;
 	};
@@ -1394,6 +1449,8 @@ namespace Dcx
 
 	std::pair<int, int> getItemRange(const TString& tsItems, const int nItemCnt);
 	range_t<int> getItemRange2(const TString& tsItems, const int nItemCnt);
+	std::vector<range_t<int>> sortRanges(const TString& tsRanges, int iUpperLimit, bool bReverseOrder);
+	void CallOnRange(const TString& tsItems, int iMax, int iAdjust, std::function<void(int iItem)> fnt);
 
 	// not for use in code, just for testing
 	template <DcxConcepts::IsNumeric T>
@@ -1611,7 +1668,7 @@ namespace Dcx
 
 		bool operator==(const CodeValue& other) const = default;
 
-		CodeValue(const CodeType& code, const T& value) noexcept(std::is_nothrow_copy_constructible_v<CodeType> && std::is_nothrow_copy_constructible_v<T>)
+		CodeValue(const CodeType& code, const T& value) noexcept(std::is_nothrow_copy_constructible_v<CodeType>&& std::is_nothrow_copy_constructible_v<T>)
 			: code(code), value(value)
 		{
 		}
@@ -1681,7 +1738,7 @@ namespace Dcx
 		inline auto dcxGetProp(_In_ HWND hwnd, _In_z_ const TCHAR* const str) noexcept
 	{
 		if constexpr (std::is_integral_v<T> || std::is_enum_v<T>)
-			return static_cast<T>(reinterpret_cast<size_t>(GetProp(hwnd, str)));
+			return gsl::narrow_cast<T>(reinterpret_cast<size_t>(GetProp(hwnd, str)));
 		else
 			return static_cast<T>(GetProp(hwnd, str));
 	}
