@@ -19,8 +19,6 @@
 #include "Classes/dcxcontrol.h"
 #include "Classes\custom\SearchHelper.h"
 
-// Test fix for drawing when transparent.
-//#define USE_FIX_01 1
 // this enables a fix for listboxes with >64k items
 #define USE_FIX_SCROLL 1
 

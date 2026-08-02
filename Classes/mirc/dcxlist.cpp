@@ -504,13 +504,6 @@ void DcxList::parseCommandRequest(const TString& input)
 			// have flags, so its a match text delete
 			const auto tsMatchText(input.getnexttok());
 
-			//const auto SearchType = FlagsToSearchType(xFlags);
-			//for (auto nPos = Ns.to_int(); nPos < nItems; ++nPos)
-			//{
-			//	if (this->matchItemText(nPos, tsMatchText, SearchType))
-			//		ListBox_DeleteString(m_Hwnd, nPos--);		// NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
-			//}
-
 			dcxSearchData srch_data(tsMatchText, FlagsToSearchType(xFlags));
 
 			for (auto nPos = Ns.to_int(); nPos < nItems; ++nPos)
@@ -521,26 +514,31 @@ void DcxList::parseCommandRequest(const TString& input)
 		}
 		else {
 			{
-				const auto itEnd = Ns.end();
-				for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+				// Ook: this is broken...
+				//const auto itEnd = Ns.end();
+				//for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+				//{
+				//	const TString tsLine(*itStart);
+				//
+				//	const auto [iStart, iEnd] = Dcx::getItemRange(tsLine, nItems);
+				//
+				//	if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
+				//		throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+				//
+				//	for (auto nPos = iStart; nPos <= iEnd; ++nPos)
+				//		Dcx::dcxListBox_DeleteString(m_Hwnd, nPos);
+				//}
+
+				const auto rngs = Dcx::sortRanges(Ns, nItems, true);
+				for (auto& r : rngs)
 				{
-					const TString tsLine(*itStart);
-
-					const auto [iStart, iEnd] = Dcx::getItemRange(tsLine, nItems);
-
-					if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
-						throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-
-					for (auto nPos = iStart; nPos <= iEnd; ++nPos)
+					// delete in reverse order
+					for (auto nPos = r.e; nPos >= r.b; --nPos)
 						Dcx::dcxListBox_DeleteString(m_Hwnd, nPos);
 				}
-			}
+
 		}
 	}
-	// Used to prevent invalid flag message.
-	//xdid -r [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('r')])
-	{
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('u')])
@@ -612,6 +610,11 @@ void DcxList::parseCommandRequest(const TString& input)
 	{
 		// Now update the horizontal scroller
 		this->UpdateHorizExtent();
+	}
+	// Used to prevent invalid flag message. (MUST be last)
+	//xdid -r [NAME] [ID] [SWITCH]
+	else if (flags[TEXT('r')])
+	{
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
