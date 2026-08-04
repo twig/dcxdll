@@ -1149,6 +1149,24 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// Sets the specified items text.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the control.</param>
+	/// <param name="i">- The current index of the item whose attributes are to be changed.</param>
+	/// <param name="pstr">- The text to set.</param>
+	/// <param name="strlength">- The texts length in characters.</param>
+	/// <returns>Returns true if successful, or false otherwise.</returns>
+	inline bool dcxHeader_SetItemText(_In_ HWND hwnd, _In_ const int i, _In_ const TCHAR *pstr, _In_ int strlength) noexcept
+	{
+		HDITEM hi{};
+		hi.mask = HDI_TEXT;
+		hi.cchTextMax = strlength;
+		hi.pszText = const_cast<LPTSTR>(pstr);
+
+		return !!Header_SetItem(hwnd, i, &hi);
+	}
+
+	/// <summary>
 	/// Gets a count of the items in a header control.
 	/// </summary>
 	/// <param name="hwnd">- A handle to the control.</param>
