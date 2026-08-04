@@ -180,28 +180,54 @@ protected:
 		const RECT rcFmt{ getFmtRect() };
 		return { 0,0,rcFmt.left,rcFmt.bottom };
 	}
+	RECT getGutterBorderRect() const noexcept
+	{
+		const RECT rcFmt{ getFmtRect() };
+		constexpr int iBorderWidth = 5;
+		return { rcFmt.left - iBorderWidth,0,rcFmt.left,rcFmt.bottom };
+	}
+	bool IsCursorInRect(const RECT& rc) const noexcept
+	{
+		const Dcx::dcxCursorPos pt(m_Hwnd);
+
+		return PtInRect(&rc, pt);
+	}
 	bool IsCursorOnGutter() const noexcept
 	{
 		if (!m_bShowLineNumbers)
 			return false;
 
-		const auto rc = getGutterRect();
-		const Dcx::dcxCursorPos pt(m_Hwnd);
+		//const auto rc = getGutterRect();
+		//const Dcx::dcxCursorPos pt(m_Hwnd);
+		//return PtInRect(&rc, pt);
 
-		return PtInRect(&rc, pt);
+		return IsCursorInRect(getGutterRect());
 	}
 	bool IsCursorOnGutterBorder() const noexcept
 	{
 		if (!m_bShowLineNumbers)
 			return false;
 
-		auto rc = getFmtRect();
-		constexpr int iBorderWidth = 5;
-		const Dcx::dcxCursorPos pt(m_Hwnd);
-		rc.right = rc.left;
-		rc.left -= iBorderWidth;
+		//auto rc = getFmtRect();
+		//constexpr int iBorderWidth = 5;
+		//const Dcx::dcxCursorPos pt(m_Hwnd);
+		//rc.right = rc.left;
+		//rc.left -= iBorderWidth;
+		//return PtInRect(&rc, pt);
 
-		return PtInRect(&rc, pt);
+		//auto rc = getFmtRect();
+		//constexpr int iBorderWidth = 5;
+		//rc.right = rc.left;
+		//rc.left -= iBorderWidth;
+		//return IsCursorInRect(rc);
+
+		return IsCursorInRect(getGutterBorderRect());
+	}
+	void RefreshTextArea() const noexcept
+	{
+		const auto rc = getFmtRect();
+		InvalidateRect(m_Hwnd, &rc, TRUE);
+		UpdateWindow(m_Hwnd);
 	}
 	Dcx::range_t<DWORD> GetVisibleRange() const noexcept;
 	DWORD GetCaretPos() const noexcept;

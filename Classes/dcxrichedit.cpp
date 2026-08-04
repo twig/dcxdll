@@ -780,11 +780,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 		this->parseContents(TRUE);
 	}
-	// This is to avoid an invalid flag message.
-	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('r')])
-	{
-	}
 	// xdid -t [NAME] [ID] [SWITCH] [FILENAME]
 	// xdid -t [NAME] [ID] [SWITCH] [+FLAGS] [FILENAME]
 	else if (flags[TEXT('t')])
@@ -943,6 +938,11 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		if (!Dcx::dcxEdit_SetZoom(m_Hwnd, num, den))
 			throw Dcx::dcxException("Richedit zooming error");
 	}
+	// This is to avoid an invalid flag message.
+	// xdid -r [NAME] [ID] [SWITCH]
+	else if (flags[TEXT('r')])
+	{
+	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
 }
@@ -975,7 +975,7 @@ void DcxRichEdit::setContentsFont() noexcept
 	{
 		dcx_strcpyn(&chrf.szFaceName[0], this->m_tsFontFaceName.to_chr(), std::size(chrf.szFaceName));
 		//chrf.szFaceName[std::size(chrf.szFaceName) -1] = 0;
-		gsl::at(chrf.szFaceName, std::size(chrf.szFaceName) - 1) = 0;
+		//gsl::at(chrf.szFaceName, std::size(chrf.szFaceName) - 1) = 0;
 	}
 
 	//this->hideSelection(TRUE);
