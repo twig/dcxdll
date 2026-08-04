@@ -2203,6 +2203,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	}
 	// xdid -H [NAME] [ID] [COL] [+FLAGS] [ARGS]
 	// xdid -H [NAME] [ID] -H [COL|COL1-COL2|COL1,COL2|COL1,COL2-COL3 etc..] [+FLAGS] [ARGS]
+	// xdid -H [NAME] [ID] -H [COL|COL1-COL2|COL1,COL2|COL1,COL2-COL3 etc..] +s [STYLES]
+	// xdid -H [NAME] [ID] -H [COL|COL1-COL2|COL1,COL2|COL1,COL2-COL3 etc..] +t [TEXT]
 	else if (flags[TEXT('H')])
 	{
 		if (numtok < 4)
@@ -2215,29 +2217,36 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (!xflag[TEXT('+')])
 			throw DcxExceptions::dcxInvalidFlag();
 
+		//if (!xflag['s'])	// change header style
+		//	throw Dcx::dcxException(TEXT("Unknown flags %"), input.gettok(5));
+
 		auto h = Dcx::dcxListView_GetHeader(m_Hwnd);
 		if (!IsWindow(h))
 			throw Dcx::dcxException("Unable to get Header Window");
 
-		{
-			const auto col_count = this->getColumnCount();
-			const auto itEnd = tsCols.end();
-			for (auto itStart = tsCols.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-			{
-				const auto col(*itStart);
-				const auto r = Dcx::getItemRange2(col, col_count);
-
-				if ((r.b < 0) || (r.e < 0) || (r.b >= col_count) || (r.e > col_count))
-					throw Dcx::dcxException(TEXT("Invalid column index %."), col);
-
-				for (auto nCol : r)
 				{
-					if (!xflag['s'])	// change header style
-						throw Dcx::dcxException(TEXT("Unknown flags %"), input.gettok(5));
+			//const auto col_count = this->getColumnCount();
+			//const auto itEnd = tsCols.end();
+			//for (auto itStart = tsCols.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			//{
+			//	const auto col(*itStart);
+			//	const auto r = Dcx::getItemRange2(col, col_count);
+			//
+			//	if ((r.b < 0) || (r.e < 0) || (r.b >= col_count) || (r.e > col_count))
+			//		throw Dcx::dcxException(TEXT("Invalid column index %."), col);
+			//
+			//	for (auto nCol : r)
+			//	{
+			//		setHeaderStyle(h, nCol, info);
+			//	}
+			//}
 
+			Dcx::CallOnRange(tsCols, this->getColumnCount(), 1, [this,h,info,xflag](int nCol) {
+				if (xflag['s'])	// change header style
 					setHeaderStyle(h, nCol, info);
-				}
-			}
+				else if (xflag['t'])	// change header text
+					Dcx::dcxHeader_SetItemText(h, nCol, info.to_chr(), info.len());
+				});
 		}
 	}
 	// xdid -G [NAME] [ID] [SWITCH] [GID,GID2,GID3-GIDn] [+MASK] [+STATES]
@@ -2249,7 +2258,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (!Dcx::VersInfo.isVista())
 			throw Dcx::dcxException("This Command is Vista+ Only!");
 
-		const auto tsGID = input.getnexttok();							// tok 4
+		const auto tsGID(input.getnexttok());							// tok 4
 		const auto iMask = this->parseGroupState(input.getnexttok());	// tok 5
 		const auto iState = this->parseGroupState(input.getnexttok());	// tok 6
 
@@ -5289,7 +5298,7 @@ void DcxListView::DeleteColumns(const int nColumn) noexcept
 		// delete all columns
 		if (auto nCol = this->getColumnCount(); nCol > 0)
 		{
-			while (--nCol > 0)
+			while (--nCol >= 0)
 				Dcx::dcxListView_DeleteColumn(m_Hwnd, nCol);
 		}
 		this->m_iColumnCount = 0;
