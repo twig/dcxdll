@@ -461,22 +461,26 @@ void DcxList::parseCommandRequest(const TString& input)
 		{
 			const auto Ns(input.getnexttok());	// tok 4
 
-			{
-				const auto itEnd = Ns.end();
-				for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-				{
-					const TString tsLine(*itStart);
+			//{
+			//	const auto itEnd = Ns.end();
+			//	for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			//	{
+			//		const TString tsLine(*itStart);
+			//	
+			//		const auto [iStart, iEnd] = Dcx::getItemRange(tsLine, nItems);
+			//	
+			//		if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
+			//			throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+			//	
+			//		for (auto nSel = iStart; nSel <= iEnd; ++nSel)
+			//			Dcx::dcxListBox_SetSel(m_Hwnd, TRUE, nSel);
+			//	}
+			//}
 
-					const auto [iStart, iEnd] = Dcx::getItemRange(tsLine, nItems);
-
-					if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
-						throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-
-					for (auto nSel = iStart; nSel <= iEnd; ++nSel)
+			Dcx::CallOnRange(Ns, nItems, 1, [this](int nSel) noexcept {
 						Dcx::dcxListBox_SetSel(m_Hwnd, TRUE, nSel);
+				});
 				}
-			}
-		}
 		else {
 			auto nSel = (input.getnexttokas<int>() - 1);	// tok 4
 
@@ -513,7 +517,6 @@ void DcxList::parseCommandRequest(const TString& input)
 			}
 		}
 		else {
-			{
 				// Ook: this is broken...
 				//const auto itEnd = Ns.end();
 				//for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
@@ -536,9 +539,7 @@ void DcxList::parseCommandRequest(const TString& input)
 					for (auto nPos = r.e; nPos >= r.b; --nPos)
 						Dcx::dcxListBox_DeleteString(m_Hwnd, nPos);
 				}
-
 		}
-	}
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('u')])
