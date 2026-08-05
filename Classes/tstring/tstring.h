@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.24
+ * \version 1.25
  *
  * \b Revisions
  *	1.1
@@ -80,6 +80,9 @@
  *		Fixed incorrect savedpos increase in getfirsttok()
  *		Fixed TString(char *start_ptr, length) not properly limiting its self to supplied length.
  *		Made the settings defines presetable.
+ * 
+ *  1.25
+ *		Fixed bug in instok() when inserting before that last token.
  * 
  * © ScriptsDB.org - 2005-2021
  */
@@ -1388,6 +1391,14 @@ public:
 	template <TStringConcepts::IsSupportedCompareType T, TStringConcepts::IsSupportedSeperatorType TSepChars = const_reference>
 	auto istok(_In_ const T& cToken, _In_ TSepChars sepChars = SPACECHAR) const { return findtok<T, bool>(cToken, 1, sepChars); }
 
+	/// <summary>
+	/// Insert Token
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <typeparam name="TSepChars"></typeparam>
+	/// <param name="cToken">- String to insert</param>
+	/// <param name="N">- token offset to insert at.</param>
+	/// <param name="sepChars">- seperator chars</param>
 	template <TStringConcepts::IsSupportedAddType T, TStringConcepts::IsSupportedSeperatorType TSepChars = const_reference>
 	void instok(_In_ const T& cToken, _In_ const size_type N, _In_ TSepChars sepChars = SPACECHAR)
 	{
@@ -1410,14 +1421,14 @@ public:
 			}
 		}
 		else {
-			// N >= 2
+			// N > 1
 			// so add preceding tokens
 			tsTmp = gettok(1, gsl::narrow_cast<ptrdiff_t>(N) - 1, sepChars);
 			// then new token
 			tsTmp += sepChars;
 			tsTmp += cToken;
 			// and any tokens after the inserted one.
-			if (N < nToks)
+			if (N <= nToks)
 			{
 				tsTmp += sepChars;
 				tsTmp += gettok(gsl::narrow_cast<ptrdiff_t>(N), -1, sepChars);
@@ -1469,12 +1480,6 @@ public:
 		if (const auto pos = findtok(cToken, N, sepChars); pos > 0)
 			puttok(newToken, pos, sepChars);
 	}
-
-	/*!
-	* \brief blah
-	*
-	* blah
-	*/
 
 	template <TStringConcepts::IsSupportedSeperatorType TSepChars = const_reference>
 	void deltok(_In_ const size_type N, _In_ TSepChars sepChars = SPACECHAR)
@@ -1542,11 +1547,6 @@ public:
 		m_savedtotaltoks = 0;
 	}
 
-	/*!
-	* \brief blah
-	*
-	* blah
-	*/
 	template <TStringConcepts::IsSupportedSeperatorType TSepChars = const_reference>
 	[[nodiscard]] TString matchtok(_In_z_ const_pointer_const mString, _In_ const size_type N, _In_ TSepChars sepChars = SPACECHAR) const
 	{
