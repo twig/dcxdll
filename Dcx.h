@@ -1316,8 +1316,10 @@ namespace Dcx
 			{
 				return lhs.n <= rhs.n;
 			}
+			operator bool() const noexcept { return (n <= Limit); }
 
 			T n;
+			T Limit;
 		};
 		struct reverse_iter
 		{
@@ -1333,14 +1335,16 @@ namespace Dcx
 			{
 				return lhs.n >= rhs.n;
 			}
+			operator bool() const noexcept { return (n >= Limit); }
 
 			T n;
+			T Limit;
 		};
 
-		iter begin() const noexcept { return{ b }; }
-		iter end() const noexcept { return{ e + 1 }; }
-		reverse_iter rbegin() const noexcept { return{ e }; }
-		reverse_iter rend() const noexcept { return{ b }; }
+		iter begin() const noexcept { return{ b, e }; }
+		iter end() const noexcept { return{ e + 1, e }; }
+		reverse_iter rbegin() const noexcept { return{ e, b }; }
+		reverse_iter rend() const noexcept { return{ b, b }; }
 
 		T length() const noexcept { return (e - b) + 1; }
 		inline bool inRange(T f) const noexcept
@@ -1450,6 +1454,7 @@ namespace Dcx
 	std::pair<int, int> getItemRange(const TString& tsItems, const int nItemCnt);
 	range_t<int> getItemRange2(const TString& tsItems, const int nItemCnt);
 	std::vector<range_t<int>> sortRanges(const TString& tsRanges, int iUpperLimit, bool bReverseOrder);
+	std::vector<range_t<int>> sortRanges(const TString& tsRanges, int iUpperLimit, int iAdjust, bool bReverseOrder);
 	void CallOnRange(const TString& tsItems, int iMax, int iAdjust, std::function<void(int iItem)> fnt);
 
 	// not for use in code, just for testing

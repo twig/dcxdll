@@ -499,17 +499,22 @@ namespace Dcx
 			if (!m_bShowingDragImage)
 				break;
 
-			POINT p{};
-			p.x = Dcx::dcxLOWORD(lParam);
-			p.y = Dcx::dcxHIWORD(lParam);
-
-			MapWindowPoints(mHwnd, nullptr, &p, 1);
-			ImageList_DragMove(p.x, p.y);
-
 			if (!m_pDragSourceCtrl)
 				break;
 
-			m_pDragSourceCtrl->HandleDragMove(p.x, p.y);
+			const POINT ptClient{ Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam) };
+			POINT ptScreen{ ptClient };
+			MapWindowPoints(mHwnd, nullptr, &ptScreen, 1);
+
+			{
+				const Dcx::dcxWindowRect rcWinOnScreen(m_pDragSourceCtrl->getHwnd());
+				ImageList_DragMove(rcWinOnScreen.left - ptScreen.x, rcWinOnScreen.top - ptScreen.y);
+		}
+
+			//if (!m_pDragSourceCtrl)
+			//	break;
+
+			m_pDragSourceCtrl->HandleDragMove(ptScreen.x, ptScreen.y);
 		}
 		break;
 
@@ -527,7 +532,10 @@ namespace Dcx
 
 			ReleaseCapture();
 
-			m_pDragSourceCtrl->HandleDragDrop(Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
+			POINT ptScreen{ Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam) };
+			MapWindowPoints(mHwnd, nullptr, &ptScreen, 1);
+
+			m_pDragSourceCtrl->HandleDragDrop(ptScreen.x, ptScreen.y);
 
 			if (dcx_testflag(m_pDragSourceCtrl->getEventMask(), DCX_EVENT_DRAG))
 				m_pDragSourceCtrl->execAliasEx(TEXT("enddrag,%u"), m_pDragSourceCtrl->getUserID());
@@ -941,6 +949,11 @@ namespace Dcx
 
 	std::vector<range_t<int>> sortRanges(const TString& tsRanges, int iUpperLimit, bool bReverseOrder)
 	{
+		return sortRanges(tsRanges, iUpperLimit, 1, bReverseOrder);
+	}
+
+	std::vector<range_t<int>> sortRanges(const TString& tsRanges, int iUpperLimit, int iAdjust, bool bReverseOrder)
+	{
 		std::vector<range_t<int>> vRanges;
 		vRanges.reserve(tsRanges.numtok(TSCOMMACHAR));
 
@@ -949,7 +962,7 @@ namespace Dcx
 		{
 			const auto tsLine(*itStart);
 
-			const auto Range = getItemRange2(tsLine, iUpperLimit);
+			const auto Range = make_range(tsLine, iUpperLimit, iAdjust);
 
 			if ((Range.b < 0) || (Range.e < 0) || (Range.b > Range.e))
 				throw dcxException(TEXT("Invalid Range %."), tsLine);
@@ -968,7 +981,6 @@ namespace Dcx
 				});
 		return vRanges;
 	}
-
 	void CallOnRange(const TString& tsItems, int iMax, int iAdjust, std::function<void(int iItem)> fnt)
 	{
 		const int iAdjustedMax = (iMax - iAdjust);
