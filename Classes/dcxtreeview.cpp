@@ -824,11 +824,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 
 		redrawWindow();
 	}
-	// This is to avoid an invalid error message.
-	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('r')])
-	{
-	}
 	// xdid -t [NAME] [ID] [SWITCH] [+FLAGS] N N N
 	else if (flags[TEXT('t')])
 	{
@@ -1022,6 +1017,11 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidPath(path.c_str());
 
 		this->xmlSaveTree(item, name, filename);
+	}
+	// This is to avoid an invalid error message.
+	// xdid -r [NAME] [ID] [SWITCH]
+	else if (flags[TEXT('r')])
+	{
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -1536,53 +1536,12 @@ GSL_SUPPRESS(con.4)
 GSL_SUPPRESS(r.5)
 bool DcxTreeView::matchItemText(const HTREEITEM hItem, const TString& search, const DcxSearchTypes& SearchType) const
 {
-	//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
-	//gsl::at(itemtext, 0) = TEXT('\0');
-	//
-	//getItemText(hItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH);
-	//
-	//return DcxSearchHelper::matchItemText(itemtext.get(), search, SearchType);
-
 	const dcxSearchData srch_data(search, SearchType);
 	return matchItemText(hItem, srch_data);
 }
 
 std::optional<HTREEITEM> DcxTreeView::findItemText(const HTREEITEM hStart, const TString& queryText, const int n, int& matchCount, const DcxSearchTypes& searchType) const
 {
-	//HTREEITEM item = TreeView_GetChild(m_Hwnd, hStart);
-	//
-	//// Check if it should search child nodes
-	//if (item == nullptr)
-	//	return { };
-	//
-	//do {
-	//	if (this->matchItemText(item, queryText, searchType))
-	//		++matchCount;
-	//
-	//	if (n != 0 && matchCount == n)
-	//		return { item };
-	//
-	//	if (const auto result_item = findItemText(item, queryText, n, matchCount, searchType); result_item.has_value())
-	//		return result_item;
-	//
-	//} while ((item = TreeView_GetNextSibling(m_Hwnd, item)) != nullptr);
-	//
-	//return { };
-
-	//for (HTREEITEM item = TreeView_GetChild(m_Hwnd, hStart); item; item = TreeView_GetNextSibling(m_Hwnd, item))
-	//{
-	//	if (this->matchItemText(item, queryText, searchType))
-	//		++matchCount;
-	//
-	//	if (n != 0 && matchCount == n)
-	//		return { item };
-	//
-	//	if (const auto result_item = findItemText(item, queryText, n, matchCount, searchType); result_item.has_value())
-	//		return result_item;
-	//}
-	//
-	//return {};
-
 	const dcxSearchData srch_data(queryText, searchType);
 	return findItemText(hStart, n, matchCount, srch_data);
 }
@@ -1616,17 +1575,6 @@ std::optional<HTREEITEM> DcxTreeView::findItemText(const HTREEITEM hStart, const
 
 void DcxTreeView::expandAllItems(const HTREEITEM hStart, const UINT expandOption) noexcept
 {
-	//HTREEITEM hCurrentItem = TreeView_GetChild(m_Hwnd, hStart);
-	//
-	//if (hCurrentItem == nullptr)
-	//	return;
-	//
-	//do {
-	//	expandAllItems(hCurrentItem, expandOption);
-	//	TreeView_Expand(m_Hwnd, hCurrentItem, expandOption);
-	//
-	//} while ((hCurrentItem = TreeView_GetNextSibling(m_Hwnd, hCurrentItem)) != nullptr);
-
 	for (HTREEITEM hCurrentItem = Dcx::dcxTreeView_GetChild(m_Hwnd, hStart); hCurrentItem; hCurrentItem = Dcx::dcxTreeView_GetNextSibling(m_Hwnd, hCurrentItem))
 	{
 		expandAllItems(hCurrentItem, expandOption);
@@ -1685,18 +1633,6 @@ HTREEITEM DcxTreeView::cloneItem(const HTREEITEM hItem, const HTREEITEM hParentT
 
 void DcxTreeView::copyAllItems(const HTREEITEM hItem, const HTREEITEM hParentTo)
 {
-	//HTREEITEM hCurrentItem = TreeView_GetChild(m_Hwnd, hItem);
-	//HTREEITEM hAfterTo = TVI_LAST;
-	//
-	//if (!hCurrentItem)
-	//	return;
-	//
-	//do {
-	//	if (const auto hNewItem = cloneItem(hCurrentItem, hParentTo, hAfterTo); hNewItem)
-	//		copyAllItems(hCurrentItem, hNewItem);
-	//
-	//} while ((hCurrentItem = TreeView_GetNextSibling(m_Hwnd, hCurrentItem)) != nullptr);
-
 	HTREEITEM hAfterTo = TVI_LAST;
 	for (HTREEITEM hCurrentItem = Dcx::dcxTreeView_GetChild(m_Hwnd, hItem); hCurrentItem; hCurrentItem = Dcx::dcxTreeView_GetNextSibling(m_Hwnd, hCurrentItem))
 	{
@@ -1746,7 +1682,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 {
 	switch (uMsg)
 	{
-//#ifdef USE_CUSTOM_TREE_DRAWING
+#ifdef USE_CUSTOM_TREE_DRAWING
 //	case WM_CTLCOLORSCROLLBAR:
 //	{
 //		if (m_bCustomDraw)
@@ -1757,9 +1693,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 //		}
 //	}
 //	break;
-//#endif
 
-#ifdef USE_CUSTOM_TREE_DRAWING
 	case WM_CTLCOLORSTATIC:
 	case WM_CTLCOLOREDIT:
 	{
@@ -1783,40 +1717,6 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		{
 		case NM_CLICK:
 		{
-			////http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/treeview/reflist.asp
-			//	TVHITTESTINFO tvh{ TV_GetCursorItem() };
-			//
-			//	if (dcx_testflag(tvh.flags,TVHT_ONITEMBUTTON))
-			//	{
-			//		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
-			//			execAliasEx(TEXT("buttonclick,%u,%s"), getUserID(), getPathFromItem(&tvh.hItem).to_chr());
-			//	}
-			//	else if (dcx_testflag(tvh.flags, TVHT_ONITEMSTATEICON)) {
-			//		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
-			//		{
-			//			const auto path(getPathFromItem(&tvh.hItem));
-			//			if (isStyle(TVS_CHECKBOXES))
-			//				execAliasEx(TEXT("stateclick,%u,%u,%s"), getUserID(), (TreeView_GetCheckState(m_Hwnd, tvh.hItem) == 0 ? 2U : 1U) , path.to_chr());
-			//			else
-			//				execAliasEx(TEXT("stateclick,%u,%u,%s"), getUserID(), TreeView_GetItemState(m_Hwnd, tvh.hItem, TVIS_STATEIMAGEMASK), path.to_chr());
-			//		}
-			//	}
-			//	else if ((tvh.flags & TVHT_ONITEM) != 0) // dont use dcx_testflag() here as TVHT_ONITEM is a combination of several hit types.
-			//	{
-			//		//TreeView_SelectItem(m_Hwnd, tvh.hItem);	// why is this here? selections shows up fine without it
-			//
-			//		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
-			//			execAliasEx(TEXT("sclick,%u,%s"), getUserID(), getPathFromItem(&tvh.hItem).to_chr());
-			//	}
-			//	// single click not on item
-			//	else if (dcx_testflag(tvh.flags, TVHT_NOWHERE) || dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT)) {
-			//		if (dcx_testflag(getParentDialog()->getEventMask(),DCX_EVENT_CLICK))
-			//			execAliasEx(TEXT("sclick,%u"), getUserID());
-			//	}
-			//
-			//	bParsed = TRUE;
-			//	break;
-
 			//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/treeview/reflist.asp
 
 			if (!dcx_testflag(getEventMask(), DCX_EVENT_CLICK))
@@ -1850,7 +1750,6 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 			TVHITTESTINFO tvh{ Dcx::dcxTreeView_GetCursorItem(m_Hwnd) };
 
-			//|| ( (dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT)) && this->isStyle( TVS_FULLROWSELECT ) ) )
 			if ((tvh.flags & TVHT_ONITEM) != 0) // dont use dcx_testflag() here as TVHT_ONITEM is a combination of several hit types.
 				execAliasEx(TEXT("dclick,%u,%s"), getUserID(), getPathFromItem(tvh.hItem).to_chr());
 
@@ -1868,7 +1767,6 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			// closes tooltip on rclick
 			this->CloseToolTip();
 
-			//|| ( (dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT)) && this->isStyle( TVS_FULLROWSELECT ) ) )
 			if ((tvh.flags & TVHT_ONITEM) != 0) // dont use dcx_testflag() here as TVHT_ONITEM is a combination of several hit types.
 				execAliasEx(TEXT("rclick,%u,%s"), getUserID(), getPathFromItem(tvh.hItem).to_chr());
 			else
@@ -2002,6 +1900,18 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 				if (lpdcxtvi->clrText != CLR_INVALID)
 					lpntvcd->clrText = lpdcxtvi->clrText;
+
+				if (m_bCustomDraw)
+				{
+					if (const auto clr = Dcx::dcxTreeView_GetBkColor(m_Hwnd); clr != CLR_NONE)
+					{
+						if (clr == lpntvcd->clrText)
+						{
+							lpntvcd->clrText ^= 1; // make sure they dont match for later on when we TransparentBlt, clr xor 1, if bit 1 is set, make it zero, otherwise make it 1
+							// should we do RGB(R-1,G-1,B-1) ?
+						}
+					}
+				}
 
 				const auto bSelected = (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED));
 

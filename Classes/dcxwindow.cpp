@@ -156,11 +156,6 @@ void DcxWindow::CloseToolTip() const noexcept
 	if (!m_HwndTooltip)
 		return;
 
-	//TOOLINFO ti{};
-	//ti.cbSize = sizeof(TOOLINFO);
-	//if (Dcx::dcxToolTip_GetCurrentTool(m_HwndTooltip, &ti))
-	//	Dcx::dcxToolTip_TrackActivate(m_HwndTooltip, FALSE, &ti);
-
 	Dcx::dcxToolTip_Pop(m_HwndTooltip);
 }
 
@@ -360,14 +355,9 @@ void DcxWindow::setEventMask(const TString& tspFlags, const TString& tsnFlags)
 
 bool DcxWindow::TrackMouseEvents(DWORD events, UINT uTime) const noexcept
 {
-	//TRACKMOUSEEVENT tme{ sizeof(TRACKMOUSEEVENT),events,m_Hwnd,HOVER_DEFAULT };
-
-	//UINT uTime{ HOVER_DEFAULT };
-	//SystemParametersInfoW(SPI_GETMOUSEHOVERTIME, 0, &uTime, 0);
-
 	TRACKMOUSEEVENT tme{ sizeof(TRACKMOUSEEVENT),events,m_Hwnd,uTime };
 
-	return _TrackMouseEvent(&tme) != FALSE;
+	return !!_TrackMouseEvent(&tme);
 }
 
 PTCHAR DcxWindow::parseCursorType(const TString& cursor)
