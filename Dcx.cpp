@@ -991,12 +991,12 @@ namespace Dcx
 			const auto rItems = Dcx::make_range(tsLine, iMax, iAdjust);
 
 			if ((rItems.b < 0) || (rItems.e < 0) || (rItems.b > rItems.e))
-				throw DcxExceptions::dcxInvalidArguments();
+				throw DcxExceptions::dcxOutOfRange();
 
 			for (const auto iItem : rItems)
 			{
 				if (iItem > iAdjustedMax)
-					throw DcxExceptions::dcxInvalidArguments();
+					throw DcxExceptions::dcxOutOfRange();
 
 				fnt(iItem);
 			}
