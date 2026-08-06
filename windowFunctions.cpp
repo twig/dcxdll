@@ -121,6 +121,9 @@ HWND GetHwndFromString(const TString& str)
 // Removes window style to a window
 void RemStyles(const HWND hwnd, const int parm, const long RemStyles) noexcept
 {
+	if (!hwnd)
+		return;
+
 	auto Styles = gsl::narrow_cast<DWORD>(GetWindowLong(hwnd, parm));
 	Styles &= ~RemStyles;
 	SetWindowLong(hwnd, parm, gsl::narrow_cast<LONG>(Styles));
@@ -129,6 +132,9 @@ void RemStyles(const HWND hwnd, const int parm, const long RemStyles) noexcept
 //	Adds window styles to a window
 void AddStyles(const HWND hwnd, const int parm, const long AddStyles) noexcept
 {
+	if (!hwnd)
+		return;
+
 	auto Styles = gsl::narrow_cast<DWORD>(GetWindowLong(hwnd, parm));
 	Styles |= AddStyles;
 	SetWindowLong(hwnd, parm, gsl::narrow_cast<LONG>(Styles));
@@ -887,6 +893,50 @@ void dcxDrawArrow(_In_ HDC hdc, _In_ LPCRECT lprc, _In_ COLORREF clr, _In_ dcxAr
 {
 	if (!hdc || !lprc)
 		return;
+
+	//Gdiplus::Graphics gfx(hdc);
+	//gfx.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
+	//gfx.SetCompositingMode(Gdiplus::CompositingModeSourceOver);
+	////gfx.SetCompositingQuality
+	//Gdiplus::SolidBrush blackBrush(Gdiplus::Color(128, GetRValue(clr), GetGValue(clr), GetBValue(clr)));
+	//// Create an array of Point objects that define the polygon.
+	//Gdiplus::Point points[3];
+	//points[0].X = lprc->left;
+	//points[0].Y = lprc->top;
+	//points[1].X = lprc->right;
+	//points[1].Y = lprc->top;
+	//points[2].X = (lprc->left + (lprc->right - lprc->left) / 2);
+	//points[2].Y = lprc->bottom;
+	//// Fill the polygon.
+	//gfx.FillPolygon(&blackBrush, &points[0], gsl::narrow_cast<INT>(std::size(points)));
+
+#if DCX_USE_TESTCODE
+	//VSCLASS_MENU - MSM_NORMAL - MENU_POPUPSUBMENU
+	//VSCLASS_TREEVIEW - GLPS_CLOSED | GLPS_OPENED - TVP_GLYPH
+	//L"EXPLORER::TREEVIEW;TREEVIEW"
+	if (dcx_testflag(eFlags, dcxArrowFlags::Themed))
+	{
+		if (auto hTheme = DcxUXModule::dcxOpenThemeData(nullptr, VSCLASS_MENU); hTheme)
+		{
+			Auto(DcxUXModule::dcxCloseThemeData(hTheme));
+
+			constexpr int iStyle{ MSM_NORMAL };
+			constexpr int iPart{ MENU_POPUPSUBMENU };
+
+			//int iStyle{ GLPS_CLOSED };
+			//constexpr int iPart{ TVP_GLYPH };
+			////if (dcx_testflag(eFlags, dcxArrowFlags::Right))
+			////	iStyle = GLPS_CLOSED;
+			//if (dcx_testflag(eFlags, dcxArrowFlags::Down))
+			//	iStyle = GLPS_OPENED;
+
+			RECT rcItem{ *lprc };
+			rcItem.left = lprc->right - XPMI_SUBARROW_WIDTH;
+			DcxUXModule::dcxDrawThemeBackground(hTheme, hdc, iPart, iStyle, &rcItem, lprc);
+			return;
+		}
+	}
+#endif
 
 	const auto hPen = CreatePen(PS_SOLID, 1, clr);
 
