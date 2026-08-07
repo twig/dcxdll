@@ -58,8 +58,8 @@ namespace
 			if (_thd.joinable())
 			{
 				try {
-				_thd.join();
-		}
+					_thd.join();
+				}
 				catch (...) {}
 			}
 		}
@@ -172,7 +172,7 @@ namespace
 	//	if (auto& m = getGlobalMenuWindowList(); !m.empty())
 	//		m.pop_back();
 	//}
-	}
+}
 #endif
 
 void XPopupMenuManager::load(void)
@@ -401,7 +401,7 @@ LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM l
 	if (m_bIsMenuBar && !m_bIsSysMenu && m_bIsActiveMircMenubarPopup)
 		m_mIRCMenuBar->deleteAllItemData(menu);
 
-		m_vpAllMenus.erase(menu);
+	m_vpAllMenus.erase(menu);
 
 	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_UNINITMENUPOPUP, wParam, lParam);
 }
@@ -468,7 +468,7 @@ void XPopupMenuManager::RedrawMenuIfOpen() noexcept
 {
 	for (auto& win : getGlobalMenuWindowList())
 		RedrawWindow(win, nullptr, nullptr, RDW_UPDATENOW | RDW_FRAME | RDW_INTERNALPAINT | RDW_INVALIDATE | RDW_ERASE);
-	}
+}
 
 void XPopupMenuManager::setMenuRegion(_In_opt_ HWND win) noexcept
 {
@@ -618,6 +618,135 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 
 		this->deleteMenu(p_Menu);
 	}
+	// xpopup -e -> [MENU] [SWITCH] [+FLAGS] [ID]
+	else if (flags[TEXT('e')])
+	{
+		// executes a given menu command.
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const XSwitchFlags xFlags(input.getnexttok());
+		const auto mID(input.getnexttokas<UINT>());
+
+		if (xFlags[TEXT('p')])
+		{
+			// ID is a position.
+			// menu must be open for this to work atm.
+			TriggerMenuPos(Dcx::XPopups.getOwnerWindow(), p_Menu->getMenuHandle(), mID);
+		}
+		else {
+			// ID is a command id
+			TriggerMenuCommand(Dcx::XPopups.getOwnerWindow(), mID);
+		}
+	}
+	// xpopup -g -> [MENU] [SWITCH] [+FLAGS] [ARGS]
+	// xpopup -g -> [MENU] [SWITCH] [+a] [GID] [ID,IDn,IDn-IDn,:IDn...]
+	// xpopup -g -> [MENU] [SWITCH] [+d] [GID,GIDn,GIDn-GIDn...]
+	else if (flags[TEXT('g')])
+	{
+		//const XSwitchFlags xFlags(input.getnexttok());
+		//const auto tsGID(input.getnexttok());
+		//const auto nGID(tsGID.to_<UINT>());
+		//auto tsIDs(input.getlasttoks());
+		//const auto n = tsIDs.numtok(TSCOMMACHAR);
+		//
+		//if (!xFlags[L'+'])
+		//	throw DcxExceptions::dcxInvalidFlag();
+		//
+		//if (xFlags[L'd'])
+		//	tsIDs = tsGID;
+		//
+		//auto HandleIDRange = [=](TString tsID)
+		//{
+		//	UINT id_start = 0, id_end = 0;
+		//	// id range is a range of command ids
+		//	//const bool bCmds{ (tsID[0] == L':') };
+		//	//if (bCmds)
+		//	//	tsID.remove(L':');
+		//
+		//	if (tsID.numtok(TEXT('-')) == 2)
+		//	{
+		//		id_start = tsID.getfirsttok(1, TEXT('-')).to_<UINT>();
+		//		id_end = tsID.getnexttokas<UINT>(TEXT('-'));
+		//	}
+		//	else
+		//		id_start = id_end = tsID.to_<UINT>();
+		//
+		//	if (id_end < id_start)
+		//		throw Dcx::dcxException(TEXT("Invalid ID : % (menu : %)"), id_end, tsMenuName);
+		//	if (id_start == 0)
+		//		throw Dcx::dcxException(TEXT("Invalid ID : % (menu : %)"), id_start, tsMenuName);
+		//	if (id_end == 0)
+		//		throw Dcx::dcxException(TEXT("Invalid ID : % (menu : %)"), id_end, tsMenuName);
+		//
+		//	for (auto id = id_start; id <= id_end; ++id)
+		//	{
+		//		if (xFlags[L'a'])
+		//		{
+		//			// add to group (creates new group if needed).
+		//			if (const auto& grp = getGroup(nGID); !grp)
+		//				addGroup(nGID);
+		//
+		//			{
+		//				auto& grp = getGroup(nGID);
+		//				if (!grp)
+		//					throw DcxExceptions::dcxInvalidArguments();
+		//
+		//				grp.m_GroupIDs.emplace_back(id);
+		//			}
+		//		}
+		//		else if (xFlags[L'd'])
+		//		{
+		//			// delete from group (deletes group if empty)
+		//			deleteGroup(id);
+		//		}
+		//	}
+		//};
+		//if (n > 1)
+		//{
+		//	// multiple ids
+		//	const auto itEnd = tsIDs.end();
+		//	for (auto itStart = tsIDs.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//	{
+		//		HandleIDRange(*itStart);
+		//	}
+		//}
+		//else {
+		//	// single id
+		//	HandleIDRange(tsIDs);
+		//}
+
+		const XSwitchFlags xFlags(input.getnexttok());
+		const auto tsGID(input.getnexttok());
+		const auto tsIDs(input.getlasttoks());
+
+		if (!xFlags[L'+'])
+			throw DcxExceptions::dcxInvalidFlag();
+
+		if (xFlags[L'a'])
+		{
+			// add to group (creates new group if needed).
+			const auto nGID(tsGID.to_<UINT>());
+
+			// create group is it doesnt exist.
+			if (const auto& grp = getGroup(nGID); !grp)
+				addGroup(nGID);
+
+			auto& grp = getGroup(nGID);
+			if (!grp)
+				throw DcxExceptions::dcxInvalidArguments();
+
+			// add ranges of id's to group
+			Dcx::CallOnRange(tsIDs, INT_MAX, 0, [this, &grp](int id) {
+				grp.m_GroupIDs.emplace_back(id);
+				});
+		}
+		else if (xFlags[L'd'])
+			Dcx::CallOnRange(tsGID, getGroups().size(), 0, [this, xFlags](int nGID) {
+			// delete from group (deletes group if empty)
+			deleteGroup(nGID);
+				});
+	}
 	// xpopup -i -> [MENU] -i [FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('i')])
 	{
@@ -646,28 +775,38 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
+		//const auto nColors(input.getnexttok());
+		//const auto clr(input.getnexttok());
+		//const auto clrref = clr.to_<COLORREF>();
+		//
+		//const auto itEnd = nColors.end();
+		//for (auto itStart = nColors.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//{
+		//	const auto tsLine(*itStart);
+		//	const auto r = Dcx::make_range<int>(tsLine, gsl::narrow_cast<int>(XPopupMenu::MenuColours::XPMC_MAX) - 1);
+		//
+		//	if ((r.b < gsl::narrow_cast<int>(XPopupMenu::MenuColours::XPMC_MIN)) || (r.e < gsl::narrow_cast<int>(XPopupMenu::MenuColours::XPMC_MIN)) || (r.b > r.e))
+		//		throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+		//
+		//	for (const auto nColor : r)
+		//	{
+		//		if (clr == TEXT("default"))
+		//			p_Menu->setDefaultColor(gsl::narrow_cast<XPopupMenu::MenuColours>(nColor));
+		//		else
+		//			p_Menu->setColor(gsl::narrow_cast<XPopupMenu::MenuColours>(nColor), clrref);
+		//	}
+		//}
+
 		const auto nColors(input.getnexttok());
 		const auto clr(input.getnexttok());
 		const auto clrref = clr.to_<COLORREF>();
 
-		const auto itEnd = nColors.end();
-		for (auto itStart = nColors.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-		{
-			const auto tsLine(*itStart);
-			const auto r = Dcx::make_range<int>(tsLine, gsl::narrow_cast<int>(XPopupMenu::MenuColours::XPMC_MAX) - 1);
-
-			if ((r.b < gsl::narrow_cast<int>(XPopupMenu::MenuColours::XPMC_MIN)) || (r.e < gsl::narrow_cast<int>(XPopupMenu::MenuColours::XPMC_MIN)) || (r.b > r.e))
-				throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-
-			for (const auto nColor : r)
-			{
-		if (clr == TEXT("default"))
-					p_Menu->setDefaultColor(gsl::narrow_cast<XPopupMenu::MenuColours>(nColor));
-		else
-					p_Menu->setColor(gsl::narrow_cast<XPopupMenu::MenuColours>(nColor), clrref);
-	}
-		}
-
+		Dcx::CallOnRange(nColors, gsl::narrow_cast<int>(XPopupMenu::MenuColours::XPMC_MAX) - 1, 0, [p_Menu, clr, clrref](int nColor) {
+			if (clr == TEXT("default"))
+				p_Menu->setDefaultColor(gsl::narrow_cast<XPopupMenu::MenuColours>(nColor));
+			else
+				p_Menu->setColor(gsl::narrow_cast<XPopupMenu::MenuColours>(nColor), clrref);
+			});
 	}
 	// xpopup -m -> mirc -m
 	else if (flags[TEXT('m')])
@@ -725,7 +864,7 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 			const std::byte alpha{ (input.getnexttokas<UINT>() & 0xFF) };	// tok 4
 
 			p_Menu->SetAlphaDefault(alpha);
-	}
+		}
 		else if (xflags[TEXT('r')]) // Set Rounded Selector on/off
 			p_Menu->SetRoundedSelector((input.getnexttokas<int>() > 0));	// tok 4
 		else if (xflags[TEXT('R')]) // Set Rounded menu window on/off
@@ -790,7 +929,7 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 
 		p_Menu->setItemStyleString(input.getnexttok());
 	}
-		}
+}
 
 TString XPopupMenuManager::parseIdentifier(const TString& input) const
 {
@@ -990,7 +1129,7 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 		{
 			if (p_Menu->getMenuHandle() == getWindowsMenu(hWnd))
 				return TEXT("$true");
-	}
+		}
 		return TEXT("$false");
 	}
 	break;
@@ -1030,10 +1169,10 @@ const int XPopupMenuManager::parseMPopup(const TString& input)
 		else {
 			m_bIsActiveMircMenubarPopup = false;
 			XPopupMenu::cleanMenu(GetMenu(mIRCLinker::getHWND()));
-		}
 	}
-	return 3;
 }
+	return 3;
+		}
 
 void XPopupMenuManager::addMenu(XPopupMenu* const p_Menu)
 {
@@ -1148,7 +1287,7 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(_In_opt_ const HMENU hMenu) const
 	{
 		if (hMenu == pMenu->getMenuHandle())
 			return pMenu;
-	}
+}
 
 	for (const auto& x : this->m_vpXPMenu)
 	{
@@ -1173,7 +1312,7 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(_In_opt_ const HMENU hMenu) const
 			return a.second;
 	}
 	return nullptr;
-}
+	}
 
 XPopupMenu* XPopupMenuManager::getMenuByHWND(const HWND mHwnd) const noexcept
 {
@@ -1213,7 +1352,7 @@ XPopupMenuItem* XPopupMenuManager::getMenuItemByID(_In_opt_ const HMENU hMenu, _
 }
 
 XPopupMenuItem* XPopupMenuManager::getMenuItemByCommandID(_In_opt_ const HMENU hMenu, _In_ const UINT id) const noexcept
-	{
+{
 	return _getMenuItemByID(hMenu, id, FALSE);
 }
 
@@ -1572,17 +1711,17 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, cons
 		menu->fromXml(popups, popup, vIcons);
 	}
 	else {
-	const static Dcx::CodeValue<const char*, XPopupMenu::MenuColours> colors[] = {
-		{ XPopupMenu::MenuColours::XPMC_BACKGROUND, "bgcolour" },
-		{ XPopupMenu::MenuColours::XPMC_ICONBOX, "iconcolour"},
-		{ XPopupMenu::MenuColours::XPMC_CHECKBOX, "cbcolour"},
-		{ XPopupMenu::MenuColours::XPMC_CHECKBOX_DISABLED, "discbcolour"},
-		{ XPopupMenu::MenuColours::XPMC_SELECTIONBOX_DISABLED, "disselcolour"},
-		{ XPopupMenu::MenuColours::XPMC_TEXT_DISABLED, "distextcolour"},
-		{ XPopupMenu::MenuColours::XPMC_SELECTIONBOX, "selcolour"},
-		{ XPopupMenu::MenuColours::XPMC_SELECTIONBOX_BORDER, "selbordercolour"},
+		const static Dcx::CodeValue<const char*, XPopupMenu::MenuColours> colors[] = {
+			{ XPopupMenu::MenuColours::XPMC_BACKGROUND, "bgcolour" },
+			{ XPopupMenu::MenuColours::XPMC_ICONBOX, "iconcolour"},
+			{ XPopupMenu::MenuColours::XPMC_CHECKBOX, "cbcolour"},
+			{ XPopupMenu::MenuColours::XPMC_CHECKBOX_DISABLED, "discbcolour"},
+			{ XPopupMenu::MenuColours::XPMC_SELECTIONBOX_DISABLED, "disselcolour"},
+			{ XPopupMenu::MenuColours::XPMC_TEXT_DISABLED, "distextcolour"},
+			{ XPopupMenu::MenuColours::XPMC_SELECTIONBOX, "selcolour"},
+			{ XPopupMenu::MenuColours::XPMC_SELECTIONBOX_BORDER, "selbordercolour"},
 			{ XPopupMenu::MenuColours::XPMC_SEPARATOR, "separatorcolour"},
-		{ XPopupMenu::MenuColours::XPMC_TEXT, "textcolour"},
+			{ XPopupMenu::MenuColours::XPMC_TEXT, "textcolour"},
 			{ XPopupMenu::MenuColours::XPMC_SELECTEDTEXT, "seltextcolour"},
 			{ XPopupMenu::MenuColours::XPMC_CHECKBOX_TICK, "cbtickcolour"},
 			{ XPopupMenu::MenuColours::XPMC_CHECKBOX_FRAME, "cbframecolour"},
@@ -1593,50 +1732,50 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, cons
 			{ XPopupMenu::MenuColours::XPMC_CHECKBOX_FRAME_HOT, "cbhotframecolour"},
 			{ XPopupMenu::MenuColours::XPMC_BORDER, "bordercolour"},
 			{ XPopupMenu::MenuColours::XPMC_VSEPARATOR, "vseparatorcolour"},
-	};
+		};
 
-	for (const auto& tmp : colors)
-	{
-		if (auto tsAttr(GetMenuAttributeFromXML(tmp.value, popup, globalStyles)); !tsAttr.empty())
+		for (const auto& tmp : colors)
 		{
-			mIRCLinker::eval(tsAttr, tsAttr);
-			if (!tsAttr.empty())
-				menu->setColor(tmp.code, tsAttr.to_<COLORREF>());
-		}
-	}
-
-	// Set background image if CUSTOM style used
-	if ((style == XPopupMenu::MenuStyle::XPMS_CUSTOM) || (style == XPopupMenu::MenuStyle::XPMS_CUSTOMBIG))
-	{
-		if (TString tsBkg(queryEvalAttribute(popup, "background")); !tsBkg.empty())
-		{
-			if (const auto hBitmap = dcxLoadBitmap(nullptr, tsBkg); hBitmap)
-				menu->setBackBitmap(hBitmap, tsBkg);
-		}
-	}
-
-	// Parse icons
-	if (const auto* xIcons = popup->FirstChildElement("icons"); xIcons)
-	{
-		for (auto xIcon = xIcons->FirstChildElement("icon"); xIcon; xIcon = xIcon->NextSiblingElement("icon"))
-		{
-			// Flags
-			const TString flags(queryAttribute(xIcon, "flags", "+"));
-			const TString indexes(queryAttribute(xIcon, "index", "0"));
-
-			// Filename
-			if (const TString tsSrc(queryEvalAttribute(xIcon, "src")); !tsSrc.empty())
+			if (auto tsAttr(GetMenuAttributeFromXML(tmp.value, popup, globalStyles)); !tsAttr.empty())
 			{
-				TString command;
-				_ts_sprintf(command, TEXT("% -i % % %"), popupName, flags, indexes, tsSrc);
-					Dcx::XPopups.parseCommand(command, menu.get());
+				mIRCLinker::eval(tsAttr, tsAttr);
+				if (!tsAttr.empty())
+					menu->setColor(tmp.code, tsAttr.to_<COLORREF>());
 			}
 		}
-	}
+
+		// Set background image if CUSTOM style used
+		if ((style == XPopupMenu::MenuStyle::XPMS_CUSTOM) || (style == XPopupMenu::MenuStyle::XPMS_CUSTOMBIG))
+		{
+			if (TString tsBkg(queryEvalAttribute(popup, "background")); !tsBkg.empty())
+			{
+				if (const auto hBitmap = dcxLoadBitmap(nullptr, tsBkg); hBitmap)
+					menu->setBackBitmap(hBitmap, tsBkg);
+			}
+		}
+
+		// Parse icons
+		if (const auto* xIcons = popup->FirstChildElement("icons"); xIcons)
+		{
+			for (auto xIcon = xIcons->FirstChildElement("icon"); xIcon; xIcon = xIcon->NextSiblingElement("icon"))
+			{
+				// Flags
+				const TString flags(queryAttribute(xIcon, "flags", "+"));
+				const TString indexes(queryAttribute(xIcon, "index", "0"));
+
+				// Filename
+				if (const TString tsSrc(queryEvalAttribute(xIcon, "src")); !tsSrc.empty())
+				{
+					TString command;
+					_ts_sprintf(command, TEXT("% -i % % %"), popupName, flags, indexes, tsSrc);
+					Dcx::XPopups.parseCommand(command, menu.get());
+				}
+			}
+		}
 
 		if (!LoadPopupItemsFromXML(menu.get(), menu->getMenuHandle(), popup))
-		throw Dcx::dcxException(TEXT("Unable to load menu items: %"), popupName);
-}
+			throw Dcx::dcxException(TEXT("Unable to load menu items: %"), popupName);
+	}
 
 	// Successfully created a menu.
 	Dcx::XPopups.addMenu(menu.release());
@@ -1848,10 +1987,10 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 
 		if (!getGlobalMenuWindowList().empty())
 		{
-				// get previous menu window.
-				if (auto parent = getBackWin(); parent)
+			// get previous menu window.
+			if (auto parent = getBackWin(); parent)
 				SetMenuAlphaToDefault(parent);
-				}
+		}
 		else {
 			if (g_toolTipWin)
 			{
@@ -1902,11 +2041,11 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		if (wParam != UINT_MAX)
 		{
 			const auto id = gsl::narrow_cast<int>(wParam);
-		if (!dcxHoverTimer.is_running())
-		{
-			// hide any current tooltip
-			if (g_toolTipWin && IsWindow(g_toolTipWin))
-				Dcx::dcxToolTip_TrackActivate(g_toolTipWin, FALSE, &g_toolItem);
+			if (!dcxHoverTimer.is_running())
+			{
+				// hide any current tooltip
+				if (g_toolTipWin && IsWindow(g_toolTipWin))
+					Dcx::dcxToolTip_TrackActivate(g_toolTipWin, FALSE, &g_toolItem);
 
 				if (auto hMenu = getWindowsMenu(mHwnd); hMenu)
 				{
@@ -1914,19 +2053,19 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					{
 						if (p_Item->IsTooltipsEnabled())
 						{
-			// start thread to check for hover...
-			if (!getGlobalMenuWindowList().empty())
-			{
-				const Dcx::dcxCursorPos pt;
-				const Dcx::dcxWindowRect rc(mHwnd);
+							// start thread to check for hover...
+							if (!getGlobalMenuWindowList().empty())
+							{
+								const Dcx::dcxCursorPos pt;
+								const Dcx::dcxWindowRect rc(mHwnd);
 
-				if (PtInRect(&rc, pt))
-					dcxHoverTimer.start(1200, XPopupMenuManager::dcxCheckMenuHover);
-			}
+								if (PtInRect(&rc, pt))
+									dcxHoverTimer.start(1200, XPopupMenuManager::dcxCheckMenuHover);
+							}
 						}
 					}
 				}
-		}
+			}
 			// popup menus for menu items...
 			// message sent to owner window for menu?
 			//WM_MENURBUTTONUP
@@ -1958,7 +2097,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 
 									// redraw item.
 									RedrawWindow(mHwnd, &rcItem, nullptr, RDW_UPDATENOW | RDW_FRAME | RDW_INTERNALPAINT | RDW_INVALIDATE /*| RDW_ERASE*/);
-		}
+								}
 							}
 						}
 						break;
@@ -2028,8 +2167,8 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		if (g_toolTipWin && IsWindow(g_toolTipWin))
 		{
 			if (auto hMenu = getWindowsMenu(mHwnd); hMenu)
-		{
-			const POINT pt{ GET_X_LPARAM(lParam) , GET_Y_LPARAM(lParam) };
+			{
+				const POINT pt{ GET_X_LPARAM(lParam) , GET_Y_LPARAM(lParam) };
 				if (const auto id = MenuItemFromPoint(mHwnd, hMenu, pt); id >= 0)
 				{
 					if (auto p_Item = Dcx::XPopups.getMenuItemByID(hMenu, id); p_Item)
@@ -2093,9 +2232,9 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 			//	break;
 			default:
 			{
-			if (const TString tsCallback(xMenu->getCallback()); !tsCallback.empty())
-			{
-				TString tsRes;
+				if (const TString tsCallback(xMenu->getCallback()); !tsCallback.empty())
+				{
+					TString tsRes;
 
 					// notify callback alias that an item has been clicked that has the toggle setting.
 					switch (gsl::narrow_cast<MainMenuStyle>(xItem->getStyle2()))
@@ -2112,7 +2251,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					break;
 					default:
 					{
-					mIRCLinker::eval(tsRes, L"$%(%,%,checksel)", tsCallback, xMenu->getName(), xItem->getCommandID());
+						mIRCLinker::eval(tsRes, L"$%(%,%,checksel)", tsCallback, xMenu->getName(), xItem->getCommandID());
 					}
 					break;
 					}
@@ -2159,7 +2298,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					{
 						// if alias returns "$true" then simply halt menu closing (its assumed the script has done whatever needed doing)
 					case L"$true"_hash:
-					return 0L;
+						return 0L;
 					default:
 						break;
 					case L"opts"_hash:
@@ -2218,8 +2357,8 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					{
 						const auto tsText(tsRes.getlasttoks());
 
-							xItem->m_uProgressValue = tsText.getfirsttok(1).to_<UINT>();
-								xItem->setItemText(tsText.getlasttoks());
+						xItem->m_uProgressValue = tsText.getfirsttok(1).to_<UINT>();
+						xItem->setItemText(tsText.getlasttoks());
 
 						RedrawMenuItem(mHwnd, hMenu, gsl::narrow_cast<UINT>(wParam));
 						return 0L;
@@ -2228,19 +2367,19 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 					{
 						handleState(tsRes.getlasttoks());
 						return 0L;
-						}
+					}
 					case L"uncheck"_hash:
 					{
 						setCheckState(hMenu, gsl::narrow_cast<UINT>(wParam), TRUE, false);
 						return 0L;
-			}
+					}
 					}
 				}
 			}
 			break;
+			}
 		}
 	}
-			}
 	break;
 
 	case WindowMessages::eWM_PRINT:
@@ -2260,7 +2399,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		//const auto tt = gsl::narrow_cast<testit>(lParam);
 
 		if (auto xMenu = Dcx::XPopups.getMenuByHWND(mHwnd); xMenu)
-				xMenu->DrawBorder(mHwnd, reinterpret_cast<HDC>(wParam));
+			xMenu->DrawBorder(mHwnd, reinterpret_cast<HDC>(wParam));
 		return lRes;
 	}
 	break;
@@ -2268,11 +2407,11 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	case WindowMessages::eWM_NCPAINT:
 	{
 		if (const auto xMenu = Dcx::XPopups.getMenuByHWND(mHwnd); xMenu)
-				{
+		{
 			if (xMenu->DrawBorder(mHwnd))
-						return 0L;
-				}
-			}
+				return 0L;
+		}
+	}
 	break;
 
 	default:
