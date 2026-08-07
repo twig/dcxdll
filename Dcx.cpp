@@ -981,7 +981,7 @@ namespace Dcx
 				});
 		return vRanges;
 	}
-	void CallOnRange(const TString& tsItems, int iMax, int iAdjust, std::function<void(int iItem)> fnt)
+	void CallOnRange(_In_ const TString& tsItems, _In_ int iMax, _In_ int iAdjust, _In_ const std::function<void(int iItem)> &fnt)
 	{
 		const int iAdjustedMax = (iMax - iAdjust);
 		const auto itEnd = tsItems.end();

@@ -1337,6 +1337,9 @@ namespace Dcx
 			}
 			operator bool() const noexcept { return (n >= Limit); }
 
+			reverse_iter begin() const noexcept { return{ n, Limit }; }
+			reverse_iter end() const noexcept { return{ Limit, Limit }; }
+
 			T n;
 			T Limit;
 		};
@@ -1360,7 +1363,7 @@ namespace Dcx
 		//	//return (inRange(tOther) || tOther.inRange(*this) || (b == (tOther.e + 1)) || (e == (tOther.b - 1)));
 		//	if ((b <= (tOther.e + 1)) && (b >= (tOther.b - 1)))
 		//		return true;
-
+		//
 		//	return ( (e >= (tOther.b - 1)) && (e >= (tOther.e - 1)) );
 		//}
 		//range_t& Merge(const range_t& tOther) noexcept
@@ -1368,7 +1371,7 @@ namespace Dcx
 		//	// other range is within this one, no change required.
 		//	if (inRange(tOther))
 		//		return *this;
-
+		//
 		//	// this range is within the other one, change this one to match other.
 		//	if (tOther.inRange(*this))
 		//		*this = tOther;
@@ -1378,7 +1381,7 @@ namespace Dcx
 		//	// the other range continues from the end of this one.
 		//	else if (e == (tOther.b - 1))
 		//		e = tOther.e;
-
+		//
 		//	return *this;
 		//}
 		range_t& operator +=(const range_t& tOther) noexcept
@@ -1455,7 +1458,7 @@ namespace Dcx
 	range_t<int> getItemRange2(const TString& tsItems, const int nItemCnt);
 	std::vector<range_t<int>> sortRanges(const TString& tsRanges, int iUpperLimit, bool bReverseOrder);
 	std::vector<range_t<int>> sortRanges(const TString& tsRanges, int iUpperLimit, int iAdjust, bool bReverseOrder);
-	void CallOnRange(const TString& tsItems, int iMax, int iAdjust, std::function<void(int iItem)> fnt);
+	void CallOnRange(_In_ const TString& tsItems, _In_ int iMax, _In_ int iAdjust, _In_ const std::function<void(int iItem)> &fnt);
 
 	// not for use in code, just for testing
 	template <DcxConcepts::IsNumeric T>
