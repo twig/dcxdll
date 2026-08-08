@@ -84,7 +84,9 @@
 // --------------------------------------------------
 // DCX using DirectX SDK? (Required for DirectShow)
 // This is included as part of the win10 sdk with vs2017 no separate install needed.
+#ifndef DCX_USE_DXSDK
 #define DCX_USE_DXSDK 1
+#endif
 
 #if DCX_USE_DXSDK
 #pragma message ("### DCX OPTION: Use DirectX SDK - Enabled")
@@ -94,7 +96,9 @@
 // end of DirectX SDK
 
 // DCX using GDI+? (Required for advanced graphics routines) (replace with Direct2D ?)
+#ifndef DCX_USE_GDIPLUS
 #define DCX_USE_GDIPLUS 1
+#endif
 constexpr auto DCX_MAX_GDI_ERRORS = 21;
 
 #if DCX_USE_GDIPLUS
@@ -106,14 +110,18 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 
 // DCX Using C++11 regex
 // NB: Can't be used with either BOOST OR PCRE enabled.
+#ifndef DCX_USE_CREGEX
 #define DCX_USE_CREGEX 0
+#endif
 
 // DCX Using PCRE2 regex
 // NB: Can't be used with either BOOST OR C++11 regex enabled.
+#ifndef DCX_USE_PCRE2
 #ifdef _M_IX86
 #define DCX_USE_PCRE2 1
 #else
 #define DCX_USE_PCRE2 0
+#endif
 #endif
 
 #if DCX_USE_CREGEX
@@ -126,6 +134,9 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #endif
 #endif
 // end of C++11 regex
+
+// allow custom group drawing...
+//#define DCX_LISTVIEW_GROUPS 1
 
 // --------------------------------------------------
 // Some compiler/library definitions
@@ -200,6 +211,9 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 
 #define _CRT_RAND_S 1
 
+
+#define TSTRING_STRTOUL 1
+
 // Includes created git build info header...
 #if !__has_include("gitBuild.h")
 #error "gitBuild.h Missing! SourceControl project hasn't been run?"
@@ -211,7 +225,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  "71"
+#define DLL_DEV_BUILD  "72"
 #define DCXML_VERSION			1
 #define DCXML_DIALOG_VERSION	2
 #define DCXML_POPUP_VERSION		2
@@ -524,7 +538,7 @@ constexpr auto mIRC_PALETTE_SIZE = 100U;	// Number of colours in mIRC's palette 
 #define DCX_DIRECTSHOWCLASS		TEXT("DCXDirectShowClass")   //!< DCX Text Class Name
 #define DCX_MULTIBUTTONCLASS    TEXT("DCXMultiButtonClass")  //!< DCX MultiButton Class Name
 #define DCX_MULTICOMBOCLASS		TEXT("DCXMultiComboClass")   //!< DCX MultiCombo Class Name
-#define DCX_GRIDCLASS			TEXT("DCXGridClass")         //!< DCX Grid Class Name
+//#define DCX_GRIDCLASS			TEXT("DCXGridClass")         //!< DCX Grid Class Name
 //#define DCX_TOOLTIPCLASS		TEXT("DCXToolTipClass")      //!< DCX Tooltip Class Name
 
 using mIRCResultString = refString<TCHAR, MIRC_BUFFER_SIZE_CCH>;
@@ -598,6 +612,15 @@ struct SIGNALSWITCH
 	bool xdock{ false };
 	bool xstatusbar{ true };
 	bool xtray{ true };
+
+	SIGNALSWITCH() = default;
+
+	SIGNALSWITCH(bool xdock, bool xstatusbar, bool xtray) noexcept
+		: xdock(xdock), xstatusbar(xstatusbar), xtray(xtray)
+	{
+	}
+
+	bool operator==(const SIGNALSWITCH& other) const = default;
 };
 using LPSIGNALSWITCH = SIGNALSWITCH*;
 
@@ -614,6 +637,15 @@ struct clrCheckBox
 	COLORREF m_clrHotBackground{ RGB(255, 128, 123) };
 	COLORREF m_clrHotFrame{ RGB(0,0,255) };
 	COLORREF m_clrHotTick{ RGB(0,0,255) };
+
+	clrCheckBox() = default;
+
+	clrCheckBox(const COLORREF& m_clrBackground, const COLORREF& m_clrFrame, const COLORREF& m_clrTick, const COLORREF& m_clrDisabledBackground, const COLORREF& m_clrDisabledFrame, const COLORREF& m_clrDisabledTick, const COLORREF& m_clrHotBackground, const COLORREF& m_clrHotFrame, const COLORREF& m_clrHotTick) noexcept
+		: m_clrBackground(m_clrBackground), m_clrFrame(m_clrFrame), m_clrTick(m_clrTick), m_clrDisabledBackground(m_clrDisabledBackground), m_clrDisabledFrame(m_clrDisabledFrame), m_clrDisabledTick(m_clrDisabledTick), m_clrHotBackground(m_clrHotBackground), m_clrHotFrame(m_clrHotFrame), m_clrHotTick(m_clrHotTick)
+	{
+	}
+
+	bool operator==(const clrCheckBox& other) const = default;
 };
 
 TString queryEvalAttribute(const TiXmlElement* element, const char* attribute, const char* defaultValue = "");
@@ -719,8 +751,10 @@ using VectorOfIcons = std::vector<xmlIcon>; //!< Vector of XML templates in dcxm
 
 //#define dcx_strcpyn(x, y, z) { if (lstrcpyn((x), (y), gsl::narrow_cast<int>((z))) == nullptr) (x)[0] = 0; }
 
-template <typename T>
-inline void dcx_strcpyn(TCHAR* const sDest, const TCHAR* sSrc, const T& iSize) noexcept { if (ts_strcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
+//template <typename T>
+//inline void dcx_strcpyn(TCHAR* const sDest, const TCHAR* sSrc, const T& iSize) noexcept { if (ts_strcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
+
+#define dcx_strcpyn(x, y, z) _ts_strcpyn((x), (y), (z))
 
 constexpr const TCHAR* const dcx_truefalse(const bool& x) noexcept { return (x) ? &(TEXT("$true"))[0] : &(TEXT("$false")[0]); }
 
@@ -975,6 +1009,8 @@ bool SavePNGFile(TString& tsFile, Gdiplus::Image& img);
 #endif
 
 HMODULE getDllModule(HINSTANCE hMod = nullptr) noexcept;
+
+SIZE dcxGetTextExtent(_In_ HWND hwnd, _In_ HFONT hFont, _In_reads_or_z_(iLen) const TCHAR* szStr, _In_ size_t iLen) noexcept;
 
 extern SIGNALSWITCH dcxSignal;
 extern COLORREF staticPalette[mIRC_PALETTE_SIZE];

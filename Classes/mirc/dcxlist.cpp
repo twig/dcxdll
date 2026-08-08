@@ -533,10 +533,10 @@ void DcxList::parseCommandRequest(const TString& input)
 				//}
 
 				const auto rngs = Dcx::sortRanges(Ns, nItems, true);
-				for (auto& r : rngs)
+			for (const auto& r : rngs)
 				{
 					// delete in reverse order
-					for (auto nPos = r.e; nPos >= r.b; --nPos)
+				for (const auto nPos: r.rbegin())
 						Dcx::dcxListBox_DeleteString(m_Hwnd, nPos);
 				}
 		}
@@ -591,19 +591,28 @@ void DcxList::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidFlag();
 	}
 	//xdid -o [NAME] [ID] [N] [TEXT]
+	//xdid -o [NAME] [ID] [N](,[N]...) [TEXT]
 	//xdid -o -> [NAME] [ID] -o [N] [TEXT]
 	else if (flags[TEXT('o')])
 	{
-		auto nPos = input.getnexttokas<int>() - 1;	// tok 4
+		//auto nPos = input.getnexttokas<int>() - 1;	// tok 4
+		//
+		//if (nPos == -1)
+		//	nPos = Dcx::dcxListBox_GetCount(m_Hwnd) - 1;
+		//
+		//if (nPos < 0 && nPos >= Dcx::dcxListBox_GetCount(m_Hwnd))
+		//	throw DcxExceptions::dcxOutOfRange();
+		//
+		//Dcx::dcxListBox_DeleteString(m_Hwnd, nPos);
+		//Dcx::dcxListBox_InsertString(m_Hwnd, nPos, input.getlasttoks());	// tok 5, -1
 
-		if (nPos == -1)
-			nPos = Dcx::dcxListBox_GetCount(m_Hwnd) - 1;
+		const auto tsLines(input.getnexttok());	// tok 4
+		const auto tsText(input.getlasttoks());	// tok 5, -1
 
-		if (nPos < 0 && nPos >= Dcx::dcxListBox_GetCount(m_Hwnd))
-			throw DcxExceptions::dcxOutOfRange();
-
+		Dcx::CallOnRange(tsLines, Dcx::dcxListBox_GetCount(m_Hwnd), 1, [this, tsText](int nPos) noexcept {
 		Dcx::dcxListBox_DeleteString(m_Hwnd, nPos);
-		Dcx::dcxListBox_InsertString(m_Hwnd, nPos, input.getlasttoks());	// tok 5, -1
+			Dcx::dcxListBox_InsertString(m_Hwnd, nPos, tsText);
+			});
 	}
 	//xdid -z [NAME] [ID]
 	// update horiz scrollbar
@@ -1069,31 +1078,37 @@ void DcxList::UpdateHorizExtent(const int nPos)
 	if (nPos < -1)
 		return;
 
-	if (const auto hdc = GetDC(m_Hwnd); hdc)
-	{
-		Auto(ReleaseDC(m_Hwnd, hdc));
-
-		HFONT hFont = getFont(), hOldFont = nullptr;
-		SIZE sz{};
-
-		const auto nHorizExtent = Dcx::dcxListBox_GetHorizontalExtent(m_Hwnd);
-
-		if (hFont)
-			hOldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
+	//if (const auto hdc = GetDC(m_Hwnd); hdc)
+	//{
+	//	Auto(ReleaseDC(m_Hwnd, hdc));
+	//
+	//	HFONT hFont = getFont(), hOldFont = nullptr;
+	//	SIZE sz{};
+	//
+	//	const auto nHorizExtent = Dcx::dcxListBox_GetHorizontalExtent(m_Hwnd);
+	//
+	//	if (hFont)
+	//		hOldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
+	//
+	//	if (const auto itemtext(Dcx::dcxListBox_GetText(m_Hwnd, nPos)); !itemtext.empty())
+	//	{
+	//		if (GetTextExtentPoint32W(hdc, itemtext.to_wchr(), gsl::narrow_cast<int>(itemtext.len()), &sz))
+	//		{
+	//			if (sz.cx > nHorizExtent)
+	//				Dcx::dcxListBox_SetHorizontalExtent(m_Hwnd, sz.cx);
+	//		}
+	//	}
+	//	if (hFont)
+	//		Dcx::dcxSelectObject<HFONT>(hdc, hOldFont);
+	//}
 
 		if (const auto itemtext(Dcx::dcxListBox_GetText(m_Hwnd, nPos)); !itemtext.empty())
 		{
-			if (GetTextExtentPoint32W(hdc, itemtext.to_wchr(), gsl::narrow_cast<int>(itemtext.len()), &sz))
-			{
-				if (sz.cx > nHorizExtent)
+		const SIZE sz{ dcxGetTextExtent(m_Hwnd, this->getFont(), itemtext.to_chr(), itemtext.len()) };
+		if (sz.cx > Dcx::dcxListBox_GetHorizontalExtent(m_Hwnd))
 					Dcx::dcxListBox_SetHorizontalExtent(m_Hwnd, sz.cx);
 			}
 		}
-		if (hFont)
-			Dcx::dcxSelectObject<HFONT>(hdc, hOldFont);
-
-	}
-}
 
 int DcxList::addItems(int nPos, const TString& tsFlags, const TString& tsArgs)
 {

@@ -1877,3 +1877,24 @@ void dcxDrawTextOptions(HDC hdc, LPCWSTR txt, int len, LPRECT pRC, UINT mStyle, 
 
 	mIRC_DrawBreakdown(hdcTxt, vec, &rcTxt, mStyle, dTO);
 }
+
+SIZE dcxGetTextExtent(_In_ HWND hwnd, _In_ HFONT hFont, _In_reads_or_z_(iLen) const TCHAR *szStr, _In_ size_t iLen) noexcept
+{
+	// Get Font sizes (best way i can find atm, if you know something better then please let me know)
+	SIZE sz{};
+	if (const auto hdc = GetDC(hwnd); hdc)
+	{
+		Auto(ReleaseDC(hwnd, hdc));
+
+		HFONT hOldFont = nullptr;
+
+		if (hFont)
+			hOldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
+
+		GetTextExtentPoint32(hdc, szStr, gsl::narrow_cast<int>(iLen), &sz);
+
+		if (hFont)
+			Dcx::dcxSelectObject<HFONT>(hdc, hOldFont);
+	}
+	return sz;
+}
