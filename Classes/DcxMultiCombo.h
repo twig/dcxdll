@@ -108,7 +108,7 @@ public:
 
 	void addItem(COLORREF clr, const TString &tsText);
 
-	bool matchItemText(const int nItem, const dcxSearchData& srch_data) const;
+	bool matchItemText(const int nItem, const dcxSearchData& srch_data) const noexcept;
 
 };
 

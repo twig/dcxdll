@@ -18,6 +18,12 @@ DcxMultiCombo::DcxMultiCombo(const UINT ID, gsl::strict_not_null<DcxDialog* cons
 	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
+	{
+		// temp fix for horiz scroll
+		RemStyles(m_Hwnd, GWL_STYLE, WS_HSCROLL);
+		SetWindowPos(m_Hwnd, nullptr, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
+	}
+
 	if (ws.m_NoTheme)
 		DcxUXModule::dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
@@ -394,17 +400,24 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 			}
 		}
 		else {
-			const auto itEnd = Ns.end();
-			for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			//const auto itEnd = Ns.end();
+			//for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			//{
+			//	const TString tsLine(*itStart);
+			//
+			//	const auto [iStart, iEnd] = Dcx::getItemRange(tsLine, nItems);
+			//
+			//	if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
+			//		throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+			//
+			//	for (auto nPos = iStart; nPos <= iEnd; ++nPos)
+			//		SendMessage(m_Hwnd, MC_WM_DELETEITEM, nPos, 0);
+			//}
+
+			const auto vRanges = Dcx::sortRanges(Ns, nItems, true);
+			for (const auto& r : vRanges)
 			{
-				const TString tsLine(*itStart);
-
-				const auto [iStart, iEnd] = Dcx::getItemRange(tsLine, nItems);
-
-				if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
-					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-
-				for (auto nPos = iStart; nPos <= iEnd; ++nPos)
+				for (const auto nPos : r.rbegin())
 					SendMessage(m_Hwnd, MC_WM_DELETEITEM, nPos, 0);
 			}
 		}
@@ -610,7 +623,7 @@ void DcxMultiCombo::addItem(COLORREF clr, const TString& tsText)
 	}
 }
 
-bool DcxMultiCombo::matchItemText(const int nItem, const dcxSearchData& srch_data) const
+bool DcxMultiCombo::matchItemText(const int nItem, const dcxSearchData& srch_data) const noexcept
 {
 	const MCOMBO_ITEM res = getListBoxItem(nItem);
 
@@ -726,20 +739,33 @@ void DcxMultiCombo::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThi
 	{
 		if (auto xCtrl = xDrop->FirstChildElement("control"); xCtrl)
 		{
-			const auto iX = queryIntAttribute(xCtrl, "x");
-			const auto iY = queryIntAttribute(xCtrl, "y");
-			const auto iWidth = queryIntAttribute(xCtrl, "width");
-			const auto iHeight = queryIntAttribute(xCtrl, "height");
-			TString tsID(queryAttribute(xCtrl, "id"));
-			auto szType = queryAttribute(xCtrl, "type");
-			auto szStyles = queryAttribute(xCtrl, "styles");
+			//TString tsID(queryAttribute(xCtrl, "id"));
+			//// ID is NOT a number!
+			//if (tsID.empty()) // no id, generate one.
+			//	tsID.addtok(getParentDialog()->getUniqueID());
+			//
+			//const auto iX = queryIntAttribute(xCtrl, "x");
+			//const auto iY = queryIntAttribute(xCtrl, "y");
+			//const auto iWidth = queryIntAttribute(xCtrl, "width");
+			//const auto iHeight = queryIntAttribute(xCtrl, "height");
+			//auto szType = queryAttribute(xCtrl, "type", "missing");
+			//auto szStyles = queryAttribute(xCtrl, "styles");
+			//
+			//TString tsInput;
+			//_ts_sprintf(tsInput, TEXT("% % % % % % %"), tsID, szType, iX, iY, iWidth, iHeight, szStyles);
 
+			TString tsInput(queryAttribute(xCtrl, "id"));
 			// ID is NOT a number!
-			if (tsID.empty()) // no id, generate one.
-				tsID.addtok(getParentDialog()->getUniqueID());
+			if (tsInput.empty()) // no id, generate one.
+				tsInput.addtok(getParentDialog()->getUniqueID());
 
-			TString tsInput;
-			_ts_sprintf(tsInput, TEXT("% % % % % % %"), tsID, szType, iX, iY, iWidth, iHeight, szStyles);
+			tsInput.addtok(queryAttribute(xCtrl, "type", "missing"));
+			tsInput.addtok(queryAttribute(xCtrl, "x", "0"));
+			tsInput.addtok(queryAttribute(xCtrl, "y", "0"));
+			tsInput.addtok(queryAttribute(xCtrl, "width", "0"));
+			tsInput.addtok(queryAttribute(xCtrl, "height", "0"));
+			tsInput.addtok(queryAttribute(xCtrl, "styles"));
+
 			if (auto ctrl = getParentDialog()->addControl(tsInput, 1, DcxAllowControls::ALLOW_ALLBUTDOCK, m_Hwnd); ctrl)
 			{
 				ctrl->fromXml(xThis, xCtrl);
@@ -754,11 +780,17 @@ void DcxMultiCombo::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThi
 			for (auto xItem = xDrop->FirstChildElement("item"); xItem; xItem = xItem->NextSiblingElement("item"))
 			{
 				//clr txt bg
-				const TString tsText(queryAttribute(xItem, "text"));
-				COLORREF clrBgText{ CLR_INVALID };
 
-				if (auto tmp = queryColourAttribute(xItem, "textbgcolour"); tmp != CLR_INVALID)
-					clrBgText = tmp;
+				//const TString tsText(queryAttribute(xItem, "text"));
+				//COLORREF clrBgText{ CLR_INVALID };
+				//
+				//if (const auto tmp = queryColourAttribute(xItem, "textbgcolour"); tmp != CLR_INVALID)
+				//	clrBgText = tmp;
+				//
+				//addItem(clrBgText, tsText);
+
+				const TString tsText(queryAttribute(xItem, "text"));
+				const COLORREF clrBgText{ queryColourAttribute(xItem, "textbgcolour") };
 
 				addItem(clrBgText, tsText);
 			}
@@ -786,6 +818,12 @@ dcxWindowStyles DcxMultiCombo::parseControlStyles(const TString& tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
+		case L"hsbar"_hash:
+			ws.m_Styles |= WS_HSCROLL;
+			break;
+		//case L"vsbar"_hash:
+		//	ws.m_Styles |= WS_VSCROLL;
+		//	break;
 		case L"colorgrid"_hash:
 		case L"colourgrid"_hash:
 			//ws.m_Styles &= ~(MCS_LISTBOX|MCS_LISTVIEW|MCS_TREEVIEW);
