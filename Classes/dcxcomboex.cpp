@@ -303,12 +303,6 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	}
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 void DcxComboEx::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
@@ -353,40 +347,64 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 
 		addItems(nPos, icon, state, indent, tsIndent, tsArgs);
 	}
-	// xdid -A [NAME] [ID] [ROW] [+FLAGS] [INFO]
+	// xdid -A [NAME] [ID] [N] [+FLAGS] [INFO]
+	// xdid -A [NAME] [ID] [N,N-N,N...] [+FLAGS] [INFO]
 	// [NAME] [ID] -A [ROW] [+FLAGS] [INFO]
 	else if (flags[TEXT('A')])
 	{
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		auto nRow = input.getnexttokas<int>();	// tok 4
+		//auto nRow = input.getnexttokas<int>();	// tok 4
+		//
+		//// We're currently checking 1-based indexes.
+		//if ((nRow < 1) || (nRow > this->getCount()))
+		//	throw Dcx::dcxException(TEXT("Invalid row index %."), nRow);
+		//
+		//// Convert to 0-based index.
+		//nRow--;
+		//
+		//COMBOBOXEXITEM cbei{ CBEIF_LPARAM, nRow };
+		//
+		//// Couldn't retrieve info
+		//if (!this->getItem(&cbei))
+		//	throw Dcx::dcxException("Unable to get item.");
+		//
+		//auto cbiDcx = reinterpret_cast<LPDCXCBITEM>(cbei.lParam);
+		//
+		//if (!cbiDcx)
+		//	throw Dcx::dcxException("Unable to get Item Info");
+		//
+		//const XSwitchFlags xflags(input.getnexttok());	// tok 5
+		//const auto info(input.getlasttoks());		// tok 6, -1
+		//
+		//if (!xflags[TEXT('M')])
+		//	throw Dcx::dcxException(TEXT("Unknown flags %"), input.gettok(5));
+		//
+		//cbiDcx->tsMark = info;
 
-		// We're currently checking 1-based indexes.
-		if ((nRow < 1) || (nRow > this->getCount()))
-			throw Dcx::dcxException(TEXT("Invalid row index %."), nRow);
-
-		// Convert to 0-based index.
-		nRow--;
-
-		COMBOBOXEXITEM cbei{ CBEIF_LPARAM, nRow };
-
-		// Couldn't retrieve info
-		if (!this->getItem(&cbei))
-			throw Dcx::dcxException("Unable to get item.");
-
-		auto cbiDcx = reinterpret_cast<LPDCXCBITEM>(cbei.lParam);
-
-		if (!cbiDcx)
-			throw Dcx::dcxException("Unable to get Item Info");
-
+		auto tsRows(input.getnexttok());	// tok 4
 		const XSwitchFlags xflags(input.getnexttok());	// tok 5
 		const auto info(input.getlasttoks());		// tok 6, -1
 
 		if (!xflags[TEXT('M')])
 			throw Dcx::dcxException(TEXT("Unknown flags %"), input.gettok(5));
 
-		cbiDcx->tsMark = info;
+		Dcx::CallOnRange(tsRows, this->getCount(), 1, [this, info](int nRow) {
+
+			COMBOBOXEXITEM cbei{ CBEIF_LPARAM, nRow };
+
+			// Couldn't retrieve info
+			if (!this->getItem(&cbei))
+				throw Dcx::dcxException("Unable to get item.");
+
+			auto cbiDcx = reinterpret_cast<LPDCXCBITEM>(cbei.lParam);
+
+			if (!cbiDcx)
+				throw Dcx::dcxException("Unable to get Item Info");
+
+			cbiDcx->tsMark = info;
+			});
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('c')])
@@ -394,6 +412,7 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
+		// comboex is single sel only!
 		if (const auto nItem = input.getnexttokas<int>() - 1; nItem > -1)
 			this->setCurSel(nItem);
 	}
@@ -422,21 +441,31 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 			}
 		}
 		else {
-			const auto itEnd = Ns.end();
-			for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			//const auto itEnd = Ns.end();
+			//for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			//{
+			//	const TString tsLine(*itStart);
+			//
+			//	const auto [iStart, iEnd] = Dcx::getItemRange(tsLine, gsl::narrow_cast<int>(nItems));
+			//
+			//	if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
+			//		throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+			//
+			//	for (auto nPos = iStart; nPos <= iEnd; ++nPos)
+			//		this->deleteItem(nPos);
+			//}
+
+			// delete in reverse order.
+			const auto vRanges = Dcx::sortRanges(Ns, nItems, true);
+			for (const auto& r : vRanges)
 			{
-				const TString tsLine(*itStart);
-
-				const auto [iStart, iEnd] = Dcx::getItemRange(tsLine, gsl::narrow_cast<int>(nItems));
-
-				if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
-					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-
-				for (auto nPos = iStart; nPos <= iEnd; ++nPos)
-					this->deleteItem(nPos);
+				for (auto it = r.rbegin(); it; ++it)
+				{
+					this->deleteItem(*it);
+				}
 			}
 		}
-
+		this->UpdateHorizExtent();
 		if (!this->getCount())
 			this->redrawWindow();
 	}
@@ -475,12 +504,6 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 		if (auto hEdit = this->getEditControl(); hEdit)
 			Dcx::dcxEdit_SetReadOnly(hEdit, enabled);
 	}
-	// This is to avoid invalid flag message.
-	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('r')])
-	{
-		//this->resetContent();
-	}
 	// xdid -q [NAME] [ID] [SWITCH] [LIMIT]
 	else if (flags[TEXT('q')])
 	{
@@ -514,6 +537,12 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	{
 		ImageList_Destroy(this->getImageList());
 		this->setImageList(nullptr);
+	}
+	// This is to avoid invalid flag message.
+	// xdid -r [NAME] [ID] [SWITCH]
+	else if (flags[TEXT('r')])
+	{
+		//this->resetContent();
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -556,12 +585,6 @@ bool DcxComboEx::matchItemText(const int nItem, const dcxSearchData& srch_data) 
 	return DcxSearchHelper::matchItemText(cbi.pszText, srch_data);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 bool DcxComboEx::setItem(const PCOMBOBOXEXITEM lpcCBItem) noexcept
 {
 	if (!m_Hwnd || !lpcCBItem)
@@ -578,12 +601,6 @@ LRESULT DcxComboEx::insertItem(const PCOMBOBOXEXITEM lpcCBItem) noexcept
 	return Dcx::dcxComboEx_InsertItem(m_Hwnd, lpcCBItem);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 LRESULT DcxComboEx::getItem(const PCOMBOBOXEXITEM lpcCBItem) const noexcept
 {
 	if (!m_Hwnd || !lpcCBItem)
@@ -591,12 +608,6 @@ LRESULT DcxComboEx::getItem(const PCOMBOBOXEXITEM lpcCBItem) const noexcept
 
 	return Dcx::dcxComboEx_GetItem(m_Hwnd, lpcCBItem);
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 HWND DcxComboEx::getEditControl() const noexcept
 {
@@ -614,12 +625,6 @@ HWND DcxComboEx::getComboControl() const noexcept
 	return Dcx::dcxComboEx_GetComboControl(m_Hwnd);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 LRESULT DcxComboEx::deleteItem(const int iIndex) noexcept
 {
 	if (!m_Hwnd)
@@ -627,12 +632,6 @@ LRESULT DcxComboEx::deleteItem(const int iIndex) noexcept
 
 	return SendMessage(m_Hwnd, CBEM_DELETEITEM, gsl::narrow_cast<WPARAM>(iIndex), 0);
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 LRESULT DcxComboEx::setCurSel(const int iIndex) noexcept
 {
@@ -642,12 +641,6 @@ LRESULT DcxComboEx::setCurSel(const int iIndex) noexcept
 	return SendMessage(m_Hwnd, CB_SETCURSEL, gsl::narrow_cast<WPARAM>(iIndex), 0);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 LRESULT DcxComboEx::getCurSel() const noexcept
 {
 	if (!m_Hwnd)
@@ -656,12 +649,6 @@ LRESULT DcxComboEx::getCurSel() const noexcept
 	return SendMessage(m_Hwnd, CB_GETCURSEL, 0U, 0);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 LRESULT DcxComboEx::getLBText(const int iIndex, LPSTR lps) noexcept
 {
 	if (!m_Hwnd || !lps)
@@ -669,12 +656,6 @@ LRESULT DcxComboEx::getLBText(const int iIndex, LPSTR lps) noexcept
 
 	return SendMessage(m_Hwnd, CB_GETLBTEXT, gsl::narrow_cast<WPARAM>(iIndex), reinterpret_cast<LPARAM>(lps));
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 LRESULT DcxComboEx::resetContent() noexcept
 {
@@ -688,12 +669,6 @@ LRESULT DcxComboEx::resetContent() noexcept
 	return SendMessage(m_Hwnd, CB_RESETCONTENT, 0U, 0);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
 LRESULT DcxComboEx::getCount() const noexcept
 {
 	if (!m_Hwnd)
@@ -701,12 +676,6 @@ LRESULT DcxComboEx::getCount() const noexcept
 
 	return SendMessage(m_Hwnd, CB_GETCOUNT, 0U, 0);
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 LRESULT DcxComboEx::limitText(const int iLimit) noexcept
 {
@@ -791,7 +760,7 @@ int DcxComboEx::AddTokList(int nPos, int iIcon, int iState, int iIndent, int iSt
 				}
 				//// Now update the horizontal scroller
 				//UpdateHorizExtent(tsItem);
-	
+
 				if (nPos != -1) // dont update pos if adding at the end.
 					++nPos;
 			}
@@ -891,9 +860,6 @@ void DcxComboEx::UpdateHorizExtent(const int nPos)
 	if (nPos < 0)
 		return;
 
-	// Ook: this ver sets a buffer size of zero, so never gets any text
-	//TString tsItem;
-	//COMBOBOXEXITEM cbi{ CBEIF_TEXT,nPos,const_cast<TCHAR*>(tsItem.to_chr()),0,0,0,0,0, 0 };
 	TString tsItem(gsl::narrow_cast<TString::size_type>(MIRC_BUFFER_SIZE_CCH));
 	COMBOBOXEXITEM cbi{ CBEIF_TEXT,nPos,tsItem.to_chr(),MIRC_BUFFER_SIZE_CCH,0,0,0,0, 0 };
 	this->getItem(&cbi);
@@ -903,26 +869,40 @@ void DcxComboEx::UpdateHorizExtent(const int nPos)
 
 void DcxComboEx::UpdateHorizExtent(const TString& tsItem) noexcept
 {
+	if (!m_hComboHwnd)
+		return;
+
 	// Get Font sizes (best way i can find atm, if you know something better then please let me know)
-	if (const auto hdc = GetDC(m_Hwnd); hdc)
-	{
-		Auto(ReleaseDC(m_Hwnd, hdc));
 
-		const HFONT hFont = this->getFont();
-		HFONT hOldFont = nullptr;
+	//if (const auto hdc = GetDC(m_Hwnd); hdc)
+	//{
+	//	Auto(ReleaseDC(m_Hwnd, hdc));
+	//
+	//	const HFONT hFont = this->getFont();
+	//	HFONT hOldFont = nullptr;
+	//
+	//	if (hFont)
+	//		hOldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
+	//
+	//	if (SIZE sz{}; GetTextExtentPoint32(hdc, tsItem.to_chr(), gsl::narrow_cast<int>(tsItem.len()), &sz))
+	//	{
+	//		//if (sz.cx > gsl::narrow_cast<long>(Dcx::dcxCombo_GetHorizExtent(m_Hwnd)))
+	//		//	Dcx::dcxCombo_SetHorizExtent(m_Hwnd, gsl::narrow_cast<WPARAM>(sz.cx));
+	//
+	//		if (sz.cx > gsl::narrow_cast<long>(Dcx::dcxCombo_GetHorizExtent(m_hComboHwnd)))
+	//			Dcx::dcxCombo_SetHorizExtent(m_hComboHwnd, gsl::narrow_cast<WPARAM>(sz.cx));
+	//	}
+	//
+	//	if (hFont)
+	//		Dcx::dcxSelectObject<HFONT>(hdc, hOldFont);
+	//}
 
-		if (hFont)
-			hOldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
+	const SIZE sz{ dcxGetTextExtent(m_hComboHwnd, this->getFont(), tsItem.to_chr(), tsItem.len()) };
+	//if (sz.cx > gsl::narrow_cast<long>(Dcx::dcxCombo_GetHorizExtent(m_Hwnd)))
+	//	Dcx::dcxCombo_SetHorizExtent(m_Hwnd, gsl::narrow_cast<WPARAM>(sz.cx));
 
-		if (SIZE sz{}; GetTextExtentPoint32(hdc, tsItem.to_chr(), gsl::narrow_cast<int>(tsItem.len()), &sz))
-		{
-			if (sz.cx > gsl::narrow_cast<long>(Dcx::dcxCombo_GetHorizExtent(m_Hwnd)))
-				Dcx::dcxCombo_SetHorizExtent(m_Hwnd, gsl::narrow_cast<WPARAM>(sz.cx));
-		}
-
-		if (hFont)
-			Dcx::dcxSelectObject<HFONT>(hdc, hOldFont);
-	}
+	if (sz.cx > gsl::narrow_cast<long>(Dcx::dcxCombo_GetHorizExtent(m_hComboHwnd)))
+		Dcx::dcxCombo_SetHorizExtent(m_hComboHwnd, gsl::narrow_cast<WPARAM>(sz.cx));
 }
 
 const TString DcxComboEx::getStyles(void) const
@@ -1099,12 +1079,6 @@ LRESULT DcxComboEx::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 
 	return 0L;
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
 
 LRESULT CALLBACK DcxComboEx::ComboExEditProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
