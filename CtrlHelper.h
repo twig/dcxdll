@@ -1197,7 +1197,8 @@ namespace Dcx
 	/// <param name="nPos">- The zero-based index in the list at which to insert the item data, or –1 to add it to the end of the list.</param>
 	/// <param name="data">- A pointer to the item data to insert.</param>
 	/// <returns>The return value is the zero-based index of the item in the list box. If an error occurs, the return value is LB_ERR. If there is insufficient space to store the new string, the return value is LB_ERRSPACE.</returns>
-	inline int dcxListBox_InsertItemData(_In_ HWND hwnd, _In_ int nPos, _In_ LPARAM data) noexcept
+	template<typename T>
+	inline int dcxListBox_InsertItemData(_In_ HWND hwnd, _In_ int nPos, _In_ T data) noexcept
 	{
 		return ListBox_InsertItemData(hwnd, nPos, data);
 	}
@@ -1241,9 +1242,10 @@ namespace Dcx
 	/// <param name="hwnd">- A handle to the control.</param>
 	/// <param name="nPos">- The zero-based index of the item.</param>
 	/// <returns>The item data.</returns>
-	inline LRESULT dcxListBox_GetItemData(_In_ HWND hwnd, _In_ int nPos) noexcept
+	template <typename T>
+	inline T dcxListBox_GetItemData(_In_ HWND hwnd, _In_ int nPos) noexcept
 	{
-		return ListBox_GetItemData(hwnd, nPos);
+		return reinterpret_cast<T>(ListBox_GetItemData(hwnd, nPos));
 	}
 
 	/// <summary>
@@ -1295,7 +1297,8 @@ namespace Dcx
 	/// <param name="index">- The zero-based index of the item.</param>
 	/// <param name="data">- The item data to set.</param>
 	/// <returns>If an error occurs, the return value is LB_ERR.</returns>
-	inline int dcxListBox_SetItemData(_In_ HWND hwnd, _In_ int index, _In_ LPARAM data) noexcept
+	template <typename T>
+	inline int dcxListBox_SetItemData(_In_ HWND hwnd, _In_ int index, _In_ T data) noexcept
 	{
 		return ListBox_SetItemData(hwnd, index, data);
 	}
@@ -1309,7 +1312,7 @@ namespace Dcx
 	/// <returns>If the index or height is invalid, the return value is LB_ERR.</returns>
 	inline int dcxListBox_SetItemHeight(_In_ HWND hwnd, _In_ int index, _In_ LPARAM cy) noexcept
 	{
-		return ListBox_SetItemData(hwnd, index, cy);
+		return ListBox_SetItemHeight(hwnd, index, cy);
 	}
 
 	/// <summary>
@@ -1343,7 +1346,8 @@ namespace Dcx
 	/// <param name="indexStart">- The zero-based index of the item before the first item to be searched. When the search reaches the bottom of the list box, it continues searching from the top of the list box back to the item specified by the indexStart parameter. If indexStart is –1, the entire list box is searched from the beginning.</param>
 	/// <param name="data">- The item data to find.</param>
 	/// <returns>If the search is successful, the return value is the index of the selected item. If the search is unsuccessful, the return value is LB_ERR and the current selection is not changed.</returns>
-	inline int dcxListBox_SelectItemData(_In_ HWND hwnd, _In_ int indexStart, _In_ LPARAM data) noexcept
+	template <typename T>
+	inline int dcxListBox_SelectItemData(_In_ HWND hwnd, _In_ int indexStart, _In_ T data) noexcept
 	{
 		return ListBox_SelectItemData(hwnd, indexStart, data);
 	}
@@ -1511,7 +1515,8 @@ namespace Dcx
 	/// <param name="data">- A pointer to the item data to add.</param>
 	/// <returns>The return value is the zero-based index of the item in the list. If an error occurs, the return value is LB_ERR. If there is insufficient space to store the new string, the return value is LB_ERRSPACE.</returns>
 	/// <remarks>Use this macro for a list box with an owner-drawn style but without the LBS_HASSTRINGS style.</remarks>
-	inline int dcxListBox_AddItemData(_In_ HWND hListbox, _In_ LPARAM data) noexcept
+	template <typename T>
+	inline int dcxListBox_AddItemData(_In_ HWND hListbox, _In_ T data) noexcept
 	{
 		return ListBox_AddItemData(hListbox, data);
 	}
@@ -1557,7 +1562,8 @@ namespace Dcx
 	/// <param name="indexStart">- The zero-based index of the item before the first item to be searched. When the search reaches the bottom of the list box, it continues searching from the top of the list box back to the item specified by the indexStart parameter. If indexStart is –1, the entire list box is searched from the beginning.</param>
 	/// <param name="data">- The data to find.</param>
 	/// <returns>The index of the matching item, or LB_ERR if the search was unsuccessful.</returns>
-	inline int dcxListBox_FindItemData(_In_ HWND hListbox, _In_ int indexStart, _In_ LPARAM data) noexcept
+	template <typename T>
+	inline int dcxListBox_FindItemData(_In_ HWND hListbox, _In_ int indexStart, _In_ T data) noexcept
 	{
 		return ListBox_FindItemData(hListbox, indexStart, data);
 	}
