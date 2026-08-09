@@ -159,14 +159,14 @@ namespace
 		//	//	This parameter is not used.
 		//	//lParam
 		//	//	A pointer to a WINDOWPOS structure that contains information about the window's new size and position.
-
+		//
 		//	LPWINDOWPOS wp = reinterpret_cast<LPWINDOWPOS>(lParam);
-
+		//
 		//	// size drop window child to match drop window.
 		//	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 		//	if (!lpmcdata)
 		//		break;
-
+		//
 		//	if (IsWindow(lpmcdata->m_hDropChild))
 		//	{
 		//		//wp->
@@ -176,7 +176,7 @@ namespace
 		//			const auto height = rcClient.bottom;
 		//			SetWindowPos(lpmcdata->m_hDropChild, nullptr, 0, 0, width, height, SWP_NOACTIVATE | SWP_NOOWNERZORDER);
 		//		}
-
+		//
 		//	}
 		//}
 		//break;
@@ -307,6 +307,8 @@ namespace
 	}
 }
 
+static bool bHasHScroll{};
+
 /// <summary>
 /// The window proc of the main parent control.
 /// </summary>
@@ -321,9 +323,27 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	{
 	default:
 		break;
+	case WM_NCCREATE:
+	{
+		dcxlParam(LPCREATESTRUCT, cs);
+
+		if (!cs)
+			return FALSE;
+
+		bHasHScroll = (cs->style & WS_HSCROLL);
+		cs->style &= ~WS_HSCROLL;
+		cs->dwExStyle |= WS_EX_CONTROLPARENT;
+		return TRUE;
+	}
+	break;
 	case WM_CREATE:
 	{
 		return MultiCombo_OnCreate(mHwnd, wParam, lParam);
+	}
+	break;
+	case WM_ENABLE:
+	{
+		return MultiCombo_OnEnable(mHwnd, wParam, lParam);
 	}
 	break;
 
@@ -1071,7 +1091,12 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 				break;
 
 			case MCS_LISTBOX:
-				lpmcdata->m_hDropChild = CreateWindowExW(WS_EX_CLIENTEDGE, WC_LISTBOX, nullptr, WS_CHILD | WS_VISIBLE | LBS_NOTIFY | LBS_WANTKEYBOARDINPUT | LBS_HASSTRINGS /*| LBS_NOINTEGRALHEIGHT*/, 0, 0, (rcDrop.right - rcDrop.left), (rcDrop.bottom - rcDrop.top), lpmcdata->m_hDropCtrl, reinterpret_cast<HMENU>(MC_ID_DROPCHILD), cs->hInstance, nullptr);
+			{
+				if (bHasHScroll)
+					lpmcdata->m_lbStyle |= WS_HSCROLL;
+
+				lpmcdata->m_hDropChild = CreateWindowExW(WS_EX_CLIENTEDGE, WC_LISTBOX, nullptr, lpmcdata->m_lbStyle, 0, 0, (rcDrop.right - rcDrop.left), (rcDrop.bottom - rcDrop.top), lpmcdata->m_hDropCtrl, reinterpret_cast<HMENU>(MC_ID_DROPCHILD), cs->hInstance, nullptr);
+			}
 				break;
 
 				//case MCS_LISTVIEW:
@@ -1088,6 +1113,19 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 	}
 
 	return 0L;
+}
+
+LRESULT MultiCombo_OnEnable(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
+{
+	//const auto lRes = DefWindowProc(mHwnd, WM_ENABLE, wParam, lParam);
+
+	if (!mHwnd)
+		return 0;
+
+	InvalidateRect(mHwnd, nullptr, TRUE);
+	UpdateWindow(mHwnd);
+
+	return 0;
 }
 
 void MultiCombo_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
@@ -1158,6 +1196,24 @@ void MultiCombo_SetFont(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 	if (IsWindow(lpmcdata->m_hDropChild))
 		SendMessage(lpmcdata->m_hDropChild, WM_SETFONT, wParam, lParam);
+
+	if ((lpmcdata->m_Styles == MCS_LISTBOX) && (lpmcdata->m_lbStyle & WS_HSCROLL))
+	{
+		if (const auto nItems = Dcx::dcxListBox_GetCount(lpmcdata->m_hDropChild); nItems)
+		{
+			Dcx::dcxListBox_SetHorizontalExtent(lpmcdata->m_hDropChild, 0);
+			try {
+				for (int i{}; i < nItems; ++i)
+				{
+					const auto tsText(Dcx::dcxListBox_GetText(lpmcdata->m_hDropChild, i));
+					const SIZE sz{ dcxGetTextExtent(lpmcdata->m_hDropChild, nullptr, tsText.to_chr(), tsText.len()) };
+					if (sz.cx > gsl::narrow_cast<long>(Dcx::dcxListBox_GetHorizontalExtent(lpmcdata->m_hDropChild)))
+						Dcx::dcxListBox_SetHorizontalExtent(lpmcdata->m_hDropChild, gsl::narrow_cast<WPARAM>(sz.cx));
+}
+			}
+			catch (...) {};
+		}
+	}
 }
 
 void MultiCombo_ParentNotify(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
@@ -1256,7 +1312,7 @@ void MultiCombo_Drop_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexce
 		//
 		//if (dcx_testflag(lpmcdata->m_Styles, MCS_COLOUR))
 		//	SendMessage(lpmcdata->m_hDropChild, LBCB_STARTTRACK, TRUE, 0);
-
+		//
 		//MultiCombo_SizeBaseWindowContents(mHwnd, 0, 0);
 	}
 	else {
@@ -1568,7 +1624,7 @@ BOOL MultiCombo_GetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		//	if ((lpresult->m_Size != sizeof(MCOMBO_LISTVIEWITEM)) || (lpresult->m_Type != MCS_LISTVIEW))
 		//		return FALSE;
 		//
-		//	ListView_GetItem(lpmcdata->m_hDropChild, &lpresult->m_Item);
+		//	Dcx::dcxListView_GetItem(lpmcdata->m_hDropChild, &lpresult->m_Item);
 		//	return TRUE;
 		//}
 		//break;
@@ -1580,7 +1636,7 @@ BOOL MultiCombo_GetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		//	if ((lpresult->m_Size != sizeof(MCOMBO_TREEVIEWITEM)) || (lpresult->m_Type != MCS_TREEVIEW))
 		//		return FALSE;
 		//
-		//	TreeView_GetItem(lpmcdata->m_hDropChild, &lpresult->m_Item);
+		//	Dcx::dcxTreeView_GetItem(lpmcdata->m_hDropChild, &lpresult->m_Item);
 		//	return TRUE;
 		//}
 		//break;
@@ -1639,6 +1695,14 @@ BOOL MultiCombo_AddItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 		ListBox_AddString(lpmcdata->m_hDropChild, lpinput->m_tsItemText.to_chr());
 
+		if (lpmcdata->m_lbStyle & WS_HSCROLL)
+		{
+			// Get Font sizes (best way i can find atm, if you know something better then please let me know)
+
+			const SIZE sz{ dcxGetTextExtent(lpmcdata->m_hDropChild, nullptr, lpinput->m_tsItemText.to_chr(), lpinput->m_tsItemText.len()) };
+			if (sz.cx > gsl::narrow_cast<long>(Dcx::dcxListBox_GetHorizontalExtent(lpmcdata->m_hDropChild)))
+				Dcx::dcxListBox_SetHorizontalExtent(lpmcdata->m_hDropChild, gsl::narrow_cast<WPARAM>(sz.cx));
+		}
 		return TRUE;
 	}
 	break;
@@ -1650,7 +1714,7 @@ BOOL MultiCombo_AddItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 	//	if ((lpinput->m_Size != sizeof(MCOMBO_LISTVIEWITEM)) || (lpinput->m_Type != MCS_LISTVIEW))
 	//		return FALSE;
 	//
-	//	lpinput->m_Item.iItem = ListView_InsertItem(lpmcdata->m_hDropChild, &lpinput->m_Item);
+	//	lpinput->m_Item.iItem = Dcx::dcxListView_InsertItem(lpmcdata->m_hDropChild, &lpinput->m_Item);
 	//
 	//	if (lpinput->m_Item.iItem == -1)
 	//		return FALSE;
@@ -1666,7 +1730,7 @@ BOOL MultiCombo_AddItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 	//	if ((lpinput->m_Size != sizeof(MCOMBO_TREEVIEWITEM)) || (lpinput->m_Type != MCS_TREEVIEW))
 	//		return FALSE;
 	//
-	//	TreeView_InsertItem(lpmcdata->m_hDropChild, &lpinput->m_Item);
+	//	Dcx::dcxTreeView_InsertItem(lpmcdata->m_hDropChild, &lpinput->m_Item);
 	//	return TRUE;
 	//}
 	//break;
@@ -1779,12 +1843,14 @@ void MultiCombo_SetEditToCurSel(HWND mHwnd) noexcept
 			lpmcdata->m_CurrentEditBkgColour = CLR_INVALID;
 		}
 
-		if (const auto iSel = ListBox_GetCurSel(lpmcdata->m_hDropChild); iSel != LB_ERR)
+		if (const auto iSel = Dcx::dcxListBox_GetCurSel(lpmcdata->m_hDropChild); iSel != LB_ERR)
 		{
-			TCHAR buf[1024]{};
-			ListBox_GetText(lpmcdata->m_hDropChild, iSel, &buf[0]);
-
+			TCHAR buf[MIRC_BUFFER_SIZE_CCH]{};
+			Dcx::dcxListBox_GetText(lpmcdata->m_hDropChild, iSel, &buf[0]);
 			SetWindowText(lpmcdata->m_hEdit, &buf[0]);
+
+			//const auto buf(Dcx::dcxListBox_GetText(lpmcdata->m_hDropChild, iSel));
+			//SetWindowText(lpmcdata->m_hEdit, buf.to_chr());
 		}
 	}
 	}

@@ -60,7 +60,8 @@
 #define MCS_STYLEMASK	(MCS_LISTBOX|MCS_COLOUR)
 
 // item structure for colourcombo style
-struct MCOMBO_ITEM {
+struct MCOMBO_ITEM
+{
 	size_t		m_Size{ sizeof(MCOMBO_ITEM) };
 	UINT		m_Type{ MCS_COLOUR };
 	TString		m_tsItemText;
@@ -112,6 +113,8 @@ struct MCOMBO_DATA
 	COLORREF m_CurrentEditBkgColour{ CLR_INVALID };
 	COLORREF m_CurrentEditTextColour{ CLR_INVALID };
 
+	DWORD m_lbStyle{ WS_CHILD | WS_VISIBLE | LBS_NOTIFY | LBS_WANTKEYBOARDINPUT | LBS_HASSTRINGS /*| LBS_NOINTEGRALHEIGHT*/ };
+
 	BOOL m_Tracking{};
 
 	bool m_bButtonPressed{};	// is button in the pressed state?
@@ -134,6 +137,7 @@ RECT MultiCombo_GetEditRect(LPCRECT rcBase) noexcept;
 RECT MultiCombo_GetButtonRect(LPCRECT rcBase) noexcept;
 RECT MultiCombo_GetDropRect(HWND mHwnd, UINT mID) noexcept;
 LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam);
+LRESULT MultiCombo_OnEnable(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
 void MultiCombo_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
