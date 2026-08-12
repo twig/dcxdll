@@ -1156,7 +1156,7 @@ namespace Dcx
 	/// <param name="pstr">- The text to set.</param>
 	/// <param name="strlength">- The texts length in characters.</param>
 	/// <returns>Returns true if successful, or false otherwise.</returns>
-	inline bool dcxHeader_SetItemText(_In_ HWND hwnd, _In_ const int i, _In_ const TCHAR *pstr, _In_ int strlength) noexcept
+	inline bool dcxHeader_SetItemText(_In_ HWND hwnd, _In_ const int i, _In_ const TCHAR* pstr, _In_ int strlength) noexcept
 	{
 		HDITEM hi{};
 		hi.mask = HDI_TEXT;
@@ -1174,6 +1174,27 @@ namespace Dcx
 	inline int dcxHeader_GetItemCount(_In_ HWND hwnd) noexcept
 	{
 		return Header_GetItemCount(hwnd);
+	}
+
+	/// <summary>
+	/// Get the number of columns in control.
+	/// </summary>
+	/// <param name="hwnd">- A handle to the list-view control.</param>
+	/// <returns></returns>
+	[[nodiscard]] inline int dcxListView_GetColumnCount(_In_ HWND hwnd) noexcept
+	{
+		int i = 0;
+		if (auto hHeader = dcxListView_GetHeader(hwnd); hHeader)
+			i = dcxHeader_GetItemCount(hHeader);
+		else
+		{
+			LVCOLUMN lvc{};
+			lvc.mask = LVCF_WIDTH;
+
+			while (dcxListView_GetColumn(hwnd, i, &lvc) != FALSE)
+				++i;
+		}
+		return i;
 	}
 
 	// ListBox
@@ -4624,6 +4645,59 @@ namespace Dcx
 	}
 
 	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd">- Handle to the tab control.</param>
+	/// <returns></returns>
+	inline HIMAGELIST dcxTabCtrl_GetImageList(_In_ HWND hwnd) noexcept
+	{
+		return TabCtrl_GetImageList(hwnd);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd">- Handle to the tab control.</param>
+	/// <param name="himl"></param>
+	/// <returns></returns>
+	inline HIMAGELIST dcxTabCtrl_SetImageList(_In_ HWND hwnd, _In_ HIMAGELIST himl) noexcept
+	{
+		return TabCtrl_SetImageList(hwnd, himl);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd">- Handle to the tab control.</param>
+	/// <param name="hti"></param>
+	/// <returns></returns>
+	inline int dcxTabCtrl_HitTest(_In_ HWND hwnd, _In_ TCHITTESTINFO* hti) noexcept
+	{
+		return TabCtrl_HitTest(hwnd, hti);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd">- Handle to the tab control.</param>
+	/// <param name="iImage"></param>
+	inline void dcxTabCtrl_RemoveImage(_In_ HWND hwnd, _In_ int iImage) noexcept
+	{
+		TabCtrl_RemoveImage(hwnd, iImage);
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd">- Handle to the tab control.</param>
+	/// <param name="iWidth"></param>
+	/// <returns></returns>
+	inline int dcxTabCtrl_SetMinTabWidth(_In_ HWND hwnd, _In_ int iWidth) noexcept
+	{
+		return TabCtrl_SetMinTabWidth(hwnd, iWidth);
+	}
+
+	/// <summary>
 	/// Removes all items from a tab control.
 	/// </summary>
 	/// <param name="hwnd">- Handle to the tab control.</param>
@@ -4702,7 +4776,7 @@ namespace Dcx
 		return gsl::narrow_cast<COLORREF>(SendMessage(hwnd, RB_SETBKCOLOR, 0, gsl::narrow_cast<LPARAM>(clr)));
 	}
 
-	inline void dcxRebarCtrl_SetColorScheme(_In_ HWND hwnd, const COLORSCHEME &cs) noexcept
+	inline void dcxRebarCtrl_SetColorScheme(_In_ HWND hwnd, const COLORSCHEME& cs) noexcept
 	{
 		SendMessage(hwnd, RB_SETCOLORSCHEME, 0, reinterpret_cast<LPARAM>(&cs));
 	}
