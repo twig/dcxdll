@@ -214,19 +214,31 @@ void DcxReBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 			auto xCtrl = xItem->FirstChildElement("control");
 			if (xCtrl)
 			{
-				const auto iX = queryIntAttribute(xCtrl, "x");
-				const auto iY = queryIntAttribute(xCtrl, "y");
-				const auto iWidth = queryIntAttribute(xCtrl, "width");
-				const auto iHeight = queryIntAttribute(xCtrl, "height");
-				TString tsID(queryAttribute(xCtrl, "id"));
-				auto szType = queryAttribute(xCtrl, "type");
-				auto szStyles = queryAttribute(xCtrl, "styles");
+				//TString tsID(queryAttribute(xCtrl, "id"));
+				//// ID is NOT a number!
+				//if (tsID.empty()) // no id, generate one.
+				//	tsID.addtok(getParentDialog()->getUniqueID());
+				//
+				//const auto iX = queryIntAttribute(xCtrl, "x");
+				//const auto iY = queryIntAttribute(xCtrl, "y");
+				//const auto iWidth = queryIntAttribute(xCtrl, "width");
+				//const auto iHeight = queryIntAttribute(xCtrl, "height");
+				//auto szType = queryAttribute(xCtrl, "type", "missing");
+				//auto szStyles = queryAttribute(xCtrl, "styles");
+				//
+				//_ts_sprintf(control_data, TEXT("% % % % % % %"), tsID, szType, iX, iY, iWidth, iHeight, szStyles);
 
+				control_data = queryAttribute(xCtrl, "id");
 				// ID is NOT a number!
-				if (tsID.empty()) // no id, generate one.
-					tsID.addtok(getParentDialog()->getUniqueID());
+				if (control_data.empty()) // no id, generate one.
+					control_data.addtok(getParentDialog()->getUniqueID());
 
-				_ts_sprintf(control_data, TEXT("% % % % % % %"), tsID, szType, iX, iY, iWidth, iHeight, szStyles);
+				control_data.addtok(queryAttribute(xCtrl, "type", "missing"));
+				control_data.addtok(queryAttribute(xCtrl, "x", "0"));
+				control_data.addtok(queryAttribute(xCtrl, "y", "0"));
+				control_data.addtok(queryAttribute(xCtrl, "width", "0"));
+				control_data.addtok(queryAttribute(xCtrl, "height", "0"));
+				control_data.addtok(queryAttribute(xCtrl, "styles", "0"));
 			}
 
 			this->addBand(iIndex, minwidth, minheight, width, nIcon, clrText, tsFlags, tsText, control_data, tsTooltip);
@@ -494,6 +506,10 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
 
+	// xdid -r [NAME] [ID] [SWITCH]
+	if (flags[TEXT('r')])
+		this->resetContents();
+
 	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [CX] [CY] [WIDTH] [ICON] [COLOR] (Item Text)[TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB]Tooltip
 	if (flags[TEXT('a')])
 	{
@@ -532,30 +548,125 @@ void DcxReBar::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto Ns(input.getnexttok());	// tok 4
-
+		const auto tsMark(input.getlasttoks()); // tok 5, -1
 		const auto nItemCnt = this->getBandCount();
-		const auto itEnd = Ns.end();
+
 		REBARBANDINFO rbi{};
 		rbi.cbSize = sizeof(REBARBANDINFO);
 		rbi.fMask = RBBIM_LPARAM;
 
-		for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//const auto itEnd = Ns.end();
+		//for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//{
+		//	const auto tsLine(*itStart);
+		//
+		//	const auto r = getItemRange2(tsLine, nItemCnt);
+		//
+		//	if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+		//		throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+		//
+		//	for (auto nItem : r)
+		//	{
+		//		if (this->getBandInfo(gsl::narrow_cast<UINT>(nItem), &rbi) != 0)
+		//		{
+		//			if (auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(rbi.lParam); pdcxrbb)
+		//				pdcxrbb->tsMarkText = tsMark;
+		//		}
+		//	}
+		//}
+
+		Dcx::CallOnRange(Ns, nItemCnt, 1, [this, tsMark, &rbi](int nItem) {
+			if (this->getBandInfo(gsl::narrow_cast<UINT>(nItem), &rbi) != 0)
 		{
-			const auto tsLine(*itStart);
+				if (auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(rbi.lParam); pdcxrbb)
+					pdcxrbb->tsMarkText = tsMark;
+			}
+			});
+	}
+	// xdid -c [NAME] [ID] [SWITCH] [+FLAGS] [BAND] [ARGS]
+	// xdid -c [NAME] [ID] [SWITCH] [+t] [BAND] [TEXT COLOUR] -1 -1 -1
+	// xdid -c [NAME] [ID] [SWITCH] [+b] [BAND] -1 [BACKGROUND COLOUR] -1 -1
+	// xdid -c [NAME] [ID] [SWITCH] [+tb] [BAND] [TEXT COLOUR] [BACKGROUND COLOUR] -1 -1
+	// xdid -c [NAME] [ID] [SWITCH] [+s] -1 -1 -1 [BTN HIGHLIGHT COLOUR] [BTN SHADOW COLOUR]
+	// xdid -c [NAME] [ID] [SWITCH] [+tbs] [BAND] [TEXT COLOUR] [BACKGROUND COLOUR] [BTN HIGHLIGHT COLOUR] [BTN SHADOW COLOUR]
+	// xdid -c [NAME] [ID] [SWITCH] [+tbs] [BAND,BANDn-BANDn,BANDn...] [TEXT COLOUR] [BACKGROUND COLOUR] [BTN HIGHLIGHT COLOUR] [BTN SHADOW COLOUR]
+	else if (flags[TEXT('c')])
+	{
+		if (numtok < 9)
+			throw DcxExceptions::dcxInvalidArguments();
 
-			const auto r = getItemRange2(tsLine, nItemCnt);
+		//const XSwitchFlags xFlags(input.getnexttok());
+		//const auto nBand = input.getnexttokas<int>() - 1;
+		//const auto txtclr = input.getnexttokas<COLORREF>();
+		//const auto bkclr = input.getnexttokas<COLORREF>();
+		//const auto highlightclr = input.getnexttokas<COLORREF>();
+		//const auto shadowclr = input.getnexttokas<COLORREF>();
+		//
+		//if (!xFlags[L'+'])
+		//	throw DcxExceptions::dcxInvalidFlag();
+		//
+		//if (nBand < 0)
+		//{
+		//	// general setting
+		//	if (xFlags[L't'])
+		//		Dcx::dcxRebarCtrl_SetTextColor(m_Hwnd, txtclr);
+		//	if (xFlags[L'b'])
+		//		Dcx::dcxRebarCtrl_SetBKColor(m_Hwnd, bkclr);
+		//	if (xFlags[L's'])
+		//	{
+		//		const COLORSCHEME cs{ sizeof(COLORSCHEME), highlightclr, shadowclr };
+		//		Dcx::dcxRebarCtrl_SetColorScheme(m_Hwnd, cs);
+		//	}
+		//}
+		//else {
+		//	// per-band setting.
+		//	REBARBANDINFO rbi{ sizeof(REBARBANDINFO), RBBIM_COLORS };
+		//	rbi.clrBack = CLR_INVALID;
+		//	rbi.clrFore = CLR_INVALID;
+		//
+		//	if (xFlags[L't'])
+		//		rbi.clrBack = txtclr;
+		//	if (xFlags[L'b'])
+		//		rbi.clrFore = bkclr;
+		//
+		//	setBandInfo(nBand, &rbi);
+		//}
 
-			if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
-				throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+		const XSwitchFlags xFlags(input.getnexttok());
+		const auto tsBands(input.getnexttok());
+		const auto txtclr = input.getnexttokas<COLORREF>();
+		const auto bkclr = input.getnexttokas<COLORREF>();
+		const auto highlightclr = input.getnexttokas<COLORREF>();
+		const auto shadowclr = input.getnexttokas<COLORREF>();
 
-			for (auto nItem : r)
+		if (!xFlags[L'+'])
+			throw DcxExceptions::dcxInvalidFlag();
+
+		if (tsBands == L"0")
 			{
-				if (this->getBandInfo(gsl::narrow_cast<UINT>(nItem), &rbi) != 0)
+			// general setting
+			if (xFlags[L't'])
+				Dcx::dcxRebarCtrl_SetTextColor(m_Hwnd, txtclr);
+			if (xFlags[L'b'])
+				Dcx::dcxRebarCtrl_SetBKColor(m_Hwnd, bkclr);
+			if (xFlags[L's'])
 				{
-					if (auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(rbi.lParam); pdcxrbb)
-						pdcxrbb->tsMarkText = (numtok > 4 ? input.getlasttoks() : TEXT(""));	// tok 5, -1
+				const COLORSCHEME cs{ sizeof(COLORSCHEME), highlightclr, shadowclr };
+				Dcx::dcxRebarCtrl_SetColorScheme(m_Hwnd, cs);
 				}
 			}
+		else {
+			// per-band setting.
+			REBARBANDINFO rbi{ sizeof(REBARBANDINFO), RBBIM_COLORS, 0, CLR_INVALID, CLR_INVALID };
+
+			if (xFlags[L't'])
+				rbi.clrBack = txtclr;
+			if (xFlags[L'b'])
+				rbi.clrFore = bkclr;
+
+			Dcx::CallOnRange(tsBands, this->getBandCount(), 1, [this, &rbi](int nBand) noexcept {
+				setBandInfo(nBand, &rbi);
+				});
 		}
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
@@ -567,28 +678,35 @@ void DcxReBar::parseCommandRequest(const TString& input)
 
 		auto Ns(input.getnexttok());	// tok 4
 
-		// reverse sort the token list so we start at the end.
+		//// reverse sort the token list so we start at the end.
+		//{
+		//	TString::SortOptions srt;
+		//	srt.bNumeric = true;
+		//	srt.bReverse = true;
+		//
+		//	Ns.sorttok(srt, TSCOMMA);
+		//}
+		//
+		//const auto itEnd = Ns.end();
+		//for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//{
+		//	const auto tsLine(*itStart);
+		//	const auto nItemCnt = this->getBandCount();
+		//
+		//	const auto [iStart, iEnd] = getItemRange(tsLine, nItemCnt);
+		//
+		//	if ((iStart < 0) || (iEnd < iStart) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
+		//		throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+		//
+		//	// delete from highest number to lowest
+		//	for (auto nItem = iEnd; nItem >= iStart; --nItem)
+		//		this->deleteBand(nItem);
+		//}
+
+		const auto vRanges = Dcx::sortRanges(Ns, this->getBandCount(), true);
+		for (const auto& r : vRanges)
 		{
-			TString::SortOptions srt;
-			srt.bNumeric = true;
-			srt.bReverse = true;
-
-			Ns.sorttok(srt, TSCOMMA);
-		}
-
-		const auto itEnd = Ns.end();
-		for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-		{
-			const auto tsLine(*itStart);
-			const auto nItemCnt = this->getBandCount();
-
-			const auto [iStart, iEnd] = getItemRange(tsLine, nItemCnt);
-
-			if ((iStart < 0) || (iEnd < iStart) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
-				throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-
-			// delete from highest number to lowest
-			for (auto nItem = iEnd; nItem >= iStart; --nItem)
+			for (const auto nItem : r.rbegin())
 				this->deleteBand(nItem);
 		}
 	}
@@ -601,22 +719,26 @@ void DcxReBar::parseCommandRequest(const TString& input)
 
 		const auto Ns(input.getnexttok());	// tok 4
 
-		const auto nItemCnt = this->getBandCount();
-		const auto itEnd = Ns.end();
+		//const auto nItemCnt = this->getBandCount();
+		//const auto itEnd = Ns.end();
+		//
+		//for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//{
+		//	const auto tsLine(*itStart);
+		//
+		//	const auto r = getItemRange2(tsLine, nItemCnt);
+		//
+		//	if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+		//		throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+		//
+		//	for (auto nItem : r)
+		//		this->showBand(gsl::narrow_cast<UINT>(nItem), FALSE);
+		//}
 
-		for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-		{
-			const auto tsLine(*itStart);
-
-			const auto r = getItemRange2(tsLine, nItemCnt);
-
-			if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
-				throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-
-			for (auto nItem : r)
+		Dcx::CallOnRange(Ns, this->getBandCount(), 1, [this](int nItem) noexcept {
 				this->showBand(gsl::narrow_cast<UINT>(nItem), FALSE);
+			});
 		}
-	}
 	// xdid -j [NAME] [ID] [SWITCH] [N]
 	// xdid -j [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('j')])
@@ -626,22 +748,26 @@ void DcxReBar::parseCommandRequest(const TString& input)
 
 		const auto Ns(input.getnexttok());	// tok 4
 
-		const auto nItemCnt = this->getBandCount();
-		const auto itEnd = Ns.end();
+		//const auto nItemCnt = this->getBandCount();
+		//const auto itEnd = Ns.end();
+		//
+		//for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//{
+		//	const auto tsLine(*itStart);
+		//
+		//	const auto r = getItemRange2(tsLine, nItemCnt);
+		//
+		//	if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+		//		throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+		//
+		//	for (auto nItem : r)
+		//		this->showBand(gsl::narrow_cast<UINT>(nItem), TRUE);
+		//}
 
-		for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-		{
-			const auto tsLine(*itStart);
-
-			const auto r = getItemRange2(tsLine, nItemCnt);
-
-			if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
-				throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-
-			for (auto nItem : r)
+		Dcx::CallOnRange(Ns, this->getBandCount(), 1, [this](int nItem) noexcept {
 				this->showBand(gsl::narrow_cast<UINT>(nItem), TRUE);
+			});
 		}
-	}
 	// xdid -k [NAME] [ID] [SWITCH] [N] [ICON]
 	// xdid -k [NAME] [ID] [SWITCH] [N,N2,N3-N4...] [ICON]
 	else if (flags[TEXT('k')])
@@ -652,27 +778,31 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		const auto Ns(input.getnexttok());	// tok 4
 		const auto nIcon = input.getnexttokas<int>() - 1;	// tok 5
 
-		const auto nItemCnt = this->getBandCount();
-		const auto itEnd = Ns.end();
-
 		REBARBANDINFO rbBand{};
 		rbBand.cbSize = sizeof(REBARBANDINFO);
 		rbBand.fMask = RBBIM_IMAGE;
 		rbBand.iImage = nIcon;
 
-		for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-		{
-			const auto tsLine(*itStart);
+		//const auto nItemCnt = this->getBandCount();
+		//const auto itEnd = Ns.end();
+		//
+		//for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//{
+		//	const auto tsLine(*itStart);
+		//
+		//	const auto r = getItemRange2(tsLine, nItemCnt);
+		//
+		//	if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+		//		throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+		//
+		//	for (auto nItem : r)
+		//		this->setBandInfo(nItem, &rbBand);
+		//}
 
-			const auto r = getItemRange2(tsLine, nItemCnt);
-
-			if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
-				throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-
-			for (auto nItem : r)
+		Dcx::CallOnRange(Ns, this->getBandCount(), 1, [this, &rbBand](int nItem) noexcept {
 				this->setBandInfo(nItem, &rbBand);
+			});
 		}
-	}
 	// xdid -l -> [NAME] [ID] -l [N|ALL]
 	// xdid -l -> [NAME] [ID] -l [N,N2,N3-N4...]
 	else if (flags[TEXT('l')])
@@ -699,28 +829,36 @@ void DcxReBar::parseCommandRequest(const TString& input)
 			}
 		}
 		else {
-			const auto itEnd = tsItem.end();
+			//const auto itEnd = tsItem.end();
+			//
+			//for (auto itStart = tsItem.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			//{
+			//	const auto tsLine(*itStart);
+			//
+			//	const auto r = getItemRange2(tsLine, nItems);
+			//
+			//	if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+			//		throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+			//
+			//	for (auto nIndex : r)
+			//	{
+			//		if (nIndex < 0 || nIndex >= nItems || this->getBandInfo(nIndex, &rbBand) == 0)
+			//			throw DcxExceptions::dcxInvalidItem();
+			//
+			//		rbBand.fStyle |= RBBS_NOGRIPPER;
+			//		this->setBandInfo(nIndex, &rbBand);
+			//	}
+			//}
 
-			for (auto itStart = tsItem.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-			{
-				const auto tsLine(*itStart);
-
-				const auto r = getItemRange2(tsLine, nItems);
-
-				if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
-					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-
-				for (auto nIndex : r)
-				{
-					if (nIndex < 0 || nIndex >= nItems || this->getBandInfo(nIndex, &rbBand) == 0)
+			Dcx::CallOnRange(tsItem, nItems, 1, [this, &rbBand](int nItem) {
+				if (this->getBandInfo(nItem, &rbBand) == 0)
 						throw DcxExceptions::dcxInvalidItem();
 
 					rbBand.fStyle |= RBBS_NOGRIPPER;
-					this->setBandInfo(nIndex, &rbBand);
+				this->setBandInfo(nItem, &rbBand);
+				});
 				}
 			}
-		}
-	}
 	// xdid -m [NAME] [ID] [SWITCH] [N] (IDEAL)
 	else if (flags[TEXT('m')])
 	{
@@ -772,27 +910,31 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		if (numtok > 4)
 			itemtext = input.getlasttoks().trim();	// tok 5, -1
 
-		const auto nItemCnt = this->getBandCount();
-		const auto itEnd = Ns.end();
-
 		REBARBANDINFO rbBand{};
 		rbBand.cbSize = sizeof(REBARBANDINFO);
 		rbBand.fMask = RBBIM_TEXT;
 		rbBand.lpText = itemtext.to_chr();
 
-		for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-		{
-			const auto tsLine(*itStart);
+		//const auto nItemCnt = this->getBandCount();
+		//const auto itEnd = Ns.end();
+		//
+		//for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//{
+		//	const auto tsLine(*itStart);
+		//
+		//	const auto r = getItemRange2(tsLine, nItemCnt);
+		//
+		//	if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+		//		throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+		//
+		//	for (auto nItem : r)
+		//		this->setBandInfo(nItem, &rbBand);
+		//}
 
-			const auto r = getItemRange2(tsLine, nItemCnt);
-
-			if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
-				throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-
-			for (auto nItem : r)
+		Dcx::CallOnRange(Ns, this->getBandCount(), 1, [this, &rbBand](int nItem) noexcept {
 				this->setBandInfo(nItem, &rbBand);
+			});
 		}
-	}
 	// xdid -u [NAME] [ID] [SWITCH] [N|ALL]
 	// xdid -u [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('u')])
@@ -819,28 +961,35 @@ void DcxReBar::parseCommandRequest(const TString& input)
 			}
 		}
 		else {
-			const auto itEnd = tsItem.end();
+			//const auto itEnd = tsItem.end();
+			//
+			//for (auto itStart = tsItem.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			//{
+			//	const auto tsLine(*itStart);
+			//
+			//	const auto r = getItemRange2(tsLine, nItems);
+			//
+			//	if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+			//		throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+			//
+			//	for (auto nIndex : r)
+			//	{
+			//		if (nIndex < 0 || nIndex >= nItems || this->getBandInfo(nIndex, &rbBand) == 0)
+			//			throw DcxExceptions::dcxInvalidItem();
+			//
+			//		rbBand.fStyle &= ~RBBS_NOGRIPPER;
+			//		this->setBandInfo(nIndex, &rbBand);
+			//	}
+			//}
 
-			for (auto itStart = tsItem.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-			{
-				const auto tsLine(*itStart);
-
-				const auto r = getItemRange2(tsLine, nItems);
-
-				if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
-					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-
-				for (auto nIndex : r)
-				{
-					if (nIndex < 0 || nIndex >= nItems || this->getBandInfo(nIndex, &rbBand) == 0)
+			Dcx::CallOnRange(tsItem, nItems, 1, [this, &rbBand](int nItem) {
+				if (this->getBandInfo(nItem, &rbBand) == 0)
 						throw DcxExceptions::dcxInvalidItem();
-
 					rbBand.fStyle &= ~RBBS_NOGRIPPER;
-					this->setBandInfo(nIndex, &rbBand);
+				this->setBandInfo(nItem, &rbBand);
+				});
 				}
 			}
-		}
-	}
 	// xdid -v [NAME] [ID] [SWITCH] [NFrom] [NTo]
 	else if (flags[TEXT('v')])
 	{
@@ -887,44 +1036,52 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
+		const auto tsItem(input.getnexttok());	// tok 4
+		const auto nSize = input.getnexttokas<UINT>(); // tok 5
+
 		REBARBANDINFO rbBand{};
 		rbBand.cbSize = sizeof(REBARBANDINFO);
 		rbBand.fMask = RBBIM_SIZE;
+		rbBand.cx = nSize;
 
 		const auto nItems = this->getBandCount();
-		const auto tsItem(input.getnexttok());	// tok 4
-		rbBand.cx = input.getnexttokas<UINT>();
 
 		if (tsItem == TEXT("all"))
 		{
 			for (auto i = decltype(nItems){0}; i < nItems; ++i)
-			{
-				if (this->getBandInfo(i, &rbBand) != 0)
 					this->setBandInfo(i, &rbBand);
 			}
-		}
 		else {
-			const auto itEnd = tsItem.end();
+			//const auto itEnd = tsItem.end();
+			//
+			//for (auto itStart = tsItem.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			//{
+			//	const auto tsLine(*itStart);
+			//
+			//	const auto r = getItemRange2(tsLine, nItems);
+			//
+			//	if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+			//		throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+			//
+			//	for (auto nIndex : r)
+			//	{
+			//		if (nIndex < 0 || nIndex >= nItems)
+			//			throw DcxExceptions::dcxInvalidItem();
+			//
+			//		this->setBandInfo(nIndex, &rbBand);
+			//	}
+			//}
 
-			for (auto itStart = tsItem.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-			{
-				const auto tsLine(*itStart);
-
-				const auto r = getItemRange2(tsLine, nItems);
-
-				if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
-					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-
-				for (auto nIndex : r)
-				{
-					if (nIndex < 0 || nIndex >= nItems || this->getBandInfo(nIndex, &rbBand) == 0)
-						throw DcxExceptions::dcxInvalidItem();
-
-					this->setBandInfo(nIndex, &rbBand);
+			Dcx::CallOnRange(tsItem, nItems, 1, [this, &rbBand](int nItem) noexcept {
+				this->setBandInfo(nItem, &rbBand);
+				});
 				}
 			}
+	// This is to avoid an invalid flag message.
+	// xdid -r [NAME] [ID] [SWITCH]
+	else if (flags[TEXT('r')])
+	{
 		}
-	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
 }
