@@ -172,7 +172,6 @@ void DcxTrackBar::parseInfoRequest(const TString& input, const refString<TCHAR, 
  *
  * \param input [NAME] [SWITCH] [ID] (OPTIONS)
  */
-
 void DcxTrackBar::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));

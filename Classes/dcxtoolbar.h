@@ -157,6 +157,7 @@ public:
 	//int getButtonText(int idButton, LPTSTR lpszText) const noexcept;
 	bool getButton(const int iButton, const LPTBBUTTON lpb) const noexcept;
 	bool setButtonState(const int idButton, const UINT fState) noexcept;
+	bool setButtonStateByIndex(const int nButton, const UINT fState) noexcept;
 	int getCommandToIndex(const int idButton) const noexcept;
 	int moveButton(const int iButtonFrom, const int iButtonTo) noexcept;
 	int markButton(const int iButton, const bool fHighlight) noexcept;

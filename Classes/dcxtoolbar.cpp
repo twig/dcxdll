@@ -354,6 +354,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		addButton(nPos, tsFlags, width, icon, clrText, tsText, tsTooltip);
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N] [+FLAGS] [RGB] (+REMOVEFLAGS)
+	// xdid -c [NAME] [ID] [SWITCH] [N,N-N,N...] [+FLAGS] [RGB] (+REMOVEFLAGS)
 	// xdid -c [NAME] [ID] [SWITCH] 0 +X [RGB]
 	// xdid -c [NAME] [ID] [SWITCH] 0 +z [RGB]
 	else if (flags[TEXT('c')])
@@ -361,23 +362,90 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		if (numtok < 7)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto iButton = input.getnexttokas<int>() - 1;						// tok 4
+		//const auto iButton = input.getnexttokas<int>() - 1;						// tok 4
+		//const auto buttonStyles = parseButtonStyleFlags(input.getnexttok());		// tok 5
+		//const auto clrColor = input.getnexttokas<COLORREF>();					// tok 6
+		//const auto removeButtonStyles = parseButtonStyleFlags(input.getnexttok());	// tok 7
+		//
+		//if (iButton == -1 && this->getToolTipHWND())
+		//{
+		//	if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_TBKGCOLOR))
+		//		SendMessage(this->getToolTipHWND(), TTM_SETTIPBKCOLOR, gsl::narrow_cast<WPARAM>(clrColor), 0);
+		//	else if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_TTXTCOLOR))
+		//		SendMessage(this->getToolTipHWND(), TTM_SETTIPTEXTCOLOR, gsl::narrow_cast<WPARAM>(clrColor), 0);
+		//}
+		//else {
+		//
+		//	if (iButton < 0 && iButton >= this->getButtonCount())
+		//		throw DcxExceptions::dcxInvalidArguments();
+		//
+		//	if (auto lpdcxtbb = getButtonData(iButton); lpdcxtbb)
+		//	{
+		//		if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_UNDERLINE))
+		//			lpdcxtbb->bUline = true;
+		//
+		//		if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_BOLD))
+		//			lpdcxtbb->bBold = true;
+		//
+		//		if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_COLOR))
+		//			lpdcxtbb->clrText = clrColor;
+		//
+		//		if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_HIGHLIGHT_TXTCOLOR))
+		//			lpdcxtbb->clrTextHighlight = clrColor;
+		//
+		//		if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_MARK_BKGCOLOR))
+		//			lpdcxtbb->clrMark = clrColor;
+		//
+		//		if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_BTNCOLOR))
+		//			lpdcxtbb->clrBtnFace = clrColor;
+		//
+		//		if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_HIGHLIGHT_BTNCOLOR))
+		//			lpdcxtbb->clrBtnHighlight = clrColor;
+		//
+		//		if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_HOTTRACK_BTNCOLOR))
+		//			lpdcxtbb->clrHighlightHotTrack = clrColor;
+		//
+		//		if (dcx_testflag(removeButtonStyles, dcxToolBar_Styles::BTNS_UNDERLINE))
+		//			lpdcxtbb->bUline = false;
+		//
+		//		if (dcx_testflag(removeButtonStyles, dcxToolBar_Styles::BTNS_BOLD))
+		//			lpdcxtbb->bBold = false;
+		//
+		//		if (dcx_testflag(removeButtonStyles, dcxToolBar_Styles::BTNS_COLOR))
+		//			lpdcxtbb->clrText = CLR_INVALID;
+		//
+		//		if (dcx_testflag(removeButtonStyles, dcxToolBar_Styles::BTNS_HIGHLIGHT_TXTCOLOR))
+		//			lpdcxtbb->clrTextHighlight = CLR_INVALID;
+		//
+		//		if (dcx_testflag(removeButtonStyles, dcxToolBar_Styles::BTNS_MARK_BKGCOLOR))
+		//			lpdcxtbb->clrMark = CLR_INVALID;
+		//
+		//		if (dcx_testflag(removeButtonStyles, dcxToolBar_Styles::BTNS_BTNCOLOR))
+		//			lpdcxtbb->clrBtnFace = CLR_INVALID;
+		//
+		//		if (dcx_testflag(removeButtonStyles, dcxToolBar_Styles::BTNS_HIGHLIGHT_BTNCOLOR))
+		//			lpdcxtbb->clrBtnHighlight = CLR_INVALID;
+		//
+		//		if (dcx_testflag(removeButtonStyles, dcxToolBar_Styles::BTNS_HOTTRACK_BTNCOLOR))
+		//			lpdcxtbb->clrHighlightHotTrack = CLR_INVALID;
+		//	}
+		//	redrawWindow();
+		//}
+
+		const auto tsButtons(input.getnexttok());									// tok 4
 		const auto buttonStyles = parseButtonStyleFlags(input.getnexttok());		// tok 5
-		const auto clrColor = input.getnexttokas<COLORREF>();					// tok 6
+		const auto clrColor = input.getnexttokas<COLORREF>();						// tok 6
 		const auto removeButtonStyles = parseButtonStyleFlags(input.getnexttok());	// tok 7
 
-		if (iButton == -1 && this->getToolTipHWND())
+		if ((tsButtons == L"0") && this->getToolTipHWND())
 		{
 			if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_TBKGCOLOR))
-				SendMessage(this->getToolTipHWND(), TTM_SETTIPBKCOLOR, gsl::narrow_cast<WPARAM>(clrColor), 0);
+				Dcx::dcxToolTip_SetTipBkColor(this->getToolTipHWND(), clrColor);
 			else if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_TTXTCOLOR))
-				SendMessage(this->getToolTipHWND(), TTM_SETTIPTEXTCOLOR, gsl::narrow_cast<WPARAM>(clrColor), 0);
+				Dcx::dcxToolTip_SetTipTextColor(this->getToolTipHWND(), clrColor);
 		}
 		else {
-
-			if (iButton < 0 && iButton >= this->getButtonCount())
-				throw DcxExceptions::dcxInvalidArguments();
-
+			Dcx::CallOnRange(tsButtons, this->getButtonCount(), 1, [this, buttonStyles, removeButtonStyles, clrColor](int iButton) {
 			if (auto lpdcxtbb = getButtonData(iButton); lpdcxtbb)
 			{
 				if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_UNDERLINE))
@@ -428,6 +496,8 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 				if (dcx_testflag(removeButtonStyles, dcxToolBar_Styles::BTNS_HOTTRACK_BTNCOLOR))
 					lpdcxtbb->clrHighlightHotTrack = CLR_INVALID;
 			}
+				});
+
 			redrawWindow();
 		}
 	}
@@ -439,76 +509,92 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 
 		//if (const auto nButton = input.getnexttokas<int>() - 1; nButton > -1)
 		//	this->deleteButton(nButton);
+		//
+		//TString tsButton(input.getnexttok());
+		//const auto HandleButton = [=](const TString& tsButtons) {
+		//	const auto r = Dcx::make_range(tsButtons, this->getButtonCount(), 1);
+		//
+		//	if ((r.b < 0) || (r.e < r.b))
+		//		throw DcxExceptions::dcxOutOfRange();
+		//
+		//	//for (auto nButton : r)
+		//	//	this->deleteButton(nButton);
+		//
+		//	for (auto it = r.rbegin(); it <= r.rend(); ++it)
+		//		this->deleteButton(gsl::narrow_cast<int>(*it));
+		//};
+		//if (tsButton.numtok(TSCOMMACHAR) > 1)
+		//{
+		//	// button == 1,2,3-4
+		//	tsButton.sorttok(TEXT("nr"), TSCOMMA);
+		//
+		//	const auto itEnd = tsButton.end();
+		//	for (auto itStart = tsButton.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//	{
+		//		HandleButton(*itStart);
+		//	}
+		//}
+		//else {
+		//	// button == 3-4 or 3
+		//	HandleButton(tsButton);
+		//}
 
-		TString tsButton(input.getnexttok());
-		const auto HandleButton = [=](const TString& tsButtons) {
-			const auto r = Dcx::make_range(tsButtons, this->getButtonCount(), 1);
-
-			if ((r.b < 0) || (r.e < r.b))
-				throw DcxExceptions::dcxOutOfRange();
-
-			//for (auto nButton : r)
-			//	this->deleteButton(nButton);
-
-			for (auto it = r.rbegin(); it <= r.rend(); ++it)
-				this->deleteButton(gsl::narrow_cast<int>(*it));
-		};
-		if (tsButton.numtok(TSCOMMACHAR) > 1)
+		const auto vRanges = Dcx::sortRanges(input.getnexttok(), this->getButtonCount(), 1, true);
+		for (const auto& r : vRanges)
 		{
-			// button == 1,2,3-4
-			tsButton.sorttok(TEXT("nr"), TSCOMMA);
-
-			const auto itEnd = tsButton.end();
-			for (auto itStart = tsButton.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-			{
-				HandleButton(*itStart);
+			for (const auto nButton : r.rbegin())
+				this->deleteButton(nButton);
 			}
 		}
-		else {
-			// button == 3-4 or 3
-			HandleButton(tsButton);
-		}
-	}
 	// xdid -i [NAME] [ID] [SWITCH] [N,N2-N3,N4...] [IMAGE]
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const TString tsButton(input.getnexttok());
+		const TString tsButton(input.getnexttok());				// tok 4
 		auto iImage = input.getnexttokas<int>() - 1;			// tok 5
 
 		if (iImage < 0)
 			iImage = I_IMAGENONE;
 
-		const auto HandleButton = [=](const TString& tsButtons) {
-			const auto r = Dcx::make_range(tsButtons, this->getButtonCount(), 1);
-
-			if ((r.b < 0) || (r.e < r.b))
-				throw DcxExceptions::dcxOutOfRange();
+		//const auto HandleButton = [=](const TString& tsButtons) {
+		//	const auto r = Dcx::make_range(tsButtons, this->getButtonCount(), 1);
+		//
+		//	if ((r.b < 0) || (r.e < r.b))
+		//		throw DcxExceptions::dcxOutOfRange();
+		//
+		//	TBBUTTONINFO tbbi{};
+		//	tbbi.cbSize = sizeof(TBBUTTONINFO);
+		//	tbbi.dwMask = TBIF_IMAGE | TBIF_BYINDEX;
+		//	tbbi.iImage = iImage;
+		//
+		//	for (auto nButton : r)
+		//		this->setButtonInfo(gsl::narrow_cast<int>(nButton), &tbbi);
+		//};
+		//if (tsButton.numtok(TSCOMMACHAR) > 1)
+		//{
+		//	// button == 1,2,3-4
+		//	const auto itEnd = tsButton.end();
+		//	for (auto itStart = tsButton.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//	{
+		//		HandleButton(*itStart);
+		//	}
+		//}
+		//else {
+		//	// button == 3-4 or 3
+		//	HandleButton(tsButton);
+		//}
 
 			TBBUTTONINFO tbbi{};
 			tbbi.cbSize = sizeof(TBBUTTONINFO);
 			tbbi.dwMask = TBIF_IMAGE | TBIF_BYINDEX;
 			tbbi.iImage = iImage;
 
-			for (auto nButton : r)
-				this->setButtonInfo(gsl::narrow_cast<int>(nButton), &tbbi);
-		};
-		if (tsButton.numtok(TSCOMMACHAR) > 1)
-		{
-			// button == 1,2,3-4
-			const auto itEnd = tsButton.end();
-			for (auto itStart = tsButton.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-			{
-				HandleButton(*itStart);
+		Dcx::CallOnRange(tsButton, this->getButtonCount(), 1, [this, &tbbi](int nButton) noexcept {
+			this->setButtonInfo(nButton, &tbbi);
+			});
 			}
-		}
-		else {
-			// button == 3-4 or 3
-			HandleButton(tsButton);
-		}
-	}
 	// xdid -j -> [NAME] [ID] -j [MIN] [MAX]
 	else if (flags[TEXT('j')])
 	{
@@ -554,71 +640,84 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 			autoStretchButtons();
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [N] (TIPTEXT)
+	// xdid -q [NAME] [ID] [SWITCH] [N,N-N,N...] (TIPTEXT)
 	else if (flags[TEXT('q')])
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nButton = input.getnexttokas<int>() - 1;	// tok 4
+		//const auto nButton = input.getnexttokas<int>() - 1;	// tok 4
+		//
+		//if (nButton < 0 && nButton >= this->getButtonCount())
+		//	throw DcxExceptions::dcxOutOfRange();
+		//
+		//if (auto lpdcxtbb = getButtonData(nButton); lpdcxtbb)
+		//{
+		//	if (numtok > 4)	// has a new tooltip
+		//		lpdcxtbb->tsTipText = input.getlasttoks();	// tok 5, -1
+		//	else					// no tooltip
+		//		lpdcxtbb->tsTipText.clear();	// = TEXT("");
+		//}
 
-		if (nButton < 0 && nButton >= this->getButtonCount())
-			throw DcxExceptions::dcxOutOfRange();
+		const auto tsButtons(input.getnexttok());	// tok 4
+		const auto tsTipText(input.getlasttoks());	// tok 5, -1
 
+		Dcx::CallOnRange(tsButtons, this->getButtonCount(), 1, [this, tsTipText](int nButton) {
 		if (auto lpdcxtbb = getButtonData(nButton); lpdcxtbb)
-		{
-			if (numtok > 4)	// has a new tooltip
-				lpdcxtbb->tsTipText = input.getlasttoks();	// tok 5, -1
-			else					// no tooltip
-				lpdcxtbb->tsTipText.clear();	// = TEXT("");
+				lpdcxtbb->tsTipText = tsTipText;
+			});
 		}
-	}
-	// This is to avoid an invalid flag message.
-	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('r')])
-	{
-	}
 	// xdid -t [NAME] [ID] [SWITCH] [N,N2-N3,N4...] [+FLAGS]
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto tsButton = input.getnexttok();						// tok 4
+		//const auto tsButton = input.getnexttok();						// tok 4
+		//const auto fStates = parseButtonStateFlags(input.getnexttok());	// tok 5
+		//const auto HandleButton = [=](const TString& tsButtons) {
+		//	auto r = Dcx::make_range(tsButtons, this->getButtonCount(), 1);
+		//
+		//	if (tsButtons == TEXT("0"))
+		//	{
+		//		// special case, do all button when zero is supplied by its self.
+		//		r.b = 0;
+		//	}
+		//
+		//	if ((r.b < 0) || (r.e < r.b))
+		//		throw DcxExceptions::dcxOutOfRange();
+		//
+		//	for (auto nButton : r)
+		//		this->setButtonStateByIndex(nButton, fStates);
+		//};
+		//
+		//if (tsButton.numtok(TSCOMMACHAR) > 1)
+		//{
+		//	// button == 1,2,3-4....
+		//	const auto itEnd = tsButton.end();
+		//	for (auto itStart = tsButton.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//	{
+		//		HandleButton(*itStart);
+		//	}
+		//}
+		//else {
+		//	// button = 3-4 or 3
+		//	HandleButton(tsButton);
+		//}
+
+		const auto tsButtons(input.getnexttok());						// tok 4
 		const auto fStates = parseButtonStateFlags(input.getnexttok());	// tok 5
-		const auto HandleButton = [=](const TString& tsButtons) {
-			auto r = Dcx::make_range(tsButtons, this->getButtonCount(), 1);
 
-			if (tsButtons == TEXT("0"))
+		if (tsButtons == L"0")
 			{
-				// special case, do all button when zero is supplied by its self.
-				r.b = 0;
+			for (int nButton{}; nButton < this->getButtonCount(); ++nButton)
+				this->setButtonStateByIndex(nButton, fStates);
 			}
-
-			if ((r.b < 0) || (r.e < r.b))
-				throw DcxExceptions::dcxOutOfRange();
-
-			for (auto nButton : r)
-			{
-				if (const auto idButton = this->getIndexToCommand(gsl::narrow_cast<int>(nButton)); idButton > 0)
-					this->setButtonState(idButton, fStates);
+		else
+			Dcx::CallOnRange(tsButtons, this->getButtonCount(), 1, [this, fStates](int nButton) noexcept {
+			this->setButtonStateByIndex(nButton, fStates);
+				});
 			}
-		};
-
-		if (tsButton.numtok(TSCOMMACHAR) > 1)
-		{
-			// button == 1,2,3-4....
-			const auto itEnd = tsButton.end();
-			for (auto itStart = tsButton.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-			{
-				HandleButton(*itStart);
-			}
-		}
-		else {
-			// button = 3-4 or 3
-			HandleButton(tsButton);
-		}
-
-	}
 	// xdid -u [NAME] [ID] [SWITCH] [DX] [DY]
 	else if (flags[TEXT('u')])
 	{
@@ -634,38 +733,55 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		this->autoSize();
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [N] (TEXT)
+	// xdid -v [NAME] [ID] [SWITCH] [N,N-N,N...] (TEXT)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nButton = input.getnexttokas<int>() - 1;		// tok 4
+		//const auto nButton = input.getnexttokas<int>() - 1;		// tok 4
+		//
+		//if (nButton < 0 && nButton >= this->getButtonCount())
+		//	throw DcxExceptions::dcxOutOfRange();
+		//
+		//const auto nIndex = this->getIndexToCommand(nButton);
+		//TBBUTTONINFO tbbi{};
+		//
+		//tbbi.cbSize = sizeof(TBBUTTONINFO);
+		//tbbi.dwMask = TBIF_LPARAM;
+		//
+		//if (this->getButtonInfo(nIndex, &tbbi) < 0)
+		//	throw Dcx::dcxException("Unable to get button info");
+		//
+		//if (auto lpdcxtbb = reinterpret_cast<LPDCXTBBUTTON>(tbbi.lParam); lpdcxtbb)
+		//{
+		//	if (numtok > 4)
+		//		lpdcxtbb->bText = input.getlasttoks();	// tok 5, -1
+		//	else
+		//		lpdcxtbb->bText.clear();	// = TEXT("");
+		//
+		//	ZeroMemory(&tbbi, sizeof(TBBUTTONINFO));
+		//	tbbi.cbSize = sizeof(TBBUTTONINFO);
+		//	tbbi.dwMask = TBIF_TEXT;
+		//	tbbi.pszText = lpdcxtbb->bText.to_chr();
+		//	this->setButtonInfo(nIndex, &tbbi);
+		//}
 
-		if (nButton < 0 && nButton >= this->getButtonCount())
-			throw DcxExceptions::dcxOutOfRange();
+		const auto tsButtons(input.getnexttok());	// tok 4
+		const auto tsText(input.getlasttoks());		// tok 5, -1
 
-		const auto nIndex = this->getIndexToCommand(nButton);
 		TBBUTTONINFO tbbi{};
-
 		tbbi.cbSize = sizeof(TBBUTTONINFO);
-		tbbi.dwMask = TBIF_LPARAM;
+		tbbi.dwMask = TBIF_TEXT | TBIF_BYINDEX;
 
-		if (this->getButtonInfo(nIndex, &tbbi) < 0)
-			throw Dcx::dcxException("Unable to get button info");
-
-		if (auto lpdcxtbb = reinterpret_cast<LPDCXTBBUTTON>(tbbi.lParam); lpdcxtbb)
+		Dcx::CallOnRange(tsButtons, this->getButtonCount(), 1, [this, tsText, &tbbi](int nIndex) {
+			if (auto lpdcxtbb = this->getButtonData(nIndex); lpdcxtbb)
 		{
-			if (numtok > 4)
-				lpdcxtbb->bText = input.getlasttoks();	// tok 5, -1
-			else
-				lpdcxtbb->bText.clear();	// = TEXT("");
-
-			ZeroMemory(&tbbi, sizeof(TBBUTTONINFO));
-			tbbi.cbSize = sizeof(TBBUTTONINFO);
-			tbbi.dwMask = TBIF_TEXT;
+				lpdcxtbb->bText = tsText;
 			tbbi.pszText = lpdcxtbb->bText.to_chr();
 			this->setButtonInfo(nIndex, &tbbi);
 		}
+			});
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [N,N2-N3,N4...] [FILENAME]
 	else if (flags[TEXT('w')])
@@ -678,6 +794,11 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		const auto filename(input.getlasttoks());	// tok 6, -1
 
 		this->loadIcon(tsFlags, tsIndex, filename);
+	}
+	// This is to avoid an invalid flag message.
+	// xdid -r [NAME] [ID] [SWITCH]
+	else if (flags[TEXT('r')])
+	{
 	}
 	else
 		parseGlobalCommandRequest(input, flags);
@@ -872,8 +993,8 @@ void DcxToolBar::addButton(int iPos, const TString& tsFlags, WORD iWidth, int iI
 		tbb.fsStyle = BTNS_SEP;
 		//tbb.fsState = TBSTATE_ENABLED;
 		//tbb.iBitmap = iIcon;
-		tbb.dwData = 0;
-		tbb.iString = 0;
+		//tbb.dwData = 0;
+		//tbb.iString = 0;
 
 		this->insertButton(iPos, &tbb);
 		this->autoSize();
@@ -1129,6 +1250,13 @@ int DcxToolBar::markButton(const int iButton, const bool fHighlight) noexcept
 bool DcxToolBar::setButtonState(const int idButton, const UINT fState) noexcept
 {
 	return Dcx::dcxToolbar_SetState(m_Hwnd, idButton, fState);
+}
+
+bool DcxToolBar::setButtonStateByIndex(const int nButton, const UINT fState) noexcept
+{
+	if (const auto idButton = this->getIndexToCommand(nButton); idButton > 0)
+		return this->setButtonState(idButton, fState);
+	return false;
 }
 
 bool DcxToolBar::setButtonSize(const int dxButton, const int dyButton) noexcept
