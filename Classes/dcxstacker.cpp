@@ -277,19 +277,25 @@ void DcxStacker::parseCommandRequest(const TString& input)
 		Dcx::dcxListBox_SetCurSel(m_Hwnd, nPos);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
+	// xdid -d [NAME] [ID] [SWITCH] [N,N-N,N...]
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nPos = input.getnexttokas<int>() - 1;	// tok 4
+		//const auto nPos = input.getnexttokas<int>() - 1;	// tok 4
+		//
+		//if (nPos < 0 && nPos >= Dcx::dcxListBox_GetCount(m_Hwnd))
+		//	throw DcxExceptions::dcxInvalidItem();
+		//
+		//Dcx::dcxListBox_DeleteString(m_Hwnd, nPos);
 
-		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
-			throw DcxExceptions::dcxInvalidItem();
-
-		ListBox_DeleteString(m_Hwnd, nPos);
+		const auto vRanges = Dcx::sortRanges(input.getnexttok(), Dcx::dcxListBox_GetCount(m_Hwnd), 1, true);
+		for (const auto& r : vRanges)
+		{
+			for (auto nPos: r.rbegin())
+				Dcx::dcxListBox_DeleteString(m_Hwnd, nPos);
+		}
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('u')])
