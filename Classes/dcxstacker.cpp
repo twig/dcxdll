@@ -64,12 +64,6 @@ DcxStacker::DcxStacker(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_D
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 DcxStacker::~DcxStacker() noexcept
 {
 	this->clearImageList();
@@ -129,7 +123,7 @@ void DcxStacker::loadIcon(const TString& tsFlags, const TString& tsIndex, const 
 	if (!IsFile(filename))
 		throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
 
-	m_vImageList.push_back(std::make_unique<Gdiplus::Image>(filename.to_wchr()));
+	m_vImageList.emplace_back(std::make_unique<Gdiplus::Image>(filename.to_wchr()));
 #endif
 }
 
@@ -141,7 +135,6 @@ void DcxStacker::loadIcon(const TString& tsFlags, const TString& tsIndex, const 
  *
  * \return > void
  */
-
 void DcxStacker::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	const auto numtok = input.numtok();
@@ -155,7 +148,7 @@ void DcxStacker::parseInfoRequest(const TString& input, const refString<TCHAR, M
 
 		const auto nSel = input.getnexttokas<int>() - 1;	// tok 4
 
-		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
+		if (nSel < 0 && nSel >= Dcx::dcxListBox_GetCount(m_Hwnd))
 			throw DcxExceptions::dcxInvalidItem();
 
 		auto sitem = this->getItem(nSel);
@@ -167,11 +160,11 @@ void DcxStacker::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	break;
 	// [NAME] [ID] [PROP]
 	case L"num"_hash:
-		_ts_snprintf(szReturnValue, TEXT("%d"), ListBox_GetCount(m_Hwnd));
+		_ts_snprintf(szReturnValue, TEXT("%d"), Dcx::dcxListBox_GetCount(m_Hwnd));
 		break;
 		// [NAME] [ID] [PROP]
 	case L"sel"_hash:
-		_ts_snprintf(szReturnValue, TEXT("%d"), ListBox_GetCurSel(m_Hwnd) + 1);
+		_ts_snprintf(szReturnValue, TEXT("%d"), Dcx::dcxListBox_GetCurSel(m_Hwnd) + 1);
 		break;
 		// [NAME] [ID] [PROP] [N]
 	case L"haschild"_hash:
@@ -181,7 +174,7 @@ void DcxStacker::parseInfoRequest(const TString& input, const refString<TCHAR, M
 
 		const auto nSel = input.getnexttokas<int>() - 1;	// tok 4
 
-		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
+		if (nSel < 0 && nSel >= Dcx::dcxListBox_GetCount(m_Hwnd))
 			throw DcxExceptions::dcxInvalidItem();
 
 		const auto* const sitem = this->getItem(nSel);
@@ -199,7 +192,7 @@ void DcxStacker::parseInfoRequest(const TString& input, const refString<TCHAR, M
 
 		const auto nSel = input.getnexttokas<int>() - 1;	// tok 4
 
-		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
+		if (nSel < 0 && nSel >= Dcx::dcxListBox_GetCount(m_Hwnd))
 			throw DcxExceptions::dcxInvalidItem();
 
 		const auto* const sitem = this->getItem(nSel);
@@ -217,12 +210,6 @@ void DcxStacker::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void DcxStacker::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
@@ -231,13 +218,12 @@ void DcxStacker::parseCommandRequest(const TString& input)
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')])
-		SendMessage(m_Hwnd, LB_RESETCONTENT, 0U, 0);
+		Dcx::dcxListBox_ResetContent(m_Hwnd);
 
 	//xdid -a -> [NAME] [ID] -a [N] [+FLAGS] [IMAGE] [SIMAGE] [COLOR] [BGCOLOR] Item Text [TAB] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 10)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto sitem = std::make_unique<DCXSITEM>();
@@ -257,7 +243,7 @@ void DcxStacker::parseCommandRequest(const TString& input)
 		sitem->tsCaption = item.getlasttoks();						// tok 10, -1
 
 		if (nPos < 0)
-			nPos = ListBox_GetCount(m_Hwnd);
+			nPos = Dcx::dcxListBox_GetCount(m_Hwnd);
 		if (nPos == LB_ERR)
 			nPos = 0;
 
@@ -267,29 +253,12 @@ void DcxStacker::parseCommandRequest(const TString& input)
 			sitem->pChild = p_Control;
 			ShowWindow(p_Control->getHwnd(), SW_HIDE);
 			this->redrawWindow();
-
-			//const auto ID = mIRC_ID_OFFSET + (UINT)ctrl.gettok( 1 ).to_int( );
-			//
-			//if (!this->getParentDialog()->isIDValid(ID, true))
-			//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
-			//
-			//try {
-			//	auto p_Control = DcxControl::controlFactory(this->m_pParentDialog, ID, ctrl, 2, DcxAllowControls::ALLOW_ALL, m_Hwnd);
-			//
-			//	this->getParentDialog()->addControl( p_Control );
-			//	sitem->pChild = p_Control;
-			//	ShowWindow(p_Control->getHwnd(),SW_HIDE);
-			//	this->redrawWindow( );
-			//}
-			//catch (const std::exception &e) {
-			//	this->showErrorEx(nullptr, TEXT("-a"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
-			//	throw;
-			//}
 		}
-		//if (SendMessage(m_Hwnd,LB_INSERTSTRING, static_cast<WPARAM>(nPos), reinterpret_cast<LPARAM>(sitem.get())) < 0)
+
+		//if (ListBox_InsertString(m_Hwnd, nPos, sitem.get()) < 0)
 		//	throw Dcx::dcxException("Error adding item to control");
 
-		if (ListBox_InsertString(m_Hwnd, nPos, sitem.get()) < 0)
+		if (Dcx::dcxListBox_InsertItemData(m_Hwnd, nPos, sitem.get()) < 0)
 			throw Dcx::dcxException("Error adding item to control");
 
 		sitem.release();
@@ -298,16 +267,14 @@ void DcxStacker::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nPos = input.getnexttokas<int>() - 1;		// tok 4
 
-		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
+		if (nPos < 0 && nPos >= Dcx::dcxListBox_GetCount(m_Hwnd))
 			throw DcxExceptions::dcxInvalidItem();
 
-		ListBox_SetCurSel(m_Hwnd, nPos);
+		Dcx::dcxListBox_SetCurSel(m_Hwnd, nPos);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')])
@@ -324,27 +291,20 @@ void DcxStacker::parseCommandRequest(const TString& input)
 
 		ListBox_DeleteString(m_Hwnd, nPos);
 	}
-	// This is to avoid an invalid flag message.
-	//xdid -r [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('r')])
-	{
-	}
 	//xdid -u [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('u')])
 	{
-		ListBox_SetCurSel(m_Hwnd, -1);
+		Dcx::dcxListBox_SetCurSel(m_Hwnd, -1);
 	}
 	// xdid -T [NAME] [ID] [SWITCH] [N] (ToolTipText)
 	else if (flags[TEXT('T')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nPos = input.getnexttokas<int>() - 1;	// tok 4
 
-		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
+		if (nPos < 0 && nPos >= Dcx::dcxListBox_GetCount(m_Hwnd))
 			throw DcxExceptions::dcxInvalidItem();
 
 		const auto sitem = this->getItem(nPos);
@@ -356,20 +316,6 @@ void DcxStacker::parseCommandRequest(const TString& input)
 	//xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
 	else if (flags[TEXT('w')])
 	{
-		//		if (numtok < 5)
-		//			throw DcxExceptions::dcxInvalidArguments();
-		//
-		//#ifdef DCX_USE_GDIPLUS
-		//
-		//		const auto flag(input.getnexttok());		// tok 4
-		//		auto filename(input.getnexttok().trim());	// tok 5
-		//
-		//		if (!IsFile(filename))
-		//			throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
-		//
-		//		m_vImageList.push_back(std::make_unique<Gdiplus::Image>(filename.to_wchr()));
-		//#endif
-
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -384,37 +330,46 @@ void DcxStacker::parseCommandRequest(const TString& input)
 		clearImageList();
 		redrawWindow();
 	}
+	// This is to avoid an invalid flag message.
+	//xdid -r [NAME] [ID] [SWITCH]
+	else if (flags[TEXT('r')])
+	{
+	}
 	else
 		parseGlobalCommandRequest(input, flags);
 }
 
 int DcxStacker::getItemID(void) const noexcept
 {
-#if DCX_USE_WRAPPERS
-	const Dcx::dcxCursorPos pt(m_Hwnd);
-#else
-	POINT pt{};
-	if (!GetCursorPos(&pt))
-		return -1;
+//#if DCX_USE_WRAPPERS
+//	const Dcx::dcxCursorPos pt(m_Hwnd);
+//#else
+//	POINT pt{};
+//	if (!GetCursorPos(&pt))
+//		return -1;
+//
+//	MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
+//#endif
+//	return gsl::narrow_cast<int>(Dcx::dcxLOWORD(SendMessage(m_Hwnd, LB_ITEMFROMPOINT, 0, Dcx::dcxMAKELPARAM(pt.x, pt.y))) + 1);
 
-	MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
-#endif
-	return gsl::narrow_cast<int>(Dcx::dcxLOWORD(SendMessage(m_Hwnd, LB_ITEMFROMPOINT, 0, Dcx::dcxMAKELPARAM(pt.x, pt.y))) + 1);
+	return Dcx::dcxListBox_GetHoverItem(m_Hwnd) + 1;
 }
 
 int DcxStacker::getSelItemID(void) const noexcept
 {
-	return ListBox_GetCurSel(m_Hwnd) + 1;
+	return Dcx::dcxListBox_GetCurSel(m_Hwnd) + 1;
 }
 
 DWORD DcxStacker::getItemCount(void) const noexcept
 {
-	return gsl::narrow_cast<DWORD>(ListBox_GetCount(m_Hwnd));
+	return gsl::narrow_cast<DWORD>(Dcx::dcxListBox_GetCount(m_Hwnd));
 }
 
 LPDCXSITEM DcxStacker::getItem(const int nPos) const noexcept
 {
-	return reinterpret_cast<LPDCXSITEM>(ListBox_GetItemData(m_Hwnd, nPos));
+	//return reinterpret_cast<LPDCXSITEM>(ListBox_GetItemData(m_Hwnd, nPos));
+
+	return Dcx::dcxListBox_GetItemData<LPDCXSITEM>(m_Hwnd, nPos);
 }
 
 LPDCXSITEM DcxStacker::getHotItem(void) const noexcept
@@ -422,9 +377,9 @@ LPDCXSITEM DcxStacker::getHotItem(void) const noexcept
 	return getItem(this->getItemID() - 1);
 }
 
-void DcxStacker::getItemRect(const int nPos, LPCRECT rc) const noexcept
+void DcxStacker::getItemRect(const int nPos, LPRECT rc) const noexcept
 {
-	ListBox_GetItemRect(m_Hwnd, nPos, rc);
+	Dcx::dcxListBox_GetItemRect(m_Hwnd, nPos, rc);
 }
 
 const TString DcxStacker::getStyles(void) const
@@ -667,47 +622,14 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	}
 	if (h != (idata->rcItem.bottom - idata->rcItem.top))
 	{
-		ListBox_SetItemHeight(idata->hwndItem, idata->itemID, h);
+		Dcx::dcxListBox_SetItemHeight(idata->hwndItem, idata->itemID, h);
 
-		//MEASUREITEMSTRUCT mi;
-		//SCROLLINFO sc;
-		//UINT scroll_height = 0, cnt, items = this->getItemCount(), minitemheight = -1;
-		//BOOL bParsed = FALSE;
-		//cnt = items;
-		//mi.CtlID = this->getID();
-		//mi.CtlType = ODT_LISTBOX;
-		//while (cnt > 0) {
-		//	mi.itemID = cnt-1;
-		//	mi.itemData = (ULONG_PTR)this->getItem(cnt-1);
-		//	this->ParentMessage(WM_MEASUREITEM, (WPARAM)mi.CtlID, (LPARAM)&mi, bParsed);
-		//	if (bParsed) {
-		//		if (mi.itemHeight < minitemheight)
-		//			minitemheight = mi.itemHeight;
-		//		scroll_height += mi.itemHeight;
-		//		bParsed = FALSE;
-		//	}
-		//	cnt--;
-		//}
-		//if (minitemheight == 0)
-		//	minitemheight = 1;
-
-		//ZeroMemory(&sc, sizeof(sc));
-		//sc.cbSize = sizeof(sc);
-		//sc.fMask = SIF_RANGE;
-		//sc.nMin = 0;
-		//sc.nMax = items + (h / minitemheight) -1;
-		//SetScrollInfo(m_Hwnd, SB_VERT, &sc, FALSE);
 		Redraw = true;
 	}
 	if (Redraw)
 		redrawWindow();
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 LRESULT DcxStacker::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	LRESULT lRes = 0L;

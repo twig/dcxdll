@@ -96,7 +96,7 @@ protected:
 	DWORD getItemCount(void) const noexcept;
 	LPDCXSITEM getItem(const int nPos) const noexcept;
 	LPDCXSITEM getHotItem(void) const noexcept;
-	void getItemRect(const int nPos, LPCRECT rc) const noexcept;
+	void getItemRect(const int nPos, LPRECT rc) const noexcept;
 
 	//
 	//int setItem(int nPos, LPDCXSITEM item);
