@@ -202,7 +202,7 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 
 		if (iTab == -1)
 		{
-			if (auto himl = TabCtrl_GetImageList(m_Hwnd); himl)
+			if (auto himl = Dcx::dcxTabCtrl_GetImageList(m_Hwnd); himl)
 			{
 				_ts_snprintf(szReturnValue, TEXT("%d"), ImageList_GetImageCount(himl));
 				return;
@@ -453,11 +453,6 @@ void DcxTab::parseCommandRequest(const TString& input)
 
 		Dcx::dcxTabCtrl_SetItemSize(m_Hwnd, X, Y);
 	}
-	// This it to avoid an invalid flag message.
-	// xdid -r [NAME] [ID] [SWITCH]
-	else if (xflags[TEXT('r')])
-	{
-	}
 	// xdid -t [NAME] [ID] [SWITCH] [N] (text) ($chr(9) (tooltip text))
 	else if (xflags[TEXT('t')])
 	{
@@ -558,9 +553,28 @@ void DcxTab::parseCommandRequest(const TString& input)
 
 			if (xFlags[TEXT('d')])
 			{
-				if (const auto i = input.getnexttokas<int>() - 1; i >= 0)
-					TabCtrl_RemoveImage(m_Hwnd, i);
+				//if (const auto i = input.getnexttokas<int>() - 1; i >= 0)
+				//	TabCtrl_RemoveImage(m_Hwnd, i);
+
+				// this needs tested, as the iteration may need to be revered, as each image removed will change the image count & position of any other removal.
+				// so when removing 3-4, 4 must be removed first, then 3.
+				auto himl = Dcx::dcxTabCtrl_GetImageList(m_Hwnd);
+				if (!himl)
+					return;
+
+				const auto nCnt = ImageList_GetImageCount(himl);
+
+				const TString tsArgs(input.getlasttoks());
+
+				const auto vRanges = Dcx::sortRanges(tsArgs, nCnt, true);
+
+				for (const auto& ImageRange : vRanges)
+				{
+					// iterate through this range
+					for (const auto nImage : ImageRange.rbegin())
+						Dcx::dcxTabCtrl_RemoveImage(m_Hwnd, nImage);
 			}
+		}
 		}
 		else {
 			if (auto himl = setImageList(nullptr); himl)
@@ -599,7 +613,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		if (iWidth < -1)
 			iWidth = -1;
 
-		TabCtrl_SetMinTabWidth(m_Hwnd, iWidth);
+		Dcx::dcxTabCtrl_SetMinTabWidth(m_Hwnd, iWidth);
 
 		this->activateSelectedTab();
 	}
@@ -711,18 +725,23 @@ void DcxTab::parseCommandRequest(const TString& input)
 		if (m_hPeek)
 			SendMessage(m_hPeek, PC_WM_SETDATA, reinterpret_cast<WPARAM>(&pkd), 0);
 	}
+	// This it to avoid an invalid flag message.
+	// xdid -r [NAME] [ID] [SWITCH]
+	else if (xflags[TEXT('r')])
+	{
+	}
 	else
 		this->parseGlobalCommandRequest(input, xflags);
 }
 
 HIMAGELIST DcxTab::getImageList() const noexcept
 {
-	return TabCtrl_GetImageList(m_Hwnd);
+	return Dcx::dcxTabCtrl_GetImageList(m_Hwnd);
 }
 
 HIMAGELIST DcxTab::setImageList(const HIMAGELIST himl) noexcept
 {
-	return TabCtrl_SetImageList(m_Hwnd, himl);
+	return Dcx::dcxTabCtrl_SetImageList(m_Hwnd, himl);
 }
 
 void DcxTab::deleteLParamInfo(const int nItem) const noexcept
@@ -1069,14 +1088,14 @@ void DcxTab::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 		{
 			// found control for tab
 			TString tsID(queryAttribute(xCtrl, "id"));
-			auto szType = queryAttribute(xCtrl, "type");
-			auto szStyles = queryAttribute(xCtrl, "styles");
-			auto iWidth = queryIntAttribute(xCtrl, "width");
-			auto iHeight = queryIntAttribute(xCtrl, "height");
-
 			// ID is NOT a number!
 			if (tsID.empty()) // no id, generate one.
 				tsID.addtok(getParentDialog()->getUniqueID());
+
+			auto szType = queryAttribute(xCtrl, "type", "missing");
+			auto iWidth = queryIntAttribute(xCtrl, "width");
+			auto iHeight = queryIntAttribute(xCtrl, "height");
+			auto szStyles = queryAttribute(xCtrl, "styles");
 
 			// fixed position control, no cla
 			//xdid -a DNAME ID [N] [ICON] (TEXT) [TAB] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS) [TAB] (TOOLTIP)
@@ -1488,7 +1507,7 @@ int DcxTab::HitTestOnItem() const noexcept
 	{
 		MapWindowPoints(nullptr, m_Hwnd, &tchi.pt, 1);
 
-		return TabCtrl_HitTest(m_Hwnd, &tchi);
+		return Dcx::dcxTabCtrl_HitTest(m_Hwnd, &tchi);
 	}
 	return 0;
 }
