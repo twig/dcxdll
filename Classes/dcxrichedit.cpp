@@ -495,18 +495,28 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
-			auto tsLines(input.getnexttok());
+			//auto tsLines(input.getnexttok());
+			//
+			//// reverse numeric sort line numbers
+			//tsLines.sorttok(TEXT("nr"), TSCOMMA);
+			//
+			//const auto itEnd = tsLines.end();
+			//for (auto itStart = tsLines.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			//{
+			//	const TString tsLineRange(*itStart);
+			//	const auto r = Dcx::make_range(tsLineRange, this->m_tsText.numtok(TEXT("\r\n")));
+			//	// delete lines from the back of the text so it doesnt change the position of other lines.
+			//	for (auto nLine = r.e; nLine >= r.b; --nLine)
+			//		this->m_tsText.deltok(nLine, TEXT("\r\n"));
+			//}
 
-			// reverse numeric sort line numbers
-			tsLines.sorttok(TEXT("nr"), TSCOMMA);
-
-			const auto itEnd = tsLines.end();
-			for (auto itStart = tsLines.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			const auto vRanges = Dcx::sortRanges(input.getnexttok(), m_tsText.numtok(TEXT("\r\n")) + 1, true); //+1 to allow inserting at end
+			for (const auto& r : vRanges)
 			{
-				const TString tsLineRange(*itStart);
-				const auto r = Dcx::make_range(tsLineRange, this->m_tsText.numtok(TEXT("\r\n")));
-				// delete lines from the back of the text so it doesnt change the position of other lines.
-				for (auto nLine = r.e; nLine >= r.b; --nLine)
+				//for (auto it = r.rbegin(); it; ++it)
+				//	this->m_tsText.deltok(*it, TEXT("\r\n"));
+
+				for (const auto nLine: r.rbegin())
 					this->m_tsText.deltok(nLine, TEXT("\r\n"));
 			}
 		}
@@ -600,6 +610,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
+	// xdid -i [NAME] [ID] [SWITCH] [N,N-N,N...] [TEXT]
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 5)
@@ -607,36 +618,91 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 		const auto pos = this->GetCaretPos();
 
-		const auto nLine = input.getnexttokas<UINT>();								// tok 4
+		//const auto nLine = input.getnexttokas<UINT>();								// tok 4
+		//const auto tsText(input.getlasttoks());										// tok 5, -1
+		//
+		//if (this->isStyle(WindowStyle::ES_MultiLine))
+		//{
+		//	if (nLine == 0)
+		//		throw DcxExceptions::dcxInvalidArguments();
+		//
+		//	this->m_tsText.instok(tsText, nLine, TEXT("\r\n"));
+		//}
+		//else
+		//	this->m_tsText = tsText;
+
+		const auto tsLines(input.getnexttok());	// tok 4
+		const auto tsText(input.getlasttoks());	// tok 5, -1
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
-			if (nLine == 0)
-				throw DcxExceptions::dcxInvalidArguments();
+			const auto vRanges = Dcx::sortRanges(tsLines, m_tsText.numtok(TEXT("\r\n")) + 1, true); //+1 to allow inserting at end
+			for (const auto& r : vRanges)
+			{
+				//for (auto it = r.rbegin(); it; ++it)
+				//{
+				//	const auto nLine = *it;
+				//	if (nLine == 0)
+				//		throw DcxExceptions::dcxInvalidArguments();
+				//	this->m_tsText.instok(tsText, nLine, TEXT("\r\n"));
+				//}
 
-			this->m_tsText.instok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
+				for (const auto nLine: r.rbegin())
+					this->m_tsText.instok(tsText, nLine, TEXT("\r\n"));
+		}
 		}
 		else
-			this->m_tsText = input.getlasttoks();										// tok 4, -1
+			this->m_tsText = tsText;
 
 		this->parseContents(TRUE);
 
 		this->setCaretPos(pos);
 	}
 	// xdid -I [NAME] [ID] [SWITCH] [N] [TEXT]
+	// xdid -I [NAME] [ID] [SWITCH] [N,N-N,N...] [TEXT]
 	else if (flags[TEXT('I')])
 	{
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nChar = input.getnexttokas<UINT>();	// tok 4
-		TString tsInsert(input.getlasttoks());
-		TString tsLeft(this->m_tsText.sub(0, nChar));
-		const TString tsRight(this->m_tsText.sub(nChar, this->m_tsText.len()));
+		//const auto nChar = input.getnexttokas<UINT>();	// tok 4
+		//TString tsInsert(input.getlasttoks());
+		//TString tsLeft(this->m_tsText.sub(0, nChar));
+		//const TString tsRight(this->m_tsText.sub(nChar, this->m_tsText.len()));
+		//
+		//const auto pos = this->GetCaretPos();
+		//
+		//this->m_tsText = tsLeft + tsInsert + tsRight;
+		//
+		//this->parseContents(TRUE);
+		//
+		//this->setCaretPos(pos);
+
+		const auto tsChars(input.getnexttok());	// tok 4
+		TString tsInsert(input.getlasttoks());	// tok 5, -1
 
 		const auto pos = this->GetCaretPos();
 
+		const auto vRanges = Dcx::sortRanges(tsChars, m_tsText.len() + 1, true); //+1 to allow inserting at end
+		for (const auto& r : vRanges)
+		{
+			//for (auto it = r.rbegin(); it; ++it)
+			//{
+			//	const auto nChar = *it;
+			//	TString tsLeft(this->m_tsText.sub(0, nChar));
+			//	const TString tsRight(this->m_tsText.sub(nChar, this->m_tsText.len()));
+			//
+			//	this->m_tsText = tsLeft + tsInsert + tsRight;
+			//}
+
+			for (const auto nChar: r.rbegin())
+			{
+				TString tsLeft(this->m_tsText.sub(0, nChar));
+				const TString tsRight(this->m_tsText.sub(nChar, this->m_tsText.len()));
+
 		this->m_tsText = tsLeft + tsInsert + tsRight;
+			}
+		}
 
 		this->parseContents(TRUE);
 
@@ -739,22 +805,39 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		}
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
+	// xdid -o [NAME] [ID] [SWITCH] [N,N-N,...] [TEXT]
 	else if (flags[TEXT('o')])
 	{
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nLine = input.getnexttokas<UINT>();	// tok 4
+		//const auto nLine = input.getnexttokas<UINT>();	// tok 4
+		//
+		//if (this->isStyle(WindowStyle::ES_MultiLine))
+		//{
+		//	if (nLine == 0)
+		//		throw DcxExceptions::dcxInvalidArguments();
+		//
+		//	this->m_tsText.puttok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
+		//}
+		//else
+		//	this->m_tsText = input.getlasttoks();	// tok 5, -1
+
+		const auto tsLines(input.getnexttok());	// tok 4
+		const auto tsText(input.getlasttoks()); // tok 5, -1
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
+			Dcx::CallOnRange(tsLines, std::max(m_tsText.numtok(L"\r\n"), 1U), 0, [this, tsText](int nLine) {
 			if (nLine == 0)
 				throw DcxExceptions::dcxInvalidArguments();
 
-			this->m_tsText.puttok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
+				this->m_tsText.puttok(tsText, nLine, TEXT("\r\n"));
+
+				});
 		}
 		else
-			this->m_tsText = input.getlasttoks();	// tok 5, -1
+			this->m_tsText = tsText;
 
 		this->parseContents(TRUE);
 	}
