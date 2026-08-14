@@ -90,9 +90,6 @@ dcxWindowStyles DcxStatusBar::parseControlStyles(const TString& tsStyles)
 		case L"tooltips"_hash:
 			ws.m_Styles |= SBARS_TOOLTIPS;
 			break;
-		case L"nodivider"_hash:
-			ws.m_Styles |= CCS_NODIVIDER;
-			break;
 		case L"top"_hash:
 		{
 			ws.m_Styles |= CCS_TOP;
@@ -249,12 +246,6 @@ void DcxStatusBar::loadIcon(const TString& tsFlags, const TString& tsIndex, cons
 	Dcx::dcxLoadIconRange(himl, filename, false, tsFlags, tsIndex);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void DcxStatusBar::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
@@ -407,29 +398,48 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nPos = input.getnexttokas<int>() - 1;	// tok 4
+		//const auto nPos = input.getnexttokas<int>() - 1;	// tok 4
+		//
+		//if (nPos < 0 || nPos >= this->getParts(DCX_STATUSBAR_MAX_PARTS, nullptr))
+		//	throw Dcx::dcxException("Invalid Part");
+		//
+		//TString itemtext;
+		//if (numtok > 4)
+		//	itemtext = input.getlasttoks();	// tok 5, -1
+		//
+		//if (dcx_testflag(Dcx::dcxHIWORD(getTextLength(nPos)), SBT_OWNERDRAW))
+		//{
+		//	if (auto pPart = reinterpret_cast<LPSB_PARTINFOX>(getText(nPos, nullptr)); pPart)
+		//	{
+		//		pPart->m_xText = itemtext;
+		//		setPartInfo(nPos, SBT_OWNERDRAW, pPart);
+		//	}
+		//}
+		//else {
+		//	auto text = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+		//	setText(nPos, Dcx::dcxHIWORD(getText(nPos, text.get())), itemtext.to_chr());
+		//}
 
-		if (nPos < 0 || nPos >= this->getParts(DCX_STATUSBAR_MAX_PARTS, nullptr))
-			throw Dcx::dcxException("Invalid Part");
+		const auto tsPos(input.getnexttok());			// tok 4
+		const TString tsItemText(input.getlasttoks());	// tok 5, -1;
 
-		TString itemtext;
-		if (numtok > 4)
-			itemtext = input.getlasttoks();	// tok 5, -1
-
+		Dcx::CallOnRange(tsPos, this->getParts(DCX_STATUSBAR_MAX_PARTS, nullptr), 1, [this,tsItemText](int nPos) {
 		if (dcx_testflag(Dcx::dcxHIWORD(getTextLength(nPos)), SBT_OWNERDRAW))
 		{
 			if (auto pPart = reinterpret_cast<LPSB_PARTINFOX>(getText(nPos, nullptr)); pPart)
 			{
-				pPart->m_xText = itemtext;
+					pPart->m_xText = tsItemText;
 				setPartInfo(nPos, SBT_OWNERDRAW, pPart);
 			}
 		}
 		else {
 			auto text = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
-			setText(nPos, Dcx::dcxHIWORD(getText(nPos, text.get())), itemtext.to_chr());
+				setText(nPos, Dcx::dcxHIWORD(getText(nPos, text.get())), tsItemText.to_chr());
 		}
+			});
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
+	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [N,N-N,N...] [FILENAME]
 	else if (flags[TEXT('w')])
 	{
 		//		if (numtok < 6)
@@ -485,33 +495,15 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 		parseGlobalCommandRequest(input, flags);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 HIMAGELIST DcxStatusBar::getImageList() const noexcept
 {
 	return m_hImageList;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 void DcxStatusBar::setImageList(const HIMAGELIST himl) noexcept
 {
 	m_hImageList = himl;
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 UINT DcxStatusBar::parseItemFlags(const TString& flags) noexcept
 {
@@ -679,19 +671,32 @@ void DcxStatusBar::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis
 			// look for control data
 			if (auto xCtrl = xItem->FirstChildElement("control"); xCtrl)
 			{
-				const auto iX = queryIntAttribute(xCtrl, "x");
-				const auto iY = queryIntAttribute(xCtrl, "y");
-				const auto iWidth = queryIntAttribute(xCtrl, "width");
-				const auto iHeight = queryIntAttribute(xCtrl, "height");
-				TString tsID(queryAttribute(xCtrl, "id"));
-				auto szType = queryAttribute(xCtrl, "type");
-				auto szStyles = queryAttribute(xCtrl, "styles");
+				//TString tsID(queryAttribute(xCtrl, "id"));
+				//// ID is NOT a number!
+				//if (tsID.empty()) // no id, generate one.
+				//	tsID.addtok(getParentDialog()->getUniqueID());
+				//
+				//auto szType = queryAttribute(xCtrl, "type", "missing");
+				//const auto iX = queryIntAttribute(xCtrl, "x");
+				//const auto iY = queryIntAttribute(xCtrl, "y");
+				//const auto iWidth = queryIntAttribute(xCtrl, "width");
+				//const auto iHeight = queryIntAttribute(xCtrl, "height");
+				//auto szStyles = queryAttribute(xCtrl, "styles");
+				//
+				//_ts_sprintf(tsText, TEXT("% % % % % % %"), tsID, szType, iX, iY, iWidth, iHeight, szStyles);
 
+				tsText = queryAttribute(xCtrl, "id");
 				// ID is NOT a number!
-				if (tsID.empty()) // no id, generate one.
-					tsID.addtok(getParentDialog()->getUniqueID());
+				if (tsText.empty()) // no id, generate one.
+					tsText.addtok(getParentDialog()->getUniqueID());
 
-				_ts_sprintf(tsText, TEXT("% % % % % % %"), tsID, szType, iX, iY, iWidth, iHeight, szStyles);
+				tsText.addtok(queryAttribute(xCtrl, "type", "missing"));
+				tsText.addtok(queryAttribute(xCtrl, "x", "0"));
+				tsText.addtok(queryAttribute(xCtrl, "y", "0"));
+				tsText.addtok(queryAttribute(xCtrl, "width", "0"));
+				tsText.addtok(queryAttribute(xCtrl, "height", "0"));
+				tsText.addtok(queryAttribute(xCtrl, "styles"));
+
 				setPartContents(nPos, tsFlags, iIcon, tsText, tsTooltip);
 
 				if (auto pInfo = this->getPartInfo(nPos); pInfo)
