@@ -700,6 +700,19 @@ mIRC(_xtreebar)
 			}
 		}
 		break;
+
+		case TEXT("takeover"_hash):
+		{
+			_ts_strcpyn(data, dcx_truefalse(DcxDock::g_bTakeOverTreebar), mIRCLinker::m_dwCharacters);
+		}
+		break;
+
+		case TEXT("themedprogress"_hash):
+		{
+			_ts_strcpyn(data, dcx_truefalse(DcxDock::g_bTreebarThemedProgress), mIRCLinker::m_dwCharacters);
+		}
+		break;
+
 		case TEXT("style"_hash):
 		{
 			const auto stylef = dcxGetWindowStyle(mIRCLinker::getTreeview());
