@@ -29,19 +29,19 @@ static void TraverseChildren(const HTREEITEM hParent, TString& buf, TString& res
 				DcxDock::g_wid = 0;
 			}
 			pitem->mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE | TVIF_HANDLE;
-	
+
 			// image
 			auto i = res.getfirsttok(1).to_int() - 1;
 			pitem->iImage = (i < 0) ? I_IMAGENONE : i;
-	
+
 			// selected image (if none supplied use the standard image)
 			i = res.getnexttokas<int>() - 1;
 			pitem->iSelectedImage = (i < 0) ? pitem->iImage : i;
-	
+
 			// expanded image (if none supplied use the standard image)
 			i = res.getnexttokas<int>() - 1;
 			pitem->iExpandedImage = (i < 0) ? pitem->iImage : i;
-	
+
 			Dcx::dcxTreeView_SetItem(mIRCLinker::getTreeview(), pitem);
 		}
 		TraverseChildren(ptvitem, buf, res, pitem);
@@ -139,19 +139,19 @@ static void TraverseTreebarItems(void)
 				DcxDock::g_wid = 0;
 			}
 			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE | TVIF_HANDLE;
-	
+
 			// image
 			auto i = res.getfirsttok(1).to_int() - 1;
 			item.iImage = (i < 0) ? I_IMAGENONE : i;
-	
+
 			// selected image (if none supplied use the standard image)
 			i = res.getnexttokas<int>() - 1;
 			item.iSelectedImage = (i < 0) ? item.iImage : i;
-	
+
 			// expanded image (if none supplied use the standard image)
 			i = res.getnexttokas<int>() - 1;
 			item.iExpandedImage = (i < 0) ? item.iImage : i;
-	
+
 			Dcx::dcxTreeView_SetItem(mIRCLinker::getTreeview(), &item);
 		}
 		TraverseChildren(ptvitem, buf, res, &item);
@@ -533,8 +533,9 @@ mIRC(xtreebar)
 		}
 		break;
 		// [clear|default]
-		// [index] [+flags] [N1,N2-N3] [filename]
-		case TEXT('w'): // [clear|default] | [index] [+flags] [icon index] [filename]
+		// [index] [+flags] [icon file index] [filename]
+		// -1 [+flags] [N1,N2-N3] [filename]
+		case TEXT('w'): // [clear|default] | [index] [+flags] [icon file index] [filename]
 		{
 			if (!mIRCLinker::getTreeImages())
 				throw Dcx::dcxException("No Valid TreeView Image List");
@@ -566,10 +567,42 @@ mIRC(xtreebar)
 				if (!himl)
 					throw DcxExceptions::dcxUnableToCreateImageList();
 
+				//				auto iIndex = tsIndex.to_int() - 1;
+				//				const auto cflag(input.getnexttok().trim());	// tok 3
+				//				const auto fIndex = input.getnexttokas<int>(), iCnt = ImageList_GetImageCount(himl) - 1;	// tok 4
+				//				auto filename(input.getlasttoks().trim());	// tok 5, -1
+				//
+				//				// check index is within range.
+				//				if (iCnt < iIndex)
+				//					throw DcxExceptions::dcxOutOfRange();
+				//
+				//				if (iIndex < 0)
+				//					iIndex = -1; // append to end of list. make sure its only -1
+				//
+				//				if (fIndex < 0)
+				//				{ // file index is -1, so add ALL icons in file at iIndex pos.
+				//					AddFileIcons(himl, filename, false, iIndex);
+				//				}
+				//				else {
+				//#if DCX_USE_WRAPPERS
+				//					Dcx::dcxIconResource icon(fIndex, filename, false, cflag);
+				//
+				//					ImageList_ReplaceIcon(himl, iIndex, icon.get());
+				//#else
+				//					HICON hIcon = dcxLoadIcon(fIndex, filename, false, cflag);
+				//					if (!hIcon)
+				//						throw DcxExceptions::dcxUnableToLoadIcon();
+				//
+				//					ImageList_ReplaceIcon(himl, iIndex, hIcon);
+				//					DestroyIcon(hIcon);
+				//#endif
+				//				}
+
 				auto iIndex = tsIndex.to_int() - 1;
-				const auto cflag(input.getnexttok().trim());	// tok 3
-				const auto fIndex = input.getnexttokas<int>(), iCnt = ImageList_GetImageCount(himl) - 1;	// tok 4
-				auto filename(input.getlasttoks().trim());	// tok 5, -1
+				const auto cflag(input.getnexttok().trim());			// tok 3
+				const auto tsfIndex(input.getnexttok());				// tok 4
+				const auto iCnt = ImageList_GetImageCount(himl) - 1;
+				auto filename(input.getlasttoks().trim());				// tok 5, -1
 
 				// check index is within range.
 				if (iCnt < iIndex)
@@ -578,23 +611,27 @@ mIRC(xtreebar)
 				if (iIndex < 0)
 					iIndex = -1; // append to end of list. make sure its only -1
 
-				if (fIndex < 0)
-				{ // file index is -1, so add ALL icons in file at iIndex pos.
+				if (tsfIndex == L"-1")
+					// file index is -1, so add ALL icons in file at iIndex pos.
 					AddFileIcons(himl, filename, false, iIndex);
-				}
 				else {
+					if (iIndex == -1)
+						Dcx::dcxLoadIconRange(himl, filename, false, cflag, tsfIndex);
+					else {
 #if DCX_USE_WRAPPERS
-					Dcx::dcxIconResource icon(fIndex, filename, false, cflag);
+						Dcx::dcxIconResource icon(tsfIndex.to_int(), filename, false, cflag);
 
-					ImageList_ReplaceIcon(himl, iIndex, icon.get());
+						ImageList_ReplaceIcon(himl, iIndex, icon.get());
 #else
-					HICON hIcon = dcxLoadIcon(fIndex, filename, false, cflag);
-					if (!hIcon)
-						throw DcxExceptions::dcxUnableToLoadIcon();
+						HICON hIcon = dcxLoadIcon(tsfIndex.to_int(), filename, false, cflag);
+						if (!hIcon)
+							throw DcxExceptions::dcxUnableToLoadIcon();
 
-					ImageList_ReplaceIcon(himl, iIndex, hIcon);
-					DestroyIcon(hIcon);
+						ImageList_ReplaceIcon(himl, iIndex, hIcon);
+						DestroyIcon(hIcon);
 #endif
+
+					}
 				}
 			}
 		}
@@ -710,6 +747,30 @@ mIRC(_xtreebar)
 		case TEXT("themedprogress"_hash):
 		{
 			_ts_strcpyn(data, dcx_truefalse(DcxDock::g_bTreebarThemedProgress), mIRCLinker::m_dwCharacters);
+		}
+		break;
+
+		case TEXT("textclr"_hash):
+		{
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%lu"), Dcx::dcxTreeView_GetTextColor(mIRCLinker::getTreeview()));
+		}
+		break;
+
+		case TEXT("bkgclr"_hash):
+		{
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%lu"), Dcx::dcxTreeView_GetBkColor(mIRCLinker::getTreeview()));
+		}
+		break;
+
+		case TEXT("lineclr"_hash):
+		{
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%lu"), Dcx::dcxTreeView_GetLineColor(mIRCLinker::getTreeview()));
+		}
+		break;
+
+		case TEXT("insertclr"_hash):
+		{
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%lu"), Dcx::dcxTreeView_GetInsertMarkColor(mIRCLinker::getTreeview()));
 		}
 		break;
 
