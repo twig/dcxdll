@@ -22,23 +22,16 @@ LayoutCell::LayoutCell() noexcept
 }
 
 LayoutCell::LayoutCell(const HWND mHwnd) noexcept
-	: LayoutCell(mHwnd, RECT())
+	: LayoutCell(mHwnd, Dcx::dcxWindowRect(mHwnd, GetParent(mHwnd)))
 {
-	if (!m_Hwnd)
-		return;
-
-		//GetWindowRect(m_Hwnd, &m_rcWindow);
-
-		const Dcx::dcxWindowRect rc(m_Hwnd, GetParent(m_Hwnd));
-		m_rcWindow = rc.CopyRect();
-	}
+}
 
 LayoutCell::LayoutCell(const HWND mHwnd, const RECT& rc) noexcept
 	: m_Hwnd(mHwnd)
 	, m_rcWindow(rc)
 	, m_BaseControl(Dcx::dcxGetProp<DcxControl*>(mHwnd, L"dcx_cthis"))
-		{
-		}
+{
+}
 
 LayoutCell::LayoutCell(DcxControl* dcxc) noexcept
 	: LayoutCell()
@@ -48,16 +41,16 @@ LayoutCell::LayoutCell(DcxControl* dcxc) noexcept
 	if (!dcxc)
 		return;
 
-		m_Hwnd = dcxc->getHwnd();
+	m_Hwnd = dcxc->getHwnd();
 
 	if (!m_Hwnd)
 		return;
 
-			//GetWindowRect(m_Hwnd, &m_rcWindow);
+	//GetWindowRect(m_Hwnd, &m_rcWindow);
 
-			const Dcx::dcxWindowRect rc(m_Hwnd, GetParent(m_Hwnd));
-			m_rcWindow = rc.CopyRect();
-		}
+	const Dcx::dcxWindowRect rc(m_Hwnd, GetParent(m_Hwnd));
+	m_rcWindow = rc.CopyRect();
+}
 
 void LayoutCell::setParent(LayoutCell* const p_Cell) noexcept
 {
@@ -88,12 +81,6 @@ bool LayoutCell::setRect(RECT& rc) noexcept
 {
 	CellMinMaxInfo cmmi{ {0,0},{rc.right - rc.left,rc.bottom - rc.top} };
 
-	//CellMinMaxInfo cmmi;
-	//cmmi.m_MinSize.x = 0;
-	//cmmi.m_MinSize.y = 0;
-	//cmmi.m_MaxSize.x = rc.right - rc.left;
-	//cmmi.m_MaxSize.y = rc.bottom - rc.top;
-
 	getMinMaxInfo(&cmmi);
 
 	if ((rc.right - rc.left) < cmmi.m_MinSize.x)
@@ -105,8 +92,13 @@ bool LayoutCell::setRect(RECT& rc) noexcept
 	if ((rc.bottom - rc.top) > cmmi.m_MaxSize.y)
 		rc.bottom = (rc.top + cmmi.m_MaxSize.y);
 
-	if (EqualRect(&rc, &m_rcWindow))
-		return false;
+	//if (EqualRect(&rc, &m_rcWindow))
+	//	return false;
+
+	if ((rc.bottom - rc.top) < 0)
+		rc.bottom = rc.top;
+	if ((rc.right - rc.left) < 0)
+		rc.right = rc.left;
 
 	m_rcWindow = rc;
 	return true;

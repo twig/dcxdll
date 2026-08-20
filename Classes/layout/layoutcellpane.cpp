@@ -336,6 +336,7 @@ void LayoutCellPane::AdjustPos() noexcept
 			OffsetRect(&rectChild, rect.left - rectChild.left, nPos - rectChild.top);
 			nPos = rectChild.bottom;
 		}
+
 		pChild->setRect(rectChild);
 	}
 }
