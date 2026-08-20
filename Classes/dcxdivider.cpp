@@ -405,20 +405,33 @@ void DcxDivider::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 			// control.
 			dvpi.fMask |= DVPIM_CHILD;
 
-			const auto iX = queryIntAttribute(xCtrl, "x");
-			const auto iY = queryIntAttribute(xCtrl, "y");
-			const auto iWidth = queryIntAttribute(xCtrl, "width");
-			const auto iHeight = queryIntAttribute(xCtrl, "height");
-			TString tsID(queryAttribute(xCtrl, "id"));
-			auto szType = queryAttribute(xCtrl, "type");
-			auto szStyles = queryAttribute(xCtrl, "styles");
+			//TString tsID(queryAttribute(xCtrl, "id"));
+			//// ID is NOT a number!
+			//if (tsID.empty()) // no id, generate one.
+			//	tsID.addtok(getParentDialog()->getUniqueID());
+			//
+			//auto szType = queryAttribute(xCtrl, "type", "missing");
+			//const auto iX = queryIntAttribute(xCtrl, "x");
+			//const auto iY = queryIntAttribute(xCtrl, "y");
+			//const auto iWidth = queryIntAttribute(xCtrl, "width");
+			//const auto iHeight = queryIntAttribute(xCtrl, "height");
+			//auto szStyles = queryAttribute(xCtrl, "styles");
+			//
+			//TString tsInput;
+			//_ts_sprintf(tsInput, TEXT("% % % % % % %"), tsID, szType, iX, iY, iWidth, iHeight, szStyles);
 
+			TString tsInput(queryAttribute(xCtrl, "id"));
 			// ID is NOT a number!
-			if (tsID.empty()) // no id, generate one.
-				tsID.addtok(getParentDialog()->getUniqueID());
+			if (tsInput.empty()) // no id, generate one.
+				tsInput.addtok(getParentDialog()->getUniqueID());
 
-			TString tsInput;
-			_ts_sprintf(tsInput, TEXT("% % % % % % %"), tsID, szType, iX, iY, iWidth, iHeight, szStyles);
+			tsInput.addtok(queryAttribute(xCtrl, "type", "missing"));
+			tsInput.addtok(queryAttribute(xCtrl, "x", "0"));
+			tsInput.addtok(queryAttribute(xCtrl, "y", "0"));
+			tsInput.addtok(queryAttribute(xCtrl, "width", "0"));
+			tsInput.addtok(queryAttribute(xCtrl, "height", "0"));
+			tsInput.addtok(queryAttribute(xCtrl, "styles"));
+
 			if (auto ctrl = pd->addControl(tsInput, 1, DcxAllowControls::ALLOW_ALLBUTDOCK, m_Hwnd); ctrl)
 			{
 				ctrl->fromXml(xThis, xCtrl);
