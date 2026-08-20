@@ -181,8 +181,12 @@ function get_xtreebar(&$XTREEBAR) {
         ),
         'T' => array(
             '__desc' => 'This command allows you to enable or disable DCX controlled drawing of the mIRC TreeBar.',
-            '__cmd' => '[0|1]',
-            '__eg' => '1',
+            '__cmd' => '[OVERRIDE] (THEMEDPROGRESS)',
+            '__eg' => '1 1',
+            '__params' => array(
+                'OVERRIDE' => '1|0 Enable/Disable owner drawing treebar.',
+                'THEMEDPROGRESS' => '1|0 Enable/Disable themed progress indicators. (Only when [v]OVERRIDE[/v] is enabled)',
+            ),
             '__notes' => array(
                 'When enabled, the script function [v]$xtreebar_callback(geticons, [TYPE], [TEXT])[/v] will be called for each item. This will allow you to configure the appearance of each item in the TreeBar.',
                 'The same alias is called when an item is added to the TreeBar. This will allow you to configure the appearance of the new item.',
@@ -194,6 +198,7 @@ function get_xtreebar(&$XTREEBAR) {
             '__cmd' => '[POS] [+FLAGS] [INDEX] [FILE]',
             '__eg' => array(
 		        '0 + 1 icons.icl',
+		        '-1 + 1-6 icons.icl',
 		        'clear',
 		        'default',
 	        ),
@@ -202,8 +207,13 @@ function get_xtreebar(&$XTREEBAR) {
                 'default' => 'Reverts the icon list to the default icons.',
                 'POS' => 'The position to add the new icon. Use [v]0[/v] to add to the end.',
                 // + dcxLoadIcon flags for +FLAGS
+                'INDEX' => 'Icon index to add',
+                'FILE' => 'Icon file to add',
             ),
-            '__notes' => 'This requires [cmd]/xtreebar -T[/cmd] to be activated.',
+            '__notes' => array(
+                'This requires [cmd]/xtreebar -T[/cmd] to be activated.',
+                '[v]INDEX[/v] can be a range of icon indexes, but [v]POS[/v] must then be -1.',
+            ),
         ),
     );
     
@@ -230,7 +240,7 @@ function get_xtreebarprops(&$XDIDPROPS) {
             ),
             '__notes' => array(
                 'If [p]N[/p] is [v]0[/v], this property retrieves the total number of items in the mIRC Treebar.',
-                'Returns [v]$null[/v] if unsuccessful.',
+                'Returns [r]$null[/r] if unsuccessful.',
             ),
         ),
         'wid' => array(
@@ -243,9 +253,12 @@ function get_xtreebarprops(&$XDIDPROPS) {
             '__notes' => array(
                 'If [p]N[/p] is [v]0[/v], this property retrieves the current item being proccessed by $xtreebar_callback.',
                 '(This ONLY works within the $xtreebar_callback alias.)',
-                'Returns [v]0[/v] if unsuccessful.',
+                'Returns [r]0[/r] if unsuccessful.',
             ),
         ),
+        'takeover' => 'Returns the current takeover state.',
+        'themedprogress' => 'Returns the current themedprogress state.',
+        'style' => 'Returns the current treewview styles in use.',
     );
 }
 

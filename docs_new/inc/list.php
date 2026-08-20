@@ -28,21 +28,45 @@ function get_xdid_list(&$XDID) {
 			'__desc' => 'This command lets you add a new item to the listbox.',
 			'__cmd' => '[N] [Item Text]',
 			'__eg' => '0 New Item',
+			'__params' => array(
+				'N' => 'Item offset to add the item at.',
+			),
 			'__notes' => "You can use [v]0[/v] for [p]N[/p] to insert at the end of the listbox.",
 		),
 		'c' => array(
 			'__desc' => "This command lets you select items in the listbox.",
 			'__cmd' => '[N(,N,...)]',
 			'__eg' => '1,2,3',
+			'__params' => array(
+				'N' => 'Item or range of items to select.',
+			),
 			'__notes' => array(
-				'In a single line listbox, you only provide the line number to select.',
+				'In a single line listbox, you cannot select a range of lines.',
 				'You can use [v]0[/v] for [p]N[/p] to select the last item.',
 			),
 		),
 		'd' => array(
             '__desc' => 'This command lets you delete an item in the listbox.',
-            '__cmd' => '[N]',
-            '__eg' => '1',
+            '__cmd' => '[N(,N,...)] ([+FLAGS] [MATCHTEXT])',
+            '__eg' => array(
+				'1',
+				'1-4',
+				'1 + stuff',
+				'1 +w *stuff*',
+				'1 +r /stuff/',
+			),
+			'__params' => array(
+				'N' => 'Item or range of items to delete, or if [v]FLAGS[/v] are supplied the offset to start searching at.',
+				'FLAGS' => array(
+					'__desc' => 'Flags to set the type of matching used.',
+					'__values' => array(
+						'w' => '[v]MATCHTEXT[/v] is a wildcard.',
+						'r' => '[v]MATCHTEXT[/v] is a regex.',
+						'e' => '[v]MATCHTEXT[/v] is an exact match (default when no flag is used).',
+					),
+				),
+				'MATCHTEXT' => 'Only delete items matching this text.',
+			),
             '__notes' => 'You can use [v]0[/v] for [p]N[/p] to delete the last item.',
 		),
         'm' => array(
@@ -70,8 +94,15 @@ function get_xdid_list(&$XDID) {
 		),
 		'o' => array(
 			'__desc' => 'This command lets you overwrite an item in the listbox.',
-			'__cmd' => '[N] [Item Text]',
-			'__eg' => '1 New Text',
+			'__cmd' => '[N(,N,...)] [Item Text]',
+			'__eg' => array(
+				'1 New Text',
+				'1,5 New Text',
+			),
+			'__params' => array(
+				'N' => 'Item or range of items to overwrite.',
+				'Item Text' => 'Text to insert.',
+			),
 			'__notes' => 'You can use [v]0[/v] for [p]N[/p] to overwrite the last item.',
 		),
         'A' => array(

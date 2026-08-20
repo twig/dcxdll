@@ -69,6 +69,7 @@ function get_xdid_comboex(&$XDID) {
 	        '__cmd' => '[N](,[N2],[N3]-N4],...) or [N] [+FLAGS] [MATCH]',
 	        '__eg' => array(
 				"6",
+				"6-9",
 				"6 +w *pattern*",
 			),
             '__params' => array(
@@ -95,7 +96,10 @@ function get_xdid_comboex(&$XDID) {
 		'w' => array(
 	        '__desc' => 'This command lets you add an icon to the image list.',
 	        '__cmd' => '[+FLAGS] [N,N2,N3-N4...] [FILENAME]',
-	        '__eg' => '+g 113 shell32.dll',
+	        '__eg' => array(
+				'+g 113 shell32.dll',
+				'+g 113-120 shell32.dll',
+			),
 	        '__params' => array(
 	        	// +FLAGS
 	            'N' => 'Icon index in icon archive',
@@ -118,10 +122,13 @@ function get_xdid_comboex(&$XDID) {
 		),
 		'A' => array(
 	        '__desc' => 'This command lets you add custom info to items.',
-	        '__cmd' => "[ROW] [+FLAGS] [INFO]",
-	        '__eg' => "13 +M Yetis are real",
+	        '__cmd' => "[N](,[N2],[N3]-N4],...) [+FLAGS] [INFO]",
+	        '__eg' => array(
+				"13 +M Yetis are real",
+				"13-20,22 +M Yetis are real",
+			),
             '__params' => array(
-				'ROW' => "row",
+				'N' => "Item",
 				'+FLAGS' => "M - Mark info",
 				'INFO' => "Info",
 			),

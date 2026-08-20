@@ -194,7 +194,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -d dcx 4 6<br />/xdid -d dcx 4 6 +w *pattern*<br /></div></td>
+		<td><div class="example">/xdid -d dcx 4 6<br />/xdid -d dcx 4 6-9<br />/xdid -d dcx 4 6 +w *pattern*<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -275,7 +275,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -w dcx 4 +g 113 shell32.dll</div></td>
+		<td><div class="example">/xdid -w dcx 4 +g 113 shell32.dll<br />/xdid -w dcx 4 +g 113-120 shell32.dll<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -328,16 +328,16 @@
 	<tr><td colspan="2">This command lets you add custom info to items.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -A [DNAME] [ID] [ROW] [+FLAGS] [INFO]</div></td>
+		<td><div class="syntax">/xdid -A [DNAME] [ID] [N](,[N2],[N3]-N4],...) [+FLAGS] [INFO]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -A dcx 4 13 +M Yetis are real</div></td>
+		<td><div class="example">/xdid -A dcx 4 13 +M Yetis are real<br />/xdid -A dcx 4 13-20,22 +M Yetis are real<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
-		<td class="param">ROW</td>
-		<td>row</td>
+		<td class="param">N</td>
+		<td>Item</td>
 	</tr>
 	<tr>
 		<td class="param">+FLAGS</td>
@@ -854,7 +854,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 30th July, 26</td>
+		<td style="text-align: right;">Last Updated: 19th August, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

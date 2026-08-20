@@ -32,6 +32,9 @@ function get_xdid_richedit(&$XDID) {
 	        '__desc' => 'This command lets you add text to the end of the richedit.',
 	        '__cmd' => '[TEXT]',
 	        '__eg' => 'New Text',
+	        '__params' => array(
+	            'TEXT' => "The text to fill the control with.",
+			),
 		),
 		'c' => array(
 	        '__desc' => 'This command will copy the text in the edit to the clipboard.',
@@ -46,29 +49,49 @@ function get_xdid_richedit(&$XDID) {
 			'__desc' => 'This command lets you delete the Nth line of text in the richedit.',
 			'__cmd' => '[N,N2,N3-N4]',
 			'__eg' => '2,40-55',
+	        '__params' => array(
+	            'N' => "The line or range of lines to delete.",
+			),
 			'__notes' => "Only works with [s]multi[/s].",
 		),
 		'i' => array(
 	        '__desc' => 'This command lets you insert a line at the Nth position in the richedit.',
-	        '__cmd' => '[N] [TEXT]',
-	        '__eg' => "2 New Text",
+	        '__cmd' => '[N,N2,N3-N4] [TEXT]',
+	        '__eg' => array(
+				"2 New Text",
+				"2,5 New Text",
+			),
+	        '__params' => array(
+	            'N' => "The line or range of lines to insert at.",
+				'TEXT' => "The text to insert.",
+			),
 	        '__notes' => array(
 	            "If the [s]multi[/s] style is not used, overwrites all text."
 			),
 		),
 		'I' => array(
 			'__desc' => 'This command lets you insert a line at the Nth position in the richedit. (cmd is uppercase i)',
-		        '__cmd' => '[N] [TEXT]',
-		        '__eg' => "5 Inserted Text",
-			    '__notes' => array(
-					"The text is inserted at the [v]Nth[/v] character no matter what mode the control is in.",
-					" If the control has less that N characters the text is added to the end."
-				),
+		    '__cmd' => '[N,N2,N3-N4] [TEXT]',
+		    '__eg' => array(
+				"5 Inserted Text",
+				"5,20,30 Inserted Text",
+			),
+	        '__params' => array(
+	            'N' => "The character offset or range of character offsets to insert at.",
+				'TEXT' => "The text to insert.",
+			),
+			'__notes' => array(
+				"The text is inserted at the [v]Nth[/v] character no matter what mode the control is in.",
+				" If the control has less that N characters the text is added to the end."
+			),
 		),
 		'k' => array(
 	        '__desc' => 'This command lets you change the richedit background color.',
 	        '__cmd' => '[RGB]',
 	        '__eg' => '$rgb(255,0,0)',
+	        '__params' => array(
+	            'RGB' => "An RGB Colour value",
+			),
 	        '__notes' => array(
 	            "Use -1 to revert to default.",
 			),
@@ -79,6 +102,7 @@ function get_xdid_richedit(&$XDID) {
 	        '__eg' => '5 $rgb(255,0,0)',
 	        '__params' => array(
 	            "N" => "An index between 0-15",
+	            'RGB' => "An RGB Colour value",
 			),
 		),
 		'm' => array(
@@ -91,10 +115,15 @@ function get_xdid_richedit(&$XDID) {
 		),
 		'o' => array(
 	        '__desc' => 'This command lets you overwrite the Nth line in the richedit.',
-	        '__cmd' => '[N] [TEXT]',
+	        '__cmd' => '[N,N2,N3-N4] [TEXT]',
 			'__eg' => array(
 				'5 New multi line Text',
+				'5-10,12 New multi line Text',
 				'0 New single line Text',
+			),
+	        '__params' => array(
+	            'N' => "The line or range of lines to overwrite.",
+				'TEXT' => "The text to insert.",
 			),
 			'__notes' => array(
 				"If the [s]multi[/s] style is not used, will overwrite the whole text.",
@@ -113,6 +142,9 @@ function get_xdid_richedit(&$XDID) {
 	        '__desc' => 'This command lets you load a custom palette into the richedit control.',
 	        '__cmd' => '[COLOR1] [COLOR2] ... [COLOR16]',
 	        '__eg' => '2 $rgb(255,0,0)',
+	        '__params' => array(
+	            'COLOR' => "An RGB colour value.",
+			),
 	        '__notes' => array(
 	            "The number of colors is limited to 16, everything past the 16th color is ignored.",
 	            "You can give the command a number of colors inferior to 16, it will then only add thoses colors in order to the palette starting at 1.",
@@ -125,11 +157,17 @@ function get_xdid_richedit(&$XDID) {
 			'__desc' => 'This command lets you load the contents of a file directly in the richedit.',
 			'__cmd' => '[FILENAME]',
 			'__eg' => 'C:/mIRC/blah.txt',
+	        '__params' => array(
+	            'FILENAME' => "File to load.",
+			),
 		),
 		'u' => array(
 			'__desc' => 'This command lets you save the contents of the richedit directly in a file.',
 			'__cmd' => '[FILENAME]',
 			'__eg' => 'C:/mIRC/blah.txt',
+	        '__params' => array(
+	            'FILENAME' => "File to save.",
+			),
 		),
         'S' => array(
             '__desc' => 'This command lets you set the selection range (and/or caret position) in the richedit control.',
@@ -138,6 +176,10 @@ function get_xdid_richedit(&$XDID) {
                 '1 3',
                 '5',
             ),
+	        '__params' => array(
+	            'START' => "Start of selection range. (in characters)",
+	            'END' => "End of selection range. (in characters)",
+			),
             '__notes' => 'When the [p]END[/p] parameter is not specified, then this command will set the caret position to [p]START[/p].',
         ),
 		'y' => array(
@@ -153,15 +195,29 @@ function get_xdid_richedit(&$XDID) {
 			'__desc' => 'This command lets you zoom the text of the richedit.',
 			'__cmd' => '[NUMERATOR] [DENOMINATOR]',
 			'__eg' => '200 100',
+	        '__params' => array(
+	            'NUMERATOR' => "a number",
+	            'DENOMINATOR' => "another number",
+			),
 			'__notes' => 'The percentage of zooming is calculated by dividing the numerator by denominator ([p]NUMERATOR[/p] / [p]DENOMINATOR[/p] * 100)',
 		),
 		'g' => array(
 			'__desc' => 'This command lets you set the colours to use for line numbers',
 			'__cmd' => '[Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-) (Border Colour|-) (Unlock Gutter 0|1|-) (Gutter Size|-) (Gutter Border Size|-)',
 			'__eg' => '$rgb(255,0,0) $rgb(16,24,5) - $rgb(12,34,0)',
+	        '__params' => array(
+	            'Selected line Background Colour' => "An RGB value or -",
+	            'Background Colour' => "An RGB value or -",
+	            'Selected line Text Colour' => "An RGB value or -",
+	            'Text Colour' => "An RGB value or -",
+	            'Border Colour' => "An RGB value or -",
+	            'Unlock Gutter' => "0 or 1 or -",
+	            'Gutter Size' => "Gutter size in pixels or -",
+	            'Gutter Border Size' => "Gutter border sizein pixels or -",
+			),
 			'__notes' => array(
 				'A value of [v]-[/v] will cause an option to be ignored.',
-				'atm the Gutter Border Size option isnt implemented.',
+				'atm the Gutter Border Size option is not implemented.',
 			),
 		),
 	);

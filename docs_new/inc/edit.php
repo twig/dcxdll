@@ -42,6 +42,9 @@ function get_xdid_edit(&$XDID) {
 			'__desc' => 'This command lets you add text to the end of the edit.',
 			'__cmd' => '[TEXT]',
 			'__eg' => 'New Text',
+	        '__params' => array(
+	            'TEXT' => "The text to fill the control with.",
+			),
 		),
 		'c' => "This command will copy the text in the edit to the clipboard.",
 		//'C' => array(
@@ -54,6 +57,9 @@ function get_xdid_edit(&$XDID) {
 			'__desc' => 'This command lets you delete the Nth line of text in the edit.',
 			'__cmd' => '[N,N2,N3-N4]',
 			'__eg' => '2,40-55',
+	        '__params' => array(
+	            'N' => "The line or range of lines to delete.",
+			),
 			'__notes' => "Only works with [s]multi[/s].",
 		),
 		'l' => array(
@@ -63,15 +69,29 @@ function get_xdid_edit(&$XDID) {
 		),
 		'i' => array(
 			'__desc' => 'This command lets you insert a line at the Nth position in the edit.',
-		        '__cmd' => '[N] (TEXT)',
-		        '__eg' => "5 New Text",
-		        '__notes' => "If the [s]multi[/s] style is not used, will overwrite the whole text."
+	        '__cmd' => '[N,N2,N3-N4] [TEXT]',
+	        '__eg' => array(
+				"2 New Text",
+				"2,5 New Text",
+			),
+	        '__params' => array(
+	            'N' => "The line or range of lines to insert at.",
+				'TEXT' => "The text to insert.",
+			),
+		    '__notes' => "If the [s]multi[/s] style is not used, will overwrite the whole text."
 		),
 		'I' => array(
 			'__desc' => 'This command lets you insert a line at the Nth position in the edit.',
-		        '__cmd' => '[N] [TEXT]',
-		        '__eg' => "5 Inserted Text",
-		        '__notes' => "The text is inserted at the [v]Nth[/v] character no matter what mode the control is in. If the control has less that N characters the text is added to the end."
+		    '__cmd' => '[N,N2,N3-N4] [TEXT]',
+		    '__eg' => array(
+				"5 Inserted Text",
+				"5,20,30 Inserted Text",
+			),
+	        '__params' => array(
+	            'N' => "The character offset or range of character offsets to insert at.",
+				'TEXT' => "The text to insert.",
+			),
+		    '__notes' => "The text is inserted at the [v]Nth[/v] character no matter what mode the control is in. If the control has less that N characters the text is added to the end."
 		),
 		'j' => array(
 		    '__desc' => 'This command lets you trigger the password style of the edit control on the fly.',
@@ -81,10 +101,15 @@ function get_xdid_edit(&$XDID) {
 		),
 		'o' => array(
 			'__desc' => 'This command lets you overwrite the Nth line in the edit.',
-			'__cmd' => '[N] [TEXT]',
+	        '__cmd' => '[N,N2,N3-N4] [TEXT]',
 			'__eg' => array(
 				'5 New multi line Text',
+				'5-10,12 New multi line Text',
 				'0 New single line Text',
+			),
+	        '__params' => array(
+	            'N' => "The line or range of lines to overwrite.",
+				'TEXT' => "The text to insert.",
 			),
 			'__notes' => array(
 				"If the [s]multi[/s] style is not used, will overwrite the whole text.",
@@ -107,11 +132,17 @@ function get_xdid_edit(&$XDID) {
 		    '__desc' => 'This command lets you load the contents of a file directly in the edit.',
 		    '__cmd' => '[FILENAME]',
 		    '__eg' => 'C:/mIRC/blah.txt',
+	        '__params' => array(
+	            'FILENAME' => "File to load.",
+			),
 		),
 		'u' => array(
 		    '__desc' => 'This command lets you save the contents of the edit directly to a file.',
 		    '__cmd' => '[FILENAME]',
 		    '__eg' => 'C:/mIRC/blah.txt',
+	        '__params' => array(
+	            'FILENAME' => "File to save.",
+			),
 		),
 		'E' => array(
 		    '__desc' => 'This command lets you set the cue text. It behaves like a ghostly value when the edit control is empty.',
@@ -137,6 +168,10 @@ function get_xdid_edit(&$XDID) {
 			    '1 3',
 				'5',
 			),
+	        '__params' => array(
+	            'START' => "Start of selection range. (in characters)",
+	            'END' => "End of selection range. (in characters)",
+			),
 		    '__notes' => 'When the [p]END[/p] parameter is not specified, then this command will set the caret position to [p]START[/p].',
 		),
 		'y' => array(
@@ -152,9 +187,19 @@ function get_xdid_edit(&$XDID) {
 			'__desc' => 'This command lets you set the colours to use for line numbers',
 			'__cmd' => '[Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-) (Border Colour|-) (Unlock Gutter 0|1|-) (Gutter Size|-) (Gutter Border Size|-)',
 			'__eg' => '$rgb(255,0,0) $rgb(16,24,5) - $rgb(12,34,0)',
+	        '__params' => array(
+	            'Selected line Background Colour' => "An RGB value or -",
+	            'Background Colour' => "An RGB value or -",
+	            'Selected line Text Colour' => "An RGB value or -",
+	            'Text Colour' => "An RGB value or -",
+	            'Border Colour' => "An RGB value or -",
+	            'Unlock Gutter' => "0 or 1 or -",
+	            'Gutter Size' => "Gutter size in pixels or -",
+	            'Gutter Border Size' => "Gutter border sizein pixels or -",
+			),
 			'__notes' => array(
 				'A value of [v]-[/v] will cause an option to be ignored.',
-				'atm the Gutter Border Size option isnt implemented.',
+				'atm the Gutter Border Size option is not implemented.',
 			),
 		),
 	);

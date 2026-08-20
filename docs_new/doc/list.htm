@@ -143,6 +143,11 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -a dcx 4 0 New Item</div></td>
 	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Item offset to add the item at.</td>
+	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">0</a> for <a class="param">N</a> to insert at the end of the listbox.</td></tr></table>
 <br />
 <table class="xdid">
@@ -157,7 +162,12 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -c dcx 4 1,2,3</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>In a single line listbox, you only provide the line number to select.</li><li>You can use <a class="value">0</a> for <a class="param">N</a> to select the last item.</li></ul></td></tr></table>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Item or range of items to select.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>In a single line listbox, you cannot select a range of lines.</li><li>You can use <a class="value">0</a> for <a class="param">N</a> to select the last item.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -165,11 +175,36 @@
 	<tr><td colspan="2">This command lets you delete an item in the listbox.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -d [DNAME] [ID] [N]</div></td>
+		<td><div class="syntax">/xdid -d [DNAME] [ID] [N(,N,...)] ([+FLAGS] [MATCHTEXT])</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -d dcx 4 1</div></td>
+		<td><div class="example">/xdid -d dcx 4 1<br />/xdid -d dcx 4 1-4<br />/xdid -d dcx 4 1 + stuff<br />/xdid -d dcx 4 1 +w *stuff*<br />/xdid -d dcx 4 1 +r /stuff/<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Item or range of items to delete, or if <a class="value">FLAGS</a> are supplied the offset to start searching at.</td>
+	</tr>
+	<tr>
+		<td class="param">FLAGS</td>
+		<td>Flags to set the type of matching used.</td>
+	</tr>
+	<tr>
+		<td class="value">w</td>
+		<td><a class="value">MATCHTEXT</a> is a wildcard.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td><a class="value">MATCHTEXT</a> is a regex.</td>
+	</tr>
+	<tr>
+		<td class="value">e</td>
+		<td><a class="value">MATCHTEXT</a> is an exact match (default when no flag is used).</td>
+	</tr>
+	<tr>
+		<td class="param">MATCHTEXT</td>
+		<td>Only delete items matching this text.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">0</a> for <a class="param">N</a> to delete the last item.</td></tr></table>
 <br />
@@ -214,11 +249,20 @@
 	<tr><td colspan="2">This command lets you overwrite an item in the listbox.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -o [DNAME] [ID] [N] [Item Text]</div></td>
+		<td><div class="syntax">/xdid -o [DNAME] [ID] [N(,N,...)] [Item Text]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -o dcx 4 1 New Text</div></td>
+		<td><div class="example">/xdid -o dcx 4 1 New Text<br />/xdid -o dcx 4 1,5 New Text<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Item or range of items to overwrite.</td>
+	</tr>
+	<tr>
+		<td class="param">Item Text</td>
+		<td>Text to insert.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">0</a> for <a class="param">N</a> to overwrite the last item.</td></tr></table>
 <br />
@@ -966,7 +1010,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 30th July, 26</td>
+		<td style="text-align: right;">Last Updated: 19th August, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

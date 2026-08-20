@@ -595,11 +595,11 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">This command lets you add an icon to the treeview image lists.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [INDEX] [FILENAME]</div></td>
+		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [N,N2-N3,N4....] [FILENAME]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -w dcx 4 +n 113 shell32.dll<br />/xdid -w dcx 4 +no2 29 shell32.dll<br /></div></td>
+		<td><div class="example">/xdid -w dcx 4 +n 113 shell32.dll<br />/xdid -w dcx 4 +n 113-120 shell32.dll<br />/xdid -w dcx 4 +no2 29 shell32.dll<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -635,8 +635,8 @@ This would add the item at the end of the last branch in the first column of bra
 		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
 	</tr>
 	<tr>
-		<td class="param">INDEX</td>
-		<td>Icon index in icon archive</td>
+		<td class="param">N</td>
+		<td>Icon index or range of indexes in icon archive</td>
 	</tr>
 	<tr>
 		<td class="param">FILENAME</td>
@@ -1391,7 +1391,7 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 30th July, 26</td>
+		<td style="text-align: right;">Last Updated: 19th August, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

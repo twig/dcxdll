@@ -408,7 +408,12 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -c dcx 4 1,3,5,10-30</div></td>
+		<td><div class="example">/xdid -c dcx 4 1<br />/xdid -c dcx 4 1,3,5,10-30<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Item or range of items to select.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> In a <a class='style' href='listview.htm#style.singlesel'>singlesel</a> listview, there is only one value for <a class="param">N</a>.</td></tr></table>
 <br />
@@ -543,20 +548,20 @@
 	<tr><td colspan="2">This command lets you change the appearance of a listview item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -j [DNAME] [ID] [N] [NSUB] [STATE] (COLOR BGCOLOR)</div></td>
+		<td><div class="syntax">/xdid -j [DNAME] [ID] [N(,N,N-N,...)] [NSUB(,NSUB,NSUB-NSUB,...)] [STATE] (COLOR BGCOLOR)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -j dcx 4 2 5 +bt<br />/xdid -j dcx 4 7 1 +uck $rgb(255, 0, 0) $rgb(0, 255, 0)<br /></div></td>
+		<td><div class="example">/xdid -j dcx 4 2 5 +bt<br />/xdid -j dcx 4 7 1 +uck $rgb(255, 0, 0) $rgb(0, 255, 0)<br />/xdid -j dcx 4 7,9 1,3 +uck $rgb(255, 0, 0) $rgb(0, 255, 0)<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">N</td>
-		<td>The row index for the item.</td>
+		<td>The item or range of items.</td>
 	</tr>
 	<tr>
 		<td class="param">NSUB</td>
-		<td>The column index for the item.</td>
+		<td>The subitem or range of subitems.</td>
 	</tr>
 	<tr>
 		<td class="param">STATE</td>
@@ -686,7 +691,7 @@
 	<tr><td colspan="2">This command lets you change the Nth listview column width (<a class='style' href='listview.htm#style.report'>report</a> view only).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -n [DNAME] [ID] [COL] [+FLAGS] (WIDTH ...)</div></td>
+		<td><div class="syntax">/xdid -n [DNAME] [ID] [COL(,COL1-COL2,COL3...)] [+FLAGS] (WIDTH ...)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -751,7 +756,7 @@
 	<tr><td colspan="2">This command lets you add a group to the listview. <a class="os">(XP+)</a></td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -q [DNAME] [ID] [N] [+FLAGS] [GROUPID] [GROUPTEXT]</div></td>
+		<td><div class="syntax">/xdid -q [DNAME] [ID] [N] [+FLAGS] [GROUPID] [GROUPTEXT] ([tab] Column2 text)...</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -1052,13 +1057,21 @@
 	<tr><td colspan="2">This command lets you set a property on a specific (sub)item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -A [DNAME] [ID] [ROW] [COLUMN] [+FLAGS] [INFO]</div></td>
+		<td><div class="syntax">/xdid -A [DNAME] [ID] [N(,N,N-N,...)] [NSUB(,NSUB,NSUB-NSUB,...)] [+FLAGS] [INFO]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -A dcx 4 4 2 +M Marked text here</div></td>
+		<td><div class="example">/xdid -A dcx 4 4 1 +M Marked text here<br />/xdid -A dcx 4 4-6 1 +M Marked text here<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Item or range of items.</td>
+	</tr>
+	<tr>
+		<td class="param">NSUB</td>
+		<td>SubItem or range of subitems.</td>
+	</tr>
 	<tr>
 		<td class="param">+FLAGS</td>
 		<td>Property flags.</td>
@@ -1071,7 +1084,7 @@
 		<td class="param">INFO</td>
 		<td>The information to set. The usage of this parameter depends on the flags specified in <a class="param">FLAGS</a>.</td>
 	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="value">N</a> is zero apply to the last item.</li><li><a class="value">NSUB</a> should be one atm, has no effect.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -1085,6 +1098,11 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -B dcx 4 3</div></td>
 	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Item to edit.</td>
+	</tr>
 </table>
 <br />
 <table class="xdid">
@@ -1093,7 +1111,7 @@
 	<tr><td colspan="2">This command lets you change a groups state.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -G [DNAME] [ID] [GID] [+MASK] [+STATES]</div></td>
+		<td><div class="syntax">/xdid -G [DNAME] [ID] [GID,GID2,GID3-GIDn] [+MASK] [+STATES]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -1164,7 +1182,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -H dcx 4 1 +s sortdown unchecked</div></td>
+		<td><div class="example">/xdid -H dcx 4 1 +s sortdown unchecked<br />/xdid -H dcx 4 1,2,5 +t OoOOO<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1177,11 +1195,16 @@
 	</tr>
 	<tr>
 		<td class="value">s</td>
-		<td>Change header style</td>
+		<td>Change header style.</td>
 	</tr>
 	<tr>
-		<td class="param">ARGS</td>
-		<td>The arguments for the given +FLAGS</td>
+		<td class="value">t</td>
+		<td>Change header text.</td>
+	</tr>
+	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
+	<tr>
+		<td class="param">s</td>
+		<td><div class="syntax">[OPTIONS]</div></td>
 	</tr>
 	<tr>
 		<td class="value">sortdown</td>
@@ -1210,6 +1233,14 @@
 	<tr>
 		<td class="value">unchecked</td>
 		<td>Change the header to show a unselected checkbox. (can't be used with nocheckbox or checked)</td>
+	</tr>
+	<tr>
+		<td class="param">t</td>
+		<td><div class="syntax">[TEXT]</div></td>
+	</tr>
+	<tr>
+		<td class="value">TEXT</td>
+		<td>The text to set.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only +s flag is supported atm, so only styles can be changed.</td></tr></table>
 <br />
@@ -1313,11 +1344,11 @@
 	<tr><td colspan="2">This command lets you add, move, & delete groups.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -Q [DNAME] [ID] Add [N] [+FLAGS] [GID] [GROUPTEXT]|Move [GID] [N]|Del [GID]</div></td>
+		<td><div class="syntax">/xdid -Q [DNAME] [ID] Add [N] [+FLAGS] [GID] [GROUPTEXT] ([tab] Column2 text)...|Move [GID] [N]|Del [GID]|Setup [GID,GID2,GID3-GIDn] [+FLAGS] [+MASK] (ARGS)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -Q dcx 4 Add 1 +l 101 Group 101!<br />/xdid -Q dcx 4 Move 101 4<br />/xdid -Q dcx 4 Del 101<br /></div></td>
+		<td><div class="example">/xdid -Q dcx 4 Add 1 +l 101 Group 101!<br />/xdid -Q dcx 4 Move 101 4<br />/xdid -Q dcx 4 Del 101<br />/xdid -Q dcx 4 Setup 101,102 +Cc +Cc<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1341,12 +1372,80 @@
 		<td>Group text is right aligned.</td>
 	</tr>
 	<tr>
+		<td class="value">C</td>
+		<td>Group is collapsible</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>Group is hidden.</td>
+	</tr>
+	<tr>
+		<td class="value">N</td>
+		<td>Group has no header.</td>
+	</tr>
+	<tr>
+		<td class="value">O</td>
+		<td>Group is collapsed.</td>
+	</tr>
+	<tr>
+		<td class="value">S</td>
+		<td>Group is selected.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Group is subsetted.</td>
+	</tr>
+	<tr>
+		<td class="param">+MASK</td>
+		<td>Group Flags Mask. (a state flag repeated here is enabled)</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Group text is centered.</td>
+	</tr>
+	<tr>
+		<td class="value">l</td>
+		<td>Group text is left aligned.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Group text is right aligned.</td>
+	</tr>
+	<tr>
+		<td class="value">C</td>
+		<td>Group is collapsible</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>Group is hidden.</td>
+	</tr>
+	<tr>
+		<td class="value">N</td>
+		<td>Group has no header.</td>
+	</tr>
+	<tr>
+		<td class="value">O</td>
+		<td>Group is collapsed.</td>
+	</tr>
+	<tr>
+		<td class="value">S</td>
+		<td>Group is selected.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Group is subsetted.</td>
+	</tr>
+	<tr>
 		<td class="param">GID</td>
 		<td>ID that identifies the group when adding items in <a class='value' href='listview.htm#xdid.a'>/xdid -a</a>.</td>
 	</tr>
 	<tr>
 		<td class="param">GROUPTEXT</td>
 		<td>Label for the group.</td>
+	</tr>
+	<tr>
+		<td class="param">ARGS</td>
+		<td>Not used atm.</td>
 	</tr>
 </table>
 <br />
@@ -2734,7 +2833,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 1st August, 26</td>
+		<td style="text-align: right;">Last Updated: 19th August, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

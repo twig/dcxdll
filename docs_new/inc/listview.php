@@ -135,9 +135,14 @@ function get_xdid_listview(&$XDID) {
 		),
 		'A' => array(
 			'__desc' => 'This command lets you set a property on a specific (sub)item.',
-			'__cmd' => '[ROW] [COLUMN] [+FLAGS] [INFO]',
-			'__eg' => '4 2 +M Marked text here',
+			'__cmd' => '[N(,N,N-N,...)] [NSUB(,NSUB,NSUB-NSUB,...)] [+FLAGS] [INFO]',
+			'__eg' => array(
+				'4 1 +M Marked text here',
+				'4-6 1 +M Marked text here',
+			),
 			'__params' => array(
+				'N' => 'Item or range of items.',
+				'NSUB' => 'SubItem or range of subitems.',
 				'+FLAGS' => array(
 					'__desc' => 'Property flags.',
 					'__values' => array(
@@ -146,16 +151,29 @@ function get_xdid_listview(&$XDID) {
 				),
 				'INFO' => 'The information to set. The usage of this parameter depends on the flags specified in [p]FLAGS[/p].',
 			),
+			'__notes' => array(
+				'If [v]N[/v] is zero apply to the last item.',
+				'[v]NSUB[/v] should be one atm, has no effect.',
+			),
 		),
 		'B' => array(
 	        '__desc' => 'This command lets you force label editing on a listview item.',
 	        '__cmd' => '[N]',
 	        '__eg' => '3',
+			'__params' => array(
+				'N' => 'Item to edit.',
+			),
 		),
 		'c' => array(
 	        '__desc' => 'This command lets you select listview items.',
 	        '__cmd' => '[N(,N2,N3-N4,...)]',
-	        '__eg' => '1,3,5,10-30',
+	        '__eg' => array(
+				'1',
+				'1,3,5,10-30',
+			),
+			'__params' => array(
+				'N' => 'Item or range of items to select.',
+			),
 	        '__notes' => 'In a [s]singlesel[/s] listview, there is only one value for [p]N[/p].'
 		),
 		'd' => array(
@@ -197,7 +215,7 @@ function get_xdid_listview(&$XDID) {
 		),
 		'G' => array(
 	        '__desc' => 'This command lets you change a groups state.',
-	        '__cmd' => '[GID] [+MASK] [+STATES]',
+	        '__cmd' => '[GID,GID2,GID3-GIDn] [+MASK] [+STATES]',
 	        '__eg' => '1 +O +O',
             '__params' => array(
                 'GID' => 'ID of the group to change',
@@ -227,27 +245,39 @@ function get_xdid_listview(&$XDID) {
 		'H' => array(
 	        '__desc' => 'This command lets you set the header settings.',
 	        '__cmd' => '[COL|COL1-COL2|COL1,COL2|COL1,COL2-COL3 etc..] [+FLAGS] [ARGS]',
-	        '__eg' => '1 +s sortdown unchecked',
+	        '__eg' => array(
+				'1 +s sortdown unchecked',
+				'1,2,5 +t OoOOO',
+			),
             '__params' => array(
                 'COL|COL1-COL2|COL1,COL2|COL1,COL2-COL3' => 'The column number(s) to change the header for.',
                 '+FLAGS' => array(
                     '__desc' => "The action to take.",
                     '__values' => array(
-						's' => 'Change header style',
+						's' => 'Change header style.',
+						't' => 'Change header text.',
 					),
 				),
-                'ARGS' => array(
-                    '__desc' => "The arguments for the given +FLAGS",
-                    '__values' => array(
-						'sortdown' => 'Change the header to show a sort down arrow. (can\'t be used with sortup or nosort)',
-						'sortup' => 'Change the header to show a sort up arrow. (can\'t be used with sortdown or nosort)',
-						'nosort' => 'Change the header to not show any sort arrow. (can\'t be used with sortup or sortdown)',
-						'checkbox' => 'Change the header to show a checkbox. (can\'t be used with nocheckbox)',
-						'nocheckbox' => 'Change the header to not show a checkbox. (can\'t be used with checkbox)',
-						'checked' => 'Change the header to show a selected checkbox. (can\'t be used with nocheckbox or unchecked)',
-						'unchecked' => 'Change the header to show a unselected checkbox. (can\'t be used with nocheckbox or checked)',
+                '__args' => array(
+                    's' => array(
+						'__cmd' => '[OPTIONS]',
+						'__params' => array(
+							'sortdown' => 'Change the header to show a sort down arrow. (can\'t be used with sortup or nosort)',
+							'sortup' => 'Change the header to show a sort up arrow. (can\'t be used with sortdown or nosort)',
+							'nosort' => 'Change the header to not show any sort arrow. (can\'t be used with sortup or sortdown)',
+							'checkbox' => 'Change the header to show a checkbox. (can\'t be used with nocheckbox)',
+							'nocheckbox' => 'Change the header to not show a checkbox. (can\'t be used with checkbox)',
+							'checked' => 'Change the header to show a selected checkbox. (can\'t be used with nocheckbox or unchecked)',
+							'unchecked' => 'Change the header to show a unselected checkbox. (can\'t be used with nocheckbox or checked)',
+						),
+                    ),
+                    't' => array(
+						'__cmd' => '[TEXT]',
+						'__params' => array(
+							'TEXT' => 'The text to set.',
+						),
 					),
-				),
+                ),
 			),
 	        '__notes' => 'Only +s flag is supported atm, so only styles can be changed.'
 		),
@@ -274,14 +304,15 @@ function get_xdid_listview(&$XDID) {
 		),
 		'j' => array(
 			'__desc' => 'This command lets you change the appearance of a listview item.',
-			'__cmd' => '[N] [NSUB] [STATE] (COLOR BGCOLOR)',
+			'__cmd' => '[N(,N,N-N,...)] [NSUB(,NSUB,NSUB-NSUB,...)] [STATE] (COLOR BGCOLOR)',
 			'__eg' => array(
 				'2 5 +bt',
 				'7 1 +uck $rgb(255, 0, 0) $rgb(0, 255, 0)',
+				'7,9 1,3 +uck $rgb(255, 0, 0) $rgb(0, 255, 0)',
 			),
 			'__params' => array(
-				'N' => 'The row index for the item.',
-				'NSUB' => 'The column index for the item.',
+				'N' => 'The item or range of items.',
+				'NSUB' => 'The subitem or range of subitems.',
 				'STATE' => array(
 					'__desc' => "Item flags",
 					'__values' => array(
@@ -339,7 +370,7 @@ function get_xdid_listview(&$XDID) {
 		),
 		'n' => array(
 			'__desc' => 'This command lets you change the Nth listview column width ([s]report[/s] view only).',
-			'__cmd' => '[COL] [+FLAGS] (WIDTH ...)',
+			'__cmd' => '[COL(,COL1-COL2,COL3...)] [+FLAGS] (WIDTH ...)',
 			'__eg' => array(
 				'2 + 100',
 				'1,3-6 + 100',
@@ -351,6 +382,7 @@ function get_xdid_listview(&$XDID) {
 					'__desc' => 'Flags for column width.',
 					'__values' => array(
 						'a' => 'Autosize.',
+						#'d' => 'Allows you to set a columns dynamic width.',
 						'h' => 'Autosize according to header text width.',
 						'F' => 'Autosize the column to a fixed width.',
 						'S' => 'Autosize the column to fit header or content. Cannot be used with [f]+a[/f].',
@@ -439,7 +471,7 @@ function get_xdid_listview(&$XDID) {
 		),
 		'q' => array(
 	        '__desc' => 'This command lets you add a group to the listview. [o]XP+[/o]',
-	        '__cmd' => '[N] [+FLAGS] [GROUPID] [GROUPTEXT]',
+	        '__cmd' => '[N] [+FLAGS] [GROUPID] [GROUPTEXT] ([tab] Column2 text)...',
 	        '__eg' => '1 +l 101 Group 101!',
 	        '__params' => array(
 	            'N' => 'Group index order.',
@@ -457,11 +489,12 @@ function get_xdid_listview(&$XDID) {
 		),
 		'Q' => array(
 	        '__desc' => 'This command lets you add, move, & delete groups.',
-	        '__cmd' => 'Add [N] [+FLAGS] [GID] [GROUPTEXT]|Move [GID] [N]|Del [GID]',
+	        '__cmd' => 'Add [N] [+FLAGS] [GID] [GROUPTEXT] ([tab] Column2 text)...|Move [GID] [N]|Del [GID]|Setup [GID,GID2,GID3-GIDn] [+FLAGS] [+MASK] (ARGS)',
 	        '__eg' => array(
                 'Add 1 +l 101 Group 101!',
                 'Move 101 4',
-                'Del 101'
+                'Del 101',
+				'Setup 101,102 +Cc +Cc'
             ),
 	        '__params' => array(
 	            'N' => 'Group index order.',
@@ -471,10 +504,31 @@ function get_xdid_listview(&$XDID) {
 						'c' => 'Group text is centered.',
 						'l' => 'Group text is left aligned.',
 						'r' => 'Group text is right aligned.',
+						'C' => 'Group is collapsible',
+						'H' => 'Group is hidden.',
+						'N' => 'Group has no header.',
+						'O' => 'Group is collapsed.',
+						'S' => 'Group is selected.',
+						's' => 'Group is subsetted.',
+					),
+				),
+                '+MASK' => array(
+                    '__desc' => "Group Flags Mask. (a state flag repeated here is enabled)",
+                    '__values' => array(
+						'c' => 'Group text is centered.',
+						'l' => 'Group text is left aligned.',
+						'r' => 'Group text is right aligned.',
+						'C' => 'Group is collapsible',
+						'H' => 'Group is hidden.',
+						'N' => 'Group has no header.',
+						'O' => 'Group is collapsed.',
+						'S' => 'Group is selected.',
+						's' => 'Group is subsetted.',
 					),
 				),
                 'GID' => 'ID that identifies the group when adding items in [cmd]/xdid -a[/cmd].',
-                'GROUPTEXT' => 'Label for the group.'
+                'GROUPTEXT' => 'Label for the group.',
+				'ARGS' => 'Not used atm.'
 			),
 		),
 		'r' => 'This command lets you clear all the listview items.',

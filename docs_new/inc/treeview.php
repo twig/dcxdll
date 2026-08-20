@@ -367,9 +367,10 @@ tooltip="some text"
 		),
 		'w' => array(
 			'__desc' => 'This command lets you add an icon to the treeview image lists.',
-			'__cmd' => '[+FLAGS] [INDEX] [FILENAME]',
+			'__cmd' => '[+FLAGS] [N,N2-N3,N4....] [FILENAME]',
 			'__eg' => array(
 				'+n 113 shell32.dll',
+				'+n 113-120 shell32.dll',
 				'+no2 29 shell32.dll',
 			),
 			'__params' => array(
@@ -382,7 +383,7 @@ tooltip="some text"
 						'o' => 'Overlay icon list. The overlay index is declared immediately after the [v]+o[/v] flag. Must be used with [v]+n[/v].',
 					),
 				),
-				'INDEX' => 'Icon index in icon archive',
+				'N' => 'Icon index or range of indexes in icon archive',
 				'FILENAME' => 'Icon archive filename',
 			),
 			'__notes' => array(

@@ -179,6 +179,11 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -a dcx 4 New Text</div></td>
 	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">TEXT</td>
+		<td>The text to fill the control with.</td>
+	</tr>
 </table>
 <br />
 <table class="xdid">
@@ -207,6 +212,11 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -d dcx 4 2,40-55</div></td>
 	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>The line or range of lines to delete.</td>
+	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only works with <a class='style' href='edit.htm#style.multi'>multi</a>.</td></tr></table>
 <br />
 <table class="xdid">
@@ -221,7 +231,40 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -g dcx 4 $rgb(255,0,0) $rgb(16,24,5) - $rgb(12,34,0)</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>A value of <a class="value">-</a> will cause an option to be ignored.</li><li>atm the Gutter Border Size option isnt implemented.</li></ul></td></tr></table>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">Selected line Background Colour</td>
+		<td>An RGB value or -</td>
+	</tr>
+	<tr>
+		<td class="param">Background Colour</td>
+		<td>An RGB value or -</td>
+	</tr>
+	<tr>
+		<td class="param">Selected line Text Colour</td>
+		<td>An RGB value or -</td>
+	</tr>
+	<tr>
+		<td class="param">Text Colour</td>
+		<td>An RGB value or -</td>
+	</tr>
+	<tr>
+		<td class="param">Border Colour</td>
+		<td>An RGB value or -</td>
+	</tr>
+	<tr>
+		<td class="param">Unlock Gutter</td>
+		<td>0 or 1 or -</td>
+	</tr>
+	<tr>
+		<td class="param">Gutter Size</td>
+		<td>Gutter size in pixels or -</td>
+	</tr>
+	<tr>
+		<td class="param">Gutter Border Size</td>
+		<td>Gutter border sizein pixels or -</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>A value of <a class="value">-</a> will cause an option to be ignored.</li><li>atm the Gutter Border Size option is not implemented.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -229,11 +272,20 @@
 	<tr><td colspan="2">This command lets you insert a line at the Nth position in the edit.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -i [DNAME] [ID] [N] (TEXT)</div></td>
+		<td><div class="syntax">/xdid -i [DNAME] [ID] [N,N2,N3-N4] [TEXT]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -i dcx 4 5 New Text</div></td>
+		<td><div class="example">/xdid -i dcx 4 2 New Text<br />/xdid -i dcx 4 2,5 New Text<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>The line or range of lines to insert at.</td>
+	</tr>
+	<tr>
+		<td class="param">TEXT</td>
+		<td>The text to insert.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class='style' href='edit.htm#style.multi'>multi</a> style is not used, will overwrite the whole text.</td></tr></table>
 <br />
@@ -271,11 +323,20 @@
 	<tr><td colspan="2">This command lets you overwrite the Nth line in the edit.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -o [DNAME] [ID] [N] [TEXT]</div></td>
+		<td><div class="syntax">/xdid -o [DNAME] [ID] [N,N2,N3-N4] [TEXT]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -o dcx 4 5 New multi line Text<br />/xdid -o dcx 4 0 New single line Text<br /></div></td>
+		<td><div class="example">/xdid -o dcx 4 5 New multi line Text<br />/xdid -o dcx 4 5-10,12 New multi line Text<br />/xdid -o dcx 4 0 New single line Text<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>The line or range of lines to overwrite.</td>
+	</tr>
+	<tr>
+		<td class="param">TEXT</td>
+		<td>The text to insert.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the <a class='style' href='edit.htm#style.multi'>multi</a> style is not used, will overwrite the whole text.</li><li>[N] must be supplied even if the control is single line</li><li>For a multi line control [N] must be > zero</li></ul></td></tr></table>
 <br />
@@ -319,6 +380,11 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -t dcx 4 C:/mIRC/blah.txt</div></td>
 	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>File to load.</td>
+	</tr>
 </table>
 <br />
 <table class="xdid">
@@ -332,6 +398,11 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -u dcx 4 C:/mIRC/blah.txt</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>File to save.</td>
 	</tr>
 </table>
 <br />
@@ -382,11 +453,20 @@
 	<tr><td colspan="2">This command lets you insert a line at the Nth position in the edit.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -I [DNAME] [ID] [N] [TEXT]</div></td>
+		<td><div class="syntax">/xdid -I [DNAME] [ID] [N,N2,N3-N4] [TEXT]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -I dcx 4 5 Inserted Text</div></td>
+		<td><div class="example">/xdid -I dcx 4 5 Inserted Text<br />/xdid -I dcx 4 5,20,30 Inserted Text<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>The character offset or range of character offsets to insert at.</td>
+	</tr>
+	<tr>
+		<td class="param">TEXT</td>
+		<td>The text to insert.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The text is inserted at the <a class="value">Nth</a> character no matter what mode the control is in. If the control has less that N characters the text is added to the end.</td></tr></table>
 <br />
@@ -415,6 +495,15 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -S dcx 4 1 3<br />/xdid -S dcx 4 5<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">START</td>
+		<td>Start of selection range. (in characters)</td>
+	</tr>
+	<tr>
+		<td class="param">END</td>
+		<td>End of selection range. (in characters)</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When the <a class="param">END</a> parameter is not specified, then this command will set the caret position to <a class="param">START</a>.</td></tr></table>
 <br />
@@ -1210,7 +1299,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 30th July, 26</td>
+		<td style="text-align: right;">Last Updated: 19th August, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

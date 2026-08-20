@@ -375,7 +375,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xtreebar -w 0 + 1 icons.icl<br />/xtreebar -w clear<br />/xtreebar -w default<br /></div></td>
+		<td><div class="example">/xtreebar -w 0 + 1 icons.icl<br />/xtreebar -w -1 + 1-6 icons.icl<br />/xtreebar -w clear<br />/xtreebar -w default<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -410,7 +410,15 @@
 		<td class="value">P</td>
 		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This requires <a class='value' href='xtreebar.htm#xtreebar.big.T'>/xtreebar -T</a> to be activated.</td></tr></table>
+	<tr>
+		<td class="param">INDEX</td>
+		<td>Icon index to add</td>
+	</tr>
+	<tr>
+		<td class="param">FILE</td>
+		<td>Icon file to add</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>This requires <a class='value' href='xtreebar.htm#xtreebar.big.T'>/xtreebar -T</a> to be activated.</li><li><a class="value">INDEX</a> can be a range of icon indexes, but <a class="value">POS</a> must then be -1.</li></ul></td></tr></table>
 <br />
 <table class="xtreebar">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -418,11 +426,20 @@
 	<tr><td colspan="2">This command allows you to enable or disable DCX controlled drawing of the mIRC TreeBar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtreebar -T [0|1]</div></td>
+		<td><div class="syntax">/xtreebar -T [OVERRIDE] (THEMEDPROGRESS)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xtreebar -T 1</div></td>
+		<td><div class="example">/xtreebar -T 1 1</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">OVERRIDE</td>
+		<td>1|0 Enable/Disable owner drawing treebar.</td>
+	</tr>
+	<tr>
+		<td class="param">THEMEDPROGRESS</td>
+		<td>1|0 Enable/Disable themed progress indicators. (Only when <a class="value">OVERRIDE</a> is enabled)</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>When enabled, the script function <a class="value">$xtreebar_callback(geticons, [TYPE], [TEXT])</a> will be called for each item. This will allow you to configure the appearance of each item in the TreeBar.</li><li>The same alias is called when an item is added to the TreeBar. This will allow you to configure the appearance of the new item.</li><li>The <a class="value">$xtreebar_callback</a> alias should return <a class="value">3</a> image indexes, <a class="param">IMAGE</a> <a class="param">SELECTEDIMAGE</a> <a class="param">EXPANDEDIMAGE</a>. (eg. <a class="value">return 2 5 6</a>)</li></ul></td></tr></table>
 <br />
@@ -466,7 +483,49 @@
 		<td class="param">N</td>
 		<td>The index of the item.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="param">N</a> is <a class="value">0</a>, this property retrieves the total number of items in the mIRC Treebar.</li><li>Returns <a class="value">$null</a> if unsuccessful.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="param">N</a> is <a class="value">0</a>, this property retrieves the total number of items in the mIRC Treebar.</li><li>Returns <a class="returnevent">$null</a> if unsuccessful.</li></ul></td></tr></table>
+<br />
+<table class="xtreebarprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xtreebarprop.style"></a>$xtreebar().style	</td></tr>
+	<tr><td colspan="2">Returns the current treewview styles in use.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xtreebar().style</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xtreebar().style</div></td>
+	</tr>
+</table>
+<br />
+<table class="xtreebarprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xtreebarprop.takeover"></a>$xtreebar().takeover	</td></tr>
+	<tr><td colspan="2">Returns the current takeover state.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xtreebar().takeover</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xtreebar().takeover</div></td>
+	</tr>
+</table>
+<br />
+<table class="xtreebarprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xtreebarprop.themedprogress"></a>$xtreebar().themedprogress	</td></tr>
+	<tr><td colspan="2">Returns the current themedprogress state.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xtreebar().themedprogress</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xtreebar().themedprogress</div></td>
+	</tr>
+</table>
 <br />
 <table class="xtreebarprops">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -485,7 +544,7 @@
 		<td class="param">N</td>
 		<td>The index of the item.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="param">N</a> is <a class="value">0</a>, this property retrieves the current item being proccessed by $xtreebar_callback.</li><li>(This ONLY works within the $xtreebar_callback alias.)</li><li>Returns <a class="value">0</a> if unsuccessful.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="param">N</a> is <a class="value">0</a>, this property retrieves the current item being proccessed by $xtreebar_callback.</li><li>(This ONLY works within the $xtreebar_callback alias.)</li><li>Returns <a class="returnevent">0</a> if unsuccessful.</li></ul></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="xtreebarcallback"></a>$xtreebar_callback events</td></tr>
@@ -705,6 +764,9 @@
 	<a class='header' href="#xtreebarprop"><div style='background:#A8B2D1;'>$xtreebar()</div></a>
 		<a class='flag' href="#xtreebarprop.icons"><div>icons</div></a>
 		<a class='flag' href="#xtreebarprop.item"><div>item</div></a>
+		<a class='flag' href="#xtreebarprop.style"><div>style</div></a>
+		<a class='flag' href="#xtreebarprop.takeover"><div>takeover</div></a>
+		<a class='flag' href="#xtreebarprop.themedprogress"><div>themedprogress</div></a>
 		<a class='flag' href="#xtreebarprop.wid"><div>wid</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
@@ -721,7 +783,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 30th July, 26</td>
+		<td style="text-align: right;">Last Updated: 19th August, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">
