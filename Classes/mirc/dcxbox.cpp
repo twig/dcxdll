@@ -487,12 +487,16 @@ LRESULT DcxBox::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 	{
 		HandleChildControlSize();
 
-		//if (m_pLayoutManager)
-		//{
-		//	RECT rc{ 0, 0, LOWORD( lParam ), HIWORD( lParam ) };
-		//	if (m_pLayoutManager->updateLayout( rc ))
-		//		redrawWindow( );
-		//}
+		if (m_pLayoutManager)
+		{
+			RECT rc{ 0, 0, Dcx::dcxLOWORD( lParam ), Dcx::dcxHIWORD( lParam ) };
+			//if (this->m_pLayoutManager->updateLayout( rc ))
+			//	this->redrawWindow( );
+			//m_pLayoutManager->updateLayout(rc);
+			//this->updateLayout(rc);
+			if (this->updateLayout(rc))
+				this->redrawWindow();
+		}
 	}
 	break;
 
