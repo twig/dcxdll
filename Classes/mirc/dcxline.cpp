@@ -49,12 +49,6 @@ DcxLine::DcxLine(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog,
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
 DcxLine::~DcxLine() noexcept
 {
 }
@@ -116,12 +110,6 @@ void DcxLine::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 	this->m_sText = queryAttribute(xThis, "caption");
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 dcxWindowStyles DcxLine::parseControlStyles(const TString& tsStyles)
 {

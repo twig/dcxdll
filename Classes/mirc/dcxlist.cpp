@@ -746,6 +746,12 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 					RECT rcItem{};
 					Dcx::dcxListBox_GetItemRect(m_Hwnd, nItem, &rcItem);
 					InvalidateRect(m_Hwnd, &rcItem, FALSE);
+					if (const auto iCaret = Dcx::dcxListBox_GetCaretIndex(m_Hwnd); iCaret > 0)
+					{
+						Dcx::dcxListBox_GetItemRect(m_Hwnd, iCaret, &rcItem);
+						InvalidateRect(m_Hwnd, &rcItem, FALSE);
+					}
+					//InvalidateRect(m_Hwnd, nullptr, FALSE);
 					UpdateWindow(m_Hwnd);
 				}
 			}
