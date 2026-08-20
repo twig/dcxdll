@@ -1206,23 +1206,15 @@ void DcxListView::parseCommandRequest(const TString& input)
 				Dcx::dcxListView_SetItemState(m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
 		}
 		else {
-			//const auto Ns(input.getnexttok());	// tok 4
-			//const auto itEnd = Ns.end();
-			//for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-			//{
-			//	const auto tsLine(*itStart);
-			//	const auto r = Dcx::getItemRange2(tsLine, nItemCnt);
-			//	if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
-			//		throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-			//	for (const auto nItem : r)
+			//Dcx::CallOnRange(input.getnexttok(), nItemCnt, 1, [this](int nItem) {
 			//		Dcx::dcxListView_SetItemState(m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
-			//}
+			//	});
 
 			const auto nColumns = this->getColumnCount();
 
 			auto parseStringToSubItemSelects = [nItemCnt, nColumns](const TString& tsRanges) {
 				// tsLine = [N,N2,N3-N4...]
-				// or [N:sub,N3:sub1-N3:sub4,N3:sub1-N4:sub4...]
+				//		or  [N:sub,N3:sub1-N3:sub4,N3:sub1-N4:sub4...]
 				// these types can be mixed.
 				Dcx::VectorOfSubItemSelects vList;
 
@@ -1296,6 +1288,9 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 		if (xFlags[TEXT('+')])
 		{
+			if (numtok < 7)
+				throw DcxExceptions::dcxInvalidArguments();
+
 			// have flags, so its a match text delete
 			const auto nSubItem = input.getnexttokas<int>();
 
@@ -1310,27 +1305,10 @@ void DcxListView::parseCommandRequest(const TString& input)
 		}
 		else {
 			// reverse sort the token list so we start at the end.
+			const auto vRanges = Dcx::sortRanges(Ns, Dcx::dcxListView_GetItemCount(m_Hwnd), true);
+			for (const auto& r : vRanges)
 			{
-				TString::SortOptions srt;
-				srt.bNumeric = true;
-				srt.bReverse = true;
-
-				Ns.sorttok(srt, TSCOMMA);
-			}
-
-			const auto itEnd = Ns.end();
-			for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-			{
-				const auto tsLine(*itStart);
-				const auto nItemCnt = Dcx::dcxListView_GetItemCount(m_Hwnd);
-
-				const auto [iStart, iEnd] = Dcx::getItemRange(tsLine, nItemCnt);
-
-				if ((iStart < 0) || (iEnd < iStart) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
-					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-
-				// delete from highest number to lowest
-				for (auto nItem = iEnd; nItem >= iStart; --nItem)
+				for (const auto nItem : r.rbegin())
 					Dcx::dcxListView_DeleteItem(m_Hwnd, nItem);
 			}
 		}
@@ -1458,20 +1436,24 @@ void DcxListView::parseCommandRequest(const TString& input)
 		const auto Ns(input.getnexttok());				// tok 5
 		const auto nItemCnt = Dcx::dcxListView_GetItemCount(m_Hwnd);
 
-		const auto itEnd = Ns.end();
-		for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-		{
-			const auto tsLine(*itStart);
+		//const auto itEnd = Ns.end();
+		//for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//{
+		//	const auto tsLine(*itStart);
+		//
+		//	const auto r = Dcx::getItemRange2(tsLine, nItemCnt);
+		//
+		//	if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+		//		throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+		//
+		//	for (auto nItem : r)
+		//		Dcx::dcxListView_SetItemState(m_Hwnd, nItem, INDEXTOSTATEIMAGEMASK(gsl::narrow_cast<UINT>(state)), LVIS_STATEIMAGEMASK);
+		//}
 
-			const auto r = Dcx::getItemRange2(tsLine, nItemCnt);
-
-			if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
-				throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-
-			for (auto nItem : r)
+		Dcx::CallOnRange(Ns, nItemCnt, 1, [this, state](int nItem) noexcept {
 				Dcx::dcxListView_SetItemState(m_Hwnd, nItem, INDEXTOSTATEIMAGEMASK(gsl::narrow_cast<UINT>(state)), LVIS_STATEIMAGEMASK);
+			});
 		}
-	}
 	// xdid -l [NAME] [ID] [SWITCH] [N,N2,N3-N4...] [M,M2,M3-M4...] [ICON] (OVERLAY)
 	else if (flags[TEXT('l')])
 	{
@@ -1493,40 +1475,69 @@ void DcxListView::parseCommandRequest(const TString& input)
 		const auto nSubItemCnt = this->getColumnCount();
 
 		// iterate through all item ranges supplied
-		const auto itEnd = tsItems.end();
-		for (auto itStart = tsItems.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-		{
-			const auto tsLine(*itStart);
 
-			const auto ItemRange = Dcx::getItemRange2(tsLine, nItemCnt);
+		//const auto itEnd = tsItems.end();
+		//for (auto itStart = tsItems.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//{
+		//	const auto tsLine(*itStart);
+		//
+		//	const auto ItemRange = Dcx::getItemRange2(tsLine, nItemCnt);
+		//
+		//	if ((ItemRange.b < 0) || (ItemRange.e < 0) || (ItemRange.b > ItemRange.e))
+		//		throw Dcx::dcxException(TEXT("Invalid Item Range %."), tsLine);
+		//
+		//	// iterate through this range
+		//	for (auto nItem : ItemRange)
+		//	{
+		//		LVITEM lvi{};
+		//
+		//		lvi.iItem = nItem;
+		//
+		//		// iterate through all subitem ranges supplied (must be done for each item)
+		//		const auto itSubEnd = tsItems.end();
+		//		for (auto itSubStart = tsSubItems.begin(TSCOMMACHAR); itSubStart != itSubEnd; ++itSubStart)
+		//		{
+		//			const auto tsSubLine(*itSubStart);
+		//			const auto SubItemRange = Dcx::getItemRange2(tsSubLine, nSubItemCnt);
+		//
+		//			if ((SubItemRange.b < 0) || (SubItemRange.e < 0) || (SubItemRange.b > SubItemRange.e))
+		//				throw Dcx::dcxException(TEXT("Invalid SubItem Range %."), tsSubLine);
+		//
+		//			// iterate through this subitem range.
+		//			for (auto nSubItem : SubItemRange)
+		//			{
+		//				// invalid item
+		//				if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= nSubItemCnt))
+		//					throw DcxExceptions::dcxInvalidItem();
+		//
+		//				lvi.iSubItem = nSubItem;
+		//
+		//				// theres an icon to change
+		//				if (nIcon > -2)
+		//				{
+		//					lvi.mask = LVIF_IMAGE;
+		//					lvi.iImage = nIcon;
+		//				}
+		//
+		//				if (nOverlay > -1)
+		//				{
+		//					lvi.mask |= LVIF_STATE;
+		//					lvi.stateMask = LVIS_OVERLAYMASK;
+		//					lvi.state = gsl::narrow_cast<UINT>(INDEXTOOVERLAYMASK(nOverlay));
+		//				}
+		//
+		//				// finally set the items icons
+		//				Dcx::dcxListView_SetItem(m_Hwnd, &lvi);
+		//			}
+		//		}
+		//	}
+		//}
 
-			if ((ItemRange.b < 0) || (ItemRange.e < 0) || (ItemRange.b > ItemRange.e))
-				throw Dcx::dcxException(TEXT("Invalid Item Range %."), tsLine);
-
-			// iterate through this range
-			for (auto nItem : ItemRange)
-			{
+		Dcx::CallOnRange(tsItems, nItemCnt, 1, [tsSubItems, nSubItemCnt, nIcon, nOverlay, this](int nItem) {
 				LVITEM lvi{};
-
 				lvi.iItem = nItem;
 
-				// iterate through all subitem ranges supplied (must be done for each item)
-				const auto itSubEnd = tsItems.end();
-				for (auto itSubStart = tsSubItems.begin(TSCOMMACHAR); itSubStart != itSubEnd; ++itSubStart)
-				{
-					const auto tsSubLine(*itSubStart);
-					const auto SubItemRange = Dcx::getItemRange2(tsSubLine, nSubItemCnt);
-
-					if ((SubItemRange.b < 0) || (SubItemRange.e < 0) || (SubItemRange.b > SubItemRange.e))
-						throw Dcx::dcxException(TEXT("Invalid SubItem Range %."), tsSubLine);
-
-					// iterate through this subitem range.
-					for (auto nSubItem : SubItemRange)
-					{
-						// invalid item
-						if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= nSubItemCnt))
-							throw DcxExceptions::dcxInvalidItem();
-
+			Dcx::CallOnRange(tsSubItems, nSubItemCnt, 1, [nItem, &lvi, nIcon, nOverlay, this](int nSubItem) noexcept {
 						lvi.iSubItem = nSubItem;
 
 						// theres an icon to change
@@ -1545,11 +1556,9 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 						// finally set the items icons
 						Dcx::dcxListView_SetItem(m_Hwnd, &lvi);
+				});
+			});
 					}
-				}
-			}
-		}
-	}
 	// xdid -m [NAME] [ID] [SWITCH] [0|1]
 	else if (flags[TEXT('m')])
 	{
@@ -1564,7 +1573,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		auto tsColumn = input.getnexttok(); // tok 4
+		const auto tsColumn(input.getnexttok()); // tok 4
 		const XSwitchFlags xflags(input.getnexttok());		// tok 5
 		const UINT iTotal = gsl::narrow_cast<UINT>(this->getColumnCount());
 
@@ -1588,7 +1597,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			if ((numtok - 6) < iTotal)
 				throw Dcx::dcxException("Insufficient number of widths specified for +d flag");
 
-			const auto nColumn = (tsColumn.to_int() - 1);	// tok 4
+			const auto nColumn = (tsColumn.to_int() - 1);
 
 			if ((nColumn < 0) || (gsl::narrow_cast<UINT>(nColumn) >= iTotal))
 				throw Dcx::dcxException(TEXT("Invalid column specified: %"), nColumn + 1);
@@ -1615,27 +1624,38 @@ void DcxListView::parseCommandRequest(const TString& input)
 			if ((iFlags == 0) && (numtok < 6))
 				throw Dcx::dcxException("No width specified");
 
-			const auto HandleColumn = [=](const TString& tsColumns) {
-				const auto r = Dcx::getItemRange2(tsColumn, this->getColumnCount());
+			//const auto HandleColumn = [=](const TString& tsColumns) {
+			//	const auto r = Dcx::getItemRange2(tsColumn, this->getColumnCount());
+			//
+			//	if ((r.b < 0) || (r.e < r.b))
+			//		throw DcxExceptions::dcxOutOfRange();
+			//
+			//	for (auto nColumn : r)
+			//	{
+			//		this->autoSize(nColumn, iFlags, iWidth);
+			//	}
+			//};
+			//if (tsColumn.numtok(TSCOMMACHAR) > 1)
+			//{
+			//	// column == 1,2,3-4....
+			//	const auto itEnd = tsColumn.end();
+			//	for (auto itStart = tsColumn.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			//	{
+			//		HandleColumn(*itStart);
+			//	}
+			//}
+			//else {
+			//	if (tsColumn == TEXT('0'))
+			//	{
+			//		// column = 0 == set all columns to single width
+			//		for (UINT n{}; n < iTotal; ++n)
+			//			this->autoSize(n, iFlags, iWidth);
+			//	}
+			//	else
+			//		// column = 3-4
+			//		HandleColumn(tsColumn);
+			//}
 
-				if ((r.b < 0) || (r.e < r.b))
-					throw DcxExceptions::dcxOutOfRange();
-
-				for (auto nColumn : r)
-				{
-					this->autoSize(nColumn, iFlags, iWidth);
-				}
-			};
-			if (tsColumn.numtok(TSCOMMACHAR) > 1)
-			{
-				// column == 1,2,3-4....
-				const auto itEnd = tsColumn.end();
-				for (auto itStart = tsColumn.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-				{
-					HandleColumn(*itStart);
-				}
-			}
-			else {
 				if (tsColumn == TEXT('0'))
 				{
 					// column = 0 == set all columns to single width
@@ -1643,11 +1663,11 @@ void DcxListView::parseCommandRequest(const TString& input)
 						this->autoSize(n, iFlags, iWidth);
 				}
 				else
-					// column = 3-4
-					HandleColumn(tsColumn);
+				Dcx::CallOnRange(tsColumn, this->getColumnCount(), 1, [this, iFlags, iWidth](int iCol) noexcept {
+				this->autoSize(iCol, iFlags, iWidth);
+					});
 			}
 		}
-	}
 	// xdid -o [NAME] [ID] [SWITCH] [ORDER ...]
 	else if (flags[TEXT('o')])
 	{
@@ -1702,24 +1722,30 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if ((nDestItem < 0) || (nDestItem > nItemCnt))
 			throw DcxExceptions::dcxInvalidItem();
 
+		const auto bPreseveState = xFlags[L's'];
+
 		// iterate through all item ranges supplied
-		const auto itEnd = tsItems.end();
-		for (auto itStart = tsItems.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-		{
-			const auto tsLine(*itStart);
 
-			const auto ItemRange = Dcx::getItemRange2(tsLine, nItemCnt);
+		//const auto itEnd = tsItems.end();
+		//for (auto itStart = tsItems.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//{
+		//	const auto tsLine(*itStart);
+		//
+		//	const auto ItemRange = Dcx::getItemRange2(tsLine, nItemCnt);
+		//
+		//	if ((ItemRange.b < 0) || (ItemRange.e < 0) || (ItemRange.b > ItemRange.e))
+		//		throw Dcx::dcxException(TEXT("Invalid Item Range %."), tsLine);
+		//
+		//	// iterate through this range
+		//	for (auto nItem : ItemRange)
+		//	{
+		//		MoveItem(nItem, nDestItem, bPreseveState);
+		//	}
+		//}
 
-			if ((ItemRange.b < 0) || (ItemRange.e < 0) || (ItemRange.b > ItemRange.e))
-				throw Dcx::dcxException(TEXT("Invalid Item Range %."), tsLine);
-
-			// iterate through this range
-			for (auto nItem : ItemRange)
-			{
-				MoveItem(nItem, nDestItem, xFlags[L's']);
-			}
-		}
-
+		Dcx::CallOnRange(tsItems, nItemCnt, 1, [this, nDestItem, bPreseveState](int nItem) {
+			MoveItem(nItem, nDestItem, bPreseveState);
+			});
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [N] [+FLAGS] [GID] [Group Text]
 	// xdid -q [NAME] [ID] [SWITCH] [N] [+FLAGS] [GID] [Group Text] ([tab] Group column2 text)...
@@ -1812,17 +1838,38 @@ void DcxListView::parseCommandRequest(const TString& input)
 			lvg.mask = LVGF_STATE | LVGF_ALIGN;
 
 			const auto gid_count = Dcx::dcxListView_GetGroupCount(m_Hwnd);
-			const auto itEnd = tsGID.end();
-			for (auto itStart = tsGID.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-			{
-				const auto tsLine(*itStart);
-				const auto r = Dcx::make_range(tsLine, gid_count);
 
-				if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
-					throw DcxExceptions::dcxInvalidArguments();
+			//const auto itEnd = tsGID.end();
+			//for (auto itStart = tsGID.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			//{
+			//	const auto tsLine(*itStart);
+			//	const auto r = Dcx::make_range(tsLine, gid_count);
+			//
+			//	if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+			//		throw DcxExceptions::dcxInvalidArguments();
+			//
+			//	for (const auto nGID : r)
+			//	{
+			//		// setup each specified group.
+			//		if (!Dcx::dcxListView_HasGroup(m_Hwnd, nGID))
+			//			throw Dcx::dcxException(TEXT("Group doesn't exist: %"), nGID);
+			//		lvg.iGroupId = nGID;
+			//		Dcx::dcxListView_GetGroupInfo(m_Hwnd, nGID, &lvg);
+			//
+			//		lvg.stateMask = iStateMask;
+			//		lvg.state = iState;
+			//
+			//		if (iFlagsMask != 0)
+			//		{
+			//			if (const UINT uAlign{ (iFlags & iFlagsMask) }; uAlign != lvg.uAlign)
+			//				lvg.uAlign = uAlign;
+			//		}
+			//
+			//		Dcx::dcxListView_SetGroupInfo(m_Hwnd, nGID, &lvg);
+			//	}
+			//}
 
-				for (const auto nGID : r)
-				{
+			Dcx::CallOnRange(tsGID, gid_count, 0, [this, &lvg, iStateMask, iState, iFlagsMask, iFlags](int nGID) {
 					// setup each specified group.
 					if (!Dcx::dcxListView_HasGroup(m_Hwnd, nGID))
 						throw Dcx::dcxException(TEXT("Group doesn't exist: %"), nGID);
@@ -1839,9 +1886,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 					}
 
 					Dcx::dcxListView_SetGroupInfo(m_Hwnd, nGID, &lvg);
+				});
 				}
-			}
-		}
 		break;
 		default:
 			throw DcxExceptions::dcxInvalidCommand();
@@ -2063,39 +2109,48 @@ void DcxListView::parseCommandRequest(const TString& input)
 			tsSubItems.addtok(col_count);
 		}
 
-		const auto itEnd = tsItems.end();
-		for (auto itStart = tsItems.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-		{
-			const auto tsLine(*itStart);
-			const auto rItems = Dcx::make_range(tsLine, item_count, 1);
+		//const auto itEnd = tsItems.end();
+		//for (auto itStart = tsItems.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//{
+		//	const auto tsLine(*itStart);
+		//	const auto rItems = Dcx::make_range(tsLine, item_count, 1);
+		//
+		//	if ((rItems.b < 0) || (rItems.e < 0) || (rItems.b > rItems.e))
+		//		throw DcxExceptions::dcxInvalidArguments();
+		//
+		//	for (const auto iItem : rItems)
+		//	{
+		//		const auto itSubEnd = tsSubItems.end();
+		//		for (auto itSubStart = tsSubItems.begin(TSCOMMACHAR); itSubStart != itSubEnd; ++itSubStart)
+		//		{
+		//			const auto tsSubLine(*itSubStart);
+		//			const auto rSubItems = Dcx::make_range(tsSubLine, col_count, 1);
+		//
+		//			if ((rSubItems.b < 0) || (rSubItems.e < 0) || (rSubItems.b > rSubItems.e))
+		//				throw DcxExceptions::dcxInvalidArguments();
+		//
+		//			for (const auto iSubItem : rSubItems)
+		//			{
+		//				if ((iItem < 0) || (iSubItem < 0))
+		//					throw Dcx::dcxException(TEXT("Invalid Item: % Subitem: %"), iItem + 1, iSubItem + 1);
+		//
+		//				if (auto pri = getRenderInfo(iItem, iSubItem); pri)
+		//					pri->m_tsTipText = tsTipText;
+		//				else
+		//					throw Dcx::dcxException(TEXT("Unable To Get Item: % Subitem: %"), iItem + 1, iSubItem + 1);
+		//			}
+		//		}
+		//	}
+		//}
 
-			if ((rItems.b < 0) || (rItems.e < 0) || (rItems.b > rItems.e))
-				throw DcxExceptions::dcxInvalidArguments();
-
-			for (const auto iItem : rItems)
-			{
-				const auto itSubEnd = tsSubItems.end();
-				for (auto itSubStart = tsSubItems.begin(TSCOMMACHAR); itSubStart != itSubEnd; ++itSubStart)
-				{
-					const auto tsSubLine(*itSubStart);
-					const auto rSubItems = Dcx::make_range(tsSubLine, col_count, 1);
-
-					if ((rSubItems.b < 0) || (rSubItems.e < 0) || (rSubItems.b > rSubItems.e))
-						throw DcxExceptions::dcxInvalidArguments();
-
-					for (const auto iSubItem : rSubItems)
-					{
-		if ((iItem < 0) || (iSubItem < 0))
-			throw Dcx::dcxException(TEXT("Invalid Item: % Subitem: %"), iItem + 1, iSubItem + 1);
-
+		Dcx::CallOnRange(tsItems, item_count, 1, [this, col_count, tsSubItems, tsTipText](int iItem) {
+			Dcx::CallOnRange(tsSubItems, col_count, 1, [this, iItem, tsTipText](int iSubItem) {
 		if (auto pri = getRenderInfo(iItem, iSubItem); pri)
 							pri->m_tsTipText = tsTipText;
 		else
 			throw Dcx::dcxException(TEXT("Unable To Get Item: % Subitem: %"), iItem + 1, iSubItem + 1);
-	}
-				}
-			}
-		}
+				});
+			});
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [%]
 	else if (flags[TEXT('Z')])
@@ -2217,8 +2272,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (!xflag[TEXT('+')])
 			throw DcxExceptions::dcxInvalidFlag();
 
-		//if (!xflag['s'])	// change header style
-		//	throw Dcx::dcxException(TEXT("Unknown flags %"), input.gettok(5));
+		if (!xflag['s'] && !xflag['t'])
+			throw Dcx::dcxException(TEXT("Unknown flags %"), input.gettok(5));
 
 		auto h = Dcx::dcxListView_GetHeader(m_Hwnd);
 		if (!IsWindow(h))
@@ -2241,7 +2296,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			//	}
 			//}
 
-			Dcx::CallOnRange(tsCols, this->getColumnCount(), 1, [this,h,info,xflag](int nCol) {
+			Dcx::CallOnRange(tsCols, this->getColumnCount(), 1, [this, h, info, xflag](int nCol) {
 				if (xflag['s'])	// change header style
 					setHeaderStyle(h, nCol, info);
 				else if (xflag['t'])	// change header text
@@ -2262,25 +2317,32 @@ void DcxListView::parseCommandRequest(const TString& input)
 		const auto iMask = this->parseGroupState(input.getnexttok());	// tok 5
 		const auto iState = this->parseGroupState(input.getnexttok());	// tok 6
 
-		const auto gid_count = Dcx::dcxListView_GetGroupCount(m_Hwnd);
-		const auto itEnd = tsGID.end();
-		for (auto itStart = tsGID.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-		{
-			const auto tsLine(*itStart);
-			const auto r = Dcx::make_range(tsLine, gid_count);
+		//const auto gid_count = Dcx::dcxListView_GetGroupCount(m_Hwnd);
+		//const auto itEnd = tsGID.end();
+		//for (auto itStart = tsGID.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		//{
+		//	const auto tsLine(*itStart);
+		//	const auto r = Dcx::make_range(tsLine, gid_count);
+		//
+		//	if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+		//		throw DcxExceptions::dcxInvalidArguments();
+		//
+		//	for (auto nGID : r)
+		//	{
+		//		if (!Dcx::dcxListView_HasGroup(m_Hwnd, nGID))
+		//			throw Dcx::dcxException(TEXT("Group doesn't exist: %"), nGID);
+		//
+		//		Dcx::dcxListView_SetGroupState(m_Hwnd, nGID, iMask, iState);
+		//	}
+		//}
 
-			if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
-				throw DcxExceptions::dcxInvalidArguments();
-
-			for (auto nGID : r)
-			{
+		Dcx::CallOnRange(tsGID, Dcx::dcxListView_GetGroupCount(m_Hwnd), 0, [this, iMask, iState](int nGID) {
 				if (!Dcx::dcxListView_HasGroup(m_Hwnd, nGID))
 					throw Dcx::dcxException(TEXT("Group doesn't exist: %"), nGID);
 
 				Dcx::dcxListView_SetGroupState(m_Hwnd, nGID, iMask, iState);
+			});
 			}
-		}
-	}
 	// xdid -N [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
 	// xdid -N [NAME] [ID] [SWITCH] [+m] [LEFT] [RIGHT] [TOP] [BOTTOM]
 	// xdid -N [NAME] [ID] [SWITCH] [+Lc] [COLOUR BKG]
@@ -2863,22 +2925,25 @@ bool DcxListView::matchItemText(const int nItem, const int nSubItem, const dcxSe
 
 const int& DcxListView::getColumnCount() const noexcept
 {
-	//if (m_iColumnCount < 0)
-	{
-		if (auto hHeader = Dcx::dcxListView_GetHeader(m_Hwnd); hHeader)
-			m_iColumnCount = Dcx::dcxHeader_GetItemCount(hHeader);
-		else
-		{
-			LVCOLUMN lvc{};
-			lvc.mask = LVCF_WIDTH;
+	////if (m_iColumnCount < 0)
+	//{
+	//	if (auto hHeader = Dcx::dcxListView_GetHeader(m_Hwnd); hHeader)
+	//		m_iColumnCount = Dcx::dcxHeader_GetItemCount(hHeader);
+	//	else
+	//	{
+	//		LVCOLUMN lvc{};
+	//		lvc.mask = LVCF_WIDTH;
+	//
+	//		auto i = 0;
+	//		while (Dcx::dcxListView_GetColumn(m_Hwnd, i, &lvc) != FALSE)
+	//			++i;
+	//
+	//		m_iColumnCount = i;
+	//	}
+	//}
+	//return m_iColumnCount;
 
-			auto i = 0;
-			while (Dcx::dcxListView_GetColumn(m_Hwnd, i, &lvc) != FALSE)
-				++i;
-
-			m_iColumnCount = i;
-		}
-	}
+	m_iColumnCount = Dcx::dcxListView_GetColumnCount(m_Hwnd);
 	return m_iColumnCount;
 }
 
@@ -6479,88 +6544,111 @@ void DcxListView::Command_v(const TString& input)
 		return;
 	}
 
-	// get total items
-	const auto nItemCnt = Dcx::dcxListView_GetItemCount(m_Hwnd);
-	// get total subitems
-	const auto nSubItemCnt = this->getColumnCount();
+	//// get total items
+	//const auto nItemCnt = Dcx::dcxListView_GetItemCount(m_Hwnd);
+	//// get total subitems
+	//const auto nSubItemCnt = this->getColumnCount();
 
-	if (tsItems == TEXT("0"))
-	{
-		// special case 0 supplied as item number, sets text for last item.
-		tsItems.clear();
-		tsItems.addtok(nItemCnt);
-	}
-	if (tsSubItems == TEXT("0"))
-	{
-		// special case 0 supplied as subitem number, sets text for last subitem.
-		tsSubItems.clear();
-		tsSubItems.addtok(nSubItemCnt);
-	}
+	//if (tsItems == TEXT("0"))
+	//{
+	//	// special case 0 supplied as item number, sets text for last item.
+	//	tsItems.clear();
+	//	tsItems.addtok(nItemCnt);
+	//}
+	//if (tsSubItems == TEXT("0"))
+	//{
+	//	// special case 0 supplied as subitem number, sets text for last subitem.
+	//	tsSubItems.clear();
+	//	tsSubItems.addtok(nSubItemCnt);
+	//}
+
+	//// iterate through all item ranges supplied
+	//const auto itEnd = tsItems.end();
+	//for (auto itStart = tsItems.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+	//{
+	//	const auto tsLine(*itStart);
+
+	//	const auto ItemRange = Dcx::getItemRange2(tsLine, nItemCnt);
+
+	//	if ((ItemRange.b < 0) || (ItemRange.e < 0) || (ItemRange.b > ItemRange.e))
+	//		throw Dcx::dcxException(TEXT("Invalid Item Range %."), tsLine);
+
+	//	// iterate through this range
+	//	for (const auto nItem : ItemRange)
+	//	{
+	//		LVITEM lvi{ LVIF_PARAM, nItem };
+	//		Dcx::dcxListView_GetItem(m_Hwnd, &lvi);
+
+	//		// iterate through all subitem ranges supplied (must be done for each item)
+	//		const auto itSubEnd = tsItems.end();
+	//		for (auto itSubStart = tsSubItems.begin(TSCOMMACHAR); itSubStart != itSubEnd; ++itSubStart)
+	//		{
+	//			const auto tsSubLine(*itSubStart);
+	//			const auto SubItemRange = Dcx::getItemRange2(tsSubLine, nSubItemCnt);
+
+	//			if ((SubItemRange.b < 0) || (SubItemRange.e < 0) || (SubItemRange.b > SubItemRange.e))
+	//				throw Dcx::dcxException(TEXT("Invalid SubItem Range %."), tsSubLine);
+
+	//			// iterate through this subitem range.
+	//			for (auto nSubItem : SubItemRange)
+	//			{
+	//				// invalid item
+	//				if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= nSubItemCnt))
+	//					throw DcxExceptions::dcxInvalidItem();
+
+	//				//if (const auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lvi.lParam); (lpdcxlvi && lpdcxlvi->pbar && lpdcxlvi->iPbarCol == nSubItem))
+	//				//{
+	//				//	itemtext = input.getfirsttok(1) + TEXT(' ') + input.getnexttok() + TEXT(' ') + itemtext;
+	//				//	lpdcxlvi->pbar->parseCommandRequest(itemtext);
+	//				//}
+	//				//else {
+	//				//	if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= this->getColumnCount()))
+	//				//		throw DcxExceptions::dcxInvalidItem();
+	//				//
+	//				//	Dcx::dcxListView_SetItemText(m_Hwnd, nItem, nSubItem, itemtext.to_chr());
+	//				//}
+
+	//				if (const auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lvi.lParam); lpdcxlvi)
+	//				{
+	//					if (auto& ri = lpdcxlvi->vInfo[nSubItem]; ri.m_pCtrl)
+	//					{
+	//						itemtext = input.getfirsttok(1) + TEXT(' ') + input.getnexttok() + TEXT(' ') + itemtext;
+	//						ri.m_pCtrl->parseCommandRequest(itemtext);
+	//						continue;
+	//					}
+	//				}
+
+	//				if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= this->getColumnCount()))
+	//					throw DcxExceptions::dcxInvalidItem();
+
+	//				Dcx::dcxListView_SetItemText(m_Hwnd, nItem, nSubItem, itemtext.to_chr());
+	//			}
+	//		}
+	//	}
+					//}
 
 	// iterate through all item ranges supplied
-	const auto itEnd = tsItems.end();
-	for (auto itStart = tsItems.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-	{
-		const auto tsLine(*itStart);
+	
+	const auto nSubItemCnt = this->getColumnCount();
+	Dcx::CallOnRange(tsItems, Dcx::dcxListView_GetItemCount(m_Hwnd), 1, [this, input, nSubItemCnt, tsSubItems, &itemtext](int nItem) {
+		LVITEM lvi{ LVIF_PARAM, nItem };
+		Dcx::dcxListView_GetItem(m_Hwnd, &lvi);
 
-		const auto ItemRange = Dcx::getItemRange2(tsLine, nItemCnt);
-
-		if ((ItemRange.b < 0) || (ItemRange.e < 0) || (ItemRange.b > ItemRange.e))
-			throw Dcx::dcxException(TEXT("Invalid Item Range %."), tsLine);
-
-		// iterate through this range
-		for (auto nItem : ItemRange)
-		{
-			LVITEM lvi{ LVIF_PARAM, nItem };
-			Dcx::dcxListView_GetItem(m_Hwnd, &lvi);
-
-			// iterate through all subitem ranges supplied (must be done for each item)
-			const auto itSubEnd = tsItems.end();
-			for (auto itSubStart = tsSubItems.begin(TSCOMMACHAR); itSubStart != itSubEnd; ++itSubStart)
-			{
-				const auto tsSubLine(*itSubStart);
-				const auto SubItemRange = Dcx::getItemRange2(tsSubLine, nSubItemCnt);
-
-				if ((SubItemRange.b < 0) || (SubItemRange.e < 0) || (SubItemRange.b > SubItemRange.e))
-					throw Dcx::dcxException(TEXT("Invalid SubItem Range %."), tsSubLine);
-
-				// iterate through this subitem range.
-				for (auto nSubItem : SubItemRange)
-				{
-					// invalid item
-					if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= nSubItemCnt))
-						throw DcxExceptions::dcxInvalidItem();
-
-					//if (const auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lvi.lParam); (lpdcxlvi && lpdcxlvi->pbar && lpdcxlvi->iPbarCol == nSubItem))
-					//{
-					//	itemtext = input.getfirsttok(1) + TEXT(' ') + input.getnexttok() + TEXT(' ') + itemtext;
-					//	lpdcxlvi->pbar->parseCommandRequest(itemtext);
-					//}
-					//else {
-					//	if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= this->getColumnCount()))
-					//		throw DcxExceptions::dcxInvalidItem();
-					//
-					//	Dcx::dcxListView_SetItemText(m_Hwnd, nItem, nSubItem, itemtext.to_chr());
-					//}
-
+		Dcx::CallOnRange(tsSubItems, nSubItemCnt, 1, [this, input, &itemtext, lvi](int nSubItem) {
 					if (const auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lvi.lParam); lpdcxlvi)
 					{
-						if (auto& ri = lpdcxlvi->vInfo[nSubItem]; ri.m_pCtrl)
+				if (const auto& ri = lpdcxlvi->vInfo[nSubItem]; ri.m_pCtrl)
 					{
 						itemtext = input.getfirsttok(1) + TEXT(' ') + input.getnexttok() + TEXT(' ') + itemtext;
 							ri.m_pCtrl->parseCommandRequest(itemtext);
-							continue;
+					return;
 						}
 					}
 
-						if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= this->getColumnCount()))
-							throw DcxExceptions::dcxInvalidItem();
+			Dcx::dcxListView_SetItemText(m_Hwnd, lvi.iItem, nSubItem, itemtext.to_wchr());
+			});
 
-						Dcx::dcxListView_SetItemText(m_Hwnd, nItem, nSubItem, itemtext.to_chr());
-					}
-				}
-			}
-		}
+		});
 	}
 
 void DcxListView::toXml(TiXmlElement* const xml) const
