@@ -615,6 +615,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
+	// xdid -i [NAME] [ID] [SWITCH] [N,N-N,N...] [TEXT]
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 5)
@@ -622,22 +623,50 @@ void DcxEdit::parseCommandRequest(const TString& input)
 
 		const auto pos = this->GetCaretPos();
 
-		const auto nLine = input.getnexttokas<UINT>();	// tok 4
+		//const auto nLine = input.getnexttokas<UINT>();	// tok 4
+		//const auto tsText(input.getlasttoks());	// tok 5, -1
+		//
+		//if (this->isStyle(WindowStyle::ES_MultiLine))
+		//{
+		//	if (nLine == 0)
+		//		throw DcxExceptions::dcxInvalidArguments();
+		//
+		//	this->m_tsText.instok(tsText, nLine, Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd).to_chr());
+		//}
+		//else
+		//	this->m_tsText = tsText;
+
+		const auto tsLines(input.getnexttok());	// tok 4
+		const auto tsText(input.getlasttoks());	// tok 5, -1
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
-			if (nLine == 0)
-				throw DcxExceptions::dcxInvalidArguments();
+			const auto tsEndOfLine(Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd));
+			const auto vRanges = Dcx::sortRanges(tsLines, m_tsText.numtok(tsEndOfLine.to_chr()) + 1, 0, true);
+			for (const auto& r : vRanges)
+			{
+				//for (auto it = r.rbegin(); it; ++it)
+				//{
+				//	auto nLine = *it;
+				//	if (nLine == 0)
+				//		throw DcxExceptions::dcxInvalidArguments();
+				//
+				//	this->m_tsText.instok(tsText, nLine, tsEndOfLine.to_chr());
+				//}
 
-			this->m_tsText.instok(input.getlasttoks(), nLine, Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd).to_chr());	// tok 5, -1
+				for (const auto nLine : r.rbegin())
+					this->m_tsText.instok(tsText, nLine, tsEndOfLine.to_chr());
+		}
 		}
 		else
-			this->m_tsText = input.getlasttoks();	// tok 5, -1
+			this->m_tsText = tsText;
+
 		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 
 		this->setCaretPos(pos);
 	}
 	// xdid -I [NAME] [ID] [SWITCH] [N] [TEXT]
+	// xdid -I [NAME] [ID] [SWITCH] [N,N-N,N...] [TEXT]
 	else if (flags[TEXT('I')])
 	{
 		// inserts supplied [TEXT] at char pos [N]
@@ -645,22 +674,53 @@ void DcxEdit::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		//const auto nChar = input.getnexttokas<UINT>();	// tok 4
-		//TString tsLeft(this->m_tsText.sub(0, nChar));
-		//tsLeft += input.getlasttoks();
+		//const TString tsInsert(input.getlasttoks());	// tok 5, -1
+		//
+		//TString tsLeft(gsl::narrow_cast<TString::size_type>(this->m_tsText.len() + tsInsert.len()));
+		//
+		//tsLeft = this->m_tsText.sub(0, nChar);
+		//tsLeft += tsInsert;
 		//tsLeft += this->m_tsText.sub(nChar, this->m_tsText.len());
+		//
+		//const auto pos = this->GetCaretPos();
+		//
+		//this->m_tsText = tsLeft;
+		//
+		//SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
+		//
+		//this->setCaretPos(pos);
 
-		const auto nChar = input.getnexttokas<UINT>();	// tok 4
-		const TString tsInsert(input.getlasttoks());
+		const auto tsChars(input.getnexttok());		// tok 4
+		const auto tsInsert(input.getlasttoks());	// tok 5, -1
 
+		const auto pos = this->GetCaretPos();
+
+		const auto vRanges = Dcx::sortRanges(tsChars, m_tsText.len() + 1, true);
+		for (const auto& r : vRanges)
+		{
+			//for (auto it = r.rbegin(); it; ++it)
+			//{
+			//	const auto nChar = *it;
+			//	TString tsLeft(gsl::narrow_cast<TString::size_type>(this->m_tsText.len() + tsInsert.len()));
+			//
+			//	tsLeft = this->m_tsText.sub(0, nChar);
+			//	tsLeft += tsInsert;
+			//	tsLeft += this->m_tsText.sub(nChar, this->m_tsText.len());
+			//
+			//	this->m_tsText = tsLeft;
+			//}
+
+			for (const auto nChar : r.rbegin())
+			{
 		TString tsLeft(gsl::narrow_cast<TString::size_type>(this->m_tsText.len() + tsInsert.len()));
 
 		tsLeft = this->m_tsText.sub(0, nChar);
 		tsLeft += tsInsert;
 		tsLeft += this->m_tsText.sub(nChar, this->m_tsText.len());
 
-		const auto pos = this->GetCaretPos();
-
 		this->m_tsText = tsLeft;
+			}
+		}
 
 		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 
@@ -721,22 +781,38 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		Dcx::dcxEdit_SetReadOnly(m_Hwnd, enabled);
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
+	// xdid -o [NAME] [ID] [SWITCH] [N,N-N,N...] [TEXT]
 	else if (flags[TEXT('o')])
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nLine = input.getnexttokas<UINT>();	// tok 4
+		//const auto nLine = input.getnexttokas<UINT>();	// tok 4
+		//const auto tsText(input.getlasttoks());	// tok 5, -1
+		//
+		//if (this->isStyle(WindowStyle::ES_MultiLine))
+		//{
+		//	if (nLine == 0)
+		//		throw DcxExceptions::dcxInvalidArguments();
+		//
+		//	this->m_tsText.puttok(tsText, nLine, Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd).to_chr());	// tok 5, -1
+		//}
+		//else
+		//	this->m_tsText = tsText;
+
+		const auto tsLines(input.getnexttok());	// tok 4
+		const auto tsText(input.getlasttoks());	// tok 5, -1
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
-			if (nLine == 0)
-				throw DcxExceptions::dcxInvalidArguments();
-
-			this->m_tsText.puttok(input.getlasttoks(), nLine, Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd).to_chr());	// tok 5, -1
+			const auto tsEndOfLine(Dcx::dcxEdit_GetEndOfLineCharacters(m_Hwnd));
+			Dcx::CallOnRange(tsLines, std::max(m_tsText.numtok(tsEndOfLine.to_chr()), 1U), 0, [this, tsText, tsEndOfLine](int nLine) {
+				this->m_tsText.puttok(tsText, nLine, tsEndOfLine.to_chr());
+				});
 		}
 		else
-			this->m_tsText = input.getlasttoks();	// tok 4, -1
+			this->m_tsText = tsText;
+
 		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -P [NAME] [ID]
@@ -752,11 +828,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 
 		if (const auto N = input.getnexttokas<int>(); N > -1)
 			Dcx::dcxEdit_LimitText(m_Hwnd, N);
-	}
-	// Used to prevent invalid flag message.
-	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('r')])
-	{
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags[TEXT('t')])
@@ -782,9 +853,16 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		if (const auto tsFile(input.getlasttoks().trim()); !SaveDataToFile(tsFile, this->m_tsText))
 			throw Dcx::dcxException(TEXT("Unable to save: %"), tsFile);
 	}
-	// xdid -V [NAME] [ID]
+	// xdid -V [NAME] [ID] ([xChars] [yLines])
 	else if (flags[TEXT('V')])
 	{
+		if (input.numtok() == 4)
+		{
+			const auto xChars = input.getnexttokas<int>();
+			const auto yLines = input.getnexttokas<int>();
+			Dcx::dcxEdit_LineScroll(m_Hwnd, xChars, yLines);
+		}
+		else
 		Dcx::dcxEdit_ScrollCaret(m_Hwnd);
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] (END)
@@ -913,6 +991,11 @@ void DcxEdit::parseCommandRequest(const TString& input)
 			}
 			++argcnt;
 		}
+	}
+	// Used to prevent invalid flag message.
+	// xdid -r [NAME] [ID] [SWITCH]
+	else if (flags[TEXT('r')])
+	{
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
