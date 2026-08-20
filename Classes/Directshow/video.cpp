@@ -30,7 +30,10 @@ VMR7::VMR7() noexcept
 
 VMR7::~VMR7()
 {
-	SAFE_RELEASE(m_pWindowless);
+	try {
+		SAFE_RELEASE(m_pWindowless);
+	}
+	catch (...) {}
 }
 
 HRESULT VMR7::AddToGraph(IGraphBuilder* pGraph, HWND hwnd)
@@ -203,7 +206,10 @@ VMR9::VMR9() noexcept
 
 VMR9::~VMR9()
 {
-	SAFE_RELEASE(m_pWindowless);
+	try {
+		SAFE_RELEASE(m_pWindowless);
+	}
+	catch (...) {}
 }
 
 HRESULT VMR9::AddToGraph(IGraphBuilder* pGraph, HWND hwnd)
@@ -382,8 +388,11 @@ EVR::EVR() noexcept
 
 EVR::~EVR()
 {
-	SAFE_RELEASE(m_pEVR);
-	SAFE_RELEASE(m_pVideoDisplay);
+	try {
+		SAFE_RELEASE(m_pEVR);
+		SAFE_RELEASE(m_pVideoDisplay);
+	}
+	catch (...) {}
 }
 
 HRESULT EVR::AddToGraph(IGraphBuilder* pGraph, HWND hwnd)

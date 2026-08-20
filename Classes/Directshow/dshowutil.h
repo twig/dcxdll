@@ -2079,7 +2079,7 @@ inline HRESULT AddGraphToRot(IUnknown* pUnkGraph, DWORD* pdwRegister)
 {
 	IMoniker* pMoniker = nullptr;
 	IRunningObjectTable* pROT = nullptr;
-	WCHAR wsz[128];
+	WCHAR wsz[128]{};
 	HRESULT hr = S_OK;
 
 	if (!pUnkGraph || !pdwRegister)
@@ -2320,17 +2320,14 @@ inline HRESULT LetterBoxRect(const SIZE& aspectRatio, const RECT& rcDest, RECT* 
 		return E_INVALIDARG;
 	}
 
-	LONG width, height;
-
 	const LONG SrcWidth = aspectRatio.cx;
 	const LONG SrcHeight = aspectRatio.cy;
 	const LONG DestWidth = rcDest.right - rcDest.left;
 	const LONG DestHeight = rcDest.bottom - rcDest.top;
 
-
 	// First try: Letterbox along the sides. ("pillarbox")
-	width = MulDiv(DestHeight, SrcWidth, SrcHeight);
-	height = DestHeight;
+	LONG width = MulDiv(DestHeight, SrcWidth, SrcHeight);
+	LONG height = DestHeight;
 	if (width > DestWidth)
 	{
 		// Letterbox along the top and bottom.

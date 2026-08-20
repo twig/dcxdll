@@ -32,7 +32,7 @@ public:
 	BaseVideoRenderer& operator =(const BaseVideoRenderer&) = default;
 	BaseVideoRenderer& operator =(BaseVideoRenderer&&) noexcept = default;
 
-	virtual BOOL    HasVideo() const = 0;
+	virtual bool    HasVideo() const = 0;
 
 	virtual HRESULT AddToGraph(IGraphBuilder* pGraph, HWND hwnd) = 0;
 	virtual HRESULT FinalizeGraph(IGraphBuilder* pGraph) = 0;
@@ -59,7 +59,12 @@ public:
 	VMR7() noexcept;
 	~VMR7();
 
-	BOOL    HasVideo() const noexcept override { return (m_pWindowless != nullptr); }
+	VMR7(const VMR7&) = default;
+	VMR7(VMR7&&) noexcept = default;
+	VMR7& operator =(const VMR7&) = default;
+	VMR7& operator =(VMR7&&) noexcept = default;
+
+	bool    HasVideo() const noexcept override { return (m_pWindowless != nullptr); }
 
 	HRESULT AddToGraph(IGraphBuilder* pGraph, HWND hwnd) override;
 	HRESULT FinalizeGraph(IGraphBuilder* pGraph) override;
@@ -86,7 +91,12 @@ public:
 	VMR9() noexcept;
 	~VMR9();
 
-	BOOL    HasVideo() const noexcept override { return (m_pWindowless != nullptr); }
+	VMR9(const VMR9&) = default;
+	VMR9(VMR9&&) noexcept = default;
+	VMR9& operator =(const VMR9&) = default;
+	VMR9& operator =(VMR9&&) noexcept = default;
+
+	bool    HasVideo() const noexcept override { return (m_pWindowless != nullptr); }
 
 	HRESULT AddToGraph(IGraphBuilder* pGraph, HWND hwnd) override;
 	HRESULT FinalizeGraph(IGraphBuilder* pGraph) override;
@@ -114,7 +124,12 @@ public:
 	EVR() noexcept;
 	~EVR();
 
-	BOOL    HasVideo() const noexcept override { return (m_pVideoDisplay != nullptr); }
+	EVR(const EVR&) = default;
+	EVR(EVR&&) noexcept = default;
+	EVR& operator =(const EVR&) = default;
+	EVR& operator =(EVR&&) noexcept = default;
+
+	bool    HasVideo() const noexcept override { return (m_pVideoDisplay != nullptr); }
 
 	HRESULT AddToGraph(IGraphBuilder* pGraph, HWND hwnd) override;
 	HRESULT FinalizeGraph(IGraphBuilder* pGraph) override;
