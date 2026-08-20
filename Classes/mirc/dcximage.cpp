@@ -299,33 +299,6 @@ void DcxImage::parseCommandRequest(const TString& input)
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [SIZE] [FILENAME]
 	if (flags[TEXT('w')] && numtok > 6)
 	{
-		//const auto flag(input.getnexttok());		// tok 4
-		//const auto index = input.getnexttokas<int>();	// tok 5
-		//const auto size = input.getnexttokas<int>();	// tok 6
-		//auto filename(input.getlasttoks().trim());	// tok 7, -1
-		//
-		//PreloadData();
-		//
-		//this->m_iIconSize = NumToIconSize(size);
-		//
-		//this->m_hIcon = dcxLoadIcon(index, filename, (m_iIconSize != DcxIconSizes::SmallIcon), flag);
-		//
-		//this->m_tsFilename = filename;
-		//
-		//this->m_bIsIcon = true;
-		//
-		//this->m_iIconIndex = index;
-		//
-		//this->m_tsLoadFlags = flag;
-		//
-		//// resize window to size of icon
-		//RECT wnd{};
-		//
-		//if (!GetWindowRectParent(m_Hwnd, &wnd))
-		//	throw Dcx::dcxException("Unable to get windows rect");
-		//
-		//MoveWindow(m_Hwnd, wnd.left, wnd.top, gsl::narrow_cast<int>(this->m_iIconSize), gsl::narrow_cast<int>(this->m_iIconSize), TRUE);
-
 		const auto flag(input.getnexttok());			// tok 4
 		const auto tsIndex(input.getnexttok());			// tok 5
 		const auto size = input.getnexttokas<int>();	// tok 6
@@ -793,11 +766,6 @@ void DcxImage::fromXml(const TiXmlElement* xDcxml, const TiXmlElement* xThis)
 
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
 LRESULT DcxImage::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
 {
 	return 0L;
