@@ -233,11 +233,11 @@
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">fullrowselect</td>
-		<td>Enables fullrowselection.</td>
+		<td>Enables fullrowselection. (Can not be used with <a class="value">rootlines</a>)</td>
 	</tr>
 	<tr>
 		<td class="param">nofullrowselect</td>
-		<td>Disables fullrowselection.</td>
+		<td>Disables <a class="value">fullrowselect</a>.</td>
 	</tr>
 	<tr>
 		<td class="param">haslines</td>
@@ -245,7 +245,7 @@
 	</tr>
 	<tr>
 		<td class="param">nohaslines</td>
-		<td>Disables haslines.</td>
+		<td>Disables <a class="value">haslines</a>.</td>
 	</tr>
 	<tr>
 		<td class="param">trackselect</td>
@@ -253,7 +253,7 @@
 	</tr>
 	<tr>
 		<td class="param">notrackselect</td>
-		<td>Disables hot-tracking.</td>
+		<td>Disables <a class="value">trackselect</a>.</td>
 	</tr>
 	<tr>
 		<td class="param">tooltips</td>
@@ -285,7 +285,7 @@
 	</tr>
 	<tr>
 		<td class="param">nohasbuttons</td>
-		<td>Disables &plusmn; buttons on the side of items containing child items for expand/collapse operations.</td>
+		<td>Disables <a class="value">hasbuttons</a>.</td>
 	</tr>
 	<tr>
 		<td class="param">rootlines</td>
@@ -293,7 +293,7 @@
 	</tr>
 	<tr>
 		<td class="param">norootlines</td>
-		<td>Disables lines to be connected to the root item.</td>
+		<td>Disables <a class="value">rootlines</a>.</td>
 	</tr>
 	<tr>
 		<td class="param">singleexpand</td>
@@ -309,7 +309,7 @@
 	</tr>
 	<tr>
 		<td class="param">noscroll</td>
-		<td>Disables horizontal and vertical scrolling in the mIRC Treebar.</td>
+		<td>Disables <a class="value">scroll</a>.</td>
 	</tr>
 	<tr>
 		<td class="param">showsel</td>
@@ -329,7 +329,7 @@
 	</tr>
 	<tr>
 		<td class="param">doublebuffer</td>
-		<td>Specifies how the background is erased or filled. <a class="os">(Vista)</a></td>
+		<td>Specifies how the background is erased or filled. <a class="os">(Vista)</a> (Fixes flicker)</td>
 	</tr>
 	<tr>
 		<td class="param">nodoublebuffer</td>
@@ -357,11 +357,31 @@
 	</tr>
 	<tr>
 		<td class="param">norichtooltip</td>
-		<td>Disables rich tooltips in the tree view (custom drawn with icon and text). <a class="os">(Vista)</a></td>
+		<td>Disables <a class="value">richtooltip</a></td>
 	</tr>
 	<tr>
 		<td class="param">explorer</td>
 		<td>Set control to use the explorer style expand buttons. <a class="os">(Vista)</a></td>
+	</tr>
+	<tr>
+		<td class="param">noexplorer</td>
+		<td>Disable <a class="value">explorer</a></td>
+	</tr>
+	<tr>
+		<td class="param">themedprogress</td>
+		<td>Enable themed progress indicators. (Only when <a class="value">largeprogress</a> is enabled)</td>
+	</tr>
+	<tr>
+		<td class="param">nothemedprogress</td>
+		<td>Disable <a class="value">themedprogress</a>.</td>
+	</tr>
+	<tr>
+		<td class="param">largeprogress</td>
+		<td>Enable large progress indicators.</td>
+	</tr>
+	<tr>
+		<td class="param">nolargeprogress</td>
+		<td>Disable <a class="value">largeprogress</a>.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Using <a class='style' href='xtreebar.htm#style.noscroll'>noscroll</a> while the scrollbar is visible may lead to graphical glitches.</li><li>When using <a class='style' href='xtreebar.htm#style.infotip'>infotip</a>, the alias <a class="value">$xtreeview_callback(gettooltip, [TYPE], [TEXT])</a> is called. Use return <a class="returnevent">NEW_TIP_TEXT</a> to change the tooltip text, and return nothing to prevent the tip from being displayed.</li><li><a class='style' href='xtreebar.htm#style.balloon'>balloon</a> can only be used AFTER <a class='style' href='xtreebar.htm#style.tooltips'>tooltips</a> has been enabled, in a seperate <a class="value">/xtreebar</a> command.</li></ul></td></tr></table>
 <br />
@@ -426,20 +446,16 @@
 	<tr><td colspan="2">This command allows you to enable or disable DCX controlled drawing of the mIRC TreeBar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtreebar -T [OVERRIDE] (THEMEDPROGRESS)</div></td>
+		<td><div class="syntax">/xtreebar -T [OVERRIDE]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xtreebar -T 1 1</div></td>
+		<td><div class="example">/xtreebar -T 1</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">OVERRIDE</td>
 		<td>1|0 Enable/Disable owner drawing treebar.</td>
-	</tr>
-	<tr>
-		<td class="param">THEMEDPROGRESS</td>
-		<td>1|0 Enable/Disable themed progress indicators. (Only when <a class="value">OVERRIDE</a> is enabled)</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>When enabled, the script function <a class="value">$xtreebar_callback(geticons, [TYPE], [TEXT])</a> will be called for each item. This will allow you to configure the appearance of each item in the TreeBar.</li><li>The same alias is called when an item is added to the TreeBar. This will allow you to configure the appearance of the new item.</li><li>The <a class="value">$xtreebar_callback</a> alias should return <a class="value">3</a> image indexes, <a class="param">IMAGE</a> <a class="param">SELECTEDIMAGE</a> <a class="param">EXPANDEDIMAGE</a>. (eg. <a class="value">return 2 5 6</a>)</li></ul></td></tr></table>
 <br />
@@ -783,7 +799,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th August, 26</td>
+		<td style="text-align: right;">Last Updated: 25th August, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

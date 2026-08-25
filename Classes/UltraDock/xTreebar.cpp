@@ -450,6 +450,34 @@ mIRC(xtreebar)
 					DcxUXModule::dcxSetWindowTheme(mIRCLinker::getTreeview(), VSCLASS_TREEVIEW, nullptr);
 				}
 				break;
+				case L"largeprogress"_hash:
+				{
+					DcxDock::g_bTreebarLargeProgress = true;
+				}
+				break;
+				case L"nolargeprogress"_hash:
+				{
+					DcxDock::g_bTreebarLargeProgress = false;
+				}
+				break;
+				case L"themedprogress"_hash:
+				{
+					if (DcxDock::g_TreebarProgressTheme)
+						DcxUXModule::dcxCloseThemeData(DcxDock::g_TreebarProgressTheme);
+
+					DcxDock::g_TreebarProgressTheme = nullptr;
+
+					if (DcxUXModule::dcxIsThemeActive())
+						DcxDock::g_TreebarProgressTheme = DcxUXModule::dcxOpenThemeData(nullptr, VSCLASS_PROGRESS);
+				}
+				break;
+				case L"nothemedprogress"_hash:
+				{
+					if (DcxDock::g_TreebarProgressTheme)
+						DcxUXModule::dcxCloseThemeData(DcxDock::g_TreebarProgressTheme);
+					DcxDock::g_TreebarProgressTheme = nullptr;
+				}
+				break;
 				default: // unknown style ignore.
 					throw Dcx::dcxException(TEXT("Unknown Style: %"), x);
 				}
@@ -492,40 +520,40 @@ mIRC(xtreebar)
 				Dcx::dcxTreeView_SetInsertMarkColor(mIRCLinker::getTreeview(), clr);
 				break;
 			case TEXT('s'): // selected text colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED)) = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED)) = clr;
 				break;
 			case TEXT('S'): // selected bkg colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG)) = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG)) = clr;
 				break;
 			case TEXT('m'): // message colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MESSAGE)) = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_MESSAGE)) = clr;
 				break;
 			case TEXT('M'): // message bkg colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MESSAGE_BKG)) = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_MESSAGE_BKG)) = clr;
 				break;
 			case TEXT('e'): // event colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_EVENT)) = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_EVENT)) = clr;
 				break;
 			case TEXT('E'): // event bkg colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_EVENT_BKG)) = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_EVENT_BKG)) = clr;
 				break;
 			case TEXT('z'): // highlight colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT)) = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT)) = clr;
 				break;
 			case TEXT('Z'): // highlight bkg colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT_BKG)) = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT_BKG)) = clr;
 				break;
 			case TEXT('h'): // hot text colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT)) = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT)) = clr;
 				break;
 			case TEXT('H'): // hot bkg colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)) = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)) = clr;
 				break;
 			case TEXT('p'): // Percent bar colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR)) = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR)) = clr;
 				break;
 			case TEXT('P'): // Percent bar bkg colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG)) = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG)) = clr;
 				break;
 			default:
 				throw DcxExceptions::dcxInvalidFlag();
@@ -636,10 +664,9 @@ mIRC(xtreebar)
 			}
 		}
 		break;
-		case TEXT('T'): // [1|0] (1|0)
+		case TEXT('T'): // [1|0]
 		{ // Take over Treebar drawing
 			DcxDock::g_bTakeOverTreebar = (input.getnexttokas<int>() > 0);	// tok 2
-			DcxDock::g_bTreebarThemedProgress = (input.getnexttokas<int>() > 0);	// tok 3
 			if (DcxDock::g_bTakeOverTreebar)
 			{
 				if (mIRCLinker::isAlias(L"xtreebar_callback"_ts))
@@ -746,7 +773,7 @@ mIRC(_xtreebar)
 
 		case TEXT("themedprogress"_hash):
 		{
-			_ts_strcpyn(data, dcx_truefalse(DcxDock::g_bTreebarThemedProgress), mIRCLinker::m_dwCharacters);
+			_ts_strcpyn(data, dcx_truefalse(DcxDock::g_TreebarProgressTheme), mIRCLinker::m_dwCharacters);
 		}
 		break;
 

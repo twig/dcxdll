@@ -8,12 +8,9 @@
 #include "Dcx.h"
 
 DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType) noexcept
-	: m_OldRefWndProc(nullptr)
-	, m_OldDockWndProc(nullptr)
-	, m_RefHwnd(refHwnd)
+	: m_RefHwnd(refHwnd)
 	, m_hParent(dockHwnd)
 	, m_iType(dockType)
-	, m_VectorDocks()
 {
 	if (IsWindow(m_RefHwnd))
 	{
@@ -348,6 +345,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 	{
 		if (pthis->m_iType == DockTypes::DOCK_TYPE_TREE && DcxDock::g_bTakeOverTreebar)
 			return FALSE;
+
 		//return ((GetWindowLong(mHwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) ? TRUE : FALSE);
 	}
 	break;
@@ -555,6 +553,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 		}
 	}
 	break;
+
 	case WM_NOTIFY:
 	{
 		if (pthis->m_iType == DockTypes::DOCK_TYPE_TREE)
@@ -646,6 +645,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 		}
 	}
 	break;
+
 	case WM_DRAWITEM:
 	{
 		dcxlParam(LPDRAWITEMSTRUCT, lpDrawItem);
@@ -714,6 +714,16 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 			pthis->UnDockWindow(to_hwnd(lParam));
 	}
 	break;
+
+	//case WM_CTLCOLORSTATIC:
+	//case WM_CTLCOLOREDIT:
+	//{
+	//	if (!DcxDock::g_bTakeOverTreebar)
+	//		break;
+	//	if (pthis->m_iType == DockTypes::DOCK_TYPE_TREE)
+	//		return (LRESULT)GetStockBrush(HOLLOW_BRUSH);
+	//}
+	//break;
 
 	//case WM_SETCURSOR:
 	//{
@@ -1223,23 +1233,23 @@ LRESULT DcxDock::treebar_PrePaint(LPNMTVCUSTOMDRAW lpntvcd)
 {
 	if (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_HOT))
 	{ // This makes sure the hot colour doesnt show as blue.
-		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT)) != CLR_INVALID)
-			lpntvcd->clrText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT));
+		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT)) != CLR_INVALID)
+			lpntvcd->clrText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT));
 		else
 			lpntvcd->clrText = GetSysColor(COLOR_HOTLIGHT);
 
-		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)) != CLR_INVALID) // only set a bkg colour if one is set in prefs.
-			lpntvcd->clrTextBk = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG));
+		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)) != CLR_INVALID) // only set a bkg colour if one is set in prefs.
+			lpntvcd->clrTextBk = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG));
 	}
 	if (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED))
 	{ // This makes sure the selected colour doesnt show as grayed.
-		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED)) != CLR_INVALID)
-			lpntvcd->clrText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED));
+		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED)) != CLR_INVALID)
+			lpntvcd->clrText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED));
 		else
 			lpntvcd->clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);
 
-		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG)) != CLR_INVALID)
-			lpntvcd->clrTextBk = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG));
+		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG)) != CLR_INVALID)
+			lpntvcd->clrTextBk = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG));
 		else
 			lpntvcd->clrTextBk = GetSysColor(COLOR_HIGHLIGHT);
 	}
@@ -1256,17 +1266,17 @@ LRESULT DcxDock::treebar_PrePaint(LPNMTVCUSTOMDRAW lpntvcd)
 			{
 			case L"message"_hash:
 			{
-				cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MESSAGE));
-				cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MESSAGE_BKG));
+				cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_MESSAGE));
+				cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_MESSAGE_BKG));
 			}
 			break;
 			case L"event"_hash:
-				cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_EVENT));
-				cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_EVENT_BKG));
+				cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_EVENT));
+				cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_EVENT_BKG));
 				break;
 			case L"highlight"_hash:
-				cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT));
-				cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT_BKG));
+				cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT));
+				cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT_BKG));
 				break;
 			default:
 				break;
@@ -1296,130 +1306,82 @@ LRESULT DcxDock::treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd)
 	if (!hItem)
 		return CDRF_DODEFAULT;
 
-	RECT rcTxt{}, rcItem{}, rcSelected{};
-	if (!Dcx::dcxTreeView_GetItemRect(lpntvcd->nmcd.hdr.hwndFrom, hItem, &rcItem, false))
-		return CDRF_DODEFAULT;
+	RECT rcTxt{};
+	const RECT rcItem{ lpntvcd->nmcd.rc };
+	//if (!Dcx::dcxTreeView_GetItemRect(lpntvcd->nmcd.hdr.hwndFrom, hItem, &rcItem, false))
+	//	return CDRF_DODEFAULT;
 	if (!Dcx::dcxTreeView_GetItemRect(lpntvcd->nmcd.hdr.hwndFrom, hItem, &rcTxt, true))
 		return CDRF_DODEFAULT;
+
+	TCHAR szbuf[MIRC_BUFFER_SIZE_CCH]{};
+	TVITEMEX tvi{};
+	tvi.hItem = hItem;
+	tvi.mask = TVIF_EXPANDEDIMAGE | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_STATE | TVIF_TEXT;
+	tvi.cchTextMax = std::size(szbuf);
+	tvi.pszText = &szbuf[0];
+	Dcx::dcxTreeView_GetItem(lpntvcd->nmcd.hdr.hwndFrom, &tvi);
 
 	const auto bSelected = (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED));
 	const auto bHot = dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_HOT);
 	const auto ctrlstyles = dcxGetWindowStyle(lpntvcd->nmcd.hdr.hwndFrom);
 	const bool bFullrow = dcx_testflag(ctrlstyles, WindowStyle::TVS_FullRowSelect);
 	const bool bTrackHot = dcx_testflag(ctrlstyles, WindowStyle::TVS_TrackSelect);
-	if (bFullrow)
-		rcSelected = rcItem;
-	else
-		rcSelected = rcTxt;
-	RECT rcBar{ rcTxt };
-	rcBar.right = lpntvcd->nmcd.rc.right;
+	const auto bExpanded = dcx_testflag(tvi.state, TVIS_EXPANDED);
+	const auto iIcon = (bSelected ? tvi.iSelectedImage : (bExpanded ? tvi.iExpandedImage : tvi.iImage));
 
-	const auto tsTxt(Dcx::dcxTreeView_GetItemText(lpntvcd->nmcd.hdr.hwndFrom, hItem));
+	// guestimate values...
+	constexpr auto cyBorder = 1;
+	constexpr auto cxBorder = 5;
+
+	int cxImage = 0;
+	auto himl = Dcx::dcxTreeView_GetImageList(lpntvcd->nmcd.hdr.hwndFrom, TVSIL_NORMAL);
+	if (himl)
+	{
+		int cy{};
+		ImageList_GetIconSize(himl, &cxImage, &cy);
+					}
+
+	//RECT rcSelected{ lpntvcd->nmcd.rc };
+	RECT rcSelected{ rcTxt };
+	rcSelected.right += 2;
+
+	if (!bFullrow)
+		rcSelected.left = rcTxt.left - cxImage - cxBorder;
+
+	// blank out previous drawing...
+	if (const auto clr = Dcx::dcxTreeView_GetBkColor(lpntvcd->nmcd.hdr.hwndFrom); clr != CLR_NONE)
+		Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcSelected, clr);
+
+	treebar_DrawBackground(lpntvcd, &rcSelected, bSelected, bHot, bTrackHot);
+
+	if ((iIcon >= 0) && himl)
+	{
+		const int iLeft = rcTxt.left - cxImage - cxBorder + 1;
+		const int iTop = rcTxt.top + cyBorder;
+
+		ImageList_Draw(himl, iIcon, lpntvcd->nmcd.hdc, iLeft, iTop, (bSelected ? ILD_SELECTED : ILD_NORMAL));
+				}
 
 	// This fixes the dcc progress & custom window -qS:P not showing in treebar
 	if (const auto wid = DcxDock::getTreebarItemWID(lpntvcd->nmcd.lItemlParam); wid > 0)
-	{
+			{
 		TString buf;
 
-		//mIRCLinker::eval(buf, TEXT("$window(@%).pbstate $window(@%).pbpercent"), wid, wid);
 		mIRCLinker::eval(buf, TEXT("$_dcx_WIDToPercent(%)"), wid);
 		if (buf.getfirsttok(1).to_<int>() > 0)
-		{
+			{
 			const int perc = buf.getnexttokas<int>();
-			if (DcxDock::g_bTreebarThemedProgress && DcxUXModule::dcxIsThemeActive())
-			{
-				if (auto hStyleTheme = DcxUXModule::dcxOpenThemeData(lpntvcd->nmcd.hdr.hwndFrom, VSCLASS_PROGRESS); hStyleTheme)
-				{
-					Auto(DcxUXModule::dcxCloseThemeData(hStyleTheme));
 
-					constexpr int iStyle{ PBFS_NORMAL };
+			RECT rcBar{ rcTxt };
+			rcBar.right = lpntvcd->nmcd.rc.right;
 
-					if (bSelected || (bHot && bTrackHot))
-					{
-						if (!dcxDrawTranslucentRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, lpntvcd->clrTextBk, false))
-							dcxDrawRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, lpntvcd->clrTextBk, false);
-					}
-
-					if (DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(hStyleTheme, PP_BAR, iStyle))
-						DcxUXModule::dcxDrawThemeParentBackground(lpntvcd->nmcd.hdr.hwndFrom, lpntvcd->nmcd.hdc, &rcBar);
-
-					DcxUXModule::dcxDrawThemeBackground(hStyleTheme, lpntvcd->nmcd.hdc, PP_BAR, iStyle, &rcBar, nullptr);
-
-					RECT rcContents{};
-					DcxUXModule::dcxGetThemeBackgroundContentRect(hStyleTheme, lpntvcd->nmcd.hdc, PP_BAR, iStyle, &rcBar, &rcContents);
-
-					rcContents.right = rcContents.left + gsl::narrow_cast<LONG>(((rcContents.right - rcContents.left) / 100.0) * std::clamp(perc, 0, 100));
-					DcxUXModule::dcxDrawThemeBackground(hStyleTheme, lpntvcd->nmcd.hdc, PP_FILL, iStyle, &rcContents, nullptr);
-
-					const auto oldClr = SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
-					const auto oldMode = SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
-					DrawTextW(lpntvcd->nmcd.hdc, tsTxt.to_wchr(), gsl::narrow_cast<int>(tsTxt.len()), &rcTxt, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
-					SetBkMode(lpntvcd->nmcd.hdc, oldMode);
-					SetTextColor(lpntvcd->nmcd.hdc, oldClr);
-
-					return CDRF_DODEFAULT;
-				}
-			}
-
-			//Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcTxt, lpntvcd->clrTextBk);
-
-			if (bSelected || (bHot && bTrackHot))
-			{
-				if (!dcxDrawTranslucentRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, lpntvcd->clrTextBk, false))
-					dcxDrawRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, lpntvcd->clrTextBk, false);
-			}
-			else
-				Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcTxt, lpntvcd->clrTextBk);
-
-			const auto oldClr = SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
-			const auto oldMode = SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
-			DrawTextW(lpntvcd->nmcd.hdc, tsTxt.to_wchr(), gsl::narrow_cast<int>(tsTxt.len()), &rcTxt, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
-			SetBkMode(lpntvcd->nmcd.hdc, oldMode);
-			SetTextColor(lpntvcd->nmcd.hdc, oldClr);
-			
-			//if (bSelected || (bHot && bTrackHot))
-			//{
-			//	if (!dcxDrawTranslucentRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, lpntvcd->clrTextBk, false))
-			//		dcxDrawRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, lpntvcd->clrTextBk, false);
-			//}
-
-			// draw thin bar at bottom under text.
-			rcBar.top = rcBar.bottom - 2;
-
-			if (perc < 100)
-			{
-				//COLORREF clrbkg = RGB(0, 0, 0);
-				//COLORREF clrbkg = Dcx::dcxTreeView_GetBkColor(lpntvcd->nmcd.hdr.hwndFrom);
-				COLORREF clrbkg = lpntvcd->clrTextBk;
-				if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG)) != CLR_INVALID)
-					clrbkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG));
-
-				// draw background
-				Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcBar, clrbkg);
-				rcBar.right = rcBar.left + gsl::narrow_cast<LONG>(((gsl::narrow_cast<double>(rcBar.right) - gsl::narrow_cast<double>(rcBar.left)) / 100.0) * gsl::narrow_cast<double>(perc));
-			}
-
-			COLORREF clr = RGB(0, 255, 0);
-			if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR)) != CLR_INVALID)
-				clr = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR));
-
-			// draw percentage bar.
-			Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcBar, clr);
-			return CDRF_DODEFAULT;
-		}
+			treebar_DrawProgress(lpntvcd, &rcBar, perc, bSelected, bHot, bTrackHot);
 	}
-
-	if (bSelected || (bHot && bTrackHot))
-	{
-		if (!dcxDrawTranslucentRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, lpntvcd->clrTextBk, false))
-			dcxDrawRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, lpntvcd->clrTextBk, false);
 	}
-	else
-		Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcTxt, lpntvcd->clrTextBk);
 
 	const auto oldClr = SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
 	const auto oldMode = SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
-	DrawTextW(lpntvcd->nmcd.hdc, tsTxt.to_wchr(), gsl::narrow_cast<int>(tsTxt.len()), &rcTxt, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
+	DrawTextW(lpntvcd->nmcd.hdc, tvi.pszText, gsl::narrow_cast<int>(_ts_strlen(tvi.pszText)), &rcTxt, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
 	SetBkMode(lpntvcd->nmcd.hdc, oldMode);
 	SetTextColor(lpntvcd->nmcd.hdc, oldClr);
 	
@@ -1452,4 +1414,77 @@ bool DcxDock::treebar_GetInfoTip(LPNMTVGETINFOTIP tcgit)
 			dcx_strcpyn(tcgit->pszText, buf.to_chr(), tcgit->cchTextMax);
 	}
 	return true;
+}
+
+void DcxDock::treebar_DrawBackground(LPNMTVCUSTOMDRAW lpntvcd, LPCRECT prc, bool bSelected, bool bHot, bool bTrackHot) noexcept
+{
+	//if (bSelected || (bHot && bTrackHot))
+	//{
+	//	//if (auto hTheme = DcxUXModule::dcxOpenThemeData(/*lpntvcd->nmcd.hdr.hwndFrom*/ nullptr, VSCLASS_TREEVIEW); hTheme)
+	//	//{
+	//	//	Auto(DcxUXModule::dcxCloseThemeData(hTheme));
+	//	//
+	//	//	int iState{ TREIS_NORMAL };
+	//	//	if (bSelected)
+	//	//	{
+	//	//		if (bHot)
+	//	//			iState = TREIS_HOTSELECTED;
+	//	//		else
+	//	//			iState = TREIS_SELECTED;
+	//	//	}
+	//	//	else if (bHot)
+	//	//		iState = TREIS_HOT;
+	//	//	//if (DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(hTheme, TVP_TREEITEM, iState))
+	//	//	//	DcxUXModule::dcxDrawThemeParentBackground(lpntvcd->nmcd.hdr.hwndFrom, lpntvcd->nmcd.hdc, prc);
+	//	//
+	//	//	DcxUXModule::dcxDrawThemeBackground(hTheme, lpntvcd->nmcd.hdc, TVP_TREEITEM, iState, prc, nullptr);
+	//	//}
+	//	//else
+	//	if (!dcxDrawTranslucentRect(lpntvcd->nmcd.hdc, prc, lpntvcd->clrTextBk, lpntvcd->clrTextBk, false))
+	//		dcxDrawRect(lpntvcd->nmcd.hdc, prc, lpntvcd->clrTextBk, lpntvcd->clrTextBk, false);
+	//}
+	//else
+	Dcx::FillRectColour(lpntvcd->nmcd.hdc, prc, lpntvcd->clrTextBk);
+}
+
+void DcxDock::treebar_DrawProgress(LPNMTVCUSTOMDRAW lpntvcd, LPCRECT prc, int perc, bool bSelected, bool bHot, bool bTrackHot)
+{
+	RECT rcBar{ *prc };
+	if (!DcxDock::g_bTreebarLargeProgress)
+		// draw thin bar at bottom under text.
+		rcBar.top = rcBar.bottom - 2;
+	else
+		// themed drawing only works with large progressbars
+		if (DcxDock::g_TreebarProgressTheme && DcxUXModule::dcxIsThemeActive())
+		{
+			constexpr int iStyle{ PBFS_NORMAL };
+
+			DcxUXModule::dcxDrawThemeBackground(DcxDock::g_TreebarProgressTheme, lpntvcd->nmcd.hdc, PP_BAR, iStyle, &rcBar, nullptr);
+
+			RECT rcContents{};
+			DcxUXModule::dcxGetThemeBackgroundContentRect(DcxDock::g_TreebarProgressTheme, lpntvcd->nmcd.hdc, PP_BAR, iStyle, &rcBar, &rcContents);
+
+			rcContents.right = rcContents.left + gsl::narrow_cast<LONG>(((rcContents.right - rcContents.left) / 100.0) * std::clamp(perc, 0, 100));
+			DcxUXModule::dcxDrawThemeBackground(DcxDock::g_TreebarProgressTheme, lpntvcd->nmcd.hdc, PP_FILL, iStyle, &rcContents, nullptr);
+
+			return;
+		}
+
+	if (perc < 100)
+	{
+		COLORREF clrbkg = lpntvcd->clrTextBk;
+		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG)) != CLR_INVALID)
+			clrbkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG));
+
+		// draw background
+		Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcBar, clrbkg);
+		rcBar.right = rcBar.left + gsl::narrow_cast<LONG>(((gsl::narrow_cast<double>(rcBar.right) - gsl::narrow_cast<double>(rcBar.left)) / 100.0) * gsl::narrow_cast<double>(perc));
+	}
+
+	COLORREF clr = RGB(0, 255, 0);
+	if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR)) != CLR_INVALID)
+		clr = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR));
+
+	// draw percentage bar.
+	Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcBar, clr);
 }

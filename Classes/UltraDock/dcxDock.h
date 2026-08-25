@@ -156,6 +156,8 @@ public:
 	static LRESULT treebar_PrePaint(LPNMTVCUSTOMDRAW lpntvcd);
 	static LRESULT treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd);
 	static bool treebar_GetInfoTip(LPNMTVGETINFOTIP tcgit);
+	static void treebar_DrawBackground(LPNMTVCUSTOMDRAW lpntvcd, LPCRECT prc, bool bSelected, bool bHot, bool bTrackHot) noexcept;
+	static void treebar_DrawProgress(LPNMTVCUSTOMDRAW lpntvcd, LPCRECT prc, int perc, bool bSelected, bool bHot, bool bTrackHot);
 
 	// statusbar stuff
 	static inline HWND g_StatusBar{}; //!< The Statusbar for the main mIRC window.
@@ -166,7 +168,8 @@ public:
 	static inline VectorOfDParts g_vParts;	//!< Parts info for ownerdraw parts.
 	// treebar stuff
 	static inline bool g_bTakeOverTreebar{}; //!< take over the drawing of the treebar from mIRC.
-	static inline bool g_bTreebarThemedProgress{}; //!< Use a themed progressbar to display dcc & custom window progress bars.
+	static inline bool g_bTreebarLargeProgress{}; //!< Use a themed progressbar to display dcc & custom window progress bars.
+	static inline HTHEME g_TreebarProgressTheme{};
 
 	// 0 = selected, 1 = selected bkg, 2 = message, 3 = message bkg
 	// 4 = event, 5 = event bkg, 6 = highlight, 7 = highlight bkg

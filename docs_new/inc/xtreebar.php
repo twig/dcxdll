@@ -123,14 +123,14 @@ function get_xtreebar(&$XTREEBAR) {
             '__cmd' => '[STYLES]',
             '__eg' => 'tooltips scroll singleexpand',
             '__params' => array(
-                'fullrowselect' => 'Enables fullrowselection.',
-                'nofullrowselect' => 'Disables fullrowselection.',
+                'fullrowselect' => 'Enables fullrowselection. (Can not be used with [v]rootlines[/v])',
+                'nofullrowselect' => 'Disables [v]fullrowselect[/v].',
 
                 'haslines' => 'Enables haslines.',
-                'nohaslines' => 'Disables haslines.',
+                'nohaslines' => 'Disables [v]haslines[/v].',
 
                 'trackselect' => 'Enables hot-tracking.',
-                'notrackselect' => 'Disables hot-tracking.',
+                'notrackselect' => 'Disables [v]trackselect[/v].',
 
                 'tooltips' => 'Enables tooltips on items',
                 'notooltips' => 'Disables tooltip on items.',
@@ -142,16 +142,16 @@ function get_xtreebar(&$XTREEBAR) {
                 'noinfotip' => 'Disables modification of the tooltip text.',
 
                 'hasbuttons' => 'Enables &plusmn; buttons on the side of items containing child items for expand/collapse operations.',
-                'nohasbuttons' => 'Disables &plusmn; buttons on the side of items containing child items for expand/collapse operations.',
+                'nohasbuttons' => 'Disables [v]hasbuttons[/v].',
 
                 'rootlines' => 'Enables lines to be connected to the root item.',
-                'norootlines' => 'Disables lines to be connected to the root item.',
+                'norootlines' => 'Disables [v]rootlines[/v].',
 
                 'singleexpand' => 'Causes the item being selected to expand and the item being unselected to collapse upon selection in the tree view.',
                 'nosingleexpand' => 'Disables [s]singleexpand[/s].',
 
                 'scroll' => 'Enables horizontal and vertical scrolling in the mIRC Treebar.',
-                'noscroll' => 'Disables horizontal and vertical scrolling in the mIRC Treebar.',
+                'noscroll' => 'Disables [v]scroll[/v].',
 
                 'showsel' => 'Selections will be shown when mIRC Treebar loses focus.',
                 'noshowsel' => 'Selections will not be shown when mIRC Treebar loses focus.',
@@ -159,7 +159,7 @@ function get_xtreebar(&$XTREEBAR) {
                 'autohscroll' => 'Remove the horizontal scrollbar and auto-scroll depending on mouse position. [o]Vista[/o]',
                 'noautohscroll' => 'Enables the horizontal scrollbar and auto-scroll depending on mouse position. [o]Vista[/o]',
 
-                'doublebuffer' => 'Specifies how the background is erased or filled. [o]Vista[/o]',
+                'doublebuffer' => 'Specifies how the background is erased or filled. [o]Vista[/o] (Fixes flicker)',
                 'nodoublebuffer' => 'Specifies how the background is erased or filled. [o]Vista[/o]',
 
                 'fadebuttons' => 'Fade expand buttons in or out when the mouse moves away or into a state of hovering over the control. [o]Vista[/o]',
@@ -169,9 +169,16 @@ function get_xtreebar(&$XTREEBAR) {
                 'noindent' => 'Does not indent the tree view for the expand buttons. [o]Vista[/o]',
 
                 'richtooltip' => 'Allow rich tooltips in the tree view (custom drawn with icon and text). [o]Vista[/o]',
-                'norichtooltip' => 'Disables rich tooltips in the tree view (custom drawn with icon and text). [o]Vista[/o]',
+                'norichtooltip' => 'Disables [v]richtooltip[/v]',
 
            		'explorer' => 'Set control to use the explorer style expand buttons. [o]Vista[/o]',
+           		'noexplorer' => 'Disable [v]explorer[/v]',
+
+                'themedprogress' => 'Enable themed progress indicators. (Only when [v]largeprogress[/v] is enabled)',
+                'nothemedprogress' => 'Disable [v]themedprogress[/v].',
+
+                'largeprogress' => 'Enable large progress indicators.',
+                'nolargeprogress' => 'Disable [v]largeprogress[/v].',
             ),
             '__notes' => array(
                 'Using [s]noscroll[/s] while the scrollbar is visible may lead to graphical glitches.',
@@ -181,11 +188,10 @@ function get_xtreebar(&$XTREEBAR) {
         ),
         'T' => array(
             '__desc' => 'This command allows you to enable or disable DCX controlled drawing of the mIRC TreeBar.',
-            '__cmd' => '[OVERRIDE] (THEMEDPROGRESS)',
-            '__eg' => '1 1',
+            '__cmd' => '[OVERRIDE]',
+            '__eg' => '1',
             '__params' => array(
                 'OVERRIDE' => '1|0 Enable/Disable owner drawing treebar.',
-                'THEMEDPROGRESS' => '1|0 Enable/Disable themed progress indicators. (Only when [v]OVERRIDE[/v] is enabled)',
             ),
             '__notes' => array(
                 'When enabled, the script function [v]$xtreebar_callback(geticons, [TYPE], [TEXT])[/v] will be called for each item. This will allow you to configure the appearance of each item in the TreeBar.',
