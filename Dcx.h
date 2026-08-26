@@ -1338,7 +1338,7 @@ namespace Dcx
 			operator bool() const noexcept { return (n >= Limit); }
 
 			reverse_iter begin() const noexcept { return{ n, Limit }; }
-			reverse_iter end() const noexcept { return{ Limit, Limit }; }
+			reverse_iter end() const noexcept { return{ Limit - 1, Limit }; }
 
 			T n;
 			T Limit;
@@ -1347,7 +1347,7 @@ namespace Dcx
 		iter begin() const noexcept { return{ b, e }; }
 		iter end() const noexcept { return{ e + 1, e }; }
 		reverse_iter rbegin() const noexcept { return{ e, b }; }
-		reverse_iter rend() const noexcept { return{ b, b }; }
+		reverse_iter rend() const noexcept { return{ b - 1, b }; }
 
 		T length() const noexcept { return (e - b) + 1; }
 		inline bool inRange(T f) const noexcept
