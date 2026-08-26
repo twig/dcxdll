@@ -5141,12 +5141,15 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 
 	const auto indent = data.getfirsttok(2).to_<int>();			// tok 2
 	auto stateFlags = this->parseItemFlags(data.getnexttok());	// tok 3
-	auto icon = data.getnexttokas<int>() - 1;							// tok 4
-	const auto state = data.getnexttokas<int>();						// tok 5
-	auto overlay = data.getnexttokas<int>();							// tok 6
-	const auto group = data.getnexttokas<int>();						// tok 7
+	auto icon = data.getnexttokas<int>() - 1;					// tok 4
+	const auto state = data.getnexttokas<int>();				// tok 5
+	auto overlay = data.getnexttokas<int>();					// tok 6
+	const auto group = data.getnexttokas<int>();				// tok 7
 	auto clrText = data.getnexttokas<COLORREF>();				// tok 8
 	auto clrBack = data.getnexttokas<COLORREF>();				// tok 9
+
+	if (gsl::narrow_cast<int>(input.numtok(TSTABCHAR)) > getColumnCount())
+		throw DcxExceptions::dcxInvalidArguments();
 
 	if (Dcx::dcxListView_GetItemCount(m_Hwnd) <= 0)
 		InvalidateRect(m_Hwnd, nullptr, TRUE);
@@ -5238,7 +5241,6 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 	// subitems
 	if (const auto tabs = input.numtok(TSTABCHAR); tabs > 1)
 	{
-		// ADD check for num columns
 		for (auto i = decltype(tabs){2}; i <= tabs; ++i)
 		{
 			data = input.gettok(Dcx::numeric_cast<ptrdiff_t>(i), TSTABCHAR).trim();
@@ -5256,12 +5258,6 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 			// setup colum #
 			lvi.iSubItem = Dcx::numeric_cast<int>(i) - 1;
 			{
-				//DCXLVRENDERINFO ri{};
-				//ri.m_dFlags = stateFlags;
-				//ri.m_cText = (dcx_testflag(stateFlags, LVIS_COLOR) ? clrText : CLR_INVALID);
-				//ri.m_cBg = (dcx_testflag(stateFlags, LVIS_BGCOLOR) ? clrBack : CLR_INVALID);
-				//tmp_lpmylvi->vInfo.emplace_back(ri);
-
 				auto& ri = tmp_lpmylvi->vInfo[lvi.iSubItem];
 
 				ri.m_dFlags = stateFlags;
