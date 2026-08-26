@@ -1197,6 +1197,13 @@ namespace Dcx
 		return i;
 	}
 
+	// ImageList
+
+	inline int dcxImageList_AddIcon(_In_ HIMAGELIST himl, _In_ HICON hicon) noexcept
+	{
+		return ImageList_AddIcon(himl, hicon);
+	}
+
 	// ListBox
 
 	/// <summary>
