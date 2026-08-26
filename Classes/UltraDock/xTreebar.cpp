@@ -750,6 +750,27 @@ mIRC(_xtreebar)
 			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d %d %d"), item.iImage, item.iSelectedImage, item.iExpandedImage);
 		}
 		break;
+		case TEXT("iconcnt"_hash):
+		{
+			//int iCnt{}, iStateCnt{};
+			//if (auto himl = Dcx::dcxTreeView_GetImageList(mIRCLinker::getTreeview(), TVSIL_NORMAL); himl)
+			//{
+			//	iCnt = ImageList_GetImageCount(himl);
+			//}
+			//if (auto himl = Dcx::dcxTreeView_GetImageList(mIRCLinker::getTreeview(), TVSIL_STATE); himl)
+			//{
+			//	iStateCnt = ImageList_GetImageCount(himl);
+			//}
+			//_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d %d"), iCnt, iStateCnt);
+
+			int iCnt{};
+			if (auto himl = Dcx::dcxTreeView_GetImageList(mIRCLinker::getTreeview(), TVSIL_NORMAL); himl)
+			{
+				iCnt = ImageList_GetImageCount(himl);
+			}
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d %d"), iCnt);
+		}
+		break;
 		case TEXT("wid"_hash):
 		{
 			if (index < 1) // if index < 1 return active items wid.
