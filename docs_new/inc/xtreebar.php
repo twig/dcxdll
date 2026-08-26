@@ -235,7 +235,14 @@ function get_xtreebarprops(&$XDIDPROPS) {
             '__params' => array(
                 'N' => 'The index of the item.',
             ),
-            '__notes' => 'If [p]N[/p] is [v]0[/v], this property retrieves the last item in the mIRC Treebar.',
+            #'__return' => '[image] [selected] [expanded]',
+            '__return' => array(
+                '[image] [selected] [expanded]',
+                '[image] = Normal image',
+                '[selected] = Selected image',
+                '[expanded] = Expanded image',
+            ),
+            '__notes' => 'If [p]N[/p] is [v]0[/v], this property retrieves the icons for the last item in the mIRC Treebar.',
         ),
         'item' => array(
             '__desc' => 'Returns the text of the mIRC TreeBar item.',
@@ -262,9 +269,26 @@ function get_xtreebarprops(&$XDIDPROPS) {
                 'Returns [r]0[/r] if unsuccessful.',
             ),
         ),
-        'takeover' => 'Returns the current takeover state.',
-        'themedprogress' => 'Returns the current themedprogress state.',
-        'style' => 'Returns the current treewview styles in use.',
+        'takeover' => array(
+            '__desc' => 'Returns the current takeover state.',
+            '__cmd' => 'mIRC',
+            '__eg' => 'mIRC',
+        ),
+        'themedprogress' => array(
+            '__desc' => 'Returns the current themedprogress state.',
+            '__cmd' => 'mIRC',
+            '__eg' => 'mIRC',
+        ),
+        'style' => array(
+            '__desc' => 'Returns the current treewview styles in use.',
+            '__cmd' => 'mIRC',
+            '__eg' => 'mIRC',
+        ),
+        'iconcnt' => array(
+            '__desc' => 'Returns the number of icons in the image list.',
+            '__cmd' => 'mIRC',
+            '__eg' => 'mIRC',
+        ),
     );
 }
 

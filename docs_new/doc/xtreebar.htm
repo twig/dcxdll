@@ -465,6 +465,20 @@
 </table>
 <table class="xtreebarprops">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xtreebarprop.iconcnt"></a>$xtreebar().iconcnt	</td></tr>
+	<tr><td colspan="2">Returns the number of icons in the image list.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xtreebar(mIRC).iconcnt</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xtreebar(mIRC).iconcnt</div></td>
+	</tr>
+</table>
+<br />
+<table class="xtreebarprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xtreebarprop.icons"></a>$xtreebar().icons	</td></tr>
 	<tr><td colspan="2">Returns the current icons being used by the mIRC TreeBar item.</td></tr>
 	<tr>
@@ -480,7 +494,7 @@
 		<td class="param">N</td>
 		<td>The index of the item.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">N</a> is <a class="value">0</a>, this property retrieves the last item in the mIRC Treebar.</td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">0</a> [image] [selected] [expanded]<br /><a class="returnevent">1</a> [image] = Normal image<br /><a class="returnevent">2</a> [selected] = Selected image<br /><a class="returnevent">3</a> [expanded] = Expanded image</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">N</a> is <a class="value">0</a>, this property retrieves the icons for the last item in the mIRC Treebar.</td></tr></table>
 <br />
 <table class="xtreebarprops">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -507,11 +521,11 @@
 	<tr><td colspan="2">Returns the current treewview styles in use.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xtreebar().style</div></td>
+		<td><div class="syntax">$xtreebar(mIRC).style</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xtreebar().style</div></td>
+		<td><div class="example">$xtreebar(mIRC).style</div></td>
 	</tr>
 </table>
 <br />
@@ -521,11 +535,11 @@
 	<tr><td colspan="2">Returns the current takeover state.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xtreebar().takeover</div></td>
+		<td><div class="syntax">$xtreebar(mIRC).takeover</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xtreebar().takeover</div></td>
+		<td><div class="example">$xtreebar(mIRC).takeover</div></td>
 	</tr>
 </table>
 <br />
@@ -535,11 +549,11 @@
 	<tr><td colspan="2">Returns the current themedprogress state.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xtreebar().themedprogress</div></td>
+		<td><div class="syntax">$xtreebar(mIRC).themedprogress</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xtreebar().themedprogress</div></td>
+		<td><div class="example">$xtreebar(mIRC).themedprogress</div></td>
 	</tr>
 </table>
 <br />
@@ -778,6 +792,7 @@
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xtreebarprop"><div style='background:#A8B2D1;'>$xtreebar()</div></a>
+		<a class='flag' href="#xtreebarprop.iconcnt"><div>iconcnt</div></a>
 		<a class='flag' href="#xtreebarprop.icons"><div>icons</div></a>
 		<a class='flag' href="#xtreebarprop.item"><div>item</div></a>
 		<a class='flag' href="#xtreebarprop.style"><div>style</div></a>
@@ -799,7 +814,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 25th August, 26</td>
+		<td style="text-align: right;">Last Updated: 26th August, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">
