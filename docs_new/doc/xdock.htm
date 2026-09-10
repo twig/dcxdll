@@ -117,22 +117,6 @@
 		<td class="value">o</td>
 		<td>Uses the old style treebar docking. This is when the docked window is on top of the treeview control within treebar.</td>
 	</tr>
-	<tr>
-		<td class="value">t</td>
-		<td>Docks the window to the top.</td>
-	</tr>
-	<tr>
-		<td class="value">b</td>
-		<td>Docks the window to the bottom.</td>
-	</tr>
-	<tr>
-		<td class="value">l</td>
-		<td>Docks the window to the left. (default)</td>
-	</tr>
-	<tr>
-		<td class="value">r</td>
-		<td>Docks the window to the right.</td>
-	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.</td></tr></table>
 <br />
 <table class="xdock">
@@ -585,11 +569,11 @@
 	<tr><td colspan="2">Determines if the mIRC MenuBar is visible.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(HWND).isMenuBar</div></td>
+		<td><div class="syntax">$xdock(mIRC).isMenuBar</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock($dialog(dcx).hwnd).isMenuBar</div></td>
+		<td><div class="example">$xdock(mIRC).isMenuBar</div></td>
 	</tr>
 </table>
 <br />
@@ -599,11 +583,11 @@
 	<tr><td colspan="2">Determines if the mIRC SwitchBar is visible.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(HWND).isSwitchBar</div></td>
+		<td><div class="syntax">$xdock(mIRC).isSwitchBar</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock($dialog(dcx).hwnd).isSwitchBar</div></td>
+		<td><div class="example">$xdock(mIRC).isSwitchBar</div></td>
 	</tr>
 </table>
 <br />
@@ -613,11 +597,11 @@
 	<tr><td colspan="2">Determines if the mIRC ToolBar is visible.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(HWND).isToolBar</div></td>
+		<td><div class="syntax">$xdock(mIRC).isToolBar</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock($dialog(dcx).hwnd).isToolBar</div></td>
+		<td><div class="example">$xdock(mIRC).isToolBar</div></td>
 	</tr>
 </table>
 <br />
@@ -627,11 +611,11 @@
 	<tr><td colspan="2">Determines if the mIRC TreeBar is visible.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(HWND).isTreeBar</div></td>
+		<td><div class="syntax">$xdock(mIRC).isTreeBar</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock($dialog(dcx).hwnd).isTreeBar</div></td>
+		<td><div class="example">$xdock(mIRC).isTreeBar</div></td>
 	</tr>
 </table>
 <br />
@@ -641,11 +625,11 @@
 	<tr><td colspan="2">Returns the mIRC SwitchBar dock position.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(HWND).switchBarPos</div></td>
+		<td><div class="syntax">$xdock(mIRC).switchBarPos</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock($dialog(dcx).hwnd).switchBarPos</div></td>
+		<td><div class="example">$xdock(mIRC).switchBarPos</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -680,11 +664,11 @@
 	<tr><td colspan="2">Returns the mIRC SwitchBar size.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(HWND).switchBarSize</div></td>
+		<td><div class="syntax">$xdock(mIRC).switchBarSize</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock($dialog(dcx).hwnd).switchBarSize</div></td>
+		<td><div class="example">$xdock(mIRC).switchBarSize</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -729,11 +713,11 @@
 	<tr><td colspan="2">Returns the mIRC ToolBar position.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(HWND).toolBarPos</div></td>
+		<td><div class="syntax">$xdock(mIRC).toolBarPos</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock($dialog(dcx).hwnd).toolBarPos</div></td>
+		<td><div class="example">$xdock(mIRC).toolBarPos</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -768,11 +752,11 @@
 	<tr><td colspan="2">Returns the mIRC ToolBar size.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(HWND).toolBarSize</div></td>
+		<td><div class="syntax">$xdock(mIRC).toolBarSize</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock($dialog(dcx).hwnd).toolBarSize</div></td>
+		<td><div class="example">$xdock(mIRC).toolBarSize</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -803,11 +787,11 @@
 	<tr><td colspan="2">Returns the mIRC TreeBar position.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(HWND).treeBarPos</div></td>
+		<td><div class="syntax">$xdock(mIRC).treeBarPos</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock($dialog(dcx).hwnd).treeBarPos</div></td>
+		<td><div class="example">$xdock(mIRC).treeBarPos</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -842,11 +826,11 @@
 	<tr><td colspan="2">Returns the mIRC TreeBar size.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(HWND).treeBarSize</div></td>
+		<td><div class="syntax">$xdock(mIRC).treeBarSize</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock($dialog(dcx).hwnd).treeBarSize</div></td>
+		<td><div class="example">$xdock(mIRC).treeBarSize</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1039,7 +1023,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th August, 26</td>
+		<td style="text-align: right;">Last Updated: 10th September, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

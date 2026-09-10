@@ -260,13 +260,26 @@ function get_xdockprops(&$XDIDPROPS) {
 		'isAutoV' => 'Returns [v]$true[/v] if the docked window automatically resizes vertically.',
 		'isAutoS' => 'Returns [v]$true[/v] if the docked window automatically resizes both horizontally and vertically.',
 
-		'isSwitchBar' => 'Determines if the mIRC SwitchBar is visible.',
-		'isToolBar' => 'Determines if the mIRC ToolBar is visible.',
-		'isMenuBar' => 'Determines if the mIRC MenuBar is visible.',
-		'isTreeBar' => 'Determines if the mIRC TreeBar is visible.',
+		'isSwitchBar' => array(
+			'__desc' => 'Determines if the mIRC SwitchBar is visible.',
+			'__mircParam' =>'1',
+		),
+		'isToolBar' => array(
+			'__desc' => 'Determines if the mIRC ToolBar is visible.',
+			'__mircParam' =>'1',
+		),
+		'isMenuBar' => array(
+			'__desc' => 'Determines if the mIRC MenuBar is visible.',
+			'__mircParam' =>'1',
+		),
+		'isTreeBar' => array(
+			'__desc' => 'Determines if the mIRC TreeBar is visible.',
+			'__mircParam' =>'1',
+		),
 		
 		'switchBarSize' => array(
 			'__desc' => 'Returns the mIRC SwitchBar size.',
+			'__mircParam' =>'1',
 			'__params' => array(
 				'DIMENSIONS' => array(
 					'__desc' => 'Return values.',
@@ -281,6 +294,7 @@ function get_xdockprops(&$XDIDPROPS) {
 		),
 		'switchBarPos' => array(
 		    '__desc' => 'Returns the mIRC SwitchBar dock position.',
+			'__mircParam' =>'1',
 			'__params' => array(
 				'POSITION' => array(
 					'__desc' => 'Return values.',
@@ -296,6 +310,7 @@ function get_xdockprops(&$XDIDPROPS) {
 		),
 		'toolBarSize' => array(
 			'__desc' => 'Returns the mIRC ToolBar size.',
+			'__mircParam' =>'1',
 			'__params' => array(
 				'DIMENSIONS' => array(
 					'__desc' => 'Return values.',
@@ -310,6 +325,7 @@ function get_xdockprops(&$XDIDPROPS) {
 		),
 	    'toolBarPos' => array(
 			'__desc' => 'Returns the mIRC ToolBar position.',
+			'__mircParam' =>'1',
 			'__params' => array(
 				'POSITION' => array(
 					'__desc' => 'Return values.',
@@ -325,6 +341,7 @@ function get_xdockprops(&$XDIDPROPS) {
 		),
 		'treeBarSize' => array(
 		    '__desc' => 'Returns the mIRC TreeBar size.',
+			'__mircParam' =>'1',
 			'__params' => array(
 				'DIMENSIONS' => array(
 					'__desc' => 'Return values.',
@@ -339,6 +356,7 @@ function get_xdockprops(&$XDIDPROPS) {
 		),
 		'treeBarPos' => array(
 		    '__desc' => 'Returns the mIRC TreeBar position.',
+			'__mircParam' =>'1',
 			'__params' => array(
 				'POSITION' => array(
 					'__desc' => 'Return values.',
