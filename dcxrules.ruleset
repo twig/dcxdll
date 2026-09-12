@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="dcxrules" ToolsVersion="16.0">
+<RuleSet Name="dcxrules" ToolsVersion="17.0">
   <Include Path="cppcorecheckarithmeticrules.ruleset" Action="Default" />
   <Include Path="cppcorecheckboundsrules.ruleset" Action="Default" />
   <Include Path="cppcorecheckclassrules.ruleset" Action="Default" />
@@ -20,7 +20,19 @@
   <Include Path="cppcorecheckuniquepointerrules.ruleset" Action="Default" />
   <Include Path="nativerecommendedrules.ruleset" Action="Default" />
   <Rules AnalyzerId="Microsoft.Analyzers.NativeCodeAnalysis" RuleNamespace="Microsoft.Rules.Native">
-    <Rule Id="C26477" Action="None" />
+    <Rule Id="C26400" Action="None" />
+    <Rule Id="C26401" Action="None" />
+    <Rule Id="C26403" Action="None" />
+    <Rule Id="C26446" Action="None" />
+    <Rule Id="C26458" Action="None" />
+    <Rule Id="C26477" Action="Warning" />
+    <Rule Id="C26490" Action="None" />
+    <Rule Id="C28103" Action="Warning" />
+    <Rule Id="C28105" Action="Warning" />
+    <Rule Id="C28106" Action="Warning" />
+    <Rule Id="C28197" Action="Warning" />
+    <Rule Id="C28198" Action="Warning" />
+    <Rule Id="C28199" Action="Warning" />
     <Rule Id="C6298" Action="Warning" />
     <Rule Id="C6323" Action="Warning" />
   </Rules>
