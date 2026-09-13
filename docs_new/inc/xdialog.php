@@ -477,16 +477,26 @@ function get_xdialog_xdialog(&$XDIALOG) {
 		),
 		"S" => array(
 			'__desc' => "This command allows you to set the size and position of the window. This differs from mIRC's resizing functionality as the height and width does not include the window border.",
-			'__cmd' => '[X Y] [W H]',
+			'__cmd' => '[X Y] [W H] (+FLAGS)',
 			'__eg' => array(
 				'300 100 -1 -1',
 				'-1 75 50 100',
                                 '100 200 300 -1',
 				'15 30 45 60',
+				'-1 -1 45 60 +a',
 			),
 			'__params' => array(
 				'X Y' => 'The X and Y coordinates of the window.',
                                 'W H' => 'The width and height of the window.',
+				'+FLAGS' => array(
+					'__desc' => "Sizing flags.",
+					'__values' => array(
+						'a' => "Absolute sizing of whole window, NOT just client area.",
+						's' => 'No size change. (same as providing -1 -1 for [v]W[/v] [v]H[/v])',
+						'm' => 'No position change. (same as providing -1 -1 for [v]X[/v] [v]Y[/v])',
+						'r' => 'Force a full redraw.',
+					),
+				),
 			),
 			'__notes' => 'You can specify [v]-1[/v] for any value that you do not wish to modify.',
 		),

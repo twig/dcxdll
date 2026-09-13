@@ -1115,13 +1115,14 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	{
 		SetFocus(nullptr);
 	}
-	// xdialog -S [NAME] [SWITCH] [X Y W H]
+	// xdialog -S [NAME] [SWITCH] [X Y W H] (+FLAGS)
 	else if (flags[TEXT('S')] && (numtok > 5))
 	{
 		auto x = input.getnexttokas<int>();	// tok 3
 		auto y = input.getnexttokas<int>();	// tok 4
 		auto w = input.getnexttokas<int>();	// tok 5
 		auto h = input.getnexttokas<int>();	// tok 6
+		const XSwitchFlags xFlags(input.getnexttok());	// tok 7
 
 		RECT rcWindow{}, rcClient{};
 		UINT iFlags = SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOOWNERZORDER;
@@ -1136,6 +1137,9 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		// Convert windows screen position to its position within it's parent.
 		if (isStyle(WindowStyle::Child))
 			MapWindowRect(nullptr, GetParent(m_Hwnd), &rcWindow);
+		else
+			// converts client rect to screen position
+			MapWindowRect(m_Hwnd, nullptr, &rcClient);
 
 		// if x & y are -1, not moving. NB: This still allows -2 etc.. positioning. (window positioned offscreen)
 		if ((x == -1) && (y == -1))
@@ -1159,16 +1163,21 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 
 		// Calculate the actual sizes without the window border
 		// http://windows-programming.suite101.com/article.cfm/client_area_size_with_movewindow
-		//POINT ptDiff;
-		////ptDiff.x = (rcWindow.right - rcWindow.left) - (rcClient.right - rcClient.left);
-		////ptDiff.y = (rcWindow.bottom - rcWindow.top) - (rcClient.bottom - rcClient.top);
-		//ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
-		//ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
-		//
-		//SetWindowPos( m_Hwnd, nullptr, x, y, w + ptDiff.x, h + ptDiff.y, iFlags );
 
-		const auto Diffx = (rcWindow.right - rcWindow.left) - rcClient.right;
-		const auto Diffy = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+		//const auto Diffx = (rcWindow.right - rcWindow.left) - rcClient.right;
+		//const auto Diffy = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+
+		auto Diffx = (rcWindow.right - rcWindow.left) - (rcClient.right - rcClient.left);
+		auto Diffy = (rcWindow.bottom - rcWindow.top) - (rcClient.bottom - rcClient.top);
+
+		if (xFlags[L'a'])	// absolute size of whole window, NOT client area
+			Diffx = Diffy = 0;
+		if (xFlags[L's'])	// no size change allowed
+			iFlags |= SWP_NOSIZE;
+		if (xFlags[L'm'])	// no position change allowed
+			iFlags |= SWP_NOMOVE;
+		if (xFlags[L'r'])	// force full redraw
+			iFlags |= SWP_DRAWFRAME;
 
 		SetWindowPos(m_Hwnd, nullptr, x, y, w + Diffx, h + Diffy, iFlags);
 	}

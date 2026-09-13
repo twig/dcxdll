@@ -1343,11 +1343,11 @@
 	<tr><td colspan="2">This command allows you to set the size and position of the window. This differs from mIRC's resizing functionality as the height and width does not include the window border.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdialog -S [DNAME] [X Y] [W H]</div></td>
+		<td><div class="syntax">/xdialog -S [DNAME] [X Y] [W H] (+FLAGS)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -S dcx 300 100 -1 -1<br />/xdialog -S dcx -1 75 50 100<br />/xdialog -S dcx 100 200 300 -1<br />/xdialog -S dcx 15 30 45 60<br /></div></td>
+		<td><div class="example">/xdialog -S dcx 300 100 -1 -1<br />/xdialog -S dcx -1 75 50 100<br />/xdialog -S dcx 100 200 300 -1<br />/xdialog -S dcx 15 30 45 60<br />/xdialog -S dcx -1 -1 45 60 +a<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1357,6 +1357,26 @@
 	<tr>
 		<td class="param">W H</td>
 		<td>The width and height of the window.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Sizing flags.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Absolute sizing of whole window, NOT just client area.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>No size change. (same as providing -1 -1 for <a class="value">W</a> <a class="value">H</a>)</td>
+	</tr>
+	<tr>
+		<td class="value">m</td>
+		<td>No position change. (same as providing -1 -1 for <a class="value">X</a> <a class="value">Y</a>)</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Force a full redraw.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can specify <a class="value">-1</a> for any value that you do not wish to modify.</td></tr></table>
 <br />
@@ -3125,7 +3145,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 10th September, 26</td>
+		<td style="text-align: right;">Last Updated: 13th September, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">
