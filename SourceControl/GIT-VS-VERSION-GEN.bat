@@ -6,6 +6,7 @@ REM Entry Point
 REM ===================
 :START
 ECHO.
+
 SET CACHE_FILE=%~s1GIT_VERSION
 SET HEADER_OUT_FILE="%2"
 
@@ -13,6 +14,7 @@ CALL :INIT_VARS
 CALL :GET_GIT_DATA
 CALL :CHECK_CACHE
 IF DEFINED fLEAVE_NOW GOTO END
+CALL :CHECK_MODULES
 CALL :WRITE_OUT
 GOTO END
 
@@ -48,6 +50,15 @@ GOTO :EOF
 FOR /F "delims=" %%A IN ('"git log -n 1 --format=format:%%ai"') DO SET strFILE_DATE=%%A
 FOR /F "delims=" %%A IN ('"git log -n 1 --format=format:%%H"') DO SET strFILE_HASH=%%A
 FOR /F "delims=" %%A IN ('git describe') DO SET strFILE_DESCRIBE=%%A
+GOTO :EOF
+
+:: --------------------
+:CHECK_MODULES
+:: --------------------
+cd..
+ECHO Checking submodules...
+git submodule update --init --recursive
+cd %~dp0
 GOTO :EOF
 
 :: --------------------

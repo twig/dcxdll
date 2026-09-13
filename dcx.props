@@ -6,9 +6,9 @@
     <mIRCDir>C:\mIRC_Basic</mIRCDir>
     <PHPDir>C:\php</PHPDir>
     <DetoursDir>$(SolutionDir)Detours\</DetoursDir>
-    <GSLDir>F:\CSource\GSL-Master\GSL\include</GSLDir>
+    <GSLDir>$(SolutionDir)GSL\include</GSLDir>
     <PCRE2Dir>$(SolutionDir)pcre2\</PCRE2Dir>
-    <DirectXTKDir>F:\CSource\DirectXTK\</DirectXTKDir>
+    <DirectXTKDir>$(SolutionDir)..\..\DirectXTK\</DirectXTKDir>
     <WebView2Dir>$(SolutionDir)packages\Microsoft.Web.WebView2.1.0.4191.47\</WebView2Dir>
   </PropertyGroup>
   <PropertyGroup>
