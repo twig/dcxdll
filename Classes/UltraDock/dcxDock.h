@@ -88,6 +88,58 @@ using VectorOfDParts = std::vector<LPSB_PARTINFOD>;
 //	bool	m_bNoDestroy;
 //} Cursor_Data, *LPCursor_Data;
 
+struct TreeBarImageData
+{
+	dcxImage m_Bkg;
+	dcxImage m_BkgTreebar;
+	int m_iXOffset{};
+	int m_iYOffset{};
+
+	bool m_bAlphaBlendBkgImage{};
+	bool m_bTile{};
+	bool m_bResize{};
+
+	Gdiplus::CompositingMode m_CompositingMode{};
+	Gdiplus::CompositingQuality m_CompositingQuality{};
+	Gdiplus::InterpolationMode m_InterpolationMode{};
+	Gdiplus::SmoothingMode m_SmoothingMode{};
+
+	TreeBarImageData() = default;
+
+	TreeBarImageData(const dcxImage& m_Bkg, int m_iXOffset, int m_iYOffset, bool m_bAlphaBlendBkgImage, bool m_bTile, bool m_bResize, const Gdiplus::CompositingMode& m_CompositingMode, const Gdiplus::CompositingQuality& m_CompositingQuality, const Gdiplus::InterpolationMode& m_InterpolationMode, const Gdiplus::SmoothingMode& m_SmoothingMode)
+		: m_Bkg(m_Bkg), m_iXOffset(m_iXOffset), m_iYOffset(m_iYOffset), m_bAlphaBlendBkgImage(m_bAlphaBlendBkgImage), m_bTile(m_bTile), m_bResize(m_bResize), m_CompositingMode(m_CompositingMode), m_CompositingQuality(m_CompositingQuality), m_InterpolationMode(m_InterpolationMode), m_SmoothingMode(m_SmoothingMode)
+	{
+	}
+
+	bool operator==(const TreeBarImageData& other) const = default;
+};
+
+struct TreeBarData
+{
+	bool m_bTakeOver{}; //!< take over the drawing of the treebar from mIRC.
+	bool m_bLargeProgress{};	//!< Use a large progress bar (drawn under text)
+	bool m_bGradProgress{};	//!< Draw a gradient progress bar
+	bool m_bTransparent{};
+	HTHEME m_ProgressTheme{};	//!< Use a themed progressbar to display dcc & custom window progress bars.
+
+	// 0 = selected, 1 = selected bkg, 2 = message, 3 = message bkg
+	// 4 = event, 5 = event bkg, 6 = highlight, 7 = highlight bkg
+	COLORREF m_clrTreebarColours[gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MAX) + 1]{ CLR_INVALID };
+
+	WORD m_wid{};	// currently active wid for the callback alias
+
+	TreeBarImageData m_Image;
+
+	TreeBarData() = default;
+
+	bool operator==(const TreeBarData& other) const = default;
+
+	TreeBarData(bool m_bTakeOver, bool m_bLargeProgress, bool m_bGradProgress, bool m_bTransparent, const HTHEME& m_ProgressTheme, const WORD& m_wid, const TreeBarImageData& m_Image)
+		: m_bTakeOver(m_bTakeOver), m_bLargeProgress(m_bLargeProgress), m_bGradProgress(m_bGradProgress), m_bTransparent(m_bTransparent), m_ProgressTheme(m_ProgressTheme), m_wid(m_wid), m_Image(m_Image)
+	{
+	}
+};
+
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( push )
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
@@ -146,18 +198,6 @@ public:
 	static void status_deletePartInfo(const int iPart) noexcept;
 	//
 	static const SwitchBarPos getPos(const int x, const int y, const int w, const int h) noexcept;
-	//
-	static WORD getTreebarItemWID(const LPARAM lParam) noexcept;
-	//
-	static TString getTreebarItemTypeString(const LPARAM lParam);
-	static TreebarItemTypes getTreebarItemTypeEnum(const LPARAM lParam);
-	//static UINT getTreebarChildState(const HTREEITEM hParent, LPTVITEMEX pitem);
-
-	static LRESULT treebar_PrePaint(LPNMTVCUSTOMDRAW lpntvcd);
-	static LRESULT treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd);
-	static bool treebar_GetInfoTip(LPNMTVGETINFOTIP tcgit);
-	static void treebar_DrawBackground(LPNMTVCUSTOMDRAW lpntvcd, LPCRECT prc, bool bSelected, bool bHot, bool bTrackHot) noexcept;
-	static void treebar_DrawProgress(LPNMTVCUSTOMDRAW lpntvcd, LPCRECT prc, int perc, bool bSelected, bool bHot, bool bTrackHot);
 
 	// statusbar stuff
 	static inline HWND g_StatusBar{}; //!< The Statusbar for the main mIRC window.
@@ -166,16 +206,34 @@ public:
 	static inline INT g_iFixedParts[SB_MAX_PARTSD]{};
 	static inline HFONT g_StatusFont{}; //!< Statusbar font.
 	static inline VectorOfDParts g_vParts;	//!< Parts info for ownerdraw parts.
+
 	// treebar stuff
-	static inline bool g_bTakeOverTreebar{}; //!< take over the drawing of the treebar from mIRC.
-	static inline bool g_bTreebarLargeProgress{}; //!< Use a themed progressbar to display dcc & custom window progress bars.
-	static inline HTHEME g_TreebarProgressTheme{};
+	//
+	static WORD getTreebarItemWID(const LPARAM lParam) noexcept;
+	//
+	static TString getTreebarItemTypeString(const LPARAM lParam);
+	static TreebarItemTypes getTreebarItemTypeEnum(const LPARAM lParam);
+	//
+	static LRESULT treebar_PrePaint(LPNMTVCUSTOMDRAW lpntvcd);
+	static LRESULT treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd);
+	static bool treebar_GetInfoTip(LPNMTVGETINFOTIP tcgit);
+	static void treebar_DrawBackground(LPNMTVCUSTOMDRAW lpntvcd, LPCRECT prc, bool bSelected, bool bHot, bool bTrackHot) noexcept;
+	static void treebar_DrawBackground(HDC hdc) noexcept;
+	static void treebar_DrawProgress(LPNMTVCUSTOMDRAW lpntvcd, LPCRECT prc, int perc, bool bSelected, bool bHot, bool bTrackHot);
+	static void treebar_LoadGDIPlusImage(const TString& flags, TString& filename);
+	static void treebar_DestroyImageData() noexcept;
+	static void treebar_LoadGDIPlusBkgImage(TString& filename);
+	static void treebar_DestroyBkgImageData() noexcept;
+	static void treebar_DrawGDIPlusImage(HDC hdc);
+	static void treebar_DrawGDIPlusBkgImage(HDC hdc);
+	static void treebar_CacheBitmap(HDC _hdc);
+	static void treebar_FillBkgBitmap(HDC hdc);
+	static void treebar_FillBkgBitmap(HDC hdc, LPCRECT prc);
+	void treebar_DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
+	static bool treebar_isBkgImage() noexcept { return (g_treebar.m_Image.m_Bkg.m_hBitmap != nullptr) || (g_treebar.m_Image.m_Bkg.m_pImage != nullptr); }
+	static void treebar_DrawParentBackground(HDC hdc, LPRECT prcBounds) noexcept;
 
-	// 0 = selected, 1 = selected bkg, 2 = message, 3 = message bkg
-	// 4 = event, 5 = event bkg, 6 = highlight, 7 = highlight bkg
-	static inline COLORREF g_clrTreebarColours[gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MAX) + 1]{ CLR_INVALID };
-
-	static inline WORD g_wid{};	// currently active wid for the callback alias
+	static inline TreeBarData g_treebar;
 
 protected:
 	static LRESULT CALLBACK mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

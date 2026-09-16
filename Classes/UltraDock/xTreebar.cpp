@@ -20,13 +20,13 @@ static void TraverseChildren(const HTREEITEM hParent, TString& buf, TString& res
 		if (Dcx::dcxTreeView_GetItem(mIRCLinker::getTreeview(), pitem))
 		{
 			{
-				DcxDock::g_wid = DcxDock::getTreebarItemWID(pitem->lParam);
+				DcxDock::g_treebar.m_wid = DcxDock::getTreebarItemWID(pitem->lParam);
 				const TString tsType(DcxDock::getTreebarItemTypeString(pitem->lParam));
 
 				mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), pitem->lParam, pitem->pszText);
 				mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, pitem->lParam);
 
-				DcxDock::g_wid = 0;
+				DcxDock::g_treebar.m_wid = 0;
 			}
 			pitem->mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE | TVIF_HANDLE;
 
@@ -130,13 +130,13 @@ static void TraverseTreebarItems(void)
 		if (Dcx::dcxTreeView_GetItem(mIRCLinker::getTreeview(), &item))
 		{
 			{
-				DcxDock::g_wid = DcxDock::getTreebarItemWID(item.lParam);
+				DcxDock::g_treebar.m_wid = DcxDock::getTreebarItemWID(item.lParam);
 				TString tsType(DcxDock::getTreebarItemTypeString(item.lParam));
 
 				mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), item.lParam, item.pszText);
 				mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, item.lParam);
 
-				DcxDock::g_wid = 0;
+				DcxDock::g_treebar.m_wid = 0;
 			}
 			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE | TVIF_HANDLE;
 
@@ -381,11 +381,17 @@ mIRC(xtreebar)
 					stylef &= ~TVS_SHOWSELALWAYS;
 					break;
 				case L"transparent"_hash: // transparent
+				{
 					exstylef |= WS_EX_TRANSPARENT;
-					break;
+					DcxDock::g_treebar.m_bTransparent = true;
+				}
+				break;
 				case L"notransparent"_hash: // notransparent
+				{
 					exstylef &= ~WS_EX_TRANSPARENT;
-					break;
+					DcxDock::g_treebar.m_bTransparent = false;
+				}
+				break;
 				case L"fadebuttons"_hash: // fadebuttons
 					tvexstylef |= TVS_EX_FADEINOUTEXPANDOS;
 					tvexstylemask |= TVS_EX_FADEINOUTEXPANDOS;
@@ -452,30 +458,50 @@ mIRC(xtreebar)
 				break;
 				case L"largeprogress"_hash:
 				{
-					DcxDock::g_bTreebarLargeProgress = true;
+					DcxDock::g_treebar.m_bLargeProgress = true;
 				}
 				break;
 				case L"nolargeprogress"_hash:
 				{
-					DcxDock::g_bTreebarLargeProgress = false;
+					DcxDock::g_treebar.m_bLargeProgress = false;
 				}
 				break;
 				case L"themedprogress"_hash:
 				{
-					if (DcxDock::g_TreebarProgressTheme)
-						DcxUXModule::dcxCloseThemeData(DcxDock::g_TreebarProgressTheme);
+					if (DcxDock::g_treebar.m_ProgressTheme)
+						DcxUXModule::dcxCloseThemeData(DcxDock::g_treebar.m_ProgressTheme);
 
-					DcxDock::g_TreebarProgressTheme = nullptr;
+					DcxDock::g_treebar.m_ProgressTheme = nullptr;
 
 					if (DcxUXModule::dcxIsThemeActive())
-						DcxDock::g_TreebarProgressTheme = DcxUXModule::dcxOpenThemeData(nullptr, VSCLASS_PROGRESS);
+						DcxDock::g_treebar.m_ProgressTheme = DcxUXModule::dcxOpenThemeData(nullptr, VSCLASS_PROGRESS);
 				}
 				break;
 				case L"nothemedprogress"_hash:
 				{
-					if (DcxDock::g_TreebarProgressTheme)
-						DcxUXModule::dcxCloseThemeData(DcxDock::g_TreebarProgressTheme);
-					DcxDock::g_TreebarProgressTheme = nullptr;
+					if (DcxDock::g_treebar.m_ProgressTheme)
+						DcxUXModule::dcxCloseThemeData(DcxDock::g_treebar.m_ProgressTheme);
+					DcxDock::g_treebar.m_ProgressTheme = nullptr;
+				}
+				break;
+				case L"gradprogress"_hash:
+				{
+					DcxDock::g_treebar.m_bGradProgress = true;
+				}
+				break;
+				case L"nogradprogress"_hash:
+				{
+					DcxDock::g_treebar.m_bGradProgress = false;
+				}
+				break;
+				case L"alphabkg"_hash:
+				{
+					DcxDock::g_treebar.m_Image.m_bAlphaBlendBkgImage = true;
+				}
+				break;
+				case L"noalphabkg"_hash:
+				{
+					DcxDock::g_treebar.m_Image.m_bAlphaBlendBkgImage = false;
 				}
 				break;
 				default: // unknown style ignore.
@@ -492,6 +518,7 @@ mIRC(xtreebar)
 			SetWindowPos(mIRCLinker::getTreeview(), nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 		}
 		break;
+
 		// -c & -w commands are experimental & required stopping mIRC doing the item drawing.
 		case TEXT('c'): // [COLOUR FLAGS] [COLOUR]
 		{
@@ -500,7 +527,7 @@ mIRC(xtreebar)
 
 			const auto cflag(input.getnexttok());
 			const auto tsClr(input.getnexttok());
-			const auto clr = (tsClr == L"default") ? CLR_DEFAULT : tsClr.to_<COLORREF>();
+			const auto clr = (tsClr == L"none") ? CLR_NONE : ((tsClr == L"default") ? CLR_DEFAULT : tsClr.to_<COLORREF>());
 
 			if (cflag[0] != TEXT('+'))
 				throw DcxExceptions::dcxInvalidFlag();
@@ -520,46 +547,47 @@ mIRC(xtreebar)
 				Dcx::dcxTreeView_SetInsertMarkColor(mIRCLinker::getTreeview(), clr);
 				break;
 			case TEXT('s'): // selected text colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED)) = clr;
+				gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED)) = clr;
 				break;
 			case TEXT('S'): // selected bkg colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG)) = clr;
+				gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG)) = clr;
 				break;
 			case TEXT('m'): // message colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_MESSAGE)) = clr;
+				gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_MESSAGE)) = clr;
 				break;
 			case TEXT('M'): // message bkg colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_MESSAGE_BKG)) = clr;
+				gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_MESSAGE_BKG)) = clr;
 				break;
 			case TEXT('e'): // event colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_EVENT)) = clr;
+				gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_EVENT)) = clr;
 				break;
 			case TEXT('E'): // event bkg colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_EVENT_BKG)) = clr;
+				gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_EVENT_BKG)) = clr;
 				break;
 			case TEXT('z'): // highlight colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT)) = clr;
+				gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT)) = clr;
 				break;
 			case TEXT('Z'): // highlight bkg colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT_BKG)) = clr;
+				gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT_BKG)) = clr;
 				break;
 			case TEXT('h'): // hot text colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT)) = clr;
+				gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT)) = clr;
 				break;
 			case TEXT('H'): // hot bkg colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)) = clr;
+				gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)) = clr;
 				break;
 			case TEXT('p'): // Percent bar colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR)) = clr;
+				gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR)) = clr;
 				break;
 			case TEXT('P'): // Percent bar bkg colour
-				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG)) = clr;
+				gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG)) = clr;
 				break;
 			default:
 				throw DcxExceptions::dcxInvalidFlag();
 			}
 		}
 		break;
+
 		// [clear|default]
 		// [index] [+flags] [icon file index] [filename]
 		// -1 [+flags] [N1,N2-N3] [filename]
@@ -664,20 +692,68 @@ mIRC(xtreebar)
 			}
 		}
 		break;
+
 		case TEXT('T'): // [1|0]
 		{ // Take over Treebar drawing
-			DcxDock::g_bTakeOverTreebar = (input.getnexttokas<int>() > 0);	// tok 2
-			if (DcxDock::g_bTakeOverTreebar)
+			DcxDock::g_treebar.m_bTakeOver = (input.getnexttokas<int>() > 0);	// tok 2
+			if (DcxDock::g_treebar.m_bTakeOver)
 			{
 				if (mIRCLinker::isAlias(L"xtreebar_callback"_ts))
 					TraverseTreebarItems();
 				else {
-					DcxDock::g_bTakeOverTreebar = false;
+					DcxDock::g_treebar.m_bTakeOver = false;
 					throw Dcx::dcxException("No $xtreebar_callback() alias found");
 				}
 			}
 		}
 		break;
+
+		// [+FLAGS] [X] [Y] [FILENAME|none]
+		case TEXT('G'):
+		{
+			if (numtok < 5)
+				throw DcxExceptions::dcxInvalidArguments();
+
+			const auto flag(input.getnexttok());
+			DcxDock::g_treebar.m_Image.m_iXOffset = input.getnexttokas<int>();
+			DcxDock::g_treebar.m_Image.m_iYOffset = input.getnexttokas<int>();
+			auto filename(input.getlasttoks());
+
+			DcxDock::treebar_DestroyImageData();
+
+			if (!DcxDock::g_treebar.m_bTransparent)
+				RemStyles(mIRCLinker::getTreeview(), GWL_EXSTYLE, WS_EX_TRANSPARENT);
+
+			if (filename != TEXT("none"))
+			{
+				DcxDock::treebar_LoadGDIPlusImage(flag, filename);
+
+				if (!DcxDock::g_treebar.m_bTransparent)
+					AddStyles(mIRCLinker::getTreeview(), GWL_EXSTYLE, WS_EX_TRANSPARENT);
+
+				// setting clr none here is required for the image to display properly.
+				Dcx::dcxTreeView_SetBkColor(mIRCLinker::getTreeview(), CLR_NONE);
+			}
+		}
+		break;
+
+		// [FILENAME|none]
+		case TEXT('g'):
+		{
+			if (numtok < 2)
+				throw DcxExceptions::dcxInvalidArguments();
+
+			auto filename(input.getlasttoks());
+
+			DcxDock::treebar_DestroyBkgImageData();
+
+			if (filename != TEXT("none"))
+			{
+				DcxDock::treebar_LoadGDIPlusBkgImage(filename);
+			}
+		}
+		break;
+
 		default:
 			throw DcxExceptions::dcxInvalidFlag();
 		}
@@ -774,7 +850,7 @@ mIRC(_xtreebar)
 		case TEXT("wid"_hash):
 		{
 			if (index < 1) // if index < 1 return active items wid.
-				_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d"), DcxDock::g_wid);
+				_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d"), DcxDock::g_treebar.m_wid);
 			else {
 				item.hItem = Dcx::dcxTreeView_MapIndexToItem(mIRCLinker::getTreeview(), index);
 				item.mask = TVIF_PARAM;
@@ -788,13 +864,13 @@ mIRC(_xtreebar)
 
 		case TEXT("takeover"_hash):
 		{
-			_ts_strcpyn(data, dcx_truefalse(DcxDock::g_bTakeOverTreebar), mIRCLinker::m_dwCharacters);
+			_ts_strcpyn(data, dcx_truefalse(DcxDock::g_treebar.m_bTakeOver), mIRCLinker::m_dwCharacters);
 		}
 		break;
 
 		case TEXT("themedprogress"_hash):
 		{
-			_ts_strcpyn(data, dcx_truefalse(DcxDock::g_TreebarProgressTheme), mIRCLinker::m_dwCharacters);
+			_ts_strcpyn(data, dcx_truefalse(DcxDock::g_treebar.m_ProgressTheme), mIRCLinker::m_dwCharacters);
 		}
 		break;
 
