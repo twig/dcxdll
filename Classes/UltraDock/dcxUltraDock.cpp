@@ -26,7 +26,7 @@ void UpdatemIRC(void) noexcept
 void InitUltraDock(void)
 {
 	// set all colours as invalid
-	for (auto &x : DcxDock::g_clrTreebarColours)
+	for (auto &x : DcxDock::g_treebar.m_clrTreebarColours)
 		x = CLR_INVALID;
 
 	g_dockMDI = std::make_unique<DcxDock>(mIRCLinker::getMDIClient(), mIRCLinker::getHWND(), DockTypes::DOCK_TYPE_MDI);

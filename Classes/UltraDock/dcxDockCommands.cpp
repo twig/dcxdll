@@ -712,10 +712,14 @@ mIRC(_xdock)
 	try {
 		d.trim();
 
-		if (d.numtok() < 2)
-			throw Dcx::dcxException(TEXT("Invalid arguments (%)"), d.gettok(1));
+		const TString tsWin(d.getfirsttok(1));
 
-		if (d.getfirsttok(1) == TEXT("mIRC"))
+		if (d.numtok() < 2)
+			throw Dcx::dcxException(TEXT("Invalid arguments (%)"), tsWin);
+
+		const TString tsProp(d.getnexttok());
+
+		if (tsWin == TEXT("mIRC"))
 		{
 			const auto DockTypeToSwitchbarPos = [refData](const DockTypes dType) noexcept {
 				switch (SwitchbarPos(dType))
@@ -743,7 +747,7 @@ mIRC(_xdock)
 				}
 			};
 
-			switch (std::hash<TString>{}(d.getnexttok()))
+			switch (std::hash<TString>{}(tsProp))
 			{
 			case TEXT("switchBarPos"_hash):
 				DockTypeToSwitchbarPos(DockTypes::DOCK_TYPE_SWITCH);
@@ -840,21 +844,21 @@ mIRC(_xdock)
 			}
 		}
 		else {
-			const auto hwnd = to_hwnd(d.getfirsttok(1).to_<size_t>());
+			const auto hwnd = to_hwnd(tsWin.to_<size_t>());
 
 			if (!IsWindow(hwnd))
-				throw Dcx::dcxException(TEXT("Invalid window (%)"), d.gettok(1));
+				throw Dcx::dcxException(TEXT("Invalid window (%)"), tsWin);
 
-			switch (std::hash<TString>{}(d.getnexttok()))
+			switch (std::hash<TString>{}(tsProp))
 			{
 			case TEXT("isDocked"_hash):
 			{
-				dcx_Con(GetProp(hwnd, TEXT("dcx_docked")) || FindUltraDock(hwnd) || FindTreebarDock(hwnd), data);
+				dcx_Con(Dcx::dcxGetProp<size_t>(hwnd, TEXT("dcx_docked")) || FindUltraDock(hwnd) || FindTreebarDock(hwnd), data);
 			}
 			break;
 			case TEXT("hasDocked"_hash):
 			{
-				dcx_Con((GetProp(hwnd, TEXT("dcx_dock")) != nullptr), data);
+				dcx_Con((Dcx::dcxGetProp<size_t>(hwnd, TEXT("dcx_dock")) != 0), data);
 			}
 			break;
 			case TEXT("isAutoV"_hash):
@@ -880,7 +884,7 @@ mIRC(_xdock)
 				const auto* const ud = GetUltraDock(hwnd);
 
 				if (!ud)
-					throw Dcx::dcxException(TEXT("Window not docked to main mIRC window (%).%"), from_hwnd(hwnd), d.gettok(2));
+					throw Dcx::dcxException(TEXT("Window not docked to main mIRC window (%).%"), tsWin, tsProp);
 
 				const TCHAR* p = TEXT("unknown");
 				switch (ud->flags)
@@ -909,7 +913,7 @@ mIRC(_xdock)
 			break;
 			case 0: // error
 			default:
-				throw Dcx::dcxException(TEXT("Invalid prop (%).%"), from_hwnd(hwnd), d.gettok(2));
+				throw Dcx::dcxException(TEXT("Invalid prop (%).%"), tsWin, tsProp);
 			}
 		}
 		return 3;
