@@ -282,12 +282,19 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 	switch (uMsg)
 	{
-		//case WM_SIZE:
-		//{
-		//	if (dcxSignal.xdock)
-		//		mIRCLinker::signal(TEXT("size ref % % %"), reinterpret_cast<DWORD>(mHwnd), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
-		//}
-		//break;
+	case WM_SIZE:
+	{
+		if (pthis->m_iType != DockTypes::DOCK_TYPE_TREE)
+			break;
+
+		if (g_treebar.m_Image.m_Bkg.m_hBitmap)
+		{
+			const auto hTmp = g_treebar.m_Image.m_Bkg.m_hBitmap;
+			g_treebar.m_Image.m_Bkg.m_hBitmap = nullptr;
+			DeleteBitmap(hTmp);
+		}
+	}
+	break;
 
 	case WM_WINDOWPOSCHANGING:
 	{
@@ -306,44 +313,40 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 	}
 	break;
 
-	//case WM_PAINT:
-	//	{
-	//		if ( pthis->m_iType == DOCK_TYPE_TREE && DcxDock::g_bTakeOverTreebar) {
-	//			PAINTSTRUCT ps;
-	//			RECT rcClient, rcParent;
-	//			HDC hdc, *hBuffer;
-//
-		//			// get treeviews rect
-		//			GetClientRect(mHwnd,&rcClient);
-		//			GetClientRect(mIRCLink.m_hTreebar, &rcParent);
-//
-		//			hdc = BeginPaint(mHwnd, &ps);
-//
-		//			//hBuffer = CreateHDCBuffer(hdc, &rcParent);
-//
-		//			////SendMessage(mIRCLink.m_hTreebar, WM_ERASEBKGND, (WPARAM)*hBuffer, nullptr);
-		//			//SendMessage(mIRCLink.m_hTreebar, WM_PRINT, (WPARAM)*hBuffer, PRF_CLIENT|PRF_ERASEBKGND);
-		//			////SendMessage(mIRCLink.m_hTreebar, WM_PRINTCLIENT, (WPARAM)*hBuffer, PRF_CLIENT);
-//
-		//			//CopyRect(&rcParent, &rcClient);
-		//			//MapWindowRect(mHwnd, mIRCLink.m_hTreebar, &rcParent);
-//
-		//			//BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top), *hBuffer, rcParent.left, rcParent.top, SRCCOPY);
-//
-		//			//DeleteHDCBuffer(hBuffer);
-//
-		//			//LRESULT lRes = CallWindowProc(pthis->m_OldRefWndProc, mHwnd, uMsg, (WPARAM)hdc, lParam);
-//
-		//			EndPaint(mHwnd, &ps);
-		//			//return lRes;
-		//			return 0L;
-		//		}
-		//	}
-		//	break;
+	case WM_PRINTCLIENT:
+	{
+		if ((pthis->m_iType != DockTypes::DOCK_TYPE_TREE) || !DcxDock::g_treebar.m_bTakeOver)
+			break;
+
+		pthis->treebar_DrawClientArea(reinterpret_cast<HDC>(wParam), uMsg, lParam);
+		return 0L;
+	}
+	break;
+
+	case WM_PAINT:
+	{
+		if ((pthis->m_iType != DockTypes::DOCK_TYPE_TREE) || !DcxDock::g_treebar.m_bTakeOver)
+			break;
+
+		if (!wParam)
+		{
+			PAINTSTRUCT ps{};
+
+			auto hdc = BeginPaint(mIRCLinker::getTreeview(), &ps);
+			Auto(EndPaint(mIRCLinker::getTreeview(), &ps));
+
+			pthis->treebar_DrawClientArea(hdc, uMsg, lParam);
+		}
+		else
+			pthis->treebar_DrawClientArea(reinterpret_cast<HDC>(wParam), uMsg, lParam);
+
+		return 0L;
+	}
+	break;
 
 	case WM_ERASEBKGND:
 	{
-		if (pthis->m_iType == DockTypes::DOCK_TYPE_TREE && DcxDock::g_bTakeOverTreebar)
+		if ((pthis->m_iType == DockTypes::DOCK_TYPE_TREE) && DcxDock::g_treebar.m_bTakeOver)
 			return FALSE;
 
 		//return ((GetWindowLong(mHwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) ? TRUE : FALSE);
@@ -352,7 +355,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 	case TVM_SETITEM:
 	{
-		if (pthis->m_iType != DockTypes::DOCK_TYPE_TREE || !DcxDock::g_bTakeOverTreebar)
+		if ((pthis->m_iType != DockTypes::DOCK_TYPE_TREE) || !DcxDock::g_treebar.m_bTakeOver)
 			break;
 
 		dcxlParam(LPTVITEMEX, pitem);
@@ -362,7 +365,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 		if (Dcx::dcxHIWORD(pitem->lParam) != 0)
 		{
-			DcxDock::g_wid = DcxDock::getTreebarItemWID(pitem->lParam);
+			DcxDock::g_treebar.m_wid = DcxDock::getTreebarItemWID(pitem->lParam);
 			const TString buf(DcxDock::getTreebarItemTypeString(pitem->lParam));
 
 			// <item type> <wid> <status>
@@ -370,14 +373,14 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 			constexpr TCHAR sDeSel[] = TEXT("deselected");
 			mIRCLinker::eval(nullptr, TEXT("$xtreebar_callback(setitem,%,%,%)"), buf, Dcx::dcxHIWORD(pitem->lParam), dcx_testflag(Dcx::dcxLOWORD(pitem->lParam), 256) ? &sSel[0] : &sDeSel[0]);
 
-			DcxDock::g_wid = 0;
+			DcxDock::g_treebar.m_wid = 0;
 		}
 	}
 	break;
 
 	case TVM_INSERTITEM:
 	{
-		if (!DcxDock::g_bTakeOverTreebar)
+		if ((pthis->m_iType != DockTypes::DOCK_TYPE_TREE) || !DcxDock::g_treebar.m_bTakeOver)
 			break;
 
 		dcxlParam(LPTVINSERTSTRUCT, pTvis);
@@ -387,13 +390,13 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 		if (dcx_testflag(pTvis->itemex.mask, TVIF_TEXT))
 		{
-			DcxDock::g_wid = DcxDock::getTreebarItemWID(pTvis->itemex.lParam);
+			DcxDock::g_treebar.m_wid = DcxDock::getTreebarItemWID(pTvis->itemex.lParam);
 			TString buf(DcxDock::getTreebarItemTypeString(pTvis->itemex.lParam));
 
 			mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), pTvis->itemex.lParam, pTvis->itemex.pszText);
 			mIRCLinker::eval(buf, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), buf, pTvis->itemex.lParam);
 
-			DcxDock::g_wid = 0;
+			DcxDock::g_treebar.m_wid = 0;
 
 			// image
 			auto i = buf.getfirsttok(1).to_int() - 1;
@@ -492,19 +495,6 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 	return CallWindowProc(pthis->m_OldRefWndProc, mHwnd, uMsg, wParam, lParam);
 }
 
-//BOOL CALLBACK DcxDock::EnumTreebarWindows(HWND hwnd, LPARAM lParam)
-//{
-//	TCHAR title[256];
-//	TCHAR *buf = (TCHAR *)lParam;
-//	title[0] = 0;
-//	GetWindowText(hwnd, title, 255);
-//	if (ts_strcmp(buf, title) == 0) {
-//		mIRCDebug(TEXT("match: %ld : %s"), hwnd, title);
-//		return FALSE;
-//	}
-//	return TRUE;
-//}
-
 LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	const auto pthis = Dcx::dcxGetProp<DcxDock*>(mHwnd, TEXT("DcxDock"));
@@ -560,11 +550,43 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 		{
 			dcxlParam(LPNMHDR, hdr);
 
-			if (!hdr || !DcxDock::g_bTakeOverTreebar)
+			if (!hdr || !DcxDock::g_treebar.m_bTakeOver)
 				break;
 
 			switch (hdr->code)
 			{
+			case TVN_ITEMEXPANDING:
+			{
+				if ((pthis->m_iType != DockTypes::DOCK_TYPE_TREE) || !DcxDock::g_treebar.m_bTakeOver)
+					break;
+
+				// disables redraw to stop flicker with bkg image.
+				auto hTree = mIRCLinker::getTreeview();
+				if (dcx_testflag(dcxGetWindowExStyle(hTree), WindowExStyle::Transparent))
+					SetWindowRedraw(hTree, FALSE);
+			}
+			break;
+
+			case TVN_ITEMEXPANDED:
+			{
+				if ((pthis->m_iType != DockTypes::DOCK_TYPE_TREE) || !DcxDock::g_treebar.m_bTakeOver)
+					break;
+
+				// re-enables redraw & updates.
+				auto hTree = mIRCLinker::getTreeview();
+				if (dcx_testflag(dcxGetWindowExStyle(hTree), WindowExStyle::Transparent))
+				{
+					//const auto lRes = CallWindowProc(pthis->m_OldRefWndProc, mHwnd, uMsg, wParam, lParam);
+
+					SetWindowRedraw(hTree, TRUE);
+					InvalidateRect(hTree, nullptr, FALSE);
+					//UpdateWindow(hTree);
+
+					//return lRes;
+				}
+			}
+			break;
+
 			case NM_CUSTOMDRAW:
 			{
 				switch (dcxlParam(LPNMTVCUSTOMDRAW, lpntvcd); lpntvcd->nmcd.dwDrawStage)
@@ -578,12 +600,12 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					return treebar_PostPaint(lpntvcd);
 				default:
 					break;
-				//default:
-				//{
-				//	if (pthis->m_OldDockWndProc)
-				//		return CallWindowProc(pthis->m_OldDockWndProc, mHwnd, uMsg, wParam, lParam);
-				//	return CDRF_DODEFAULT;
-				//}
+					//default:
+					//{
+					//	if (pthis->m_OldDockWndProc)
+					//		return CallWindowProc(pthis->m_OldDockWndProc, mHwnd, uMsg, wParam, lParam);
+					//	return CDRF_DODEFAULT;
+					//}
 				}
 			}
 			break;
@@ -715,13 +737,21 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 	}
 	break;
 
-	//case WM_CTLCOLORSTATIC:
-	//case WM_CTLCOLOREDIT:
+	case WM_CTLCOLORSTATIC:
+	case WM_CTLCOLOREDIT:
+	{
+		if (!DcxDock::g_treebar.m_bTakeOver)
+			break;
+		if (pthis->m_iType == DockTypes::DOCK_TYPE_TREE)
+			return (LRESULT)GetStockBrush(HOLLOW_BRUSH);
+	}
+	break;
+
+	//case WM_PRINTCLIENT:
 	//{
-	//	if (!DcxDock::g_bTakeOverTreebar)
+	//	if (!DcxDock::g_treebar.m_bTakeOver || (pthis->m_iType != DockTypes::DOCK_TYPE_TREE))
 	//		break;
-	//	if (pthis->m_iType == DockTypes::DOCK_TYPE_TREE)
-	//		return (LRESULT)GetStockBrush(HOLLOW_BRUSH);
+	//	return SendMessage(mHwnd, WM_PAINT, wParam, 0);
 	//}
 	//break;
 
@@ -1233,23 +1263,23 @@ LRESULT DcxDock::treebar_PrePaint(LPNMTVCUSTOMDRAW lpntvcd)
 {
 	if (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_HOT))
 	{ // This makes sure the hot colour doesnt show as blue.
-		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT)) != CLR_INVALID)
-			lpntvcd->clrText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT));
+		if (gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT)) != CLR_INVALID)
+			lpntvcd->clrText = gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT));
 		else
 			lpntvcd->clrText = GetSysColor(COLOR_HOTLIGHT);
 
-		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)) != CLR_INVALID) // only set a bkg colour if one is set in prefs.
-			lpntvcd->clrTextBk = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG));
+		if (gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)) != CLR_INVALID) // only set a bkg colour if one is set in prefs.
+			lpntvcd->clrTextBk = gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG));
 	}
 	if (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED))
 	{ // This makes sure the selected colour doesnt show as grayed.
-		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED)) != CLR_INVALID)
-			lpntvcd->clrText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED));
+		if (gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED)) != CLR_INVALID)
+			lpntvcd->clrText = gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED));
 		else
 			lpntvcd->clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);
 
-		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG)) != CLR_INVALID)
-			lpntvcd->clrTextBk = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG));
+		if (gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG)) != CLR_INVALID)
+			lpntvcd->clrTextBk = gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG));
 		else
 			lpntvcd->clrTextBk = GetSysColor(COLOR_HIGHLIGHT);
 	}
@@ -1266,17 +1296,17 @@ LRESULT DcxDock::treebar_PrePaint(LPNMTVCUSTOMDRAW lpntvcd)
 			{
 			case L"message"_hash:
 			{
-				cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_MESSAGE));
-				cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_MESSAGE_BKG));
+				cText = gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_MESSAGE));
+				cBkg = gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_MESSAGE_BKG));
 			}
 			break;
 			case L"event"_hash:
-				cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_EVENT));
-				cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_EVENT_BKG));
+				cText = gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_EVENT));
+				cBkg = gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_EVENT_BKG));
 				break;
 			case L"highlight"_hash:
-				cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT));
-				cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT_BKG));
+				cText = gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT));
+				cBkg = gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT_BKG));
 				break;
 			default:
 				break;
@@ -1286,8 +1316,15 @@ LRESULT DcxDock::treebar_PrePaint(LPNMTVCUSTOMDRAW lpntvcd)
 			if (cBkg != CLR_INVALID) // bkg colour
 				lpntvcd->clrTextBk = cBkg;
 		}
+		if (const auto clr = Dcx::dcxTreeView_GetBkColor(lpntvcd->nmcd.hdr.hwndFrom); clr != CLR_NONE)
+		{
+			if (clr == lpntvcd->clrText)
+			{
+				lpntvcd->clrText ^= 1; // make sure they dont match for later on when we TransparentBlt, clr xor 1, if bit 1 is set, make it zero, otherwise make it 1
+				// should we do RGB(R-1,G-1,B-1) ?
+			}
+		}
 	}
-
 	// mIRC default return is CDRF_SKIPDEFAULT
 
 	//return CDRF_NEWFONT;
@@ -1339,7 +1376,7 @@ LRESULT DcxDock::treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd)
 	{
 		int cy{};
 		ImageList_GetIconSize(himl, &cxImage, &cy);
-					}
+	}
 
 	//RECT rcSelected{ lpntvcd->nmcd.rc };
 	RECT rcSelected{ rcTxt };
@@ -1352,7 +1389,11 @@ LRESULT DcxDock::treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd)
 	if (const auto clr = Dcx::dcxTreeView_GetBkColor(lpntvcd->nmcd.hdr.hwndFrom); clr != CLR_NONE)
 		Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcSelected, clr);
 
-	treebar_DrawBackground(lpntvcd, &rcSelected, bSelected, bHot, bTrackHot);
+	if (g_treebar.m_bTransparent || (treebar_isBkgImage() && g_treebar.m_Image.m_bAlphaBlendBkgImage))
+		treebar_DrawParentBackground(lpntvcd->nmcd.hdc, &rcSelected);
+
+	if (!g_treebar.m_bTransparent)
+		treebar_DrawBackground(lpntvcd, &rcSelected, bSelected, bHot, bTrackHot);
 
 	if ((iIcon >= 0) && himl)
 	{
@@ -1360,23 +1401,23 @@ LRESULT DcxDock::treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd)
 		const int iTop = rcTxt.top + cyBorder;
 
 		ImageList_Draw(himl, iIcon, lpntvcd->nmcd.hdc, iLeft, iTop, (bSelected ? ILD_SELECTED : ILD_NORMAL));
-				}
+	}
 
 	// This fixes the dcc progress & custom window -qS:P not showing in treebar
 	if (const auto wid = DcxDock::getTreebarItemWID(lpntvcd->nmcd.lItemlParam); wid > 0)
-			{
+	{
 		TString buf;
 
 		mIRCLinker::eval(buf, TEXT("$_dcx_WIDToPercent(%)"), wid);
 		if (buf.getfirsttok(1).to_<int>() > 0)
-			{
+		{
 			const int perc = buf.getnexttokas<int>();
 
 			RECT rcBar{ rcTxt };
 			rcBar.right = lpntvcd->nmcd.rc.right;
 
 			treebar_DrawProgress(lpntvcd, &rcBar, perc, bSelected, bHot, bTrackHot);
-	}
+		}
 	}
 
 	const auto oldClr = SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
@@ -1384,7 +1425,7 @@ LRESULT DcxDock::treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd)
 	DrawTextW(lpntvcd->nmcd.hdc, tvi.pszText, gsl::narrow_cast<int>(_ts_strlen(tvi.pszText)), &rcTxt, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
 	SetBkMode(lpntvcd->nmcd.hdc, oldMode);
 	SetTextColor(lpntvcd->nmcd.hdc, oldClr);
-	
+
 	return CDRF_DODEFAULT;
 }
 
@@ -1402,13 +1443,13 @@ bool DcxDock::treebar_GetInfoTip(LPNMTVGETINFOTIP tcgit)
 	item.mask = TVIF_TEXT | TVIF_PARAM;
 	if (Dcx::dcxTreeView_GetItem(mIRCLinker::getTreeview(), &item))
 	{
-		DcxDock::g_wid = DcxDock::getTreebarItemWID(item.lParam);
+		DcxDock::g_treebar.m_wid = DcxDock::getTreebarItemWID(item.lParam);
 		const TString tsType(DcxDock::getTreebarItemTypeString(item.lParam));
 
 		mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), item.lParam, item.pszText);
 		mIRCLinker::eval(buf, TEXT("$xtreebar_callback(gettooltip,%,\\%dcx_%)"), tsType, item.lParam);
 
-		DcxDock::g_wid = 0;
+		DcxDock::g_treebar.m_wid = 0;
 
 		if (!buf.empty())
 			dcx_strcpyn(tcgit->pszText, buf.to_chr(), tcgit->cchTextMax);
@@ -1444,47 +1485,410 @@ void DcxDock::treebar_DrawBackground(LPNMTVCUSTOMDRAW lpntvcd, LPCRECT prc, bool
 	//		dcxDrawRect(lpntvcd->nmcd.hdc, prc, lpntvcd->clrTextBk, lpntvcd->clrTextBk, false);
 	//}
 	//else
-	Dcx::FillRectColour(lpntvcd->nmcd.hdc, prc, lpntvcd->clrTextBk);
+	//	Dcx::FillRectColour(lpntvcd->nmcd.hdc, prc, lpntvcd->clrTextBk);
+
+#ifdef DCX_USE_GDIPLUS
+	if (lpntvcd->clrTextBk != CLR_NONE)
+		Dcx::FillRectColour(lpntvcd->nmcd.hdc, prc, lpntvcd->clrTextBk);
+	if (treebar_isBkgImage())
+		treebar_FillBkgBitmap(lpntvcd->nmcd.hdc, prc);
+#else
+	if (lpntvcd->clrTextBk != CLR_NONE)
+		Dcx::FillRectColour(lpntvcd->nmcd.hdc, prc, lpntvcd->clrTextBk);
+#endif
+}
+
+void DcxDock::treebar_DrawBackground(HDC hdc) noexcept
+{
+#ifdef DCX_USE_GDIPLUS
+	if (const auto clr = Dcx::dcxTreeView_GetBkColor(mIRCLinker::getTreeview()); clr != CLR_NONE)
+	{
+		const Dcx::dcxClientRect rc(mIRCLinker::getTreeview());
+		Dcx::FillRectColour(hdc, &rc, clr);
+	}
+
+	if (treebar_isBkgImage())
+		treebar_FillBkgBitmap(hdc);
+	//else if (const auto clr = Dcx::dcxTreeView_GetBkColor(mIRCLinker::getTreeview()); clr != CLR_NONE)
+	//{
+	//	const Dcx::dcxClientRect rc(mIRCLinker::getTreeview());
+	//	Dcx::FillRectColour(hdc, &rc, clr);
+	//}
+#else
+	if (const auto clr = Dcx::dcxTreeView_GetBkColor(mIRCLinker::getTreeview()); clr != CLR_NONE)
+	{
+		const Dcx::dcxClientRect rc(mIRCLinker::getTreeview());
+		Dcx::FillRectColour(hdc, &rc, clr);
+	}
+#endif
 }
 
 void DcxDock::treebar_DrawProgress(LPNMTVCUSTOMDRAW lpntvcd, LPCRECT prc, int perc, bool bSelected, bool bHot, bool bTrackHot)
 {
 	RECT rcBar{ *prc };
-	if (!DcxDock::g_bTreebarLargeProgress)
+	if (!DcxDock::g_treebar.m_bLargeProgress)
 		// draw thin bar at bottom under text.
 		rcBar.top = rcBar.bottom - 2;
 	else
 		// themed drawing only works with large progressbars
-		if (DcxDock::g_TreebarProgressTheme && DcxUXModule::dcxIsThemeActive())
+		if (DcxDock::g_treebar.m_ProgressTheme && DcxUXModule::dcxIsThemeActive())
 		{
 			constexpr int iStyle{ PBFS_NORMAL };
 
-			DcxUXModule::dcxDrawThemeBackground(DcxDock::g_TreebarProgressTheme, lpntvcd->nmcd.hdc, PP_BAR, iStyle, &rcBar, nullptr);
+			DcxUXModule::dcxDrawThemeBackground(DcxDock::g_treebar.m_ProgressTheme, lpntvcd->nmcd.hdc, PP_TRANSPARENTBAR /*PP_BAR*/, iStyle, &rcBar, nullptr);
 
 			RECT rcContents{};
-			DcxUXModule::dcxGetThemeBackgroundContentRect(DcxDock::g_TreebarProgressTheme, lpntvcd->nmcd.hdc, PP_BAR, iStyle, &rcBar, &rcContents);
+			DcxUXModule::dcxGetThemeBackgroundContentRect(DcxDock::g_treebar.m_ProgressTheme, lpntvcd->nmcd.hdc, PP_TRANSPARENTBAR /*PP_BAR*/, iStyle, &rcBar, &rcContents);
 
 			rcContents.right = rcContents.left + gsl::narrow_cast<LONG>(((rcContents.right - rcContents.left) / 100.0) * std::clamp(perc, 0, 100));
-			DcxUXModule::dcxDrawThemeBackground(DcxDock::g_TreebarProgressTheme, lpntvcd->nmcd.hdc, PP_FILL, iStyle, &rcContents, nullptr);
+			DcxUXModule::dcxDrawThemeBackground(DcxDock::g_treebar.m_ProgressTheme, lpntvcd->nmcd.hdc, PP_FILL, iStyle, &rcContents, nullptr);
 
 			return;
 		}
 
+	COLORREF clr = RGB(0, 255, 0);
+	COLORREF clrbkg = lpntvcd->clrTextBk;
+
 	if (perc < 100)
 	{
-		COLORREF clrbkg = lpntvcd->clrTextBk;
-		if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG)) != CLR_INVALID)
-			clrbkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG));
+		if (gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG)) != CLR_INVALID)
+			clrbkg = gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR_BKG));
 
 		// draw background
-		Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcBar, clrbkg);
+#ifdef DCX_USE_GDIPLUS
+		//if (treebar_isBkgImage())
+		//	treebar_FillBkgBitmap(lpntvcd->nmcd.hdc, &rcBar);
+		//else
+		if (clrbkg != CLR_NONE)
+			Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcBar, clrbkg);
+#else
+		if (clrbkg != CLR_NONE)
+			Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcBar, clrbkg);
+#endif
 		rcBar.right = rcBar.left + gsl::narrow_cast<LONG>(((gsl::narrow_cast<double>(rcBar.right) - gsl::narrow_cast<double>(rcBar.left)) / 100.0) * gsl::narrow_cast<double>(perc));
 	}
 
-	COLORREF clr = RGB(0, 255, 0);
-	if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR)) != CLR_INVALID)
-		clr = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR));
+	if (gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR)) != CLR_INVALID)
+		clr = gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_PERCENT_BAR));
 
 	// draw percentage bar.
-	Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcBar, clr);
+	if (DcxDock::g_treebar.m_bGradProgress)
+		XPopupMenuItem::DrawGradient(lpntvcd->nmcd.hdc, &rcBar, clr, /*XPopupMenuItem::DarkenColor(10,clr)*/ clrbkg, true);
+	else
+		Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcBar, clr);
+}
+
+#ifdef DCX_USE_GDIPLUS
+GSL_SUPPRESS(Enum.3)
+void DcxDock::treebar_LoadGDIPlusImage(const TString& flags, TString& filename)
+{
+	if (!Dcx::GDIModule.isUseable())
+		throw Dcx::dcxException("GDI+ Not Supported On This Machine");
+
+	if (!IsFile(filename))
+		throw Dcx::dcxException(TEXT("LoadGDIPlusImage() - Unable to Access File: %"), filename);
+
+	g_treebar.m_Image.m_Bkg.m_pImage = new Gdiplus::Image(filename.to_wchr(), TRUE);
+	g_treebar.m_Image.m_Bkg.m_tsFilename = filename;
+
+	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
+	if (const auto status = DcxDock::g_treebar.m_Image.m_Bkg.m_pImage->GetLastStatus(); status != Gdiplus::Status::Ok)
+	{
+		treebar_DestroyImageData();
+		throw Dcx::dcxException(TEXT("LoadGDIPlusImage() - %"), GetLastStatusStr(status));
+	}
+	const XSwitchFlags xflags(flags);
+
+	if (xflags[TEXT('h')]) { // High Quality
+		g_treebar.m_Image.m_CompositingQuality = Gdiplus::CompositingQualityHighQuality;
+		g_treebar.m_Image.m_InterpolationMode = Gdiplus::InterpolationModeHighQualityBicubic;
+	}
+	else {
+		g_treebar.m_Image.m_CompositingQuality = Gdiplus::CompositingQualityDefault;
+		g_treebar.m_Image.m_InterpolationMode = Gdiplus::InterpolationModeDefault;
+	}
+
+	//if (xflags[TEXT('b')]) // Blend Image
+	//	this->m_CMode = Gdiplus::CompositingModeSourceOver;
+	//else
+	g_treebar.m_Image.m_CompositingMode = Gdiplus::CompositingModeSourceCopy;
+
+	g_treebar.m_Image.m_bAlphaBlendBkgImage = xflags[TEXT('b')]; // Blend Image
+
+	if (xflags[TEXT('a')]) // Anti-Aliased
+		g_treebar.m_Image.m_SmoothingMode = Gdiplus::SmoothingModeAntiAlias;
+	else
+		g_treebar.m_Image.m_SmoothingMode = Gdiplus::SmoothingModeDefault;
+
+	g_treebar.m_Image.m_bTile = xflags[TEXT('t')]; // Tile
+
+	g_treebar.m_Image.m_bResize = xflags[TEXT('r')]; // resize
+}
+
+void DcxDock::treebar_LoadGDIPlusBkgImage(TString& filename)
+{
+	if (!Dcx::GDIModule.isUseable())
+		throw Dcx::dcxException("GDI+ Not Supported On This Machine");
+
+	if (!IsFile(filename))
+		throw Dcx::dcxException(TEXT("LoadGDIPlusImage() - Unable to Access File: %"), filename);
+
+	g_treebar.m_Image.m_BkgTreebar.m_pImage = new Gdiplus::Image(filename.to_wchr(), TRUE);
+	g_treebar.m_Image.m_BkgTreebar.m_tsFilename = filename;
+
+	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
+	if (const auto status = DcxDock::g_treebar.m_Image.m_BkgTreebar.m_pImage->GetLastStatus(); status != Gdiplus::Status::Ok)
+	{
+		treebar_DestroyBkgImageData();
+		throw Dcx::dcxException(TEXT("LoadGDIPlusImage() - %"), GetLastStatusStr(status));
+	}
+}
+
+void DcxDock::treebar_DestroyBkgImageData() noexcept
+{
+	g_treebar.m_Image.m_BkgTreebar.reset();
+}
+
+void DcxDock::treebar_DestroyImageData() noexcept
+{
+	g_treebar.m_Image.m_Bkg.reset();
+}
+
+void DcxDock::treebar_DrawGDIPlusImage(HDC hdc)
+{
+	if (!hdc || !Dcx::GDIModule.isUseable())
+		return;
+
+	const Dcx::dcxClientRect rc(mIRCLinker::getTreeview());
+	if (!rc)
+		return;
+
+	const auto w = rc.Width(), h = rc.Height(), x = rc.left, y = rc.top;
+
+	Gdiplus::Graphics grphx(hdc);
+
+	grphx.SetCompositingQuality(g_treebar.m_Image.m_CompositingQuality);
+	grphx.SetCompositingMode(g_treebar.m_Image.m_CompositingMode);
+	grphx.SetSmoothingMode(g_treebar.m_Image.m_SmoothingMode);
+
+	if (((g_treebar.m_Image.m_Bkg.m_pImage->GetWidth() == 1) || (g_treebar.m_Image.m_Bkg.m_pImage->GetHeight() == 1)) && g_treebar.m_Image.m_bResize)
+	{
+		// This fixes a GDI+ bug when resizing 1 px images
+		// http://www.devnewsgroups.net/group/microsoft.public.dotnet.framework.windowsforms/topic11515.aspx
+		grphx.SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor);
+		grphx.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
+	}
+	else
+		grphx.SetInterpolationMode(g_treebar.m_Image.m_InterpolationMode);
+
+	if (g_treebar.m_Image.m_bTile)
+	{
+		Gdiplus::ImageAttributes imAtt;
+		imAtt.SetWrapMode(Gdiplus::WrapModeTile);
+
+		grphx.DrawImage(g_treebar.m_Image.m_Bkg.m_pImage,
+			Gdiplus::Rect(x + g_treebar.m_Image.m_iXOffset, y + g_treebar.m_Image.m_iYOffset, w, h),  // dest rect
+			0, 0, w, h,       // source rect
+			Gdiplus::UnitPixel,
+			&imAtt);
+	}
+	else if (g_treebar.m_Image.m_bResize)
+		grphx.DrawImage(g_treebar.m_Image.m_Bkg.m_pImage, g_treebar.m_Image.m_iXOffset, g_treebar.m_Image.m_iYOffset, w, h);
+	else
+		grphx.DrawImage(g_treebar.m_Image.m_Bkg.m_pImage, g_treebar.m_Image.m_iXOffset, g_treebar.m_Image.m_iYOffset);
+}
+
+void DcxDock::treebar_DrawGDIPlusBkgImage(HDC hdc)
+{
+	if (!hdc || !Dcx::GDIModule.isUseable())
+		return;
+
+	const Dcx::dcxClientRect rc(mIRCLinker::getTreebar());
+	if (!rc)
+		return;
+
+	const auto w = rc.Width(), h = rc.Height();
+
+	Gdiplus::Graphics grphx(hdc);
+
+	grphx.SetCompositingQuality(g_treebar.m_Image.m_CompositingQuality);
+	grphx.SetCompositingMode(g_treebar.m_Image.m_CompositingMode);
+	grphx.SetSmoothingMode(g_treebar.m_Image.m_SmoothingMode);
+
+	if (((g_treebar.m_Image.m_Bkg.m_pImage->GetWidth() == 1) || (g_treebar.m_Image.m_Bkg.m_pImage->GetHeight() == 1)) && g_treebar.m_Image.m_bResize)
+	{
+		// This fixes a GDI+ bug when resizing 1 px images
+		// http://www.devnewsgroups.net/group/microsoft.public.dotnet.framework.windowsforms/topic11515.aspx
+		grphx.SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor);
+		grphx.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
+	}
+	else
+		grphx.SetInterpolationMode(g_treebar.m_Image.m_InterpolationMode);
+
+	Gdiplus::ImageAttributes imAtt;
+	imAtt.SetWrapMode(Gdiplus::WrapModeTile);
+
+	grphx.DrawImage(g_treebar.m_Image.m_BkgTreebar.m_pImage,
+		Gdiplus::Rect(0, 0, w, h),  // dest rect
+		0, 0, w, h,       // source rect
+		Gdiplus::UnitPixel,
+		&imAtt);
+
+	//grphx.DrawImage(g_treebar.m_Image.m_BkgTreebar.m_pImage, 0, 0, w, h);
+}
+
+void DcxDock::treebar_CacheBitmap(HDC _hdc)
+{
+	if (!g_treebar.m_Image.m_Bkg.m_pImage)
+	{
+		if (g_treebar.m_Image.m_Bkg.m_hBitmap)
+			DeleteBitmap(g_treebar.m_Image.m_Bkg.m_hBitmap);
+		g_treebar.m_Image.m_Bkg.m_hBitmap = nullptr;
+		return;
+	}
+
+	const auto sz = dcxGetCurrentBitmapDimensions(_hdc);
+
+	if (sz.cx == 0 || sz.cy == 0)
+		return;
+
+	if (auto hdc = CreateCompatibleDC(_hdc); hdc)
+	{
+		Auto(DeleteDC(hdc));
+
+		if (auto hBm = CreateCompatibleBitmap(_hdc, sz.cx, sz.cy); hBm)
+		{
+			{
+				auto oldBm = Dcx::dcxSelectObject(hdc, hBm);
+				Auto(Dcx::dcxSelectObject(hdc, oldBm));
+
+				// fill bitmap
+				treebar_DrawGDIPlusImage(hdc);
+			}
+
+			// exchange old & new bitmaps
+			std::swap(hBm, g_treebar.m_Image.m_Bkg.m_hBitmap);
+
+			// if old bitmap exists, delete it
+			if (hBm)
+				DeleteBitmap(hBm);
+		}
+	}
+}
+
+void DcxDock::treebar_FillBkgBitmap(HDC hdc)
+{
+	if (!g_treebar.m_Image.m_Bkg.m_hBitmap)
+		treebar_CacheBitmap(hdc);
+
+	if (!g_treebar.m_Image.m_Bkg.m_hBitmap)
+		return;
+
+	const auto sz = dcxGetBitmapDimensions(g_treebar.m_Image.m_Bkg.m_hBitmap);
+	CopyBitmapToHDC(hdc, 0, 0, sz.cx, sz.cy, g_treebar.m_Image.m_Bkg.m_hBitmap, 0, 0, g_treebar.m_Image.m_bAlphaBlendBkgImage);
+}
+
+void DcxDock::treebar_FillBkgBitmap(HDC hdc, LPCRECT prc)
+{
+	if (!g_treebar.m_Image.m_Bkg.m_hBitmap)
+		treebar_CacheBitmap(hdc);
+
+	if (!g_treebar.m_Image.m_Bkg.m_hBitmap)
+		return;
+
+	CopyBitmapToHDC(hdc, prc->left, prc->top, (prc->right - prc->left), (prc->bottom - prc->top), g_treebar.m_Image.m_Bkg.m_hBitmap, prc->left, prc->top, g_treebar.m_Image.m_bAlphaBlendBkgImage);
+}
+#endif
+
+void DcxDock::treebar_DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
+{
+	if (!hdc)
+		return;
+
+	if (!g_treebar.m_Image.m_Bkg.m_hBitmap)
+		treebar_CacheBitmap(hdc);
+
+	// Setup alpha blend if any. Double Buffer is needed to stop flicker when a bkg image is used.
+	//const auto ai = SetupAlphaBlend(&hdc, true);
+	//Auto(FinishAlphaBlend(ai));
+
+	HDC hdcBuf{};
+	auto hdcopts = CreateHDCBufferOptions(hdc, &hdcBuf, true, false, false, 255);
+	Auto(DeleteHDCBufferOptions(hdcopts, true));
+	hdc = hdcBuf;
+
+	if (g_treebar.m_bTransparent || (treebar_isBkgImage() && g_treebar.m_Image.m_bAlphaBlendBkgImage))
+		treebar_DrawParentBackground(hdc, nullptr);
+
+	//if (!dcx_testflag(dcxGetWindowExStyle(mIRCLinker::getTreeview()),WindowExStyle::Transparent))
+	if (!g_treebar.m_bTransparent)
+		treebar_DrawBackground(hdc);
+	//else if (treebar_isBkgImage())
+	//	treebar_FillBkgBitmap(hdc);
+
+	HDC hdcbufOrig{};
+	if (const auto hbufOrig = CreateHDCBufferOptions(hdc, &hdcbufOrig, true, false, false, 255); hbufOrig)
+	{
+		Auto(DeleteHDCBufferOptions(hbufOrig, false));
+
+		const auto sz = dcxGetCurrentBitmapDimensions(hdc);
+		const auto clr = Dcx::dcxTreeView_GetBkColor(mIRCLinker::getTreeview());
+
+		if (clr != CLR_NONE)
+		{
+			const RECT rc{ 0,0,sz.cx,sz.cy };
+
+			Dcx::FillRectColour(hdcbufOrig, &rc, clr);
+		}
+
+		{
+			auto oldBk = SetBkMode(hdcbufOrig, TRANSPARENT);
+			Auto(SetBkMode(hdcbufOrig, oldBk));
+
+			if (m_OldRefWndProc)
+				CallWindowProcW(m_OldRefWndProc, mIRCLinker::getTreeview(), uMsg, reinterpret_cast<WPARAM>(hdcbufOrig), lParam);
+		}
+
+		//if (clr == CLR_NONE)
+		//	BitBlt(hdc, 0, 0, sz.cx, sz.cy, hdcbufOrig, 0, 0, SRCCOPY);
+		//else
+		TransparentBlt(hdc, 0, 0, sz.cx, sz.cy, hdcbufOrig, 0, 0, sz.cx, sz.cy, clr);
+	}
+	return;
+}
+
+void DcxDock::treebar_DrawParentBackground(HDC hdc, LPRECT prcBounds) noexcept
+{
+	auto mHwnd = mIRCLinker::getTreeview();
+	auto hParent = mIRCLinker::getTreebar();
+
+	RECT rcClient{};
+	if (prcBounds)
+		rcClient = *prcBounds;
+	else
+		GetClientRect(mHwnd, &rcClient);
+
+	RECT rcParentWin{}, rcWin{ rcClient };
+	if (!GetClientRect(hParent, &rcParentWin))
+		return;
+
+	const Dcx::dcxHDCBuffer hdcbkg(hdc, rcParentWin);
+
+	// get this controls x & y pos within its parent.
+	MapWindowRect(mHwnd, hParent, &rcWin);
+
+	if (auto clipRgn = CreateRectRgnIndirect(&rcWin); /* clip parents drawing to this controls rect. */ clipRgn)
+	{
+		SelectClipRgn(hdcbkg.get(), clipRgn);
+		DeleteObject(clipRgn);
+	}
+	treebar_DrawGDIPlusBkgImage(hdcbkg.get());
+
+	//// Sending WM_ERASEBKGND followed by WM_PRINTCLIENT emulates the method used by DrawThemeParentBackgroundEx() on vista.
+	//// fill in the parents image
+	//::SendMessage(hParent, WM_ERASEBKGND, reinterpret_cast<WPARAM>(hdcbkg.get()), 0L);
+	//::SendMessage(hParent, WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdcbkg.get()), PRF_CLIENT);
+
+	// draw background to main hdc
+	BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top), hdcbkg.get(), rcWin.left, rcWin.top, SRCCOPY);
 }
