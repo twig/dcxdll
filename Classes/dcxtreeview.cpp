@@ -720,6 +720,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 				topborder = itop;
 
 			Dcx::dcxTreeView_SetBorder(m_Hwnd, TVSBF_XBORDER | TVSBF_YBORDER, leftborder, topborder);
+
+			redrawWindow();
 		}
 		else {
 			//auto parseMargin = [](_In_ const XSwitchFlags xFlag, _In_ const TString tsArg, dcxTreeViewBorderSideData& mData) {
@@ -1800,6 +1802,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		}
 		break;
 
+#ifdef USE_CUSTOM_TREE_DRAWING
 		case TVN_ITEMEXPANDING:
 		{
 			// disables redraw to stop flicker with bkg image.
@@ -1807,6 +1810,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				setRedraw(FALSE);
 		}
 		break;
+#endif
 
 		case TVN_ITEMEXPANDED:
 		{
@@ -1817,29 +1821,15 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			else if (dcx_testflag(lpnmtv->action, TVE_EXPAND))
 				execAliasEx(TEXT("expand,%u,%s"), getUserID(), getPathFromItem(lpnmtv->itemNew.hItem).to_chr());
 
+#ifdef USE_CUSTOM_TREE_DRAWING
 			// re-enables redraw & updates.
 			if (isExStyle(WindowExStyle::Transparent))
 			{
 				setRedraw(TRUE);
 				InvalidateRect(m_Hwnd, nullptr, FALSE);
 				//UpdateWindow(m_Hwnd);
-				//if (getParentDialog()->IsVistaStyle())
-				//redrawWindow();
-				//else
-				//	redrawBufferedWindow();
 			}
-
-			//#ifdef USE_CUSTOM_TREE_DRAWING
-			//			if (Dcx::GDIModule.isUseable() && m_pImage && m_Hwnd)
-			//			{
-			//				if (HDC hdc = GetDC(m_Hwnd); hdc)
-			//				{
-			//					Auto(ReleaseDC(m_Hwnd, hdc));
-			//
-			//					DrawClientArea(hdc, WM_PRINTCLIENT, PRF_CLIENT);
-			//				}
-			//			}
-			//#endif
+#endif
 
 			bParsed = TRUE;
 		}
@@ -2167,7 +2157,6 @@ LRESULT DcxTreeView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 	case WM_SIZE:
 	{
-		//CacheBitmap();
 		if (m_BitmapCache)
 		{
 			const auto hTmp = m_BitmapCache;
@@ -2190,7 +2179,6 @@ LRESULT DcxTreeView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 	case WM_HSCROLL:
 	{
-
 		if (m_bCustomDraw)
 		{
 			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
