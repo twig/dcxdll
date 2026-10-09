@@ -672,11 +672,9 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 	{
 		dcxlParam(LPDRAWITEMSTRUCT, lpDrawItem);
 
-		if (!lpDrawItem)
+		if (!lpDrawItem || !pthis->g_StatusBar || (pthis->g_StatusBar != lpDrawItem->hwndItem))
 			break;
 
-		if (pthis->g_StatusBar && pthis->g_StatusBar == lpDrawItem->hwndItem)
-		{
 			if (auto pPart = reinterpret_cast<LPSB_PARTINFOD>(lpDrawItem->itemData); pPart)
 			{
 				auto rc = lpDrawItem->rcItem;
@@ -716,7 +714,6 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 				return TRUE;
 			}
 		}
-	}
 	break;
 
 	// we use menu command instead now. here for refrence only
@@ -1271,7 +1268,7 @@ LRESULT DcxDock::treebar_PrePaint(LPNMTVCUSTOMDRAW lpntvcd)
 		if (gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)) != CLR_INVALID) // only set a bkg colour if one is set in prefs.
 			lpntvcd->clrTextBk = gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG));
 	}
-	if (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED))
+	else if (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED))
 	{ // This makes sure the selected colour doesnt show as grayed.
 		if (gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED)) != CLR_INVALID)
 			lpntvcd->clrText = gsl::at(DcxDock::g_treebar.m_clrTreebarColours, gsl::narrow_cast<gsl::index>(TreeBarColours::TREEBAR_COLOUR_SELECTED));
@@ -1354,7 +1351,7 @@ LRESULT DcxDock::treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd)
 	TVITEMEX tvi{};
 	tvi.hItem = hItem;
 	tvi.mask = TVIF_EXPANDEDIMAGE | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_STATE | TVIF_TEXT;
-	tvi.cchTextMax = std::size(szbuf);
+	tvi.cchTextMax = gsl::narrow_cast<int>(std::size(szbuf));
 	tvi.pszText = &szbuf[0];
 	Dcx::dcxTreeView_GetItem(lpntvcd->nmcd.hdr.hwndFrom, &tvi);
 
@@ -1386,8 +1383,10 @@ LRESULT DcxDock::treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd)
 		rcSelected.left = rcTxt.left - cxImage - cxBorder;
 
 	// blank out previous drawing...
-	if (const auto clr = Dcx::dcxTreeView_GetBkColor(lpntvcd->nmcd.hdr.hwndFrom); clr != CLR_NONE)
-		Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcSelected, clr);
+	//if (const auto clr = Dcx::dcxTreeView_GetBkColor(lpntvcd->nmcd.hdr.hwndFrom); clr != CLR_NONE)
+	//	Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcSelected, clr);
+
+	Dcx::FillRectColour(lpntvcd->nmcd.hdc, &rcSelected, 0);
 
 	if (g_treebar.m_bTransparent || (treebar_isBkgImage() && g_treebar.m_Image.m_bAlphaBlendBkgImage))
 		treebar_DrawParentBackground(lpntvcd->nmcd.hdc, &rcSelected);
@@ -1488,10 +1487,14 @@ void DcxDock::treebar_DrawBackground(LPNMTVCUSTOMDRAW lpntvcd, LPCRECT prc, bool
 	//	Dcx::FillRectColour(lpntvcd->nmcd.hdc, prc, lpntvcd->clrTextBk);
 
 #ifdef DCX_USE_GDIPLUS
-	if (lpntvcd->clrTextBk != CLR_NONE)
-		Dcx::FillRectColour(lpntvcd->nmcd.hdc, prc, lpntvcd->clrTextBk);
 	if (treebar_isBkgImage())
+	{
 		treebar_FillBkgBitmap(lpntvcd->nmcd.hdc, prc);
+		if ((lpntvcd->clrTextBk != CLR_NONE) && (bSelected || (bHot && bTrackHot)))
+			dcxDrawTranslucentRect(lpntvcd->nmcd.hdc, prc, lpntvcd->clrTextBk, lpntvcd->clrTextBk, false);
+	}
+	else if (lpntvcd->clrTextBk != CLR_NONE)
+		Dcx::FillRectColour(lpntvcd->nmcd.hdc, prc, lpntvcd->clrTextBk);
 #else
 	if (lpntvcd->clrTextBk != CLR_NONE)
 		Dcx::FillRectColour(lpntvcd->nmcd.hdc, prc, lpntvcd->clrTextBk);

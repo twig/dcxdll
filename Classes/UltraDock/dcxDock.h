@@ -166,6 +166,7 @@ public:
 	bool isDocked(const HWND hwnd) const;
 	LPDCXULTRADOCK GetDock(const HWND hwnd) const;
 	void AdjustRect(WINDOWPOS* wp) noexcept;
+	const DockTypes& getType() const noexcept { return m_iType; }
 
 	// Statusbar Functions.
 	static bool InitStatusbar(const TString& styles);
