@@ -742,7 +742,7 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 				});
 		}
 		else if (xFlags[L'd'])
-			Dcx::CallOnRange(tsGID, getGroups().size(), 0, [this, xFlags](int nGID) {
+			Dcx::CallOnRange(tsGID, gsl::narrow_cast<int>(getGroups().size()), 0, [this, xFlags](int nGID) {
 			// delete from group (deletes group if empty)
 			deleteGroup(nGID);
 				});
