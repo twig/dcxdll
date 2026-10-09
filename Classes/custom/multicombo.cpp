@@ -1208,7 +1208,7 @@ void MultiCombo_SetFont(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 					const auto tsText(Dcx::dcxListBox_GetText(lpmcdata->m_hDropChild, i));
 					const SIZE sz{ dcxGetTextExtent(lpmcdata->m_hDropChild, nullptr, tsText.to_chr(), tsText.len()) };
 					if (sz.cx > gsl::narrow_cast<long>(Dcx::dcxListBox_GetHorizontalExtent(lpmcdata->m_hDropChild)))
-						Dcx::dcxListBox_SetHorizontalExtent(lpmcdata->m_hDropChild, gsl::narrow_cast<WPARAM>(sz.cx));
+						Dcx::dcxListBox_SetHorizontalExtent(lpmcdata->m_hDropChild, sz.cx);
 				}
 			}
 			catch (...) {};
@@ -1585,7 +1585,7 @@ BOOL MultiCombo_GetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 				if (IsWindow(lpmcdata->m_hEdit))
 					lpresult->m_tsItemText = TGetWindowText(lpmcdata->m_hEdit);
 			}
-			else if (auto lpdata = Dcx::dcxListBox_GetItemData<LPMCOMBO_ITEM>(lpmcdata->m_hDropChild, wParam); lpdata)
+			else if (auto lpdata = Dcx::dcxListBox_GetItemData<LPMCOMBO_ITEM>(lpmcdata->m_hDropChild, gsl::narrow_cast<int>(wParam)); lpdata)
 			{
 				*lpresult = *lpdata;
 			}
@@ -1613,7 +1613,7 @@ BOOL MultiCombo_GetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 				//	Dcx::dcxListBox_GetText(lpmcdata->m_hDropChild, wParam, lpresult->m_tsItemText.to_chr());
 				//}
 
-				lpresult->m_tsItemText = Dcx::dcxListBox_GetText(lpmcdata->m_hDropChild, wParam);
+				lpresult->m_tsItemText = Dcx::dcxListBox_GetText(lpmcdata->m_hDropChild, gsl::narrow_cast<int>(wParam));
 			}
 			return TRUE;
 		}
@@ -1703,7 +1703,7 @@ BOOL MultiCombo_AddItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 			const SIZE sz{ dcxGetTextExtent(lpmcdata->m_hDropChild, nullptr, lpinput->m_tsItemText.to_chr(), lpinput->m_tsItemText.len()) };
 			if (sz.cx > gsl::narrow_cast<long>(Dcx::dcxListBox_GetHorizontalExtent(lpmcdata->m_hDropChild)))
-				Dcx::dcxListBox_SetHorizontalExtent(lpmcdata->m_hDropChild, gsl::narrow_cast<WPARAM>(sz.cx));
+				Dcx::dcxListBox_SetHorizontalExtent(lpmcdata->m_hDropChild, gsl::narrow_cast<int>(sz.cx));
 		}
 		return TRUE;
 	}
@@ -1774,7 +1774,7 @@ BOOL MultiCombo_InsertItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		//lpdata->m_clrText = lpinput->m_clrText;
 		//lpdata->m_tsItemText = lpinput->m_tsItemText;
 
-		Dcx::dcxListBox_InsertItemData(lpmcdata->m_hDropChild, wParam, lpdata);
+		Dcx::dcxListBox_InsertItemData(lpmcdata->m_hDropChild, gsl::narrow_cast<int>(wParam), lpdata);
 
 		return TRUE;
 	}
@@ -1787,7 +1787,7 @@ BOOL MultiCombo_InsertItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		if ((lpinput->m_Size != sizeof(MCOMBO_ITEM)) || (lpinput->m_Type != MCS_COLOUR))
 			return FALSE;
 
-		Dcx::dcxListBox_InsertString(lpmcdata->m_hDropChild, wParam, lpinput->m_tsItemText);
+		Dcx::dcxListBox_InsertString(lpmcdata->m_hDropChild, gsl::narrow_cast<int>(wParam), lpinput->m_tsItemText);
 
 		return TRUE;
 	}
@@ -1998,7 +1998,7 @@ void MultiCombo_SetSel(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 	case MCS_COLOUR:
 	case MCS_LISTBOX:
 	{
-		Dcx::dcxListBox_SetCurSel(lpmcdata->m_hDropChild, lParam);
+		Dcx::dcxListBox_SetCurSel(lpmcdata->m_hDropChild, gsl::narrow_cast<int>(lParam));
 		MultiCombo_SetEditToCurSel(mHwnd);
 	}
 	break;
@@ -2024,7 +2024,7 @@ void MultiCombo_DeleteItem(HWND mHwnd, WPARAM wParam) noexcept
 		break;
 	case MCS_COLOUR:
 	case MCS_LISTBOX:
-		Dcx::dcxListBox_DeleteString(lpmcdata->m_hDropChild, wParam);
+		Dcx::dcxListBox_DeleteString(lpmcdata->m_hDropChild, gsl::narrow_cast<int>(wParam));
 		break;
 	}
 }
@@ -2047,14 +2047,16 @@ void MultiCombo_SetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		break;
 	case MCS_COLOUR:
 	{
-		if (auto lpdata = Dcx::dcxListBox_GetItemData<LPMCOMBO_ITEM>(lpmcdata->m_hDropChild, wParam); lpdata)
+		const auto iIndex = gsl::narrow_cast<int>(wParam);
+
+		if (auto lpdata = Dcx::dcxListBox_GetItemData<LPMCOMBO_ITEM>(lpmcdata->m_hDropChild, iIndex); lpdata)
 		{
 			dcxlParam(LPMCOMBO_ITEM, lpinput);
 			lpdata->m_clrItem = lpinput->m_clrItem;
 			lpdata->m_clrText = lpinput->m_clrText;
 			lpdata->m_tsItemText = lpinput->m_tsItemText;
 
-			if (Dcx::dcxListBox_GetCurSel(lpmcdata->m_hDropChild) == gsl::narrow_cast<int>(wParam))
+			if (Dcx::dcxListBox_GetCurSel(lpmcdata->m_hDropChild) == iIndex)
 				MultiCombo_SetEditToCurSel(lpmcdata->m_hDropCtrl);
 		}
 	}
@@ -2062,10 +2064,12 @@ void MultiCombo_SetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 	case MCS_LISTBOX:
 	{
 		dcxlParam(LPMCOMBO_ITEM, lpinput);
+		
+		const auto iIndex = gsl::narrow_cast<int>(wParam);
 
-		Dcx::dcxListBox_SetItemData(lpmcdata->m_hDropChild, wParam, lpinput->m_tsItemText.to_chr());
+		Dcx::dcxListBox_SetItemData(lpmcdata->m_hDropChild, iIndex, lpinput->m_tsItemText.to_chr());
 
-		if (Dcx::dcxListBox_GetCurSel(lpmcdata->m_hDropChild) == gsl::narrow_cast<int>(wParam))
+		if (Dcx::dcxListBox_GetCurSel(lpmcdata->m_hDropChild) == iIndex)
 			MultiCombo_SetEditToCurSel(lpmcdata->m_hDropCtrl);
 	}
 	break;
