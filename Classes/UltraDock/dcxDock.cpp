@@ -675,45 +675,45 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 		if (!lpDrawItem || !pthis->g_StatusBar || (pthis->g_StatusBar != lpDrawItem->hwndItem))
 			break;
 
-			if (auto pPart = reinterpret_cast<LPSB_PARTINFOD>(lpDrawItem->itemData); pPart)
+		if (auto pPart = reinterpret_cast<LPSB_PARTINFOD>(lpDrawItem->itemData); pPart)
+		{
+			auto rc = lpDrawItem->rcItem;
+
+			if (pPart->m_BkgCol)
+				FillRect(lpDrawItem->hDC, &rc, pPart->m_BkgCol);
+			//else
+			//	XPopupMenuItem::DrawGradient(lpDrawItem->hDC, &rc, RGB(255, 0, 0), RGB(0, 255, 0), FALSE);
+
+			if (pPart->m_iIcon > -1)
 			{
-				auto rc = lpDrawItem->rcItem;
-
-				if (pPart->m_BkgCol)
-					FillRect(lpDrawItem->hDC, &rc, pPart->m_BkgCol);
-				//else
-				//	XPopupMenuItem::DrawGradient(lpDrawItem->hDC, &rc, RGB(255, 0, 0), RGB(0, 255, 0), FALSE);
-
-				if (pPart->m_iIcon > -1)
+				if (IMAGEINFO ii{}; ImageList_GetImageInfo(pthis->g_hImageList, pPart->m_iIcon, &ii))
 				{
-					if (IMAGEINFO ii{}; ImageList_GetImageInfo(pthis->g_hImageList, pPart->m_iIcon, &ii))
-					{
-						if (ImageList_Draw(pthis->g_hImageList, pPart->m_iIcon, lpDrawItem->hDC, rc.left, rc.top + ((rc.bottom - rc.top) - (ii.rcImage.bottom - ii.rcImage.top)) / 2, ILD_TRANSPARENT))
-							rc.left += (ii.rcImage.right - ii.rcImage.left) + 5;
-					}
+					if (ImageList_Draw(pthis->g_hImageList, pPart->m_iIcon, lpDrawItem->hDC, rc.left, rc.top + ((rc.bottom - rc.top) - (ii.rcImage.bottom - ii.rcImage.top)) / 2, ILD_TRANSPARENT))
+						rc.left += (ii.rcImage.right - ii.rcImage.left) + 5;
 				}
-
-				if (!pPart->m_Text.empty())
-				{
-					const auto oldbkg = SetBkMode(lpDrawItem->hDC, TRANSPARENT);
-					Auto(SetBkMode(lpDrawItem->hDC, oldbkg));
-
-					if (pPart->m_TxtCol != CLR_INVALID)
-					{
-						const auto oldTxtClr = SetTextColor(lpDrawItem->hDC, pPart->m_TxtCol);
-						Auto(SetTextColor(lpDrawItem->hDC, oldTxtClr));
-
-						mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
-					}
-					else
-						mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
-				}
-				else if (IsWindow(pPart->m_Child))
-					SetWindowPos(pPart->m_Child, nullptr, rc.left, rc.top, (rc.right - rc.left), (rc.bottom - rc.top), SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_SHOWWINDOW | SWP_NOACTIVATE);
-
-				return TRUE;
 			}
+
+			if (!pPart->m_Text.empty())
+			{
+				const auto oldbkg = SetBkMode(lpDrawItem->hDC, TRANSPARENT);
+				Auto(SetBkMode(lpDrawItem->hDC, oldbkg));
+
+				if (pPart->m_TxtCol != CLR_INVALID)
+				{
+					const auto oldTxtClr = SetTextColor(lpDrawItem->hDC, pPart->m_TxtCol);
+					Auto(SetTextColor(lpDrawItem->hDC, oldTxtClr));
+
+					mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
+				}
+				else
+					mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
+			}
+			else if (IsWindow(pPart->m_Child))
+				SetWindowPos(pPart->m_Child, nullptr, rc.left, rc.top, (rc.right - rc.left), (rc.bottom - rc.top), SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_SHOWWINDOW | SWP_NOACTIVATE);
+
+			return TRUE;
 		}
+	}
 	break;
 
 	// we use menu command instead now. here for refrence only
@@ -1317,8 +1317,13 @@ LRESULT DcxDock::treebar_PrePaint(LPNMTVCUSTOMDRAW lpntvcd)
 		{
 			if (clr == lpntvcd->clrText)
 			{
-				lpntvcd->clrText ^= 1; // make sure they dont match for later on when we TransparentBlt, clr xor 1, if bit 1 is set, make it zero, otherwise make it 1
+				//lpntvcd->clrText ^= 1; // make sure they dont match for later on when we TransparentBlt, clr xor 1, if bit 1 is set, make it zero, otherwise make it 1
 				// should we do RGB(R-1,G-1,B-1) ?
+				//lpntvcd->clrText = RGB(GetRValue(lpntvcd->clrText) - 1, GetGValue(lpntvcd->clrText) - 1, GetBValue(lpntvcd->clrText) - 1);
+				// cast as longs to allow -1 into negative values, zero becomes 0xFF which is then turned into a BYTE as 255
+				lpntvcd->clrText = RGB(gsl::narrow_cast<LONG>(GetRValue(lpntvcd->clrText)) - 1, gsl::narrow_cast<LONG>(GetGValue(lpntvcd->clrText)) - 1, gsl::narrow_cast<LONG>(GetBValue(lpntvcd->clrText)) - 1);
+				//if (lpntvcd->clrText >= RGB(1,1,1)) lpntvcd->clrText = RGB(GetRValue(lpntvcd->clrText) - 1, GetGValue(lpntvcd->clrText) - 1, GetBValue(lpntvcd->clrText) - 1);
+				//else lpntvcd->clrText = RGB(GetRValue(lpntvcd->clrText) + 1, GetGValue(lpntvcd->clrText) + 1, GetBValue(lpntvcd->clrText) + 1);
 			}
 		}
 	}
@@ -1504,7 +1509,7 @@ void DcxDock::treebar_DrawBackground(LPNMTVCUSTOMDRAW lpntvcd, LPCRECT prc, bool
 void DcxDock::treebar_DrawBackground(HDC hdc) noexcept
 {
 #ifdef DCX_USE_GDIPLUS
-	if (const auto clr = Dcx::dcxTreeView_GetBkColor(mIRCLinker::getTreeview()); clr != CLR_NONE)
+	if (const auto clr = Dcx::dcxTreeView_GetBkColor(mIRCLinker::getTreeview()); (clr != CLR_NONE) && (clr != 0))
 	{
 		const Dcx::dcxClientRect rc(mIRCLinker::getTreeview());
 		Dcx::FillRectColour(hdc, &rc, clr);
@@ -1538,7 +1543,8 @@ void DcxDock::treebar_DrawProgress(LPNMTVCUSTOMDRAW lpntvcd, LPCRECT prc, int pe
 		{
 			constexpr int iStyle{ PBFS_NORMAL };
 
-			DcxUXModule::dcxDrawThemeBackground(DcxDock::g_treebar.m_ProgressTheme, lpntvcd->nmcd.hdc, PP_TRANSPARENTBAR /*PP_BAR*/, iStyle, &rcBar, nullptr);
+			if (lpntvcd->clrTextBk != CLR_NONE)
+				DcxUXModule::dcxDrawThemeBackground(DcxDock::g_treebar.m_ProgressTheme, lpntvcd->nmcd.hdc, PP_TRANSPARENTBAR /*PP_BAR*/, iStyle, &rcBar, nullptr);
 
 			RECT rcContents{};
 			DcxUXModule::dcxGetThemeBackgroundContentRect(DcxDock::g_treebar.m_ProgressTheme, lpntvcd->nmcd.hdc, PP_TRANSPARENTBAR /*PP_BAR*/, iStyle, &rcBar, &rcContents);

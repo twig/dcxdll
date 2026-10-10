@@ -873,7 +873,16 @@ mIRC(_xtreebar)
 			_ts_strcpyn(data, dcx_truefalse(DcxDock::g_treebar.m_ProgressTheme), mIRCLinker::m_dwCharacters);
 		}
 		break;
-
+		case TEXT("bkgimage"_hash):
+		{
+			_ts_strcpyn(data, DcxDock::g_treebar.m_Image.m_Bkg.m_tsFilename.to_chr(), mIRCLinker::m_dwCharacters);
+		}
+		break;
+		case TEXT("treebarbkgimage"_hash):
+		{
+			_ts_strcpyn(data, DcxDock::g_treebar.m_Image.m_BkgTreebar.m_tsFilename.to_chr(), mIRCLinker::m_dwCharacters);
+		}
+		break;
 		case TEXT("textclr"_hash):
 		{
 			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%lu"), Dcx::dcxTreeView_GetTextColor(mIRCLinker::getTreeview()));
