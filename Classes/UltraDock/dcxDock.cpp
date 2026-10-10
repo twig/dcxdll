@@ -1668,6 +1668,9 @@ void DcxDock::treebar_DrawGDIPlusImage(HDC hdc)
 	if (!hdc || !Dcx::GDIModule.isUseable())
 		return;
 
+	if (!g_treebar.m_Image.m_Bkg.m_pImage)
+		return;
+
 	const Dcx::dcxClientRect rc(mIRCLinker::getTreeview());
 	if (!rc)
 		return;
@@ -1712,6 +1715,9 @@ void DcxDock::treebar_DrawGDIPlusBkgImage(HDC hdc)
 	if (!hdc || !Dcx::GDIModule.isUseable())
 		return;
 
+	if (!g_treebar.m_Image.m_BkgTreebar.m_pImage)
+		return;
+
 	const Dcx::dcxClientRect rc(mIRCLinker::getTreebar());
 	if (!rc)
 		return;
@@ -1724,14 +1730,14 @@ void DcxDock::treebar_DrawGDIPlusBkgImage(HDC hdc)
 	grphx.SetCompositingMode(g_treebar.m_Image.m_CompositingMode);
 	grphx.SetSmoothingMode(g_treebar.m_Image.m_SmoothingMode);
 
-	if (((g_treebar.m_Image.m_Bkg.m_pImage->GetWidth() == 1) || (g_treebar.m_Image.m_Bkg.m_pImage->GetHeight() == 1)) && g_treebar.m_Image.m_bResize)
-	{
-		// This fixes a GDI+ bug when resizing 1 px images
-		// http://www.devnewsgroups.net/group/microsoft.public.dotnet.framework.windowsforms/topic11515.aspx
-		grphx.SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor);
-		grphx.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
-	}
-	else
+	//if (((g_treebar.m_Image.m_BkgTreebar.m_pImage->GetWidth() == 1) || (g_treebar.m_Image.m_BkgTreebar.m_pImage->GetHeight() == 1)) && g_treebar.m_Image.m_bResize)
+	//{
+	//	// This fixes a GDI+ bug when resizing 1 px images
+	//	// http://www.devnewsgroups.net/group/microsoft.public.dotnet.framework.windowsforms/topic11515.aspx
+	//	grphx.SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor);
+	//	grphx.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
+	//}
+	//else
 		grphx.SetInterpolationMode(g_treebar.m_Image.m_InterpolationMode);
 
 	Gdiplus::ImageAttributes imAtt;
