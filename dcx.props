@@ -9,7 +9,7 @@
     <GSLDir>$(SolutionDir)GSL\include</GSLDir>
     <PCRE2Dir>$(SolutionDir)pcre2\</PCRE2Dir>
     <DirectXTKDir>$(SolutionDir)..\..\DirectXTK\</DirectXTKDir>
-    <WebView2Dir>$(SolutionDir)packages\Microsoft.Web.WebView2.1.0.4191.47\</WebView2Dir>
+    <WebView2Dir>$(SolutionDir)packages\Microsoft.Web.WebView2.1.0.4314.35\</WebView2Dir>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
