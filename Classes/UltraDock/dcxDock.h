@@ -225,12 +225,12 @@ public:
 	static void treebar_DestroyImageData() noexcept;
 	static void treebar_LoadGDIPlusBkgImage(TString& filename);
 	static void treebar_DestroyBkgImageData() noexcept;
-	static void treebar_DrawGDIPlusImage(HDC hdc);
-	static void treebar_DrawGDIPlusBkgImage(HDC hdc);
-	static void treebar_CacheBitmap(HDC _hdc);
-	static void treebar_FillBkgBitmap(HDC hdc);
-	static void treebar_FillBkgBitmap(HDC hdc, LPCRECT prc);
-	void treebar_DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
+	static void treebar_DrawGDIPlusImage(HDC hdc) noexcept;
+	static void treebar_DrawGDIPlusBkgImage(HDC hdc) noexcept;
+	static void treebar_CacheBitmap(HDC _hdc) noexcept;
+	static void treebar_FillBkgBitmap(HDC hdc) noexcept;
+	static void treebar_FillBkgBitmap(HDC hdc, LPCRECT prc) noexcept;
+	void treebar_DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam) noexcept;
 	static bool treebar_isBkgImage() noexcept { return (g_treebar.m_Image.m_Bkg.m_hBitmap != nullptr) || (g_treebar.m_Image.m_Bkg.m_pImage != nullptr); }
 	static void treebar_DrawParentBackground(HDC hdc, LPRECT prcBounds) noexcept;
 

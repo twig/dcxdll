@@ -1413,7 +1413,8 @@ LRESULT DcxDock::treebar_PostPaint(LPNMTVCUSTOMDRAW lpntvcd)
 		TString buf;
 
 		mIRCLinker::eval(buf, TEXT("$_dcx_WIDToPercent(%)"), wid);
-		if (buf.getfirsttok(1).to_<int>() > 0)
+		//if (buf.getfirsttok(1).to_<int>() > 0)
+		if (buf.getfirsttok(1).to_<bool>())
 		{
 			const int perc = buf.getnexttokas<int>();
 
@@ -1663,12 +1664,9 @@ void DcxDock::treebar_DestroyImageData() noexcept
 	g_treebar.m_Image.m_Bkg.reset();
 }
 
-void DcxDock::treebar_DrawGDIPlusImage(HDC hdc)
+void DcxDock::treebar_DrawGDIPlusImage(HDC hdc) noexcept
 {
-	if (!hdc || !Dcx::GDIModule.isUseable())
-		return;
-
-	if (!g_treebar.m_Image.m_Bkg.m_pImage)
+	if (!hdc || !g_treebar.m_Image.m_Bkg.m_pImage || !Dcx::GDIModule.isUseable())
 		return;
 
 	const Dcx::dcxClientRect rc(mIRCLinker::getTreeview());
@@ -1677,40 +1675,43 @@ void DcxDock::treebar_DrawGDIPlusImage(HDC hdc)
 
 	const auto w = rc.Width(), h = rc.Height(), x = rc.left, y = rc.top;
 
-	Gdiplus::Graphics grphx(hdc);
+	try {
+		Gdiplus::Graphics grphx(hdc);
 
-	grphx.SetCompositingQuality(g_treebar.m_Image.m_CompositingQuality);
-	grphx.SetCompositingMode(g_treebar.m_Image.m_CompositingMode);
-	grphx.SetSmoothingMode(g_treebar.m_Image.m_SmoothingMode);
+		grphx.SetCompositingQuality(g_treebar.m_Image.m_CompositingQuality);
+		grphx.SetCompositingMode(g_treebar.m_Image.m_CompositingMode);
+		grphx.SetSmoothingMode(g_treebar.m_Image.m_SmoothingMode);
 
-	if (((g_treebar.m_Image.m_Bkg.m_pImage->GetWidth() == 1) || (g_treebar.m_Image.m_Bkg.m_pImage->GetHeight() == 1)) && g_treebar.m_Image.m_bResize)
-	{
-		// This fixes a GDI+ bug when resizing 1 px images
-		// http://www.devnewsgroups.net/group/microsoft.public.dotnet.framework.windowsforms/topic11515.aspx
-		grphx.SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor);
-		grphx.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
+		if (((g_treebar.m_Image.m_Bkg.m_pImage->GetWidth() == 1) || (g_treebar.m_Image.m_Bkg.m_pImage->GetHeight() == 1)) && g_treebar.m_Image.m_bResize)
+		{
+			// This fixes a GDI+ bug when resizing 1 px images
+			// http://www.devnewsgroups.net/group/microsoft.public.dotnet.framework.windowsforms/topic11515.aspx
+			grphx.SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor);
+			grphx.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
+		}
+		else
+			grphx.SetInterpolationMode(g_treebar.m_Image.m_InterpolationMode);
+
+		if (g_treebar.m_Image.m_bTile)
+		{
+			Gdiplus::ImageAttributes imAtt;
+			imAtt.SetWrapMode(Gdiplus::WrapModeTile);
+
+			grphx.DrawImage(g_treebar.m_Image.m_Bkg.m_pImage,
+				Gdiplus::Rect(x + g_treebar.m_Image.m_iXOffset, y + g_treebar.m_Image.m_iYOffset, w, h),  // dest rect
+				0, 0, w, h,       // source rect
+				Gdiplus::UnitPixel,
+				&imAtt);
+		}
+		else if (g_treebar.m_Image.m_bResize)
+			grphx.DrawImage(g_treebar.m_Image.m_Bkg.m_pImage, g_treebar.m_Image.m_iXOffset, g_treebar.m_Image.m_iYOffset, w, h);
+		else
+			grphx.DrawImage(g_treebar.m_Image.m_Bkg.m_pImage, g_treebar.m_Image.m_iXOffset, g_treebar.m_Image.m_iYOffset);
 	}
-	else
-		grphx.SetInterpolationMode(g_treebar.m_Image.m_InterpolationMode);
-
-	if (g_treebar.m_Image.m_bTile)
-	{
-		Gdiplus::ImageAttributes imAtt;
-		imAtt.SetWrapMode(Gdiplus::WrapModeTile);
-
-		grphx.DrawImage(g_treebar.m_Image.m_Bkg.m_pImage,
-			Gdiplus::Rect(x + g_treebar.m_Image.m_iXOffset, y + g_treebar.m_Image.m_iYOffset, w, h),  // dest rect
-			0, 0, w, h,       // source rect
-			Gdiplus::UnitPixel,
-			&imAtt);
-	}
-	else if (g_treebar.m_Image.m_bResize)
-		grphx.DrawImage(g_treebar.m_Image.m_Bkg.m_pImage, g_treebar.m_Image.m_iXOffset, g_treebar.m_Image.m_iYOffset, w, h);
-	else
-		grphx.DrawImage(g_treebar.m_Image.m_Bkg.m_pImage, g_treebar.m_Image.m_iXOffset, g_treebar.m_Image.m_iYOffset);
+	catch (...) {}
 }
 
-void DcxDock::treebar_DrawGDIPlusBkgImage(HDC hdc)
+void DcxDock::treebar_DrawGDIPlusBkgImage(HDC hdc) noexcept
 {
 	if (!hdc || !Dcx::GDIModule.isUseable())
 		return;
@@ -1724,35 +1725,27 @@ void DcxDock::treebar_DrawGDIPlusBkgImage(HDC hdc)
 
 	const auto w = rc.Width(), h = rc.Height();
 
-	Gdiplus::Graphics grphx(hdc);
+	try {
+		Gdiplus::Graphics grphx(hdc);
 
-	grphx.SetCompositingQuality(g_treebar.m_Image.m_CompositingQuality);
-	grphx.SetCompositingMode(g_treebar.m_Image.m_CompositingMode);
-	grphx.SetSmoothingMode(g_treebar.m_Image.m_SmoothingMode);
-
-	//if (((g_treebar.m_Image.m_BkgTreebar.m_pImage->GetWidth() == 1) || (g_treebar.m_Image.m_BkgTreebar.m_pImage->GetHeight() == 1)) && g_treebar.m_Image.m_bResize)
-	//{
-	//	// This fixes a GDI+ bug when resizing 1 px images
-	//	// http://www.devnewsgroups.net/group/microsoft.public.dotnet.framework.windowsforms/topic11515.aspx
-	//	grphx.SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor);
-	//	grphx.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
-	//}
-	//else
+		grphx.SetCompositingQuality(g_treebar.m_Image.m_CompositingQuality);
+		grphx.SetCompositingMode(g_treebar.m_Image.m_CompositingMode);
+		grphx.SetSmoothingMode(g_treebar.m_Image.m_SmoothingMode);
 		grphx.SetInterpolationMode(g_treebar.m_Image.m_InterpolationMode);
 
-	Gdiplus::ImageAttributes imAtt;
-	imAtt.SetWrapMode(Gdiplus::WrapModeTile);
+		Gdiplus::ImageAttributes imAtt;
+		imAtt.SetWrapMode(Gdiplus::WrapModeTile);
 
-	grphx.DrawImage(g_treebar.m_Image.m_BkgTreebar.m_pImage,
-		Gdiplus::Rect(0, 0, w, h),  // dest rect
-		0, 0, w, h,       // source rect
-		Gdiplus::UnitPixel,
-		&imAtt);
-
-	//grphx.DrawImage(g_treebar.m_Image.m_BkgTreebar.m_pImage, 0, 0, w, h);
+		grphx.DrawImage(g_treebar.m_Image.m_BkgTreebar.m_pImage,
+			Gdiplus::Rect(0, 0, w, h),  // dest rect
+			0, 0, w, h,       // source rect
+			Gdiplus::UnitPixel,
+			&imAtt);
+	}
+	catch (...) {}
 }
 
-void DcxDock::treebar_CacheBitmap(HDC _hdc)
+void DcxDock::treebar_CacheBitmap(HDC _hdc) noexcept
 {
 	if (!g_treebar.m_Image.m_Bkg.m_pImage)
 	{
@@ -1791,7 +1784,7 @@ void DcxDock::treebar_CacheBitmap(HDC _hdc)
 	}
 }
 
-void DcxDock::treebar_FillBkgBitmap(HDC hdc)
+void DcxDock::treebar_FillBkgBitmap(HDC hdc) noexcept
 {
 	if (!g_treebar.m_Image.m_Bkg.m_hBitmap)
 		treebar_CacheBitmap(hdc);
@@ -1803,7 +1796,7 @@ void DcxDock::treebar_FillBkgBitmap(HDC hdc)
 	CopyBitmapToHDC(hdc, 0, 0, sz.cx, sz.cy, g_treebar.m_Image.m_Bkg.m_hBitmap, 0, 0, g_treebar.m_Image.m_bAlphaBlendBkgImage);
 }
 
-void DcxDock::treebar_FillBkgBitmap(HDC hdc, LPCRECT prc)
+void DcxDock::treebar_FillBkgBitmap(HDC hdc, LPCRECT prc) noexcept
 {
 	if (!g_treebar.m_Image.m_Bkg.m_hBitmap)
 		treebar_CacheBitmap(hdc);
@@ -1815,7 +1808,7 @@ void DcxDock::treebar_FillBkgBitmap(HDC hdc, LPCRECT prc)
 }
 #endif
 
-void DcxDock::treebar_DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
+void DcxDock::treebar_DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam) noexcept
 {
 	if (!hdc)
 		return;
