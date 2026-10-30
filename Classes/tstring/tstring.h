@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.25
+ * \version 1.26
  *
  * \b Revisions
  *	1.1
@@ -83,6 +83,10 @@
  * 
  *  1.25
  *		Fixed bug in instok() when inserting before that last token.
+ * 
+ *	1.26
+ *		Added specialized handling of to_<bool>()
+ *		Small change in to_<float>() to avoid having to specify type again.
  * 
  * © ScriptsDB.org - 2005-2021
  */
@@ -2018,16 +2022,17 @@ public:
 		static_assert(is_Numeric_v<T>, "Type T must be (float, double, or long double)");
 
 		if constexpr (std::is_same_v<float, std::remove_all_extents_t<T>>)
-			return gsl::narrow_cast<T>(_ts_strtof<value_type>(m_pString, nullptr));
+			return gsl::narrow_cast<T>(_ts_strtof(m_pString));
 		else
 			if constexpr (std::is_same_v<double, std::remove_all_extents_t<T>>)
-				return gsl::narrow_cast<T>(_ts_strtod<value_type>(m_pString, nullptr));
+				return gsl::narrow_cast<T>(_ts_strtod(m_pString));
 			else
-				return gsl::narrow_cast<T>(_ts_strtold<value_type>(m_pString, nullptr));
+				return gsl::narrow_cast<T>(_ts_strtold(m_pString));
 	}
 
 	/// <summary>
 	/// Convert to numeric type
+	/// NB: type bool only checks the first character. An empty string is considered to be false.
 	/// </summary>
 	/// <typeparam name="T">- The number type to convert too.</typeparam>
 	/// <returns>The string converted to a number.</returns>
@@ -2037,7 +2042,9 @@ public:
 		static_assert(is_Numeric_v<T>, "Type T must be (int, long, ....)");
 
 		// no floats etc..
-		if constexpr(std::is_signed_v<T>)
+		if constexpr (std::is_same_v<bool, T>)
+			return ((m_pString[0] != L'0') && (m_pString[0] != 0));		// is first character is zero, then its a false, otherwise its a true
+		else if constexpr(std::is_signed_v<T>)
 			return gsl::narrow_cast<T>(_ts_strtoimax<value_type>(m_pString, nullptr, 10));
 		else
 			return gsl::narrow_cast<T>(_ts_strtoumax<value_type>(m_pString, nullptr, 10));
