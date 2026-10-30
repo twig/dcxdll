@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.34
+// v1.35
 
 #include <tchar.h>
 #include <wtypes.h>
@@ -1461,6 +1461,8 @@ _Success_(return >= 0) ptrdiff_t _ts_strscpy(_Out_writes_(iChars) T* const sDest
 	if ((!sDest) || (!sSrc))
 		return -E2BIG;
 
+	*sDest = 0;
+
 	return details::_impl_strscpy<T>()(sDest, sSrc, iChars);
 }
 
@@ -1645,7 +1647,7 @@ auto _ts_strtoumax(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endpt
 }
 
 template <details::IsPODText T>
-auto _ts_strtof(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr) noexcept
+auto _ts_strtof(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr = (T**)nullptr) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
@@ -1653,7 +1655,7 @@ auto _ts_strtof(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr) 
 }
 
 template <details::IsPODText T>
-auto _ts_strtod(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr) noexcept
+auto _ts_strtod(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr = (T**)nullptr) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
@@ -1661,7 +1663,7 @@ auto _ts_strtod(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr) 
 }
 
 template <details::IsPODText T>
-auto _ts_strtold(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr) noexcept
+auto _ts_strtold(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr = (T**)nullptr) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
