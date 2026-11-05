@@ -555,37 +555,37 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 
 			switch (hdr->code)
 			{
-			case TVN_ITEMEXPANDING:
-			{
-				if ((pthis->m_iType != DockTypes::DOCK_TYPE_TREE) || !DcxDock::g_treebar.m_bTakeOver)
-					break;
-
-				// disables redraw to stop flicker with bkg image.
-				auto hTree = mIRCLinker::getTreeview();
-				if (dcx_testflag(dcxGetWindowExStyle(hTree), WindowExStyle::Transparent))
-					SetWindowRedraw(hTree, FALSE);
-			}
-			break;
-
-			case TVN_ITEMEXPANDED:
-			{
-				if ((pthis->m_iType != DockTypes::DOCK_TYPE_TREE) || !DcxDock::g_treebar.m_bTakeOver)
-					break;
-
-				// re-enables redraw & updates.
-				auto hTree = mIRCLinker::getTreeview();
-				if (dcx_testflag(dcxGetWindowExStyle(hTree), WindowExStyle::Transparent))
-				{
-					//const auto lRes = CallWindowProc(pthis->m_OldRefWndProc, mHwnd, uMsg, wParam, lParam);
-
-					SetWindowRedraw(hTree, TRUE);
-					InvalidateRect(hTree, nullptr, FALSE);
-					//UpdateWindow(hTree);
-
-					//return lRes;
-				}
-			}
-			break;
+			//case TVN_ITEMEXPANDING:
+			//{
+			//	if ((pthis->m_iType != DockTypes::DOCK_TYPE_TREE) || !DcxDock::g_treebar.m_bTakeOver)
+			//		break;
+//
+			//	// disables redraw to stop flicker with bkg image.
+			//	auto hTree = mIRCLinker::getTreeview();
+			//	if (dcx_testflag(dcxGetWindowExStyle(hTree), WindowExStyle::Transparent))
+			//		SetWindowRedraw(hTree, FALSE);
+			//}
+			//break;
+//
+			//case TVN_ITEMEXPANDED:
+			//{
+			//	if ((pthis->m_iType != DockTypes::DOCK_TYPE_TREE) || !DcxDock::g_treebar.m_bTakeOver)
+			//		break;
+//
+			//	// re-enables redraw & updates.
+			//	auto hTree = mIRCLinker::getTreeview();
+			//	if (dcx_testflag(dcxGetWindowExStyle(hTree), WindowExStyle::Transparent))
+			//	{
+			//		//const auto lRes = CallWindowProc(pthis->m_OldRefWndProc, mHwnd, uMsg, wParam, lParam);
+//
+			//		SetWindowRedraw(hTree, TRUE);
+			//		InvalidateRect(hTree, nullptr, FALSE);
+			//		//UpdateWindow(hTree);
+//
+			//		//return lRes;
+			//	}
+			//}
+			//break;
 
 			case NM_CUSTOMDRAW:
 			{
