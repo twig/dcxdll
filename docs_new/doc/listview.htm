@@ -273,7 +273,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -a dcx 4 1 0 +cbku 1 0 0 0 $rgb(170,213,255) $rgb(0,255,255) text $chr(9) + 0 -1 $rgb(10,210,250) $rgb(255,0,255) text2 $chr(9) + 0 -1 $rgb(120,255,210) $rgb(255,255,0) text3</div></td>
+		<td><div class="example">/xdid,-a,dcx,4,1,0,+cbku,1,0,0,0,$rgb(170,213,255),$rgb(0,255,255),text,$chr(9),+,0,-1,$rgb(10,210,250),$rgb(255,0,255),text2,$chr(9),+,0,-1,$rgb(120,255,210),$rgb(255,255,0),text3</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -408,7 +408,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -c dcx 4 1<br />/xdid -c dcx 4 1,3,5,10-30<br /></div></td>
+		<td><div class="example">/xdid,-c,dcx,4,1<br />/xdid,-c,dcx,4,1,3,5,10-30<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -427,7 +427,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -d dcx 4 1,3,5,10-30</div></td>
+		<td><div class="example">/xdid,-d,dcx,4,1,3,5,10-30</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -470,7 +470,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -g dcx 4 +n 50 50 $mircdir/images/blah.png</div></td>
+		<td><div class="example">/xdid,-g,dcx,4,+n,50,50,$mircdir/images/blah.png</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -513,7 +513,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -i dcx 4 +bk none</div></td>
+		<td><div class="example">/xdid,-i,dcx,4,+bk,none</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -552,7 +552,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -j dcx 4 2 5 +bt<br />/xdid -j dcx 4 7 1 +uck $rgb(255, 0, 0) $rgb(0, 255, 0)<br />/xdid -j dcx 4 7,9 1,3 +uck $rgb(255, 0, 0) $rgb(0, 255, 0)<br /></div></td>
+		<td><div class="example">/xdid,-j,dcx,4,2,5,+bt<br />/xdid,-j,dcx,4,7,1,+uck,$rgb(255,,0,,0),$rgb(0,,255,,0)<br />/xdid,-j,dcx,4,7,9,1,3,+uck,$rgb(255,,0,,0),$rgb(0,,255,,0)<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -615,7 +615,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -k dcx 4 2 1,3,5,10-30</div></td>
+		<td><div class="example">/xdid,-k,dcx,4,2,1,3,5,10-30</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -650,7 +650,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -l dcx 4 1,3,5,10-30 2-4 5 3</div></td>
+		<td><div class="example">/xdid,-l,dcx,4,1,3,5,10-30,2-4,5,3</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -681,7 +681,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -m dcx 4 1</div></td>
+		<td><div class="example">/xdid,-m,dcx,4,1</div></td>
 	</tr>
 </table>
 <br />
@@ -695,7 +695,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -n dcx 4 2 + 100<br />/xdid -n dcx 4 1,3-6 + 100<br />/xdid -n dcx 4 0 +m 150 100 200<br /></div></td>
+		<td><div class="example">/xdid,-n,dcx,4,2,+,100<br />/xdid,-n,dcx,4,1,3-6,+,100<br />/xdid,-n,dcx,4,0,+m,150,100,200<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -746,7 +746,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -o dcx 4 3 2 1<br />/xdid -o dcx 4 1 3 2 4<br /></div></td>
+		<td><div class="example">/xdid,-o,dcx,4,3,2,1<br />/xdid,-o,dcx,4,1,3,2,4<br /></div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This command can be used to set/move the first column, which is editable. There can only be one editable column at any time.</td></tr></table>
 <br />
@@ -760,7 +760,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -q dcx 4 1 +l 101 Group 101!</div></td>
+		<td><div class="example">/xdid,-q,dcx,4,1,+l,101,Group,101!</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -817,7 +817,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -t dcx 4 +l 2 130 column 1 $chr(9) +cd 1 130 column 2 $chr(9) +rb 2 130 column 3</div></td>
+		<td><div class="example">/xdid,-t,dcx,4,+l,2,130,column,1,$chr(9),+cd,1,130,column,2,$chr(9),+rb,2,130,column,3</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -894,7 +894,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -v dcx 4 1 2 Mystery text</div></td>
+		<td><div class="example">/xdid,-v,dcx,4,1,2,Mystery,text</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -921,7 +921,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -w dcx 4 +n 113 shell32.dll<br />/xdid -w dcx 4 +no2 29 shell32.dll<br /></div></td>
+		<td><div class="example">/xdid,-w,dcx,4,+n,113,shell32.dll<br />/xdid,-w,dcx,4,+no2,29,shell32.dll<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -976,7 +976,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -y dcx 4 +ns</div></td>
+		<td><div class="example">/xdid,-y,dcx,4,+ns</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1003,7 +1003,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -z dcx 4 +ca 2 lvsort</div></td>
+		<td><div class="example">/xdid,-z,dcx,4,+ca,2,lvsort</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1061,7 +1061,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -A dcx 4 4 1 +M Marked text here<br />/xdid -A dcx 4 4-6 1 +M Marked text here<br /></div></td>
+		<td><div class="example">/xdid,-A,dcx,4,4,1,+M,Marked,text,here<br />/xdid,-A,dcx,4,4-6,1,+M,Marked,text,here<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1096,7 +1096,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -B dcx 4 3</div></td>
+		<td><div class="example">/xdid,-B,dcx,4,3</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1115,7 +1115,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -G dcx 4 1 +O +O</div></td>
+		<td><div class="example">/xdid,-G,dcx,4,1,+O,+O</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1182,7 +1182,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -H dcx 4 1 +s sortdown unchecked<br />/xdid -H dcx 4 1,2,5 +t OoOOO<br /></div></td>
+		<td><div class="example">/xdid,-H,dcx,4,1,+s,sortdown,unchecked<br />/xdid,-H,dcx,4,1,2,5,+t,OoOOO<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1254,7 +1254,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -N dcx 4 +m [LEFT] [RIGHT] [TOP] [BOTTOM]<br />/xdid -N dcx 4 +m 100 -1 -1 -1<br />/xdid -N dcx 4 +Lc [COLOUR BKG]<br />/xdid -N dcx 4 +Lc $rgb(128,28,128)<br />/xdid -N dcx 4 +Lb [COLOUR BORDER]<br />/xdid -N dcx 4 +Lb $rgb(150,100,200)<br />/xdid -N dcx 4 +Li [COLOUR TEXT]<br />/xdid -N dcx 4 +Li $rgb(150,100,200)<br />/xdid -N dcx 4 +Lt [TEXT]<br />/xdid -N dcx 4 +Lt Margin text woohoo!<br />/xdid -N dcx 4 +LC [control]<br />/xdid -N dcx 4 +LC not supported atm<br /></div></td>
+		<td><div class="example">/xdid,-N,dcx,4,+m,[LEFT],[RIGHT],[TOP],[BOTTOM]<br />/xdid,-N,dcx,4,+m,100,-1,-1,-1<br />/xdid,-N,dcx,4,+Lc,[COLOUR,BKG]<br />/xdid,-N,dcx,4,+Lc,$rgb(128,28,128)<br />/xdid,-N,dcx,4,+Lb,[COLOUR,BORDER]<br />/xdid,-N,dcx,4,+Lb,$rgb(150,100,200)<br />/xdid,-N,dcx,4,+Li,[COLOUR,TEXT]<br />/xdid,-N,dcx,4,+Li,$rgb(150,100,200)<br />/xdid,-N,dcx,4,+Lt,[TEXT]<br />/xdid,-N,dcx,4,+Lt,Margin,text,woohoo!<br />/xdid,-N,dcx,4,+LC,[control]<br />/xdid,-N,dcx,4,+LC,not,supported,atm<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1317,7 +1317,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -O dcx 4 + 3 12<br />/xdid -O dcx 4 + 1-3 14<br />/xdid -O dcx 4 + 1-3 -1<br /></div></td>
+		<td><div class="example">/xdid,-O,dcx,4,+,3,12<br />/xdid,-O,dcx,4,+,1-3,14<br />/xdid,-O,dcx,4,+,1-3,-1<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1348,7 +1348,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -Q dcx 4 Add 1 +l 101 Group 101!<br />/xdid -Q dcx 4 Move 101 4<br />/xdid -Q dcx 4 Del 101<br />/xdid -Q dcx 4 Setup 101,102 +Cc +Cc<br /></div></td>
+		<td><div class="example">/xdid,-Q,dcx,4,Add,1,+l,101,Group,101!<br />/xdid,-Q,dcx,4,Move,101,4<br />/xdid,-Q,dcx,4,Del,101<br />/xdid,-Q,dcx,4,Setup,101,102,+Cc,+Cc<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1459,7 +1459,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -S dcx 4 +f 1 20 listview.txt</div></td>
+		<td><div class="example">/xdid,-S,dcx,4,+f,1,20,listview.txt</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1522,7 +1522,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -T dcx 4 2 1 This tooltip applies to Item 2 SubItem 1<br />/xdid -T dcx 4 1,3,4 1,3-5 This tooltip applies to Items 1,3,4 SubItems 1,3,4,5<br /></div></td>
+		<td><div class="example">/xdid,-T,dcx,4,2,1,This,tooltip,applies,to,Item,2,SubItem,1<br />/xdid,-T,dcx,4,1,3,4,1,3-5,This,tooltip,applies,to,Items,1,3,4,SubItems,1,3,4,5<br /></div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="value">N</a> is zero apply to the last item.</li><li>If <a class="value">NSUB</a> is zero, apply to the last subitem.</li></ul></td></tr></table>
 <br />
@@ -1536,7 +1536,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -V dcx 4 5<br />/xdid -V dcx 4 5 3<br /></div></td>
+		<td><div class="example">/xdid,-V,dcx,4,5<br />/xdid,-V,dcx,4,5,3<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1559,7 +1559,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -W dcx 4 icon</div></td>
+		<td><div class="example">/xdid,-W,dcx,4,icon</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1702,7 +1702,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 2).columnorder</div></td>
+		<td><div class="example">$xdid(dcx,,4,,2).columnorder</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When <a class="param">N</a> is not specified, the order of all columns are returned.</td></tr></table>
 <br />
@@ -1744,7 +1744,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, $chr(9) *Item* $chr(9), W, 0, 3).find</div></td>
+		<td><div class="example">$xdid(dcx,,4,,$chr(9),*Item*,$chr(9),,W,,0,,3).find</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1801,7 +1801,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 3).gid</div></td>
+		<td><div class="example">$xdid(dcx,,4,,3).gid</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Group id can be -2 (Not In group), -1 (groupcallback, should never be), or 0+ a valid groupid</td></tr></table>
 <br />
@@ -1829,7 +1829,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 3).gstate</div></td>
+		<td><div class="example">$xdid(dcx,,4,,3).gstate</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">+C</a> - Group is collapsible<br /><a class="returnevent">+H</a> - Group is hidden<br /><a class="returnevent">+N</a> - Group has no header<br /><a class="returnevent">+O</a> - Group is collapsed<br /><a class="returnevent">+S</a> - Group is selected</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The returned flags can be combined. eg <a class="value">+CO</a></td></tr></table>
 <br />
@@ -1843,7 +1843,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 3).gtext</div></td>
+		<td><div class="example">$xdid(dcx,,4,,3).gtext</div></td>
 	</tr>
 </table>
 <br />
@@ -1857,7 +1857,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 2).hicon</div></td>
+		<td><div class="example">$xdid(dcx,,4,,2).hicon</div></td>
 	</tr>
 </table>
 <br />
@@ -1871,7 +1871,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 2).hstate</div></td>
+		<td><div class="example">$xdid(dcx,,4,,2).hstate</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If you are not using headers an error 'Unable to get Header Window' is returned. Otherwise, returns a combination of <a class="value">sortdown</a> (sortdown arrow shown), <a class="value">sortup</a> (sort up arrow shown), or <a class="value">dropdown</a> (split button shown) or <a class="value">checkbox</a> (checkbox shown) or <a class="value">checked</a> (checkbox shown & checked).</td></tr></table>
 <br />
@@ -1885,7 +1885,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 2).htext</div></td>
+		<td><div class="example">$xdid(dcx,,4,,2).htext</div></td>
 	</tr>
 </table>
 <br />
@@ -1899,7 +1899,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 2).hwidth</div></td>
+		<td><div class="example">$xdid(dcx,,4,,2).hwidth</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When <a class="param">N</a> is not specified, all column widths are returned in their viewing order.</td></tr></table>
 <br />
@@ -1913,7 +1913,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 1, 2).icon</div></td>
+		<td><div class="example">$xdid(dcx,,4,,1,,2).icon</div></td>
 	</tr>
 </table>
 <br />
@@ -1927,7 +1927,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, +n).icons</div></td>
+		<td><div class="example">$xdid(dcx,,4,,+n).icons</div></td>
 	</tr>
 </table>
 <br />
@@ -1955,7 +1955,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 3, 1).markeditem</div></td>
+		<td><div class="example">$xdid(dcx,,4,,3,,1).markeditem</div></td>
 	</tr>
 </table>
 <br />
@@ -1997,7 +1997,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 3, 1, value).pbar</div></td>
+		<td><div class="example">$xdid(dcx,,4,,3,,1,,value).pbar</div></td>
 	</tr>
 </table>
 <br />
@@ -2011,7 +2011,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 2).sel</div></td>
+		<td><div class="example">$xdid(dcx,,4,,2).sel</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -2030,7 +2030,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 2).selected</div></td>
+		<td><div class="example">$xdid(dcx,,4,,2).selected</div></td>
 	</tr>
 </table>
 <br />
@@ -2058,7 +2058,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 3).seltext</div></td>
+		<td><div class="example">$xdid(dcx,,4,,3).seltext</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">NSUB</a> is not specified, it will return the first column.</td></tr></table>
 <br />
@@ -2072,7 +2072,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 2).state</div></td>
+		<td><div class="example">$xdid(dcx,,4,,2).state</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If you are not using the <a class='style' href='listview.htm#style.checkbox'>checkbox</a> style, the value returned is the state icon value. Otherwise, returns <a class="value">2</a> (checked), <a class="value">1</a> (unchecked), or <a class="value">0</a> (no check).</td></tr></table>
 <br />
@@ -2100,7 +2100,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 1, 2).text</div></td>
+		<td><div class="example">$xdid(dcx,,4,,1,,2).text</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">NSUB</a> is not specified, it will return the first column.</td></tr></table>
 <br />
@@ -2114,7 +2114,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 1, 2).textlen</div></td>
+		<td><div class="example">$xdid(dcx,,4,,1,,2).textlen</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">NSUB</a> is not specified, it will return the first column.</td></tr></table>
 <br />
@@ -2128,11 +2128,11 @@
 	<tr><td colspan="2">When an item is double clicked</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dclick ID ITEM SUBITEM</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dclick,ID,ITEM,SUBITEM)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dclick 4 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,dclick,4,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -2151,11 +2151,11 @@
 	<tr><td colspan="2">Triggered when an item is deselected.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME deselected ID LINE COLUMN</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,deselected,ID,LINE,COLUMN)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx deselected 4 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,deselected,4,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -2174,11 +2174,11 @@
 	<tr><td colspan="2">When the user double clicks on a header item in the listview.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME hdclick ID N</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,hdclick,ID,N)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx hdclick 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,hdclick,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -2193,11 +2193,11 @@
 	<tr><td colspan="2">Launched when you click on a control using the <a class="value">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,help,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx help 4</div></td>
+		<td><div class="example">$cb_alias(dcx,help,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -2207,11 +2207,11 @@
 	<tr><td colspan="2">When the mouse is hovering over the listview.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME hover ID ITEM SUBITEM</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,hover,ID,ITEM,SUBITEM)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx hover 4 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,hover,4,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -2230,11 +2230,11 @@
 	<tr><td colspan="2">When the user clicks on a header item in the listview.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME hsclick ID N</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,hsclick,ID,N)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx hsclick 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,hsclick,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -2249,11 +2249,11 @@
 	<tr><td colspan="2">When the user presses a key and the listview has focus.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME keydown ID KEYCODE</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,keydown,ID,KEYCODE)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx keydown 4 65</div></td>
+		<td><div class="example">$cb_alias(dcx,keydown,4,65)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -2268,11 +2268,11 @@
 	<tr><td colspan="2">When item text label editing begins.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME labelbegin ID ITEM SUBITEM</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,labelbegin,ID,ITEM,SUBITEM)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx labelbegin 4 3 1</div></td>
+		<td><div class="example">$cb_alias(dcx,labelbegin,4,3,1)</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">noedit</a> to block label editing.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Currently only the first column is editable.</td></tr></table>
 <br />
@@ -2282,11 +2282,11 @@
 	<tr><td colspan="2">When the user presses ESC while editing or clicks somewhere else without editing the text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME labelcancel ID ITEM SUBITEM</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,labelcancel,ID,ITEM,SUBITEM)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx labelcancel 4 3 1</div></td>
+		<td><div class="example">$cb_alias(dcx,labelcancel,4,3,1)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -2305,11 +2305,11 @@
 	<tr><td colspan="2">When the user clicks elsewhere or presses RETURN while editing or clicks somewhere else but edited the text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME labelend ID ITEM SUBITEM VALUE</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,labelend,ID,ITEM,SUBITEM,VALUE)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx labelend 4 3 1 New text value</div></td>
+		<td><div class="example">$cb_alias(dcx,labelend,4,3,1,New,text,value)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -2332,11 +2332,11 @@
 	<tr><td colspan="2">When the listview is right clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME rclick ID ITEM SUBITEM</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,rclick,ID,ITEM,SUBITEM)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rclick 4 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,rclick,4,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -2355,11 +2355,11 @@
 	<tr><td colspan="2">When the listview is double right-clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME rdclick ID ITEM SUBITEM</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,rdclick,ID,ITEM,SUBITEM)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rdclick 4 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,rdclick,4,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -2378,11 +2378,11 @@
 	<tr><td colspan="2">When an item is single clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME sclick ID ITEM SUBITEM</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,sclick,ID,ITEM,SUBITEM)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx sclick 4 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,sclick,4,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -2401,11 +2401,11 @@
 	<tr><td colspan="2">When the user has finished scrolling the vertical scrollbar in the listview.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME scrollend ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,scrollend,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx scrollend 4</div></td>
+		<td><div class="example">$cb_alias(dcx,scrollend,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -2415,11 +2415,11 @@
 	<tr><td colspan="2">Triggered when you select an item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME selected ID LINE COLUMN</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,selected,ID,LINE,COLUMN)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx selected 4 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,selected,4,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -2438,11 +2438,11 @@
 	<tr><td colspan="2">When a checkbox is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME stateclick ID ITEM</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,stateclick,ID,ITEM)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx stateclick 4 3</div></td>
+		<td><div class="example">$cb_alias(dcx,stateclick,4,3)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -2457,11 +2457,11 @@
 	<tr><td colspan="2">When a header item is being resized.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME trackbegin ID N</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,trackbegin,ID,N)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx trackbegin 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,trackbegin,4,2)</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">notrack</a> to cancel resizing.</td></tr></table>
 <br />
@@ -2479,7 +2479,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -2688,7 +2688,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -2833,7 +2833,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 13th September, 26</td>
+		<td style="text-align: right;">Last Updated: 19th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

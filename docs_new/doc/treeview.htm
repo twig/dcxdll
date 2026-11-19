@@ -209,7 +209,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -a dcx 4 $+(-1 2 4,$chr(9),+bcE 1 1 2 0 0 0 $rgb(0,0,255) $rgb(255,0,255) Item Text,$chr(9),Tooltip)</div></td>
+		<td><div class="example">/xdid,-a,dcx,4,$+(-1,2,4,$chr(9),+bcE,1,1,2,0,0,0,$rgb(0,0,255),$rgb(255,0,255),Item,Text,$chr(9),Tooltip)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -324,7 +324,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -c dcx 4 1 3 5</div></td>
+		<td><div class="example">/xdid,-c,dcx,4,1,3,5</div></td>
 	</tr>
 </table>
 <br />
@@ -338,7 +338,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -d dcx 4 1 3 5</div></td>
+		<td><div class="example">/xdid,-d,dcx,4,1,3,5</div></td>
 	</tr>
 </table>
 <br />
@@ -352,7 +352,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -g dcx 4 15</div></td>
+		<td><div class="example">/xdid,-g,dcx,4,15</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use the value -1 to reset to the default height.</td></tr></table>
 <br />
@@ -366,7 +366,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -i dcx 4 +b $rgb(0,255,0)</div></td>
+		<td><div class="example">/xdid,-i,dcx,4,+b,$rgb(0,255,0)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -405,7 +405,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -j dcx 4 1 2 $chr(9) 3 3 3<br />/xdid -j dcx 4 2 $chr(9) -1 -1 -1 2<br /></div></td>
+		<td><div class="example">/xdid,-j,dcx,4,1,2,$chr(9),3,3,3<br />/xdid,-j,dcx,4,2,$chr(9),-1,-1,-1,2<br /></div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">ICON</a>, <a class="param">SICON</a>, <a class="param">EICON</a> and <a class="param">OVERLAY</a> to display no icon.</li><li>If you do not wish to modify <a class="param">ICON</a>, <a class="param">SICON</a>, or <a class="param">EICON</a> use a value of <a class="value">-1</a>.</li></ul></td></tr></table>
 <br />
@@ -419,7 +419,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -k dcx 4 2 1 3 5</div></td>
+		<td><div class="example">/xdid,-k,dcx,4,2,1,3,5</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -454,7 +454,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -l dcx 4 24</div></td>
+		<td><div class="example">/xdid,-l,dcx,4,24</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You need to use this command before adding icons to a treeview.</li><li>Values can be <a class="value">16</a> (default), <a class="value">24</a>, or <a class="value">32</a>.</li></ul></td></tr></table>
 <br />
@@ -468,7 +468,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -m dcx 4 1 2 $chr(9) 1</div></td>
+		<td><div class="example">/xdid,-m,dcx,4,1,2,$chr(9),1</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Due to the current implementation of this feature, you cannot move an item into into its subbranch.</td></tr></table>
 <br />
@@ -482,7 +482,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -n dcx 4 1 2 $chr(9) 1</div></td>
+		<td><div class="example">/xdid,-n,dcx,4,1,2,$chr(9),1</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Due to the current implementation of this feature, you cannot copy an item into into its subbranch.</td></tr></table>
 <br />
@@ -496,7 +496,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -o dcx 4 1 2 $chr(9) Blah</div></td>
+		<td><div class="example">/xdid,-o,dcx,4,1,2,$chr(9),Blah</div></td>
 	</tr>
 </table>
 <br />
@@ -524,7 +524,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -t dcx 4 +a root</div></td>
+		<td><div class="example">/xdid,-t,dcx,4,+a,root</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -585,7 +585,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -v dcx 4 1 2 $chr(9) Blah</div></td>
+		<td><div class="example">/xdid,-v,dcx,4,1,2,$chr(9),Blah</div></td>
 	</tr>
 </table>
 <br />
@@ -599,7 +599,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -w dcx 4 +n 113 shell32.dll<br />/xdid -w dcx 4 +n 113-120 shell32.dll<br />/xdid -w dcx 4 +no2 29 shell32.dll<br /></div></td>
+		<td><div class="example">/xdid,-w,dcx,4,+n,113,shell32.dll<br />/xdid,-w,dcx,4,+n,113-120,shell32.dll<br />/xdid,-w,dcx,4,+no2,29,shell32.dll<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -654,7 +654,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -y dcx 4 +ns</div></td>
+		<td><div class="example">/xdid,-y,dcx,4,+ns</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -681,7 +681,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -z dcx 4 +tab root $chr(9) tvsort</div></td>
+		<td><div class="example">/xdid,-z,dcx,4,+tab,root,$chr(9),tvsort</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -739,7 +739,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -A dcx 4 4 2 2 $chr(9) +M Marked text here</div></td>
+		<td><div class="example">/xdid,-A,dcx,4,4,2,2,$chr(9),+M,Marked,text,here</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -782,7 +782,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -B dcx 4 1 3 5</div></td>
+		<td><div class="example">/xdid,-B,dcx,4,1,3,5</div></td>
 	</tr>
 </table>
 <br />
@@ -796,7 +796,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -G dcx 4 +r 0 0 treeview_bg.bmp</div></td>
+		<td><div class="example">/xdid,-G,dcx,4,+r,0,0,treeview_bg.bmp</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -843,7 +843,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -Q dcx 4 +bcu $rgb(128,0,255) 1 2</div></td>
+		<td><div class="example">/xdid,-Q,dcx,4,+bcu,$rgb(128,0,255),1,2</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -882,7 +882,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -S dcx 4 1 3 $chr(9) + setup_tv config.xml</div></td>
+		<td><div class="example">/xdid,-S,dcx,4,1,3,$chr(9),+,setup_tv,config.xml</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -909,7 +909,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 1 2).expand</div></td>
+		<td><div class="example">$xdid(dcx,,4,,1,2).expand</div></td>
 	</tr>
 </table>
 <br />
@@ -923,7 +923,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, $chr(9) $+ hello * $+ $chr(9), W, 0, 1 2).find</div></td>
+		<td><div class="example">$xdid(dcx,,4,,$chr(9),$+,hello,*,$+,$chr(9),,W,,0,,1,2).find</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -966,7 +966,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 1 2).icon</div></td>
+		<td><div class="example">$xdid(dcx,,4,,1,2).icon</div></td>
 	</tr>
 </table>
 <br />
@@ -980,7 +980,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 1 2).markeditem</div></td>
+		<td><div class="example">$xdid(dcx,,4,,1,2).markeditem</div></td>
 	</tr>
 </table>
 <br />
@@ -1008,7 +1008,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 1 2).num</div></td>
+		<td><div class="example">$xdid(dcx,,4,,1,2).num</div></td>
 	</tr>
 </table>
 <br />
@@ -1050,7 +1050,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 1 2).state</div></td>
+		<td><div class="example">$xdid(dcx,,4,,1,2).state</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">0</a> no check<br /><a class="returnevent">1</a> unchecked<br /><a class="returnevent">2</a> checked<br /><a class="returnevent">#</a> state icon value</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If you are not using the <a class='style' href='treeview.htm#style.checkbox'>checkbox</a> style, the value returned is the state icon value. Otherwise, returns <a class="value">2</a> (checked), <a class="value">1</a> (unchecked), or <a class="value">0</a> (no check).</td></tr></table>
 <br />
@@ -1064,7 +1064,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 1 2).text</div></td>
+		<td><div class="example">$xdid(dcx,,4,,1,2).text</div></td>
 	</tr>
 </table>
 <br />
@@ -1078,7 +1078,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 1 2).tooltip</div></td>
+		<td><div class="example">$xdid(dcx,,4,,1,2).tooltip</div></td>
 	</tr>
 </table>
 <br />
@@ -1092,11 +1092,11 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">When a &plusmn; button is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME buttonclick ID PATH</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,buttonclick,ID,PATH)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx buttonclick 4 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,buttonclick,4,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1111,11 +1111,11 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">When a branch is collapsed.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME collapse ID PATH</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,collapse,ID,PATH)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx collapse 4 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,collapse,4,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1130,11 +1130,11 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">When an item is double clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dclick ID PATH</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dclick,ID,PATH)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dclick 4 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,dclick,4,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1149,11 +1149,11 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">When a branch is expanded.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME expand ID PATH</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,expand,ID,PATH)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx expand 4 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,expand,4,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1168,11 +1168,11 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">Launched when you click on a control using the <a class="value">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,help,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx help 4</div></td>
+		<td><div class="example">$cb_alias(dcx,help,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -1182,11 +1182,11 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">When item text label editing begins.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME labelbegin ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,labelbegin,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx labelbegin 4</div></td>
+		<td><div class="example">$cb_alias(dcx,labelbegin,4)</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">noedit</a> to block label editing.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class='value' href='treeview.htm#xdidprop.selpath'>$xdid().selpath</a> to determine which path is being edited.</td></tr></table>
 <br />
@@ -1196,11 +1196,11 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">When the user presses ESC while editing or clicks somewhere else without editing the text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME labelcancel ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,labelcancel,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx labelcancel 4</div></td>
+		<td><div class="example">$cb_alias(dcx,labelcancel,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -1210,11 +1210,11 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">When the user clicks elsewhere or presses RETURN while editing or clicks somewhere else but edited the text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME labelend ID VALUE</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,labelend,ID,VALUE)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx labelend 4 New Item Text</div></td>
+		<td><div class="example">$cb_alias(dcx,labelend,4,New,Item,Text)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1229,11 +1229,11 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">When the treeview is right clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME rclick ID PATH</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,rclick,ID,PATH)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rclick 4 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,rclick,4,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1248,11 +1248,11 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">When an item is single clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME sclick ID PATH</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,sclick,ID,PATH)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx sclick 4 1 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,sclick,4,1,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1267,11 +1267,11 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">When the selected item changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME selchange ID PATH</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,selchange,ID,PATH)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx selchange 4 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,selchange,4,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1286,11 +1286,11 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">When a checkbox is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME stateclick ID STATE PATH</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,stateclick,ID,STATE,PATH)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx stateclick 4 1 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,stateclick,4,1,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1391,7 +1391,7 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 13th September, 26</td>
+		<td style="text-align: right;">Last Updated: 19th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

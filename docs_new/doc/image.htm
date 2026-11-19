@@ -117,7 +117,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -i dcx 4 + $mircdir/image/test.bmp</div></td>
+		<td><div class="example">/xdid,-i,dcx,4,+,$mircdir/image/test.bmp</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -164,7 +164,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -k dcx 4 $rgb(255,0,255)</div></td>
+		<td><div class="example">/xdid,-k,dcx,4,$rgb(255,0,255)</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When using a transparent color, you may need to set the background color of the control like $rgb(face) for the dialog background color.</td></tr></table>
 <br />
@@ -178,7 +178,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -o dcx 4 20 20</div></td>
+		<td><div class="example">/xdid,-o,dcx,4,20,20</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -201,7 +201,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -w dcx 4 +g 2 48 shell32.dll</div></td>
+		<td><div class="example">/xdid,-w,dcx,4,+g,2,48,shell32.dll</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -248,7 +248,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -F dcx 4 +a 1</div></td>
+		<td><div class="example">/xdid,-F,dcx,4,+a,1</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -283,7 +283,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -S dcx 4 1</div></td>
+		<td><div class="example">/xdid,-S,dcx,4,1</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Automatic resizing is enabled by default.</td></tr></table>
 <br />
@@ -301,7 +301,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 2).delay</div></td>
+		<td><div class="example">$xdid(dcx,,4,,2).delay</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">N</a> is zero returns the delay for the current frame.</td></tr></table>
 <br />
@@ -385,11 +385,11 @@
 	<tr><td colspan="2">When the image is double-clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dclick ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dclick,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dclick 4</div></td>
+		<td><div class="example">$cb_alias(dcx,dclick,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -399,11 +399,11 @@
 	<tr><td colspan="2">Launched when you click on a control using the <a class="value">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,help,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx help 4</div></td>
+		<td><div class="example">$cb_alias(dcx,help,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -413,11 +413,11 @@
 	<tr><td colspan="2">When you release the left mouse button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME lbup ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,lbup,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx lbup 4</div></td>
+		<td><div class="example">$cb_alias(dcx,lbup,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -427,11 +427,11 @@
 	<tr><td colspan="2">When you right-click on the image.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME rclick ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,rclick,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rclick 4</div></td>
+		<td><div class="example">$cb_alias(dcx,rclick,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -441,11 +441,11 @@
 	<tr><td colspan="2">When the image is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME sclick ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,sclick,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx sclick 4</div></td>
+		<td><div class="example">$cb_alias(dcx,sclick,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -463,7 +463,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -672,7 +672,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -720,7 +720,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 13th September, 26</td>
+		<td style="text-align: right;">Last Updated: 19th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

@@ -137,7 +137,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -c dcx 4 12 richedit 10 10 400 25 multi</div></td>
+		<td><div class="example">/xdid,-c,dcx,4,12,richedit,10,10,400,25,multi</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -182,7 +182,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -d dcx 4 6</div></td>
+		<td><div class="example">/xdid,-d,dcx,4,6</div></td>
 	</tr>
 </table>
 <br />
@@ -196,7 +196,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -l dcx 4 root $chr(9) +pv 0 1 0 0<br />/xdid -l dcx 4 root 1 2 $chr(9) +fi 7 1 200 300<br />/xdid -l dcx 4 space 1 $chr(9) + 5 5 5 5<br /></div></td>
+		<td><div class="example">/xdid,-l,dcx,4,root,$chr(9),+pv,0,1,0,0<br />/xdid,-l,dcx,4,root,1,2,$chr(9),+fi,7,1,200,300<br />/xdid,-l,dcx,4,space,1,$chr(9),+,5,5,5,5<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -287,7 +287,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -t dcx 4 Group Box Text</div></td>
+		<td><div class="example">/xdid,-t,dcx,4,Group,Box,Text</div></td>
 	</tr>
 </table>
 <br />
@@ -333,11 +333,11 @@
 	<tr><td colspan="2">When the checkbox has been clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME checkchange ID STATE</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,checkchange,ID,STATE)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx checkchange 4 1</div></td>
+		<td><div class="example">$cb_alias(dcx,checkchange,4,1)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -352,11 +352,11 @@
 	<tr><td colspan="2">When the left mouse button is double clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dclick ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dclick,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dclick 4</div></td>
+		<td><div class="example">$cb_alias(dcx,dclick,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -366,11 +366,11 @@
 	<tr><td colspan="2">Launched when you click on a control using the <a class="value">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,help,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx help 4</div></td>
+		<td><div class="example">$cb_alias(dcx,help,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -380,11 +380,11 @@
 	<tr><td colspan="2">When the left mouse button is clicked down.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME lbdown ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,lbdown,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx lbdown 4</div></td>
+		<td><div class="example">$cb_alias(dcx,lbdown,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -394,11 +394,11 @@
 	<tr><td colspan="2">When the left mouse button is released.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME lbup ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,lbup,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx lbup 4</div></td>
+		<td><div class="example">$cb_alias(dcx,lbup,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -408,11 +408,11 @@
 	<tr><td colspan="2">When the right mouse button is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME rclick ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,rclick,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rclick 4</div></td>
+		<td><div class="example">$cb_alias(dcx,rclick,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -422,11 +422,11 @@
 	<tr><td colspan="2">When the left mouse button is clicked and released.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME sclick ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,sclick,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx sclick 4</div></td>
+		<td><div class="example">$cb_alias(dcx,sclick,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -444,7 +444,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -653,7 +653,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -671,7 +671,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control type="box" caption="this is a box"&gt;</div></td>
+		<td><div class="example">&lt;control,type="box",caption="this,is,a,box"&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -710,7 +710,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;pane cascade="v" margin="5 5 5 5"&gt;</div></td>
+		<td><div class="example">&lt;pane,cascade="v",margin="5,5,5,5"&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -793,7 +793,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 13th September, 26</td>
+		<td style="text-align: right;">Last Updated: 19th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

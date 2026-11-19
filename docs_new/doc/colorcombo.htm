@@ -97,7 +97,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -a dcx 4 2 $rgb(0,0,255) Blue</div></td>
+		<td><div class="example">/xdid,-a,dcx,4,2,$rgb(0,0,255),Blue</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If N is 0, inserts color at the end of the list.<br/>Text supports mirc ctrl codes but will have a start colour auto set to contrast with the item's colour (black or white)</td></tr></table>
 <br />
@@ -111,7 +111,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -c dcx 4 2</div></td>
+		<td><div class="example">/xdid,-c,dcx,4,2</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">N</a> is <a class="value">0</a>, it unselects the current color.</td></tr></table>
 <br />
@@ -125,7 +125,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -d dcx 4 2</div></td>
+		<td><div class="example">/xdid,-d,dcx,4,2</div></td>
 	</tr>
 </table>
 <br />
@@ -153,7 +153,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -o dcx 4 2 $rgb(255,0,0)</div></td>
+		<td><div class="example">/xdid,-o,dcx,4,2,$rgb(255,0,0)</div></td>
 	</tr>
 </table>
 <br />
@@ -181,7 +181,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -t dcx 4 2 Aqua</div></td>
+		<td><div class="example">/xdid,-t,dcx,4,2,Aqua</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If N is 0, inserts color at the end of the list. No text supplied means clear the items text.<br/>Text supports mirc ctrl codes but will have a start colour auto set to contrast with
 the item's colour (black or white)</td></tr></table>
@@ -200,7 +200,7 @@ the item's colour (black or white)</td></tr></table>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 1).color</div></td>
+		<td><div class="example">$xdid(dcx,,4,,1).color</div></td>
 	</tr>
 </table>
 <br />
@@ -242,11 +242,11 @@ the item's colour (black or white)</td></tr></table>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="value">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,help,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx help 4</div></td>
+		<td><div class="example">$cb_alias(dcx,help,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -256,11 +256,11 @@ the item's colour (black or white)</td></tr></table>
 	<tr><td colspan="2">When a sclick event is fired on an item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME sclick ID ITEM</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,sclick,ID,ITEM)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx sclick 4 6</div></td>
+		<td><div class="example">$cb_alias(dcx,sclick,4,6)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -283,7 +283,7 @@ the item's colour (black or white)</td></tr></table>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -492,7 +492,7 @@ the item's colour (black or white)</td></tr></table>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -530,7 +530,7 @@ the item's colour (black or white)</td></tr></table>
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 13th September, 26</td>
+		<td style="text-align: right;">Last Updated: 19th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

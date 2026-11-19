@@ -117,7 +117,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -k dcx 4 $rgb(255,0,0)</div></td>
+		<td><div class="example">/xdid,-k,dcx,4,$rgb(255,0,0)</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use <a class="value">-1</a> for <a class="param">RGB</a> to revert to default color.</li><li>This command will only work if the computer has no visual styles applied (XP themes). To use this on machines with visual styles enabled, apply the <a class='style' href='statusbar.htm#style.notheme'>notheme</a> style.</li></ul></td></tr></table>
 <br />
@@ -131,7 +131,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -l dcx 4 10% 200 400 -1</div></td>
+		<td><div class="example">/xdid,-l,dcx,4,10%,200,400,-1</div></td>
 	</tr>
 </table>
 <br />
@@ -145,7 +145,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -t dcx 4 2 +p 0 Cell Text $chr(9) Tooltip Text</div></td>
+		<td><div class="example">/xdid,-t,dcx,4,2,+p,0,Cell,Text,$chr(9),Tooltip,Text</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -222,7 +222,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -v dcx 4 2 New Text</div></td>
+		<td><div class="example">/xdid,-v,dcx,4,2,New,Text</div></td>
 	</tr>
 </table>
 <br />
@@ -236,7 +236,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -w dcx 4 +g 113 shell32.dll</div></td>
+		<td><div class="example">/xdid,-w,dcx,4,+g,113,shell32.dll</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -311,7 +311,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 2).text</div></td>
+		<td><div class="example">$xdid(dcx,,4,,2).text</div></td>
 	</tr>
 </table>
 <br />
@@ -325,7 +325,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 3).tooltip</div></td>
+		<td><div class="example">$xdid(dcx,,4,,3).tooltip</div></td>
 	</tr>
 </table>
 <br />
@@ -339,11 +339,11 @@
 	<tr><td colspan="2">Double-click over a status bar cell.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dclick ID CELL</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dclick,ID,CELL)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dclick 4 2</div></td>
+		<td><div class="example">$cb_alias(dcx,dclick,4,2)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -358,11 +358,11 @@
 	<tr><td colspan="2">Launched when you click on a control using the <a class="value">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,help,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx help 4</div></td>
+		<td><div class="example">$cb_alias(dcx,help,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -372,11 +372,11 @@
 	<tr><td colspan="2">Right-click over a status bar cell.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME rclick ID CELL</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,rclick,ID,CELL)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rclick 4 5</div></td>
+		<td><div class="example">$cb_alias(dcx,rclick,4,5)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -391,11 +391,11 @@
 	<tr><td colspan="2">Single left click over a status bar cell.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME sclick ID CELL</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,sclick,ID,CELL)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx sclick 4 3</div></td>
+		<td><div class="example">$cb_alias(dcx,sclick,4,3)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -418,7 +418,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -627,7 +627,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -671,7 +671,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 13th September, 26</td>
+		<td style="text-align: right;">Last Updated: 19th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

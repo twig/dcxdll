@@ -141,7 +141,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -a dcx 4 0 New Item</div></td>
+		<td><div class="example">/xdid,-a,dcx,4,0,New,Item</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -160,7 +160,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -c dcx 4 1,2,3</div></td>
+		<td><div class="example">/xdid,-c,dcx,4,1,2,3</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -179,7 +179,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -d dcx 4 1<br />/xdid -d dcx 4 1-4<br />/xdid -d dcx 4 1 + stuff<br />/xdid -d dcx 4 1 +w *stuff*<br />/xdid -d dcx 4 1 +r /stuff/<br /></div></td>
+		<td><div class="example">/xdid,-d,dcx,4,1<br />/xdid,-d,dcx,4,1-4<br />/xdid,-d,dcx,4,1,+,stuff<br />/xdid,-d,dcx,4,1,+w,*stuff*<br />/xdid,-d,dcx,4,1,+r,/stuff/<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -218,7 +218,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -m dcx 4 +w 150</div></td>
+		<td><div class="example">/xdid,-m,dcx,4,+w,150</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -253,7 +253,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -o dcx 4 1 New Text<br />/xdid -o dcx 4 1,5 New Text<br /></div></td>
+		<td><div class="example">/xdid,-o,dcx,4,1,New,Text<br />/xdid,-o,dcx,4,1,5,New,Text<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -304,7 +304,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -A dcx 4 0 +t settings</div></td>
+		<td><div class="example">/xdid,-A,dcx,4,0,+t,settings</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -420,7 +420,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, $chr(9) *Item* $chr(9), W, 3).find</div></td>
+		<td><div class="example">$xdid(dcx,,4,,$chr(9),*Item*,$chr(9),,W,,3).find</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -473,7 +473,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 2).sel</div></td>
+		<td><div class="example">$xdid(dcx,,4,,2).sel</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -506,7 +506,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 2).text</div></td>
+		<td><div class="example">$xdid(dcx,,4,,2).text</div></td>
 	</tr>
 </table>
 <br />
@@ -520,11 +520,11 @@
 	<tr><td colspan="2">When an item is double-clicked in the listbox.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dclick ID ITEM</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dclick,ID,ITEM)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dclick 4 6</div></td>
+		<td><div class="example">$cb_alias(dcx,dclick,4,6)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -539,11 +539,11 @@
 	<tr><td colspan="2">Triggers when one or more files are dropped onto the control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dragbegin ID COUNT</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dragbegin,ID,COUNT)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dragbegin 4 3</div></td>
+		<td><div class="example">$cb_alias(dcx,dragbegin,4,3)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -558,11 +558,11 @@
 	<tr><td colspan="2">The filename of the file that has</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dragfile ID FILENAME</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dragfile,ID,FILENAME)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dragfile 4 C:/mIRC/blah.txt</div></td>
+		<td><div class="example">$cb_alias(dcx,dragfile,4,C:/mIRC/blah.txt)</div></td>
 	</tr>
 </table>
 <br />
@@ -572,11 +572,11 @@
 	<tr><td colspan="2">Event triggered when processing of drag drop is complete.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dragfinish ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dragfinish,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dragfinish 4</div></td>
+		<td><div class="example">$cb_alias(dcx,dragfinish,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -586,11 +586,11 @@
 	<tr><td colspan="2">Launched when you click on a control using the <a class="value">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,help,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx help 4</div></td>
+		<td><div class="example">$cb_alias(dcx,help,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -600,11 +600,11 @@
 	<tr><td colspan="2">Triggers when an item is dragged.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME itemdrag ID ITEM_ID ITEM_MOUSEOVER</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,itemdrag,ID,ITEM_ID,ITEM_MOUSEOVER)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx itemdrag 4 5 3</div></td>
+		<td><div class="example">$cb_alias(dcx,itemdrag,4,5,3)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -623,11 +623,11 @@
 	<tr><td colspan="2">Triggers when an item is about to be dragged.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME itemdragbegin ID ITEM_ID</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,itemdragbegin,ID,ITEM_ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx itemdragbegin 4 5</div></td>
+		<td><div class="example">$cb_alias(dcx,itemdragbegin,4,5)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -642,11 +642,11 @@
 	<tr><td colspan="2">Triggers when user cancels drag by either pressing ESC or right clicking the mouse button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME itemdragcancel ID ITEM_ID</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,itemdragcancel,ID,ITEM_ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx itemdragcancel 4 5</div></td>
+		<td><div class="example">$cb_alias(dcx,itemdragcancel,4,5)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -661,11 +661,11 @@
 	<tr><td colspan="2">Triggers when an item has finished dragging.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME itemdragfinish ID ITEM_ID ITEM_MOUSEOVER</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,itemdragfinish,ID,ITEM_ID,ITEM_MOUSEOVER)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx itemdragfinish 4 5 3</div></td>
+		<td><div class="example">$cb_alias(dcx,itemdragfinish,4,5,3)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -684,11 +684,11 @@
 	<tr><td colspan="2">When you right-click on the list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME rclick ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,rclick,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rclick 4</div></td>
+		<td><div class="example">$cb_alias(dcx,rclick,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -698,11 +698,11 @@
 	<tr><td colspan="2">When an item is selected in the listbox.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME sclick ID ITEM</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,sclick,ID,ITEM)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx sclick 4 6</div></td>
+		<td><div class="example">$cb_alias(dcx,sclick,4,6)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -717,11 +717,11 @@
 	<tr><td colspan="2">Event triggered when the list has finished scrolling.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME scrollend ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,scrollend,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx scrollend 4</div></td>
+		<td><div class="example">$cb_alias(dcx,scrollend,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -739,7 +739,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -948,7 +948,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -1010,7 +1010,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 13th September, 26</td>
+		<td style="text-align: right;">Last Updated: 19th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

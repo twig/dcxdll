@@ -86,7 +86,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -c dcx 4 +s opticalzoom 120</div></td>
+		<td><div class="example">/xdid,-c,dcx,4,+s,opticalzoom,120</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -213,7 +213,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -j dcx 4 alert('Hello')</div></td>
+		<td><div class="example">/xdid,-j,dcx,4,alert('Hello')</div></td>
 	</tr>
 </table>
 <br />
@@ -241,7 +241,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -m dcx 4 +bf +b http://github.com/twig/dcxdll</div></td>
+		<td><div class="example">/xdid,-m,dcx,4,+bf,+b,http://github.com/twig/dcxdll</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -312,7 +312,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -n dcx 4 http://github.com/twig/dcxdll</div></td>
+		<td><div class="example">/xdid,-n,dcx,4,http://github.com/twig/dcxdll</div></td>
 	</tr>
 </table>
 <br />
@@ -386,7 +386,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, document.title).script</div></td>
+		<td><div class="example">$xdid(dcx,,4,,document.title).script</div></td>
 	</tr>
 </table>
 <br />
@@ -456,11 +456,11 @@
 	<tr><td colspan="2">When the state of the back button changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME back ID ENABLED</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,back,ID,ENABLED)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx back 4 $true</div></td>
+		<td><div class="example">$cb_alias(dcx,back,4,$true)</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">ENABLED</a> can be either <a class="value">$true</a> or <a class="value">$false</a> to indicate the enabled state of the back button.</td></tr></table>
 <br />
@@ -470,11 +470,11 @@
 	<tr><td colspan="2">When downloading is about to begin.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dl_begin ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dl_begin,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dl_begin 4</div></td>
+		<td><div class="example">$cb_alias(dcx,dl_begin,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -484,11 +484,11 @@
 	<tr><td colspan="2">When the downloading is complete.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dl_complete ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dl_complete,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dl_complete 4</div></td>
+		<td><div class="example">$cb_alias(dcx,dl_complete,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -498,11 +498,11 @@
 	<tr><td colspan="2">Downloading progress update.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dl_progress ID CURRENT TOTAL</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dl_progress,ID,CURRENT,TOTAL)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dl_progress 4 259700 1000000</div></td>
+		<td><div class="example">$cb_alias(dcx,dl_progress,4,259700,1000000)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -521,11 +521,11 @@
 	<tr><td colspan="2">When the document has been downloaded.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME doc_complete ID URL</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,doc_complete,ID,URL)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx doc_complete 4 http://github.com/twig/dcxdll</div></td>
+		<td><div class="example">$cb_alias(dcx,doc_complete,4,http://github.com/twig/dcxdll)</div></td>
 	</tr>
 </table>
 <br />
@@ -535,11 +535,11 @@
 	<tr><td colspan="2">When the state of the forward button changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME forward ID ENABLED</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,forward,ID,ENABLED)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx forward 4 $false</div></td>
+		<td><div class="example">$cb_alias(dcx,forward,4,$false)</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">ENABLED</a> can be either <a class="value">$true</a> or <a class="value">$false</a> to indiciate the enabled state of the forward button.</td></tr></table>
 <br />
@@ -549,11 +549,11 @@
 	<tr><td colspan="2">Launched when you click on a control using the <a class="value">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,help,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx help 4</div></td>
+		<td><div class="example">$cb_alias(dcx,help,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -563,11 +563,11 @@
 	<tr><td colspan="2">When the text is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME nav_begin ID URL</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,nav_begin,ID,URL)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx nav_begin 4 http://github.com/twig/dcxdll</div></td>
+		<td><div class="example">$cb_alias(dcx,nav_begin,4,http://github.com/twig/dcxdll)</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> return this value to block the navigation.</td></tr></table>
 <br />
@@ -577,11 +577,11 @@
 	<tr><td colspan="2">When the control is finished navigating to the URL.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME nav_complete ID URL</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,nav_complete,ID,URL)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx nav_complete 4 http://github.com/twig/dcxdll</div></td>
+		<td><div class="example">$cb_alias(dcx,nav_complete,4,http://github.com/twig/dcxdll)</div></td>
 	</tr>
 </table>
 <br />
@@ -591,11 +591,11 @@
 	<tr><td colspan="2">When the control has encountered an error navigating to the URL.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME nav_error ID CODE URL</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,nav_error,ID,CODE,URL)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx nav_error 4 404 http://github.com/twig/dcxdll</div></td>
+		<td><div class="example">$cb_alias(dcx,nav_error,4,404,http://github.com/twig/dcxdll)</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The code shown is an example only, don't expect that value.</td></tr></table>
 <br />
@@ -605,11 +605,11 @@
 	<tr><td colspan="2">When the statusbar text changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME status ID NEW_TEXT</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,status,ID,NEW_TEXT)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx status 4 New statusbar text</div></td>
+		<td><div class="example">$cb_alias(dcx,status,4,New,statusbar,text)</div></td>
 	</tr>
 </table>
 <br />
@@ -619,11 +619,11 @@
 	<tr><td colspan="2">when the title changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME title ID NEW_TEXT</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,title,ID,NEW_TEXT)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx title 4 The other page title</div></td>
+		<td><div class="example">$cb_alias(dcx,title,4,The,other,page,title)</div></td>
 	</tr>
 </table>
 <br />
@@ -633,11 +633,11 @@
 	<tr><td colspan="2">When a window is attempted to be closed.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME win_close ID [child|main]</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,win_close,ID,[child|main])</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx win_close 4 child</div></td>
+		<td><div class="example">$cb_alias(dcx,win_close,4,child)</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> Return this value to block the window from closing.</td></tr></table>
 <br />
@@ -647,11 +647,11 @@
 	<tr><td colspan="2">When a new window is attempted to be opened.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME win_open ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,win_open,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx win_open 4</div></td>
+		<td><div class="example">$cb_alias(dcx,win_open,4)</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> Return this value to block the new window from opening.</td></tr></table>
 <br />
@@ -669,7 +669,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -878,7 +878,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -930,7 +930,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 13th September, 26</td>
+		<td style="text-align: right;">Last Updated: 19th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

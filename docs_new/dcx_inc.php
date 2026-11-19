@@ -808,12 +808,23 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
             $dialogspecific = array('mouseleave', 'mouseenter', 'mouse', 'focusout', 'focus');
 
         	$heading = "$flag";
-			$syntax = "/cb_alias DNAME $flag ID {$data['__cmd']}";
+			//$syntax = "/cb_alias DNAME $flag ID {$data['__cmd']}";
+
+			if (strlen(str_replace(' ',',',$data['__cmd'])) > 0) {
+				$syntax = str_replace(' ',',',"\$cb_alias(DNAME,$flag,ID,{$data['__cmd']})");
+			}
+			else {
+				$syntax = "\$cb_alias(DNAME,$flag,ID)";
+			}
+
             $eventid = (isset($data['__isdialog']) ? 0 : 4);
 //			$example = "/cb_alias dcx $flag " . (!in_array($flag, $dialogspecific) ? ' 0 ' : ' 4 ') . $data['__eg'];
 //			$example = "/cb_alias dcx $flag 4 {$data['__eg']}";
-			$examplefmt[$ARGS]   = "/cb_alias dcx $flag $eventid [-EXAMPLE]";
-			$examplefmt[$NOARGS] = "/cb_alias dcx $flag $eventid";
+			//$examplefmt[$ARGS]   = "/cb_alias dcx $flag $eventid [-EXAMPLE]";
+			//$examplefmt[$NOARGS] = "/cb_alias dcx $flag $eventid";
+			$examplefmt[$ARGS]   = "\$cb_alias(dcx,$flag,$eventid,[-EXAMPLE])";
+			$examplefmt[$NOARGS] = "\$cb_alias(dcx,$flag,$eventid)";
+            break;
 
             break;
 
@@ -961,7 +972,7 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 
 		// if example has a value
 		if (strlen($eg) > 0)
-			$tmp = str_replace("[-EXAMPLE]", $eg, $examplefmt[$ARGS]);
+			$tmp = str_replace(' ',',',str_replace("[-EXAMPLE]", $eg, $examplefmt[$ARGS]));
 		// otherwise just use a fixed example
 		else
 			$tmp = $examplefmt[$NOARGS];

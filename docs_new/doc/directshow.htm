@@ -105,7 +105,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -a dcx 4 + fileCopy.mpeg</div></td>
+		<td><div class="example">/xdid,-a,dcx,4,+,fileCopy.mpeg</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -140,7 +140,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -c dcx 4 play<br />/xdid -c dcx 4 seek 3500<br /></div></td>
+		<td><div class="example">/xdid,-c,dcx,4,play<br />/xdid,-c,dcx,4,seek,3500<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -192,7 +192,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -v dcx 4 +ab 80.00 0 0 0 0.5</div></td>
+		<td><div class="example">/xdid,-v,dcx,4,+ab,80.00,0,0,0,0.5</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -231,7 +231,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -V dcx 4 +v 80.00</div></td>
+		<td><div class="example">/xdid,-V,dcx,4,+v,80.00</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -596,11 +596,11 @@
 	<tr><td colspan="2">When the media has triggered an event, usually finished playing.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dshow ID EVENT</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dshow,ID,EVENT)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dshow 4 completed</div></td>
+		<td><div class="example">$cb_alias(dcx,dshow,4,completed)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -615,11 +615,11 @@
 	<tr><td colspan="2">Launched when you click on a control using the <a class="value">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,help,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx help 4</div></td>
+		<td><div class="example">$cb_alias(dcx,help,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -629,11 +629,11 @@
 	<tr><td colspan="2">When the media has failed to load, Usually unsupported codec.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME loaderror ID FILENAME</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,loaderror,ID,FILENAME)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx loaderror 4 file.avi</div></td>
+		<td><div class="example">$cb_alias(dcx,loaderror,4,file.avi)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -648,11 +648,11 @@
 	<tr><td colspan="2">When the right mouse button is pressed.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME rbdown ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,rbdown,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rbdown 4</div></td>
+		<td><div class="example">$cb_alias(dcx,rbdown,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -662,11 +662,11 @@
 	<tr><td colspan="2">When the right mouse button is released.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME rbup ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,rbup,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rbup 4</div></td>
+		<td><div class="example">$cb_alias(dcx,rbup,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -676,11 +676,11 @@
 	<tr><td colspan="2">When the right mouse button is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME rclick ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,rclick,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rclick 4</div></td>
+		<td><div class="example">$cb_alias(dcx,rclick,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -698,7 +698,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -907,7 +907,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -960,7 +960,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 13th September, 26</td>
+		<td style="text-align: right;">Last Updated: 19th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

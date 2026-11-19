@@ -89,7 +89,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -c dcx 4 cookies</div></td>
+		<td><div class="example">/xdid,-c,dcx,4,cookies</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -124,7 +124,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -g dcx 4 http://github.com/twig/dcxdll</div></td>
+		<td><div class="example">/xdid,-g,dcx,4,http://github.com/twig/dcxdll</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If a url is supplied then it is set as the home url for all future calls.</td></tr></table>
 <br />
@@ -152,7 +152,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -j dcx 4 alert('Hello')</div></td>
+		<td><div class="example">/xdid,-j,dcx,4,alert('Hello')</div></td>
 	</tr>
 </table>
 <br />
@@ -180,7 +180,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -m dcx 4 +bf +b http://github.com/twig/dcxdll</div></td>
+		<td><div class="example">/xdid,-m,dcx,4,+bf,+b,http://github.com/twig/dcxdll</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -247,7 +247,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -n dcx 4 http://github.com/twig/dcxdll</div></td>
+		<td><div class="example">/xdid,-n,dcx,4,http://github.com/twig/dcxdll</div></td>
 	</tr>
 </table>
 <br />
@@ -289,7 +289,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -C dcx 4 + sample.png</div></td>
+		<td><div class="example">/xdid,-C,dcx,4,+,sample.png</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -320,7 +320,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -P dcx 4 +b</div></td>
+		<td><div class="example">/xdid,-P,dcx,4,+b</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -561,11 +561,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">Sent when the cache has been cleared.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME cache ID ERRORCODE</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,cache,ID,ERRORCODE)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx cache 4 1</div></td>
+		<td><div class="example">$cb_alias(dcx,cache,4,1)</div></td>
 	</tr>
 </table>
 <br />
@@ -575,11 +575,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When a context menu is about to be opened.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME contextmenu ID KIND X Y</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,contextmenu,ID,KIND,X,Y)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx contextmenu 4 COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND_IMAGE 10 10</div></td>
+		<td><div class="example">$cb_alias(dcx,contextmenu,4,COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND_IMAGE,10,10)</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> Return this value to block opening the menu.</td></tr></table>
 <br />
@@ -589,11 +589,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When the browser state changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME devtools ID STATE</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,devtools,ID,STATE)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx devtools 4 securityState=secure</div></td>
+		<td><div class="example">$cb_alias(dcx,devtools,4,securityState=secure)</div></td>
 	</tr>
 </table>
 <br />
@@ -603,11 +603,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When downloading is about to begin.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dl_begin ID TOTALBYTES FILENAME</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dl_begin,ID,TOTALBYTES,FILENAME)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dl_begin 4 1000000 c:\downloads\file.zip</div></td>
+		<td><div class="example">$cb_alias(dcx,dl_begin,4,1000000,c:\downloads\file.zip)</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> - return this value to block the download.<br /><a class="returnevent">change [filename]</a> - return this value to change the filename. (MUST be the full filepath)</td></tr></table>
 <br />
@@ -617,11 +617,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">Download has been canceled.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dl_canceled ID REASON FILENAME</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dl_canceled,ID,REASON,FILENAME)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dl_canceled 4 1 c:\downloads\file.zip</div></td>
+		<td><div class="example">$cb_alias(dcx,dl_canceled,4,1,c:\downloads\file.zip)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -640,11 +640,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When the downloading is complete.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dl_complete ID FILENAME</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dl_complete,ID,FILENAME)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dl_complete 4 c:\downloads\file.zip</div></td>
+		<td><div class="example">$cb_alias(dcx,dl_complete,4,c:\downloads\file.zip)</div></td>
 	</tr>
 </table>
 <br />
@@ -654,11 +654,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">Downloading progress update.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dl_progress ID CURRENT TOTAL FILENAME</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,dl_progress,ID,CURRENT,TOTAL,FILENAME)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dl_progress 4 259700 1000000 c:\downloads\file.zip</div></td>
+		<td><div class="example">$cb_alias(dcx,dl_progress,4,259700,1000000,c:\downloads\file.zip)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -681,11 +681,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When an external uri scheme is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME externaluri ID URI</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,externaluri,ID,URI)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx externaluri 4 irc://irc.sample.com/</div></td>
+		<td><div class="example">$cb_alias(dcx,externaluri,4,irc://irc.sample.com/)</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> Return this value to block navigation.</td></tr></table>
 <br />
@@ -695,11 +695,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When the favicon changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME favicon ID [changed|saved|failed] [URL|FILE]</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,favicon,ID,[changed|saved|failed],[URL|FILE])</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx favicon 4 changed https://www.sample.com/favicon.ico</div></td>
+		<td><div class="example">$cb_alias(dcx,favicon,4,changed,https://www.sample.com/favicon.ico)</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">save filename</a> - return this value to save the favicon. (filename must be the full path to the file)</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The <a class="returnevent">save</a> return value is only valid for <a class="event">changed</a> events</td></tr></table>
 <br />
@@ -709,11 +709,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When the fullscreen state changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME fullscreen ID [fullscreen state]</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,fullscreen,ID,[fullscreen,state])</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx fullscreen 4 1</div></td>
+		<td><div class="example">$cb_alias(dcx,fullscreen,4,1)</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">$false</a> return this value to stop the change.</td></tr></table>
 <br />
@@ -723,11 +723,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">Launched when you click on a control using the <a class="value">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,help,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx help 4</div></td>
+		<td><div class="example">$cb_alias(dcx,help,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -737,11 +737,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When the text is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME nav_begin ID URL</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,nav_begin,ID,URL)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx nav_begin 4 http://github.com/twig/dcxdll</div></td>
+		<td><div class="example">$cb_alias(dcx,nav_begin,4,http://github.com/twig/dcxdll)</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> return this value to block the navigation.</td></tr></table>
 <br />
@@ -751,11 +751,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When the control is finished navigating to the URL.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME nav_complete ID URL</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,nav_complete,ID,URL)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx nav_complete 4 http://github.com/twig/dcxdll</div></td>
+		<td><div class="example">$cb_alias(dcx,nav_complete,4,http://github.com/twig/dcxdll)</div></td>
 	</tr>
 </table>
 <br />
@@ -765,11 +765,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When an error occurs in the browser process.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME proc_error ID KIND</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,proc_error,ID,KIND)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx proc_error 4 COREWEBVIEW2_PROCESS_FAILED_KIND_BROWSER_PROCESS_EXITED</div></td>
+		<td><div class="example">$cb_alias(dcx,proc_error,4,COREWEBVIEW2_PROCESS_FAILED_KIND_BROWSER_PROCESS_EXITED)</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">reload</a> Return this value to attempt to fix the issue and display the page.</td></tr></table>
 <br />
@@ -779,11 +779,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When the script command finishes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME script ID [Script result]</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,script,ID,[Script,result])</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx script 4 whatever the script returned</div></td>
+		<td><div class="example">$cb_alias(dcx,script,4,whatever,the,script,returned)</div></td>
 	</tr>
 </table>
 <br />
@@ -793,11 +793,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When a source page changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME source_changed ID URL</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,source_changed,ID,URL)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx source_changed 4 https://www.sample.com/</div></td>
+		<td><div class="example">$cb_alias(dcx,source_changed,4,https://www.sample.com/)</div></td>
 	</tr>
 </table>
 <br />
@@ -807,11 +807,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When the statusbar text changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME status ID NEW_TEXT</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,status,ID,NEW_TEXT)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx status 4 New statusbar text</div></td>
+		<td><div class="example">$cb_alias(dcx,status,4,New,statusbar,text)</div></td>
 	</tr>
 </table>
 <br />
@@ -821,11 +821,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">when the title changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME title ID NEW_TEXT</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,title,ID,NEW_TEXT)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx title 4 The other page title</div></td>
+		<td><div class="example">$cb_alias(dcx,title,4,The,other,page,title)</div></td>
 	</tr>
 </table>
 <br />
@@ -835,11 +835,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When a script is requesting a window be closed.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME win_close ID URL</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,win_close,ID,URL)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx win_close 4 https://www.sample.com/</div></td>
+		<td><div class="example">$cb_alias(dcx,win_close,4,https://www.sample.com/)</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>This event ONLY triggers if new window managment is enabled via <a class='value' href='web2ctrl.htm#xdid.m'>xdid -m</a><a class="value"> dname id +m +m</a>.</li><li>From the WebView docs:</li><li>WindowCloseRequested triggers when content inside the WebView requested to close the window,</li><li>such as after window.close is run.The app should close the WebView and related app window if that makes sense to the app.</li></ul></td></tr></table>
 <br />
@@ -849,11 +849,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When a new window is attempting to open.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME win_open ID URL</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,win_open,ID,URL)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx win_open 4 https://www.sample.com/</div></td>
+		<td><div class="example">$cb_alias(dcx,win_open,4,https://www.sample.com/)</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> Return this value to block the new window from opening.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This event ONLY triggers if new window managment is enabled via <a class='value' href='web2ctrl.htm#xdid.m'>xdid -m</a><a class="value"> dname id +m +m</a>.</td></tr></table>
 <br />
@@ -871,7 +871,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1080,7 +1080,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -1148,7 +1148,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 13th September, 26</td>
+		<td style="text-align: right;">Last Updated: 19th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

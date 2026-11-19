@@ -113,7 +113,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -k dcx 4 +bi $rgb(255,0,255)<br />/xdid -k dcx 4 +A $rgb(255,0,255) $rgb(0,255,255) $rgb(0,0,255) $rgb(0,128,0) $rgb(255,128,255) $rgb(128,128,128)<br /></div></td>
+		<td><div class="example">/xdid,-k,dcx,4,+bi,$rgb(255,0,255)<br />/xdid,-k,dcx,4,+A,$rgb(255,0,255),$rgb(0,255,255),$rgb(0,0,255),$rgb(0,128,0),$rgb(255,128,255),$rgb(128,128,128)<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -164,7 +164,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -m dcx 4 5</div></td>
+		<td><div class="example">/xdid,-m,dcx,4,5</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The default value for <a class="param">MAX</a> is <a class="value">7</a>.</td></tr></table>
 <br />
@@ -178,7 +178,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -r dcx 4 $ctime(3rd July 2006) $ctime<br />/xdid -r dcx 4 nolimit $ctime<br /></div></td>
+		<td><div class="example">/xdid,-r,dcx,4,$ctime(3rd,July,2006),$ctime<br />/xdid,-r,dcx,4,nolimit,$ctime<br /></div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">nolimit</a> for <a class="param">MIN_TIMESTAMP</a> or <a class="param">MAX_TIMESTAMP</a> if you wish to specify no minimum or maximum date range.</td></tr></table>
 <br />
@@ -192,7 +192,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -s dcx 4 $ctime(3rd July 2006) $ctime</div></td>
+		<td><div class="example">/xdid,-s,dcx,4,$ctime(3rd,July,2006),$ctime</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="param">MAX_TIMESTAMP</a> optional for the <a class='style' href='calendar.htm#style.multi'>multi</a> style. If no <a class="param">MAX_TIMESTAMP</a> is specified, the selected date will only be <a class="param">MIN_TIMESTAMP</a>.</li><li><a class="param">MAX_TIMESTAMP</a> is ignored for a single select calendar.</li></ul></td></tr></table>
 <br />
@@ -206,7 +206,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -t dcx 4 $ctime(3rd July 3006)</div></td>
+		<td><div class="example">/xdid,-t,dcx,4,$ctime(3rd,July,3006)</div></td>
 	</tr>
 </table>
 <br />
@@ -238,7 +238,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, background).calcolor<br />$xdid(dcx, 4, monthbk).calcolor<br />$xdid(dcx, 4, text).calcolor<br />$xdid(dcx, 4, titlebk).calcolor<br />$xdid(dcx, 4, titletext).calcolor<br />$xdid(dcx, 4, trailingtext).calcolor<br />$xdid(dcx, 4, all).calcolor<br /></div></td>
+		<td><div class="example">$xdid(dcx,,4,,background).calcolor<br />$xdid(dcx,,4,,monthbk).calcolor<br />$xdid(dcx,,4,,text).calcolor<br />$xdid(dcx,,4,,titlebk).calcolor<br />$xdid(dcx,,4,,titletext).calcolor<br />$xdid(dcx,,4,,trailingtext).calcolor<br />$xdid(dcx,,4,,all).calcolor<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -407,11 +407,11 @@
 	<tr><td colspan="2">When the month is JUST about to be shown. Return dates which you wish to be bolded.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME daystate ID OFFSET_DATE</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,daystate,ID,OFFSET_DATE)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx daystate 4 1152622371</div></td>
+		<td><div class="example">$cb_alias(dcx,daystate,4,1152622371)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -426,11 +426,11 @@
 	<tr><td colspan="2">Launched when you click on a control using the <a class="value">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,help,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx help 4</div></td>
+		<td><div class="example">$cb_alias(dcx,help,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -440,11 +440,11 @@
 	<tr><td colspan="2">When a date is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME sclick ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,sclick,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx sclick 4</div></td>
+		<td><div class="example">$cb_alias(dcx,sclick,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -454,11 +454,11 @@
 	<tr><td colspan="2">When the date selection is changed.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME selchange ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,selchange,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx selchange 4</div></td>
+		<td><div class="example">$cb_alias(dcx,selchange,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -468,11 +468,11 @@
 	<tr><td colspan="2">When a new date is selected.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME select ID START (END)</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,select,ID,START,(END))</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx select 4 1152622371 1152722371</div></td>
+		<td><div class="example">$cb_alias(dcx,select,4,1152622371,1152722371)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -499,7 +499,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -708,7 +708,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -759,7 +759,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 13th September, 26</td>
+		<td style="text-align: right;">Last Updated: 19th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

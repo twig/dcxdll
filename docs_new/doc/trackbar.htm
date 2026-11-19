@@ -153,7 +153,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -c dcx 4 75</div></td>
+		<td><div class="example">/xdid,-c,dcx,4,75</div></td>
 	</tr>
 </table>
 <br />
@@ -167,7 +167,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -g dcx 4 +dt C:/mIRC/trackbar.bmp</div></td>
+		<td><div class="example">/xdid,-g,dcx,4,+dt,C:/mIRC/trackbar.bmp</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -202,7 +202,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -j dcx 4 0 75</div></td>
+		<td><div class="example">/xdid,-j,dcx,4,0,75</div></td>
 	</tr>
 </table>
 <br />
@@ -216,7 +216,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -l dcx 4 5</div></td>
+		<td><div class="example">/xdid,-l,dcx,4,5</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> See <a class="event">Lineup</a> and <a class="event">Linedown</a> events.</td></tr></table>
 <br />
@@ -230,7 +230,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -m dcx 4 10</div></td>
+		<td><div class="example">/xdid,-m,dcx,4,10</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> See <a class="event">Pageup</a> and <a class="event">Pagedown</a> events.</td></tr></table>
 <br />
@@ -244,7 +244,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -n dcx 4 10</div></td>
+		<td><div class="example">/xdid,-n,dcx,4,10</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class='style' href='trackbar.htm#style.autoticks'>autoticks</a> style must be used.</td></tr></table>
 <br />
@@ -258,7 +258,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -o dcx 4 $rgb(255,0,255)</div></td>
+		<td><div class="example">/xdid,-o,dcx,4,$rgb(255,0,255)</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">-1</a> for no transparency color.</td></tr></table>
 <br />
@@ -286,7 +286,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -r dcx 4 0 100</div></td>
+		<td><div class="example">/xdid,-r,dcx,4,0,100</div></td>
 	</tr>
 </table>
 <br />
@@ -300,7 +300,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -t dcx 4 right</div></td>
+		<td><div class="example">/xdid,-t,dcx,4,right</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -335,7 +335,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -u dcx 4 10</div></td>
+		<td><div class="example">/xdid,-u,dcx,4,10</div></td>
 	</tr>
 </table>
 <br />
@@ -349,7 +349,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -v dcx 4 50</div></td>
+		<td><div class="example">/xdid,-v,dcx,4,50</div></td>
 	</tr>
 </table>
 <br />
@@ -363,7 +363,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -B dcx 4 50 left</div></td>
+		<td><div class="example">/xdid,-B,dcx,4,50,left</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -468,11 +468,11 @@
 	<tr><td colspan="2">When the user presses the end key.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME bottom ID POS</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,bottom,ID,POS)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx bottom 4 100</div></td>
+		<td><div class="example">$cb_alias(dcx,bottom,4,100)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -487,11 +487,11 @@
 	<tr><td colspan="2">Launched when you click on a control using the <a class="value">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+		<td><div class="syntax">$cb_alias(DNAME,help,ID)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx help 4</div></td>
+		<td><div class="example">$cb_alias(dcx,help,4)</div></td>
 	</tr>
 </table>
 <br />
@@ -501,11 +501,11 @@
 	<tr><td colspan="2">When the user decreases the value by using the arrow keys.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME linedown ID POS</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,linedown,ID,POS)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx linedown 4 71</div></td>
+		<td><div class="example">$cb_alias(dcx,linedown,4,71)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -520,11 +520,11 @@
 	<tr><td colspan="2">When the user increases the value by using the arrow keys.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME lineup ID POS</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,lineup,ID,POS)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx lineup 4 89</div></td>
+		<td><div class="example">$cb_alias(dcx,lineup,4,89)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -539,11 +539,11 @@
 	<tr><td colspan="2">When the user decreases the value in large increments by clicking on the trackbar thumb track.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME pagedown ID POS</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,pagedown,ID,POS)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx pagedown 4 80</div></td>
+		<td><div class="example">$cb_alias(dcx,pagedown,4,80)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -558,11 +558,11 @@
 	<tr><td colspan="2">When the user increases the value in large increments by clicking on the trackbar thumb track.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME pageup ID POS</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,pageup,ID,POS)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx pageup 4 90</div></td>
+		<td><div class="example">$cb_alias(dcx,pageup,4,90)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -577,11 +577,11 @@
 	<tr><td colspan="2">When a tooltip is about to be displayed for the trackbar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME showtip ID POS</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,showtip,ID,POS)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx showtip 4 83</div></td>
+		<td><div class="example">$cb_alias(dcx,showtip,4,83)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -596,11 +596,11 @@
 	<tr><td colspan="2">When the user presses the home key.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME top ID POS</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,top,ID,POS)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx top 4</div></td>
+		<td><div class="example">$cb_alias(dcx,top,4)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -615,11 +615,11 @@
 	<tr><td colspan="2">When the user releases the left mouse button after dragging the thumb.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME trackend ID POS</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,trackend,ID,POS)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx trackend 4 73</div></td>
+		<td><div class="example">$cb_alias(dcx,trackend,4,73)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -642,7 +642,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -851,7 +851,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -918,7 +918,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 13th September, 26</td>
+		<td style="text-align: right;">Last Updated: 19th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">
