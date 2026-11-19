@@ -1145,7 +1145,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		if ((x == -1) && (y == -1))
 			iFlags |= SWP_NOMOVE;
 
-		// if w or h are < 0, no sizing. NB: no negative sizes allowed.
+		// if w and h are < 0, no sizing. NB: no negative sizes allowed.
 		if ((w < 0) && (h < 0))
 			iFlags |= SWP_NOSIZE;
 
@@ -2440,7 +2440,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				break;
 			}
 
-			switch (std::hash<TString>{}(p_this->evalAliasT(TEXT("changing,0,%,%,%,%,%"), p, wp->x, wp->y, wp->cx, wp->cy).second))
+			const auto tsRes(p_this->evalAliasT(TEXT("changing,0,%,%,%,%,%"), p, wp->x, wp->y, wp->cx, wp->cy).second);
+			switch (std::hash<TString>{}(tsRes.getfirsttok(1)))
 			{
 			case TEXT("nosize"_hash):
 				wp->flags |= SWP_NOSIZE;
@@ -2451,6 +2452,17 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			case TEXT("nochange"_hash):
 				wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
 				break;
+			case TEXT("setvalues"_hash):
+			{
+				// returns desired width & height
+				// setvalues [X] [Y] [W] [H]
+				// usefull when setting a dialogs min/max sizes or limiting the dialog to a set area.
+				wp->x = std::max(0, tsRes.getnexttokas<int>());
+				wp->y = std::max(0, tsRes.getnexttokas<int>());
+				wp->cx = std::max(30, tsRes.getnexttokas<int>());
+				wp->cy = std::max(30, tsRes.getnexttokas<int>());
+			}
+			break;
 			default:
 				break;
 			}

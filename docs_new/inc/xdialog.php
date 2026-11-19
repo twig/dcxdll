@@ -492,8 +492,8 @@ function get_xdialog_xdialog(&$XDIALOG) {
 					'__desc' => "Sizing flags.",
 					'__values' => array(
 						'a' => "Absolute sizing of whole window, NOT just client area.",
-						's' => 'No size change. (same as providing -1 -1 for [v]W[/v] [v]H[/v])',
-						'm' => 'No position change. (same as providing -1 -1 for [v]X[/v] [v]Y[/v])',
+						's' => 'No size change. ([v]W[/v] [v]H[/v] are ignored)',
+						'm' => 'No position change. ([v]X[/v] [v]Y[/v] are ignored)',
 						'r' => 'Force a full redraw.',
 					),
 				),
@@ -706,8 +706,14 @@ function get_events_xdialog(&$EVENTS) {
 				'nosize' => 'Return this value to block the window from resizing.',
 				'nomove' => 'Return this value to block the window from moving.',
 				'nochange' => 'Return this value to block the window from moving and resizing.',
+				'setvalues [X] [Y] [W] [H]' => 'Return this value to set the windows [p]X[/p],[p]Y[/p] pos & [p]W[/p],[p]H[/p].',
 			),
 			'__isdialog' => true,
+			'__notes' => array(
+				'When returning setvalues [p]X[/p],[p]Y[/p] are limited to 0+ & [p]W[/p],[p]H[/p] are limited to 30+',
+				'Also [p]X[/p],[p]Y[/p] are only applied when either processing a [v]moving[/v] or [v]both[/v] events',
+				'[p]W[/p],[p]H[/p] are only applied when either processing a [v]sizing[/v] or [v]both[/v] events',
+			),
 		),
 		"endsize" => array(
             '__desc' => "When the dialog has finished being resized.",

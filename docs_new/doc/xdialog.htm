@@ -1828,7 +1828,7 @@
 		<td class="value">both</td>
 		<td>Both position and size is changing.</td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">nosize</a> Return this value to block the window from resizing.<br /><a class="returnevent">nomove</a> Return this value to block the window from moving.<br /><a class="returnevent">nochange</a> Return this value to block the window from moving and resizing.</td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">nosize</a> Return this value to block the window from resizing.<br /><a class="returnevent">nomove</a> Return this value to block the window from moving.<br /><a class="returnevent">nochange</a> Return this value to block the window from moving and resizing.<br /><a class="returnevent">setvalues [X] [Y] [W] [H]</a> Return this value to set the windows <a class="param">X</a>,<a class="param">Y</a> pos & <a class="param">W</a>,<a class="param">H</a>.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>When returning setvalues <a class="param">X</a>,<a class="param">Y</a> are limited to 0+ & <a class="param">W</a>,<a class="param">H</a> are limited to 30+</li><li>Also <a class="param">X</a>,<a class="param">Y</a> are only applied when either processing a <a class="value">moving</a> or <a class="value">both</a> events</li><li><a class="param">W</a>,<a class="param">H</a> are only applied when either processing a <a class="value">sizing</a> or <a class="value">both</a> events</li></ul></td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
