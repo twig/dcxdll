@@ -683,7 +683,7 @@ function get_events_xdialog(&$EVENTS) {
             '__isdialog' => true,
 		),
 		"sizing" => array(
-			'__desc' => 'When the dialog is being resized where $3 is the new width and $4 is the new height.',
+			'__desc' => 'When the dialog is being resized where $4 is the new width and $5 is the new height.',
 			'__cmd' => 'W H',
 			'__eg' => '90 60',
 			'__isdialog' => true,
