@@ -182,7 +182,7 @@ void DcxDialog::deleteAllControls() noexcept
 	m_NamedIds.clear();
 }
 
-DcxControl* DcxDialog::getControlByNamedID(const TString& tsID) const
+DcxControl* DcxDialog::getControlByNamedID(const TString& tsID) const noexcept(TSTRING_STRTOUL)
 {
 	if (const auto id = NameToID(tsID); id > 0)
 		return getControlByID(id);

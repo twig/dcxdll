@@ -144,7 +144,7 @@ public:
 		return mIRCLinker::o_eval<TString>(tsArgs);
 	}
 
-	DcxControl* getControlByNamedID(const TString &tsID) const;
+	DcxControl* getControlByNamedID(const TString &tsID) const noexcept(TSTRING_STRTOUL);
 	DcxControl* getControlByID(const UINT ID) const noexcept;
 	DcxControl* getControlByHWND(const HWND mHwnd) const noexcept;
 
