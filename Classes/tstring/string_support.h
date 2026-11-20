@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.35
+// v1.37
 
 #include <tchar.h>
 #include <wtypes.h>
@@ -188,11 +188,11 @@ namespace details
 	template <typename T>
 	constexpr bool is_pod_v = is_pod<T>::value;
 
-	template<typename T>
-	concept IsPODText = std::is_same_v<std::remove_all_extents_t<std::remove_cv_t<std::remove_pointer_t<T>>>, char> || std::is_same_v<std::remove_all_extents_t<std::remove_cv_t<std::remove_pointer_t<T>>>, wchar_t>;
+	//template<typename T>
+	//concept IsPODText = std::is_same_v<std::remove_all_extents_t<std::remove_cv_t<std::remove_pointer_t<T>>>, char> || std::is_same_v<std::remove_all_extents_t<std::remove_cv_t<std::remove_pointer_t<T>>>, wchar_t>;
 
-	template <class T>
-	concept IsNumeric = is_Numeric_v<std::remove_cvref_t<T>>;
+	//template <class T>
+	//concept IsNumeric = is_Numeric_v<std::remove_cvref_t<T>>;
 
 	template <class T>
 	concept HasDataFunction = requires(T t)
@@ -293,6 +293,89 @@ namespace details
 	template <class T>
 	concept HasFrontBack = HasFrontFunction<T> && HasBackFunction<T> && HasPopBackFunction<T> && HasEraseFunction<T> && HasEmptyFunction<T> && HasBeginFunction<T> && HasEndFunction<T>;
 
+	template <class T>
+	concept IsCharText = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<std::remove_pointer_t<T>>>, char>;
+
+	template <class T>
+	concept IsWCharText = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<std::remove_pointer_t<T>>>, wchar_t>;
+
+#if __has_include("tstring.h")
+	// forward declare class
+	class TString;
+	template <class T>
+	concept IsTString = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, TString>;
+#else
+	template <class T>
+	concept IsTString = false;
+#endif
+
+	template <class T>
+	concept IsSTDString = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, std::string> || std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, std::wstring>;
+
+	template <class T>
+	concept IsPointer = std::is_pointer_v<T>;
+
+	template <class T>
+	concept IsPODText = IsCharText<T> || IsWCharText<T>;
+
+	template <class T>
+	concept IsPODTextArray = IsPODText<T> && std::is_bounded_array_v<T>;
+
+	template <class T>
+	concept IsPODTextPointer = IsPointer<T> && IsPODText<std::remove_pointer_t<T>> && !IsPODTextArray<T>;
+
+	template <class T>
+	concept IsNumeric = is_Numeric_v<std::remove_cvref_t<T>>;
+
+	template <class T>
+	concept IsFloat = std::is_floating_point_v<T>;
+
+	template <class T>
+	concept IsInteger = IsNumeric<T> && !IsFloat<T>;
+
+	// container type
+	template<typename Iter, typename Container>
+	concept container_iterator =
+		std::same_as<Iter, typename Container::iterator> ||
+		std::same_as<Iter, typename Container::const_iterator>;
+	template<typename T>
+	concept ImplementsBeginFunction = requires(T t)
+	{
+		{ t.begin() } -> container_iterator<T>;
+	};
+	template<typename T>
+	concept ImplementsEndFunction = requires(T t)
+	{
+		{ t.end() } -> container_iterator<T>;
+	};
+	template<typename T>
+	concept ImplementsEraseFunction = requires(T t)
+	{
+		//t.erase();
+		//std::is_member_function_pointer_v<decltype(&T::erase)>;
+		//std::is_member_function_pointer_v<decltype(std::declval(t).erase())>;
+		//std::declval(t).erase();
+		{ t.erase() } -> container_iterator<T>;
+	};
+
+	template<typename T>
+	concept IsContainer = ImplementsBeginFunction<T> && ImplementsEndFunction<T> /*&& ImplementsEraseFunction<T>*/;
+
+	template <class T>
+	concept IsSupportedCompareType = IsPODText<T> || IsPODTextPointer<T> || IsTString<T> || std::is_convertible_v<std::remove_cvref_t<T>, wchar_t> || std::is_convertible_v<std::remove_cvref_t<T>, char> || std::is_convertible_v<std::remove_cv_t<T>, wchar_t*> || std::is_convertible_v<std::remove_cv_t<T>, char*>;
+
+	template <class T>
+	concept IsSupportedAddType = IsSTDString<T> || IsNumeric<T> || IsSupportedCompareType<T>;
+
+	template <class T>
+	concept IsSupportedRemoveType = IsSupportedCompareType<T>;
+
+	//template <class T>
+	//concept IsSupportedSeperatorType = IsSupportedCompareType<T>;
+
+	template <class T>
+	concept IsSupportedSeperatorType = IsPODText<T> || IsPODTextPointer<T> || IsTString<T>;
+
 	constexpr WCHAR make_upper(_In_ const WCHAR c) noexcept
 	{
 		if (c >= L'a' && c <= L'z') return _toupper(c);
@@ -386,6 +469,13 @@ namespace details
 	template <typename T>
 	bool _ts_isEmpty(_In_ const T& str) noexcept
 	{
+		constexpr bool has_empty = requires(const T & t) {
+			t.empty();
+		};
+		constexpr bool has_IsEmpty = requires(const T & t) {
+			t.IsEmpty();
+		};
+
 		if constexpr (std::is_pointer_v<T>)
 		{
 			// T is a pointer
@@ -415,11 +505,20 @@ namespace details
 				return (str == value_type());
 			}
 		}
-		else if constexpr (std::is_member_function_pointer_v<decltype(&T::empty)>)
+		else if constexpr (has_empty)
 		{
-			// T is NOT a pointer and is NOT POD
+			// T is NOT a pointer and is NOT POD, has empty() function.
 			// Test if a container is empty, works for std::basic_string & TString objects or any container with an empty() member function.
 			return str.empty();
+		}
+		else if constexpr (has_IsEmpty)
+		{
+			// T is NOT a pointer and is NOT POD, has IsEmpty() function.
+			// Test if a container is empty, works for CString objects or any container with an IsEmpty() member function.
+			return str.IsEmpty();
+		}
+		else {
+			static_assert(has_IsEmpty, "Invalid Type used");
 		}
 	}
 	template <typename T>
@@ -562,7 +661,7 @@ namespace details
 		ptrdiff_t operator()(_Out_writes_(length) char* const pDest, _In_reads_or_z_(length) const char* const pSrc, _In_ size_t length) noexcept
 		{
 			if ((length == 0) || (length > INT_MAX))
-			  return -E2BIG;
+				return -E2BIG;
 
 			ptrdiff_t cnt{};
 			char* p1 = pDest;
@@ -1623,7 +1722,7 @@ auto _ts_strtoimax(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endpt
 }
 
 template <details::IsPODText T>
-auto _ts_strtoul(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T * *endptr, _In_ int base) noexcept
+auto _ts_strtoul(_In_z_ const T* const buf, _Out_opt_ _Deref_post_z_ T** endptr, _In_ int base) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
@@ -1691,7 +1790,7 @@ auto _ts_bstrtoul(_In_z_ const T* const buf) noexcept
 /// <param name="contex"></param>
 /// <returns></returns>
 template <details::IsPODText T>
-auto _ts_strtok(_Inout_opt_z_ T* const buf, _In_z_ const T * delim, _Inout_ _Deref_prepost_opt_z_ T * *contex) noexcept
+auto _ts_strtok(_Inout_opt_z_ T* const buf, _In_z_ const T * delim, _Inout_ _Deref_prepost_opt_z_ T** contex) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
@@ -1919,6 +2018,103 @@ bool _ts_isupper(_In_ const T & c) noexcept
 		return (isupper(c) != 0);
 }
 
+template <details::IsPointer T, class Input>
+[[nodiscard]] T _ts_to_(_In_ const Input & str) noexcept
+{
+	static_assert(std::is_pointer_v<T>, "Type T must be a pointer.");
+
+	return reinterpret_cast<T>(&str[0]);
+}
+
+#if STRINGSUPPORT_STRTOUL
+/// <summary>
+/// Convert to numeric type
+/// </summary>
+/// <typeparam name="T">- The number type to convert too.</typeparam>
+/// <returns>The string converted to a number.</returns>
+template <details::IsFloat T, details::IsSTDString Input>
+[[nodiscard]] T _ts_to_(_In_ const Input & str) noexcept
+{
+	static_assert(is_Numeric_v<T>, "Type T must be (float, double, or long double)");
+
+	if constexpr (std::is_same_v<float, std::remove_all_extents_t<T>>)
+		return gsl::narrow_cast<T>(_ts_strtof(str.c_str()));
+	else
+		if constexpr (std::is_same_v<double, std::remove_all_extents_t<T>>)
+			return gsl::narrow_cast<T>(_ts_strtod(str.c_str()));
+		else
+			return gsl::narrow_cast<T>(_ts_strtold(str.c_str()));
+}
+
+/// <summary>
+/// Convert to numeric type
+/// </summary>
+/// <typeparam name="T">- The number type to convert too.</typeparam>
+/// <returns>The string converted to a number.</returns>
+template <details::IsFloat T, details::IsPODText Input>
+[[nodiscard]] T _ts_to_(_In_ const Input * str) noexcept
+{
+	static_assert(is_Numeric_v<T>, "Type T must be (float, double, or long double)");
+
+	if constexpr (std::is_same_v<float, std::remove_all_extents_t<T>>)
+		return gsl::narrow_cast<T>(_ts_strtof(str));
+	else
+		if constexpr (std::is_same_v<double, std::remove_all_extents_t<T>>)
+			return gsl::narrow_cast<T>(_ts_strtod(str));
+		else
+			return gsl::narrow_cast<T>(_ts_strtold(str));
+}
+
+/// <summary>
+/// Convert to numeric type
+/// NB: type bool only checks the first character. An empty string is considered to be false.
+/// </summary>
+/// <typeparam name="T">- The number type to convert too.</typeparam>
+/// <returns>The string converted to a number.</returns>
+template <details::IsInteger T, details::IsSTDString Input>
+[[nodiscard]] T _ts_to_(_In_ const Input & str) noexcept
+{
+	static_assert(is_Numeric_v<T>, "Type T must be (int, long, ....)");
+
+	// no floats etc..
+	if constexpr (std::is_same_v<bool, T>)
+	{
+		//return ((str[0] != L'0') && (str[0] != 0));		// is first character is zero, then its a false, otherwise its a true
+		if ((str[0] != L'0') && (str[0] != 0))		// is first character is zero, then its a false, otherwise its a true
+			return (str != L"$false");
+		return false;
+	}
+	else if constexpr (std::is_signed_v<T>)
+		return gsl::narrow_cast<T>(_ts_strtoimax<typename Input::value_type>(str.c_str(), nullptr, 10));
+	else
+		return gsl::narrow_cast<T>(_ts_strtoumax<typename Input::value_type>(str.c_str(), nullptr, 10));
+}
+
+/// <summary>
+/// Convert to numeric type
+/// NB: type bool only checks the first character. An empty string is considered to be false.
+/// </summary>
+/// <typeparam name="T">- The number type to convert too.</typeparam>
+/// <returns>The string converted to a number.</returns>
+template <details::IsInteger T, details::IsPODText Input>
+[[nodiscard]] T _ts_to_(_In_ const Input * str) noexcept
+{
+	static_assert(is_Numeric_v<T>, "Type T must be (int, long, ....)");
+
+	// no floats etc..
+	if constexpr (std::is_same_v<bool, T>)
+	{
+		//return ((str[0] != L'0') && (str[0] != 0));		// is first character is zero, then its a false, otherwise its a true
+		if ((str[0] != L'0') && (str[0] != 0))		// is first character is zero, then its a false, otherwise its a true
+			return (_ts_strcmp(str, L"$false") == 0);
+		return false;
+	}
+	else if constexpr (std::is_signed_v<T>)
+		return gsl::narrow_cast<T>(_ts_strtoimax<Input>(str, nullptr, 10));
+	else
+		return gsl::narrow_cast<T>(_ts_strtoumax<Input>(str, nullptr, 10));
+}
+#else
 /// <summary>
 /// Convert a string to a number.
 /// </summary>
@@ -1942,11 +2138,20 @@ T _ts_to_(_In_ const Input & str)
 	return ss >> result ? result : T();
 #endif
 }
+#endif
 
+#ifndef STRINGSUPPORT_WILDT
 #define STRINGSUPPORT_WILDT 0
+#endif
+#ifndef STRINGSUPPORT_WILDA
 #define STRINGSUPPORT_WILDA 0
+#endif
+#ifndef STRINGSUPPORT_WILDE
 #define STRINGSUPPORT_WILDE 0
+#endif
+#ifndef STRINGSUPPORT_WILDW
 #define STRINGSUPPORT_WILDW 0
+#endif
 
 /// <summary>
 /// Internal wildcard match function.
