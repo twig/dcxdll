@@ -558,7 +558,7 @@ function get_events_treeview(&$EVENTS) {
 	    "sclick" => array(
 			'__desc' => "When an item is single clicked.",
 			'__cmd' => 'PATH',
-			'__eg' => '1 4 2',
+			'__eg' => '1,4,2',
 			'__params' => array(
 				'PATH' => 'Path leading to the item that triggered the event.',
 			),
@@ -567,7 +567,7 @@ function get_events_treeview(&$EVENTS) {
 		"dclick" => array(
 			'__desc' => "When an item is double clicked.",
 			'__cmd' => 'PATH',
-			'__eg' => '4 2',
+			'__eg' => '4,2',
 			'__params' => array(
 				'PATH' => 'Path leading to the item that triggered the event.',
 			),
@@ -576,7 +576,7 @@ function get_events_treeview(&$EVENTS) {
 		"rclick" => array(
 			'__desc' => "When the treeview is right clicked.",
 			'__cmd' => 'PATH',
-			'__eg' => '4 2',
+			'__eg' => '4,2',
 			'__params' => array(
 				'PATH' => 'Path leading to the item that triggered the event.',
 			),
@@ -587,8 +587,8 @@ function get_events_treeview(&$EVENTS) {
 		),
 		"stateclick" => array(
 			'__desc' => "When a checkbox is clicked.",
-			'__cmd' => 'STATE PATH',
-			'__eg' => '1 4 2',
+			'__cmd' => 'STATE,PATH',
+			'__eg' => '1,4,2',
 			'__params' => array(
 				'STATE' => 'New item check state ([s]checkbox[/s] style) or state icon value.',
 				'PATH' => 'Path leading to the item that triggered the event.',
@@ -597,7 +597,7 @@ function get_events_treeview(&$EVENTS) {
 		'selchange' => array(
 			'__desc' => 'When the selected item changes.',
 			'__cmd' => 'PATH',
-			'__eg' => '4 2',
+			'__eg' => '4,2',
 			'__params' => array(
 				'PATH' => 'Path leading to the item which triggered the event.',
 			),
@@ -605,7 +605,7 @@ function get_events_treeview(&$EVENTS) {
 		"buttonclick" => array(
 			'__desc' => "When a &plusmn; button is clicked.",
 			'__cmd' => 'PATH',
-			'__eg' => '4 2',
+			'__eg' => '4,2',
 			'__params' => array(
 				'PATH' => 'Path leading to the item that had his &plusmn; button clicked.',
 			),
@@ -629,7 +629,7 @@ function get_events_treeview(&$EVENTS) {
 		"expand" => array(
 			'__desc' => "When a branch is expanded.",
 			'__cmd' => 'PATH',
-			'__eg' => '4 2',
+			'__eg' => '4,2',
 			'__params' => array(
 				'PATH' => 'Path leading to the item that was expanded.',
 			),
@@ -637,7 +637,7 @@ function get_events_treeview(&$EVENTS) {
 		"collapse" => array(
 			'__desc' => "When a branch is collapsed.",
 			'__cmd' => 'PATH',
-			'__eg' => '4 2',
+			'__eg' => '4,2',
 			'__params' => array(
 				'PATH' => 'Path leading to the item that was collapsed.',
 			),

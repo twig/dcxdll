@@ -153,7 +153,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-a,dcx,4,0,1,Tab1,$chr(9),12,richedit,10,10,400,25,multi,$chr(9),Tooltip</div></td>
+		<td><div class="example">/xdid -a dcx 4 0 1 Tab1 $chr(9) 12 richedit 10 10 400 25 multi $chr(9) Tooltip</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -215,7 +215,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-c,dcx,4,5</div></td>
+		<td><div class="example">/xdid -c dcx 4 5</div></td>
 	</tr>
 </table>
 <br />
@@ -229,7 +229,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-d,dcx,4,6</div></td>
+		<td><div class="example">/xdid -d dcx 4 6</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The control associated with the tab is removed when you delete a tab item.</td></tr></table>
 <br />
@@ -243,7 +243,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-l,dcx,4,2,3</div></td>
+		<td><div class="example">/xdid -l dcx 4 2 3</div></td>
 	</tr>
 </table>
 <br />
@@ -257,7 +257,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-m,dcx,4,50,20</div></td>
+		<td><div class="example">/xdid -m dcx 4 50 20</div></td>
 	</tr>
 </table>
 <br />
@@ -285,7 +285,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-t,dcx,4,2,New,Text<br />/xdid,-t,dcx,4,2,New,Text,$chr(9),new,tooltip,text<br />/xdid,-t,dcx,4,2,$chr(9),new,tooltip,text<br />/xdid,-t,dcx,4,2<br />/xdid,-t,dcx,4,2,$chr(9)<br /></div></td>
+		<td><div class="example">/xdid -t dcx 4 2 New Text<br />/xdid -t dcx 4 2 New Text $chr(9) new tooltip text<br />/xdid -t dcx 4 2 $chr(9) new tooltip text<br />/xdid -t dcx 4 2<br />/xdid -t dcx 4 2 $chr(9)<br /></div></td>
 	</tr>
 </table>
 <br />
@@ -299,7 +299,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-v,dcx,4,1,3</div></td>
+		<td><div class="example">/xdid -v dcx 4 1 3</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -322,7 +322,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-w,dcx,4,+g,113,shell32.dll</div></td>
+		<td><div class="example">/xdid -w dcx 4 +g 113 shell32.dll</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -365,7 +365,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-y,dcx,4,+</div></td>
+		<td><div class="example">/xdid -y dcx 4 +</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -397,7 +397,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-M,dcx,4,+,50</div></td>
+		<td><div class="example">/xdid -M dcx 4 + 50</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -416,7 +416,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-P,dcx,4,+c,1</div></td>
+		<td><div class="example">/xdid -P dcx 4 +c 1</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -580,7 +580,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,2).childid</div></td>
+		<td><div class="example">$xdid(dcx, 4, 2).childid</div></td>
 	</tr>
 </table>
 <br />
@@ -594,7 +594,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,2).icon</div></td>
+		<td><div class="example">$xdid(dcx, 4, 2).icon</div></td>
 	</tr>
 </table>
 <br />
@@ -678,7 +678,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,2).tabrect</div></td>
+		<td><div class="example">$xdid(dcx, 4, 2).tabrect</div></td>
 	</tr>
 </table>
 <br />
@@ -706,7 +706,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,1).text</div></td>
+		<td><div class="example">$xdid(dcx, 4, 1).text</div></td>
 	</tr>
 </table>
 <br />
@@ -818,7 +818,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1027,7 +1027,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -1094,7 +1094,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th November, 26</td>
+		<td style="text-align: right;">Last Updated: 20th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

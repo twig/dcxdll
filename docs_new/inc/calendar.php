@@ -130,8 +130,8 @@ function get_events_calendar(&$EVENTS) {
 		'selchange' => 'When the date selection is changed.',
 		'select' => array(
 			'__desc' => 'When a new date is selected.',
-			'__cmd' => 'START (END)',
-			'__eg' => '1152622371 1152722371',
+			'__cmd' => 'START,(END)',
+			'__eg' => '1152622371,1152722371',
 			'__params' => array(
 				'START' => 'The first date selected.',
 				'END' => 'The last date selected. This is not sent unless [s]multi[/s] style is specified.',

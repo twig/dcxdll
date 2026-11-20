@@ -78,7 +78,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$dcx(ActiveWindow,,caption)</div></td>
+		<td><div class="example">$dcx(ActiveWindow, caption)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -133,7 +133,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$dcx(BrowseDialog,,advanced,title,$chr(9),Select,a,folder:)<br />$dcx(BrowseDialog,,files,initfolder,$chr(9),$mircdir)<br />$dcx(BrowseDialog,,advanced,nonew,initfolder,title,$chr(9),C:\Music,$chr(9),Select,your,music,folder:)<br /></div></td>
+		<td><div class="example">$dcx(BrowseDialog, advanced title $chr(9) Select a folder:)<br />$dcx(BrowseDialog, files initfolder $chr(9) $mircdir)<br />$dcx(BrowseDialog, advanced nonew initfolder title $chr(9) C:\Music $chr(9) Select your music folder:)<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -204,7 +204,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$dcx(ColorDialog,,$rgb(255,0,0),fullopen,owner,dcx,anycolor)<br />$dcx(ColorDialog,,$rgb(0,0,255),owner,$window(@test).hwnd,solidonly)<br /></div></td>
+		<td><div class="example">$dcx(ColorDialog, $rgb(255,0,0) fullopen owner dcx anycolor)<br />$dcx(ColorDialog, $rgb(0,0,255) owner $window(@test).hwnd solidonly)<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -251,7 +251,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$dcx(CountIcons,,$mircdir,$+,mirc.exe)</div></td>
+		<td><div class="example">$dcx(CountIcons, $mircdir $+ mirc.exe)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -270,7 +270,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$dcx(FontDialog,,default,+is,ansi,9,Verdana,$chr(9),color,$rgb(255,0,0),$chr(9),owner,dname,$chr(9),flags,+eh)</div></td>
+		<td><div class="example">$dcx(FontDialog, default +is ansi 9 Verdana $chr(9) color $rgb(255,0,0) $chr(9) owner dname $chr(9) flags +eh)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -431,7 +431,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$dcx(GetSystemColor,,COLOR_WINDOW)</div></td>
+		<td><div class="example">$dcx(GetSystemColor, COLOR_WINDOW)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -608,7 +608,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$dcx(GetWindowProps,,$window($active).hwnd,caption)<br />$dcx(GetWindowProps,,treebar,mouseover)<br /></div></td>
+		<td><div class="example">$dcx(GetWindowProps, $window($active).hwnd caption)<br />$dcx(GetWindowProps, treebar mouseover)<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -659,7 +659,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/dcx,GhostDrag,150</div></td>
+		<td><div class="example">/dcx GhostDrag 150</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -734,7 +734,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/dcx,Mark,dialogName,cb_alias</div></td>
+		<td><div class="example">/dcx Mark dialogName cb_alias</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -757,7 +757,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$dcx(MsgBox,,yesnocancel,warning,defbutton3,$chr(9),Title,Of,The,MessageBox,$chr(9),Hello,there)</div></td>
+		<td><div class="example">$dcx(MsgBox, yesnocancel warning defbutton3 $chr(9) Title Of The MessageBox $chr(9) Hello there)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -881,7 +881,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$dcx(OpenDialog/SaveDialog,,showhidden,filemustexist,hidereadonly,$chr(9),c:\boot.ini,$chr(9),All,Files,(*.*)|*.*)<br />$dcx(OpenDialog/SaveDialog,,createprompt,overwriteprompt,owner,dcx,$chr(9),c:\blah.txt,$chr(9),All,Files,(*.*)|*.*|Music,Files|*.mp3;*.wav;*.ogg)<br /></div></td>
+		<td><div class="example">$dcx(OpenDialog/SaveDialog, showhidden filemustexist hidereadonly $chr(9) c:\boot.ini $chr(9) All Files (*.*)|*.*)<br />$dcx(OpenDialog/SaveDialog, createprompt overwriteprompt owner dcx $chr(9) c:\blah.txt $chr(9) All Files (*.*)|*.*|Music Files|*.mp3;*.wav;*.ogg)<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -964,7 +964,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$dcx(PickIcon,,2,$mircdir,$+,mirc.exe)</div></td>
+		<td><div class="example">$dcx(PickIcon, 2 $mircdir $+ mirc.exe)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -988,7 +988,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$dcx(SaveClipboard,,+t,$tempfn,$+,.txt)<br />$dcx(SaveClipboard,,+b,$tempfn,$+,.bmp)<br />$dcx(SaveClipboard,,+,$tempfn)<br /></div></td>
+		<td><div class="example">$dcx(SaveClipboard, +t $tempfn $+ .txt)<br />$dcx(SaveClipboard, +b $tempfn $+ .bmp)<br />$dcx(SaveClipboard, + $tempfn)<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1019,7 +1019,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/dcx,SetDCXSettings,UpdateColours<br />/dcx,SetDCXSettings,StaticColours,1<br />/dcx,SetDCXSettings,CustomMenus,1,0<br /></div></td>
+		<td><div class="example">/dcx SetDCXSettings UpdateColours<br />/dcx SetDCXSettings StaticColours 1<br />/dcx SetDCXSettings CustomMenus 1 0<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1064,7 +1064,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/dcx,WindowProps,$dialog(dcx).hwnd,+t,Hello<br />/dcx,WindowProps,$dialog(dcx).hwnd,+i,3,mirc.exe<br />/dcx,WindowProps,$dialog(dcx).hwnd,+T<br /></div></td>
+		<td><div class="example">/dcx WindowProps $dialog(dcx).hwnd +t Hello<br />/dcx WindowProps $dialog(dcx).hwnd +i 3 mirc.exe<br />/dcx WindowProps $dialog(dcx).hwnd +T<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1152,7 +1152,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/dcx,xSignal,1<br />/dcx,xSignal,0,+st<br /></div></td>
+		<td><div class="example">/dcx xSignal 1<br />/dcx xSignal 0 +st<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1211,7 +1211,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th November, 26</td>
+		<td style="text-align: right;">Last Updated: 20th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

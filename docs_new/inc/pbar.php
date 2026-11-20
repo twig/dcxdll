@@ -117,8 +117,8 @@ function get_events_pbar(&$EVENTS) {
 	$EVENTS = array(
 		"sclick" => array(
 			'__desc' => "When you left-click on the progressbar.",
-			'__cmd' => "POS MIN MAX VALUE",
-			'__eg' => '10 0 100 40',
+			'__cmd' => "POS,MIN,MAX,VALUE",
+			'__eg' => '10,0,100,40',
 			'__params' => array(
 				'POS' => "Position where mouse is when event is fired.",
 				'MIN' => "Minimum range value.",
@@ -128,8 +128,8 @@ function get_events_pbar(&$EVENTS) {
 		),
 		"rclick" => array(
 			'__desc' => "When you right-click on the progressbar.",
-			'__cmd' => "POS MIN MAX VALUE",
-			'__eg' => '25 0 100 75',
+			'__cmd' => "POS,MIN,MAX,VALUE",
+			'__eg' => '25,0,100,75',
 			'__params' => array(
 				'POS' => "Position where mouse is when event is fired.",
 				'MIN' => "Minimum range value.",
@@ -139,8 +139,8 @@ function get_events_pbar(&$EVENTS) {
 		),
 		"mousebar" => array(
 			'__desc' => "When the mouse is moved on the progressbar while the left mouse button is held down.",
-			'__cmd' => "POS MIN MAX VALUE",
-			'__eg' => '48 0 100 30',
+			'__cmd' => "POS,MIN,MAX,VALUE",
+			'__eg' => '48,0,100,30',
 			'__params' => array(
 				'POS' => "Position where mouse is when event is fired.",
 				'MIN' => "Minimum range value.",

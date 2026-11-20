@@ -140,8 +140,8 @@ function get_events_webctrl(&$EVENTS) {
 		),
 		"nav_error" => array(
 			'__desc' => "When the control has encountered an error navigating to the URL.",
-			'__cmd' => 'CODE URL',
-			'__eg' => '404 http://github.com/twig/dcxdll',
+			'__cmd' => 'CODE,URL',
+			'__eg' => '404,http://github.com/twig/dcxdll',
 			'__notes' => array(
 				"The code shown is an example only, don't expect that value.",
 			),
@@ -154,8 +154,8 @@ function get_events_webctrl(&$EVENTS) {
 		"dl_begin" => "When downloading is about to begin.",
 		"dl_progress" => array(
 			'__desc' => "Downloading progress update.",
-			'__cmd' => 'CURRENT TOTAL',
-			'__eg' => '259700 1000000',
+			'__cmd' => 'CURRENT,TOTAL',
+			'__eg' => '259700,1000000',
 			'__params' => array(
 				'CURRENT' => 'Current dowload position.',
 				'TOTAL' => 'Maximum download position.'

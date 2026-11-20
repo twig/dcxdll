@@ -89,7 +89,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-c,dcx,4,cookies</div></td>
+		<td><div class="example">/xdid -c dcx 4 cookies</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -124,7 +124,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-g,dcx,4,http://github.com/twig/dcxdll</div></td>
+		<td><div class="example">/xdid -g dcx 4 http://github.com/twig/dcxdll</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If a url is supplied then it is set as the home url for all future calls.</td></tr></table>
 <br />
@@ -152,7 +152,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-j,dcx,4,alert('Hello')</div></td>
+		<td><div class="example">/xdid -j dcx 4 alert('Hello')</div></td>
 	</tr>
 </table>
 <br />
@@ -180,7 +180,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-m,dcx,4,+bf,+b,http://github.com/twig/dcxdll</div></td>
+		<td><div class="example">/xdid -m dcx 4 +bf +b http://github.com/twig/dcxdll</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -247,7 +247,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-n,dcx,4,http://github.com/twig/dcxdll</div></td>
+		<td><div class="example">/xdid -n dcx 4 http://github.com/twig/dcxdll</div></td>
 	</tr>
 </table>
 <br />
@@ -289,7 +289,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-C,dcx,4,+,sample.png</div></td>
+		<td><div class="example">/xdid -C dcx 4 + sample.png</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -320,7 +320,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-P,dcx,4,+b</div></td>
+		<td><div class="example">/xdid -P dcx 4 +b</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -575,11 +575,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When a context menu is about to be opened.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$cb_alias(DNAME,contextmenu,ID,KIND,X,Y)</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,contextmenu,ID,KIND X Y)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$cb_alias(dcx,contextmenu,4,COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND_IMAGE,10,10)</div></td>
+		<td><div class="example">$cb_alias(dcx,contextmenu,4,COREWEBVIEW2_CONTEXT_MENU_TARGET_KIND_IMAGE 10 10)</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> Return this value to block opening the menu.</td></tr></table>
 <br />
@@ -709,7 +709,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When the fullscreen state changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$cb_alias(DNAME,fullscreen,ID,[fullscreen,state])</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,fullscreen,ID,[fullscreen state])</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -779,11 +779,11 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr><td colspan="2">When the script command finishes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$cb_alias(DNAME,script,ID,[Script,result])</div></td>
+		<td><div class="syntax">$cb_alias(DNAME,script,ID,[Script result])</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$cb_alias(dcx,script,4,whatever,the,script,returned)</div></td>
+		<td><div class="example">$cb_alias(dcx,script,4,whatever the script returned)</div></td>
 	</tr>
 </table>
 <br />
@@ -811,7 +811,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$cb_alias(dcx,status,4,New,statusbar,text)</div></td>
+		<td><div class="example">$cb_alias(dcx,status,4,New statusbar text)</div></td>
 	</tr>
 </table>
 <br />
@@ -825,7 +825,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$cb_alias(dcx,title,4,The,other,page,title)</div></td>
+		<td><div class="example">$cb_alias(dcx,title,4,The other page title)</div></td>
 	</tr>
 </table>
 <br />
@@ -871,7 +871,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1080,7 +1080,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -1148,7 +1148,7 @@ NB: The control also requires WebView2 installed & will try to install it if not
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th November, 26</td>
+		<td style="text-align: right;">Last Updated: 20th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

@@ -254,8 +254,8 @@ function get_events_toolbar(&$EVENTS) {
 		),
 	    "rclick" => array(
 			'__desc' => "When a the right mouse button is clicked over a button.",
-			'__cmd' => 'BTN_ID Bottom_X Bottom_Y Top_X Top_Y',
-			'__eg' => '3 165 73 165 27',
+			'__cmd' => 'BTN_ID,Bottom_X,Bottom_Y,Top_X,Top_Y',
+			'__eg' => '3,165,73,165,27',
 			'__params' => array(
 				'BTN_ID' => 'Button that triggered the event.',
 				'Bottom_X' => 'Coordinates of a possible popup menu aligned under the button where the rclick was fired.',
@@ -266,8 +266,8 @@ function get_events_toolbar(&$EVENTS) {
 		),
 		"dropdown" => array(
 			'__desc' => "When a dropdown button (or arrow if [s]arrows[/s] style is set) event is fired on a button.",
-			'__cmd' => 'BTN_ID Bottom_X Bottom_Y Top_X Top_Y',
-			'__eg' => '10 586 73 586 27',
+			'__cmd' => 'BTN_ID,Bottom_X,Bottom_Y,Top_X,Top_Y',
+			'__eg' => '10,586,73,586,27',
 			'__params' => array(
 				'BTN_ID' => 'Button that triggered the event.',
 				'Bottom_X' => 'Coordinates of a possible popup menu aligned under the button where the dropdown was fired.',

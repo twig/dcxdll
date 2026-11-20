@@ -121,7 +121,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-k,dcx,4,+bi,$rgb(255,0,255)<br />/xdid,-k,dcx,4,+A,$rgb(255,0,255),$rgb(0,255,255),$rgb(0,0,255),$rgb(0,128,0),$rgb(255,128,255),$rgb(128,128,128)<br /></div></td>
+		<td><div class="example">/xdid -k dcx 4 +bi $rgb(255,0,255)<br />/xdid -k dcx 4 +A $rgb(255,0,255) $rgb(0,255,255) $rgb(0,0,255) $rgb(0,128,0) $rgb(255,128,255) $rgb(128,128,128)<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -172,7 +172,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-o,dcx,4,'Right,now,it,is:,'hh':'m':'s,ddddMMMdd',,'yyy</div></td>
+		<td><div class="example">/xdid -o dcx 4 'Right now it is: 'hh':'m':'s ddddMMMdd', 'yyy</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -263,7 +263,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-r,dcx,4,$ctime(3rd,July,2006),$ctime<br />/xdid,-r,dcx,4,nolimit,$ctime<br /></div></td>
+		<td><div class="example">/xdid -r dcx 4 $ctime(3rd July 2006) $ctime<br />/xdid -r dcx 4 nolimit $ctime<br /></div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">nolimit</a> for <a class="param">MIN_TIMESTAMP</a> or <a class="param">MAX_TIMESTAMP</a> if you wish to specify no minimum or maximum date range respectively.</td></tr></table>
 <br />
@@ -277,7 +277,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-t,dcx,4,$ctime(3rd,July,3006)</div></td>
+		<td><div class="example">/xdid -t dcx 4 $ctime(3rd July 3006)</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">reset</a> for <a class="param">TIMESTEMP</a> to set it back to the current date/time, but this only applies to the <a class='style' href='datetime.htm#style.shownone'>shownone</a> style.</td></tr></table>
 <br />
@@ -291,7 +291,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-D,dcx,4,+abs,ansi,10,Tahoma</div></td>
+		<td><div class="example">/xdid -D dcx 4 +abs ansi 10 Tahoma</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -350,7 +350,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,background).calcolor<br />$xdid(dcx,,4,,monthbk).calcolor<br />$xdid(dcx,,4,,text).calcolor<br />$xdid(dcx,,4,,titlebk).calcolor<br />$xdid(dcx,,4,,titletext).calcolor<br />$xdid(dcx,,4,,trailingtext).calcolor<br />$xdid(dcx,,4,,all).calcolor<br /></div></td>
+		<td><div class="example">$xdid(dcx, 4, background).calcolor<br />$xdid(dcx, 4, monthbk).calcolor<br />$xdid(dcx, 4, text).calcolor<br />$xdid(dcx, 4, titlebk).calcolor<br />$xdid(dcx, 4, titletext).calcolor<br />$xdid(dcx, 4, trailingtext).calcolor<br />$xdid(dcx, 4, all).calcolor<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -532,7 +532,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -741,7 +741,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -788,7 +788,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th November, 26</td>
+		<td style="text-align: right;">Last Updated: 20th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

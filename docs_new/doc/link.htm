@@ -121,7 +121,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-l,dcx,4,2,$rgb(255,0,255)<br />/xdid,-l,dcx,4,2,default<br /></div></td>
+		<td><div class="example">/xdid -l dcx 4 2 $rgb(255,0,255)<br />/xdid -l dcx 4 2 default<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -140,7 +140,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-q,dcx,4,$rgb(255,0,0),$rgb(0,0,0),$rgb(255,,0,,255),$rgb(150,,150,,150),$rgb(0,,0,,0),$rgb(0,102,204)<br />/xdid,-q,dcx,4,$rgb(255,0,0),$rgb(0,0,0)<br />/xdid,-q,dcx,4,default,-1,default,default,-1,default<br /></div></td>
+		<td><div class="example">/xdid -q dcx 4 $rgb(255,0,0) $rgb(0,0,0) $rgb(255, 0, 255) $rgb(150, 150, 150) $rgb(0, 0, 0) $rgb(0,102,204)<br />/xdid -q dcx 4 $rgb(255,0,0) $rgb(0,0,0)<br />/xdid -q dcx 4 default -1 default default -1 default<br /></div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can give the command a number of colors inferior to 6, it will then only add thoses colors in order to the palette starting at 1.</li><li>You can use the word default instead of a colour value to restore the colour to its default.</li><li>A colour value of -1 will result in that colour not being changed.</li></ul></td></tr></table>
 <br />
@@ -154,7 +154,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-t,dcx,4,Text,Label</div></td>
+		<td><div class="example">/xdid -t dcx 4 Text Label</div></td>
 	</tr>
 </table>
 <br />
@@ -168,7 +168,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-w,dcx,4,+g,113,shell32.dll</div></td>
+		<td><div class="example">/xdid -w dcx 4 +g 113 shell32.dll</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -293,7 +293,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -502,7 +502,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -543,7 +543,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th November, 26</td>
+		<td style="text-align: right;">Last Updated: 20th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

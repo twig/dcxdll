@@ -276,7 +276,7 @@ function get_xdidprops_tab(&$XDIDPROPS) {
 
 function get_events_tab(&$EVENTS) {
 	$EVENTS = array(
-	        "closetab" => "When the close button on a [s]closeable[/s] tab is clicked.",
+        "closetab" => "When the close button on a [s]closeable[/s] tab is clicked.",
 		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 		'sclick' => array(
 			'__desc' => 'When a tab item is selected.',

@@ -129,7 +129,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-a,dcx,4,3,0,1,2,0,Visit,github.com/twig/dcxdll<br />/xdid,-a,dcx,4,3,+T,0,1,2,0,44,these,are,some,tokens<br />/xdid,-a,dcx,4,3,+F,0,1,2,0,44,1,-1,file.txt<br /></div></td>
+		<td><div class="example">/xdid -a dcx 4 3 0 1 2 0 Visit github.com/twig/dcxdll<br />/xdid -a dcx 4 3 +T 0 1 2 0 44 these,are,some,tokens<br />/xdid -a dcx 4 3 +F 0 1 2 0 44 1 -1 file.txt<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -180,7 +180,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-c,dcx,4,5</div></td>
+		<td><div class="example">/xdid -c dcx 4 5</div></td>
 	</tr>
 </table>
 <br />
@@ -194,7 +194,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-d,dcx,4,6<br />/xdid,-d,dcx,4,6-9<br />/xdid,-d,dcx,4,6,+w,*pattern*<br /></div></td>
+		<td><div class="example">/xdid -d dcx 4 6<br />/xdid -d dcx 4 6-9<br />/xdid -d dcx 4 6 +w *pattern*<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -233,7 +233,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-l,dcx,4,1</div></td>
+		<td><div class="example">/xdid -l dcx 4 1</div></td>
 	</tr>
 </table>
 <br />
@@ -275,7 +275,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-w,dcx,4,+g,113,shell32.dll<br />/xdid,-w,dcx,4,+g,113-120,shell32.dll<br /></div></td>
+		<td><div class="example">/xdid -w dcx 4 +g 113 shell32.dll<br />/xdid -w dcx 4 +g 113-120 shell32.dll<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -332,7 +332,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-A,dcx,4,13,+M,Yetis,are,real<br />/xdid,-A,dcx,4,13-20,22,+M,Yetis,are,real<br /></div></td>
+		<td><div class="example">/xdid -A dcx 4 13 +M Yetis are real<br />/xdid -A dcx 4 13-20,22 +M Yetis are real<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -363,7 +363,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,$chr(9),*Item*,$chr(9),,W,,3).find</div></td>
+		<td><div class="example">$xdid(dcx, 4, $chr(9) *Item* $chr(9), W, 3).find</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -440,7 +440,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,1).text</div></td>
+		<td><div class="example">$xdid(dcx, 4, 1).text</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use a value of <a class="value">0</a> for <a class="param">N</a> to retrieve the text of the editbox.</td></tr></table>
 <br />
@@ -589,7 +589,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -798,7 +798,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -854,7 +854,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th November, 26</td>
+		<td style="text-align: right;">Last Updated: 20th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

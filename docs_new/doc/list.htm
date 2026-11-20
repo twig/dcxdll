@@ -141,7 +141,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-a,dcx,4,0,New,Item</div></td>
+		<td><div class="example">/xdid -a dcx 4 0 New Item</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -160,7 +160,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-c,dcx,4,1,2,3</div></td>
+		<td><div class="example">/xdid -c dcx 4 1,2,3</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -179,7 +179,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-d,dcx,4,1<br />/xdid,-d,dcx,4,1-4<br />/xdid,-d,dcx,4,1,+,stuff<br />/xdid,-d,dcx,4,1,+w,*stuff*<br />/xdid,-d,dcx,4,1,+r,/stuff/<br /></div></td>
+		<td><div class="example">/xdid -d dcx 4 1<br />/xdid -d dcx 4 1-4<br />/xdid -d dcx 4 1 + stuff<br />/xdid -d dcx 4 1 +w *stuff*<br />/xdid -d dcx 4 1 +r /stuff/<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -218,7 +218,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-m,dcx,4,+w,150</div></td>
+		<td><div class="example">/xdid -m dcx 4 +w 150</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -253,7 +253,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-o,dcx,4,1,New,Text<br />/xdid,-o,dcx,4,1,5,New,Text<br /></div></td>
+		<td><div class="example">/xdid -o dcx 4 1 New Text<br />/xdid -o dcx 4 1,5 New Text<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -304,7 +304,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-A,dcx,4,0,+t,settings</div></td>
+		<td><div class="example">/xdid -A dcx 4 0 +t settings</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -420,7 +420,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,$chr(9),*Item*,$chr(9),,W,,3).find</div></td>
+		<td><div class="example">$xdid(dcx, 4, $chr(9) *Item* $chr(9), W, 3).find</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -473,7 +473,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,2).sel</div></td>
+		<td><div class="example">$xdid(dcx, 4, 2).sel</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -506,7 +506,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,2).text</div></td>
+		<td><div class="example">$xdid(dcx, 4, 2).text</div></td>
 	</tr>
 </table>
 <br />
@@ -739,7 +739,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -948,7 +948,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -1010,7 +1010,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th November, 26</td>
+		<td style="text-align: right;">Last Updated: 20th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

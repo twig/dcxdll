@@ -918,8 +918,8 @@ function get_events_listview(&$EVENTS) {
 	$EVENTS = array(
 	    "sclick" => array(
 			'__desc' => "When an item is single clicked.",
-			'__cmd' => 'ITEM SUBITEM',
-			'__eg' => '4 2',
+			'__cmd' => 'ITEM,SUBITEM',
+			'__eg' => '4,2',
 			'__params' => array(
 				'ITEM' => 'Item number where the event was triggered.',
 				'SUBITEM' => 'Column index where the event was triggered.',
@@ -928,8 +928,8 @@ function get_events_listview(&$EVENTS) {
 		),
 		"dclick" => array(
 			'__desc' => "When an item is double clicked",
-			'__cmd' => 'ITEM SUBITEM',
-			'__eg' => '4 2',
+			'__cmd' => 'ITEM,SUBITEM',
+			'__eg' => '4,2',
 			'__params' => array(
 				'ITEM' => 'Item number where the event was triggered.',
 				'SUBITEM' => 'Column index where the event was triggered.',
@@ -938,8 +938,8 @@ function get_events_listview(&$EVENTS) {
 		),
 		"rclick" => array(
 			'__desc' => "When the listview is right clicked.",
-			'__cmd' => 'ITEM SUBITEM',
-			'__eg' => '4 2',
+			'__cmd' => 'ITEM,SUBITEM',
+			'__eg' => '4,2',
 			'__params' => array(
 				'ITEM' => 'Item number where the event was triggered.',
 				'SUBITEM' => 'Column index where the event was triggered.',
@@ -948,8 +948,8 @@ function get_events_listview(&$EVENTS) {
 		),
 		"rdclick" => array(
 			'__desc' => "When the listview is double right-clicked.",
-			'__cmd' => 'ITEM SUBITEM',
-			'__eg' => '4 2',
+			'__cmd' => 'ITEM,SUBITEM',
+			'__eg' => '4,2',
 			'__params' => array(
 				'ITEM' => 'Item number where the event was triggered.',
 				'SUBITEM' => 'Column index where the event was triggered.',
@@ -958,8 +958,8 @@ function get_events_listview(&$EVENTS) {
 		),
 		"hover" => array(
 			'__desc' => "When the mouse is hovering over the listview.",
-			'__cmd' => 'ITEM SUBITEM',
-			'__eg' => '4 2',
+			'__cmd' => 'ITEM,SUBITEM',
+			'__eg' => '4,2',
 			'__params' => array(
 				'ITEM' => 'Item number where the event was triggered.',
 				'SUBITEM' => 'Column index where the event was triggered.',
@@ -976,15 +976,15 @@ function get_events_listview(&$EVENTS) {
 		),
 		"labelbegin" => array(
 			'__desc' => "When item text label editing begins.",
-			'__cmd' => 'ITEM SUBITEM',
-			'__eg' => '3 1',
+			'__cmd' => 'ITEM,SUBITEM',
+			'__eg' => '3,1',
 			'__return' => '[r]noedit[/r] to block label editing.',
 			'__notes' => 'Currently only the first column is editable.',
 		),
 		"labelend" => array(
 			'__desc' => "When the user clicks elsewhere or presses RETURN while editing or clicks somewhere else but edited the text.",
-			'__cmd' => 'ITEM SUBITEM VALUE',
-			'__eg' => '3 1 New text value',
+			'__cmd' => 'ITEM,SUBITEM,VALUE',
+			'__eg' => '3,1,New text value',
 			'__params' => array(
 				'ITEM' => 'The item being edited.',
 				'SUBITEM' => 'The subitem being edited.',
@@ -994,8 +994,8 @@ function get_events_listview(&$EVENTS) {
 		),
 		"labelcancel" => array(
 			'__desc' => "When the user presses ESC while editing or clicks somewhere else without editing the text.",
-			'__cmd' => 'ITEM SUBITEM',
-			'__eg' => '3 1',
+			'__cmd' => 'ITEM,SUBITEM',
+			'__eg' => '3,1',
 			'__params' => array(
 				'ITEM' => 'The item being edited.',
 				'SUBITEM' => 'The subitem being edited.',
@@ -1037,8 +1037,8 @@ function get_events_listview(&$EVENTS) {
 		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 		"selected" => array(
 			'__desc' => 'Triggered when you select an item.',
-			'__cmd' => 'LINE COLUMN',
-			'__eg' => '4 2',
+			'__cmd' => 'LINE,COLUMN',
+			'__eg' => '4,2',
 			'__params' => array(
 				'LINE' => 'The line selected.',
 				'COLUMN' => 'The column selected.',
@@ -1047,8 +1047,8 @@ function get_events_listview(&$EVENTS) {
 		),
 		"deselected" => array(
 			'__desc' => 'Triggered when an item is deselected.',
-			'__cmd' => 'LINE COLUMN',
-			'__eg' => '4 2',
+			'__cmd' => 'LINE,COLUMN',
+			'__eg' => '4,2',
 			'__params' => array(
 				'LINE' => 'The line selected.',
 				'COLUMN' => 'The column selected.',

@@ -285,8 +285,8 @@ function get_events_richedit(&$EVENTS) {
 		),
 		'link' => array(
 		    '__desc' => "When a link is clicked.",
-	        '__cmd' => 'EVENT LINK',
-	        '__eg' => 'sclick http://github.com/twig/dcxdll',
+	        '__cmd' => 'EVENT,LINK',
+	        '__eg' => 'sclick,http://github.com/twig/dcxdll',
 	        '__params' => array(
             	'EVENT' => array(
 					'__desc' => "Mouse event which triggered the callback",
@@ -301,8 +301,8 @@ function get_events_richedit(&$EVENTS) {
 		),
 		'selchange' => array(
 			'__desc' => "When the selection range is changed.",
-			'__cmd' => 'START END',
-			'__eg' => '2 6',
+			'__cmd' => 'START,END',
+			'__eg' => '2,6',
 			'__params' => array(
 				'START' => 'The starting position of the selection range.',
 				'END' => 'The ending position of the selection range.',

@@ -186,8 +186,8 @@ function get_events_web2ctrl(&$EVENTS) {
 		),
 		"favicon" => array(
 			'__desc' => "When the favicon changes.",
-			'__cmd' => '[changed|saved|failed] [URL|FILE]',
-			'__eg' => 'changed https://www.sample.com/favicon.ico',
+			'__cmd' => '[changed|saved|failed],[URL|FILE]',
+			'__eg' => 'changed,https://www.sample.com/favicon.ico',
 			'__return' => array(
 				"save filename" => "- return this value to save the favicon. (filename must be the full path to the file)"
 			),
@@ -207,8 +207,8 @@ function get_events_web2ctrl(&$EVENTS) {
 		"help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 		"dl_begin" => array(
 			'__desc' => "When downloading is about to begin.",
-			'__cmd' => 'TOTALBYTES FILENAME',
-			'__eg' => '1000000 c:\downloads\file.zip',
+			'__cmd' => 'TOTALBYTES,FILENAME',
+			'__eg' => '1000000,c:\downloads\file.zip',
 			'__return' => array(
 				"cancel" => "- return this value to block the download.",
 				"change [filename]" => "- return this value to change the filename. (MUST be the full filepath)",
@@ -216,8 +216,8 @@ function get_events_web2ctrl(&$EVENTS) {
 		),
 		"dl_progress" => array(
 			'__desc' => "Downloading progress update.",
-			'__cmd' => 'CURRENT TOTAL FILENAME',
-			'__eg' => '259700 1000000 c:\downloads\file.zip',
+			'__cmd' => 'CURRENT,TOTAL,FILENAME',
+			'__eg' => '259700,1000000,c:\downloads\file.zip',
 			'__params' => array(
 				'CURRENT' => 'Current dowload position.',
 				'TOTAL' => 'Maximum download position.',
@@ -230,8 +230,8 @@ function get_events_web2ctrl(&$EVENTS) {
 		),
 		"dl_canceled" => array(
 			'__desc' => "Download has been canceled.",
-			'__cmd' => 'REASON FILENAME',
-			'__eg' => '1 c:\downloads\file.zip',
+			'__cmd' => 'REASON,FILENAME',
+			'__eg' => '1,c:\downloads\file.zip',
 			'__params' => array(
 				'REASON' => 'The reason WebView2 gave.',
 				'FILENAME' => 'The filename being downloaded too.',

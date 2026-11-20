@@ -810,8 +810,8 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
         	$heading = "$flag";
 			//$syntax = "/cb_alias DNAME $flag ID {$data['__cmd']}";
 
-			if (strlen(str_replace(' ',',',$data['__cmd'])) > 0) {
-				$syntax = str_replace(' ',',',"\$cb_alias(DNAME,$flag,ID,{$data['__cmd']})");
+			if (strlen($data['__cmd']) > 0) {
+				$syntax = "\$cb_alias(DNAME,$flag,ID,{$data['__cmd']})";
 			}
 			else {
 				$syntax = "\$cb_alias(DNAME,$flag,ID)";
@@ -971,8 +971,10 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 		$tmp = "";
 
 		// if example has a value
-		if (strlen($eg) > 0)
-			$tmp = str_replace(' ',',',str_replace("[-EXAMPLE]", $eg, $examplefmt[$ARGS]));
+		if (strlen($eg) > 0) {
+			$tmp = str_replace("[-EXAMPLE]", $eg, $examplefmt[$ARGS]);
+			$tmp = str_replace("[-NSEXAMPLE]", str_replace(' ',',',$eg), $tmp);
+		}
 		// otherwise just use a fixed example
 		else
 			$tmp = $examplefmt[$NOARGS];

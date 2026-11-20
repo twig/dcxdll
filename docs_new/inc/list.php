@@ -276,8 +276,8 @@ function get_events_list(&$EVENTS) {
 		),
 		'itemdrag' => array(
 			'__desc' => "Triggers when an item is dragged.",
-			'__cmd' => 'ITEM_ID ITEM_MOUSEOVER',
-			'__eg' => '5 3',
+			'__cmd' => 'ITEM_ID,ITEM_MOUSEOVER',
+			'__eg' => '5,3',
 		        '__params' => array(
 				'ITEM_ID' => 'The ID of the item dragged.',
 				'ITEM_MOUSEOVER' => 'The ID of the item the mouse is currently over.',
@@ -290,8 +290,8 @@ function get_events_list(&$EVENTS) {
 		),
 		'itemdragfinish' => array(
 			'__desc' => "Triggers when an item has finished dragging.",
-			'__cmd' => 'ITEM_ID ITEM_MOUSEOVER',
-			'__eg' => '5 3',
+			'__cmd' => 'ITEM_ID,ITEM_MOUSEOVER',
+			'__eg' => '5,3',
 		        '__params' => array(
 				'ITEM_ID' => 'The ID of the item dragged.',
 				'ITEM_MOUSEOVER' => 'The ID of the item the mouse is currently over.',

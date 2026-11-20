@@ -141,7 +141,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-a,dcx,4,1,+cv,100,1,$rgb(255,0,0),Button,$chr(9),Tooltip</div></td>
+		<td><div class="example">/xdid -a dcx 4 1 +cv 100 1 $rgb(255,0,0) Button $chr(9) Tooltip</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -232,7 +232,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-c,dcx,4,3,+bc,$rgb(0,0,255),+</div></td>
+		<td><div class="example">/xdid -c dcx 4 3 +bc $rgb(0,0,255) +</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -319,7 +319,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-d,dcx,4,6</div></td>
+		<td><div class="example">/xdid -d dcx 4 6</div></td>
 	</tr>
 </table>
 <br />
@@ -333,7 +333,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-i,dcx,4,7,2</div></td>
+		<td><div class="example">/xdid -i dcx 4 7 2</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use 0 for no icon.</td></tr></table>
 <br />
@@ -347,7 +347,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-j,dcx,4,50,100</div></td>
+		<td><div class="example">/xdid -j dcx 4 50 100</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only applies on toolbars with the <a class='style' href='toolbar.htm#style.list'>list</a> style set.</td></tr></table>
 <br />
@@ -361,7 +361,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-l,dcx,4,16</div></td>
+		<td><div class="example">/xdid -l dcx 4 16</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -392,7 +392,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-m,dcx,4,1</div></td>
+		<td><div class="example">/xdid -m dcx 4 1</div></td>
 	</tr>
 </table>
 <br />
@@ -406,7 +406,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-q,dcx,4,2,New,TipText</div></td>
+		<td><div class="example">/xdid -q dcx 4 2 New TipText</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">TEXT</a> is optional.</td></tr></table>
 <br />
@@ -434,7 +434,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-t,dcx,4,2,+d<br />/xdid,-t,dcx,4,2-7,+d<br /></div></td>
+		<td><div class="example">/xdid -t dcx 4 2 +d<br />/xdid -t dcx 4 2-7 +d<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -481,7 +481,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-u,dcx,4,20,15</div></td>
+		<td><div class="example">/xdid -u dcx 4 20 15</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If a button has been added with the <a class="value">+a</a> flag this command will not change the width.</td></tr></table>
 <br />
@@ -495,7 +495,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-v,dcx,4,2,New,Text</div></td>
+		<td><div class="example">/xdid -v dcx 4 2 New Text</div></td>
 	</tr>
 </table>
 <br />
@@ -509,7 +509,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-w,dcx,4,+n,113,shell32.dll</div></td>
+		<td><div class="example">/xdid -w dcx 4 +n 113 shell32.dll</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -568,7 +568,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,3).dropdownpoint</div></td>
+		<td><div class="example">$xdid(dcx, 4, 3).dropdownpoint</div></td>
 	</tr>
 </table>
 <br />
@@ -582,7 +582,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,1).icon</div></td>
+		<td><div class="example">$xdid(dcx, 4, 1).icon</div></td>
 	</tr>
 </table>
 <br />
@@ -624,7 +624,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,6).state</div></td>
+		<td><div class="example">$xdid(dcx, 4, 6).state</div></td>
 	</tr>
 </table>
 <br />
@@ -638,7 +638,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,1).text</div></td>
+		<td><div class="example">$xdid(dcx, 4, 1).text</div></td>
 	</tr>
 </table>
 <br />
@@ -652,7 +652,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,1).tooltip</div></td>
+		<td><div class="example">$xdid(dcx, 4, 1).tooltip</div></td>
 	</tr>
 </table>
 <br />
@@ -800,7 +800,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1009,7 +1009,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -1027,7 +1027,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control,type="toolbar",iconsize="16"&gt;</div></td>
+		<td><div class="example">&lt;control type="toolbar" iconsize="16"&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1046,7 +1046,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;item,pos="1",icon="1",text="item,text",flags="+ac",textcolour="255"&gt;</div></td>
+		<td><div class="example">&lt;item pos="1" icon="1" text="item text" flags="+ac" textcolour="255"&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1235,7 +1235,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th November, 26</td>
+		<td style="text-align: right;">Last Updated: 20th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

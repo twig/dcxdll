@@ -212,8 +212,8 @@ function get_events_rebar(&$EVENTS) {
 		),
 		'change' => array(
 			'__desc' => 'When the rebar controls height changes because of band movement.',
-			'__cmd' => 'W H',
-			'__eg' => '150 25',
+			'__cmd' => 'W,H',
+			'__eg' => '150,25',
 			'__params' => array(
 				'W' => 'New rebar control width.',
 				'H' => 'New rebar control height.',

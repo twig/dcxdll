@@ -146,7 +146,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-f,dcx,4,+abs,ansi,10,Tahoma</div></td>
+		<td><div class="example">/xdid -f dcx 4 +abs ansi 10 Tahoma</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -201,7 +201,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-h,dcx,4,+c,1000<br />/xdid,-h,dcx,4,+ov,300<br /></div></td>
+		<td><div class="example">/xdid -h dcx 4 +c 1000<br />/xdid -h dcx 4 +ov 300<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -252,7 +252,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-p,dcx,4,10,10,200,120</div></td>
+		<td><div class="example">/xdid -p dcx 4 10 10 200 120</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -283,7 +283,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-s,dcx,4,+c,1000<br />/xdid,-s,dcx,4,+nu,300<br /></div></td>
+		<td><div class="example">/xdid -s dcx 4 +c 1000<br />/xdid -s dcx 4 +nu 300<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -334,7 +334,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-x,dcx,4,+w</div></td>
+		<td><div class="example">/xdid -x dcx 4 +w</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -377,7 +377,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-C,dcx,4,+bk,$rgb(0,0,255)</div></td>
+		<td><div class="example">/xdid -C dcx 4 +bk $rgb(0,0,255)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -420,7 +420,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-E,dcx,4,+c,-d</div></td>
+		<td><div class="example">/xdid -E dcx 4 +c -d</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -493,7 +493,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-J,dcx,4,+r,wait</div></td>
+		<td><div class="example">/xdid -J dcx 4 +r wait</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -584,7 +584,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-M,dcx,4,Mark,info,here</div></td>
+		<td><div class="example">/xdid -M dcx 4 Mark info here</div></td>
 	</tr>
 </table>
 <br />
@@ -598,7 +598,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-R,dcx,4,+f,$rgb(255,0,255),control_shape.bmp<br />/xdid,-R,dcx,4,+c<br /></div></td>
+		<td><div class="example">/xdid -R dcx 4 +f $rgb(255,0,255) control_shape.bmp<br />/xdid -R dcx 4 +c<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -690,7 +690,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-T,dcx,4,This,is,the,tooltip,text</div></td>
+		<td><div class="example">/xdid -T dcx 4 This is the tooltip text</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You must call <a class='value' href='xdialog.htm#xdialog.big.T'>/xdialog -T</a> to create the tooltip before you can use tooltips with any control. (Except controls which naturally have their own tooltips, such as <a class='value' href='treeview.htm'>treeview</a>, <a class='value' href='listview.htm'>listview</a>, <a class='value' href='toolbar.htm'>toolbar</a>, etc)</li><li>The <a class='value' href='listview.htm'>listview</a> has its own <a class='value' href='listview.htm#xdid.big.T'>/xdid -T</a> command.</li></ul></td></tr></table>
 <br />
@@ -718,7 +718,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-Z,dcx,4,50</div></td>
+		<td><div class="example">/xdid -Z dcx 4 50</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This behaviour only affects the <a href="listview.htm">listview</a> control in <a class="style" href="listview.htm#style.report">report</a> mode. We are working on a fix for the other modes.</td></tr></table>
 <br />
@@ -1156,7 +1156,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1365,7 +1365,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -1437,7 +1437,7 @@ DCX's /xdid commands now support multiple control IDs, similarly to mIRC's synta
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th November, 26</td>
+		<td style="text-align: right;">Last Updated: 20th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

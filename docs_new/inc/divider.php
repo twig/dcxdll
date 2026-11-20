@@ -78,18 +78,18 @@ function get_events_divider(&$EVENTS) {
 	    "help" => "Launched when you click on a control using the [v]?[/v] contexthelp button.",
 		"dragbegin" => array(
 			'__desc' => "When the user starts dragging the divider.",
-			'__cmd' => 'X Y',
-			'__eg' => '220 300',
+			'__cmd' => 'X,Y',
+			'__eg' => '220,300',
 		),
 		"drag" => array(
 			'__desc' => "When the user is dragging the divider.",
-			'__cmd' => 'X Y',
-			'__eg' => '220 354',
+			'__cmd' => 'X,Y',
+			'__eg' => '220,354',
 		),
 		"dragfinish" => array(
 			'__desc' => "When the user has finished dragging the divider.",
-			'__cmd' => 'X Y',
-			'__eg' => '220 403',
+			'__cmd' => 'X,Y',
+			'__eg' => '220,403',
 		),
 	);
 }

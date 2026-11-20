@@ -684,14 +684,14 @@ function get_events_xdialog(&$EVENTS) {
 		),
 		"sizing" => array(
 			'__desc' => 'When the dialog is being resized where $4 is the new width and $5 is the new height.',
-			'__cmd' => 'W H',
-			'__eg' => '90 60',
+			'__cmd' => 'W,H',
+			'__eg' => '90,60',
 			'__isdialog' => true,
 		),
 		"changing" => array(
 			'__desc' => 'When the dialog is about to be resized or moved. The parameters passed are the dimensions which the dialog is about to become.',
-			'__cmd' => 'TYPE X Y W H',
-			'__eg' => 'sizing 50 30 300 150',
+			'__cmd' => 'TYPE,X,Y,W,H',
+			'__eg' => 'both,50,30,300,150',
 			'__params' => array(
 				'TYPE' => array(
 					'__desc' => "Type of changing event.",
@@ -870,8 +870,8 @@ function get_events_xdialog(&$EVENTS) {
         ),
 		'mwheel' => array(
             '__desc' => 'Event triggered when the mouse wheel is scrolled.',
-            '__cmd' => '+FLAGS DIRECTION',
-			'__eg' => '+cs up',
+			'__cmd' => '+FLAGS,DIRECTION',
+			'__eg' => '+cs,up',
             '__params' => array(
             	'+FLAGS' => array(
 			        '__desc' => "Keystate flags during scroll.",
@@ -895,8 +895,8 @@ function get_events_xdialog(&$EVENTS) {
 		),
                 'zlayershow' => array(
 			'__desc' => 'Event triggered when a control is about to be displayed by calling [cmd]/xdialog -z[/cmd] with the [f]+s[/f] flag.',
-                        '__cmd' => 'ZINDEX CID',
-                        '__eg' => '1 4',
+			'__cmd' => 'ZINDEX,CID',
+			'__eg' => '1,4',
                         '__params' => array(
                                 'ZINDEX' => 'The internal control index being shown.',
                                 'CID' => 'The ID of the control being shown.',
@@ -905,8 +905,8 @@ function get_events_xdialog(&$EVENTS) {
                 ),
 		'dpichanged' => array(
 			'__desc' => 'Event triggered when the dialogs dpi has changed. (This will only be triggered once mIRC updates its dpi awareness)',
-			'__cmd' => 'NEWDPI X Y W H OLDDPI',
-			'__eg' => '120 4 4 20 20 96',
+			'__cmd' => 'NEWDPI,X,Y,W,H,OLDDPI',
+			'__eg' => '120,4,4,20,20,96',
 			'__params' => array(
 				'NEWDPI' => 'The windows new dpi.',
 				'X' => 'Suggested X pos.',

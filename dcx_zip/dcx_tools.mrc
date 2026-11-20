@@ -203,8 +203,8 @@ alias xdidtok {
 alias tab {
   var %i = 1, %tab
   while (%i <= $0) {
-    if ($eval($+($,%i),2) != $null) {
-      %tab = $instok(%tab,$eval($+($,%i),2),$calc($numtok(%tab,9) + 1),9)
+    if ($($+($,%i),2) != $null) {
+      %tab = $instok(%tab,$($+($,%i),2),$calc($numtok(%tab,9) + 1),9)
     }
     inc %i
   }

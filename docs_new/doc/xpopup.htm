@@ -348,7 +348,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpopup,-b,mymenu,mc.bmp</div></td>
+		<td><div class="example">/xpopup -b mymenu mc.bmp</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Please take note that the image is stretched to fit the menu item rectangle.</li><li>Only BMP images are supported through this command if GDI+ is not available.</li><li>If <a class="param">IMAGEFILE</a> is not specified, then the current image will be removed.</li><li>In <a class='style' href='xpopup.htm#style.custombig'>custombig</a> style the image is stretched over the whole menu not the individual items.</li></ul></td></tr></table>
 <br />
@@ -362,7 +362,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpopup,-c,mymenu,office2003rev</div></td>
+		<td><div class="example">/xpopup -c mymenu office2003rev</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -455,7 +455,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpopup,-g,mymenu,+a,1,20<br />/xpopup,-g,mymenu,+a,1,:1300,20-26<br /></div></td>
+		<td><div class="example">/xpopup -g mymenu +a 1 20<br />/xpopup -g mymenu +a 1 :1300,20-26<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -478,7 +478,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpopup,-i,mymenu,+g,113,shell32.dll<br />/xpopup,-i,mymenu,+,1,13,20-26,shell32.dll<br /></div></td>
+		<td><div class="example">/xpopup -i mymenu +g 113 shell32.dll<br />/xpopup -i mymenu + 1,13,20-26 shell32.dll<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -535,7 +535,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpopup,-l,mymenu,2,$rgb(255,0,0)</div></td>
+		<td><div class="example">/xpopup -l mymenu 2 $rgb(255,0,0)</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can specify <a class="value">default</a> in <a class="param">COLOR</a> to reset it to the default value.</li><li>[N] can be a range of colours 1,3-6,14 etc..</li></ul></td></tr></table>
 <br />
@@ -563,7 +563,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpopup,-p,mymenu,$rgb(255,0,0),$rgb(0,0,255),...,$rgb(0,255,0)</div></td>
+		<td><div class="example">/xpopup -p mymenu $rgb(255,0,0) $rgb(0,0,255) ... $rgb(0,255,0)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -676,7 +676,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpopup,-s,mymenu,+,100,100</div></td>
+		<td><div class="example">/xpopup -s mymenu + 100 100</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -739,7 +739,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpopup,-t,mymenu,officexp</div></td>
+		<td><div class="example">/xpopup -t mymenu officexp</div></td>
 	</tr>
 </table>
 <br />
@@ -753,7 +753,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpopup,-x,mymenu,+dp</div></td>
+		<td><div class="example">/xpopup -x mymenu +dp</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -792,7 +792,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpopup,-M,mymenu,additional,information</div></td>
+		<td><div class="example">/xpopup -M mymenu additional information</div></td>
 	</tr>
 </table>
 <br />
@@ -806,7 +806,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpopup,-R,mymenu,+r,1<br />/xpopup,-R,mymenu,+a,150<br />/xpopup,-R,mymenu,+A,240<br />/xpopup,-R,mymenu,+t,1<br />/xpopup,-R,mymenu,+R,1<br /></div></td>
+		<td><div class="example">/xpopup -R mymenu +r 1<br />/xpopup -R mymenu +a 150<br />/xpopup -R mymenu +A 240<br />/xpopup -R mymenu +t 1<br />/xpopup -R mymenu +R 1<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -924,7 +924,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xpopup(mymenu,,3).color</div></td>
+		<td><div class="example">$xpopup(mymenu, 3).color</div></td>
 	</tr>
 </table>
 <br />
@@ -1110,7 +1110,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpop,-a,mymenu,2,1,$chr(9),+,1,1,Menu,Item,1,$chr(9),Tooltip!</div></td>
+		<td><div class="example">/xpop -a mymenu 2 1 $chr(9) + 1 1 Menu Item 1 $chr(9) Tooltip!</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1211,7 +1211,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpop,-i,mymenu,2,1,$chr(9),3</div></td>
+		<td><div class="example">/xpop -i mymenu 2 1 $chr(9) 3</div></td>
 	</tr>
 </table>
 <br />
@@ -1225,7 +1225,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpop,-s,mymenu,2,1,$chr(9),+cg</div></td>
+		<td><div class="example">/xpop -s mymenu 2 1 $chr(9) +cg</div></td>
 	</tr>
 </table>
 <br />
@@ -1239,7 +1239,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpop,-t,mymenu,2,1,$chr(9),$eval($me,,0)</div></td>
+		<td><div class="example">/xpop -t mymenu 2 1 $chr(9) $eval($me, 0)</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Remember to use mIRCs $eval(expression,0) to prevent the mIRC evaluation of the $idents that your text contains.</td></tr></table>
 <br />
@@ -1253,7 +1253,7 @@ If this data needs to be reloaded when the menu is opened then save it to a %var
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpop,-T,mymenu,2,1,$chr(9),This,is,a,tooltip!</div></td>
+		<td><div class="example">/xpop -T mymenu 2 1 $chr(9) This is a tooltip!</div></td>
 	</tr>
 </table>
 <br />
@@ -1775,7 +1775,7 @@ The only difference is that you can load multiple icons by seperating the indexe
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th November, 26</td>
+		<td style="text-align: right;">Last Updated: 20th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

@@ -101,7 +101,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-a,dcx,4,$rgb(255,0,0),red</div></td>
+		<td><div class="example">/xdid -a dcx 4 $rgb(255,0,0) red</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -124,7 +124,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-c,dcx,4,5</div></td>
+		<td><div class="example">/xdid -c dcx 4 5</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This only affects the control when in listbox or colourgrid mode.</td></tr></table>
 <br />
@@ -138,7 +138,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-d,dcx,4,6</div></td>
+		<td><div class="example">/xdid -d dcx 4 6</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This only affects the control when in listbox or colourgrid mode.</td></tr></table>
 <br />
@@ -152,7 +152,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-i,dcx,4,2,$rgb(0,255,0),green</div></td>
+		<td><div class="example">/xdid -i dcx 4 2 $rgb(0,255,0) green</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This only affects the control when in listbox or colourgrid mode.</td></tr></table>
 <br />
@@ -180,7 +180,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-o,dcx,4,2,$rgb(0,255,0),green</div></td>
+		<td><div class="example">/xdid -o dcx 4 2 $rgb(0,255,0) green</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This only affects the control when in listbox or colourgrid mode.</td></tr></table>
 <br />
@@ -208,7 +208,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-s,dcx,4,1</div></td>
+		<td><div class="example">/xdid -s dcx 4 1</div></td>
 	</tr>
 </table>
 <br />
@@ -222,7 +222,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-t,dcx,4,woohoo</div></td>
+		<td><div class="example">/xdid -t dcx 4 woohoo</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Supplying an empty text clears the editbox.</td></tr></table>
 <br />
@@ -250,7 +250,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid,-C,dcx,4,200,listview,0,0,100,100,report,showgrid</div></td>
+		<td><div class="example">/xdid -C dcx 4 200 listview 0 0 100 100 report showgrid</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This removes any pre-existing drop controls.</td></tr></table>
 <br />
@@ -282,7 +282,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,1).colour</div></td>
+		<td><div class="example">$xdid(dcx, 4, 1).colour</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use a value of <a class="value">0</a> for <a class="param">N</a> to retrieve the colour of the editbox.</li><li>This only affects the control when in colourgrid mode.</li></ul></td></tr></table>
 <br />
@@ -366,7 +366,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx,,4,,1).text</div></td>
+		<td><div class="example">$xdid(dcx, 4, 1).text</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use a value of <a class="value">0</a> for <a class="param">N</a> to retrieve the text of the editbox.</li><li>This only affects the control when in listbox or colourgrid mode.</li></ul></td></tr></table>
 <br />
@@ -482,7 +482,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;control,type="box",class="bob"/&gt;</div></td>
+		<td><div class="example">&lt;control type="box" class="bob"/&gt;</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -691,7 +691,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">&lt;calltemplate,name="mycontrol"&gt;</div></td>
+		<td><div class="example">&lt;calltemplate name="mycontrol"&gt;</div></td>
 	</tr>
 </table>
 <br />
@@ -743,7 +743,7 @@
 	<tr>
 	    <td><a href="https://github.com/twig/dcxdll/issues">Contact</a></td>
 		<td style="text-align: center;">© 2005-2026</td>
-		<td style="text-align: right;">Last Updated: 19th November, 26</td>
+		<td style="text-align: right;">Last Updated: 20th November, 26</td>
 	</tr>
 </table>
 <div style="text-align: center;">

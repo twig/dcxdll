@@ -337,8 +337,8 @@ function get_events_xdid(&$EVENTS) {
 	$EVENTS = array(
 		"sizing" => array(
 			'__desc' => 'When the control is resized, where $3 is the new width and $4 is the new height.',
-			'__cmd' => 'W H',
-		    '__eg' => '90 60',
+			'__cmd' => 'W,H',
+		    '__eg' => '90,60',
 		),
 		"mouse" => 'When the mouse hovers a control where $3 is the ID of the control.',
 		"mouseenter" => 'When the mouse enters a control where $3 is the ID of the control.',
@@ -347,8 +347,8 @@ function get_events_xdid(&$EVENTS) {
 		"focusout" => 'Triggered when a control loses the focus where $3 is the control ID.',
 		'mwheel' => array(
             '__desc' => 'Event triggered when the mouse wheel is scrolled.',
-            '__cmd' => '+FLAGS DIRECTION',
-			'__eg' => '+cs up',
+            '__cmd' => '+FLAGS,DIRECTION',
+			'__eg' => '+cs,up',
             '__params' => array(
             	'+FLAGS' => array(
 			        '__desc' => "Keystate flags during scroll.",
@@ -371,8 +371,8 @@ function get_events_xdid(&$EVENTS) {
 		),
 		'dpichanged' => array(
 			'__desc' => 'Event triggered when the dialogs dpi has changed. (This will only be triggered once mIRC updates its dpi awareness)',
-			'__cmd' => 'NEWDPI X Y W H OLDDPI',
-			'__eg' => '120 4 4 20 20 96',
+			'__cmd' => 'NEWDPI,X,Y,W,H,OLDDPI',
+			'__eg' => '120,4,4,20,20,96',
 			'__params' => array(
 				'NEWDPI' => 'The windows new dpi.',
 				'X' => 'Suggested X pos.',
