@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.37
+// v1.38
 
 #include <tchar.h>
 #include <wtypes.h>
@@ -177,6 +177,27 @@ struct ci_wchar_traits
 using ci_stringview = std::basic_string_view<char, ci_char_traits>;
 using ci_wstringview = std::basic_string_view<wchar_t, ci_wchar_traits>;
 
+#ifdef __AFXSTR_H__
+// These allow CString to work directly in std::format()
+template<>
+struct std::formatter<CStringA, char> : std::formatter<std::string, char>
+{
+	auto format(const CStringA& s, format_context& ctx) const
+	{
+		return std::formatter<std::string, char>::format(std::format("{}", s.GetString()), ctx);
+	}
+};
+
+template<>
+struct std::formatter<CStringW, wchar_t> : std::formatter<std::wstring, wchar_t>
+{
+	auto format(const CStringW& s, wformat_context& ctx) const
+	{
+		return std::formatter<std::wstring, wchar_t>::format(std::format(L"{}", s.GetString()), ctx);
+	}
+};
+#endif
+
 namespace details
 {
 	template<class _Ty>
@@ -312,6 +333,13 @@ namespace details
 	template <class T>
 	concept IsSTDString = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, std::string> || std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, std::wstring>;
 
+#ifdef __AFXSTR_H__
+	template <class T>
+	concept IsCString = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, CStringA> || std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, CStringW>;
+#else
+	template <class T>
+	concept IsCString = false;
+#endif
 	template <class T>
 	concept IsPointer = std::is_pointer_v<T>;
 
@@ -1790,7 +1818,7 @@ auto _ts_bstrtoul(_In_z_ const T* const buf) noexcept
 /// <param name="contex"></param>
 /// <returns></returns>
 template <details::IsPODText T>
-auto _ts_strtok(_Inout_opt_z_ T* const buf, _In_z_ const T * delim, _Inout_ _Deref_prepost_opt_z_ T** contex) noexcept
+auto _ts_strtok(_Inout_opt_z_ T* const buf, _In_z_ const T* delim, _Inout_ _Deref_prepost_opt_z_ T** contex) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
@@ -2051,6 +2079,25 @@ template <details::IsFloat T, details::IsSTDString Input>
 /// </summary>
 /// <typeparam name="T">- The number type to convert too.</typeparam>
 /// <returns>The string converted to a number.</returns>
+template <details::IsFloat T, details::IsCString Input>
+[[nodiscard]] T _ts_to_(_In_ const Input & str) noexcept
+{
+	static_assert(is_Numeric_v<T>, "Type T must be (float, double, or long double)");
+
+	if constexpr (std::is_same_v<float, std::remove_all_extents_t<T>>)
+		return gsl::narrow_cast<T>(_ts_strtof(str.GetString()));
+	else
+		if constexpr (std::is_same_v<double, std::remove_all_extents_t<T>>)
+			return gsl::narrow_cast<T>(_ts_strtod(str.GetString()));
+		else
+			return gsl::narrow_cast<T>(_ts_strtold(str.GetString()));
+}
+
+/// <summary>
+/// Convert to numeric type
+/// </summary>
+/// <typeparam name="T">- The number type to convert too.</typeparam>
+/// <returns>The string converted to a number.</returns>
 template <details::IsFloat T, details::IsPODText Input>
 [[nodiscard]] T _ts_to_(_In_ const Input * str) noexcept
 {
@@ -2088,6 +2135,31 @@ template <details::IsInteger T, details::IsSTDString Input>
 		return gsl::narrow_cast<T>(_ts_strtoimax<typename Input::value_type>(str.c_str(), nullptr, 10));
 	else
 		return gsl::narrow_cast<T>(_ts_strtoumax<typename Input::value_type>(str.c_str(), nullptr, 10));
+}
+
+/// <summary>
+/// Convert to numeric type
+/// NB: type bool only checks the first character. An empty string is considered to be false.
+/// </summary>
+/// <typeparam name="T">- The number type to convert too.</typeparam>
+/// <returns>The string converted to a number.</returns>
+template <details::IsInteger T, details::IsCString Input>
+[[nodiscard]] T _ts_to_(_In_ const Input & str) noexcept
+{
+	static_assert(is_Numeric_v<T>, "Type T must be (int, long, ....)");
+
+	// no floats etc..
+	if constexpr (std::is_same_v<bool, T>)
+	{
+		//return ((str[0] != L'0') && (str[0] != 0));		// is first character is zero, then its a false, otherwise its a true
+		if ((str[0] != L'0') && (str[0] != 0))		// is first character is zero, then its a false, otherwise its a true
+			return (str != L"$false");
+		return false;
+	}
+	else if constexpr (std::is_signed_v<T>)
+		return gsl::narrow_cast<T>(_ts_strtoimax<typename Input::XCHAR>(str.GetString(), nullptr, 10));
+	else
+		return gsl::narrow_cast<T>(_ts_strtoumax<typename Input::XCHAR>(str.GetString(), nullptr, 10));
 }
 
 /// <summary>
