@@ -3064,11 +3064,107 @@ void AddFileIcons(HIMAGELIST himl, TString& filename, const bool bLarge, const i
 #endif
 }
 
+#if DCX_DEBUG_OUTPUT
+// Source - https://stackoverflow.com/a/4597974
+// Posted by Mordachai, modified by community. See post 'Timeline' for change history
+// Retrieved 2026-11-21, License - CC BY-SA 3.0
+
+/////////////////////////////
+// ComException
+
+//CString FormatMessage(HRESULT result)
+//{
+//	CString strMessage;
+//	WORD facility = HRESULT_FACILITY(result);
+//	CComPtr<IErrorInfo> iei;
+//	if (S_OK == GetErrorInfo(0, &iei) && iei)
+//	{
+//		// get the error description from the IErrorInfo 
+//		BSTR bstr = NULL;
+//		if (SUCCEEDED(iei->GetDescription(&bstr)))
+//		{
+//			// append the description to our label
+//			strMessage.Append(bstr);
+//
+//			// done with BSTR, do manual cleanup
+//			SysFreeString(bstr);
+//		}
+//	}
+//	else if (facility == FACILITY_ITF)
+//	{
+//		// interface specific - no standard mapping available
+//		strMessage.Append(_T("FACILITY_ITF - This error is interface specific.  No further information is available."));
+//	}
+//	else
+//	{
+//		// attempt to treat as a standard, system error, and ask FormatMessage to explain it
+//		CString error;
+//		CErrorMessage::FormatMessage(error, result); // <- This is just a wrapper for ::FormatMessage, left to reader as an exercise :)
+//		if (!error.IsEmpty())
+//			strMessage.Append(error);
+//	}
+//	return strMessage;
+//}
+
+#include <wil/com.h>
+
+TString dcxFormatErrorMessage(HRESULT result)
+{
+	TString strMessage;
+	const WORD facility = HRESULT_FACILITY(result);
+	wil::com_ptr<IErrorInfo> iei;
+	if (S_OK == GetErrorInfo(0, &iei) && iei)
+	{
+		// get the error description from the IErrorInfo 
+		BSTR bstr = nullptr;
+		if (SUCCEEDED(iei->GetDescription(&bstr)))
+		{
+			// append the description to our label
+
+			strMessage = bstr;
+
+			// done with BSTR, do manual cleanup
+			SysFreeString(bstr);
+		}
+	}
+	else if (facility == FACILITY_ITF)
+	{
+		// interface specific - no standard mapping available
+		strMessage = _T("FACILITY_ITF - This error is interface specific.  No further information is available.");
+	}
+	else
+	{
+		// attempt to treat as a standard, system error, and ask FormatMessage to explain it
+		constexpr DWORD errBufSize = 16U;
+		if (LPTSTR errBuf{ nullptr }; FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, result, 0U, reinterpret_cast<LPTSTR>(&errBuf), errBufSize, nullptr) != 0)
+		{
+			Auto(LocalFree(errBuf));
+			if (!_ts_isEmpty(errBuf))
+				strMessage = errBuf;
+		}
+	}
+	return strMessage;
+}
+#endif
+
 BOOL dcxGetWindowRect(const HWND hWnd, const LPRECT lpRect) noexcept
 {
 	if ((!hWnd) || (!lpRect))
 		return FALSE;
 
+#if DCX_DEBUG_OUTPUT
+	// as described in a comment at http://msdn.microsoft.com/en-us/library/ms633519(VS.85).aspx
+	// GetWindowRect does not return the real size of a window if you are using vista with areo glass
+	// using DwmGetWindowAttribute now to fix that (fixes bug 685)
+	if (Dcx::DwmModule.isUseable())
+	{
+		const auto hRes = DcxDWMModule::dcxDwmGetWindowAttribute(hWnd, DWMWA_EXTENDED_FRAME_BOUNDS, lpRect, sizeof(RECT));
+		if (hRes == S_OK)
+			return TRUE;
+		Dcx::error(L"DcxDWMModule::dcxDwmGetWindowAttribute()", std::format(L"Failed to get DWM RECT: {}", dcxFormatErrorMessage(hRes)).c_str());
+}
+	return GetWindowRect(hWnd, lpRect);
+#else
 	// as described in a comment at http://msdn.microsoft.com/en-us/library/ms633519(VS.85).aspx
 	// GetWindowRect does not return the real size of a window if you are using vista with areo glass
 	// using DwmGetWindowAttribute now to fix that (fixes bug 685)
@@ -3076,6 +3172,7 @@ BOOL dcxGetWindowRect(const HWND hWnd, const LPRECT lpRect) noexcept
 		return (DcxDWMModule::dcxDwmGetWindowAttribute(hWnd, DWMWA_EXTENDED_FRAME_BOUNDS, lpRect, sizeof(RECT)) == S_OK);
 
 	return GetWindowRect(hWnd, lpRect);
+#endif
 }
 /*
 	*	DrawRotatedText() function taken from ms example & modified for our needs.
