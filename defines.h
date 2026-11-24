@@ -225,7 +225,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  "72"
+#define DLL_DEV_BUILD  "73"
 #define DCXML_VERSION			1
 #define DCXML_DIALOG_VERSION	2
 #define DCXML_POPUP_VERSION		2
@@ -392,6 +392,7 @@ namespace Dcx
 }
 
 #define UMAX_PATH static_cast<size_t>(MAX_PATH)
+#define STRINGSUPPORT_STRTOUL 1
 
 #include "AutoRelease.h"
 
@@ -441,6 +442,15 @@ namespace Dcx
 // --------------------------------------------------
 #ifndef LPNMLVDISPINFO
 #define LPNMLVDISPINFO LPNMLVDISPINFOW
+#endif
+
+// --------------------------------------------------
+// Treeview stuff
+// --------------------------------------------------
+#ifndef TVM_SETBORDER
+#define TVM_SETBORDER (TV_FIRST + 35)
+#define TVSBF_XBORDER 0x00000001
+#define TVSBF_YBORDER 0x00000002
 #endif
 
 // --------------------------------------------------
@@ -726,6 +736,15 @@ struct xmlTemplate
 {
 	TString tsName;
 	const TiXmlElement* xTemplate{}; // pointer to this template in the xml document, ONLY valid while doc exists!
+
+	xmlTemplate() = default;
+
+	xmlTemplate(const TString& tsName, const TiXmlElement* xTemplate) noexcept
+		: tsName(tsName), xTemplate(xTemplate)
+	{
+	}
+
+	bool operator==(const xmlTemplate& other) const = default;
 };
 using VectorOfTemplates = std::vector<xmlTemplate>; //!< Vector of XML templates in dcxml
 
