@@ -481,6 +481,17 @@ namespace Dcx
 				}, [](HICON hIcon) noexcept { if (hIcon) DestroyIcon(hIcon); }, filename, fIndex, bLarge))
 		{
 		}
+
+		// calls LoadIconWithScaleDown()
+		dcxIconResource(const TString& filename, int fIndex, int iSize)
+			: dcxResource(make_resource([](const TString& filename, int iSize) noexcept
+				{
+					HICON m_hIcon = nullptr;
+					LoadIconWithScaleDown(nullptr, filename.to_chr(), iSize, iSize, &m_hIcon);
+					return m_hIcon;
+				}, [](HICON hIcon) noexcept { if (hIcon) DestroyIcon(hIcon); }, filename, iSize))
+		{
+		}
 	};
 
 	struct dcxHDCResource
@@ -1304,6 +1315,8 @@ namespace Dcx
 	{
 		struct iter
 		{
+			using iterator_category = std::forward_iterator_tag;
+
 			T operator * () const noexcept { return n; }
 			iter& operator ++() noexcept { ++n; return *this; }
 			friend
@@ -1323,6 +1336,8 @@ namespace Dcx
 		};
 		struct reverse_iter
 		{
+			using iterator_category = std::forward_iterator_tag;
+
 			T operator * () const noexcept { return n; }
 			reverse_iter& operator ++() noexcept { --n; return *this; }
 			friend
