@@ -234,6 +234,9 @@ TString FileDialog(const TString& data, const TString& method, const HWND pWnd)
 		case TEXT("filemustexist"_hash):
 			style |= OFN_FILEMUSTEXIST; // (open)
 			break;
+		case TEXT("explorer"_hash):
+			style |= OFN_EXPLORER;	// newer style dialog
+			break;
 		case TEXT("showhidden"_hash):
 			style |= OFN_FORCESHOWHIDDEN; // 2k/xp
 			break;
@@ -252,6 +255,14 @@ TString FileDialog(const TString& data, const TString& method, const HWND pWnd)
 		case TEXT("novalidate"_hash):
 			style |= OFN_NOVALIDATE;
 			break;
+		case TEXT("longnames"_hash):
+			style &= ~OFN_NOLONGNAMES;
+			style |= OFN_LONGNAMES;
+			break;
+		case TEXT("nolongnames"_hash):
+			style &= ~OFN_LONGNAMES;
+			style |= OFN_NOLONGNAMES;
+			break;
 		case TEXT("norecent"_hash):
 			style |= OFN_DONTADDTORECENT; // 2k/xp
 			break;
@@ -263,7 +274,6 @@ TString FileDialog(const TString& data, const TString& method, const HWND pWnd)
 			break;
 		case TEXT("owner"_hash):
 			ofn.hwndOwner = FindOwner(styles, gsl::not_null(pWnd));
-			//ofn.hwndOwner = FindOwner(styles).value_or(pWnd);
 			break;
 		default:
 			break;
